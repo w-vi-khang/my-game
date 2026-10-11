@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "ai-workflow-kit": {
+      "source": {
+        "source": "git",
+        "url": "git@github.com:w-vi-khang/ai-workflow-kit.git"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "ai-workflow-kit@ai-workflow-kit": true
+  }
+}

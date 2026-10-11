@@ -1,0 +1,91 @@
+{
+  "_comment": "Skill riêng của project. Mỗi skill = .claude/skills/local-<ten>/SKILL.md. Tạo bằng skill-authoring --local.",
+  "version": 1,
+  "skills": [
+    {
+      "name": "local-game-ideation",
+      "status": "active",
+      "summary": "Brainstorm ý tưởng game rồi lọc theo pillars và sức một người làm",
+      "keywords": [
+        "y tuong",
+        "brainstorm",
+        "concept",
+        "nghi them",
+        "goi y y tuong",
+        "sang tao"
+      ],
+      "related": [
+        "local-gdd-section"
+      ]
+    },
+    {
+      "name": "local-gdd-section",
+      "status": "active",
+      "summary": "Viết hoặc cập nhật một phần tài liệu thiết kế game trong design/, giữ nhất quán với các phần liên quan",
+      "keywords": [
+        "thiet ke",
+        "gdd",
+        "cot truyen",
+        "nhan vat",
+        "the gioi",
+        "gameplay",
+        "loi choi",
+        "co che",
+        "core loop",
+        "kinh te",
+        "tien trinh",
+        "level",
+        "man choi",
+        "art",
+        "am thanh",
+        "ui",
+        "dieu khien",
+        "ky thuat",
+        "kien truc",
+        "so do",
+        "tech stack"
+      ],
+      "related": [
+        "local-game-ideation",
+        "local-design-review"
+      ]
+    },
+    {
+      "name": "local-game-roadmap",
+      "status": "active",
+      "summary": "Lập hoặc cập nhật lộ trình: milestone, ước lượng, phụ thuộc, kiểm tra phạm vi cho một người làm",
+      "keywords": [
+        "lo trinh",
+        "roadmap",
+        "milestone",
+        "ke hoach",
+        "uoc luong",
+        "timeline",
+        "sprint",
+        "deadline",
+        "pham vi"
+      ],
+      "related": [
+        "local-design-review"
+      ]
+    },
+    {
+      "name": "local-design-review",
+      "status": "active",
+      "summary": "Rà soát toàn bộ thiết kế: mâu thuẫn, lỗ hổng, phình phạm vi, sẵn sàng chuyển milestone",
+      "keywords": [
+        "review thiet ke",
+        "ra soat",
+        "nhat quan",
+        "mau thuan",
+        "kiem tra thiet ke",
+        "danh gia thiet ke",
+        "san sang"
+      ],
+      "related": [
+        "local-gdd-section",
+        "local-game-roadmap"
+      ]
+    }
+  ]
+}

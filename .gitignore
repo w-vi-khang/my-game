@@ -1,0 +1,53 @@
+# --- ai-workflow-kit ---
+.ai/.state/
+.claude/settings.local.json
+
+# --- Client Unity (nằm trong client/) ---
+/client/[Ll]ibrary/
+/client/[Tt]emp/
+/client/[Oo]bj/
+/client/[Bb]uild/
+/client/[Bb]uilds/
+/client/[Ll]ogs/
+/client/[Uu]ser[Ss]ettings/
+/client/[Mm]emoryCaptures/
+/client/[Rr]ecordings/
+/client/[Aa]ssets/Plugins/Editor/JetBrains*
+/client/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/client/[Aa]ssets/[Ss]treamingAssets/aa/*
+# File IDE/Unity tự sinh
+.vs/
+.vscode/
+.idea/
+.gradle/
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+crashlytics-build.properties
+# Bản build
+*.apk
+*.aab
+*.ipa
+*.app
+*.unitypackage
+
+# --- OS ---
+.DS_Store
+Thumbs.db

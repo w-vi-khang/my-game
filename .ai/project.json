@@ -1,0 +1,37 @@
+{
+  "_comment": "Cấu hình kit cho project game. Giai đoạn hiện tại: M0 — KẾ HOẠCH & THIẾT KẾ (chưa làm thành phần nào). Khi bắt đầu một thành phần (client Unity, server...): chạy lại /ai-workflow-kit:init để thêm lệnh verify của thành phần đó.",
+  "name": "my-game",
+  "stack": [
+    "client: unity 6000.4.8f1 (c#)",
+    "thành phần khác: chưa xác định (design/04-tech/components.md)",
+    "game design — kế hoạch & thiết kế (M0)",
+    "làm một mình (solo)"
+  ],
+  "verify": {
+    "_comment": "Mỗi lệnh phải exit 0 khi pass.",
+    "design": "python3 tools/check_design.py"
+  },
+  "checklist": [
+    "Mọi cơ chế/tính năng gắn với ít nhất một pillar trong design/00-vision.md",
+    "Mỗi cơ chế/tính năng ghi rõ thành phần phụ trách (client Unity, server, công cụ...); thành phần mới đã có trong design/04-tech/components.md",
+    "Thuật ngữ dùng đúng design/glossary.md; thuật ngữ mới đã thêm vào glossary",
+    "Thay đổi một phần đã rà các phần liên quan (gameplay ↔ economy ↔ progression ↔ roadmap) — không mâu thuẫn số liệu, tên gọi",
+    "Ý tưởng chưa chốt được đánh dấu [ý tưởng]; chỉ quyết định trong design/decisions/ có trạng thái Chốt mới coi là đã chốt",
+    "Mọi số liệu/khẳng định về game tham khảo, thị trường, công nghệ/dịch vụ (tính năng, giới hạn, giá) có nguồn",
+    "Phạm vi vừa sức một người: tính năng mới có ước lượng công và nằm trong một milestone"
+  ],
+  "_checklist": "Tiêu chí kiểm chứng không chạy bằng lệnh. AI đối chiếu từng mục, ghi đạt/chưa đạt kèm vị trí trong '## Kiểm chứng'.",
+  "format_on_edit": {
+    "_comment": "Để trống trong giai đoạn thiết kế.",
+    "command": ""
+  },
+  "protected_paths": [
+    ".env",
+    ".env.*",
+    "secrets/",
+    "*.pem",
+    "*.keystore",
+    "*.jks"
+  ],
+  "context_warn_kb": 600
+}
