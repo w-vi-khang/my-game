@@ -10,3 +10,50 @@
 | Core loop | Vòng lặp hành động cốt lõi | [02-gameplay/core-loop.md](02-gameplay/core-loop.md) |
 | Thành phần | Một phần độc lập của hệ thống game (client, server, công cụ, dịch vụ...) | [04-tech/components.md](04-tech/components.md) |
 | Client | Thành phần người chơi chạy, làm bằng Unity | [04-tech/components.md](04-tech/components.md) |
+| Sinh vật | Sinh vật phép thuật người chơi sưu tầm; làm việc và chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Loài | Một dạng sinh vật; mỗi loài có nội tại, tộc, nguyên tố, yêu cầu môi trường sống riêng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tộc | Nhóm gồm nhiều loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nguyên tố | Thuộc tính của loài, đơn hoặc đôi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nội tại | Đặc điểm cố hữu của loài, tác dụng cả khi làm việc lẫn chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nhập hồn | Người chơi nhập vào sinh vật, dùng bộ kỹ năng của sinh vật đó | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Mana | Nguồn năng lượng chung của người chơi, dùng cả khi nhập hồn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Môi trường sống | Tập yêu cầu về thế giới phải đạt để một loài trở lại | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Lệnh làm việc | Việc người chơi đặt cho sinh vật trên một vùng (vd trồng cây), gồm nhiều công đoạn. Khác với "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Công đoạn | Một bước của lệnh làm việc (xới đất, gieo hạt, tưới nước, thu hoạch, vận chuyển...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Đình trệ | Công đoạn không làm được (không có đường, thiếu vật tư, kho đầy) — báo cho người chơi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tua nhanh | Tính sản lượng cho thời gian vắng mặt khi người chơi vào lại, không chạy animation | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nhiệm vụ | Nhiệm vụ cốt truyện (chính hoặc phụ) trong một map | [01-story/plot.md](01-story/plot.md) |
+| Mảnh ký ức | Mảnh quá khứ của nhân vật chính; mạch truyện chính xuyên mọi map | [01-story/plot.md](01-story/plot.md) |
+| Map | Vùng có ranh giới trên world của người chơi, có câu chuyện riêng | [01-story/world.md](01-story/world.md) |
+| Seed | Giá trị riêng của mỗi người chơi để sinh phần không thuộc cốt truyện của map | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Khối cốt truyện | Khối thuộc cốt truyện hoặc đường đi tới nó; không phá/đặt được cho tới khi phá đảo map | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phá đảo map | Hoàn thành cốt truyện chính của một map | [02-gameplay/progression.md](02-gameplay/progression.md) |
+| Đảo sandbox | Vùng cô lập cho co-op (spin-off, tạm bỏ) | [ideas.md](ideas.md) |
+| Phép | Phép thuật; gồm phép của pháp sư và phép sinh vật — hai bộ sưu tầm riêng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phép của pháp sư | Phép phục vụ khám phá, phát triển, tấn công đơn giản | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nhóm phép | Phạm vi được mang phép: phổ biến, tộc, nguyên tố, loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Độ hiếm | Mức hiếm của phép, mô tả tỉ lệ xuất hiện | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Cấp độ | Mức phát triển của một sinh vật; phép có yêu cầu cấp độ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Cấp độ người chơi | Mức phát triển của người chơi; điều kiện mở PvP (chi tiết chưa có) | [02-gameplay/progression.md](02-gameplay/progression.md) |
+| Bậc | Mức tiến hoá của sinh vật; phép có yêu cầu bậc | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tiến hoá | Tăng bậc sinh vật, mở rộng phạm vi phép mang được | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chuẩn bị chiến đấu | Màn người chơi gán phép cho sinh vật trước khi chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bắt / Ấp nở / Rút thưởng | Các cách nhận sinh vật mới | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Gói sách phép | Gói rút thưởng ra phép | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nghiên cứu | Một nguồn phép mới (chi tiết chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ghép trận | Ghép người chơi với nhau để chiến đấu (PvP), chạy ở backend | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chế độ nhiều người | Các mode tương tác với người chơi khác, không ảnh hưởng tiến trình chính | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Backend | Dịch vụ phía server gọi theo yêu cầu: tài khoản, lưu dữ liệu, giờ chuẩn, rút thưởng, ghép trận | [04-tech/components.md](04-tech/components.md) |
+| Game server | Server chạy mô phỏng trận đấu thời gian thực | [04-tech/components.md](04-tech/components.md) |
+| PvE | Chiến đấu với nội dung của game, trong world riêng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| PvP | Chiến đấu thời gian thực giữa người chơi, qua ghép trận; game server quyết định kết quả | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phép sinh vật | Phép sinh vật mang trong ô phép để chiến đấu; pháp sư không mang được | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ô phép | Chỗ gán phép trên sinh vật: 3 ô ở bậc 1, 4 ô từ bậc 2 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ô đặc biệt | Ô phép thứ 4; chứa được phép yêu cầu ô đặc biệt và phép thường | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Cá thể | Một sinh vật cụ thể; cùng loài thì chung đặc điểm loài, khác chỉ số cá thể | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chỉ số cá thể | Chỉ số riêng của từng cá thể, hợp với chiến đấu hoặc phát triển (chi tiết chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tiền trong game | Tiền người chơi kiếm được khi chơi | [02-gameplay/economy.md](02-gameplay/economy.md) |
+| Tiền nạp | Tiền mua bằng tiền thật; chỉ dùng cho làm đẹp, hiệu ứng, tăng cơ hội, đẩy nhanh xây dựng | [02-gameplay/economy.md](02-gameplay/economy.md) |
+| Thể thức | Kiểu trận PvP, quy định số sinh vật mỗi bên (3–5) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Điểm xếp hạng | Điểm nhận khi thắng PvP, dùng để leo hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ngưỡng PvP | Mức người chơi phải đạt để chơi PvP; phát triển sau ngưỡng không ảnh hưởng PvP | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

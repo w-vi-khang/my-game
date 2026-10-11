@@ -5,7 +5,7 @@
 
 ## Quỹ thời gian
 <!-- Một người làm: bao nhiêu giờ/tuần? Mốc mong muốn? -->
-_(chưa có)_
+Dự án indie cá nhân, dài hạn, không có timeline cố định. Số giờ/tuần: _(chưa có)_
 
 ## Milestones
 <!-- Mỗi milestone có tiêu chí XONG đo được và ghi rõ thành phần nào tham gia. Khung dưới là gợi ý phổ biến cho game solo — chỉnh theo thực tế. -->

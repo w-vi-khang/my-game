@@ -5,7 +5,9 @@
 
 ## Tóm tắt
 <!-- 5–10 câu từ đầu đến cuối. -->
-_(chưa có)_
+- Mạch chính: pháp sư đi tìm các mảnh ký ức, dần hé lộ quá khứ — có thể tới cuối game (sau nhiều mùa) mới hé lộ hết.
+- Mỗi map có cốt truyện chính và nhiệm vụ phụ do nhà phát triển tạo; người chơi không bị bó buộc làm tuần tự.
+- Tóm tắt 5–10 câu: _(chưa có)_
 
 ## Cấu trúc hồi/chương
 <!-- Mỗi chương: sự kiện chính, mục tiêu người chơi, cơ chế mới được giới thiệu. -->

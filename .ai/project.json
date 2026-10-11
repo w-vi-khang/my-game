@@ -33,5 +33,18 @@
     "*.keystore",
     "*.jks"
   ],
-  "context_warn_kb": 600
+  "router": {
+    "_comment": "Tinh chỉnh gợi ý skill (kit >= 0.6.0). 'skill': game có kỹ năng sinh vật, không phải skill của kit. disable_skills: skill viết code tắt trong M0 (chưa code) — bỏ khỏi danh sách khi chuyển M1.",
+    "ignore_keywords": [
+      "skill"
+    ],
+    "disable_skills": [
+      "bug-fix",
+      "feature-implementation",
+      "code-review"
+    ]
+  },
+  "context_warn_tokens": 150000,
+  "context_window_tokens": 1000000,
+  "_context": "Cảnh báo context theo token thật (kit ≥ 0.5.0). context_window_tokens = cửa sổ của model đang dùng (1M); cảnh báo mạnh khi ≥ 85%."
 }
