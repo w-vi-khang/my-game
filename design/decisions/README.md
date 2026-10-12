@@ -10,3 +10,4 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0002](0002-repo-layout.md) | Thiết kế trước, cùng repo với các thành phần | Chốt |
 | [0003](0003-server.md) | Cần Server: backend và game server (PvP thời gian thực) | Đề xuất |
 | [0004](0004-tien-nap.md) | Tiền nạp: ảnh hưởng tốc độ, chặn ở mức tối đa | Đề xuất |
+| [0005](0005-render-pipeline.md) | Render pipeline của client: URP | Đề xuất |

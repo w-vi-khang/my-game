@@ -21,6 +21,7 @@
 | Cân bằng chỉ số sinh vật: nhiều tham số (base loài, hệ số quy đổi, trần, phân bố ngẫu nhiên, vượt trội) × số loài | Cao | Cao | Bảng dữ liệu tách khỏi code; thử với 3–5 loài trước; trần cho mọi chỉ số | M2 |
 | Ghép trận cần đủ người chơi online cùng cấp độ; ít người thì chờ lâu. Điểm cấp độ/bậc vẫn tính trong PvP → người mới qua ngưỡng chênh với người chơi lâu năm; ghép theo hạng rồi cấp độ trung bình làm nhóm ghép nhỏ hơn | Trung bình | Cao | Mở PvP sau khi có lượng người chơi; [ý tưởng] mở rộng khoảng ghép theo thời gian chờ | Sau M4 |
 | Netcode chiến đấu thời gian thực (độ trễ, đồng bộ nhập hồn, phép) trên cả PC và mobile | Cao | Cao | Tách logic chiến đấu khỏi hiển thị từ sớm; prototype trận mạng nhỏ trước khi làm PvP đầy đủ | M3 |
+| Sản lượng nông trại do client tính → sửa client để gian lận tài nguyên, đổi ra tiền trong game/rút thưởng | Trung bình | Trung bình | [ý tưởng] Backend kiểm tra hợp lý theo thời gian × số sinh vật × thuần thục ([kiến trúc](architecture.md#dữ-liệu)) | M2 |
 | Chi phí hosting game server tăng theo số trận | Trung bình | Trung bình | Tra giá hosting trước khi làm PvP; PvP có điều kiện tham gia | Sau M4 |
 | Rút thưởng và tăng cơ hội bằng tiền nạp có thể chịu quy định về loot box (công bố tỉ lệ, giới hạn độ tuổi...) ở một số thị trường [chưa xác minh] | Trung bình | Cao | Tra quy định của thị trường mục tiêu và cửa hàng ứng dụng trước khi làm cửa hàng | M2 |
 | Một bộ điều khiển cho cả PC và mobile | Trung bình | Trung bình | Thiết kế điều khiển cảm ứng từ M1 | M1 |

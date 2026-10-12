@@ -90,8 +90,8 @@ gantt
 - [ ] 02-gameplay/core-loop.md → Chốt
 - [ ] 02-gameplay/mechanics.md: các cơ chế "phải có", mỗi cơ chế có thành phần phụ trách → Chốt
 - [ ] 04-tech/components.md: xác định thành phần cần cho M1–M2 → Chốt
-- [ ] 04-tech/tech-stack.md: công nghệ cho thành phần cần ở M1 (client: render pipeline) → Chốt
+- [ ] 04-tech/tech-stack.md: công nghệ cho thành phần cần ở M1 (client: render pipeline) → Chốt — bản đầu đã viết 2026-10-12, chờ user xem
 - [ ] 04-tech/risks.md: rủi ro lớn + milestone kiểm chứng
 - [x] 05-roadmap.md: ước lượng M1–M2 (bản đầu, 2026-10-12) — user giữ nguyên phạm vi, xem lại sau khi đo tốc độ M1
-- [ ] Chốt quyết định [0003](decisions/0003-server.md), [0004](decisions/0004-tien-nap.md)
+- [ ] Chốt quyết định [0003](decisions/0003-server.md), [0004](decisions/0004-tien-nap.md), [0005](decisions/0005-render-pipeline.md)
 - [ ] Tạo skill cân bằng riêng (user, 2026-10-12): tính base, phân bố loài/ngẫu nhiên, hệ số quy đổi, trần, điểm mỗi cấp độ/bậc, tỉ lệ vượt trội, tham số chặn quá may — đọc/ghi bảng dữ liệu chỉ số ([cơ chế](02-gameplay/mechanics.md#chỉ-số-sinh-vật)). Thời điểm: [ý tưởng] trước khi cân bằng chỉ số chiến đấu ở M2; ước lượng 1–2 ngày [chưa xác minh]

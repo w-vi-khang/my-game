@@ -25,8 +25,8 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 1b. XONG 2026-10-12: nguyên tắc tiền nạp mới (ảnh hưởng tốc độ, chặn ở mức tối đa; ưu đãi nạp: vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%); ghép trận theo hạng → cấp độ trung bình; quỹ điểm làm việc/chiến đấu riêng; phân bổ lại bằng vật phẩm; chỉ số làm việc cũng có phân bố loài + ngẫu nhiên; vượt trội xét mỗi lần sở hữu cá thể mới; cơ chế mới "Nhu cầu sinh vật" và "Giới hạn sinh vật & kho sinh vật" trong mechanics.md. Việc mới: tạo skill cân bằng (ghi ở 05-roadmap.md).
 1c. XONG 2026-10-12: cấp độ trung bình = trung bình cấp độ sinh vật mang vào trận; "chặn quá may" cho vượt trội (không bảo hiểm); quyết định `design/decisions/0004-tien-nap.md` (Đề xuất, chờ user Chốt).
 2. XONG — roadmap bản đầu `design/05-roadmap.md` (10 giờ/tuần, ×1,5; tổng M1–M4 ~9,5–18 năm). User: chưa cắt, giữ phạm vi (2026-10-12); đo tốc độ thật ở M1 rồi tính lại.
-2b. ĐANG LÀM — `design/04-tech/tech-stack.md` phần Client cho M1 (render pipeline, input, voxel mesh, tìm đường, UI) — tra docs Unity 6000.4.
-3. Còn mở (hỏi khi tới): chỉ số cá thể chi tiết; cơ chế "Nghiên cứu" (chưa có ước lượng); nguồn tiền trong game; mana; điều kiện mở map; yêu cầu ngưỡng PvP; user Chốt 0003 và 0004.
+2b. XONG bản đầu (2026-10-12): `design/04-tech/architecture.md` (hệ thống, dữ liệu, giao tiếp, client), `design/04-tech/tech-stack.md` (client M1: URP, Input System 1.19, Burst 1.8 + Mesh.MeshData, A* tự viết, uGUI; netcode quyết ở M3), quyết định `0005-render-pipeline.md` (Đề xuất). Chờ user xem; chưa render thử Mermaid.
+3. Còn mở (hỏi khi tới): chỉ số cá thể chi tiết; cơ chế "Nghiên cứu" (chưa có ước lượng); nguồn tiền trong game; mana; điều kiện mở map; yêu cầu ngưỡng PvP; user Chốt 0003, 0004, 0005.
 4. Checklist chưa đạt: "Điều khiển PC + mobile" và "Tiền tệ & cửa hàng" không gắn pillar (ghi lý do); 0003 chưa Chốt; giá dịch vụ backend/hosting và quy định loot box `[chưa xác minh]`.
 
 ## Quyết định quan trọng & lý do
