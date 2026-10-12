@@ -25,17 +25,10 @@
       "keywords": [
         "thiet ke",
         "gdd",
-        "cot truyen",
-        "nhan vat",
-        "the gioi",
         "gameplay",
         "loi choi",
         "co che",
         "core loop",
-        "kinh te",
-        "tien trinh",
-        "level",
-        "man choi",
         "art",
         "am thanh",
         "ui",
@@ -46,8 +39,11 @@
         "tech stack"
       ],
       "related": [
+        "local-design-review",
+        "local-game-balance",
         "local-game-ideation",
-        "local-design-review"
+        "local-game-story",
+        "local-level-design"
       ]
     },
     {
@@ -85,6 +81,78 @@
       "related": [
         "local-gdd-section",
         "local-game-roadmap"
+      ]
+    },
+    {
+      "name": "local-game-balance",
+      "status": "active",
+      "summary": "Cân bằng số liệu game: chỉ số sinh vật, kinh tế, tiến trình — tính bằng script, ghi bảng dữ liệu",
+      "keywords": [
+        "can bang",
+        "balance",
+        "chi so",
+        "he so quy doi",
+        "tran chi so",
+        "ti le",
+        "ty le",
+        "vuot troi",
+        "chan qua may",
+        "kinh te",
+        "tien trinh",
+        "faucet",
+        "sink",
+        "dong tien",
+        "diem chi so",
+        "~mo phong"
+      ],
+      "related": [
+        "local-gdd-section",
+        "local-game-roadmap"
+      ]
+    },
+    {
+      "name": "local-game-story",
+      "status": "active",
+      "summary": "Viết thế giới, nhân vật, cốt truyện theo map, mảnh ký ức, nhiệm vụ không tuần tự",
+      "keywords": [
+        "cot truyen",
+        "nhan vat",
+        "the gioi",
+        "boi canh",
+        "manh ky uc",
+        "nhiem vu",
+        "cot truyen chinh",
+        "nhiem vu phu",
+        "lore",
+        "ton giong",
+        "doi thoai"
+      ],
+      "related": [
+        "local-gdd-section",
+        "local-level-design",
+        "local-game-ideation"
+      ]
+    },
+    {
+      "name": "local-level-design",
+      "status": "active",
+      "summary": "Thiết kế map/level: vùng môi trường sống, khối cốt truyện, phần sinh theo seed, điều kiện mở map",
+      "keywords": [
+        "level",
+        "man choi",
+        "thiet ke map",
+        "~map",
+        "~vung",
+        "khoi cot truyen",
+        "sinh theo seed",
+        "dieu kien mo map",
+        "bo tri",
+        "phan bo loai"
+      ],
+      "related": [
+        "local-gdd-section",
+        "local-game-story",
+        "local-game-balance"
       ]
     }
   ]

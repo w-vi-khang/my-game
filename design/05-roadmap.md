@@ -109,10 +109,10 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 - [ ] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — đang trống; M1 cần điều khiển PC + cảm ứng.
 - [ ] [04-tech/architecture.md](04-tech/architecture.md) — bản đầu đã viết; xem lại phần Client.
 - [ ] [04-tech/risks.md](04-tech/risks.md) — rủi ro lớn + milestone kiểm chứng (đã có, chỉ cần rà).
-- [ ] Tạo skill cân bằng riêng (user, 2026-10-12): tính base, phân bố loài/ngẫu nhiên, hệ số quy đổi, trần, điểm mỗi cấp độ/bậc, tỉ lệ vượt trội, tham số chặn quá may — đọc/ghi bảng dữ liệu chỉ số ([cơ chế](02-gameplay/mechanics.md#chỉ-số-sinh-vật)). Thời điểm: [ý tưởng] trước khi cân bằng chỉ số chiến đấu ở M2; ước lượng 1–2 ngày [chưa xác minh]
+- [x] Tạo skill cân bằng riêng (user, 2026-10-12) — xong 2026-10-12: `local-game-balance` (script `balance.py`: check, roll, luck, economy). Dữ liệu sẽ nằm ở `design/data/`.
 
 ### D. Không cần Chốt để sang M1 (viết dần, song song prototype)
-Cốt truyện (world, characters, plot), progression, economy, levels, art-style, audio — theo thứ tự gợi ý ở [README](README.md).
+Cốt truyện (world, characters, plot), progression, economy, levels, art-style, audio — theo thứ tự gợi ý ở [README](README.md). Skill (tạo 2026-10-12): cốt truyện → `local-game-story`; map/level → `local-level-design`; số liệu economy/progression → `local-game-balance`; art/âm thanh → chưa có skill, chờ user quyết hướng dùng MCP (Blender, Figma, âm thanh).
 
 **Đề xuất** [ý tưởng]: trạng thái tính theo file, mà mechanics.md còn nhiều phần M2+ (nhập hồn, phép, PvP...) chưa xong. Hai cách:
 - (a) Tách các cơ chế M1 ra file riêng (vd `02-gameplay/mechanics-m1.md`) để Chốt riêng.

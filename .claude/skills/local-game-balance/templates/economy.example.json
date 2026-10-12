@@ -1,0 +1,7 @@
+{
+  "_comment": "Số liệu MINH HOẠ, đơn vị mỗi ngày chơi. Copy sang design/data/economy.json rồi sửa.",
+  "resources": {
+    "tien_trong_game": {"start": 0, "faucets": {"ban_san_luong": 300, "nhiem_vu": 100}, "sinks": {"cong_trinh": 150}, "targets": {"1 lan rut thuong": 500}},
+    "vat_pham_phan_bo_lai": {"start": 0, "faucets": {"qua_tu_sinh_vat": 0.2}, "sinks": {}, "targets": {"1 lan phan bo lai": 1}}
+  }
+}

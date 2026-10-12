@@ -1,0 +1,36 @@
+{
+  "_comment": "Số liệu MINH HOẠ (không phải số đã cân bằng). Copy sang design/data/stats.json rồi sửa. Hệ số khớp ví dụ trong mechanics.md: 10 điểm máu = 250 máu, 10 điểm tốc độ đánh = 0,6.",
+  "version": 1,
+  "max_total_spread": 0.15,
+  "points_per_level": {"combat": 3, "work": 2},
+  "points_per_tier": {"combat": 20, "work": 10},
+  "tables": {
+    "combat": {"stats": {
+      "mau": {"coef": 25, "cap": 20000},
+      "giap": {"coef": 1, "cap": 400},
+      "khang_phep": {"coef": 1, "cap": 400},
+      "toc_do_danh": {"coef": 0.06, "cap": 6},
+      "sat_thuong_vat_ly": {"coef": 2, "cap": 1500},
+      "sat_thuong_phep": {"coef": 2, "cap": 1500},
+      "toc_do_di_chuyen": {"coef": 0.05, "cap": 10}
+    }},
+    "work": {"stats": {
+      "toc_do_di_chuyen": {"coef": 0.1, "cap": 8},
+      "suc_khoe": {"coef": 1, "cap": 100},
+      "thuan_thuc_1": {"coef": 1, "cap": 100},
+      "thuan_thuc_2": {"coef": 1, "cap": 100}
+    }}
+  },
+  "species": {
+    "loai_A": {
+      "combat": {"species_points": {"mau": 60, "giap": 30, "khang_phep": 20, "toc_do_danh": 30, "sat_thuong_vat_ly": 40, "sat_thuong_phep": 0, "toc_do_di_chuyen": 20}, "random_points": 100, "fixed": {"tam_danh": 1.5, "ti_le_chi_mang": 0.05}},
+      "work": {"species_points": {"toc_do_di_chuyen": 10, "suc_khoe": 10, "thuan_thuc_1": 15, "thuan_thuc_2": 10}, "random_points": 15},
+      "outstanding_extra": [50, 100]
+    },
+    "loai_B": {
+      "combat": {"species_points": {"mau": 40, "giap": 10, "khang_phep": 30, "toc_do_danh": 20, "sat_thuong_vat_ly": 0, "sat_thuong_phep": 60, "toc_do_di_chuyen": 30}, "random_points": 90, "fixed": {"tam_danh": 5, "ti_le_chi_mang": 0.1}},
+      "work": {"species_points": {"toc_do_di_chuyen": 15, "suc_khoe": 5, "thuan_thuc_1": 10, "thuan_thuc_2": 15}, "random_points": 12},
+      "outstanding_extra": [50, 100]
+    }
+  }
+}
