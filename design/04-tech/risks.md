@@ -24,4 +24,4 @@
 | Chi phí hosting game server tăng theo số trận | Trung bình | Trung bình | Tra giá hosting trước khi làm PvP; PvP có điều kiện tham gia | Sau M4 |
 | Rút thưởng và tăng cơ hội bằng tiền nạp có thể chịu quy định về loot box (công bố tỉ lệ, giới hạn độ tuổi...) ở một số thị trường [chưa xác minh] | Trung bình | Cao | Tra quy định của thị trường mục tiêu và cửa hàng ứng dụng trước khi làm cửa hàng | M2 |
 | Một bộ điều khiển cho cả PC và mobile | Trung bình | Trung bình | Thiết kế điều khiển cảm ứng từ M1 | M1 |
-| Dự án dài hạn một người: mất động lực | Trung bình | Cao | Milestone nhỏ có thứ chơi được; công bố tiến độ | Liên tục |
+| Dự án dài hạn một người: mất động lực. Ở 10 giờ/tuần, phạm vi hiện tại tới M4 ~9,5–18 năm ([roadmap](../05-roadmap.md#kiểm-tra-phạm-vi)) | Cao | Cao | Milestone nhỏ có thứ chơi được; công bố tiến độ | Liên tục |
