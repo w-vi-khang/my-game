@@ -18,7 +18,7 @@
 | Nhập hồn | Người chơi nhập vào sinh vật, dùng bộ kỹ năng của sinh vật đó | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mana | Nguồn năng lượng chung của người chơi, dùng cả khi nhập hồn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Môi trường sống | Thế giới được cải tạo theo danh sách yêu cầu của loài để loài trở lại | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Danh sách yêu cầu của loài | Danh sách yêu cầu mỗi loài (user gọi là "list nhiệm vụ theo loài"): đạt phần mở khoá → loài trở lại; đạt thêm → mức đáp ứng tăng. Khác "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Danh sách yêu cầu của loài | Danh sách yêu cầu mỗi loài (user gọi là "list nhiệm vụ theo loài", "bảng nhiệm vụ loài"); quyết định cả cấp độ sinh vật ngoài tự nhiên: đạt phần mở khoá → loài trở lại; đạt thêm → mức đáp ứng tăng. Khác "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Rút thưởng gói | Rút phần thưởng ngẫu nhiên từ gói trong cửa hàng (gói sinh vật, gói sách phép, gói trang bị...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bảo hiểm | Đảm bảo ra phần thưởng được bảo hiểm khi rút gói đủ nhiều lần (gói sinh vật: cá thể vượt trội; gói sách phép: phép bậc cao hơn; gói trang bị: trang bị bậc cao hơn); công khai; ưu tiên hơn chặn quá may | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Trang bị | Đồ gắn cho sinh vật (mỗi sinh vật 3 trang bị, không chia loại ô), cộng chỉ số chiến đấu, tính trong PvP; không ngẫu nhiên, không vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -28,6 +28,10 @@
 | Ma năng | Tài nguyên nhận khi rút gói sách phép ra phép đã sở hữu; đổi phép trong cửa hàng hoặc chế tác một số trang bị. Khác "mana" (năng lượng dùng phép) — tên dễ nhầm, xem [naming](01-story/naming.md) | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Biến thể hiển thị | Khác biệt nhỏ về hình ảnh giữa mọi cá thể/vật thể cùng loại (kích thước, màu, hoa văn), sinh theo seed riêng |
 | Biến thể | Dạng khác của một loài: cá thể đặc biệt về màu sắc, hình thái, hiếm; tách riêng với vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Thẻ bài | Vật chứa sinh vật; dùng để bắt sinh vật ngoài tự nhiên; có nhiều loại, mang hiệu ứng xuất hiện/hào quang cho sinh vật | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bậc thẻ bài | Chất lượng thẻ bài (1–4); bậc 4 chắc chắn bắt được. Khác "bậc" của sinh vật và "bậc trang bị" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tỉ lệ bắt | Xác suất bắt thành công: theo chênh lệch cấp độ người chơi – sinh vật, bậc sinh vật, bậc thẻ bài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Hiệu ứng thẻ bài | Hiệu ứng hình ảnh thẻ bài mang lại cho sinh vật (khi xuất hiện, hào quang, mây...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lò rèn | Công trình để rèn trang bị | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Công cụ kiểm tra asset | Script Blender headless kiểm model 3D theo quy cách trước khi đưa vào client (`tools/asset_check/`) | [decisions/0006](decisions/0006-cong-cu-kiem-tra-asset.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |

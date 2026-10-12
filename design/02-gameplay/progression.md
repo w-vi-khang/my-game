@@ -15,6 +15,7 @@
 | Cấp độ người chơi | Mở khoá sinh vật mới, hoàn thành nhiệm vụ... (danh sách nguồn đầy đủ _(chưa có)_) |
 | Hạng PvP | Điểm xếp hạng từ trận PvP thắng; ghép trận theo hạng |
 | Giới hạn sinh vật | Cấp độ người chơi, công trình (+10% nếu nạp) |
+| Cấp độ sinh vật ngoài tự nhiên | Hoàn thành danh sách yêu cầu của loài → sinh vật cấp cao hơn (bắt khó hơn, tiết kiệm nâng cấp) |
 | Mức đáp ứng nhu cầu sinh vật | Cải thiện môi trường sống sau khi loài đã trở lại |
 | Cấp độ, bậc của sinh vật | Tiến hoá; bậc 2 mở ô phép thứ 4; phép yêu cầu cấp độ và bậc; mỗi cấp độ/bậc cho điểm chỉ số làm việc và chiến đấu (hai quỹ riêng; số điểm _(chưa có)_) |
 | Bộ kỹ năng chiến đấu (nhập hồn, kỹ năng thay thế) | Sinh vật |
