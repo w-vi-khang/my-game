@@ -70,7 +70,7 @@
     ]
   },
   "concept_image": {
-    "_comment": "Skill concept-image của kit (>= 0.7.0), theo .ai/kit-requests/concept-image-skill.md mục 4. reference_arg và checkers: thêm khi hf_generate.py có --ref và đã viết lệnh checker lớp 2–3.",
+    "_comment": "Skill concept-image của kit (>= 0.7.0). checkers: tools/asset_gen/concept_check.py (lớp 2 OWLv2, lớp 3 Qwen2.5-VL). reference_arg: thêm khi hf_generate.py có --ref.",
     "style_doc": "design/03-art-audio/art-style.md",
     "out_dir": "~/Documents/User/khang/Game/art-test/gen",
     "allow_in_repo": false,
@@ -83,7 +83,24 @@
       "max_per_turn": 3,
       "quota_note": "ZeroGPU free ~3,5 phút/ngày [chưa xác minh]; chừa quota cho TRELLIS.2"
     },
-    "checkers": [],
+    "checkers": [
+      {
+        "name": "owlv2",
+        "kind": "count",
+        "command": "{venv}/bin/python tools/asset_gen/concept_check.py detect {image} {labels} {out}",
+        "output": "json: [{label, box}]",
+        "license": "apache-2.0 (google/owlv2-base-patch16-ensemble)",
+        "note": "Space merve/owlv2 chạy CPU, không trừ quota. Bắt 3/3 lỗi đếm đã biết nhưng báo sai 3 lần trên 12 phép đếm → chỉ là cảnh báo, xác nhận ở lớp 1 [run 2026-10-12]"
+      },
+      {
+        "name": "qwen-vl",
+        "kind": "qa",
+        "command": "{venv}/bin/python tools/asset_gen/concept_check.py qa {image} {questions} {out}",
+        "output": "json: [{id, question, answer}]",
+        "license": "apache-2.0 (Qwen3-VL; bản cụ thể trong Space [chưa xác minh])",
+        "note": "Space bên thứ ba prithivMLmods/Qwen3-VL-HF-Demo, ZeroGPU → trừ quota GPU của chủ token (~9 giây/ảnh, gộp câu hỏi). Bắt 6/7 lỗi đã biết, sót số chân [run 2026-10-12]"
+      }
+    ],
     "downstream": {
       "name": "TRELLIS.2 image-to-3D",
       "requirements": [

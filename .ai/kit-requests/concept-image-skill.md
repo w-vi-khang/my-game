@@ -134,7 +134,7 @@ Skill này biến việc tạo + kiểm tra ảnh thành quy trình có cổng k
 1. ✅ Thêm khối `concept_image` vào `.ai/project.json` (mục 4) — commit 357c74d.
 2. ✅ Xoá `.claude/skills/local-concept-image/` + mục trong `.ai/skill-map.local.json`.
 3. ✅ `design/03-art-audio/art-style.md` (quy trình asset bước 2): đổi tên skill → `concept-image` của kit.
-4. ⏳ Viết lệnh checker lớp 2–3 (gọi Space Grounding DINO / Qwen2.5-VL bằng `gradio_client`) và chạy kiểm chứng trên bộ ảnh đã biết lỗi.
+4. ✅ (2026-10-12: `tools/asset_gen/concept_check.py` — OWLv2 + Qwen3-VL; xem art-style) Viết lệnh checker lớp 2–3 (gọi Space Grounding DINO / Qwen2.5-VL bằng `gradio_client`) và chạy kiểm chứng trên bộ ảnh đã biết lỗi.
 5. ⏳ Thêm `--ref` cho `tools/asset_gen/hf_generate.py` (truyền `input_images` cho Space FLUX.2-klein-4B — tham số có trong API [run 2026-10-12]).
 
 ## 15. Chưa xác minh

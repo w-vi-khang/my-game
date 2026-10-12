@@ -97,4 +97,20 @@ Phát hiện:
 - **Quyết định của user (2026-10-12): ×2** — mỗi ô gameplay dựng mesh bằng 2 × 2 × 2 ô; giữ được rãnh 1 ô, chấp nhận bậc thang bo tròn và số tam giác ×4 (~24.000 cho mảnh 30 × 30). Phải đo trên mobile ở M1 ([risks](../04-tech/risks.md)). Đã loại: ×1 (rãnh 1 ô bị bóp chữ V); ×1 làm mượt ít hơn ở vách.
 - Xuất thử: `terrain_x2.fbx`, `terrain_x2.glb`. Công cụ kiểm tra asset (class `terrain_test`) [run 2026-10-12]: x1 và x2 (.blend), GLB, FBX đều **đạt** (0 lỗi). Chưa nhập thử vào Unity (M0 chưa tạo project) → [chưa xác minh] Unity đọc đúng tỉ lệ/trục.
 
+**Kiểm duyệt ảnh concept — lớp 2–3 xong** [run 2026-10-12]. Lệnh: `tools/asset_gen/concept_check.py` (khai báo trong `concept_image.checkers` của `.ai/project.json`). Kiểm chứng trên bộ ảnh đã biết lỗi (ngoài repo, `art-test/gen/`):
+
+| Ảnh | Lỗi đã biết | Lớp 2 — đếm (OWLv2, CPU, không tốn quota) | Lớp 3 — hỏi–đáp (Qwen3-VL, ZeroGPU ~9 giây/ảnh) |
+|---|---|---|---|
+| A | 5 chân; lông mày; cười kiểu người | Bắt 5 chân; **báo sai** 2 đuôi | Bắt lông mày, cười; **sót** 5 chân (trả lời 4) |
+| B1 | 3 đuôi; cười | Bắt 3 đuôi; **báo sai** 2 chân, 3 tai | Bắt đuôi (trả lời 2 ≠ 1), cười |
+| B2 | 3 đuôi; cười | Bắt 3 đuôi | Bắt đuôi (trả lời 2 ≠ 1), cười |
+
+- Gộp 2 lớp: bắt **7/7** lỗi đã biết. Lớp 2 báo sai 3/12 phép đếm → kết quả lệch của lớp 2 là **cảnh báo**, phải xác nhận ở lớp 1 (soi vùng) — đúng quy tắc của skill.
+- Lớp 2 cần truy vấn có tiền tố ("animal leg"): nhãn trần ("leg") không thấy chân nào [run].
+- Hai Space Qwen chính thức (Qwen2.5-VL-32B, Qwen3-VL-Demo) lỗi phía máy chủ khi gọi qua API → dùng Space bên thứ ba `prithivMLmods/Qwen3-VL-HF-Demo`; có thể bị tắt bất kỳ lúc nào (rủi ro phụ thuộc).
+
+**Bộ kiểm phong cách chung** (giữ đồng bộ giữa các ảnh — chép vào khối `json concept` của mọi spec) [ý tưởng]:
+- `forbid`: "chibi proportions with an oversized head", "dark or gloomy lighting", "text or watermark", "a second creature", "eyebrows", "a human-like smile", "a cube-shaped blocky Minecraft style".
+- `require`: "bright, fresh colors", "a plain white background" (khi ảnh đi tiếp sang image-to-3D).
+
 **Sinh vật + rig + animation, 3 biến thể:** **tạm dừng** (user, 2026-10-12): trước mắt **chưa làm model hoàn chỉnh**, tập trung dựng mesh world (địa hình). Sinh vật/nhân vật nếu cần thì low-poly. Ảnh concept vẫn làm, và **phần kiểm duyệt** (kiểm ảnh concept lớp 1–3 của skill `concept-image`, công cụ kiểm tra asset) vẫn hoàn thiện để giữ đồng bộ, tránh lỗi vô lý.
