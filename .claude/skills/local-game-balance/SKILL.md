@@ -1,6 +1,6 @@
 ---
 name: local-game-balance
-description: Cân bằng số liệu game bằng script — chỉ số sinh vật (base, phân bố loài/ngẫu nhiên, hệ số quy đổi, trần, điểm mỗi cấp độ/bậc), tỉ lệ vượt trội và chặn quá may, dòng tài nguyên kinh tế (faucet/sink), nhịp tiến trình; ghi bảng dữ liệu trong design/data/. Dùng khi user muốn đặt/chỉnh con số, tính tỉ lệ, kiểm tra cân bằng, mô phỏng kinh tế hoặc tiến trình.
+description: Cân bằng số liệu game bằng script — chỉ số sinh vật (base, phân bố loài/ngẫu nhiên, hệ số quy đổi, trần, điểm mỗi cấp độ/bậc), tỉ lệ vượt trội và chặn quá may, bảo hiểm gói rút thưởng, dòng tài nguyên kinh tế (faucet/sink), nhịp tiến trình; ghi bảng dữ liệu trong design/data/. Dùng khi user muốn đặt/chỉnh con số, tính tỉ lệ, kiểm tra cân bằng, mô phỏng kinh tế hoặc tiến trình.
 ---
 
 # Cân bằng số liệu (chỉ số, kinh tế, tiến trình)
@@ -29,6 +29,7 @@ Quy tắc thiết kế là nguồn chuẩn — skill này chỉ đặt con số 
 - `roll <stats.json> <loài> [--n 1000 --level L --tier T]` — sinh thử cá thể, xem khoảng giá trị và % chạm trần.
 - `luck --rate p --window N [--target 0.01] [--lifetime] [--owns 300] [--reduce 0.25]` — chọn ngưỡng K cho chặn quá may. Dùng `--lifetime` khi mục tiêu tính trên cả quá trình chơi: K theo từng cửa sổ thường làm nhiều người chơi bị chặn hơn mục tiêu.
 - `economy <economy.json> [--days 30]` — dòng tài nguyên mỗi ngày, số ngày tới mục tiêu.
+- `pity --rate p --hard N [--cost C]` — bảo hiểm gói: số lần rút trung bình, tỉ lệ thực tế, % người chơi chạm mốc, chi phí trung bình/tệ nhất.
 - Mẫu dữ liệu: `.claude/skills/local-game-balance/templates/`.
 
 ## Cấm

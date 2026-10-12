@@ -30,5 +30,5 @@ _(chưa có)_
 <!-- Lạm phát, cày quá dễ/khó, phá game. -->
 - Nguyên tắc (user, 2026-10-12): tiền nạp ảnh hưởng **tốc độ** tiến trình là không tránh được; chặn ở **mức tối đa** — người không nạp cũng đạt được mọi mức tối đa, phần vượt trội bị bỏ trong PvP (xem [cơ chế](mechanics.md#chế-độ-nhiều-người), [0004](../decisions/0004-tien-nap.md)). Ghép trận theo hạng rồi cấp độ trung bình giảm chênh lệch khi đang lên.
 - Ưu đãi nạp (+10% túi đồ, +10% giới hạn sinh vật) làm người nạp có nhiều nhân công hơn → nông trại nhanh hơn. Chấp nhận theo nguyên tắc trên; cần giữ mức % nhỏ.
-- Tăng cơ hội rút thưởng bằng tiền nạp: người không nạp cảm thấy thiệt khi sưu tầm — cần cân bằng tỉ lệ (chưa có số liệu).
+- Tăng cơ hội rút thưởng bằng tiền nạp: người không nạp cảm thấy thiệt khi sưu tầm — cần cân bằng tỉ lệ (chưa có số liệu). Bảo hiểm gói (công khai mốc) giới hạn mức xui tệ nhất cho mọi người chơi ([cơ chế](mechanics.md#nhận-sinh-vật)).
 - Đẩy nhanh xây dựng bằng tiền nạp có thể làm vòng lặp lệnh làm việc mất ý nghĩa — cần giới hạn.

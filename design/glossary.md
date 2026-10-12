@@ -17,7 +17,11 @@
 | Nội tại | Đặc điểm cố hữu của loài, tác dụng cả khi làm việc lẫn chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhập hồn | Người chơi nhập vào sinh vật, dùng bộ kỹ năng của sinh vật đó | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mana | Nguồn năng lượng chung của người chơi, dùng cả khi nhập hồn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Môi trường sống | Tập yêu cầu về thế giới phải đạt để một loài trở lại | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Môi trường sống | Thế giới được cải tạo theo danh sách yêu cầu của loài để loài trở lại | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Danh sách yêu cầu của loài | Danh sách yêu cầu mỗi loài (user gọi là "list nhiệm vụ theo loài"): đạt phần mở khoá → loài trở lại; đạt thêm → mức đáp ứng tăng. Khác "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Rút thưởng gói | Rút phần thưởng ngẫu nhiên từ gói trong cửa hàng (gói sinh vật, gói sách phép, gói trang bị...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bảo hiểm | Đảm bảo ra phần thưởng hiếm khi rút gói đủ nhiều lần; công khai cho người chơi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Mốc bảo hiểm | Số lần rút liên tiếp tối đa trước khi chắc chắn ra phần thưởng hiếm của gói (ý tưởng cách làm) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lệnh làm việc | Việc người chơi đặt cho sinh vật trên một vùng (vd trồng cây), gồm nhiều công đoạn. Khác với "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Công đoạn | Một bước của lệnh làm việc (xới đất, gieo hạt, tưới nước, thu hoạch, vận chuyển...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Đình trệ | Công đoạn không làm được (không có đường, thiếu vật tư, kho đầy) — báo cho người chơi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -59,7 +63,7 @@
 | Sức khoẻ | Chỉ số làm việc; cao thì sinh vật ít bị bệnh hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bệnh | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao và sức khoẻ cao (tác động chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mệt | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao (tác động chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Nhu cầu sinh vật | Danh sách yêu cầu của một loài sau khi đã trở lại; đáp ứng càng nhiều sinh vật càng khoẻ, làm tốt, đôi khi tặng quà (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nhu cầu sinh vật | Phần danh sách yêu cầu của loài sau khi đã trở lại; đáp ứng càng nhiều sinh vật càng khoẻ, làm tốt, đôi khi tặng quà (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mức đáp ứng | Mức nhu cầu sinh vật đã được đáp ứng (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Kho sinh vật | Nơi tạm cất sinh vật; sinh vật trong kho không tính vào giới hạn sinh vật, không làm việc/chiến đấu. Khác "kho" chứa sản lượng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

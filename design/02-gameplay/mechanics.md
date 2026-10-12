@@ -85,7 +85,10 @@ stateDiagram-v2
 ### Môi trường sống
 - Sinh vật đã thất lạc. Muốn đưa một loài trở lại, người chơi làm việc, cải tạo thế giới và thu thập tài nguyên để tạo môi trường theo yêu cầu của loài đó → mở khoá loài.
 - [ý tưởng] Yêu cầu tính trong một vùng: tỉ lệ loại khối (nước, cỏ, đá...), cây trồng, công trình, loài khác đang có.
-- [ý tưởng] Ba mức: xuất hiện → ghé thăm → định cư (theo mô hình Viva Piñata, [wiki](https://pinatajournal.wiki/wiki/Pinata)).
+- **Danh sách yêu cầu của loài** (user, 2026-10-12 — thay ý tưởng ba mức xuất hiện → ghé thăm → định cư): mỗi loài có một danh sách yêu cầu (user gọi là "list nhiệm vụ theo loài"). Người chơi hoàn thành dần từng yêu cầu:
+  - đạt các yêu cầu mở khoá → loài trở lại;
+  - đạt thêm các yêu cầu còn lại → mức đáp ứng tăng (xem [Nhu cầu sinh vật](#nhu-cầu-sinh-vật)).
+- Câu hỏi mở: yêu cầu nào thuộc phần mở khoá (cố định hay "đạt N trong M yêu cầu"); danh sách hiện đầy đủ ngay hay lộ dần.
 
 ### Nhu cầu sinh vật
 Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứng" là [ý tưởng].
@@ -96,8 +99,8 @@ Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứn
   - làm việc tốt hơn;
   - đôi lúc tặng quà cho người chơi.
 - Chỉ số **sức khoẻ** của cá thể giảm khả năng bị bệnh (xem [Chỉ số sinh vật](#chỉ-số-sinh-vật)).
-- [ý tưởng] Danh sách yêu cầu dùng chung với yêu cầu môi trường sống (mở khoá loài), thêm các mức cao hơn sau khi loài đã trở lại → một hệ dữ liệu cho cả hai cơ chế.
-- Câu hỏi mở: danh sách là chung với yêu cầu môi trường sống hay riêng; bệnh và mệt tác động gì (chậm, nghỉ, không làm việc?), chữa thế nào; quà là gì; mức đáp ứng tính theo vùng hay toàn map.
+- Danh sách yêu cầu dùng chung với môi trường sống: một danh sách cho cả mở khoá loài lẫn mức đáp ứng (user, 2026-10-12) → một hệ dữ liệu cho cả hai cơ chế.
+- Câu hỏi mở: bệnh và mệt tác động gì (chậm, nghỉ, không làm việc?), chữa thế nào; quà là gì; mức đáp ứng tính theo vùng hay toàn map.
 
 ### Sinh vật & loài
 - Mỗi loài có đặc điểm khác nhau, có tính sưu tầm. Loài được đặc trưng bởi **nội tại**; phép thì nhiều loài có thể dùng giống nhau.
@@ -112,9 +115,17 @@ Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứn
 - Sinh vật mới có tỉ lệ nhỏ mang theo một **phép của pháp sư** (yếu tố may mắn).
 - **Cá thể:** mọi cá thể cùng loài có chung đặc điểm loài (nội tại, tộc, nguyên tố), nhưng mỗi cá thể có **chỉ số cá thể** riêng (phân bố ngẫu nhiên, có thể vượt trội), hợp với chiến đấu hoặc làm việc. Đây là lý do rút thưởng có giá trị. Chi tiết: [Chỉ số sinh vật](#chỉ-số-sinh-vật).
 - **Vượt trội** được xét mỗi lần người chơi sở hữu một cá thể mới (bắt, ấp nở, rút thưởng...) → sở hữu càng nhiều thì càng nhiều lần có cơ hội ra cá thể vượt trội. Tỉ lệ mỗi lần không đổi. Tiền nạp không trực tiếp tăng tỉ lệ vượt trội; chỉ gián tiếp qua việc sở hữu được nhiều cá thể hơn (user, 2026-10-12). Tỉ lệ: _(chưa có)_
-- **Chặn quá may** (user, 2026-10-12): có cơ chế chặn trường hợp người chơi ra vượt trội nhiều bất thường, nhưng **không làm mất may mắn bình thường** — chỉ tác động khi vượt xa mức kỳ vọng. Không có bảo hiểm (không tăng tỉ lệ khi xui).
+- **Chặn quá may** (user, 2026-10-12): có cơ chế chặn trường hợp người chơi ra vượt trội nhiều bất thường, nhưng **không làm mất may mắn bình thường** — chỉ tác động khi vượt xa mức kỳ vọng. Vượt trội không có bảo hiểm (không tăng tỉ lệ khi xui); bảo hiểm chỉ áp cho rút thưởng gói (xem dưới).
   - [ý tưởng] Cách làm: backend đếm số vượt trội trong N lần sở hữu gần nhất; vượt ngưỡng K (chọn K sao cho người chơi bình thường gần như không chạm, vd xác suất < 1%) → tạm hạ tỉ lệ vượt trội cho tới khi số vượt trội trong cửa sổ N về dưới K. N, K tính bằng skill cân bằng.
 - Sinh vật mới chỉ vào đội hình hoạt động khi còn chỗ — xem [Giới hạn sinh vật & kho sinh vật](#giới-hạn-sinh-vật--kho-sinh-vật).
+
+**Rút thưởng gói**
+Các gói trong cửa hàng: gói sinh vật, gói sách phép, gói trang bị (trang bị chưa có trong thiết kế — chờ user mô tả)...
+- **Bảo hiểm** (user, 2026-10-12): mỗi gói đảm bảo ra phần thưởng hiếm khi rút đủ nhiều lần, và **công khai** việc này cho người chơi.
+  - [ý tưởng] Cách làm: mỗi gói có **mốc bảo hiểm** N — rút N lần liên tiếp chưa ra phần thưởng hiếm nhất của gói thì lần thứ N chắc chắn ra; đếm riêng theo từng gói, ra phần thưởng hiếm thì đếm lại từ 0. Công khai trong cửa hàng: tỉ lệ từng loại phần thưởng, mốc N và số lần đã rút hiện tại.
+  - Bảo hiểm (chống xui) và chặn quá may (chống may bất thường) cùng thu hẹp hai đầu may rủi, phần giữa giữ nguyên.
+  - N và tỉ lệ tính bằng `local-game-balance` (lệnh `pity`).
+- Câu hỏi mở: bảo hiểm có áp cho cá thể vượt trội không (hiện vượt trội không có bảo hiểm); số lần đã rút có chuyển sang gói khác/mùa sau không.
 
 **Rút thưởng sinh vật**
 - Loài chưa mở khoá (chưa hồi sinh) không thể rút ra → không bỏ qua môi trường sống (giữ P1).
@@ -131,7 +142,7 @@ Mô tả của user (2026-10-12).
 - Câu hỏi mở: kho sinh vật có giới hạn không; công trình nào tăng giới hạn, tăng bao nhiêu; thả sinh vật có nhận lại gì không; đổi sinh vật giữa kho và đội hình hoạt động có tốn gì không.
 
 ### Chỉ số sinh vật
-Mô tả của user (2026-10-12). Số liệu trong ví dụ là minh hoạ. Các thông số cụ thể làm sau, bằng một **skill cân bằng riêng** (chưa tạo — xem [Lộ trình](../05-roadmap.md)).
+Mô tả của user (2026-10-12). Số liệu trong ví dụ là minh hoạ. Các thông số cụ thể làm sau, bằng skill cân bằng `local-game-balance` (tạo 2026-10-12).
 
 Mỗi cá thể có **hai bảng chỉ số tách riêng**: **chỉ số làm việc** và **chỉ số chiến đấu**. Chỉ bảng chiến đấu cần cân bằng cho PvP.
 

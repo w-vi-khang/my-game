@@ -20,6 +20,7 @@ Quy ước: mỗi file có `> Trạng thái: Nháp | Đang xem xét | Chốt`; �
 | [01-story/world.md](01-story/world.md) | Thế giới, bối cảnh, tông giọng | Nháp |
 | [01-story/characters.md](01-story/characters.md) | Nhân vật | Nháp |
 | [01-story/plot.md](01-story/plot.md) | Cốt truyện, chương, kết thúc | Nháp |
+| [01-story/naming.md](01-story/naming.md) | Quy ước đặt tên: tên game, vùng đất, loài, nhân vật, người chơi | Nháp |
 | [02-gameplay/core-loop.md](02-gameplay/core-loop.md) | Vòng lặp cốt lõi | Nháp |
 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) | Cơ chế | Nháp |
 | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) | Điều khiển, màn hình, HUD, onboarding | Nháp |

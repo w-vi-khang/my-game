@@ -103,7 +103,10 @@
         "sink",
         "dong tien",
         "diem chi so",
-        "~mo phong"
+        "~mo phong",
+        "bao hiem",
+        "moc bao hiem",
+        "pity"
       ],
       "related": [
         "local-gdd-section",
@@ -128,9 +131,10 @@
         "doi thoai"
       ],
       "related": [
+        "local-game-ideation",
         "local-gdd-section",
         "local-level-design",
-        "local-game-ideation"
+        "local-naming"
       ]
     },
     {
@@ -153,6 +157,32 @@
         "local-gdd-section",
         "local-game-story",
         "local-game-balance"
+      ]
+    },
+    {
+      "name": "local-naming",
+      "status": "active",
+      "summary": "Đặt tên riêng cho game: tên game, vùng đất, loài, tộc, phép, nhân vật, người chơi — theo quy ước, kiểm trùng",
+      "keywords": [
+        "dat ten",
+        "ten game",
+        "ten rieng",
+        "ten loai",
+        "ten vung dat",
+        "ten nhan vat",
+        "ten phep",
+        "ten toc",
+        "quy uoc dat ten",
+        "naming",
+        "~ten",
+        "goi y ten",
+        "~ten cho",
+        "doi ten"
+      ],
+      "related": [
+        "local-game-story",
+        "local-level-design",
+        "local-gdd-section"
       ]
     }
   ]

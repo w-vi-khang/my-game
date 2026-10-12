@@ -29,6 +29,8 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 3. Còn mở (hỏi khi tới): chỉ số cá thể chi tiết; cơ chế "Nghiên cứu" (chưa có ước lượng); nguồn tiền trong game; mana; điều kiện mở map; yêu cầu ngưỡng PvP; user Chốt 0003, 0004, 0005.
 4. Checklist chưa đạt: "Điều khiển PC + mobile" và "Tiền tệ & cửa hàng" không gắn pillar (ghi lý do); 0003 chưa Chốt; giá dịch vụ backend/hosting và quy định loot box `[chưa xác minh]`.
 
+3b. XONG 2026-10-12: ba mức môi trường sống → danh sách yêu cầu của loài; bảo hiểm gói rút thưởng (công khai) + lệnh `pity` trong balance.py; skill mới: local-game-balance, local-game-story, local-level-design, local-naming (+ design/01-story/naming.md). Roadmap mục "Công việc M0" có danh sách cần Chốt (A1–A3, B1–B8). Tiếp theo đề xuất: art-style.md (B7) — thống nhất art style trước khi bắt đầu.
+
 ## Quyết định quan trọng & lý do
 - Game online, F2P, tài khoản bắt buộc; PvE ở world riêng; PvP thời gian thực do game server quyết định (user chọn "trận đấu nảy lửa", chống gian lận).
 - Tiền nạp (user, 2026-10-12): ảnh hưởng tốc độ tiến trình là không tránh được; chỉ chặn ở mức tối đa (người không nạp cũng đạt được mọi mức tối đa; vượt trội bị bỏ trong PvP).

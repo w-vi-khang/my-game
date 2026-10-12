@@ -7,6 +7,7 @@
   python3 balance.py luck    --rate p --window N [--target 0.01] [--lifetime] [--players 20000] [--owns 300] [--reduce 0.25]
                                                               chọn ngưỡng K cho "chặn quá may" + mô phỏng
   python3 balance.py economy <economy.json> [--days 30]       dòng tài nguyên (faucet/sink) theo ngày
+  python3 balance.py pity    --rate p --hard N [--cost C]      bảo hiểm gói: lần rút trung bình, % chạm mốc, chi phí
 
 Quy tắc lấy từ design/02-gameplay/mechanics.md (mục Chỉ số sinh vật):
 - giá trị thật = min(trần, tổng điểm × hệ số quy đổi); hệ số quy đổi giống nhau ở mọi loài.
@@ -158,6 +159,24 @@ def cmd_luck(a):
     return 0
 
 
+def cmd_pity(a):
+    """Bảo hiểm cứng: rút N lần liên tiếp chưa ra phần thưởng hiếm -> lần thứ N chắc chắn ra."""
+    p, n = a.rate, a.hard
+    q = 1 - p
+    expected = (1 - q ** n) / p if p > 0 else n  # E[số lần rút tới khi ra] = sum_{k=0}^{N-1} q^k
+    reach = q ** (n - 1)  # xác suất phải tới lần thứ N mới ra (nhờ bảo hiểm)
+    print(f"Tỉ lệ gốc {p:.2%}, mốc bảo hiểm {n} lần.")
+    print(f"- Số lần rút trung bình tới khi ra: {expected:.1f} (không bảo hiểm: {1 / p:.1f})")
+    print(f"- Tỉ lệ thực tế (tính cả bảo hiểm): {1 / expected:.2%}")
+    print(f"- Xác suất người chơi phải chạm mốc bảo hiểm: {reach:.2%}")
+    for pct in (0.5, 0.9):
+        k = next((k for k in range(1, n + 1) if 1 - q ** k >= pct), n)
+        print(f"- {pct:.0%} người chơi ra trong ≤ {k} lần")
+    if a.cost:
+        print(f"- Chi phí trung bình: {expected * a.cost:.0f}; tệ nhất (chạm mốc): {n * a.cost:.0f}")
+    return 0
+
+
 def cmd_economy(a):
     d = load(a.data)
     print(f"{'tài nguyên':<22}{'vào/ngày':>12}{'ra/ngày':>12}{'ròng/ngày':>12}{f'sau {a.days} ngày':>16}")
@@ -183,9 +202,11 @@ def main():
     l.add_argument("--players", type=int, default=20000); l.add_argument("--owns", type=int, default=300)
     l.add_argument("--reduce", type=float, default=0.25); l.add_argument("--seed", type=int, default=1)
     l.add_argument("--lifetime", action="store_true", help="target = %% người chơi từng bị chặn trong --owns lần sở hữu")
+    pi = sub.add_parser("pity"); pi.add_argument("--rate", type=float, required=True)
+    pi.add_argument("--hard", type=int, required=True); pi.add_argument("--cost", type=float, default=0)
     e = sub.add_parser("economy"); e.add_argument("data"); e.add_argument("--days", type=int, default=30)
     a = ap.parse_args()
-    return {"check": cmd_check, "roll": cmd_roll, "luck": cmd_luck, "economy": cmd_economy}[a.cmd](a)
+    return {"check": cmd_check, "roll": cmd_roll, "luck": cmd_luck, "economy": cmd_economy, "pity": cmd_pity}[a.cmd](a)
 
 
 if __name__ == "__main__":
