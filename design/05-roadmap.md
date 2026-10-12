@@ -105,21 +105,24 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 | B5 | [04-tech/tech-stack.md](04-tech/tech-stack.md) — phần Client | Phụ thuộc A3. Chấp nhận/bỏ [ý tưởng]: Input System; meshing tự viết bằng Jobs + Burst; A\* tự viết; uGUI; không dùng ECS |
 | B6 | [05-roadmap.md](05-roadmap.md) — phần M1–M2 | Chấp nhận ước lượng thô + giả định (1 ngày-người = 8 giờ, ×1,5); phạm vi đã giữ nguyên (user, 2026-10-12) |
 | B7 | [03-art-audio/art-style.md](03-art-audio/art-style.md) — **thống nhất art style trước khi bắt đầu** (user, 2026-10-12) | Đang trống. Cần: hướng phong cách (voxel/low-poly, màu, tỉ lệ sinh vật), tham khảo có link, nguồn asset (hỗ trợ URP — [0005](decisions/0005-render-pipeline.md); giấy phép; giá có nguồn), quy cách kỹ thuật (kích thước khối, số polygon trên mobile) |
-| B8 | [01-story/naming.md](01-story/naming.md) — quy ước đặt tên (user, 2026-10-12) | Đang trống. Cần: tên game, quy ước tên vùng đất, loài, tộc, phép, nhân vật, người chơi; dùng skill `local-naming` |
+| B8 | [01-story/naming.md](01-story/naming.md) — quy ước đặt tên (user, 2026-10-12) | Đang trống. Cần: tên game, quy ước tên vùng đất, loài, tộc, phép, nhân vật, người chơi; dùng skill `naming` (kit) |
 
 ### C. Nên viết trước M1 (chưa cần Chốt)
 - [ ] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — đang trống; M1 cần điều khiển PC + cảm ứng.
 - [ ] [04-tech/architecture.md](04-tech/architecture.md) — bản đầu đã viết; xem lại phần Client.
 - [ ] [04-tech/risks.md](04-tech/risks.md) — rủi ro lớn + milestone kiểm chứng (đã có, chỉ cần rà).
-- [x] Tạo skill cân bằng riêng (user, 2026-10-12) — xong 2026-10-12: `local-game-balance` (script `balance.py`: check, roll, luck, economy). Dữ liệu sẽ nằm ở `design/data/`.
+- [x] Tạo skill cân bằng riêng (user, 2026-10-12) — xong 2026-10-12: `local-game-balance` (script `balance.py`: check, roll, luck, economy). Dữ liệu sẽ nằm ở `design/data/`. → Chuyển lên kit thành skill `game-balance` (v0.7.0, 2026-10-12); quy tắc riêng tách ra `tools/balance_rules.py`.
 
 - [ ] **Thử nghiệm art bằng AI** (user đồng ý 2026-10-12; 1–2 ngày, M0 — không phải code game) [ý tưởng]:
   - Công cụ: Blender 5.0.1 (đã có trên máy) + [mcp-for-blender](https://github.com/ahujasid/blender-mcp) (user tự cài); có thể so với [Mixar](https://www.mixar.app/).
   - Làm: 1 sinh vật mịn, không chibi (tạo bằng AI → dọn → rig cơ bản → 1 animation đứng/đi); 3 biến thể hiển thị (kích thước, màu); 1 cảnh địa hình mịn mẫu với 3 vật liệu (chỉ render, không phải code game); xuất thử định dạng Unity đọc được.
   - Đánh giá: hợp phong cách? số polygon có hợp mobile? mất bao lâu mỗi sinh vật? rig có dùng được? → quyết sinh vật làm bằng AI hay thuê ngoài, và cập nhật ước lượng tích hợp asset ở M2.
+  - Tiến độ 2026-10-12: địa hình mịn mẫu + xuất thử xong; user chọn dựng mesh ×2 ([art-style](03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)). Công cụ tạo 3D chốt: HF Spaces (FLUX.2-klein-4B → TRELLIS.2), user dùng token HF.
+  - [x] Công cụ kiểm tra asset (`tools/asset_check/`, ngoại lệ M0 — [0006](decisions/0006-cong-cu-kiem-tra-asset.md)): ước lượng 2–3 ngày-người; bản đầu xong 2026-10-12, self-test 6/6 ca đạt [run]. Dùng lại ở M2 (tích hợp asset).
+  - [ ] Script tạo 3D qua HF Spaces (`tools/asset_gen/hf_generate.py`): 0,5 ngày-người; chạy 1 sinh vật thử nghiệm → dọn, rig, animation, 3 biến thể, xuất, kiểm tra.
 
 ### D. Không cần Chốt để sang M1 (viết dần, song song prototype)
-Cốt truyện (world, characters, plot), progression, economy, levels, art-style, audio — theo thứ tự gợi ý ở [README](README.md). Skill (tạo 2026-10-12): cốt truyện → `local-game-story`; map/level → `local-level-design`; số liệu economy/progression → `local-game-balance`; art/âm thanh → chưa có skill, chờ user quyết hướng dùng MCP (Blender, Figma, âm thanh).
+Cốt truyện (world, characters, plot), progression, economy, levels, art-style, audio — theo thứ tự gợi ý ở [README](README.md). Skill (tạo 2026-10-12): cốt truyện → `local-game-story`; map/level → `local-level-design`; số liệu economy/progression → `game-balance` (kit); art/âm thanh → chưa có skill, chờ user quyết hướng dùng MCP (Blender, Figma, âm thanh).
 
 **Đề xuất** [ý tưởng]: trạng thái tính theo file, mà mechanics.md còn nhiều phần M2+ (nhập hồn, phép, PvP...) chưa xong. Hai cách:
 - (a) Tách các cơ chế M1 ra file riêng (vd `02-gameplay/mechanics-m1.md`) để Chốt riêng.

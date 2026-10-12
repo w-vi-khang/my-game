@@ -5,7 +5,7 @@ description: Viết hoặc cập nhật một phần tài liệu thiết kế ga
 
 # Viết một phần thiết kế (GDD section)
 
-Phần có skill chuyên thì dùng skill đó: cốt truyện/nhân vật/nhiệm vụ → `local-game-story`; map/level → `local-level-design`; con số cân bằng (chỉ số, tỉ lệ, kinh tế, tiến trình) → `local-game-balance`. Skill này dùng cho các phần còn lại và cho quy tắc (không phải con số) của economy/progression.
+Phần có skill chuyên thì dùng skill đó: cốt truyện/nhân vật/nhiệm vụ → `local-game-story`; map/level → `local-level-design`; con số cân bằng (chỉ số, tỉ lệ, kinh tế, tiến trình) → `game-balance` (kit). Skill này dùng cho các phần còn lại và cho quy tắc (không phải con số) của economy/progression.
 
 ## Đầu vào cần có (thiếu thì hỏi tuần tự, mỗi lượt 1–2 câu, kèm đề xuất)
 1. Phần nào (file nào trong `design/`)? Mục tiêu lần này: viết mới, mở rộng hay sửa?

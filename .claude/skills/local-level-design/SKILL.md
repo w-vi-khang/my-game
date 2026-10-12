@@ -23,7 +23,7 @@ description: Thiết kế map/level trong design/02-gameplay/levels.md — danh 
    - Kích thước map hợp hiệu năng voxel mobile (rủi ro trong `design/04-tech/risks.md`) — ghi kích thước ước tính, đánh `[chưa xác minh]` tới khi prototype đo.
 4. Sơ đồ: Mermaid `flowchart` cho quan hệ vùng ↔ điều kiện mở; không dùng ảnh. Đề xuất của AI ghi `[ý tưởng]`.
 5. Ước lượng công mỗi map (sắp đặt, tham số sinh seed, thử nghiệm) + milestone; so với roadmap (`local-game-roadmap`).
-6. Tác động chéo: loài/tài nguyên mới → mechanics, economy (`local-game-balance`); địa điểm truyện → `local-game-story`; thuật ngữ → glossary. Đặt trạng thái (không tự Chốt), cập nhật `design/README.md`, chạy `python3 tools/check_design.py`.
+6. Tác động chéo: loài/tài nguyên mới → mechanics, economy (`game-balance` (kit)); địa điểm truyện → `local-game-story`; thuật ngữ → glossary. Đặt trạng thái (không tự Chốt), cập nhật `design/README.md`, chạy `python3 tools/check_design.py`.
 
 ## Công cụ
 - `python3 tools/check_design.py --summary`

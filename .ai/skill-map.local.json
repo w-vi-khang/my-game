@@ -40,7 +40,7 @@
       ],
       "related": [
         "local-design-review",
-        "local-game-balance",
+        "game-balance",
         "local-game-ideation",
         "local-game-story",
         "local-level-design"
@@ -84,36 +84,6 @@
       ]
     },
     {
-      "name": "local-game-balance",
-      "status": "active",
-      "summary": "Cân bằng số liệu game: chỉ số sinh vật, kinh tế, tiến trình — tính bằng script, ghi bảng dữ liệu",
-      "keywords": [
-        "can bang",
-        "balance",
-        "chi so",
-        "he so quy doi",
-        "tran chi so",
-        "ti le",
-        "ty le",
-        "vuot troi",
-        "chan qua may",
-        "kinh te",
-        "tien trinh",
-        "faucet",
-        "sink",
-        "dong tien",
-        "diem chi so",
-        "~mo phong",
-        "bao hiem",
-        "moc bao hiem",
-        "pity"
-      ],
-      "related": [
-        "local-gdd-section",
-        "local-game-roadmap"
-      ]
-    },
-    {
       "name": "local-game-story",
       "status": "active",
       "summary": "Viết thế giới, nhân vật, cốt truyện theo map, mảnh ký ức, nhiệm vụ không tuần tự",
@@ -134,7 +104,7 @@
         "local-game-ideation",
         "local-gdd-section",
         "local-level-design",
-        "local-naming"
+        "naming"
       ]
     },
     {
@@ -156,33 +126,7 @@
       "related": [
         "local-gdd-section",
         "local-game-story",
-        "local-game-balance"
-      ]
-    },
-    {
-      "name": "local-naming",
-      "status": "active",
-      "summary": "Đặt tên riêng cho game: tên game, vùng đất, loài, tộc, phép, nhân vật, người chơi — theo quy ước, kiểm trùng",
-      "keywords": [
-        "dat ten",
-        "ten game",
-        "ten rieng",
-        "ten loai",
-        "ten vung dat",
-        "ten nhan vat",
-        "ten phep",
-        "ten toc",
-        "quy uoc dat ten",
-        "naming",
-        "~ten",
-        "goi y ten",
-        "~ten cho",
-        "doi ten"
-      ],
-      "related": [
-        "local-game-story",
-        "local-level-design",
-        "local-gdd-section"
+        "game-balance"
       ]
     }
   ]

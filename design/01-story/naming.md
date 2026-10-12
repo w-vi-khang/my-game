@@ -3,7 +3,7 @@
 > Trạng thái: Nháp
 > Liên quan: [Thuật ngữ](../glossary.md) · [Thế giới](world.md) · [Nhân vật](characters.md) · [Cơ chế](../02-gameplay/mechanics.md)
 
-Tên riêng trong game (tên game, vùng đất, loài, tộc, phép, nhân vật, người chơi...). Thuật ngữ cơ chế (lệnh làm việc, nhập hồn...) nằm ở [glossary](../glossary.md), không ở đây. Viết bằng skill `local-naming`; kiểm bằng `python3 .claude/skills/local-naming/scripts/check_names.py`.
+Tên riêng trong game (tên game, vùng đất, loài, tộc, phép, nhân vật, người chơi...). Thuật ngữ cơ chế (lệnh làm việc, nhập hồn...) nằm ở [glossary](../glossary.md), không ở đây. Viết bằng skill `naming` (kit); kiểm bằng `check_names.py` của skill (đường dẫn: `<Plugin root>/skills/naming/scripts/check_names.py`, Plugin root in ở đầu mỗi phiên).
 
 ## Cần đặt tên
 Tổng hợp 2026-10-12 từ toàn bộ `design/`. Chưa có tên nào được chốt.

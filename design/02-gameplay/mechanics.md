@@ -129,7 +129,7 @@ Các gói trong cửa hàng: gói sinh vật, gói sách phép, gói [trang bị
 - **Bảo hiểm** (user, 2026-10-12): mỗi gói đảm bảo ra phần thưởng hiếm khi rút đủ nhiều lần, và **công khai** việc này cho người chơi. Bảo hiểm sinh ra để đảm bảo **cá thể vượt trội** (user, 2026-10-12) — vượt trội không tính trong PvP nên bảo hiểm không làm lệch PvP.
   - [ý tưởng] Cách làm: mỗi gói có **mốc bảo hiểm** N — rút N lần liên tiếp chưa ra phần thưởng được bảo hiểm (gói sinh vật: cá thể vượt trội) thì lần thứ N chắc chắn ra; đếm riêng theo từng gói, ra phần thưởng hiếm thì đếm lại từ 0. Công khai trong cửa hàng: tỉ lệ từng loại phần thưởng, mốc N và số lần đã rút hiện tại.
   - Bảo hiểm (chống xui) và chặn quá may (chống may bất thường) cùng thu hẹp hai đầu may rủi, phần giữa giữ nguyên.
-  - N và tỉ lệ tính bằng `local-game-balance` (lệnh `pity`).
+  - N và tỉ lệ tính bằng skill `game-balance` của kit (lệnh `pity`).
   - **Bảo hiểm ưu tiên hơn chặn quá may** (user, 2026-10-12): đã công khai mốc thì chạm mốc là phải ra.
   - Phần thưởng được bảo hiểm (user, 2026-10-12): gói sinh vật → cá thể vượt trội; gói sách phép → phép **độ hiếm cao hơn**; gói trang bị → trang bị bậc trang bị cao hơn.
 - **Gói sách phép** (user, 2026-10-12): có tỉ lệ ra phép chưa sở hữu. Ra phép **đã sở hữu** → đổi thành **ma năng** (tài nguyên), dùng để đổi phép trong cửa hàng hoặc chế tác một số loại trang bị.
@@ -150,7 +150,7 @@ Mô tả của user (2026-10-12).
 - Câu hỏi mở: kho sinh vật có giới hạn không; công trình nào tăng giới hạn, tăng bao nhiêu; thả sinh vật có nhận lại gì không; đổi sinh vật giữa kho và đội hình hoạt động có tốn gì không.
 
 ### Chỉ số sinh vật
-Mô tả của user (2026-10-12). Số liệu trong ví dụ là minh hoạ. Các thông số cụ thể làm sau, bằng skill cân bằng `local-game-balance` (tạo 2026-10-12).
+Mô tả của user (2026-10-12). Số liệu trong ví dụ là minh hoạ. Các thông số cụ thể làm sau, bằng skill cân bằng `game-balance` của kit (tạo 2026-10-12).
 
 Mỗi cá thể có **hai bảng chỉ số tách riêng**: **chỉ số làm việc** và **chỉ số chiến đấu**. Chỉ bảng chiến đấu cần cân bằng cho PvP.
 
@@ -222,7 +222,7 @@ Mô tả của user (2026-10-12). Công thức để sau.
 - **Rèn:** làm trang bị ở công trình **lò rèn**, cần nguyên liệu và sinh vật phù hợp. Một số loại trang bị chế tác bằng **ma năng** (xem Rút thưởng gói).
   - [ý tưởng] Rèn là một lệnh làm việc tại lò rèn; "sinh vật phù hợp" = sinh vật có năng lực làm việc rèn → độ thuần thục ảnh hưởng thời gian/kết quả. Nối nông trại (P2) với chiến đấu (P4).
 - Nguồn: rèn, gói trang bị (rút thưởng gói), các nguồn khác _(chưa có)_.
-- [ý tưởng] Trang bị chỉ cộng vào các chỉ số phân bổ được, có trần chung như chỉ số (không vượt trần) → giữ cân bằng bằng `local-game-balance`.
+- [ý tưởng] Trang bị chỉ cộng vào các chỉ số phân bổ được, có trần chung như chỉ số (không vượt trần) → giữ cân bằng bằng `game-balance` (kit).
 - Câu hỏi mở: trang bị có giới hạn theo loài/tộc không; một sinh vật mang được 2–3 trang bị giống nhau không; công thức rèn và ghép; công trình lò rèn mở khi nào.
 
 ### Phép

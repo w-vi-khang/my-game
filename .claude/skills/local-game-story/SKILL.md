@@ -19,7 +19,7 @@ description: Viết hoặc cập nhật thế giới, nhân vật, cốt truyệ
    - Loài trở lại nhờ môi trường sống → nếu truyện gắn với loài, nêu loài và map.
 3. Viết theo cấu trúc mục sẵn có của file đích. Bảng cho dữ liệu có cấu trúc (nhân vật | vai trò | map | xuất hiện ở nhiệm vụ nào; nhiệm vụ | map | loại | điều kiện mở | phần thưởng | mảnh ký ức). Sơ đồ quan hệ/nhánh truyện bằng Mermaid (`flowchart`, `timeline`). Đề xuất của AI ghi `[ý tưởng]`.
 4. Mỗi nhiệm vụ/nội dung mới có ước lượng công (ngày-người: viết + sắp đặt trên map) và milestone; tổng vượt roadmap → cảnh báo (`local-game-roadmap`).
-5. Tác động chéo: tên riêng mới → glossary; nhiệm vụ cần cơ chế mới → mechanics (hỏi); địa điểm → levels (`local-level-design`); phần thưởng → economy (`local-game-balance`).
+5. Tác động chéo: tên riêng mới → glossary; nhiệm vụ cần cơ chế mới → mechanics (hỏi); địa điểm → levels (`local-level-design`); phần thưởng → economy (`game-balance` (kit)).
 6. Đặt trạng thái file (không tự đặt Chốt), cập nhật bảng `design/README.md`, chạy `python3 tools/check_design.py`.
 
 ## Công cụ

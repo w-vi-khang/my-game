@@ -44,6 +44,63 @@
       "code-review"
     ]
   },
+  "naming": {
+    "_comment": "Skill naming của kit (>= 0.7.0). denylist: tên của game/tác phẩm khác dễ bị so sánh (vd game tham khảo) — điền khi đặt tên loài/vùng.",
+    "doc": "design/01-story/naming.md",
+    "list_heading": "Danh sách tên",
+    "status_column": 4,
+    "glossary": "design/glossary.md",
+    "max_len": 16,
+    "similar": 0.85,
+    "deny_similar": 0.75,
+    "denylist": []
+  },
+  "balance": {
+    "_comment": "Skill game-balance của kit (>= 0.7.0). Quy tắc riêng của my-game: tools/balance_rules.py.",
+    "data_dir": "design/data",
+    "rules_docs": [
+      "design/02-gameplay/mechanics.md",
+      "design/02-gameplay/economy.md",
+      "design/02-gameplay/progression.md"
+    ],
+    "check_command": "python3 tools/balance_rules.py check design/data/stats.json",
+    "constraints": [
+      "Tiền nạp chỉ ảnh hưởng tốc độ tiến trình; không mua được vượt mức tối đa mà người không nạp đạt được; không trực tiếp tăng tỉ lệ vượt trội (design/decisions/0004-tien-nap.md — trạng thái Đề xuất, chưa Chốt)"
+    ]
+  },
+  "concept_image": {
+    "_comment": "Skill concept-image của kit (>= 0.7.0), theo .ai/kit-requests/concept-image-skill.md mục 4. reference_arg và checkers: thêm khi hf_generate.py có --ref và đã viết lệnh checker lớp 2–3.",
+    "style_doc": "design/03-art-audio/art-style.md",
+    "out_dir": "~/Documents/User/khang/Game/art-test/gen",
+    "allow_in_repo": false,
+    "vars": {
+      "venv": "~/Documents/User/khang/Game/art-test/.venv"
+    },
+    "generator": {
+      "command": "{venv}/bin/python tools/asset_gen/hf_generate.py --name {name} --out {out} --image-only --seed {seed} --prompt {prompt}",
+      "license": "apache-2.0 (FLUX.2-klein-4B)",
+      "max_per_turn": 3,
+      "quota_note": "ZeroGPU free ~3,5 phút/ngày [chưa xác minh]; chừa quota cho TRELLIS.2"
+    },
+    "checkers": [],
+    "downstream": {
+      "name": "TRELLIS.2 image-to-3D",
+      "requirements": [
+        "1 chủ thể",
+        "toàn thân, không cắt mép",
+        "nền trơn",
+        "góc ba phần tư",
+        "tư thế trung tính"
+      ]
+    },
+    "tropes": [
+      "cáo + magical → nhiều đuôi (kitsune)",
+      "vật mọc trên lưng → khay/yên rời"
+    ],
+    "license_denylist": [
+      "flux-non-commercial-license"
+    ]
+  },
   "context_warn_tokens": 150000,
   "context_window_tokens": 1000000,
   "_context": "Cảnh báo context theo token thật (kit ≥ 0.5.0). context_window_tokens = cửa sổ của model đang dùng (1M); cảnh báo mạnh khi ≥ 85%."
