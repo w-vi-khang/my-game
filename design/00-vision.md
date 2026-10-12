@@ -19,6 +19,7 @@
 ## Người chơi mục tiêu
 <!-- Ai chơi? Chơi bao lâu mỗi lần? Thiết bị? Kinh nghiệm game? -->
 - Thiết bị: PC và mobile.
+- Thị trường: **toàn cầu** (user, 2026-10-12) → giao diện nhiều ngôn ngữ; tên riêng tự tạo, dễ đọc tiếng Việt và tiếng Anh ([naming](01-story/naming.md)).
 - Độ tuổi, kinh nghiệm game, thời lượng một phiên: _(chưa có)_
 
 ## Thể loại & game tham khảo

@@ -44,7 +44,17 @@ _(chưa có)_
 
 ## Nguyên tắc chung
 <!-- Ngôn ngữ gốc (tiếng Việt, tiếng Anh, ngôn ngữ tự tạo), thị trường mục tiêu, độ dài, dễ đọc trên cả PC và mobile, không trùng game/thương hiệu có sẵn. -->
-_(chưa có)_
+Quyết định của user (2026-10-12):
+- **Tên riêng là từ tự tạo** kiểu fantasy, **dễ đọc ở cả tiếng Việt lẫn tiếng Anh**.
+- **Thị trường mục tiêu: toàn cầu.**
+
+Hệ quả [ý tưởng]:
+- Tên riêng giữ nguyên qua mọi bản dịch; giao diện và tên cơ chế dịch theo ngôn ngữ người chơi.
+- Chỉ dùng chữ Latin không dấu (a–z), không ký tự đặc biệt → gõ, tìm kiếm, hiển thị được ở mọi ngôn ngữ.
+- 2–3 âm tiết; tránh cụm phụ âm khó với người Việt (vd "str", "-nds") và cách viết dễ đọc sai với người Anh (vd "nh", "ngh", "gi").
+- Không trùng từ có nghĩa xấu/nhạy cảm trong tiếng Việt, tiếng Anh (kiểm thêm các ngôn ngữ lớn khi chốt tên game).
+- Độ dài: loài, phép ≤ 12 ký tự; map, vùng đất ≤ 16 ký tự (để vừa UI mobile).
+- Tên game: tra trùng toàn cầu (Steam, App Store, Google Play, nhãn hiệu) trước khi dùng chính thức.
 
 ## Quy ước theo nhóm
 <!-- Mỗi nhóm: cách ghép tên (gốc từ, âm tiết, hậu tố theo nguyên tố/tộc...), độ dài tối đa, ví dụ. -->
