@@ -16,6 +16,7 @@ Quy ước: mỗi file có `> Trạng thái: Nháp | Đang xem xét | Chốt`; �
 ## Mục lục & trạng thái
 | Tài liệu | Nội dung | Trạng thái |
 |---|---|---|
+| [summary.md](summary.md) | Tóm tắt game một trang + danh sách cần đặt tên | Nháp |
 | [00-vision.md](00-vision.md) | Pitch, pillars, người chơi, phạm vi | Nháp |
 | [01-story/world.md](01-story/world.md) | Thế giới, bối cảnh, tông giọng | Nháp |
 | [01-story/characters.md](01-story/characters.md) | Nhân vật | Nháp |

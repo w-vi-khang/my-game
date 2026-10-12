@@ -20,14 +20,14 @@
 1. Tiền nạp được ảnh hưởng **tốc độ** tiến trình.
 2. **Mức tối đa** (chỉ số, cấp độ, bậc, sở hữu phép/sinh vật, bậc trang bị) người không nạp cũng đạt được; tiền nạp không mua được vượt mức đó.
 3. Trong PvP: bỏ phần vượt trội; điểm cấp độ/bậc và trang bị vẫn tính → ở mức tối đa mọi người như nhau, chỉ khác cách phân bố, sinh vật, phép và trang bị mang theo.
-4. Tiền nạp không trực tiếp tăng tỉ lệ vượt trội. Rút gói có bảo hiểm vượt trội, công khai mốc (vượt trội không tính PvP).
+4. **Sửa 2026-10-12 (user chọn phương án b):** tiền nạp **được** tăng tỉ lệ vượt trội (vd mua thẻ bài bậc cao; thẻ bậc 4 chắc chắn vượt trội), vì vượt trội không tính trong PvP. Rút gói có bảo hiểm vượt trội, công khai mốc.
 5. Tiền nạp mang lại: làm đẹp (skin), hiệu ứng, tăng cơ hội ra loài khi rút thưởng, đẩy nhanh xây dựng, ưu đãi (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%, phụ trợ khác).
 6. Chênh lệch khi đang lên được giảm bằng ghép trận theo hạng rồi cấp độ trung bình.
 
 Thay thế quy tắc 1 ở Bối cảnh (quy tắc đó chưa từng Chốt).
 
 ## Hệ quả
-- ⚠️ Chờ quyết (2026-10-12): thẻ bài bậc 2–4 tăng tỉ lệ vượt trội, bậc 4 chắc chắn vượt trội ([cơ chế](../02-gameplay/mechanics.md#thẻ-bài--bắt-sinh-vật)) → nếu bán bằng tiền nạp thì trái điểm 4. Hoặc giới hạn nguồn thẻ bậc cao, hoặc sửa điểm 4.
+- Điểm 4 sửa 2026-10-12: thẻ bài bậc cao bán bằng tiền nạp ([cơ chế](../02-gameplay/mechanics.md#thẻ-bài--bắt-sinh-vật)). Vẫn giữ: không mua được thứ ảnh hưởng PvP vượt mức tối đa.
 - [00-vision.md](../00-vision.md): mô hình kinh doanh, mục "Không làm" — đã cập nhật theo B.
 - [economy.md](../02-gameplay/economy.md): tài nguyên tiền nạp, rủi ro — đã cập nhật.
 - [mechanics.md](../02-gameplay/mechanics.md): nhận sinh vật, chế độ nhiều người, giới hạn sinh vật, tiền tệ & cửa hàng — đã cập nhật.

@@ -90,7 +90,9 @@
 | Base | Giá trị chỉ số ban đầu theo loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phân bố loài | Phần điểm chỉ số cố định, đặc trưng cho loài; tạo khác biệt chính giữa các loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phân bố ngẫu nhiên | Phần điểm chỉ số chia ngẫu nhiên khi cá thể sinh ra; cố định, tạo sự riêng biệt của cá thể | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Vượt trội | Cá thể có thêm điểm chỉ số (chiến đấu: phân bố ngẫu nhiên; làm việc: dồn vào một chỉ số); xét mỗi lần sở hữu cá thể mới; bị bỏ trong PvP | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Vượt trội | Phân hạng cá thể cao nhất: điểm cộng cá thể ≥ 20% base của loài; xác suất theo bậc thẻ bài (bậc 4 chắc chắn); bị bỏ trong PvP | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Điểm cộng cá thể | Điểm cộng trên base của loài, khác nhau giữa các cá thể; quyết định phân hạng cá thể; bị bỏ trong PvP (ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phân hạng cá thể | Hạng chất lượng của cá thể theo điểm cộng cá thể; cao nhất là vượt trội (tên các hạng chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Hệ số quy đổi | Tỉ lệ đổi điểm chỉ số thành giá trị thật; giống nhau ở mọi loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Trần | Giá trị tối đa của một chỉ số (vd tốc độ đánh tối đa 6) |
 | Chặn quá may | Cơ chế hạ tạm tỉ lệ vượt trội khi người chơi ra vượt trội nhiều bất thường; không tác động may mắn bình thường | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

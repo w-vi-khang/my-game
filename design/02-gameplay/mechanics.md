@@ -163,11 +163,12 @@ Mô tả của user (2026-10-12).
 
 - [ý tưởng] Công thức (số liệu tính bằng skill `game-balance` của kit): `tỉ lệ bắt = min(1, gốc[bậc thẻ] × hệ số cấp độ(cấp sinh vật − cấp người chơi) × hệ số bậc(bậc sinh vật))`, bậc thẻ 4 = 1. Tỉ lệ vượt trội theo bậc thẻ thay cho tỉ lệ vượt trội chung khi bắt.
 - [ý tưởng] Ném là thao tác ngắm của người chơi (client); kết quả trúng/bắt/vượt trội/mất thẻ do backend quyết định (cùng chỗ sinh chỉ số cá thể, biến thể — [0003](../decisions/0003-server.md)).
-- ⚠️ **Cần quyết — xung đột với [0004](../decisions/0004-tien-nap.md) điểm 4** ("tiền nạp không trực tiếp tăng tỉ lệ vượt trội"): nếu thẻ bậc 2–4 mua được bằng tiền nạp thì tiền nạp tăng tỉ lệ vượt trội trực tiếp; thẻ bậc 4 = mua thẳng cá thể vượt trội. Vượt trội bị bỏ trong PvP nên không lệch PvP, nhưng trái câu chữ của 0004. Cách giải: (a) thẻ bậc cao chỉ có từ chơi (chế tác, phần thưởng); (b) sửa 0004 cho phép, vì vượt trội không ảnh hưởng PvP.
-- Cần quyết: thẻ bậc 4 có tính vào **chặn quá may** không ([ý tưởng] không — ra vượt trội do thẻ, không phải do may).
+- **Tiền nạp và thẻ bài** (user chọn phương án b, 2026-10-12): thẻ bậc cao bán được bằng tiền nạp, dù tăng trực tiếp tỉ lệ vượt trội — vì vượt trội bị bỏ trong PvP ([0004](../decisions/0004-tien-nap.md) điểm 4 đã sửa).
+- **Thẻ ưu tiên hơn chặn quá may** (user, 2026-10-12): vượt trội do thẻ (bậc 4, hoặc tỉ lệ của bậc 1–3) không bị chặn quá may hạ tỉ lệ; thẻ bậc 4 không tính vào bộ đếm chặn quá may.
+- **Ấp nở:** người chơi **gắn thẻ vào trứng trước khi nở**; bậc thẻ quyết định chất lượng sinh vật nở ra (user, 2026-10-12).
 - Câu hỏi mở:
   - Nguồn thẻ bài (chế tác, cửa hàng, gói, phần thưởng); tỉ lệ cụ thể từng bậc.
-  - Sinh vật nhận từ ấp nở, rút thưởng gắn thẻ bậc mấy?
+  - Sinh vật nhận từ rút thưởng gắn thẻ bậc mấy (ấp nở: người chơi tự gắn)?
   - Đổi sinh vật sang thẻ khác được không (vd lấy hiệu ứng của thẻ bậc 4)?
   - Sinh vật có bỏ chạy sau khi bắt hụt không?
   - Cấp độ sinh vật ngoài tự nhiên tăng thế nào theo danh sách yêu cầu (mỗi yêu cầu +N cấp?).
@@ -196,13 +197,16 @@ Mỗi cá thể có **hai bảng chỉ số tách riêng**: **chỉ số làm vi
 |---|---|---|---|---|
 | Phân bố loài | 200 | Loài — đặc trưng của loài; là phần tạo khác biệt chính giữa các loài | Không | Có |
 | Phân bố ngẫu nhiên | 100 | Ngẫu nhiên khi cá thể sinh ra — làm nên sự riêng biệt của cá thể; ít điểm hơn phân bố loài | Không | Có |
-| Vượt trội | +50, +70, thậm chí +100 (tổng 350–400) | Ngẫu nhiên, chỉ cá thể vượt trội | Không | **Không** |
+| Điểm cộng cá thể | 0 → +20% base trở lên (vd 300 → 360+) | Ngẫu nhiên theo bậc thẻ (bắt, ấp nở); quyết định **phân hạng cá thể** | Không | **Không** |
 | Điểm chỉ số (cấp độ & bậc) | _(chưa có)_ | Người chơi phân bổ tự do | Có — tốn **vật phẩm phân bổ lại** | Có — người chơi nào rồi cũng đạt được |
 
 - Phân bố loài + phân bố ngẫu nhiên là cố định, không phân bổ lại được. Phân bố loài giữ cho phần ngẫu nhiên không làm cá thể quá tệ.
+- **Phân hạng cá thể** (user, 2026-10-12): tổng điểm cơ bản của mỗi cá thể khác nhau trong cùng loài, do **điểm cộng cá thể** (cộng trên base của loài). **Điểm cộng ≥ 20% base → cá thể vượt trội**; dưới ngưỡng đó là các phân hạng thấp hơn. Bậc thẻ bài quyết định phân phối điểm cộng (bậc 4: chắc chắn ≥ 20%).
+  - Câu hỏi mở: có bao nhiêu phân hạng dưới vượt trội, ngưỡng mỗi hạng (vd 0–5%, 5–10%, 10–20%)? Tên các hạng — user tự đặt ([naming](../01-story/naming.md)).
+  - [ý tưởng] Trong PvP bỏ **toàn bộ** điểm cộng cá thể (mọi phân hạng, không chỉ vượt trội) → giữ nguyên quy tắc "cùng loài, cùng cấp độ, cùng bậc thì cùng tổng điểm".
 - **Tổng điểm khác nhau giữa các loài nhưng không quá chênh**; khác biệt chủ yếu ở cách phân bố loài. Loài có tổng điểm thấp hơn đôi khi có phân bố "đẹp" hơn, hợp vai trò hơn.
 - **Điểm chỉ số** nhận khi tăng cấp độ hoặc bậc (tiến hoá); **điểm làm việc và điểm chiến đấu là hai quỹ riêng**. Chỉ cộng thêm, không cắt bớt xuống dưới base. Phân bổ lại được nhưng cần dùng **vật phẩm phân bổ lại** (nguồn _(chưa có)_).
-- Trong PvP: bỏ phần vượt trội → cá thể cùng loài, cùng cấp độ và bậc có **cùng tổng điểm**, chỉ khác **cách phân bố** (phân bố ngẫu nhiên + phân bổ của người chơi).
+- Trong PvP: bỏ điểm cộng cá thể (gồm phần vượt trội) → cá thể cùng loài, cùng cấp độ và bậc có **cùng tổng điểm**, chỉ khác **cách phân bố** (phân bố ngẫu nhiên + phân bổ của người chơi).
 
 ```mermaid
 flowchart LR
