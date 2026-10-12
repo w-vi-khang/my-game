@@ -27,6 +27,7 @@
 Thay thế quy tắc 1 ở Bối cảnh (quy tắc đó chưa từng Chốt).
 
 ## Hệ quả
+- ⚠️ Chờ quyết (2026-10-12): thẻ bài bậc 2–4 tăng tỉ lệ vượt trội, bậc 4 chắc chắn vượt trội ([cơ chế](../02-gameplay/mechanics.md#thẻ-bài--bắt-sinh-vật)) → nếu bán bằng tiền nạp thì trái điểm 4. Hoặc giới hạn nguồn thẻ bậc cao, hoặc sửa điểm 4.
 - [00-vision.md](../00-vision.md): mô hình kinh doanh, mục "Không làm" — đã cập nhật theo B.
 - [economy.md](../02-gameplay/economy.md): tài nguyên tiền nạp, rủi ro — đã cập nhật.
 - [mechanics.md](../02-gameplay/mechanics.md): nhận sinh vật, chế độ nhiều người, giới hạn sinh vật, tiền tệ & cửa hàng — đã cập nhật.

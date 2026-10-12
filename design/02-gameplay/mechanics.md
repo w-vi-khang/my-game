@@ -26,7 +26,7 @@
 | Phép của pháp sư | Phép khám phá, phát triển, tấn công đơn giản (quả cầu lửa, đi trên mặt nước...) | P1, P3 | Client | Phải có | 10–20 + 1–2/phép | M2 |
 | Sưu tầm phép (phép sinh vật) | Mở khoá phép theo nhóm phép, độ hiếm; gán phép vào ô phép ở màn chuẩn bị chiến đấu | P2, P4 | Client | Phải có | 15–25 + 0,5–2/phép | M2 |
 | Nhận sinh vật | Bắt, ấp nở, rút thưởng (chỉ ra loài đã hồi sinh); sinh vật mới mở khoá phép nó mang theo | P1, P2 | Client + Backend (rút thưởng) | Phải có | 10–20 | M2 |
-| Thẻ bài & bắt sinh vật | Sinh vật được chứa trong thẻ bài (nhiều loại); bắt sinh vật ngoài tự nhiên bằng thẻ bài, tỉ lệ bắt theo chênh lệch cấp độ, bậc sinh vật, bậc thẻ bài (bậc 4 chắc chắn bắt được); thẻ bài cho hiệu ứng xuất hiện/hào quang | P1, P2 | Client + Backend (kết quả bắt, sinh chỉ số cá thể) | Phải có | 8–14 + art hiệu ứng mỗi loại thẻ | M2 [ý tưởng] |
+| Thẻ bài & bắt sinh vật | Mỗi cá thể gắn một thẻ bài, thẻ cất trong kho sinh vật; ném thẻ để bắt (ném hụt: tỉ lệ nhỏ mất thẻ; bắt không thành: mất thẻ); tỉ lệ bắt theo chênh lệch cấp độ, bậc sinh vật, bậc thẻ; 4 bậc thẻ khác nhau tỉ lệ bắt và tỉ lệ vượt trội; bậc 4 chắc chắn bắt, chắc chắn vượt trội, có hiệu ứng | P1, P2 | Client + Backend (kết quả bắt, sinh chỉ số cá thể) | Phải có | 8–14 + art hiệu ứng mỗi loại thẻ | M2 [ý tưởng] |
 | Giới hạn sinh vật & kho sinh vật | Giới hạn số sinh vật hoạt động (làm việc + chiến đấu) theo cấp độ người chơi và công trình; dư thì thả hoặc cất vào kho sinh vật | P2 | Client + Backend (sở hữu sinh vật) | Phải có | 3–6 | M2 |
 | Trang bị | Trang bị cho sinh vật, nhiều bậc trang bị; ghép trang bị cùng loại cùng bậc lên bậc cao hơn; rèn ở lò rèn (nguyên liệu + sinh vật phù hợp); cộng chỉ số chiến đấu, tính trong PvP | P2, P4 | Client + Backend (sở hữu, ghép, kết quả rèn) | Phải có | 13–23 | M3 [ý tưởng] |
 | Tiến hoá | Tăng bậc → mở ô phép thứ 4, mở rộng phạm vi phép mang được | P2, P4 | Client | Nên có | 10–15 | M3 |
@@ -144,26 +144,39 @@ Các gói trong cửa hàng: gói sinh vật, gói sách phép, gói [trang bị
 
 ### Thẻ bài & bắt sinh vật
 Mô tả của user (2026-10-12).
-- **Sinh vật được chứa trong thẻ bài.** Có nhiều loại thẻ bài khác nhau.
-- **Bắt sinh vật ngoài tự nhiên** bằng thẻ bài. Tỉ lệ bắt thành công phụ thuộc:
-  1. **Chênh lệch cấp độ** giữa người chơi và sinh vật ngoài tự nhiên. Cấp độ của sinh vật ngoài tự nhiên phụ thuộc **danh sách yêu cầu của loài** (user gọi là "bảng nhiệm vụ loài"). Bắt được sinh vật cấp độ cao sẵn → tiết kiệm tài nguyên nâng cấp, nhưng tỉ lệ bắt giảm. Thiết kế để người chơi **thiên về hoàn thành danh sách yêu cầu của loài** (P1).
+- **Mỗi cá thể đều gắn với một thẻ bài.** Thẻ bài là thứ được cất vào **kho sinh vật** (xem [Giới hạn sinh vật & kho sinh vật](#giới-hạn-sinh-vật--kho-sinh-vật)).
+- **Bắt bằng cách ném thẻ bài vào sinh vật** ngoài tự nhiên:
+  - **Ném hụt** (thẻ không trúng sinh vật) → có tỉ lệ nhỏ bị mất thẻ.
+  - **Ném trúng nhưng bắt không thành** (do tỉ lệ bắt) → **mất thẻ**; [ý tưởng] hiệu ứng thẻ nứt vỡ, sinh vật thoát ra.
+- **Tỉ lệ bắt** phụ thuộc:
+  1. **Chênh lệch cấp độ** giữa người chơi và sinh vật ngoài tự nhiên. Cấp độ sinh vật ngoài tự nhiên phụ thuộc **danh sách yêu cầu của loài** (user gọi là "bảng nhiệm vụ loài"). Bắt được sinh vật cấp độ cao sẵn → tiết kiệm tài nguyên nâng cấp, nhưng tỉ lệ bắt giảm. Thiết kế để người chơi **thiên về hoàn thành danh sách yêu cầu của loài** (P1).
   2. **Bậc của sinh vật.**
-  3. **Bậc thẻ bài** (chất lượng thẻ): bậc 1, 2, 3, 4 — **bậc 4 chắc chắn bắt được**.
-- **Hiệu ứng thẻ bài:** thẻ bài mang lại cho sinh vật hiệu ứng khi xuất hiện và hiệu ứng đi kèm (vd hào quang, mây bao quanh) — chỉ là hình ảnh.
-- [ý tưởng] Công thức (số liệu tính bằng skill `game-balance` của kit): `tỉ lệ = min(1, gốc[bậc thẻ] × hệ số cấp độ(cấp sinh vật − cấp người chơi) × hệ số bậc(bậc sinh vật))`, riêng bậc thẻ 4 = 1. Hệ số cấp độ giảm dần khi sinh vật cao cấp hơn người chơi.
-- [ý tưởng] Kết quả bắt do backend quyết định (cùng chỗ sinh chỉ số cá thể, vượt trội, biến thể — [0003](../decisions/0003-server.md)); client chỉ hiển thị.
-- [ý tưởng] Hiệu ứng thẻ bài là hàng làm đẹp — hợp nguyên tắc tiền nạp ([0004](../decisions/0004-tien-nap.md)): bán được mà không ảnh hưởng sức mạnh.
+  3. **Bậc thẻ bài.**
+- **Bốn bậc thẻ bài:**
+
+| Bậc thẻ | Tỉ lệ bắt | Tỉ lệ ra cá thể vượt trội | Hiệu ứng thẻ |
+|---|---|---|---|
+| 1 | Thấp nhất | Thấp nhất | Không |
+| 2 | Cao hơn | Cao hơn | Không |
+| 3 | Cao hơn nữa | Cao hơn nữa | Không |
+| 4 | **Chắc chắn bắt được** | **Chắc chắn vượt trội** | **Có** — hiệu ứng khi xuất hiện, hào quang, mây bao quanh... |
+
+- [ý tưởng] Công thức (số liệu tính bằng skill `game-balance` của kit): `tỉ lệ bắt = min(1, gốc[bậc thẻ] × hệ số cấp độ(cấp sinh vật − cấp người chơi) × hệ số bậc(bậc sinh vật))`, bậc thẻ 4 = 1. Tỉ lệ vượt trội theo bậc thẻ thay cho tỉ lệ vượt trội chung khi bắt.
+- [ý tưởng] Ném là thao tác ngắm của người chơi (client); kết quả trúng/bắt/vượt trội/mất thẻ do backend quyết định (cùng chỗ sinh chỉ số cá thể, biến thể — [0003](../decisions/0003-server.md)).
+- ⚠️ **Cần quyết — xung đột với [0004](../decisions/0004-tien-nap.md) điểm 4** ("tiền nạp không trực tiếp tăng tỉ lệ vượt trội"): nếu thẻ bậc 2–4 mua được bằng tiền nạp thì tiền nạp tăng tỉ lệ vượt trội trực tiếp; thẻ bậc 4 = mua thẳng cá thể vượt trội. Vượt trội bị bỏ trong PvP nên không lệch PvP, nhưng trái câu chữ của 0004. Cách giải: (a) thẻ bậc cao chỉ có từ chơi (chế tác, phần thưởng); (b) sửa 0004 cho phép, vì vượt trội không ảnh hưởng PvP.
+- Cần quyết: thẻ bậc 4 có tính vào **chặn quá may** không ([ý tưởng] không — ra vượt trội do thẻ, không phải do may).
 - Câu hỏi mở:
-  - Thẻ bài chứa sinh vật thay cho kho sinh vật, hay kho sinh vật là bộ sưu tập thẻ? Sinh vật đổi sang thẻ khác được không?
-  - Nguồn thẻ bài (chế tác, cửa hàng, gói, phần thưởng); bậc thẻ bài có giới hạn mua bằng tiền nạp không.
-  - Bắt hụt thì mất thẻ không? Sinh vật bỏ chạy không?
-  - "Nhiều loại thẻ bài": khác nhau ở hiệu ứng, hay còn khác về chức năng (vd thẻ hợp nguyên tố tăng tỉ lệ bắt)?
+  - Nguồn thẻ bài (chế tác, cửa hàng, gói, phần thưởng); tỉ lệ cụ thể từng bậc.
+  - Sinh vật nhận từ ấp nở, rút thưởng gắn thẻ bậc mấy?
+  - Đổi sinh vật sang thẻ khác được không (vd lấy hiệu ứng của thẻ bậc 4)?
+  - Sinh vật có bỏ chạy sau khi bắt hụt không?
   - Cấp độ sinh vật ngoài tự nhiên tăng thế nào theo danh sách yêu cầu (mỗi yêu cầu +N cấp?).
 
 ### Giới hạn sinh vật & kho sinh vật
 Mô tả của user (2026-10-12).
 - **Giới hạn sinh vật:** số sinh vật **hoạt động** (đang làm việc hoặc chiến đấu, tính chung một tổng) có giới hạn, tăng theo **cấp độ người chơi** và **công trình**.
 - Muốn có thêm sinh vật khi đã chạm giới hạn → bỏ bớt sinh vật cũ: thả đi, hoặc tạm cất vào **kho sinh vật**. Sinh vật trong kho sinh vật không tính vào giới hạn, không làm việc, không chiến đấu.
+- **Kho sinh vật chứa thẻ bài** — mỗi cá thể gắn với một thẻ bài (user, 2026-10-12; xem [Thẻ bài & bắt sinh vật](#thẻ-bài--bắt-sinh-vật)).
 - Tiền nạp: giới hạn sinh vật +10% (xem [Kinh tế](economy.md)).
 - [ý tưởng] Sinh vật trong kho sinh vật vẫn được tính là đã sở hữu (giữ phép đã mở khoá, giữ tiến độ sưu tầm).
 - Câu hỏi mở: kho sinh vật có giới hạn không; công trình nào tăng giới hạn, tăng bao nhiêu; thả sinh vật có nhận lại gì không; đổi sinh vật giữa kho và đội hình hoạt động có tốn gì không.

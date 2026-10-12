@@ -105,7 +105,7 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 | B5 | [04-tech/tech-stack.md](04-tech/tech-stack.md) — phần Client | Phụ thuộc A3. Chấp nhận/bỏ [ý tưởng]: Input System; meshing tự viết bằng Jobs + Burst; A\* tự viết; uGUI; không dùng ECS |
 | B6 | [05-roadmap.md](05-roadmap.md) — phần M1–M2 | Chấp nhận ước lượng thô + giả định (1 ngày-người = 8 giờ, ×1,5); phạm vi đã giữ nguyên (user, 2026-10-12) |
 | B7 | [03-art-audio/art-style.md](03-art-audio/art-style.md) — **thống nhất art style trước khi bắt đầu** (user, 2026-10-12) | Đang trống. Cần: hướng phong cách (voxel/low-poly, màu, tỉ lệ sinh vật), tham khảo có link, nguồn asset (hỗ trợ URP — [0005](decisions/0005-render-pipeline.md); giấy phép; giá có nguồn), quy cách kỹ thuật (kích thước khối, số polygon trên mobile) |
-| B8 | [01-story/naming.md](01-story/naming.md) — quy ước đặt tên (user, 2026-10-12) | Đang trống. Cần: tên game, quy ước tên vùng đất, loài, tộc, phép, nhân vật, người chơi; dùng skill `naming` (kit) |
+| B8 | [01-story/naming.md](01-story/naming.md) — quy ước đặt tên (user, 2026-10-12) | **User tự đặt tên, AI chỉ duyệt** (skill `naming` của kit). Danh sách nhắc ở mục "Cần đặt tên". Cần trước M1: tên game (tạm được). Đang chờ user quyết: Aetharyn / Viventa |
 
 ### C. Nên viết trước M1 (chưa cần Chốt)
 - [ ] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — đang trống; M1 cần điều khiển PC + cảm ứng.

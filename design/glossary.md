@@ -28,10 +28,11 @@
 | Ma năng | Tài nguyên nhận khi rút gói sách phép ra phép đã sở hữu; đổi phép trong cửa hàng hoặc chế tác một số trang bị. Khác "mana" (năng lượng dùng phép) — tên dễ nhầm, xem [naming](01-story/naming.md) | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Biến thể hiển thị | Khác biệt nhỏ về hình ảnh giữa mọi cá thể/vật thể cùng loại (kích thước, màu, hoa văn), sinh theo seed riêng |
 | Biến thể | Dạng khác của một loài: cá thể đặc biệt về màu sắc, hình thái, hiếm; tách riêng với vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Thẻ bài | Vật chứa sinh vật; dùng để bắt sinh vật ngoài tự nhiên; có nhiều loại, mang hiệu ứng xuất hiện/hào quang cho sinh vật | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Bậc thẻ bài | Chất lượng thẻ bài (1–4); bậc 4 chắc chắn bắt được. Khác "bậc" của sinh vật và "bậc trang bị" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Thẻ bài | Mỗi cá thể gắn một thẻ bài; thẻ là thứ cất trong kho sinh vật; ném thẻ vào sinh vật để bắt | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ném thẻ | Thao tác bắt: ném thẻ bài vào sinh vật ngoài tự nhiên. Ném hụt: tỉ lệ nhỏ mất thẻ; trúng nhưng bắt không thành: mất thẻ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bậc thẻ bài | Chất lượng thẻ bài (1–4): quyết định tỉ lệ bắt và tỉ lệ vượt trội; bậc 4 chắc chắn bắt, chắc chắn vượt trội, có hiệu ứng. Khác "bậc" của sinh vật và "bậc trang bị" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tỉ lệ bắt | Xác suất bắt thành công: theo chênh lệch cấp độ người chơi – sinh vật, bậc sinh vật, bậc thẻ bài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Hiệu ứng thẻ bài | Hiệu ứng hình ảnh thẻ bài mang lại cho sinh vật (khi xuất hiện, hào quang, mây...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Hiệu ứng thẻ bài | Hiệu ứng hình ảnh (khi xuất hiện, hào quang, mây...) — chỉ thẻ bậc 4 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lò rèn | Công trình để rèn trang bị | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Công cụ kiểm tra asset | Script Blender headless kiểm model 3D theo quy cách trước khi đưa vào client (`tools/asset_check/`) | [decisions/0006](decisions/0006-cong-cu-kiem-tra-asset.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |
@@ -80,7 +81,7 @@
 | Nhu cầu sinh vật | Phần danh sách yêu cầu của loài sau khi đã trở lại; đáp ứng càng nhiều sinh vật càng khoẻ, làm tốt, đôi khi tặng quà (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mức đáp ứng | Mức nhu cầu sinh vật đã được đáp ứng (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Kho sinh vật | Nơi tạm cất sinh vật; sinh vật trong kho không tính vào giới hạn sinh vật, không làm việc/chiến đấu. Khác "kho" chứa sản lượng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Kho sinh vật | Nơi tạm cất sinh vật (dưới dạng thẻ bài); sinh vật trong kho không tính vào giới hạn sinh vật, không làm việc/chiến đấu. Khác "kho" chứa sản lượng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Vật phẩm phân bổ lại | Vật phẩm dùng để phân bổ lại điểm chỉ số (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Túi đồ | Nơi chứa vật phẩm của người chơi; tiền nạp tăng 10% sức chứa | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Hạng | Bậc xếp hạng PvP theo điểm xếp hạng; ghép trận theo hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

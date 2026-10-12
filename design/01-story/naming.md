@@ -6,7 +6,7 @@
 Tên riêng trong game (tên game, vùng đất, loài, tộc, phép, nhân vật, người chơi...). Thuật ngữ cơ chế (lệnh làm việc, nhập hồn...) nằm ở [glossary](../glossary.md), không ở đây. Viết bằng skill `naming` (kit); kiểm bằng `check_names.py` của skill (đường dẫn: `<Plugin root>/skills/naming/scripts/check_names.py`, Plugin root in ở đầu mỗi phiên).
 
 ## Cần đặt tên
-Tổng hợp 2026-10-12 từ toàn bộ `design/`. Chưa có tên nào được chốt.
+**User tự đặt tên; AI chỉ duyệt** (user, 2026-10-12): kiểm trùng (web + `check_names.py`), cách đọc tiếng Việt/tiếng Anh, khớp quy ước. Bảng dưới là **danh sách nhắc** các mục chưa có tên — tổng hợp 2026-10-12 từ toàn bộ `design/`. Chưa có tên nào được chốt.
 
 **Tên thiết kế ≠ tên trong game** [ý tưởng]: thuật ngữ trong [glossary](../glossary.md) (vd "lệnh làm việc", "vượt trội") là tên **nội bộ** để viết thiết kế. Tên người chơi thấy trong game có thể khác và đặt ở file này. Khi đã có tên trong game, glossary ghi thêm cột/ghi chú tên hiển thị.
 
@@ -43,6 +43,7 @@ Tổng hợp 2026-10-12 từ toàn bộ `design/`. Chưa có tên nào được 
 <!-- Tên chính thức, các phương án, kết quả kiểm tra trùng (store, nhãn hiệu, tên miền) kèm link. -->
 Chưa chốt. Đã thử 8 phương án do AI đề xuất (2026-10-12), kiểm bằng tìm kiếm web + `check_names.py` (denylist gồm tên game tham khảo và tên na ná tìm thấy):
 - **Viventa** — *vivere* (sống) + *-enta*: "sự sống trở lại" → gắn P1 (hồi sinh). **Phương án duy nhất qua cả hai lần kiểm** [ý tưởng]. Đọc: tiếng Việt "vi-ven-ta", tiếng Anh /vɪˈvɛntə/; chưa thấy nghĩa xấu trong tiếng Việt, tiếng Anh; ngôn ngữ khác [chưa xác minh].
+- **Aetharyn** — user đề xuất (2026-10-12). AI duyệt: chưa thấy trùng chính xác; nhưng giống 93% "Aethryn" (loài homebrew trên D&D Beyond), 88% "Aetharon" (nhân vật World of Warcraft), 86% "Myth of Ethary"; gốc "aether" rất phổ biến trong fantasy → khó nổi bật khi tìm kiếm. Đọc: "Ae" mơ hồ (tiếng Anh /iː/, /aɪ/ hay /eɪ/; tiếng Việt đọc "a-e"), "th" khác nhau giữa hai ngôn ngữ — lệch nguyên tắc "tránh cách viết dễ đọc sai". Nghĩa gợi phép thuật (aether), không gợi hồi sinh/sinh vật. Chờ user quyết.
 - Bị loại (giống tên đã có ≥ 75% hoặc trùng): Verdavia, Faunora, Revira, Animora, Sylvara, Thalora, Anivera, Renascia — lý do ở "Danh sách tên".
 
 Trước khi dùng chính thức: tra trực tiếp Steam, App Store, Google Play, nhãn hiệu, tên miền.
@@ -63,7 +64,7 @@ Hệ quả [ý tưởng]:
 
 ## Quy ước theo nhóm
 <!-- Mỗi nhóm: cách ghép tên (gốc từ, âm tiết, hậu tố theo nguyên tố/tộc...), độ dài tối đa, ví dụ. -->
-Đề xuất của AI [ý tưởng] (2026-10-12), chờ user duyệt. Hai loại tên:
+Gợi ý của AI [ý tưởng] (2026-10-12) để user tham khảo khi tự đặt tên. Hai loại tên:
 - **Tự tạo** (giữ nguyên ở mọi ngôn ngữ): thứ cần nhận diện như thương hiệu — game, thế giới, map, tộc, loài, nhân vật, tiền tệ.
 - **Mô tả, dịch theo ngôn ngữ người chơi**: thứ cần hiểu ngay — nguyên tố, phép thường, vật phẩm, trang bị, thẻ bài, công trình, tên cơ chế.
 
@@ -85,6 +86,7 @@ Hệ quả [ý tưởng]:
 <!-- Mọi tên riêng đã đặt. Script check_names.py đọc bảng này: cột 1 = tên, cột 2 = nhóm. Trạng thái: đề xuất / dùng / bỏ. -->
 | Tên | Nhóm | Ý nghĩa / gốc | Trạng thái | Dùng ở |
 |---|---|---|---|---|
+| Aetharyn | Tên game | User đề xuất: aether (khí trời, phép thuật) + -yn | đề xuất | Chờ user quyết — giống 93% "Aethryn", 88% "Aetharon" |
 | Viventa | Tên game | [ý tưởng] vivere (sống) + -enta: sự sống trở lại | đề xuất | — |
 | Verdavia | Tên game | [ý tưởng] verde + -via/-ia: vùng đất xanh trở lại | bỏ | Giống 75% "Verdoria's Kingdom Quest" |
 | Faunora | Tên game | [ý tưởng] fauna + flora | bỏ | Giống 86% "Faunori" |
@@ -104,6 +106,7 @@ Chỉ tra bằng tìm kiếm web (2026-10-12). **Chưa tra trực tiếp** Steam
 | Verdavia | Tìm kiếm web | Không thấy game trùng; gần: "Verdoria's Kingdom Quest" ([Nintendo](https://nintendo.com/store/products/verdorias-kingdom-quest-magic-battles-and-sorcery-switch)), "Veredilia" ([Deku Deals](https://www.dekudeals.com/items/veredilia-the-sacred-forest)) | 2026-10-12 |
 | Faunora | Tìm kiếm web | Không thấy trùng chính xác; gần: "Faunori" — game giải đố mobile về linh thú ([APKPure](https://apkpure.net/faunori/com.faunori.game)) | 2026-10-12 |
 | Revira | Tìm kiếm web | Không thấy trùng chính xác; gần: "Revita" (2022, nhân vật mất ký ức — [Wikipedia](https://en.wikipedia.org/wiki/Revita)), "Reviva" ([itch.io](https://evilisa.itch.io/reviva)) | 2026-10-12 |
+| Aetharyn | Tìm kiếm web | Không thấy trùng chính xác; gần: "Aethryn" ([D&D Beyond](https://www.dndbeyond.com/species/2107603-aethryn)), "Aetharon" ([Warcraft wiki](https://warcraft.wiki.gg/wiki/Debilitated_Aetharon)), "Myth of Ethary" ([RAWG](https://rawg.io/games/myth-of-ethary)), "Aethyr" ([Steam](https://store.steampowered.com/app/1271900/Aethyr/)) | 2026-10-12 |
 | Viventa | Tìm kiếm web | Không thấy game trùng; gần: "Viviette" ([Bloody Disgusting](https://bloody-disgusting.com/video-games/3537343/16-bit-style-survival-horror-viviette-hits-nintendo-switch-december-20th/)), "Vivaldia" (game trong trình duyệt Vivaldi — [help.vivaldi.com](https://help.vivaldi.com/article/android-vivaldia-game/)) | 2026-10-12 |
 | Thalora | Tìm kiếm web | Gần: "Thalara" ([itch.io](https://mystical-bento-box.itch.io/thalara)), "Althora" ([eipix](https://eipix.com/?p=8017)) | 2026-10-12 |
 | Anivera | Tìm kiếm web | Gần: "Aniverse Arena" ([rowatcher](https://rowatcher.com/games/5607362259/aniverse-arena)), "Aniversus" ([prelaunch](https://www.prelaunch.com/projects/aniversus-strategic-deck-buil-aniversus-strategic-deck-building-adventure/discussions)) | 2026-10-12 |
