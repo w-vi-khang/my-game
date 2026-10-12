@@ -31,3 +31,4 @@ _(chưa có)_
 - [ ] 04-tech/tech-stack.md: công nghệ cho thành phần cần ở M1 (client: render pipeline) → Chốt
 - [ ] 04-tech/risks.md: rủi ro lớn + milestone kiểm chứng
 - [ ] 05-roadmap.md: ước lượng M1–M2
+- [ ] Tạo skill cân bằng riêng (user, 2026-10-12): tính base, phân bố loài/ngẫu nhiên, hệ số quy đổi, trần, điểm mỗi cấp độ/bậc, tỉ lệ vượt trội — đọc/ghi bảng dữ liệu chỉ số ([cơ chế](02-gameplay/mechanics.md#chỉ-số-sinh-vật)). Thời điểm: [ý tưởng] trước khi cân bằng chỉ số chiến đấu ở M2; ước lượng 1–2 ngày [chưa xác minh]

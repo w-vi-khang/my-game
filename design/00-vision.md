@@ -37,7 +37,7 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 - Nền tảng: PC và mobile.
 - Game online: cần tài khoản và kết nối server. Mỗi người chơi có world riêng; PvE trong world riêng, PvP qua ghép trận.
 - Cập nhật thêm map theo phiên bản/mùa; dự kiến 3 map lúc đầu.
-- Mô hình kinh doanh: hai loại tiền — **tiền trong game** (kiếm được khi chơi) và **tiền nạp**. Mọi khoản nạp chỉ mang lại: làm đẹp, hiệu ứng, tăng cơ hội (rút thưởng), đẩy nhanh tiến trình xây dựng. Không ảnh hưởng PvP — nếu có thì chỉ qua tập sinh vật và phép mang theo, không qua chỉ số hay sức mạnh.
+- Mô hình kinh doanh: hai loại tiền — **tiền trong game** (kiếm được khi chơi) và **tiền nạp**. Tiền nạp mang lại: làm đẹp (skin), hiệu ứng, tăng cơ hội (rút thưởng), đẩy nhanh tiến trình xây dựng, và ưu đãi giúp tiến trình dễ thở hơn (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%...). Nguyên tắc (user, 2026-10-12): tiền nạp luôn ảnh hưởng **tốc độ** tiến trình — không tránh được; chỉ chặn ở **mức tối đa**: không mua được thứ người không nạp không đạt được, ở mức tối đa mọi người như nhau trong PvP — xem [0004](decisions/0004-tien-nap.md).
 - Free-to-play (tải miễn phí).
 
 ## Điểm khác biệt
@@ -56,4 +56,4 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 - Co-op ở giai đoạn đầu: co-op đảo sandbox là spin-off, tạm bỏ ([ideas](ideas.md)). Mọi mode nhiều người không ảnh hưởng tiến trình chính.
 - AI sinh vật tự do phức tạp: sinh vật làm việc theo lệnh làm việc do người chơi đặt.
 - Mô phỏng khi game tắt: chỉ tính bù (tua nhanh) khi người chơi vào lại.
-- Trả tiền để mạnh hơn trong PvP: tiền nạp không tăng chỉ số hay sức mạnh trong PvP.
+- Trả tiền để vượt mức tối đa: tiền nạp giúp đi nhanh hơn, nhưng không mua được chỉ số/sức mạnh vượt mức người không nạp cũng đạt được; phần vượt trội bị bỏ trong PvP.

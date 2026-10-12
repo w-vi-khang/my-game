@@ -11,10 +11,12 @@
 | Quy mô nông trại / số lệnh làm việc chạy song song | Lệnh làm việc, số sinh vật |
 | Phép sinh vật sở hữu | Sinh vật mới, nghiên cứu, rút thưởng gói sách phép |
 | Phép của pháp sư sở hữu | Tỉ lệ nhỏ khi sở hữu sinh vật mới; nguồn khác _(chưa có)_ |
-| Chỉ số cá thể | Bắt, ấp nở, rút thưởng nhiều cá thể (chi tiết _(chưa có)_) |
+| Chỉ số cá thể | Bắt, ấp nở, rút thưởng nhiều cá thể → tìm phân bố ngẫu nhiên hợp ý, cá thể vượt trội ([chỉ số sinh vật](mechanics.md#chỉ-số-sinh-vật)) |
 | Cấp độ người chơi | Mở khoá sinh vật mới, hoàn thành nhiệm vụ... (danh sách nguồn đầy đủ _(chưa có)_) |
-| Hạng PvP | Điểm xếp hạng từ trận PvP thắng |
-| Cấp độ, bậc của sinh vật | Tiến hoá; bậc 2 mở ô phép thứ 4; phép yêu cầu cấp độ và bậc |
+| Hạng PvP | Điểm xếp hạng từ trận PvP thắng; ghép trận theo hạng |
+| Giới hạn sinh vật | Cấp độ người chơi, công trình (+10% nếu nạp) |
+| Mức đáp ứng nhu cầu sinh vật | Cải thiện môi trường sống sau khi loài đã trở lại |
+| Cấp độ, bậc của sinh vật | Tiến hoá; bậc 2 mở ô phép thứ 4; phép yêu cầu cấp độ và bậc; mỗi cấp độ/bậc cho điểm chỉ số làm việc và chiến đấu (hai quỹ riêng; số điểm _(chưa có)_) |
 | Bộ kỹ năng chiến đấu (nhập hồn, kỹ năng thay thế) | Sinh vật |
 | Mảnh ký ức, map đã mở | Nhiệm vụ & cốt truyện |
 
@@ -30,5 +32,5 @@ _(chưa có)_
 |---|---|---|
 | Map mới | Đạt điều kiện của map trước — điều kiện cụ thể _(chưa có)_; [ý tưởng] hồi sinh đủ N loài của map + xong mốc truyện chính | _(?)_ |
 | Phá/đặt khối cốt truyện | Phá đảo map đó | _(?)_ |
-| PvP (ghép trận) | Đạt ngưỡng PvP (cấp độ người chơi hoặc yêu cầu nhất định — cụ thể _(chưa có)_). Phát triển sau ngưỡng không ảnh hưởng PvP | _(?)_ |
+| PvP (ghép trận) | Đạt ngưỡng PvP (cấp độ người chơi hoặc yêu cầu nhất định — cụ thể _(chưa có)_). Trong PvP, điểm cấp độ/bậc vẫn tính, chỉ bỏ phần vượt trội | _(?)_ |
 | Loài mới | Đạt yêu cầu môi trường sống | _(?)_ |

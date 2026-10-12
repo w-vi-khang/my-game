@@ -48,7 +48,7 @@ Với một người làm: ưu tiên dịch vụ có sẵn (BaaS) cho thứ khô
 |---|---|---|
 | World voxel, PvE, lệnh làm việc, mô phỏng tua nhanh | Client | Nặng, liên tục; chỉ ảnh hưởng world riêng của người chơi |
 | Thời gian vắng mặt cho tua nhanh | Backend | Chống chỉnh giờ thiết bị |
-| Rút thưởng, tiền tệ, thanh toán, sở hữu sinh vật/phép | Backend | Có giá trị, dễ bị gian lận |
+| Rút thưởng, tiền tệ, thanh toán, sở hữu sinh vật/phép, sinh chỉ số cá thể (phân bố ngẫu nhiên, vượt trội) | Backend | Có giá trị, dễ bị gian lận; game server lấy chỉ số từ backend khi chạy PvP |
 | Điểm xếp hạng | Backend | Nhận kết quả từ game server |
 | Lưu tiến trình và world | Backend | Game online, nhiều thiết bị |
 | Ghép trận | Backend | Cần thấy mọi người chơi |

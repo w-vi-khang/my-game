@@ -51,9 +51,33 @@
 | Ô phép | Chỗ gán phép trên sinh vật: 3 ô ở bậc 1, 4 ô từ bậc 2 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Ô đặc biệt | Ô phép thứ 4; chứa được phép yêu cầu ô đặc biệt và phép thường | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Cá thể | Một sinh vật cụ thể; cùng loài thì chung đặc điểm loài, khác chỉ số cá thể | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Chỉ số cá thể | Chỉ số riêng của từng cá thể, hợp với chiến đấu hoặc phát triển (chi tiết chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chỉ số cá thể | Phần chỉ số riêng của từng cá thể: phân bố ngẫu nhiên và phần vượt trội (nếu có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chỉ số làm việc | Bảng chỉ số dùng khi làm việc: tốc độ di chuyển, sức khoẻ, độ thuần thục 1–2 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chỉ số chiến đấu | Bảng chỉ số dùng khi chiến đấu: máu, giáp, kháng phép, tốc độ đánh, sát thương... + chỉ số đặc trưng loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Năng lực làm việc | Loại công đoạn một loài làm được; mỗi loài có 2 (vd vận chuyển, tưới nước) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Độ thuần thục | Chỉ số làm việc ứng với một năng lực làm việc; cao thì làm công đoạn đó hiệu quả hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Sức khoẻ | Chỉ số làm việc; cao thì sinh vật ít bị bệnh hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bệnh | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao và sức khoẻ cao (tác động chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Mệt | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao (tác động chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nhu cầu sinh vật | Danh sách yêu cầu của một loài sau khi đã trở lại; đáp ứng càng nhiều sinh vật càng khoẻ, làm tốt, đôi khi tặng quà (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Mức đáp ứng | Mức nhu cầu sinh vật đã được đáp ứng (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Kho sinh vật | Nơi tạm cất sinh vật; sinh vật trong kho không tính vào giới hạn sinh vật, không làm việc/chiến đấu. Khác "kho" chứa sản lượng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Vật phẩm phân bổ lại | Vật phẩm dùng để phân bổ lại điểm chỉ số (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Túi đồ | Nơi chứa vật phẩm của người chơi; tiền nạp tăng 10% sức chứa | [02-gameplay/economy.md](02-gameplay/economy.md) |
+| Hạng | Bậc xếp hạng PvP theo điểm xếp hạng; ghép trận theo hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Cấp độ trung bình | Trung bình cấp độ các sinh vật mang vào trận PvP; tiêu chí ghép trận thứ hai trong cùng hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Điểm chỉ số | Điểm nhận khi tăng cấp độ/bậc, người chơi phân bổ tự do; điểm làm việc và chiến đấu là hai quỹ riêng; phân bổ lại cần vật phẩm | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Base | Giá trị chỉ số ban đầu theo loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phân bố loài | Phần điểm chỉ số cố định, đặc trưng cho loài; tạo khác biệt chính giữa các loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phân bố ngẫu nhiên | Phần điểm chỉ số chia ngẫu nhiên khi cá thể sinh ra; cố định, tạo sự riêng biệt của cá thể | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Vượt trội | Cá thể có thêm điểm chỉ số (chiến đấu: phân bố ngẫu nhiên; làm việc: dồn vào một chỉ số); xét mỗi lần sở hữu cá thể mới; bị bỏ trong PvP | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Hệ số quy đổi | Tỉ lệ đổi điểm chỉ số thành giá trị thật; giống nhau ở mọi loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Trần | Giá trị tối đa của một chỉ số (vd tốc độ đánh tối đa 6) |
+| Chặn quá may | Cơ chế hạ tạm tỉ lệ vượt trội khi người chơi ra vượt trội nhiều bất thường; không tác động may mắn bình thường | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chỉ số đặc trưng loài | Chỉ số chiến đấu cố định theo loài (vd tầm đánh, tỉ lệ chí mạng); điểm chỉ số không đổi được | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tiền trong game | Tiền người chơi kiếm được khi chơi | [02-gameplay/economy.md](02-gameplay/economy.md) |
-| Tiền nạp | Tiền mua bằng tiền thật; chỉ dùng cho làm đẹp, hiệu ứng, tăng cơ hội, đẩy nhanh xây dựng | [02-gameplay/economy.md](02-gameplay/economy.md) |
+| Tiền nạp | Tiền mua bằng tiền thật; ảnh hưởng tốc độ tiến trình nhưng không vượt được mức tối đa người không nạp cũng đạt được | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Thể thức | Kiểu trận PvP, quy định số sinh vật mỗi bên (3–5) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Điểm xếp hạng | Điểm nhận khi thắng PvP, dùng để leo hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Ngưỡng PvP | Mức người chơi phải đạt để chơi PvP; phát triển sau ngưỡng không ảnh hưởng PvP | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ngưỡng PvP | Mức người chơi phải đạt để chơi PvP. Trong PvP, điểm cấp độ/bậc vẫn tính, chỉ bỏ phần vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
