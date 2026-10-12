@@ -20,22 +20,22 @@
 | Milestone | Mục tiêu | Thành phần | Tiêu chí xong | Ước lượng | Thời gian | Trạng thái |
 |---|---|---|---|---|---|---|
 | M0 — Kế hoạch & thiết kế | Đủ kế hoạch để bắt đầu prototype | design/ | Vision, core loop, cơ chế "phải có", thành phần hệ thống, roadmap M1–M2 ở trạng thái Chốt | — | — | Đang làm |
-| M1 — Prototype | Kiểm chứng core loop có vui không | Client | Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 2–3 loài trở lại → đặt lệnh làm việc trồng cây → sản lượng vào kho; chạy được trên 1 máy mobile tầm trung | 85–148 | 102–178 tuần (~2–3,4 năm) | Chưa bắt đầu |
-| M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 206–402 | 247–482 tuần (~4,7–9,3 năm) | Chưa bắt đầu |
+| M1 — Prototype | Kiểm chứng core loop có vui không | Client | Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 2–3 loài trở lại → đặt lệnh làm việc trồng cây → sản lượng vào kho; chạy được trên 1 máy mobile tầm trung | 95–163 | 114–196 tuần (~2,2–3,8 năm) | Chưa bắt đầu |
+| M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 209–408 | 251–490 tuần (~4,8–9,4 năm) | Chưa bắt đầu |
 | M3 — Alpha | Đủ tính năng | Client + Backend | Mọi cơ chế "phải có" chạy được; prototype trận mạng nhỏ (kiểm chứng netcode) | 54–95 + Nghiên cứu _(?)_ | 65–114 tuần | Chưa bắt đầu |
 | M4 — Beta | Đủ nội dung, sửa lỗi | Client + Backend | Chơi hết 3 map không bị chặn; phát hành thử | 80–160 | 96–192 tuần | Chưa bắt đầu |
 | Phát hành | | Client + Backend + vận hành | | — | — | Chưa bắt đầu |
 | Sau phát hành — PvP | PvP thời gian thực | Client + Backend + Game server | Ghép trận theo hạng, game server quyết định kết quả | 65–130 | 78–156 tuần | Chưa bắt đầu |
 
-**Tổng M1–M4:** 425–805 ngày-người → ×1,5 = 638–1.208 → **~9,8–18,6 năm** ở 10 giờ/tuần (cập nhật 2026-10-12: thêm trang bị 13–23, bảo hiểm gói 1–2).
+**Tổng M1–M4:** 438–826 ngày-người → ×1,5 = 657–1.239 → **~10,1–19,1 năm** ở 10 giờ/tuần (cập nhật 2026-10-12: trang bị 13–23, bảo hiểm gói 1–2, địa hình bề mặt mịn +10–15, biến thể hiển thị 3–6).
 
 ### Hạng mục theo milestone
 Từ bảng cơ chế, trừ dòng có ghi [ý tưởng].
 
-**M1 (85–148):** Voxel world 25–40 · Sinh vật & loài 5–10 · Chỉ số làm việc 5–8 · Môi trường sống 10–20 · Lệnh làm việc 20–30 · Tìm đường 10–20 · Điều khiển PC + mobile (phần M1) 5–10 · [ý tưởng] Nội dung graybox (2–3 loài, 1 vùng) + thử hiệu năng mobile 5–10.
+**M1 (95–163):** Voxel world bề mặt mịn liền 35–55 · Sinh vật & loài 5–10 · Chỉ số làm việc 5–8 · Môi trường sống 10–20 · Lệnh làm việc 20–30 · Tìm đường 10–20 · Điều khiển PC + mobile (phần M1) 5–10 · [ý tưởng] Nội dung graybox (2–3 loài, 1 vùng) + thử hiệu năng mobile 5–10.
 
-**M2 (206–402):**
-- Cơ chế (160–310): Sinh map theo seed 15–25 · Khối cốt truyện 2–4 · Chỉ số chiến đấu 6–10 · Nhu cầu sinh vật 8–15 · Tua nhanh 8–15 · Nhập hồn 40–70 · Phép của pháp sư 18–36 · Sưu tầm phép 25–65 · Nhận sinh vật 10–20 · Giới hạn sinh vật 3–6 · Nhiệm vụ & mảnh ký ức 15–25 · Mở map 2–4 · Cấp độ người chơi 3–5 · Điều khiển (phần M2) 5–10.
+**M2 (209–408):**
+- Cơ chế (163–316): Biến thể hiển thị 3–6 · Sinh map theo seed 15–25 · Khối cốt truyện 2–4 · Chỉ số chiến đấu 6–10 · Nhu cầu sinh vật 8–15 · Tua nhanh 8–15 · Nhập hồn 40–70 · Phép của pháp sư 18–36 · Sưu tầm phép 25–65 · Nhận sinh vật 10–20 · Giới hạn sinh vật 3–6 · Nhiệm vụ & mảnh ký ức 15–25 · Mở map 2–4 · Cấp độ người chơi 3–5 · Điều khiển (phần M2) 5–10.
 - [ý tưởng] Giả định nội dung slice để tính phần "+ x/loài, + x/phép": 5 loài nhập hồn được (×3–6), 8 phép của pháp sư (×1–2), 20 phép sinh vật (×0,5–2).
 - [ý tưởng] Ngoài cơ chế (46–92): dựng backend (tài khoản, lưu cloud, giờ server, rút thưởng, sinh chỉ số cá thể) 15–30 · chọn + tích hợp asset art/âm thanh cho 1 map (không tự làm art) 20–40 · sắp đặt map + viết nhiệm vụ 10–20 · skill cân bằng 1–2.
 
@@ -48,7 +48,7 @@ Từ bảng cơ chế, trừ dòng có ghi [ý tưởng].
 **Vận hành (liên tục từ M2):** [ý tưởng] backend 0,5–1 ngày-người/tháng (theo dõi, cập nhật, sự cố); chi phí dịch vụ _(chưa tra)_ — xem [0003](decisions/0003-server.md).
 
 ## Kiểm tra phạm vi
-⚠️ **Vượt quỹ thời gian.** Riêng M1 (prototype để biết game có vui không) đã mất ~2–3,4 năm ở 10 giờ/tuần; toàn bộ tới M4 ~9,8–18,6 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
+⚠️ **Vượt quỹ thời gian.** Riêng M1 (prototype để biết game có vui không) đã mất ~2,2–3,8 năm ở 10 giờ/tuần; toàn bộ tới M4 ~10,1–19,1 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
 
 **Quyết định của user (2026-10-12): tạm thời chưa cắt, giữ nguyên phạm vi** — làm cùng trợ giúp của AI. Ước lượng trên chưa tính tác động của AI; mức tăng tốc thật [chưa xác minh].
 - [ý tưởng] Đo tốc độ thật trong M1: ghi giờ thực tế từng hạng mục so với ước lượng → sau 4–6 hạng mục, tính lại hệ số cho M2–M4 và xem lại các đề xuất cắt dưới đây.
@@ -57,14 +57,14 @@ Từ bảng cơ chế, trừ dòng có ghi [ý tưởng].
 
 | # | Đề xuất | Tiết kiệm (ngày-người, trước ×1,5) | Ảnh hưởng |
 |---|---|---|---|
-| C1 | **M1 tối giản:** map voxel nhỏ cố định, không lưu chunk; 3 loài; 1 mức môi trường sống; 1 loại lệnh làm việc (trồng cây, 3–4 công đoạn); chỉ số làm việc chỉ gồm thuần thục + tốc độ; tìm đường lưới đơn giản; điều khiển PC trước, cảm ứng cơ bản. Ước lượng 35–61 → ×1,5 = 42–73 tuần (~10–17 tháng) | M1 ngắn đi 50–87; tổng không đổi (phần cắt chuyển sang M2) | Biết sớm hơn ~1,5–2,5 năm game có vui không — giảm rủi ro lớn nhất |
+| C1 | **M1 tối giản:** map voxel nhỏ cố định, không lưu chunk; 3 loài; 1 mức môi trường sống; 1 loại lệnh làm việc (trồng cây, 3–4 công đoạn); chỉ số làm việc chỉ gồm thuần thục + tốc độ; tìm đường lưới đơn giản; điều khiển PC trước, cảm ứng cơ bản. Ước lượng 39–67 → ×1,5 = 47–80 tuần (~11–19 tháng) | M1 ngắn đi 50–87; tổng không đổi (phần cắt chuyển sang M2) | Biết sớm hơn ~1,5–2,5 năm game có vui không — giảm rủi ro lớn nhất |
 | C2 | **Prototype giấy/HTML trước M1** (được phép trong M0): thử vòng môi trường sống + lệnh làm việc trong 3–5 ngày, trước khi đầu tư voxel | — (tốn 3–5) | Biết sớm vòng lặp có vui, tránh làm voxel cho một ý tưởng không vui |
 | C3 | Voxel world dùng asset có sẵn thay vì tự làm — cần tra Asset Store (tính năng, giá) [chưa xác minh] | 10–25 (ước đoán) | Phụ thuộc asset; phải kiểm tra hiệu năng mobile |
 | C4 | Phát hành với **1 map** thay vì 3; map 2–3 thành cập nhật theo mùa (đúng hướng "thêm map theo mùa" trong vision) | 60–120 | Đổi "dự kiến 3 map lúc đầu" trong [vision](00-vision.md) |
 | C5 | Vertical slice nhỏ hơn: 3 loài nhập hồn được, 12 phép sinh vật, 4 phép của pháp sư | 14–36 | Slice ít đa dạng hơn |
 | C6 | Nghiên cứu để sau phát hành (chưa có thiết kế) | chưa ước lượng | Bớt một nguồn phép |
 
-Áp dụng C4 + C5: tổng M1–M4 còn khoảng 351–649 → ×1,5 = 527–974 → **~8,1–15 năm**. C1 không giảm tổng nhưng đưa câu trả lời "có vui không" về ~10–17 tháng. Vẫn dài; cần thêm giờ/tuần hoặc cắt sâu hơn (vd giảm số cơ chế "phải có" trước phát hành, đưa nhập hồn/phép pháp sư sang cập nhật sau).
+Áp dụng C4 + C5: tổng M1–M4 còn khoảng 364–670 → ×1,5 = 546–1.005 → **~8,4–15,5 năm**. C1 không giảm tổng nhưng đưa câu trả lời "có vui không" về ~11–19 tháng. Vẫn dài; cần thêm giờ/tuần hoặc cắt sâu hơn (vd giảm số cơ chế "phải có" trước phát hành, đưa nhập hồn/phép pháp sư sang cập nhật sau).
 
 ## Sơ đồ
 Phạm vi hiện tại (chưa cắt), lấy giữa khoảng, đã ×1,5, 10 giờ/tuần. Ngày bắt đầu 2026-11-02 là **giả định chỉ để vẽ**, không phải mốc cam kết.
@@ -77,8 +77,8 @@ gantt
     section Thiết kế
     M0 Kế hoạch & thiết kế        :m0, 2026-10-01, 32d
     section Phát triển
-    M1 Prototype (140 tuần)        :m1, after m0, 980d
-    M2 Vertical slice (365 tuần)   :m2, after m1, 2555d
+    M1 Prototype (155 tuần)        :m1, after m0, 1084d
+    M2 Vertical slice (370 tuần)   :m2, after m1, 2591d
     M3 Alpha (89 tuần)             :m3, after m2, 626d
     M4 Beta (144 tuần)             :m4, after m3, 1008d
     section Sau phát hành
@@ -112,6 +112,11 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 - [ ] [04-tech/architecture.md](04-tech/architecture.md) — bản đầu đã viết; xem lại phần Client.
 - [ ] [04-tech/risks.md](04-tech/risks.md) — rủi ro lớn + milestone kiểm chứng (đã có, chỉ cần rà).
 - [x] Tạo skill cân bằng riêng (user, 2026-10-12) — xong 2026-10-12: `local-game-balance` (script `balance.py`: check, roll, luck, economy). Dữ liệu sẽ nằm ở `design/data/`.
+
+- [ ] **Thử nghiệm art bằng AI** (user đồng ý 2026-10-12; 1–2 ngày, M0 — không phải code game) [ý tưởng]:
+  - Công cụ: Blender 5.0.1 (đã có trên máy) + [mcp-for-blender](https://github.com/ahujasid/blender-mcp) (user tự cài); có thể so với [Mixar](https://www.mixar.app/).
+  - Làm: 1 sinh vật mịn, không chibi (tạo bằng AI → dọn → rig cơ bản → 1 animation đứng/đi); 3 biến thể hiển thị (kích thước, màu); 1 cảnh địa hình mịn mẫu với 3 vật liệu (chỉ render, không phải code game); xuất thử định dạng Unity đọc được.
+  - Đánh giá: hợp phong cách? số polygon có hợp mobile? mất bao lâu mỗi sinh vật? rig có dùng được? → quyết sinh vật làm bằng AI hay thuê ngoài, và cập nhật ước lượng tích hợp asset ở M2.
 
 ### D. Không cần Chốt để sang M1 (viết dần, song song prototype)
 Cốt truyện (world, characters, plot), progression, economy, levels, art-style, audio — theo thứ tự gợi ý ở [README](README.md). Skill (tạo 2026-10-12): cốt truyện → `local-game-story`; map/level → `local-level-design`; số liệu economy/progression → `local-game-balance`; art/âm thanh → chưa có skill, chờ user quyết hướng dùng MCP (Blender, Figma, âm thanh).

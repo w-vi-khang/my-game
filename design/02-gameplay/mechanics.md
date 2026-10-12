@@ -9,7 +9,8 @@
 
 | Cơ chế | Mô tả | Pillar | Thành phần | Ưu tiên | Ước lượng | Milestone |
 |---|---|---|---|---|---|---|
-| Voxel world | Đào/đặt khối, chunk, lưu world; sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 25–40 | M1 |
+| Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **bề mặt mịn liền** (dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15) | M1 |
+| Biến thể hiển thị | Mỗi cá thể sinh vật, cây, vật thể render khác nhau một chút theo seed riêng (kích thước, màu, hoa văn...), không giống hệt nhau | P2 | Client | Nên có | 3–6 | M2 [ý tưởng] |
 | Sinh map theo seed | Phần không thuộc cốt truyện sinh theo seed của từng người chơi | P3 | Client (+ công cụ sắp đặt?) | Phải có | 15–25 | M2 |
 | Khối cốt truyện | Khối cốt truyện + đường đi tới nó không phá/đặt được cho tới khi phá đảo map | P3 | Client | Phải có | 2–4 | M2 |
 | Sinh vật & loài | Nội tại, tộc, nguyên tố (đơn/đôi), cấp độ, bậc; 3 ô phép (bậc 1) / 4 ô phép (bậc 2+) | P2, P4 | Client | Phải có | 5–10 | M1 |
@@ -127,8 +128,9 @@ Các gói trong cửa hàng: gói sinh vật, gói sách phép, gói [trang bị
   - Bảo hiểm (chống xui) và chặn quá may (chống may bất thường) cùng thu hẹp hai đầu may rủi, phần giữa giữ nguyên.
   - N và tỉ lệ tính bằng `local-game-balance` (lệnh `pity`).
   - **Bảo hiểm ưu tiên hơn chặn quá may** (user, 2026-10-12): đã công khai mốc thì chạm mốc là phải ra.
-  - Phần thưởng được bảo hiểm (user, 2026-10-12): gói sinh vật → cá thể vượt trội; gói sách phép → phép bậc cao hơn; gói trang bị → trang bị bậc trang bị cao hơn.
-- Câu hỏi mở: "phép bậc cao hơn" là phép độ hiếm cao hơn (phép hiện chỉ có độ hiếm, chưa có bậc)?; bắt và ấp nở có tính vào bộ đếm bảo hiểm không ([ý tưởng] chỉ đếm lần rút gói); số lần đã rút có chuyển sang gói khác/mùa sau không.
+  - Phần thưởng được bảo hiểm (user, 2026-10-12): gói sinh vật → cá thể vượt trội; gói sách phép → phép **độ hiếm cao hơn**; gói trang bị → trang bị bậc trang bị cao hơn.
+- **Gói sách phép** (user, 2026-10-12): có tỉ lệ ra phép chưa sở hữu. Ra phép **đã sở hữu** → đổi thành **ma năng** (tài nguyên), dùng để đổi phép trong cửa hàng hoặc chế tác một số loại trang bị.
+- Câu hỏi mở: bắt và ấp nở có tính vào bộ đếm bảo hiểm không ([ý tưởng] chỉ đếm lần rút gói); số lần đã rút có chuyển sang gói khác/mùa sau không.
 
 **Rút thưởng sinh vật**
 - Loài chưa mở khoá (chưa hồi sinh) không thể rút ra → không bỏ qua môi trường sống (giữ P1).
@@ -214,7 +216,7 @@ Mô tả của user (2026-10-12). Công thức để sau.
 - Trang bị **không có chỉ số ngẫu nhiên, không có vượt trội** — cùng loại, cùng bậc trang bị thì như nhau (user, 2026-10-12).
 - Có nhiều **bậc trang bị** (khác "bậc" tiến hoá của sinh vật).
 - **Ghép trang bị:** ghép các trang bị cùng loại, cùng bậc → một trang bị bậc cao hơn. Số lượng cần ghép: _(chưa có)_
-- **Rèn:** làm trang bị ở công trình **lò rèn**, cần nguyên liệu và sinh vật phù hợp.
+- **Rèn:** làm trang bị ở công trình **lò rèn**, cần nguyên liệu và sinh vật phù hợp. Một số loại trang bị chế tác bằng **ma năng** (xem Rút thưởng gói).
   - [ý tưởng] Rèn là một lệnh làm việc tại lò rèn; "sinh vật phù hợp" = sinh vật có năng lực làm việc rèn → độ thuần thục ảnh hưởng thời gian/kết quả. Nối nông trại (P2) với chiến đấu (P4).
 - Nguồn: rèn, gói trang bị (rút thưởng gói), các nguồn khác _(chưa có)_.
 - [ý tưởng] Trang bị chỉ cộng vào các chỉ số phân bổ được, có trần chung như chỉ số (không vượt trần) → giữ cân bằng bằng `local-game-balance`.
