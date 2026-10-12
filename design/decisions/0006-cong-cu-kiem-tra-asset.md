@@ -1,6 +1,6 @@
 # 0006 — Công cụ kiểm tra asset (ngoại lệ M0)
 
-> Trạng thái: Đề xuất
+> Trạng thái: Chốt
 > Ngày: 2026-10-12
 
 ## Bối cảnh
@@ -14,9 +14,12 @@
 - **Không có công cụ:** AI/user xem ảnh từng asset. Không tốn công làm, nhưng lỗi tỉ lệ/trục/weight chỉ lộ khi vào Unity.
 
 ## Quyết định
-Đề xuất (chờ user Chốt): **tự viết script Blender headless**, đặt ở `tools/asset_check/` (cùng chỗ với `check_design.py`). Mỗi bước của quy trình asset ([art-style](../03-art-audio/art-style.md#quy-trình-asset-ý-tưởng)) phải qua script trước khi sang bước sau. Script là công cụ của quy trình art, không phải một phần của game.
+**Chốt (user, 2026-10-12): tự viết script Blender headless**, đặt ở `tools/asset_check/` (cùng chỗ với `check_design.py`). Mỗi bước của quy trình asset ([art-style](../03-art-audio/art-style.md#quy-trình-asset-ý-tưởng)) phải qua script trước khi sang bước sau. Script là công cụ của quy trình art, không phải một phần của game.
 
 ## Hệ quả
+- Ưu tiên trước mắt (user, 2026-10-12): **chưa làm model hoàn chỉnh**; tập trung dựng mesh world (địa hình). Phần kiểm duyệt (script này + kiểm ảnh concept) vẫn hoàn thiện để giữ đồng bộ, tránh lỗi vô lý.
+- `selftest.py` nằm trong `verify` của `.ai/project.json`.
+- Ngoại lệ M0 ghi trong [AGENTS.local.md](../../AGENTS.local.md).
 - [components.md](../04-tech/components.md): thêm thành phần "Công cụ kiểm tra asset".
 - [art-style.md](../03-art-audio/art-style.md): quy trình asset + quy cách kỹ thuật dẫn tới `rules.json`; ngưỡng polygon/texture/xương trong `rules.json` là **tạm** cho tới khi đo trên mobile ở M1.
 - [roadmap](../05-roadmap.md): thêm vào mục C (M0); dùng lại ở M2 (tích hợp asset).

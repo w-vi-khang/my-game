@@ -113,14 +113,12 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 - [ ] [04-tech/risks.md](04-tech/risks.md) — rủi ro lớn + milestone kiểm chứng (đã có, chỉ cần rà).
 - [x] Tạo skill cân bằng riêng (user, 2026-10-12) — nay là skill `game-balance` của kit (v0.7.0, 2026-10-12: pity, drop, streak — trước là `luck`, economy, curve) + quy tắc riêng của my-game ở `tools/balance_rules.py` (check, roll). Dữ liệu sẽ nằm ở `design/data/`.
 
-- [ ] **Thử nghiệm art bằng AI** (user đồng ý 2026-10-12; 1–2 ngày, M0 — không phải code game) [ý tưởng]:
-  - Công cụ: Blender 5.0.1 (đã có trên máy) + [mcp-for-blender](https://github.com/ahujasid/blender-mcp) (user tự cài); có thể so với [Mixar](https://www.mixar.app/).
-  - Làm: 1 sinh vật mịn, không chibi (tạo bằng AI → dọn → rig cơ bản → 1 animation đứng/đi); 3 biến thể hiển thị (kích thước, màu); 1 cảnh địa hình mịn mẫu với 3 vật liệu (chỉ render, không phải code game); xuất thử định dạng Unity đọc được.
-  - Đánh giá: hợp phong cách? số polygon có hợp mobile? mất bao lâu mỗi sinh vật? rig có dùng được? → quyết sinh vật làm bằng AI hay thuê ngoài, và cập nhật ước lượng tích hợp asset ở M2.
-  - Tiến độ 2026-10-12: địa hình mịn mẫu + xuất thử xong; user chọn dựng mesh ×2 ([art-style](03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)). Công cụ tạo 3D chốt: HF Spaces (FLUX.2-klein-4B → TRELLIS.2), user dùng token HF.
-  - [x] Công cụ kiểm tra asset (`tools/asset_check/`, ngoại lệ M0 — [0006](decisions/0006-cong-cu-kiem-tra-asset.md)): ước lượng 2–3 ngày-người; bản đầu xong 2026-10-12, self-test 6/6 ca đạt [run]. Dùng lại ở M2 (tích hợp asset).
-  - [ ] Script tạo 3D qua HF Spaces (`tools/asset_gen/hf_generate.py`): 0,5 ngày-người; chạy 1 sinh vật thử nghiệm → dọn, rig, animation, 3 biến thể, xuất, kiểm tra.
-
+- [ ] **Thử nghiệm art bằng AI** — đổi hướng (user, 2026-10-12):
+  - [x] Địa hình mịn: dựng mesh ×2, đạt công cụ kiểm tra asset ([art-style](03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)).
+  - [x] Công cụ kiểm tra asset ([0006](decisions/0006-cong-cu-kiem-tra-asset.md), Chốt) — selftest trong `verify`.
+  - [ ] Tiếp tục dựng mesh world (ưu tiên trước mắt).
+  - [ ] Ảnh concept theo hướng XING-ART nhưng tươi sáng hơn ([art-style](03-art-audio/art-style.md#hướng-phong-cách)).
+  - Tạm dừng: sinh vật hoàn chỉnh (rig, animation, biến thể). Sinh vật/nhân vật có thể low-poly.
 - [ ] Việc còn lại sau khi kit phát hành skill `concept-image` (v0.7.0) — từ [.ai/kit-requests/concept-image-skill.md](../.ai/kit-requests/concept-image-skill.md) mục 14:
   - Viết lệnh kiểm tra lớp 2–3 (phát hiện vật thể Grounding DINO, hỏi–đáp Qwen2.5-VL qua `gradio_client`), khai báo trong `concept_image.checkers` của `.ai/project.json`, chạy kiểm chứng trên bộ ảnh đã biết lỗi.
   - Thêm `--ref` cho `tools/asset_gen/hf_generate.py` (ảnh tham chiếu cấu trúc), rồi thêm `reference_arg` vào cấu hình.

@@ -8,8 +8,9 @@
     "làm một mình (solo)"
   ],
   "verify": {
-    "_comment": "Mỗi lệnh phải exit 0 khi pass.",
-    "design": "python3 tools/check_design.py"
+    "_comment": "Mỗi lệnh phải exit 0 khi pass. asset_check cần Blender 5.0.1 tại /Applications (0006).",
+    "design": "python3 tools/check_design.py",
+    "asset_check": "/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/asset_check/selftest.py"
   },
   "checklist": [
     "Mọi cơ chế/tính năng gắn với ít nhất một pillar trong design/00-vision.md",

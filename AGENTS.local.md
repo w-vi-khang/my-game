@@ -2,6 +2,7 @@
 
 ## Giai đoạn & phạm vi project
 - Hiện tại là **M0 — kế hoạch & thiết kế; ưu tiên lên kế hoạch**. KHÔNG tạo project/code cho bất kỳ thành phần nào (client Unity, server, công cụ...) cho tới khi user nói rõ chuyển sang M1. Prototype giấy/HTML để thử ý tưởng thì được, nếu user yêu cầu.
+- **Ngoại lệ** ([0006](design/decisions/0006-cong-cu-kiem-tra-asset.md), Chốt 2026-10-12): được viết **công cụ của quy trình art** trong `tools/` (kiểm tra asset, kiểm/tạo ảnh concept) trước M1. Không phải code game; không tạo project Unity.
 - **Unity chỉ là client**, không phải toàn bộ project. Không mặc định mọi tính năng chạy trong Unity: mỗi tính năng phải ghi thành phần phụ trách; thành phần mới chỉ thêm qua `design/04-tech/components.md` + quyết định trong `design/decisions/`.
 - Thiết kế kỹ thuật đi từ cấp hệ thống (thành phần, ranh giới, dữ liệu) xuống từng thành phần.
 

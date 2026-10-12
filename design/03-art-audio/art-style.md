@@ -9,7 +9,9 @@ Thống nhất art style trước khi bắt đầu M1 (user, 2026-10-12) — xem
 <!-- 3–5 tính từ mô tả cảm giác; 2D/3D, góc camera, bảng màu, độ chi tiết. Chọn phong cách vừa sức một người làm. -->
 Quyết định của user (2026-10-12):
 - **Địa hình: bề mặt mịn liền**, không thấy cạnh khối. Dữ liệu bên dưới vẫn là lưới voxel (đào/đặt, chiếm chỗ, tìm đường theo ô) — chỉ cách hiển thị là mịn.
-- **Sinh vật, cây cối, vật phẩm:** model mịn có hình dạng riêng, **không** low-poly khối vuông kiểu Minecraft.
+- **Cây cối, vật phẩm:** model mịn có hình dạng riêng, **không** low-poly khối vuông kiểu Minecraft.
+- **Sinh vật và nhân vật có thể low-poly** (user, 2026-10-12) — hiểu là low-poly đa giác phẳng có hình dạng riêng, vẫn không phải khối vuông kiểu Minecraft [chưa xác minh với user].
+- **Concept art:** tương tự bộ "Scene Concept" của XING-ART (www.xing-art.com — ảnh user gửi 2026-10-12, không lưu vào repo) **nhưng tươi sáng hơn**. AI quan sát ảnh: 3 mảnh cảnh dạng diorama góc nhìn isometric, cắt lộ lớp đất ở cạnh; vách đá phủ rêu, thác nước đổ xuống hồ xanh ngọc có lá súng, cây cọ, cây lá vàng/hồng/tím, phế tích đá, đường mòn; nét vẽ painterly, hình khối tròn đầy; điểm sáng phát quang (cây/sứa phát sáng). "Tươi sáng hơn" → tăng độ sáng, giảm vùng tối và bóng đậm.
 - **Nhân vật và sinh vật không làm chibi** (tỉ lệ cơ thể thường, không đầu to).
 - **Biến thể hiển thị:** các cá thể/vật thể cùng loại không render giống hệt nhau — mỗi cái có khác biệt nhỏ ngẫu nhiên.
 - Mỗi sinh vật/cây/vật phẩm có **khung chiếm chỗ** gồm nhiều ô voxel nối với nhau; khung chỉ biểu thị không gian chiếm trên lưới, không quyết định hình dạng hiển thị.
@@ -25,7 +27,8 @@ Hệ quả cho thiết kế [ý tưởng]:
 | Tham khảo | Lấy | Không lấy |
 |---|---|---|
 | Pokémon Pokopia — Switch 2, phát hành 05/03/2026 ([Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html), [ảnh trên Serebii](https://serebii.net/pokemonpokopia/pics.shtml)) | Cảm giác tươi sáng; vật thể là model mịn đặt trên lưới. AI quan sát ảnh (2026-10-12): địa hình Pokopia là khối lập phương có texture mềm, mép cỏ phủ cạnh | Địa hình khối (user chọn bề mặt mịn liền); nhân vật chibi; mọi thiết kế, tên có bản quyền của Pokémon |
-| Minecraft | — | Sinh vật/vật phẩm low-poly khối vuông (user loại) |
+| Scene Concept — XING-ART (www.xing-art.com; ảnh user gửi 2026-10-12) | Diorama isometric, vách đá rêu, thác + hồ xanh ngọc, thực vật nhiều màu, điểm phát quang, nét painterly | Độ tối, bóng đậm (user muốn tươi sáng hơn); không chép ảnh/thiết kế cụ thể |
+| Minecraft | — | Cây/vật phẩm low-poly khối vuông (user loại) |
 
 ## Nguồn asset
 <!-- Tự làm / Asset Store / thuê ngoài / AI; giấy phép; chi phí. -->
@@ -94,4 +97,4 @@ Phát hiện:
 - **Quyết định của user (2026-10-12): ×2** — mỗi ô gameplay dựng mesh bằng 2 × 2 × 2 ô; giữ được rãnh 1 ô, chấp nhận bậc thang bo tròn và số tam giác ×4 (~24.000 cho mảnh 30 × 30). Phải đo trên mobile ở M1 ([risks](../04-tech/risks.md)). Đã loại: ×1 (rãnh 1 ô bị bóp chữ V); ×1 làm mượt ít hơn ở vách.
 - Xuất thử: `terrain_x2.fbx`, `terrain_x2.glb`. Công cụ kiểm tra asset (class `terrain_test`) [run 2026-10-12]: x1 và x2 (.blend), GLB, FBX đều **đạt** (0 lỗi). Chưa nhập thử vào Unity (M0 chưa tạo project) → [chưa xác minh] Unity đọc đúng tỉ lệ/trục.
 
-**Sinh vật + rig + animation, 3 biến thể:** _(chưa có — đang chạy, chờ token HF)_
+**Sinh vật + rig + animation, 3 biến thể:** **tạm dừng** (user, 2026-10-12): trước mắt **chưa làm model hoàn chỉnh**, tập trung dựng mesh world (địa hình). Sinh vật/nhân vật nếu cần thì low-poly. Ảnh concept vẫn làm, và **phần kiểm duyệt** (kiểm ảnh concept lớp 1–3 của skill `concept-image`, công cụ kiểm tra asset) vẫn hoàn thiện để giữ đồng bộ, tránh lỗi vô lý.
