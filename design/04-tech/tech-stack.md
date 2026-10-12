@@ -34,6 +34,8 @@ Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn
 - Không dùng Entities (ECS) dù đã là core package ở 6.4 ([pack-core](https://docs.unity3d.com/6000.4/Documentation/Manual/pack-core.html)): thêm một mô hình lập trình cho một người học; Jobs + Burst đủ cho meshing. Xem lại nếu M1 cho thấy số sinh vật lớn bị chậm.
 - Phương án khác: asset voxel có sẵn — chưa tra (tính năng, giá) [chưa xác minh], xem đề xuất C3 trong [roadmap](../05-roadmap.md#kiểm-tra-phạm-vi).
 
+**Vật thể trên lưới** [ý tưởng] — theo [art style](../03-art-audio/art-style.md): sinh vật, cây, vật phẩm là model mịn riêng (không dựng từ khối); mỗi loại có **khung chiếm chỗ** (danh sách ô voxel) trong bảng dữ liệu. Đặt/xoá vật thể = đánh dấu/bỏ đánh dấu các ô trong lưới chiếm chỗ; tìm đường đọc lưới này. Hiển thị địa hình (khối bo cạnh hay bề mặt mịn) còn chờ user — bề mặt mịn sẽ đổi cách dựng mesh chunk ở trên.
+
 **Tìm đường sinh vật** [ý tưởng]
 - Đề xuất: **tự viết A\* trên lưới voxel**, C# thuần.
   - Lưới voxel đã rời rạc; kiểu di chuyển theo loài (đi bộ, bay, bơi — [cơ chế](../02-gameplay/mechanics.md#tìm-đường-sinh-vật--đình-trệ)) chỉ là luật đi qua ô.

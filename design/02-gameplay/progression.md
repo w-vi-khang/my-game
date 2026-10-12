@@ -18,6 +18,7 @@
 | Mức đáp ứng nhu cầu sinh vật | Cải thiện môi trường sống sau khi loài đã trở lại |
 | Cấp độ, bậc của sinh vật | Tiến hoá; bậc 2 mở ô phép thứ 4; phép yêu cầu cấp độ và bậc; mỗi cấp độ/bậc cho điểm chỉ số làm việc và chiến đấu (hai quỹ riêng; số điểm _(chưa có)_) |
 | Bộ kỹ năng chiến đấu (nhập hồn, kỹ năng thay thế) | Sinh vật |
+| Trang bị (bậc trang bị) | Rèn ở lò rèn, ghép trang bị, gói trang bị — tính trong PvP |
 | Mảnh ký ức, map đã mở | Nhiệm vụ & cốt truyện |
 
 Càng phát triển, nhu cầu làm việc càng tăng → càng cần nhiều sinh vật → càng cần hồi sinh thêm loài.

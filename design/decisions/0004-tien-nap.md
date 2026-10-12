@@ -18,9 +18,9 @@
 ## Quyết định
 Đề xuất (chờ user Chốt) — lựa chọn **B**:
 1. Tiền nạp được ảnh hưởng **tốc độ** tiến trình.
-2. **Mức tối đa** (chỉ số, cấp độ, bậc, sở hữu phép/sinh vật) người không nạp cũng đạt được; tiền nạp không mua được vượt mức đó.
-3. Trong PvP: bỏ phần vượt trội; điểm cấp độ/bậc vẫn tính → ở mức tối đa mọi người như nhau, chỉ khác cách phân bố, sinh vật và phép mang theo.
-4. Tiền nạp không trực tiếp tăng tỉ lệ vượt trội.
+2. **Mức tối đa** (chỉ số, cấp độ, bậc, sở hữu phép/sinh vật, bậc trang bị) người không nạp cũng đạt được; tiền nạp không mua được vượt mức đó.
+3. Trong PvP: bỏ phần vượt trội; điểm cấp độ/bậc và trang bị vẫn tính → ở mức tối đa mọi người như nhau, chỉ khác cách phân bố, sinh vật, phép và trang bị mang theo.
+4. Tiền nạp không trực tiếp tăng tỉ lệ vượt trội. Rút gói có bảo hiểm vượt trội, công khai mốc (vượt trội không tính PvP).
 5. Tiền nạp mang lại: làm đẹp (skin), hiệu ứng, tăng cơ hội ra loài khi rút thưởng, đẩy nhanh xây dựng, ưu đãi (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%, phụ trợ khác).
 6. Chênh lệch khi đang lên được giảm bằng ghép trận theo hạng rồi cấp độ trung bình.
 

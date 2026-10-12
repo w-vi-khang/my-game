@@ -27,6 +27,7 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 
 | Game | Lấy | Không lấy |
 |---|---|---|
+| Pokémon Pokopia ([Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html), [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_Pokopia)) — Switch 2, 05/03/2026 | Art style voxel mịn, sinh vật/vật phẩm là model mịn trên lưới ([art style](03-art-audio/art-style.md)) | Nhân vật, sinh vật, thiết kế có bản quyền |
 | Viva Piñata ([wiki](https://pinatajournal.wiki/wiki/Pinata)) | Loài xuất hiện theo yêu cầu môi trường riêng của từng loài | Khu vườn nhỏ cố định |
 | Palworld ([hướng dẫn phân việc](https://primagames.com/tips/how-to-assign-pals-jobs-at-your-base-in-palworld)) | Sinh vật làm việc theo khả năng của loài | AI tự do phức tạp — thay bằng lệnh làm việc chia công đoạn |
 | Cassette Beasts ([trang chính thức](https://cassettebeasts.com/about)) | Người chơi mang hình dạng/kỹ năng sinh vật khi chiến đấu | Chiến đấu theo lượt |
@@ -42,7 +43,7 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 
 ## Điểm khác biệt
 <!-- Vì sao người chơi chọn game này thay vì game tham khảo? -->
-[ý tưởng] Ghép "cải tạo môi trường sống để gọi loài về" với voxel world khám phá được và nông trại do chính các loài đó vận hành. Chưa tra được game nào có đúng tổ hợp này — [chưa xác minh], cần khảo sát thị trường trước khi Chốt.
+[ý tưởng] Ghép "cải tạo môi trường sống để gọi loài về" với voxel world khám phá được và nông trại do chính các loài đó vận hành. ⚠️ **Trùng nhiều với Pokémon Pokopia** (2026-10-12, [Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html), [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_Pokopia)): trong Pokopia, thế giới đã khô héo và con người biến mất; người chơi (một Ditto) hồi sinh vùng đất, học chiêu từ Pokémon đã kết bạn để thay đổi thế giới (vd làm cây xanh tốt, hồi sinh cây khô), chế tạo, xây nhà cho Pokémon, trồng trọt. Điểm khác biệt còn lại cần làm rõ [ý tưởng]: sinh vật **làm việc tự động** theo lệnh làm việc (nông trại tự động hoá); **danh sách yêu cầu của loài** quyết định loài trở lại; **chiến đấu bằng bộ phép của sinh vật** + nhập hồn + PvP; F2P online, PC + mobile. Cần khảo sát kỹ hơn trước khi Chốt (B1).
 
 ## Ràng buộc
 <!-- Một người làm: quỹ thời gian, ngân sách, kỹ năng mạnh/yếu (code, art, âm thanh). -->

@@ -9,7 +9,7 @@
 
 | Rủi ro | Khả năng | Ảnh hưởng | Cách giảm | Kiểm chứng ở |
 |---|---|---|---|---|
-| Hiệu năng voxel (meshing, chunk) trên mobile | Cao | Cao | Map có ranh giới; prototype trên máy mobile yếu sớm | M1 |
+| Hiệu năng voxel (meshing, chunk) trên mobile; thêm model mịn cho sinh vật/cây/vật phẩm (không phải khối) → nhiều draw call/polygon hơn | Cao | Cao | Map có ranh giới; prototype trên máy mobile yếu sớm | M1 |
 | Tìm đường trên địa hình đào/đặt được (cập nhật khi đổi khối) | Trung bình | Cao | Chỉ tính lại vùng bị đổi; giới hạn số sinh vật | M1 |
 | Kết quả tua nhanh lệch với lúc chơi trực tiếp | Trung bình | Trung bình | Một mô hình mô phỏng chung cho cả hai ([cơ chế](../02-gameplay/mechanics.md)) | M1–M2 |
 | Yêu cầu môi trường sống thành việc vặt, không vui | Trung bình | Cao | Graybox thử 2–3 loài trước khi làm nhiều | M1 |
@@ -25,4 +25,5 @@
 | Chi phí hosting game server tăng theo số trận | Trung bình | Trung bình | Tra giá hosting trước khi làm PvP; PvP có điều kiện tham gia | Sau M4 |
 | Rút thưởng và tăng cơ hội bằng tiền nạp có thể chịu quy định về loot box (công bố tỉ lệ, giới hạn độ tuổi...) ở một số thị trường [chưa xác minh] | Trung bình | Cao | Tra quy định của thị trường mục tiêu và cửa hàng ứng dụng trước khi làm cửa hàng; đã có thiết kế công khai tỉ lệ và mốc bảo hiểm ([cơ chế](../02-gameplay/mechanics.md#nhận-sinh-vật)) — đủ hay chưa thì [chưa xác minh] | M2 |
 | Một bộ điều khiển cho cả PC và mobile | Trung bình | Trung bình | Thiết kế điều khiển cảm ứng từ M1 | M1 |
-| Dự án dài hạn một người: mất động lực. Ở 10 giờ/tuần, phạm vi hiện tại tới M4 ~9,5–18 năm ([roadmap](../05-roadmap.md#kiểm-tra-phạm-vi)) | Cao | Cao | Milestone nhỏ có thứ chơi được; công bố tiến độ | Liên tục |
+| Trùng ý tưởng với Pokémon Pokopia (Switch 2, 2026 — [Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html)): hồi sinh vùng đất khô héo, sinh vật trở lại, dùng chiêu của sinh vật để đổi thế giới → người chơi thấy game "giống Pokopia" | Cao | Cao | Làm rõ điểm khác biệt trong [vision](../00-vision.md) (tự động hoá, chiến đấu, PvP, nền tảng); tránh mượn art/tên quá gần | M0 |
+| Dự án dài hạn một người: mất động lực. Ở 10 giờ/tuần, phạm vi hiện tại tới M4 ~9,8–18,6 năm ([roadmap](../05-roadmap.md#kiểm-tra-phạm-vi)) | Cao | Cao | Milestone nhỏ có thứ chơi được; công bố tiến độ | Liên tục |
