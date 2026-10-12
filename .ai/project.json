@@ -54,7 +54,30 @@
     "max_len": 16,
     "similar": 0.85,
     "deny_similar": 0.75,
-    "denylist": []
+    "denylist": [
+      "Pokemon",
+      "Pokopia",
+      "Palworld",
+      "Pinata",
+      "Minecraft",
+      "Cassette Beasts",
+      "Faunori",
+      "Revita",
+      "Animora",
+      "Animoria",
+      "Sylvari",
+      "Verdoria",
+      "Veredilia",
+      "Thalara",
+      "Althora",
+      "Aniversus",
+      "Aniverse",
+      "Viviette",
+      "Vivaldia",
+      "Renascence",
+      "Renasci",
+      "Renascor"
+    ]
   },
   "balance": {
     "_comment": "Skill game-balance của kit (>= 0.7.0). Quy tắc riêng của my-game: tools/balance_rules.py.",
