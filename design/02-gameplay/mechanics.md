@@ -126,8 +126,9 @@ Các gói trong cửa hàng: gói sinh vật, gói sách phép, gói [trang bị
   - [ý tưởng] Cách làm: mỗi gói có **mốc bảo hiểm** N — rút N lần liên tiếp chưa ra phần thưởng được bảo hiểm (gói sinh vật: cá thể vượt trội) thì lần thứ N chắc chắn ra; đếm riêng theo từng gói, ra phần thưởng hiếm thì đếm lại từ 0. Công khai trong cửa hàng: tỉ lệ từng loại phần thưởng, mốc N và số lần đã rút hiện tại.
   - Bảo hiểm (chống xui) và chặn quá may (chống may bất thường) cùng thu hẹp hai đầu may rủi, phần giữa giữ nguyên.
   - N và tỉ lệ tính bằng `local-game-balance` (lệnh `pity`).
-  - [ý tưởng] Bảo hiểm ưu tiên hơn chặn quá may: đã công khai mốc thì chạm mốc là phải ra.
-- Câu hỏi mở: gói sách phép, gói trang bị bảo hiểm phần thưởng gì (phép/trang bị hiếm, hay trang bị "vượt trội"?); bắt và ấp nở có tính vào bộ đếm bảo hiểm không ([ý tưởng] chỉ đếm lần rút gói); số lần đã rút có chuyển sang gói khác/mùa sau không.
+  - **Bảo hiểm ưu tiên hơn chặn quá may** (user, 2026-10-12): đã công khai mốc thì chạm mốc là phải ra.
+  - Phần thưởng được bảo hiểm (user, 2026-10-12): gói sinh vật → cá thể vượt trội; gói sách phép → phép bậc cao hơn; gói trang bị → trang bị bậc trang bị cao hơn.
+- Câu hỏi mở: "phép bậc cao hơn" là phép độ hiếm cao hơn (phép hiện chỉ có độ hiếm, chưa có bậc)?; bắt và ấp nở có tính vào bộ đếm bảo hiểm không ([ý tưởng] chỉ đếm lần rút gói); số lần đã rút có chuyển sang gói khác/mùa sau không.
 
 **Rút thưởng sinh vật**
 - Loài chưa mở khoá (chưa hồi sinh) không thể rút ra → không bỏ qua môi trường sống (giữ P1).
@@ -209,13 +210,15 @@ flowchart LR
 ### Trang bị
 Mô tả của user (2026-10-12). Công thức để sau.
 - Trang bị dành cho **sinh vật**; ảnh hưởng chỉ số chiến đấu và **tính trong PvP**.
+- Mỗi sinh vật mang **3 trang bị**; không chia loại ô, không giới hạn theo nguyên tố (user, 2026-10-12).
+- Trang bị **không có chỉ số ngẫu nhiên, không có vượt trội** — cùng loại, cùng bậc trang bị thì như nhau (user, 2026-10-12).
 - Có nhiều **bậc trang bị** (khác "bậc" tiến hoá của sinh vật).
 - **Ghép trang bị:** ghép các trang bị cùng loại, cùng bậc → một trang bị bậc cao hơn. Số lượng cần ghép: _(chưa có)_
 - **Rèn:** làm trang bị ở công trình **lò rèn**, cần nguyên liệu và sinh vật phù hợp.
   - [ý tưởng] Rèn là một lệnh làm việc tại lò rèn; "sinh vật phù hợp" = sinh vật có năng lực làm việc rèn → độ thuần thục ảnh hưởng thời gian/kết quả. Nối nông trại (P2) với chiến đấu (P4).
 - Nguồn: rèn, gói trang bị (rút thưởng gói), các nguồn khác _(chưa có)_.
 - [ý tưởng] Trang bị chỉ cộng vào các chỉ số phân bổ được, có trần chung như chỉ số (không vượt trần) → giữ cân bằng bằng `local-game-balance`.
-- Câu hỏi mở: mỗi sinh vật mang mấy trang bị, có loại ô trang bị không (vũ khí, giáp...); trang bị có giới hạn theo loài/tộc/nguyên tố không; trang bị có chỉ số ngẫu nhiên không; công thức rèn và ghép; công trình lò rèn mở khi nào.
+- Câu hỏi mở: trang bị có giới hạn theo loài/tộc không; một sinh vật mang được 2–3 trang bị giống nhau không; công thức rèn và ghép; công trình lò rèn mở khi nào.
 
 ### Phép
 Hai loại, **hai bộ sưu tầm riêng** — pháp sư không mang được phép sinh vật:

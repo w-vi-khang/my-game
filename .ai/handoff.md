@@ -31,7 +31,7 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 
 3b. XONG 2026-10-12: ba mức môi trường sống → danh sách yêu cầu của loài; bảo hiểm gói rút thưởng (công khai) + lệnh `pity` trong balance.py; skill mới: local-game-balance, local-game-story, local-level-design, local-naming (+ design/01-story/naming.md). Roadmap mục "Công việc M0" có danh sách cần Chốt (A1–A3, B1–B8). Tiếp theo đề xuất: art-style.md (B7) — thống nhất art style trước khi bắt đầu.
 
-3c. XONG 2026-10-12: trang bị (sinh vật, bậc trang bị, ghép, rèn ở lò rèn, tính PvP; M3 13–23); bảo hiểm gói là cho cá thể vượt trội; art-style.md bản đầu (voxel mịn tham khảo Pokopia, model mịn + khung chiếm chỗ). Phát hiện: Pokopia trùng nhiều ý tưởng cốt lõi → ghi vision + risks. Chờ user: địa hình khối bo cạnh hay bề mặt mịn; câu hỏi mở trang bị.
+3c. XONG 2026-10-12: trang bị (sinh vật, bậc trang bị, ghép, rèn ở lò rèn, tính PvP; M3 13–23); bảo hiểm gói là cho cá thể vượt trội; art-style.md bản đầu (voxel mịn tham khảo Pokopia, model mịn + khung chiếm chỗ). Phát hiện: Pokopia trùng nhiều ý tưởng cốt lõi → ghi vision + risks. XONG 2026-10-12: địa hình khối theo Pokopia (AI xem ảnh Serebii), 3 trang bị/sinh vật không ngẫu nhiên, bảo hiểm ưu tiên + phần thưởng theo gói, điểm khác biệt với Pokopia; asset ứng viên trong art-style.md.
 
 ## Quyết định quan trọng & lý do
 - Game online, F2P, tài khoản bắt buộc; PvE ở world riêng; PvP thời gian thực do game server quyết định (user chọn "trận đấu nảy lửa", chống gian lận).
