@@ -1,7 +1,7 @@
 # Handoff
 
 > Trạng thái: đang dở
-> Cập nhật: 2026-10-12
+> Cập nhật: 2026-10-12 (cuối phiên)
 
 <!-- AI ghi khi context lớn / trước khi /clear / khi user yêu cầu (/ai-workflow-kit:handoff).
 File này được commit (theo sang máy khác). Phiên sau dùng xong (đã tóm tắt, user xác nhận bước tiếp theo) -> XOÁ file;
@@ -33,7 +33,7 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 
 3c. XONG 2026-10-12: trang bị (sinh vật, bậc trang bị, ghép, rèn ở lò rèn, tính PvP; M3 13–23); bảo hiểm gói là cho cá thể vượt trội; art-style.md bản đầu (voxel mịn tham khảo Pokopia, model mịn + khung chiếm chỗ). Phát hiện: Pokopia trùng nhiều ý tưởng cốt lõi → ghi vision + risks. XONG 2026-10-12: địa hình khối theo Pokopia (AI xem ảnh Serebii), 3 trang bị/sinh vật không ngẫu nhiên, bảo hiểm ưu tiên + phần thưởng theo gói, điểm khác biệt với Pokopia; asset ứng viên trong art-style.md.
 
-3d. XONG 2026-10-12: địa hình bề mặt mịn liền (voxel world 35–55), biến thể hiển thị (3–6, M2), không chibi, tỉ lệ 1 ô = 1 đơn vị (nhân vật 1,5 × 1), sinh vật/nhân vật làm bằng AI, ma năng (phép trùng). Tổng M1–M4 ~10,1–19,1 năm. ĐANG CHỜ user cài uv + mcp-for-blender để thử nghiệm art (kế hoạch trong 05-roadmap mục C).
+3d. XONG 2026-10-12: địa hình bề mặt mịn liền (voxel world 35–55), biến thể hiển thị (3–6, M2), không chibi, tỉ lệ 1 ô = 1 đơn vị (nhân vật 1,5 × 1), sinh vật/nhân vật làm bằng AI, ma năng (phép trùng). Tổng M1–M4 ~10,1–19,1 năm. Đã cài (user, 2026-10-12): uv 0.13.0 (brew), MCP `blender` (local config, DISABLE_TELEMETRY=true, BLENDER_MCP_SAFE_MODE=1), addon mcp-for-blender vào Blender 5.0. Bước tiếp: user bật addon + Start MCP Server trong Blender, mở phiên mới → AI chạy thử nghiệm art (kế hoạch trong 05-roadmap mục C).
 
 ## Quyết định quan trọng & lý do
 - Game online, F2P, tài khoản bắt buộc; PvE ở world riêng; PvP thời gian thực do game server quyết định (user chọn "trận đấu nảy lửa", chống gian lận).
@@ -48,7 +48,7 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 
 ## Prompt tiếp tục
 ```text
-Tiếp tục công việc đang dở trong .ai/handoff.md — M0 thiết kế game: lập roadmap.
-Bước tiếp theo: dùng skill local-game-roadmap, đưa ước lượng từ design/02-gameplay/mechanics.md vào design/05-roadmap.md + gantt.
-Đọc handoff và các file liên quan trước, tóm tắt lại cho tôi trong 3 dòng rồi mới làm.
+Tiếp tục công việc trong .ai/handoff.md — M0 thiết kế game. Blender đã bật addon MCP for Blender và Start MCP Server.
+Bước tiếp theo: chạy thử nghiệm art bằng AI theo design/05-roadmap.md mục C (1 sinh vật mịn không chibi + rig + animation, 3 biến thể hiển thị, 1 cảnh địa hình mịn mẫu, xuất thử cho Unity), theo design/03-art-audio/art-style.md (tỉ lệ 1 ô = 1 đơn vị, nhân vật cao 1,5).
+Kiểm tra công cụ Blender MCP có sẵn trước; tóm tắt 3 dòng rồi mới làm. Hỏi tôi nơi lưu file .blend/ảnh render trước khi ghi vào repo.
 ```
