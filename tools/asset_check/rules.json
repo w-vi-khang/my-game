@@ -1,0 +1,98 @@
+{
+  "_comment": "Ngưỡng cho check_asset.py. Số có '_status': 'tạm' là [ý tưởng] — chưa có nguồn/chưa user duyệt; chỉnh sau khi đo trên mobile ở M1. Tỉ lệ theo design/03-art-audio/art-style.md (1 ô = 1 đơn vị = 1 m; nhân vật cao 1,5, khung 1×2×1).",
+  "units": {"system": "METRIC", "scale_length": 1.0},
+  "materials": {
+    "_status": "tạm",
+    "shader": "BSDF_PRINCIPLED",
+    "max_per_object": 4,
+    "texture_max_px": 2048,
+    "power_of_two": true
+  },
+  "rig": {
+    "_comment": "max_influences 4: Unity chỉ có One/Two/Four Bones hoặc Auto (docs 6000.4 QualitySettings.skinWeights). max_bones là tạm.",
+    "max_bones": 60,
+    "max_influences": 4,
+    "required_actions": ["idle", "walk"]
+  },
+  "export": {
+    "_comment": "fbx_options là thiết lập thử, chưa kiểm trong Unity (M0 chưa có project).",
+    "formats": ["fbx", "glb"],
+    "size_tol": 0.01,
+    "fbx_options": {
+      "apply_scale_options": "FBX_SCALE_UNITS",
+      "axis_forward": "-Z",
+      "axis_up": "Y",
+      "bake_space_transform": true,
+      "mesh_smooth_type": "FACE",
+      "add_leaf_bones": false
+    }
+  },
+  "classes": {
+    "terrain_test": {
+      "_comment": "Mảnh địa hình thử nghiệm art (30×30 ô). Game thật dựng mesh bằng code — class này chỉ cho file xuất thử.",
+      "_status": "tạm",
+      "tris_max": 30000,
+      "pivot": "any",
+      "transform_applied": true,
+      "rig": "none",
+      "topology": {"closed": true, "non_manifold_max": 4, "ngons_max": 0},
+      "uv": {"required": false}
+    },
+    "character": {
+      "_status": "tạm",
+      "tris_max": 8000,
+      "height": [1.4, 1.6],
+      "footprint_max": [1.0, 1.0],
+      "pivot": "feet",
+      "transform_applied": true,
+      "rig": "required",
+      "topology": {"closed": false, "ngons_max": 0},
+      "uv": {"required": true, "inside_0_1": true, "texel_density": {"texture_px": 1024, "min": 128, "max": 1024}}
+    },
+    "creature_small": {
+      "_comment": "Khung 1×1×1.",
+      "_status": "tạm",
+      "tris_max": 5000,
+      "height": [0.3, 1.0],
+      "footprint_max": [1.0, 1.0],
+      "pivot": "feet",
+      "transform_applied": true,
+      "rig": "required",
+      "topology": {"closed": false, "ngons_max": 0},
+      "uv": {"required": true, "inside_0_1": true, "texel_density": {"texture_px": 1024, "min": 128, "max": 1024}}
+    },
+    "creature_medium": {
+      "_comment": "Khung 1×2×1 như nhân vật.",
+      "_status": "tạm",
+      "tris_max": 8000,
+      "height": [1.0, 2.0],
+      "footprint_max": [1.0, 1.0],
+      "pivot": "feet",
+      "transform_applied": true,
+      "rig": "required",
+      "topology": {"closed": false, "ngons_max": 0},
+      "uv": {"required": true, "inside_0_1": true, "texel_density": {"texture_px": 1024, "min": 128, "max": 1024}}
+    },
+    "creature_large": {
+      "_comment": "Khung 2×2×2.",
+      "_status": "tạm",
+      "tris_max": 12000,
+      "height": [1.0, 2.0],
+      "footprint_max": [2.0, 2.0],
+      "pivot": "feet",
+      "transform_applied": true,
+      "rig": "required",
+      "topology": {"closed": false, "ngons_max": 0},
+      "uv": {"required": true, "inside_0_1": true, "texel_density": {"texture_px": 1024, "min": 64, "max": 1024}}
+    },
+    "prop": {
+      "_status": "tạm",
+      "tris_max": 3000,
+      "pivot": "feet",
+      "transform_applied": true,
+      "rig": "none",
+      "topology": {"closed": false, "ngons_max": 0},
+      "uv": {"required": true, "inside_0_1": true}
+    }
+  }
+}

@@ -23,3 +23,12 @@
 | I5 Hai thể thức PvP: xếp hạng chuẩn hoá, tự do dùng đủ chỉ số (cả vượt trội) | AI (2026-10-11) | P4 | để sau | Thể thức tự do cho dùng phần vượt trội → không công bằng nếu tính điểm xếp hạng; có thể làm thể thức giao hữu không xếp hạng |
 | I6 "Nét riêng" cân bằng thay cho con số | AI (2026-10-11) | P2, P4 | để sau | Tốn công cân bằng; có thể bổ sung sau cho cá thể vượt trội |
 | PvP thời gian thực, người chơi làm host (relay) | AI (2026-10-11) | P4 | loại | Host có thể gian lận; user chọn game server quyết định kết quả |
+| Tạo 3D bằng Hyper3D Rodin / Hunyuan3D cloud qua blender-mcp | AI (2026-10-12) | — | loại | Cần API key riêng; user không dùng key dịch vụ (sợ hết quota giữa chừng). Chọn HF Spaces |
+| Tạo 3D local bằng AssetFurnace (Pixal3D, TRELLIS.2 port Mac) | AI (2026-10-12) | — | loại | README khuyên 32 GB (máy 16 GB); Pixal3D/TRELLIS cần Xcode đầy đủ + Metal 4 (`xcrun metal -std=metal4.0`), có thể cần macOS 26 [run 2026-10-12]; DINOv3 bị khoá. Xét lại nếu đổi máy |
+| Hunyuan3D-2 (local hoặc qua AssetFurnace) | AI (2026-10-12) | — | loại | Giấy phép loại trừ EU, Anh, Hàn Quốc và cấm dùng output ngoài vùng → không hợp game phát hành toàn cầu |
+| TRELLIS.2 trên Google Colab / Kaggle miễn phí | User (2026-10-12) | — | loại | GPU free 16 GB (T4/P100) < 24 GB TRELLIS.2 yêu cầu; phải build lại extension mỗi phiên |
+| TRELLIS.2 qua fal.ai (0,25–0,35 $/lần) | User (2026-10-12) | — | để sau | Cần tài khoản + credit; dùng khi quota HF free không đủ cho sản xuất (M2) |
+| blenderwright (MCP Blender 191 tool, MIT) | User (2026-10-12) | — | để sau | Không thêm khả năng so với blender-mcp + Python; xét lại nếu rig bằng Python hay lỗi |
+| blender-open-mcp, TripoSR | User (2026-10-12) | — | loại | LLM local không cần (đã dùng Claude Code); TripoSR cần CUDA, không rig |
+| BlenderKit cho đồ vật | User (2026-10-12) | — | để sau | Asset Royalty Free/CC0 dùng thương mại được, không được bán lại model; xét ở M2 |
+| Địa hình dựng mesh ×1 (hoặc ×1 làm mượt ít hơn ở vách) | AI (2026-10-12) | — | loại | Rãnh 1 ô bị bóp chữ V; user chọn ×2 |

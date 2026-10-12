@@ -29,6 +29,7 @@
 | Biến thể hiển thị | Khác biệt nhỏ về hình ảnh giữa mọi cá thể/vật thể cùng loại (kích thước, màu, hoa văn), sinh theo seed riêng |
 | Biến thể | Dạng khác của một loài: cá thể đặc biệt về màu sắc, hình thái, hiếm; tách riêng với vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lò rèn | Công trình để rèn trang bị | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Công cụ kiểm tra asset | Script Blender headless kiểm model 3D theo quy cách trước khi đưa vào client (`tools/asset_check/`) | [decisions/0006](decisions/0006-cong-cu-kiem-tra-asset.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |
 | Mốc bảo hiểm | Số lần rút liên tiếp tối đa trước khi chắc chắn ra phần thưởng hiếm của gói (ý tưởng cách làm) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lệnh làm việc | Việc người chơi đặt cho sinh vật trên một vùng (vd trồng cây), gồm nhiều công đoạn. Khác với "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

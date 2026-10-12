@@ -50,7 +50,48 @@ Quyết định của user (2026-10-12): **địa hình và đồ vật dùng as
 - **1 ô voxel = 1 đơn vị.**
 - **Nhân vật cao 1,5 đơn vị, rộng 1 đơn vị** → đi vừa một rãnh rộng 1 ô, cao 2 ô. Khung chiếm chỗ của nhân vật: 1 × 2 × 1 ô (rộng × cao × sâu).
 - Sinh vật lấy tỉ lệ theo nhân vật; loài to nhỏ khác nhau → khung chiếm chỗ khác nhau.
-- [ý tưởng] Theo quy ước thường dùng 1 đơn vị Unity = 1 m [chưa xác minh trong docs 6000.4] → nhân vật cao 1,5 m. Nếu muốn người cao hơn, đổi tỉ lệ model chứ không đổi lưới.
+- Unity: hệ vật lý coi 1 m trong game = 1 đơn vị trong file nhập ([FBX Importer, docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/FBXImporter-Model.html)) → 1 ô = 1 m, nhân vật cao 1,5 m. Nếu muốn người cao hơn, đổi tỉ lệ model chứ không đổi lưới.
 - [ý tưởng] Nhóm kích thước sinh vật để thiết kế môi trường và tìm đường: nhỏ (1×1×1), vừa (1×2×1 như người), lớn (2×2×2), rất lớn (3×3×3 trở lên). Sinh vật lớn không đi qua rãnh 1 ô → địa hình người chơi làm phải tính đến loài nào đi qua được.
 
-Còn thiếu: số polygon/texture cho mobile, quy ước khung chiếm chỗ trong dữ liệu (gắn với model), quy ước đặt tên file, pivot — _(chưa có)_
+**Quy cách kiểm bằng công cụ** ([0006](../decisions/0006-cong-cu-kiem-tra-asset.md)): `tools/asset_check/rules.json` là nơi duy nhất ghi ngưỡng — pivot ở giữa đáy (chân), transform đã apply, đơn vị mét, chiều cao/khung theo nhóm kích thước, mesh không non-manifold/đỉnh rời/pháp tuyến ngược, UV trong 0–1, ≤ 4 vật liệu, shader Principled, texture ≤ 2048 px luỹ thừa của 2, ≤ 4 xương ảnh hưởng mỗi đỉnh (Unity chỉ có One/Two/Four Bones hoặc Auto — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/QualitySettings-skinWeights.html)), có animation đứng/đi.
+- [ý tưởng] Ngân sách tạm trong rules.json (chưa có nguồn, đo trên mobile ở M1 rồi sửa): nhân vật/sinh vật vừa 8.000 tam giác, nhỏ 5.000, lớn 12.000, đồ vật 3.000; tối đa 60 xương.
+
+Còn thiếu: số polygon/texture đo thật trên mobile, quy ước khung chiếm chỗ trong dữ liệu (gắn với model), quy ước đặt tên file — _(chưa có)_
+
+## Quy trình asset [ý tưởng]
+Đề xuất 2026-10-12, chưa user duyệt. Mỗi bước phải **đạt công cụ kiểm tra asset** (`check_asset.py`, exit 0) trước khi sang bước sau; AI ghi thời gian từng bước để có số đo cho ước lượng M2.
+
+| # | Bước | Ai / công cụ | Cổng kiểm |
+|---|---|---|---|
+| 1 | Brief: loài, nhóm kích thước, khung chiếm chỗ, 3–5 tính từ | AI soạn, user duyệt | Gắn pillar; đúng tỉ lệ ở trên |
+| 2 | Ảnh concept từ prompt (FLUX.2-klein-4B) → GLB (TRELLIS.2), 1–3 lần | AI — `hf_generate.py`, skill `concept-image` của kit (bảng giải phẫu kỳ vọng + soi bất thường ngoài mô tả) | Ảnh đạt checklist của skill; **user duyệt phong cách** ở ảnh concept và ở GLB |
+| 3 | Dọn: tỉ lệ, pivot, hướng, giảm polygon, UV | AI qua Blender (MCP hoặc script) | `check_asset.py --class creature_*` (bỏ qua rig) |
+| 4 | Rig: Rigify (có sẵn trong Blender 5.0 [run]) + auto weights | AI | Kiểm rig (mọi đỉnh có weight, ≤ 4 ảnh hưởng) |
+| 5 | Animation đứng + đi | AI | Có action `idle`, `walk`; xem dải khung hình |
+| 6 | 3 biến thể (kích thước ±10%, sắc màu) | AI | Mỗi biến thể vẫn trong khoảng chiều cao của nhóm |
+| 7 | Xuất FBX + GLB | AI | Xuất–nhập lại không đổi tam giác/kích thước/xương |
+
+## Kết quả thử nghiệm art (đang làm)
+Kế hoạch: [roadmap](../05-roadmap.md) mục C. File `.blend`, ảnh render và file xuất lưu **ngoài repo** (user, 2026-10-12): `~/Documents/User/khang/Game/art-test/`.
+
+**Công cụ — chốt (user, 2026-10-12):** tạo 3D bằng AI qua **Hugging Face Spaces**, gọi bằng token HF của user (quota ZeroGPU tính cho tài khoản đó — [docs](https://huggingface.co/docs/hub/spaces-agents)).
+- Ảnh concept: Space [FLUX.2-klein-4B](https://huggingface.co/spaces/black-forest-labs/FLUX.2-klein-4B) — model **Apache-2.0** ([model](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)). Không dùng bản 9B: FLUX Non-Commercial License ([model card](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B)).
+- Ảnh → GLB: Space [TRELLIS.2](https://huggingface.co/spaces/microsoft/TRELLIS.2) — code + model **MIT** ([repo](https://github.com/microsoft/TRELLIS.2)). API [run]: `/preprocess_image` → `/image_to_3d` (seed, độ phân giải 512/1024/1536) → `/extract_glb` (`decimation_target` mặc định 300.000, `texture_size` mặc định 2048).
+- Script: `tools/asset_gen/hf_generate.py` — ghi kèm `<tên>.provenance.json` (model, giấy phép, seed, thời gian). Môi trường Python (gradio_client 2.7.2, huggingface_hub 2.2.0) ở `art-test/.venv`, ngoài repo.
+- Quota free [chưa xác minh]: khoảng 3,5 phút GPU/ngày, có thể giới hạn số lượt ([forum HF](https://discuss.huggingface.co/t/what-is-the-free-zerogpu-quota-for-1-space/178610)) → đủ thử nghiệm, chưa đủ sản xuất. Khi cần nhiều hơn (M2): HF PRO hoặc [fal.ai](https://fal.ai/models/fal-ai/trellis-2) (0,25–0,35 $/lần).
+- Khâu Blender: blender-mcp (cầu nối) + Rigify (rig) + [công cụ kiểm tra asset](../decisions/0006-cong-cu-kiem-tra-asset.md). Các phương án đã xét và loại → [ideas](../ideas.md).
+
+**Địa hình mịn — xong bản đầu** [run 2026-10-12]: mảnh 30 × 30 ô, cao tới 12 ô; dữ liệu voxel có/không + loại vật liệu (cỏ, đất, đá, cát); dựng mesh bằng Surface Nets + làm mượt có giới hạn (mỗi đỉnh lệch ≤ 0,2 ô). Có rãnh rộng 1 ô sâu 2 ô và khối tham chiếu nhân vật 1,5 × 0,7.
+
+| Phương án | Tam giác (mảnh 30 × 30) | Rãnh 1 ô | Cảm giác |
+|---|---|---|---|
+| ×1 — mỗi ô gameplay = 1 ô dựng mesh | ~6.000 | Bị bóp thành chữ V, đáy còn ~½ ô → nhân vật hiển thị cắm vào vách | Đồi lượn mịn, liền |
+| ×2 — mỗi ô gameplay = 2 × 2 × 2 ô dựng mesh | ~24.000 | Giữ được vách gần thẳng, nhân vật lọt | Thấy bậc thang bo tròn, gần Pokopia hơn |
+
+Phát hiện:
+- Với dữ liệu có/không, Surface Nets (và marching cubes) đặt mặt ở giữa hai tâm ô → chi tiết rộng 1 ô bị mất khoảng nửa ô. Lưu mật độ mỗi ô ([tech-stack](../04-tech/tech-stack.md)) chỉ giúp nếu mật độ có giá trị trung gian; đào/đặt nguyên ô thì vẫn như dữ liệu có/không.
+- Vật liệu gán theo mặt → ranh giới vật liệu răng cưa; cần trộn theo đỉnh + triplanar như tech-stack đã ghi.
+- **Quyết định của user (2026-10-12): ×2** — mỗi ô gameplay dựng mesh bằng 2 × 2 × 2 ô; giữ được rãnh 1 ô, chấp nhận bậc thang bo tròn và số tam giác ×4 (~24.000 cho mảnh 30 × 30). Phải đo trên mobile ở M1 ([risks](../04-tech/risks.md)). Đã loại: ×1 (rãnh 1 ô bị bóp chữ V); ×1 làm mượt ít hơn ở vách.
+- Xuất thử: `terrain_x2.fbx`, `terrain_x2.glb`. Công cụ kiểm tra asset (class `terrain_test`) [run 2026-10-12]: x1 và x2 (.blend), GLB, FBX đều **đạt** (0 lỗi). Chưa nhập thử vào Unity (M0 chưa tạo project) → [chưa xác minh] Unity đọc đúng tỉ lệ/trục.
+
+**Sinh vật + rig + animation, 3 biến thể:** _(chưa có — đang chạy, chờ token HF)_
