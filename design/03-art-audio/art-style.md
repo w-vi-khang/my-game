@@ -17,7 +17,7 @@ Quyết định của user (2026-10-12):
 Hệ quả cho thiết kế [ý tưởng]:
 - Lưới voxel là lưới chung cho địa hình **và** chiếm chỗ: đặt vật phẩm/cây = chiếm các ô trong khung; tìm đường coi các ô đó là vật cản ([tech-stack](../04-tech/tech-stack.md)).
 - Model mịn tách khỏi khung chiếm chỗ → đổi model không ảnh hưởng luật chơi ([kiến trúc](../04-tech/architecture.md#client-unity)).
-- Biến thể hiển thị: mỗi cá thể/vật thể có một seed riêng → chọn trong khoảng cho phép: tỉ lệ kích thước (vd ±10%), sắc màu, hoa văn/texture phụ, hình dạng phụ (blend shape). Câu hỏi mở: biến thể của sinh vật có gắn với chỉ số cá thể không (vd cá thể vượt trội có dấu hiệu nhìn thấy được)?
+- Biến thể hiển thị: mỗi cá thể/vật thể có một seed riêng → chọn trong khoảng cho phép: tỉ lệ kích thước (vd ±10%), sắc màu, hoa văn/texture phụ, hình dạng phụ (blend shape). Ngoài ra có **biến thể** (user, 2026-10-12): dạng khác của loài, đặc biệt về màu sắc, hình thái — cần art riêng (màu/texture khác, có thể model khác), tách riêng với vượt trội ([cơ chế](../02-gameplay/mechanics.md#nhận-sinh-vật)).
 - Câu hỏi mở: bảng màu, độ bão hoà, ánh sáng; góc camera (tự do hay góc nghiêng cố định — ý tưởng B3 trong [ideas](../ideas.md)).
 
 ## Tham khảo
