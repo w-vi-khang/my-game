@@ -86,12 +86,34 @@ gantt
 ```
 
 ## Công việc M0 (kế hoạch & thiết kế) — ưu tiên hiện tại
-- [ ] 00-vision.md → Chốt
-- [ ] 02-gameplay/core-loop.md → Chốt
-- [ ] 02-gameplay/mechanics.md: các cơ chế "phải có", mỗi cơ chế có thành phần phụ trách → Chốt
-- [ ] 04-tech/components.md: xác định thành phần cần cho M1–M2 → Chốt
-- [ ] 04-tech/tech-stack.md: công nghệ cho thành phần cần ở M1 (client: render pipeline) → Chốt — bản đầu đã viết 2026-10-12, chờ user xem
-- [ ] 04-tech/risks.md: rủi ro lớn + milestone kiểm chứng
-- [x] 05-roadmap.md: ước lượng M1–M2 (bản đầu, 2026-10-12) — user giữ nguyên phạm vi, xem lại sau khi đo tốc độ M1
-- [ ] Chốt quyết định [0003](decisions/0003-server.md), [0004](decisions/0004-tien-nap.md), [0005](decisions/0005-render-pipeline.md)
+Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên>" để AI đổi dòng trạng thái + bảng [README](README.md), hoặc tự sửa).
+
+### A. Quyết định chờ Chốt
+| # | Quyết định | Trạng thái | User cần làm |
+|---|---|---|---|
+| A1 | [0003](decisions/0003-server.md) — cần backend (M2) + game server (PvP sau phát hành) | Đề xuất | Đồng ý → Chốt. Chặn: components.md, architecture.md |
+| A2 | [0004](decisions/0004-tien-nap.md) — tiền nạp ảnh hưởng tốc độ, chặn ở mức tối đa | Đề xuất | Đồng ý → Chốt. Chặn: vision (mô hình kinh doanh), economy.md |
+| A3 | [0005](decisions/0005-render-pipeline.md) — client dùng URP | Đề xuất | Đồng ý → Chốt. Chặn: tech-stack.md, tạo project ở M1 |
+
+### B. Tài liệu phải Chốt trước khi sang M1
+| # | Tài liệu | Còn thiếu trước khi Chốt |
+|---|---|---|
+| B1 | [00-vision.md](00-vision.md) | Chấp nhận/sửa pitch [ý tưởng] và điểm khác biệt [ý tưởng] (khảo sát thị trường [chưa xác minh]); người chơi mục tiêu: độ tuổi, kinh nghiệm, thời lượng phiên; ngân sách. Phụ thuộc A2 |
+| B2 | [02-gameplay/core-loop.md](02-gameplay/core-loop.md) | Thời lượng một phiên (PC, mobile); chấp nhận/bỏ 2 [ý tưởng] (phản hồi tức thì, phiên kết thúc khi loài định cư/nhiệm vụ xong) |
+| B3 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) — **ít nhất các cơ chế M1**: voxel world, sinh vật & loài, chỉ số làm việc, môi trường sống, lệnh làm việc, tìm đường, điều khiển PC + mobile | Chấp nhận/bỏ các [ý tưởng] của nhóm M1: độ ưu tiên giữa lệnh; nội tại cộng hiệu quả công đoạn; công đoạn khi sinh vật bị lấy đi; thông báo đình trệ; kiểu di chuyển theo loài; yêu cầu môi trường sống tính theo vùng; ba mức xuất hiện → ghé thăm → định cư. File còn nhiều phần M2+ chưa xong → xem đề xuất ở cuối mục |
+| B4 | [04-tech/components.md](04-tech/components.md) | Phụ thuộc A1. Chấp nhận/bỏ [ý tưởng]: backend dùng dịch vụ có sẵn; chỉ lưu phần world khác seed; bảng ranh giới trách nhiệm |
+| B5 | [04-tech/tech-stack.md](04-tech/tech-stack.md) — phần Client | Phụ thuộc A3. Chấp nhận/bỏ [ý tưởng]: Input System; meshing tự viết bằng Jobs + Burst; A\* tự viết; uGUI; không dùng ECS |
+| B6 | [05-roadmap.md](05-roadmap.md) — phần M1–M2 | Chấp nhận ước lượng thô + giả định (1 ngày-người = 8 giờ, ×1,5); phạm vi đã giữ nguyên (user, 2026-10-12) |
+
+### C. Nên viết trước M1 (chưa cần Chốt)
+- [ ] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — đang trống; M1 cần điều khiển PC + cảm ứng.
+- [ ] [04-tech/architecture.md](04-tech/architecture.md) — bản đầu đã viết; xem lại phần Client.
+- [ ] [04-tech/risks.md](04-tech/risks.md) — rủi ro lớn + milestone kiểm chứng (đã có, chỉ cần rà).
 - [ ] Tạo skill cân bằng riêng (user, 2026-10-12): tính base, phân bố loài/ngẫu nhiên, hệ số quy đổi, trần, điểm mỗi cấp độ/bậc, tỉ lệ vượt trội, tham số chặn quá may — đọc/ghi bảng dữ liệu chỉ số ([cơ chế](02-gameplay/mechanics.md#chỉ-số-sinh-vật)). Thời điểm: [ý tưởng] trước khi cân bằng chỉ số chiến đấu ở M2; ước lượng 1–2 ngày [chưa xác minh]
+
+### D. Không cần Chốt để sang M1 (viết dần, song song prototype)
+Cốt truyện (world, characters, plot), progression, economy, levels, art-style, audio — theo thứ tự gợi ý ở [README](README.md).
+
+**Đề xuất** [ý tưởng]: trạng thái tính theo file, mà mechanics.md còn nhiều phần M2+ (nhập hồn, phép, PvP...) chưa xong. Hai cách:
+- (a) Tách các cơ chế M1 ra file riêng (vd `02-gameplay/mechanics-m1.md`) để Chốt riêng.
+- (b) Giữ một file, đổi tiêu chí M0 thành "các cơ chế M1 trong mechanics.md đã được user duyệt" và đặt file ở "Đang xem xét".
