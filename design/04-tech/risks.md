@@ -1,11 +1,11 @@
 # Rủi ro
 
 > Trạng thái: Nháp
-> Liên quan: [Lộ trình](../05-roadmap.md)
+> Liên quan: [Lộ trình](../05-roadmap.md) · [Kỹ thuật tạo world](world-tech.md) · [Mô phỏng nông trại](simulation-tech.md) · [Kiến trúc](architecture.md) · [Điều khiển & UI](../02-gameplay/controls-ui.md) · [Level](../02-gameplay/levels.md)
 
 ## Danh sách rủi ro
 <!-- Bảng: rủi ro | khả năng | ảnh hưởng | cách giảm | kiểm chứng sớm ở milestone nào. Gồm cả rủi ro không kỹ thuật (thời gian, động lực khi làm một mình). -->
-Đánh giá của AI, [chưa xác minh] — kiểm chứng bằng prototype.
+Đánh giá của AI, [chưa xác minh] — kiểm chứng bằng prototype. Rà lại 2026-10-13: thêm rủi ro từ world-tech, simulation-tech, controls-ui, levels, trần sinh vật 54/60.
 
 | Rủi ro | Khả năng | Ảnh hưởng | Cách giảm | Kiểm chứng ở |
 |---|---|---|---|---|
@@ -13,8 +13,9 @@
 | Nước chảy theo ô: tốn CPU trên mobile, khó tất định khi tua nhanh, nước tràn làm đình trệ hàng loạt | Trung bình | Cao | Chỉ mô phỏng vùng động; nhịp cố định; M1 nước tĩnh, đo trước khi bật nước chảy ([world-tech](world-tech.md#nước-chảy)) | M2 |
 | Đổi bộ sinh world ở bản cập nhật → chunk chưa sửa sinh khác đi, lệch với chunk đã lưu ở ranh giới | Trung bình | Cao | Lưu phiên bản bộ sinh kèm dữ liệu; quy tắc chuyển đổi khi đổi phiên bản ([world-tech](world-tech.md#lưu-trữ)) | M2 |
 | Surface Nets có thể tạo đỉnh không đa tạp (non-manifold) ([0fps](https://0fps.net/2012/07/12/smooth-voxel-terrain-part-2/)) → lỗi bóng/va chạm | Trung bình | Trung bình | Kiểm mesh bằng test tự động ở bước 2–3 prototype; collider bake có kiểm tra | M1 |
-| Tìm đường trên địa hình đào/đặt được (cập nhật khi đổi khối) | Trung bình | Cao | Chỉ tính lại vùng bị đổi; giới hạn số sinh vật | M1 |
-| Kết quả tua nhanh lệch với lúc chơi trực tiếp | Trung bình | Trung bình | Một mô hình mô phỏng chung cho cả hai ([cơ chế](../02-gameplay/mechanics.md)) | M1–M2 |
+| Tìm đường trên địa hình đào/đặt được (cập nhật khi đổi khối) | Trung bình | Cao | Chỉ tính lại vùng bị đổi; vùng liên thông báo "không tới được" không tốn A\*; ngân sách A\* mỗi nhịp ([simulation-tech](simulation-tech.md#tìm-đường)) | M1 |
+| 60 sinh vật hoạt động trên mobile tầm trung (trần 54, nạp 60 — user 2026-10-13): mô phỏng + A\* + vẽ, animation cùng lúc | Trung bình | Cao | Nhịp mô phỏng cố định tách khỏi khung hình; sinh vật xa camera không vẽ animation chi tiết; đo ms/nhịp với 60 sinh vật (bước 8 của prototype mô phỏng). Không đạt → hạ trần trước khi làm nội dung | M1 |
+| Kết quả tua nhanh lệch với lúc chơi trực tiếp — nhiều trạng thái hơn từ khi có độ bền làm việc, nghỉ, bệnh/mệt theo mức độ, 2 sinh vật cùng làm một công đoạn | Trung bình | Trung bình | Một mô hình mô phỏng chung cho cả hai ([cơ chế](../02-gameplay/mechanics.md)); test so sánh chạy từng nhịp vs nhảy sự kiện, lệch ≤ 2% sản lượng ([simulation-tech](simulation-tech.md#tua-nhanh)) | M1–M2 |
 | Yêu cầu môi trường sống thành việc vặt, không vui | Trung bình | Cao | Graybox thử 2–3 loài trước khi làm nhiều | M1 |
 | Công nội dung tăng theo số loài (model, animation, kỹ năng nhập hồn) | Cao | Cao | Chọn art style rẻ; giới hạn loài nhập hồn được | M2 |
 | Server là việc vận hành dài hạn cho một người (chi phí, bảo trì, sự cố) | Cao | Cao | Ưu tiên dịch vụ có sẵn; M2 chỉ dùng backend | M2 |
@@ -28,6 +29,24 @@
 | Kiểm duyệt ảnh concept phụ thuộc Space HF bên thứ ba (Qwen3-VL của prithivMLmods) và quota ZeroGPU; Space chính thức Qwen lỗi khi gọi API [run 2026-10-12] | Trung bình | Thấp | Lớp 1 (soi vùng) không phụ thuộc dịch vụ; đổi Space trong `concept_check.py`; khi sản xuất (M2) cân nhắc VLM trả phí hoặc chạy local | M2 |
 | Chi phí hosting game server tăng theo số trận | Trung bình | Trung bình | Tra giá hosting trước khi làm PvP; PvP có điều kiện tham gia | Sau M4 |
 | Rút thưởng và tăng cơ hội bằng tiền nạp có thể chịu quy định về loot box (công bố tỉ lệ, giới hạn độ tuổi...) ở một số thị trường [chưa xác minh] — thị trường toàn cầu → nhiều quy định khác nhau | Trung bình | Cao | Tra quy định của thị trường mục tiêu và cửa hàng ứng dụng trước khi làm cửa hàng; đã có thiết kế công khai tỉ lệ và mốc bảo hiểm ([cơ chế](../02-gameplay/mechanics.md#nhận-sinh-vật)) — đủ hay chưa thì [chưa xác minh] | M2 |
+| Camera góc 3 trong địa hình voxel đào được: camera bị vách/hang chắn, giật khi địa hình đổi, khó nhìn trong hang (user chọn camera góc 3 xoay tự do, 2026-10-13) | Trung bình | Trung bình | [ý tưởng] Kéo camera lại gần khi bị chắn (tra va chạm trên lưới voxel); khoảng cách ngắn hơn trong hang; thử trong hang ngay ở prototype ([controls-ui](../02-gameplay/controls-ui.md#điều-khiển)) | M1 |
+| Nhắm phép trên điện thoại trong chiến đấu thời gian thực (tâm màn hình, khoá mục tiêu, giữ-kéo-thả cho phép vùng): 4 nút phép + joystick có thể chật màn hình nhỏ, nhắm chậm | Trung bình | Cao | Khoá mục tiêu; phép hướng bay về mục tiêu đã khoá; thử trên điện thoại nhỏ khi làm nhập hồn | M2 |
+| Người chơi tự làm được công đoạn (user, 2026-10-13) → làm thay sinh vật quá hiệu quả, sinh vật bớt giá trị ở nông trại (P2) | Trung bình | Trung bình | [ý tưởng] Người chơi làm chậm hơn sinh vật, mỗi lần một ô; sinh vật làm khi người chơi vắng mặt (tua nhanh) — cân bằng bằng `game-balance` | M2 |
+| Bố cục vùng sinh theo seed có ràng buộc (user, 2026-10-13): sinh lại nhiều lần làm chậm lúc tạo world, hoặc có seed không tìm được bố cục đạt | Trung bình | Trung bình | [ý tưởng] Giới hạn số lần thử; hết lượt thì dùng bố cục dự phòng làm sẵn; đo số lần thử trung bình trên nhiều seed bằng test tự động ([levels](../02-gameplay/levels.md#kích-thước--khung-chung)) | M2 |
+| Map 2, 3 mở cùng lúc ([ý tưởng] trong levels) → phải ngang độ khó, loài của mỗi map không được cần tài nguyên của map kia | Thấp | Trung bình | Kiểm danh sách yêu cầu của loài theo tài nguyên trong map khi viết dữ liệu | M4 |
+| Ngoại lệ giới hạn sinh vật 54 / 60 cho người nạp ([0004](../decisions/0004-tien-nap.md)) → người không nạp thấy thiệt ở nông trại dù đã mở hết | Thấp | Trung bình | Không ảnh hưởng PvP; giữ chênh lệch nhỏ (6 sinh vật); theo dõi phản hồi sau phát hành | Sau phát hành |
 | Một bộ điều khiển cho cả PC và mobile | Trung bình | Trung bình | Thiết kế điều khiển cảm ứng từ M1; nhắm theo tâm màn hình + chọn vùng 2 điểm, một nút hành động chính cho mọi thiết bị ([controls-ui](../02-gameplay/controls-ui.md)) | M1 |
 | Trùng ý tưởng với Pokémon Pokopia (Switch 2, 2026 — [Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html)): hồi sinh vùng đất khô héo, sinh vật trở lại, dùng chiêu của sinh vật để đổi thế giới → người chơi thấy game "giống Pokopia" | Cao | Cao | Nhấn mạnh điểm khác biệt user đã chọn ([vision](../00-vision.md)): nhiều cá thể mỗi loài, chiến đấu và nông trại chi tiết hơn; tránh mượn art/tên quá gần (art style tham khảo Pokopia → cần bảng màu, hình dáng sinh vật riêng) | M0 |
 | Dự án dài hạn một người: mất động lực. Ở 10 giờ/tuần, phạm vi hiện tại tới M4 ~11,0–20,8 năm ([roadmap](../05-roadmap.md#kiểm-tra-phạm-vi)) | Cao | Cao | Milestone nhỏ có thứ chơi được; công bố tiến độ | Liên tục |
+
+## Kiểm chứng sớm ở M1
+[ý tưởng] Rủi ro "Cao" cần biết sớm nhất, gắn với bước prototype đã có — nếu một bước cho kết quả xấu, dừng làm nội dung và điều chỉnh thiết kế trước.
+
+| Rủi ro | Bước prototype | Dấu hiệu xấu → hành động |
+|---|---|---|
+| Hiệu năng voxel mịn trên mobile | [world-tech](world-tech.md#kế-hoạch-prototype-m1) bước 3, 9 | FPS thấp / dựng mesh chậm → giảm độ phân giải mesh (×1), thu nhỏ vùng hiển thị |
+| Tìm đường khi đào/đặt | [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1) bước 2 | A\* vượt ngân sách nhịp → tìm đường phân cấp |
+| 60 sinh vật trên mobile | [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1) bước 8 | ms/nhịp quá cao → hạ trần sinh vật hoạt động |
+| Tua nhanh lệch | [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1) bước 7 | Lệch > 2% → sửa mô hình nhảy sự kiện trước khi thêm trạng thái mới |
+| Yêu cầu môi trường sống không vui | Graybox 2–3 loài ([roadmap](../05-roadmap.md) M1) | Người chơi thử thấy như việc vặt → đổi loại yêu cầu trước khi làm 10 loài của slice |
+| Camera trong hang | Prototype điều khiển M1 ([controls-ui](../02-gameplay/controls-ui.md#điều-khiển)) | Camera kẹt vách thường xuyên → cân nhắc chế độ camera riêng trong hang |
