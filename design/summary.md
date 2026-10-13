@@ -27,7 +27,7 @@ Khám phá, thu thập → cải tạo địa hình → hoàn thành **danh sác
 ## Các hệ thống chính
 **Thế giới**
 - World riêng của mỗi người chơi, chia **map** có ranh giới (3 map lúc đầu, thêm theo mùa). Phần cốt truyện sắp đặt tay (**khối cốt truyện**), phần còn lại sinh theo **seed**.
-- Map 128 × 128 × 48 ô, có hang động, **nước chảy**; đào/đặt theo nguyên ô.
+- Map 128 × 128 × 48 ô, có **hang động** (sinh vật, tài nguyên riêng), **nước chảy** (không cạn; người chơi tạo được nguồn nước); đào/đặt theo nguyên ô.
 - Hình ảnh: địa hình **bề mặt mịn liền** (dữ liệu vẫn là ô voxel), màu tươi sáng, concept art kiểu diorama; sinh vật/nhân vật có thể low-poly, không chibi. 1 ô = 1 đơn vị; nhân vật cao 1,5.
 
 **Sinh vật**
