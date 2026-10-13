@@ -80,13 +80,14 @@ namespace Game.World.Tests
         {
             var world = TerrainGenerator.Generate(new TerrainParams());
             var s = world.Size;
-            int renderTris = 0, colliderTris = 0, faces = 0, maxTris = 0;
+            int renderTris = 0, colliderTris = 0, faces = 0, maxTris = 0, lipTris = 0;
             for (int cy = 0; cy < s.ChunksY; cy++)
             for (int cz = 0; cz < s.ChunksZ; cz++)
             for (int cx = 0; cx < s.ChunksX; cx++)
             {
-                var mesh = BlockMesher.Build(world, cx, cy, cz);
+                var mesh = BlockMesher.Build(world, cx, cy, cz, grassLip: false);
                 int f = CountExposedFaces(world, cx, cy, cz);
+                lipTris += BlockMesher.Build(world, cx, cy, cz).TriangleCount - mesh.TriangleCount;
                 Assert.AreEqual(f * 2, mesh.ColliderIndices.Length / 3, $"collider chunk {cx},{cy},{cz}");
                 Assert.AreEqual(f * 4, mesh.ColliderVertices.Length, $"collider chunk {cx},{cy},{cz}");
                 // Mặt bo: 2 (phẳng) .. 18 (lưới 3 × 3) tam giác.
@@ -98,7 +99,8 @@ namespace Game.World.Tests
                 maxTris = math.max(maxTris, mesh.TriangleCount);
             }
             TestContext.WriteLine($"MESHSTATS bo cạnh world_m1: {faces} mặt lộ; hiển thị {renderTris} tam giác " +
-                                  $"({(float)renderTris / faces:F2}/mặt), lớn nhất {maxTris}/chunk; collider {colliderTris}");
+                                  $"({(float)renderTris / faces:F2}/mặt), lớn nhất {maxTris}/chunk; collider {colliderTris}; " +
+                                  $"mép cỏ thêm {lipTris} → tổng {renderTris + lipTris}");
         }
 
         [Test]
@@ -143,7 +145,7 @@ namespace Game.World.Tests
         {
             // Hình ngẫu nhiên 5 × 5 × 5 (mọi kiểu 26 ô lân cận: chạm chéo, lỗ, cột mảnh), seed cố định.
             var rng = new System.Random(2026);
-            for (int trial = 0; trial < 300; trial++)
+            for (int trial = 0; trial < 2000; trial++)
             {
                 var w = new WorldData(new WorldSize(16, 16, 16));
                 double density = 0.3 + 0.4 * rng.NextDouble();
@@ -180,7 +182,7 @@ namespace Game.World.Tests
         {
             var w = new WorldData(new WorldSize(16, 16, 16));
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
-            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            var mesh = BlockMesher.Build(w, 0, 0, 0, grassLip: false);
             int grassTris = 0;
             for (int t = 0; t < mesh.Indices.Length; t += 3)
             {
@@ -261,6 +263,97 @@ namespace Game.World.Tests
                 Object.DestroyImmediate(mesh);
                 Object.DestroyImmediate(collider);
             }
+        }
+
+        // ---------------- Mép cỏ (bước 5.3) ----------------
+
+        static readonly float MaxLip = BlockMesher.LipDepth + BlockMesher.LipWave1 + BlockMesher.LipWave2;
+
+        [Test]
+        public void LipDepthStaysInRange()
+        {
+            for (int k = 0; k < 2000; k++)
+            {
+                float d = BlockMesher.LipDepthAt(k * 0.137f, k % 2 == 0 ? 0 : 2, k % 3 == 0 ? -1 : 1, k % 17, k % 11);
+                Assert.That(d, Is.InRange(BlockMesher.LipDepth - BlockMesher.LipWave1 - BlockMesher.LipWave2 - 1e-5f, MaxLip + 1e-5f));
+            }
+        }
+
+        [Test]
+        public void LipOnlyOnGrassWithOpenTopAndSide()
+        {
+            // Đá: không mép. Cỏ bị khối đè: không mép. Cỏ lộ mặt trên: có đỉnh nhô ra ngoài ô đúng LipOverhang, váy không sâu quá MaxLip.
+            float3 lo = new float3(4, 8, 4), hi = new float3(5, 9, 5);
+            var stone = new WorldData(new WorldSize(16, 16, 16));
+            stone.Set(4, 8, 4, Cell.Make(BlockMaterial.Stone));
+            AssertInside(BlockMesher.Build(stone, 0, 0, 0), lo, hi, "đá");
+
+            var covered = new WorldData(new WorldSize(16, 16, 16));
+            covered.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            covered.Set(4, 9, 4, Cell.Make(BlockMaterial.Stone));
+            AssertInside(BlockMesher.Build(covered, 0, 0, 0), lo, new float3(5, 10, 5), "cỏ bị đè");
+
+            var open = new WorldData(new WorldSize(16, 16, 16));
+            open.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            var mesh = BlockMesher.Build(open, 0, 0, 0);
+            float maxOut = 0, minY = float.MaxValue;
+            foreach (var p in mesh.Vertices)
+            {
+                maxOut = math.max(maxOut, math.cmax(math.max(lo - p, p - hi)));
+                minY = math.min(minY, p.y);
+            }
+            Assert.AreEqual(BlockMesher.LipOverhang, maxOut, 1e-4f, "mép nhô ra");
+            Assert.GreaterOrEqual(minY, 8f - 1e-4f, "đáy khối");
+            int lipLow = 0;
+            foreach (var p in mesh.Vertices)
+                if (math.cmax(math.max(lo - p, p - hi)) > 1e-3f)
+                {
+                    Assert.GreaterOrEqual(p.y, 9f - MaxLip - 1e-4f, $"váy quá sâu ở {p}");
+                    if (p.y < 9f - 0.1f) lipLow++;
+                }
+            Assert.Greater(lipLow, 0, "phải có váy cỏ buông xuống");
+        }
+
+        static void AssertInside(ChunkMesh m, float3 lo, float3 hi, string what)
+        {
+            foreach (var p in m.Vertices)
+                Assert.IsTrue(math.all(p >= lo - 1e-4f) && math.all(p <= hi + 1e-4f), $"{what}: đỉnh {p} ngoài ô");
+        }
+
+        [Test]
+        public void LipIsDeterministicAndContinuousAcrossCellsAndChunks()
+        {
+            // Hàng ô cỏ x = 13..18 (z = 4, y = 8) vắt qua biên chunk x = 16 → mép sườn −z và +z chạy qua hai chunk.
+            var w = new WorldData(new WorldSize(32, 16, 16));
+            for (int x = 13; x <= 18; x++)
+                w.Set(x, 8, 4, Cell.Make(BlockMaterial.Grass));
+            var a = BlockMesher.BuildAll(w);
+            var b = BlockMesher.BuildAll(w);
+            for (int c = 0; c < a.Length; c++)
+            {
+                CollectionAssert.AreEqual(a[c].Vertices, b[c].Vertices, "tất định: đỉnh");
+                CollectionAssert.AreEqual(a[c].Indices, b[c].Indices, "tất định: chỉ số");
+            }
+            // Đỉnh của váy cỏ (ngoài mặt sườn, thấp hơn mặt trên) tại ranh giới hai ô x = 14..18: phải có ở cả dải bên trái lẫn bên phải.
+            var at = new Dictionary<long, int>();
+            for (int c = 0; c < a.Length; c++)
+            {
+                float3 o = new float3(c % 2, 0, 0) * WorldSize.ChunkSize;
+                foreach (var v in a[c].Vertices)
+                {
+                    float3 p = v + o;
+                    bool skirt = (p.z < 4f - 1e-3f || p.z > 5f + 1e-3f) && p.y < 9f - 1e-3f;
+                    if (skirt && p.x >= 14f - 1e-4f && p.x <= 18f + 1e-4f && math.abs(p.x - math.round(p.x)) < 1e-4f)
+                    {
+                        long k = MeshChecks.Key(p);
+                        at.TryGetValue(k, out int n);
+                        at[k] = n + 1;
+                    }
+                }
+            }
+            Assert.AreEqual(5 * 2, at.Count, "mỗi ranh giới x = 14..18 có một điểm đáy váy mỗi sườn");
+            foreach (var kv in at)
+                Assert.AreEqual(2, kv.Value, "điểm đáy váy ở ranh giới phải trùng giữa hai dải kề nhau (kể cả qua biên chunk x = 16)");
         }
     }
 }

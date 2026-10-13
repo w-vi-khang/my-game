@@ -11,12 +11,14 @@ namespace Game.World.Tests
     {
         static WorldData world;
         static ChunkMesh[] meshes;
+        static ChunkMesh[] meshesNoLip;
 
         [OneTimeSetUp]
         public void BuildOnce()
         {
             world = TerrainGenerator.Generate(new TerrainParams());
             meshes = BlockMesher.BuildAll(world);
+            meshesNoLip = BlockMesher.BuildAll(world, grassLip: false);
         }
 
         static float3 ChunkOrigin(int c)
@@ -52,9 +54,10 @@ namespace Game.World.Tests
         {
             // Hàn cả map theo vị trí đỉnh: mỗi cạnh a→b có đúng chừng ấy cạnh b→a (mặt kín, cùng chiều) — kể cả qua biên chunk
             // và chỗ bo cạnh. Chỉ cho phép hở ở mép map (mặt đất cắt ngang ở biên map, không có vách — 0009).
+            // Mép cỏ là bề mặt hở chồng lên khối → kiểm độ kín trên mesh khối không mép cỏ.
             var parts = new List<(float3[], int[], float3)>();
-            for (int c = 0; c < meshes.Length; c++)
-                parts.Add((meshes[c].Vertices, meshes[c].Indices, ChunkOrigin(c)));
+            for (int c = 0; c < meshesNoLip.Length; c++)
+                parts.Add((meshesNoLip[c].Vertices, meshesNoLip[c].Indices, ChunkOrigin(c)));
             int bad = MeshChecks.UnbalancedEdges(parts, (a, b) => OnMapRim(a) && OnMapRim(b), TestContext.WriteLine);
             Assert.AreEqual(0, bad, "cạnh hở hoặc lệch chiều bên trong map");
         }

@@ -27,6 +27,29 @@ namespace Game.World
         /// <summary>Bán kính bo cạnh (ô). 1/8 biểu diễn đúng trong float → điểm thẳng hàng trên cạnh không lệch.</summary>
         public const float BevelRadius = 0.125f;
 
+        // ---- Mép cỏ (bước 5.3, glossary "Mép cỏ"): chỉ hiển thị, không vào collider ----
+        /// <summary>Mặt trên ô cỏ nhô ra khỏi sườn (ô).</summary>
+        public const float LipOverhang = 0.08f;
+        /// <summary>Mép trên của váy cỏ lùi vào so với LipOverhang → cạnh ngoài hơi tròn khi chiếu sáng.</summary>
+        public const float LipRound = 0.04f;
+        /// <summary>Độ dài váy cỏ dưới mặt trên: LipDepth ± LipWave1 ± LipWave2 (lượn sóng theo toạ độ dọc cạnh).</summary>
+        public const float LipDepth = 0.22f, LipWave1 = 0.06f, LipWave2 = 0.03f;
+        /// <summary>Số đoạn dọc mỗi cạnh ô của váy cỏ / số đoạn của mảnh góc 1/4 vòng.</summary>
+        public const int LipSegments = 4, LipCornerSegments = 3;
+
+        /// <summary>
+        /// Độ dài váy cỏ tại toạ độ thế giới <paramref name="w"/> dọc một đường cạnh. Đường cạnh xác định bởi trục sườn
+        /// (0 = x, 2 = z), hướng sườn, toạ độ mặt sườn và độ cao mặt trên → pha riêng mỗi đường; cùng w → cùng giá trị
+        /// (liền giữa hai ô kề và qua biên chunk).
+        /// </summary>
+        public static float LipDepthAt(float w, int sideAxis, int sideSign, int plane, int top)
+        {
+            uint h = math.hash(new int4(plane, top, sideAxis, sideSign));
+            float phase = (h & 0xFFFF) / 65536f * 2f * math.PI;
+            return LipDepth + LipWave1 * math.sin(2f * math.PI * 0.9f * w + phase)
+                            + LipWave2 * math.sin(2f * math.PI * 2.1f * w + 1.7f * phase);
+        }
+
         /// <summary>Màu sRGB (R, G, B) theo vật liệu — tạm cho bước 5.1; texture + ánh sáng tinh chỉnh ở bước 5.4.</summary>
         public static uint TopColor(BlockMaterial m) => m switch
         {
@@ -179,20 +202,21 @@ namespace Game.World
             }
         }
 
-        public static ChunkMesh Build(WorldData world, int chunkX, int chunkY, int chunkZ) =>
-            BuildChunks(world, new[] { world.Size.ChunkIndex(chunkX * WorldSize.ChunkSize, chunkY * WorldSize.ChunkSize, chunkZ * WorldSize.ChunkSize) })[0];
+        /// <param name="grassLip">false → bỏ mép cỏ (để kiểm mesh khối kín; mép cỏ là bề mặt hở chồng lên khối).</param>
+        public static ChunkMesh Build(WorldData world, int chunkX, int chunkY, int chunkZ, bool grassLip = true) =>
+            BuildChunks(world, new[] { world.Size.ChunkIndex(chunkX * WorldSize.ChunkSize, chunkY * WorldSize.ChunkSize, chunkZ * WorldSize.ChunkSize) }, grassLip)[0];
 
         /// <summary>Dựng mọi chunk song song (mỗi chunk một job, dùng chung mảng ô chỉ đọc). Thứ tự: x nhanh nhất, rồi z, rồi y.</summary>
-        public static ChunkMesh[] BuildAll(WorldData world)
+        public static ChunkMesh[] BuildAll(WorldData world, bool grassLip = true)
         {
             var all = new int[world.Size.ChunkCount];
             for (int c = 0; c < all.Length; c++)
                 all[c] = c;
-            return BuildChunks(world, all);
+            return BuildChunks(world, all, grassLip);
         }
 
         /// <summary>Dựng song song các chunk theo chỉ số (x nhanh nhất, rồi z, rồi y); kết quả cùng thứ tự với <paramref name="chunkIndices"/>.</summary>
-        public static ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices)
+        public static ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices, bool grassLip = true)
         {
             EnsureTable();
             var size = world.Size;
@@ -222,6 +246,7 @@ namespace Game.World
                         Palette = palette,
                         TableOffset = offset, TableNormal = normal, TableMoved = moved,
                         R = BevelRadius,
+                        GrassLip = grassLip,
                         SizeX = size.X, SizeY = size.Y, SizeZ = size.Z,
                         Origin = new int3(cx, cy, cz) * WorldSize.ChunkSize,
                         Out = outputs[k],
@@ -295,6 +320,7 @@ namespace Game.World
             [ReadOnly] public NativeArray<float3> TableOffset, TableNormal;
             [ReadOnly] public NativeArray<byte> TableMoved;
             public float R;
+            public bool GrassLip;
             public int SizeX, SizeY, SizeZ;
             public int3 Origin;
             public Output Out;
@@ -339,12 +365,19 @@ namespace Game.World
                         AddColliderFace(new int3(x, y, z), axis, sign);
                         AddFace(new int3(x, y, z), axis, sign, color, config, gridVert);
                     }
+                    if (GrassLip && m == (int)BlockMaterial.Grass && !IsSolid(g + new int3(0, 1, 0)))
+                        AddGrassLip(new int3(x, y, z), g, Palette[m]);
                 }
                 gridVert.Dispose();
                 config.Dispose();
             }
 
-            /// <summary>Mặt khối bo: lưới 4 × 4 điểm, điểm (i, j) ở toạ độ mặt (F(i), F(j)), F = 0, r, 1 − r, 1.</summary>
+            /// <summary>
+            /// Mặt khối bo: lưới 4 × 4 điểm, điểm (i, j) ở toạ độ mặt (F(i), F(j)), F = 0, r, 1 − r, 1.
+            /// Cạnh mặt có điểm dời → giữ cả 4 điểm của cạnh (mặt kề cũng giữ → không đỉnh chữ T). Đường lưới bên trong chỉ giữ khi
+            /// cạnh tương ứng cong (điểm giữa cạnh dời) hoặc có góc dời mà không cạnh kề nào cong; mỗi ô lưới rút gọn là đa giác lồi
+            /// (có thể có điểm thẳng hàng trên cạnh) → cắt tai thành tam giác.
+            /// </summary>
             void AddFace(int3 c, int axis, int sign, uint color, NativeArray<byte> config, NativeArray<int> gridVert)
             {
                 int u = (axis + 1) % 3, v = (axis + 2) % 3;
@@ -354,52 +387,141 @@ namespace Game.World
                 float3 faceNormal = 0;
                 faceNormal[axis] = sign;
 
-                // Cạnh nào có điểm dời: dưới (j = 0), trên (j = 3), trái (i = 0), phải (i = 3).
-                bool bottom = false, top = false, left = false, right = false;
-                for (int k = 0; k < 4; k++)
+                int moved = 0; // bit i + 4j = điểm (i, j) dời
+                for (int k = 0; k < 16; k++)
                 {
-                    bottom |= Moved(planeBase, axis, u, v, k, 0, config);
-                    top |= Moved(planeBase, axis, u, v, k, 3, config);
-                    left |= Moved(planeBase, axis, u, v, 0, k, config);
-                    right |= Moved(planeBase, axis, u, v, 3, k, config);
+                    int i = k & 3, j = k >> 2;
+                    bool onEdge = i == 0 || i == 3 || j == 0 || j == 3; // điểm trong (1..2, 1..2) luôn nằm trên mặt phẳng
+                    if (onEdge && Moved(planeBase, axis, u, v, i, j, config))
+                        moved |= 1 << k;
                 }
-                if (!bottom && !top && !left && !right)
+                if (moved == 0)
                 {
                     AddFlatFace(c, axis, sign, color);
                     return;
                 }
+                bool curvedB = Bit(moved, 1, 0) || Bit(moved, 2, 0), curvedT = Bit(moved, 1, 3) || Bit(moved, 2, 3);
+                bool curvedL = Bit(moved, 0, 1) || Bit(moved, 0, 2), curvedR = Bit(moved, 3, 1) || Bit(moved, 3, 2);
+                bool splitB = curvedB || Bit(moved, 0, 0) || Bit(moved, 3, 0), splitT = curvedT || Bit(moved, 0, 3) || Bit(moved, 3, 3);
+                bool splitL = curvedL || Bit(moved, 0, 0) || Bit(moved, 0, 3), splitR = curvedR || Bit(moved, 3, 0) || Bit(moved, 3, 3);
+                bool row1 = curvedB, row2 = curvedT, col1 = curvedL, col2 = curvedR;
+                // Góc dời mà không cạnh kề nào cong (vd cạnh lồi rẽ góc lõm) → giữ hai đường lưới quanh góc cho phần cong nằm gọn ở góc.
+                if (Bit(moved, 0, 0) && !curvedB && !curvedL) { row1 = true; col1 = true; }
+                if (Bit(moved, 3, 0) && !curvedB && !curvedR) { row1 = true; col2 = true; }
+                if (Bit(moved, 0, 3) && !curvedT && !curvedL) { row2 = true; col1 = true; }
+                if (Bit(moved, 3, 3) && !curvedT && !curvedR) { row2 = true; col2 = true; }
+                // Đường lưới trong có đầu mút trên cạnh mặt không tách sẽ bị gộp vào góc (Snap) → dải cong suy biến. Khi đó giữ đường
+                // vuông góc để dải có điểm trong (vd cạnh lồi nằm trong khe, hai đầu là góc lõm). Lặp tới khi ổn định (tối đa 2 lượt).
+                for (int pass = 0; pass < 2; pass++)
+                {
+                    if ((row1 || row2) && !splitL) col1 = true;
+                    if ((row1 || row2) && !splitR) col2 = true;
+                    if ((col1 || col2) && !splitB) row1 = true;
+                    if ((col1 || col2) && !splitT) row2 = true;
+                }
+
+                var cols = new FixedList32Bytes<byte>();
+                var rows = new FixedList32Bytes<byte>();
+                cols.Add(0); if (col1) cols.Add(1); if (col2) cols.Add(2); cols.Add(3);
+                rows.Add(0); if (row1) rows.Add(1); if (row2) rows.Add(2); rows.Add(3);
 
                 for (int k = 0; k < 16; k++)
                     gridVert[k] = -1;
-                for (int j = 0; j < 3; j++)
-                for (int i = 0; i < 3; i++)
+                for (int rj = 0; rj + 1 < rows.Length; rj++)
+                for (int ci = 0; ci + 1 < cols.Length; ci++)
                 {
-                    int a = Vert(Remap(i, j, bottom, top, left, right), planeBase, axis, u, v, faceNormal, color, config, gridVert);
-                    int b = Vert(Remap(i + 1, j, bottom, top, left, right), planeBase, axis, u, v, faceNormal, color, config, gridVert);
-                    int cc = Vert(Remap(i + 1, j + 1, bottom, top, left, right), planeBase, axis, u, v, faceNormal, color, config, gridVert);
-                    int d = Vert(Remap(i, j + 1, bottom, top, left, right), planeBase, axis, u, v, faceNormal, color, config, gridVert);
-                    // Quy ước như AddFlatFace: cross(du, dv) = +trục → mặt dương (a, b, c)(a, c, d), mặt âm đảo.
-                    if (sign > 0)
+                    int c0 = cols[ci], c1 = cols[ci + 1], r0 = rows[rj], r1 = rows[rj + 1];
+                    // Đa giác ô theo chiều ngược kim đồng hồ trong (u, v): dưới → phải → trên → trái; điểm giữa chỉ có trên cạnh mặt đã tách.
+                    var poly = new FixedList64Bytes<byte>();
+                    poly.Add((byte)(c0 + 4 * r0));
+                    if (r0 == 0 && splitB) for (int i = c0 + 1; i < c1; i++) poly.Add((byte)i);
+                    poly.Add((byte)(c1 + 4 * r0));
+                    if (c1 == 3 && splitR) for (int j = r0 + 1; j < r1; j++) poly.Add((byte)(3 + 4 * j));
+                    poly.Add((byte)(c1 + 4 * r1));
+                    if (r1 == 3 && splitT) for (int i = c1 - 1; i > c0; i--) poly.Add((byte)(i + 12));
+                    poly.Add((byte)(c0 + 4 * r1));
+                    if (c0 == 0 && splitL) for (int j = r1 - 1; j > r0; j--) poly.Add((byte)(4 * j));
+                    // Đầu mút đường lưới trong nằm trên cạnh mặt không tách → gộp vào góc (mặt kề chỉ có 2 điểm ở cạnh đó).
+                    var snapped = new FixedList64Bytes<byte>();
+                    for (int k = 0; k < poly.Length; k++)
                     {
-                        AddTriangle(a, b, cc);
-                        AddTriangle(a, cc, d);
+                        byte key = Snap(poly[k], splitB, splitT, splitL, splitR);
+                        if (snapped.Length == 0 || snapped[snapped.Length - 1] != key)
+                            snapped.Add(key);
                     }
-                    else
-                    {
-                        AddTriangle(a, cc, b);
-                        AddTriangle(a, d, cc);
-                    }
+                    if (snapped.Length > 1 && snapped[0] == snapped[snapped.Length - 1])
+                        snapped.RemoveAt(snapped.Length - 1);
+                    ClipEars(snapped, sign, planeBase, axis, u, v, faceNormal, color, config, gridVert);
                 }
             }
 
-            /// <summary>Cạnh không có điểm dời → hai điểm giữa của cạnh nhập vào hai góc (mặt kề cũng chỉ có 2 điểm ở cạnh đó).</summary>
-            static int Remap(int i, int j, bool bottom, bool top, bool left, bool right)
+            /// <summary>Cắt tai đa giác lồi (toạ độ danh nghĩa trên mặt) — bỏ qua đỉnh thẳng hàng; tam giác ngược kim đồng hồ trong (u, v)
+            /// là mặt trước khi sign > 0 (cùng quy ước AddFlatFace), đảo khi sign &lt; 0.</summary>
+            void ClipEars(FixedList64Bytes<byte> poly, int sign, int3 planeBase, int axis, int u, int v, float3 faceNormal, uint color,
+                NativeArray<byte> config, NativeArray<int> gridVert)
             {
-                if (j == 0 && !bottom && (i == 1 || i == 2)) i = i == 1 ? 0 : 3;
-                else if (j == 3 && !top && (i == 1 || i == 2)) i = i == 1 ? 0 : 3;
-                if (i == 0 && !left && (j == 1 || j == 2)) j = j == 1 ? 0 : 3;
-                else if (i == 3 && !right && (j == 1 || j == 2)) j = j == 1 ? 0 : 3;
-                return i + 4 * j;
+                int guard = 0;
+                while (poly.Length >= 3 && guard++ < 64)
+                {
+                    bool clipped = false;
+                    for (int k = 0; k < poly.Length; k++)
+                    {
+                        int kp = (k + poly.Length - 1) % poly.Length, kn = (k + 1) % poly.Length;
+                        float2 a = Nominal(poly[kp]), b = Nominal(poly[k]), cc = Nominal(poly[kn]);
+                        float area = (b.x - a.x) * (cc.y - a.y) - (b.y - a.y) * (cc.x - a.x);
+                        if (area <= 1e-6f)
+                            continue; // thẳng hàng (hoặc lõm — không có ở đa giác lồi)
+                        bool inside = false;
+                        for (int t = 0; t < poly.Length && !inside; t++)
+                        {
+                            if (t == kp || t == k || t == kn)
+                                continue;
+                            inside = InTriangle(Nominal(poly[t]), a, b, cc);
+                        }
+                        if (inside)
+                            continue;
+                        int ia = Vert(poly[kp], planeBase, axis, u, v, faceNormal, color, config, gridVert);
+                        int ib = Vert(poly[k], planeBase, axis, u, v, faceNormal, color, config, gridVert);
+                        int ic = Vert(poly[kn], planeBase, axis, u, v, faceNormal, color, config, gridVert);
+                        if (sign > 0) AddTriangle(ia, ib, ic);
+                        else AddTriangle(ia, ic, ib);
+                        poly.RemoveAt(k);
+                        clipped = true;
+                        break;
+                    }
+                    if (!clipped)
+                        break; // còn lại toàn điểm thẳng hàng
+                }
+            }
+
+            /// <summary>Điểm giữa trên cạnh mặt không tách → góc gần nhất của cạnh đó.</summary>
+            static byte Snap(byte key, bool splitB, bool splitT, bool splitL, bool splitR)
+            {
+                int i = key & 3, j = key >> 2;
+                if (j == 0 && !splitB && (i == 1 || i == 2)) i = i == 1 ? 0 : 3;
+                else if (j == 3 && !splitT && (i == 1 || i == 2)) i = i == 1 ? 0 : 3;
+                if (i == 0 && !splitL && (j == 1 || j == 2)) j = j == 1 ? 0 : 3;
+                else if (i == 3 && !splitR && (j == 1 || j == 2)) j = j == 1 ? 0 : 3;
+                return (byte)(i + 4 * j);
+            }
+
+            static bool Bit(int moved, int i, int j) => (moved >> (i + 4 * j) & 1) != 0;
+
+            float2 Nominal(int key)
+            {
+                int i = key & 3, j = key >> 2;
+                return new float2(F(i), F(j));
+            }
+
+            float F(int i) => i == 0 ? 0f : i == 1 ? R : i == 2 ? 1f - R : 1f;
+
+            /// <summary>p nằm trong hoặc trên tam giác (a, b, c) ngược kim đồng hồ.</summary>
+            static bool InTriangle(float2 p, float2 a, float2 b, float2 c)
+            {
+                float d0 = (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+                float d1 = (c.x - b.x) * (p.y - b.y) - (c.y - b.y) * (p.x - b.x);
+                float d2 = (a.x - c.x) * (p.y - c.y) - (a.y - c.y) * (p.x - c.x);
+                return d0 >= -1e-6f && d1 >= -1e-6f && d2 >= -1e-6f;
             }
 
             int Vert(int key, int3 planeBase, int axis, int u, int v, float3 faceNormal, uint color, NativeArray<byte> config, NativeArray<int> gridVert)
@@ -502,6 +624,156 @@ namespace Game.World
                     indices.Add(i0); indices.Add(i0 + 2); indices.Add(i0 + 1);
                     indices.Add(i0); indices.Add(i0 + 3); indices.Add(i0 + 2);
                 }
+            }
+
+            // ---------------- Mép cỏ (bước 5.3) ----------------
+
+            /// <summary>Ô cỏ lộ mặt trên: mỗi sườn x/z lộ → một dải mép cỏ; góc lồi (hai sườn kề cùng lộ) → mảnh 1/4 vòng nối.</summary>
+            void AddGrassLip(int3 c, int3 g, uint color)
+            {
+                bool xp = !IsSolid(g + new int3(1, 0, 0)), xn = !IsSolid(g + new int3(-1, 0, 0));
+                bool zp = !IsSolid(g + new int3(0, 0, 1)), zn = !IsSolid(g + new int3(0, 0, -1));
+                if (xp) AddLipEdge(c, g, 0, 1, color);
+                if (xn) AddLipEdge(c, g, 0, -1, color);
+                if (zp) AddLipEdge(c, g, 2, 1, color);
+                if (zn) AddLipEdge(c, g, 2, -1, color);
+                if (xp && zp) AddLipCorner(c, g, 1, 1, color);
+                if (xp && zn) AddLipCorner(c, g, 1, -1, color);
+                if (xn && zp) AddLipCorner(c, g, -1, 1, color);
+                if (xn && zn) AddLipCorner(c, g, -1, -1, color);
+            }
+
+            /// <summary>Điểm trên mặt cắt mép cỏ: t = khoảng cách ra ngoài mặt sườn, dy = độ cao so với mặt trên, sigma = vị trí dọc cạnh 0..1.</summary>
+            static float3 LipPoint(int3 c, int sideAxis, int sideSign, float t, float dy, float sigma)
+            {
+                int edgeAxis = sideAxis == 0 ? 2 : 0;
+                float3 p = c;
+                p[sideAxis] += (sideSign > 0 ? 1 : 0) + sideSign * t;
+                p[edgeAxis] += sigma;
+                p.y += 1 + dy;
+                return p;
+            }
+
+            /// <summary>Ô bên cạnh có mép cỏ cùng sườn → dải mép nối tiếp, không cần nắp.</summary>
+            bool HasLip(int3 cell, int sideAxis, int sideSign)
+            {
+                if (MaterialAt(cell) != (int)BlockMaterial.Grass || IsSolid(cell + new int3(0, 1, 0)))
+                    return false;
+                int3 side = cell;
+                side[sideAxis] += sideSign;
+                return !IsSolid(side);
+            }
+
+            void AddLipEdge(int3 c, int3 g, int sideAxis, int sideSign, uint color)
+            {
+                int edgeAxis = sideAxis == 0 ? 2 : 0;
+                int plane = g[sideAxis] + (sideSign > 0 ? 1 : 0), top = g.y + 1;
+                float3 up = new float3(0, 1, 0), outward = 0;
+                outward[sideAxis] = sideSign;
+                float3 roundN = math.normalize(up + outward);
+                float tTop = LipOverhang - LipRound;
+
+                int p0a = AddVertex(LipPoint(c, sideAxis, sideSign, -R, 0, 0), up, color);
+                int p0b = AddVertex(LipPoint(c, sideAxis, sideSign, -R, 0, 1), up, color);
+                int firstP1 = Out.Vertices.Length;
+                for (int k = 0; k <= LipSegments; k++)
+                {
+                    float sigma = (float)k / LipSegments;
+                    float depth = LipDepthAt(g[edgeAxis] + sigma, sideAxis, sideSign, plane, top);
+                    AddVertex(LipPoint(c, sideAxis, sideSign, tTop, 0, sigma), roundN, color);           // P1_k = firstP1 + 2k
+                    AddVertex(LipPoint(c, sideAxis, sideSign, LipOverhang, -depth, sigma), outward, color); // P3_k = firstP1 + 2k + 1
+                }
+                // Mặt trên: quạt từ P0a qua P0b và hàng P1.
+                AddOriented(p0a, p0b, firstP1 + 2 * LipSegments, up);
+                for (int k = LipSegments; k > 0; k--)
+                    AddOriented(p0a, firstP1 + 2 * k, firstP1 + 2 * (k - 1), up);
+                // Váy: tứ giác giữa hàng P1 và hàng P3.
+                for (int k = 0; k < LipSegments; k++)
+                {
+                    int a = firstP1 + 2 * k, b = firstP1 + 2 * (k + 1);
+                    AddOriented(a, b, b + 1, outward);
+                    AddOriented(a, b + 1, a + 1, outward);
+                }
+                // Nắp hai đầu: không nối tiếp ô bên cạnh và không phải góc lồi (góc lồi có mảnh 1/4 vòng).
+                for (int end = 0; end < 2; end++)
+                {
+                    int e = end == 0 ? -1 : 1;
+                    int3 next = g;
+                    next[edgeAxis] += e;
+                    if (HasLip(next, sideAxis, sideSign) || !IsSolid(next))
+                        continue;
+                    float sigma = end;
+                    float depth = LipDepthAt(g[edgeAxis] + sigma, sideAxis, sideSign, plane, top);
+                    float3 capN = 0;
+                    capN[edgeAxis] = e;
+                    int q0 = AddVertex(LipPoint(c, sideAxis, sideSign, -R, 0, sigma), capN, color);
+                    int q1 = AddVertex(LipPoint(c, sideAxis, sideSign, tTop, 0, sigma), capN, color);
+                    int q3 = AddVertex(LipPoint(c, sideAxis, sideSign, LipOverhang, -depth, sigma), capN, color);
+                    int qi = AddVertex(LipPoint(c, sideAxis, sideSign, -R, -depth, sigma), capN, color);
+                    AddOriented(q0, q1, q3, capN);
+                    AddOriented(q0, q3, qi, capN);
+                }
+            }
+
+            /// <summary>Mảnh góc lồi: quét mặt cắt mép cỏ 1/4 vòng quanh trục đứng qua góc ô; độ dài váy nội suy giữa hai đầu dải.</summary>
+            void AddLipCorner(int3 c, int3 g, int sx, int sz, uint color)
+            {
+                float3 axisLocal = new float3(c.x + (sx > 0 ? 1 : 0), c.y + 1, c.z + (sz > 0 ? 1 : 0));
+                int cornerX = g.x + (sx > 0 ? 1 : 0), cornerZ = g.z + (sz > 0 ? 1 : 0), top = g.y + 1;
+                // Dải sườn x chạy dọc z (w = z góc); dải sườn z chạy dọc x (w = x góc).
+                float d0 = LipDepthAt(cornerZ, 0, sx, cornerX, top);
+                float d1 = LipDepthAt(cornerX, 2, sz, cornerZ, top);
+                float3 up = new float3(0, 1, 0);
+                float tTop = LipOverhang - LipRound;
+                int center = AddVertex(axisLocal, up, color);
+                int first = Out.Vertices.Length;
+                for (int k = 0; k <= LipCornerSegments; k++)
+                {
+                    float a = (float)k / LipCornerSegments * 0.5f * math.PI;
+                    float3 dir = new float3(sx * math.cos(a), 0, sz * math.sin(a));
+                    float depth = math.lerp(d0, d1, (float)k / LipCornerSegments);
+                    AddVertex(axisLocal + dir * tTop, math.normalize(up + dir), color);                       // P1_k = first + 2k
+                    AddVertex(axisLocal + dir * LipOverhang + new float3(0, -depth, 0), dir, color);          // P3_k = first + 2k + 1
+                }
+                for (int k = 0; k < LipCornerSegments; k++)
+                {
+                    int a = first + 2 * k, b = first + 2 * (k + 1);
+                    float am = ((float)k + 0.5f) / LipCornerSegments * 0.5f * math.PI;
+                    float3 mid = new float3(sx * math.cos(am), 0, sz * math.sin(am));
+                    AddOriented(center, a, b, up);
+                    AddOriented(a, b, b + 1, mid);
+                    AddOriented(a, b + 1, a + 1, mid);
+                }
+            }
+
+            int AddVertex(float3 p, float3 n, uint color)
+            {
+                int i = Out.Vertices.Length;
+                Out.Vertices.Add(p);
+                Out.Normals.Add(n);
+                Out.Colors.Add(color);
+                return i;
+            }
+
+            /// <summary>Thêm tam giác, đảo thứ tự nếu cần để cross(b − a, c − a) cùng hướng <paramref name="want"/> (quy ước mặt trước của mesher).</summary>
+            void AddOriented(int a, int b, int c, float3 want)
+            {
+                float3 pa = Out.Vertices[a], pb = Out.Vertices[b], pc = Out.Vertices[c];
+                if (math.dot(math.cross(pb - pa, pc - pa), want) >= 0)
+                    AddTriangle(a, b, c);
+                else
+                    AddTriangle(a, c, b);
+            }
+
+            int MaterialAt(int3 p)
+            {
+                if (p.y < 0)
+                    return (int)BlockMaterial.Bedrock;
+                if (p.y >= SizeY)
+                    return (int)BlockMaterial.Empty;
+                int x = math.clamp(p.x, 0, SizeX - 1);
+                int z = math.clamp(p.z, 0, SizeZ - 1);
+                return Cells[x + SizeX * (z + SizeZ * p.y)] & 0xFF;
             }
 
             static bool IsSolidMaterial(int m) => m != (int)BlockMaterial.Empty && m != (int)BlockMaterial.Water;
