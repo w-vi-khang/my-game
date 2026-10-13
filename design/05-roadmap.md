@@ -116,6 +116,7 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 - [ ] **Thử nghiệm art bằng AI** — đổi hướng (user, 2026-10-12):
   - [x] Địa hình mịn: dựng mesh ×2, đạt công cụ kiểm tra asset ([art-style](03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)).
   - [x] Công cụ kiểm tra asset ([0006](decisions/0006-cong-cu-kiem-tra-asset.md), Chốt) — selftest trong `verify`.
+  - [x] Tài liệu kỹ thuật mô phỏng nông trại (lệnh làm việc, tìm đường, tua nhanh) + kế hoạch prototype 8 bước: [simulation-tech](04-tech/simulation-tech.md) (bản đầu 2026-10-13).
   - [ ] Tiếp tục dựng mesh world (ưu tiên trước mắt) — tài liệu kỹ thuật + kế hoạch prototype 9 bước: [world-tech](04-tech/world-tech.md) (bản đầu 2026-10-13).
   - [ ] Ảnh concept theo hướng XING-ART nhưng tươi sáng hơn ([art-style](03-art-audio/art-style.md#hướng-phong-cách)).
   - Tạm dừng: sinh vật hoàn chỉnh (rig, animation, biến thể). Sinh vật/nhân vật có thể low-poly.

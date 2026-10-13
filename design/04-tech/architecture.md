@@ -85,5 +85,6 @@ flowchart TB
 ```
 
 - **Lớp dịch vụ:** mọi gọi backend đi qua một lớp bọc → M1 dùng bản giả lưu cục bộ; M2 thay bằng dịch vụ thật; đổi nhà cung cấp không đụng gameplay (giảm rủi ro nhà cung cấp, [risks](risks.md)).
+- Chi tiết kỹ thuật: [world-tech](world-tech.md) (world), [simulation-tech](simulation-tech.md) (lệnh làm việc, tìm đường, tua nhanh).
 - **Tìm đường trên lưới voxel:** tính lại theo vùng bị đổi khối (rủi ro M1 trong [risks](risks.md)). Chọn tự viết A* trên lưới hay dùng package của Unity: xem [tech-stack](tech-stack.md).
 - Luồng scene, quy ước code: _(chưa có — điền khi bắt đầu M1)_

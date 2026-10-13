@@ -35,6 +35,8 @@
 | Hiệu ứng thẻ bài | Hiệu ứng hình ảnh (khi xuất hiện, hào quang, mây...) — chỉ thẻ bậc 4 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lò rèn | Công trình để rèn trang bị | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Công cụ kiểm tra asset | Script Blender headless kiểm model 3D theo quy cách trước khi đưa vào client (`tools/asset_check/`) | [decisions/0006](decisions/0006-cong-cu-kiem-tra-asset.md) |
+| Nhịp mô phỏng | Bước thời gian cố định của mô phỏng nông trại (vd 10 nhịp/giây), tách khỏi tốc độ khung hình (ý tưởng) | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) |
+| Vùng liên thông | Nhóm ô đi được nối với nhau; khác vùng → không tới được → đình trệ ngay (ý tưởng) | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) |
 | Chunk | Khối 16 × 16 × 16 ô gameplay (ý tưởng) — đơn vị dựng mesh, lưu trữ, tải world | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Lưới gameplay / lưới dựng mesh | Lưới 1 ô = 1 đơn vị (nguồn chuẩn, luật chơi, lưu) / lưới ×2 suy ra khi dựng mesh mịn, không lưu | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Phiên bản bộ sinh | Phiên bản thuật toán sinh world từ seed; lưu kèm dữ liệu để biết world gốc | [04-tech/world-tech.md](04-tech/world-tech.md) |
