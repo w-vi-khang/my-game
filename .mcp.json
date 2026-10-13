@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "UnityMCP": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcpforunityserver==10.3.0",
+        "mcp-for-unity"
+      ],
+      "env": {
+        "DISABLE_TELEMETRY": "true"
+      }
+    }
+  }
+}

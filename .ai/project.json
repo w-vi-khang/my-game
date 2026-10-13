@@ -12,7 +12,8 @@
     "_comment": "Mỗi lệnh phải exit 0 khi pass. asset_check cần Blender 5.0.1 tại /Applications (0006). client_test: Unity 6000.4.8f1 (UNITY_PATH), Unity phải đang TẮT project client.",
     "design": "python3 tools/check_design.py",
     "asset_check": "/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/asset_check/selftest.py",
-    "client_test": "python3 tools/unity_test.py EditMode"
+    "client_test": "python3 tools/unity_test.py EditMode",
+    "client_test_play": "python3 tools/unity_test.py PlayMode"
   },
   "checklist": [
     "Mọi cơ chế/tính năng gắn với ít nhất một pillar trong design/00-vision.md",

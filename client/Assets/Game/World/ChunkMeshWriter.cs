@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
@@ -14,28 +15,40 @@ namespace Game.World
     {
         public const int MaxVertices16 = ushort.MaxValue;
 
-        public static void Write(ChunkMesh chunk, Mesh mesh)
+        public static void Write(ChunkMesh chunk, Mesh mesh) => WriteAll(new[] { chunk }, new[] { mesh });
+
+        /// <summary>Ghi nhiều chunk trong một lần xin MeshDataArray (khuyến nghị của docs Mesh.MeshData — world-tech "Chỉnh sửa").</summary>
+        public static void WriteAll(IReadOnlyList<ChunkMesh> chunks, IReadOnlyList<Mesh> meshes)
         {
-            if (chunk.Vertices.Length > MaxVertices16)
-                throw new InvalidOperationException($"Chunk có {chunk.Vertices.Length} đỉnh > {MaxVertices16} (giới hạn chỉ số 16 bit)");
+            if (chunks.Count != meshes.Count)
+                throw new ArgumentException($"{chunks.Count} chunk nhưng {meshes.Count} mesh");
+            for (int k = 0; k < chunks.Count; k++)
+                if (chunks[k].Vertices.Length > MaxVertices16)
+                    throw new InvalidOperationException($"Chunk có {chunks[k].Vertices.Length} đỉnh > {MaxVertices16} (giới hạn chỉ số 16 bit)");
 
-            var array = Mesh.AllocateWritableMeshData(1);
-            var data = array[0];
-            data.SetVertexBufferParams(chunk.Vertices.Length,
-                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3, 0),
-                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3, 1));
-            data.GetVertexData<float3>(0).CopyFrom(chunk.Vertices);
-            data.GetVertexData<float3>(1).CopyFrom(chunk.Normals);
+            var array = Mesh.AllocateWritableMeshData(chunks.Count);
+            for (int k = 0; k < chunks.Count; k++)
+            {
+                var chunk = chunks[k];
+                var data = array[k];
+                data.SetVertexBufferParams(chunk.Vertices.Length,
+                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3, 0),
+                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3, 1));
+                data.GetVertexData<float3>(0).CopyFrom(chunk.Vertices);
+                data.GetVertexData<float3>(1).CopyFrom(chunk.Normals);
 
-            data.SetIndexBufferParams(chunk.Indices.Length, IndexFormat.UInt16);
-            var indices = data.GetIndexData<ushort>();
-            for (int i = 0; i < chunk.Indices.Length; i++)
-                indices[i] = (ushort)chunk.Indices[i];
+                data.SetIndexBufferParams(chunk.Indices.Length, IndexFormat.UInt16);
+                var indices = data.GetIndexData<ushort>();
+                for (int i = 0; i < chunk.Indices.Length; i++)
+                    indices[i] = (ushort)chunk.Indices[i];
 
-            data.subMeshCount = 1;
-            data.SetSubMesh(0, new SubMeshDescriptor(0, chunk.Indices.Length));
-            Mesh.ApplyAndDisposeWritableMeshData(array, mesh);
-            mesh.RecalculateBounds();
+                data.subMeshCount = 1;
+                data.SetSubMesh(0, new SubMeshDescriptor(0, chunk.Indices.Length));
+            }
+            var list = new List<Mesh>(meshes);
+            Mesh.ApplyAndDisposeWritableMeshData(array, list);
+            foreach (var mesh in list)
+                mesh.RecalculateBounds();
         }
     }
 }

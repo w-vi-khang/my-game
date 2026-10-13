@@ -59,6 +59,7 @@ Ghi theo AGENTS.local (so với ước lượng; sau 4–6 hạng mục tính l�
 | World bước 1 — lưới, chunk, noise theo seed, tất định | 3–5 | ~0,25 giờ (14:59–15:12, 2026-10-13) | Gồm dọn template, 23 test, build APK, so mã băm trên điện thoại. Chưa tính thời gian user duyệt; một bước chưa đủ để tính lại hệ số |
 | World bước 2 — Surface Nets ×2 + làm mượt, 1 chunk | 4–6 | ~0,1 giờ (15:12–15:17, 2026-10-13) | 6 test mới (29 tổng), scene TerrainView + ảnh render. Đã làm sẵn phần đệm biên chunk của bước 3 |
 | World bước 3 — nhiều chunk song song, nối biên, đo thời gian | 4–7 | ~0,1 giờ (15:30–15:33, 2026-10-13) | 5 test mới (34 tổng), bỏ vách mép map (0009). Không tính thời gian ghi 0009 + culling (15:17–15:30) |
+| World bước 4 — đào/đặt, dựng lại chunk bẩn, collider, kho vật liệu | 3–5 | ~0,75 giờ (15:45–16:10 + 16:34–16:50, 2026-10-13) | 26 test mới (55 EditMode + 5 PlayMode). Gồm sửa 1 lỗi user gặp khi thử (`MissingReferenceException`), sửa UX (HUD, khung chọn vẽ đè ~3 px), cài + kiểm MCP for Unity ([0010](decisions/0010-mcp-for-unity.md)). Chưa tính thời gian user tự thử bằng chuột thật. Sau 4 bước: thực tế ≪ ước lượng (ước lượng tính cho người làm tay, chưa tính AI) — tính lại hệ số khi đủ 4–6 hạng mục gồm cả phần cần thử chơi |
 
 ## Kiểm tra phạm vi
 ⚠️ **Vượt quỹ thời gian.** Sau C1 ([0007](decisions/0007-m1-toi-gian.md)), M1 còn ~11–19 tháng ở 10 giờ/tuần; toàn bộ tới M4 ~11,8–22,3 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.

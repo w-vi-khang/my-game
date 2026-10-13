@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 41987367}
   - component: {fileID: 41987366}
   - component: {fileID: 41987365}
+  - component: {fileID: 41987368}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -211,6 +212,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &41987368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41987364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 088cd8dc3b38e49ad8ebf88a4fbe3df0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.DebugFlyCamera
+  speed: 10
+  fastMultiplier: 3
+  lookSensitivity: 0.15
 --- !u!1 &1663237066
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,6 +237,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1663237068}
   - component: {fileID: 1663237067}
+  - component: {fileID: 1663237069}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -240,6 +257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55b903932e16e4490947b78faf624f36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Client::Game.Client.TerrainChunkView
+  allChunks: 1
   chunkX: 1
   chunkZ: 1
   material: {fileID: 0}
@@ -259,6 +277,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1663237069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663237066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a8ea78fd1a544c0ca0a639e8231d269, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.TerrainEditInput
+  maxDistance: 200
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0

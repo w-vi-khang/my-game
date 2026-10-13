@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Game.Core;
 using Unity.Burst;
 using Unity.Collections;
@@ -32,6 +33,12 @@ namespace Game.World
         const int DualMin = -3, DualCount = N + 5;      // ô dựng mesh có đỉnh thô -3..33
         const int SmoothMin = -2, SmoothCount = N + 3;  // đỉnh đã làm mượt -2..32 (dùng cho pháp tuyến)
         const int OutMin = -1, OutCount = N + 1;        // đỉnh đầu ra -1..31
+
+        /// <summary>
+        /// Số ô gameplay quanh chunk mà một chunk đọc: mẫu -3..34 (×2) → ô -2..17 → đệm 2 ô mỗi phía.
+        /// Sửa ô cách biên ≤ CellMargin → chunk bên cạnh cũng phải dựng lại (WorldEditor.AffectedChunks).
+        /// </summary>
+        public const int CellMargin = (Resolution - 1 - SampleMin) / Resolution; // = 2
 
         public static ChunkMesh Build(WorldData world, int chunkX, int chunkY, int chunkZ)
         {
@@ -82,37 +89,47 @@ namespace Game.World
         /// <summary>Dựng mọi chunk song song (mỗi chunk một job, dùng chung mảng ô chỉ đọc). Thứ tự: x nhanh nhất, rồi z, rồi y.</summary>
         public static ChunkMesh[] BuildAll(WorldData world)
         {
+            var all = new int[world.Size.ChunkCount];
+            for (int c = 0; c < all.Length; c++)
+                all[c] = c;
+            return BuildChunks(world, all);
+        }
+
+        /// <summary>Dựng song song các chunk theo chỉ số (x nhanh nhất, rồi z, rồi y); kết quả cùng thứ tự với <paramref name="chunkIndices"/>.</summary>
+        public static ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices)
+        {
             var size = world.Size;
-            int count = size.ChunkCount;
+            int count = chunkIndices.Count;
             var cells = new NativeArray<ushort>(world.Cells, Allocator.TempJob);
             var lists = new (NativeList<float3> v, NativeList<float3> n, NativeList<float3> r, NativeList<int> i)[count];
             var handles = new NativeArray<JobHandle>(count, Allocator.Temp);
             try
             {
-                for (int c = 0; c < count; c++)
+                for (int k = 0; k < count; k++)
                 {
+                    int c = chunkIndices[k];
                     int cx = c % size.ChunksX, cz = c / size.ChunksX % size.ChunksZ, cy = c / (size.ChunksX * size.ChunksZ);
-                    lists[c] = (new NativeList<float3>(Allocator.TempJob), new NativeList<float3>(Allocator.TempJob),
+                    lists[k] = (new NativeList<float3>(Allocator.TempJob), new NativeList<float3>(Allocator.TempJob),
                         new NativeList<float3>(Allocator.TempJob), new NativeList<int>(Allocator.TempJob));
-                    handles[c] = new MeshJob
+                    handles[k] = new MeshJob
                     {
                         Cells = cells,
                         SizeX = size.X, SizeY = size.Y, SizeZ = size.Z,
                         Origin = new int3(cx, cy, cz) * WorldSize.ChunkSize,
                         MaxShiftSamples = MaxShift * Resolution,
-                        Vertices = lists[c].v, Normals = lists[c].n, RawVertices = lists[c].r, Indices = lists[c].i,
+                        Vertices = lists[k].v, Normals = lists[k].n, RawVertices = lists[k].r, Indices = lists[k].i,
                     }.Schedule();
                 }
                 JobHandle.CompleteAll(handles);
                 var result = new ChunkMesh[count];
-                for (int c = 0; c < count; c++)
+                for (int k = 0; k < count; k++)
                 {
-                    result[c] = new ChunkMesh
+                    result[k] = new ChunkMesh
                     {
-                        Vertices = lists[c].v.AsArray().ToArray(),
-                        Normals = lists[c].n.AsArray().ToArray(),
-                        RawVertices = lists[c].r.AsArray().ToArray(),
-                        Indices = lists[c].i.AsArray().ToArray(),
+                        Vertices = lists[k].v.AsArray().ToArray(),
+                        Normals = lists[k].n.AsArray().ToArray(),
+                        RawVertices = lists[k].r.AsArray().ToArray(),
+                        Indices = lists[k].i.AsArray().ToArray(),
                     };
                 }
                 return result;

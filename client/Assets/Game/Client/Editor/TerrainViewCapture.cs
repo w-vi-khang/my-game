@@ -30,6 +30,25 @@ namespace Game.Client.Editor
             EditorSceneManager.SaveScene(scene, ScenePath);
         }
 
+        /// <summary>
+        /// Bước 4: thêm camera bay (DebugFlyCamera) và đào/đặt bằng chuột (TerrainEditInput) vào scene TerrainView:
+        /// Unity -batchmode -quit -projectPath client -executeMethod Game.Client.Editor.TerrainViewCapture.SetupEditing
+        /// </summary>
+        [MenuItem("Game/Thêm đào-đặt vào TerrainView")]
+        public static void SetupEditing()
+        {
+            EnsureScene();
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            var cam = Camera.main;
+            if (cam.GetComponent<DebugFlyCamera>() == null)
+                cam.gameObject.AddComponent<DebugFlyCamera>();
+            var view = Object.FindAnyObjectByType<TerrainChunkView>();
+            if (view.GetComponent<TerrainEditInput>() == null)
+                view.gameObject.AddComponent<TerrainEditInput>();
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("TERRAINVIEW đã thêm DebugFlyCamera + TerrainEditInput");
+        }
+
         [MenuItem("Game/Chụp ảnh TerrainView")]
         public static void Capture()
         {

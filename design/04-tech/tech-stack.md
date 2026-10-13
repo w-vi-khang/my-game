@@ -74,4 +74,5 @@ Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn
 <!-- Quản lý mã nguồn (git + LFS), CI/build, quản lý task, công cụ art/âm thanh, môi trường (dev/prod). -->
 - **Mã nguồn:** git, một repo ([0002](../decisions/0002-repo-layout.md)). Đã có [`.gitignore`](../../.gitignore) (bỏ `client/Library`, `Temp`, `Obj`, `Build(s)`, `Logs`, `UserSettings`...) và [`.gitattributes`](../../.gitattributes) (YAML Unity `eol=lf`; ảnh, model, âm thanh, font qua **Git LFS**).
 - **Merge scene/prefab:** cấu hình UnityYAMLMerge (Smart Merge) cho git khi bắt đầu M1 ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/SmartMerge.html)) — làm một người nên ít cần, chưa ưu tiên.
+- **AI làm việc trong Unity Editor đang mở:** MCP for Unity v10.3.0 (MIT) — chạy test, Play/Stop, đọc Console, chụp màn hình mà không cần tắt Unity; telemetry tắt ([0010](../decisions/0010-mcp-for-unity.md), Đề xuất — user đồng ý cài 2026-10-13).
 - **CI/build, quản lý task, công cụ art/âm thanh, môi trường dev/prod:** _(chưa có)_
