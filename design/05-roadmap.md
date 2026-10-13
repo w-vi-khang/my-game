@@ -56,6 +56,7 @@ Ghi theo AGENTS.local (so với ước lượng; sau 4–6 hạng mục tính l�
 | Bước | Ước lượng (ngày-người) | Thực tế | Ghi chú |
 |---|---|---|---|
 | World bước 1 — lưới, chunk, noise theo seed, tất định | 3–5 | ~0,25 giờ (14:59–15:12, 2026-10-13) | Gồm dọn template, 23 test, build APK, so mã băm trên điện thoại. Chưa tính thời gian user duyệt; một bước chưa đủ để tính lại hệ số |
+| World bước 2 — Surface Nets ×2 + làm mượt, 1 chunk | 4–6 | ~0,1 giờ (15:12–15:17, 2026-10-13) | 6 test mới (29 tổng), scene TerrainView + ảnh render. Đã làm sẵn phần đệm biên chunk của bước 3 |
 
 ## Kiểm tra phạm vi
 ⚠️ **Vượt quỹ thời gian.** Sau C1 ([0007](decisions/0007-m1-toi-gian.md)), M1 còn ~11–19 tháng ở 10 giờ/tuần; toàn bộ tới M4 ~11,7–22,2 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.

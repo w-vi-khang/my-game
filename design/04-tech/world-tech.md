@@ -73,7 +73,7 @@ flowchart LR
 Đề xuất [ý tưởng]: **Surface Nets ×2** + làm mượt có giới hạn (mỗi đỉnh lệch ≤ 0,2 ô — như bản thử).
 - **Nối giữa các chunk:** dựng mesh một chunk cần thêm **1 lớp ô đệm** của chunk bên cạnh để mặt liền — cách làm thường gặp với thuật toán kiểu Surface Nets [chưa xác minh bằng nguồn]. Sửa ô ở biên → dựng lại cả chunk bên cạnh.
 - **Chạy:** C# Job System + Burst; ghi mesh qua `Mesh.AllocateWritableMeshData` → `Mesh.ApplyAndDisposeWritableMeshData` ([tech-stack](tech-stack.md)).
-- **Chỉ số đỉnh 16 bit đủ:** mesh 16 bit chứa tối đa 65.535 đỉnh; 32 bit không chắc chạy trên mọi máy (vd Android GPU Mali-400 không vẽ) ([Mesh.indexFormat](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh-indexFormat.html)). Một chunk 16 × 16 ô ước ~7.000 tam giác (tỉ lệ từ bản thử 30 × 30) → vài nghìn đỉnh [chưa xác minh — đo ở M1] → dùng 16 bit.
+- **Chỉ số đỉnh 16 bit đủ:** mesh 16 bit chứa tối đa 65.535 đỉnh; 32 bit không chắc chạy trên mọi máy (vd Android GPU Mali-400 không vẽ) ([Mesh.indexFormat](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh-indexFormat.html)). Một chunk 16 × 16 ô ước ~7.000 tam giác (tỉ lệ từ bản thử 30 × 30) → vài nghìn đỉnh. Đo 2026-10-13 [run]: chunk nặng nhất của world M1 6.776 tam giác, 3.881 đỉnh → dùng 16 bit.
 - **Vật liệu:** gán vật liệu theo đỉnh (trộn ở ranh giới) + texture dán 3 hướng (triplanar) — bản thử gán theo mặt bị răng cưa ([art-style](../03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)).
 - **Nước chảy** (user, 2026-10-13) — xem mục Nước bên dưới.
 - **LOD:** map có ranh giới → M1 **chưa làm LOD**; chỉ thêm nếu đo trên mobile thấy cần.
@@ -141,7 +141,7 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 | # | Bước | Xong khi | Ước lượng (ngày-người) |
 |---|---|---|---|
 | 1 | Lưới gameplay + chunk 16³ + địa hình noise với **một seed cố định**, map nhỏ 64 × 64 × 32 (32 chunk), không hang | Cùng seed → cùng world (test); **mã băm world giống nhau trên PC và điện thoại** (kiểm tất định giữa nền tảng) | 3–5 · **Xong 2026-10-13** [run]: 23 test EditMode đạt; mã băm `86b0747d4b2be65b` trùng giữa macOS ARM64 và Android 14 ARM64 (24095PCADG), Burst bật, sinh 3 ms trên điện thoại. Máy x64 chưa thử |
-| 2 | Surface Nets ×2 + làm mượt, 1 chunk | Mesh khớp bản thử Blender (rãnh 1 ô, ~tam giác) | 4–6 |
+| 2 | Surface Nets ×2 + làm mượt, 1 chunk | Mesh khớp bản thử Blender (rãnh 1 ô, ~tam giác) | 4–6 · **Xong 2026-10-13** [run]: rãnh 1 ô giữ bề rộng ≥ 0,9 ô; làm mượt ≤ 0,2 ô; chunk nặng nhất của world M1 6.776 tam giác / 3.881 đỉnh (ước tính ~7.000; chỉ số 16 bit dư); cả map ~76.440 tam giác; đã đọc 1 ô đệm → đỉnh và pháp tuyến ở biên tính giống chunk bên cạnh |
 | 3 | Nhiều chunk + nối biên (ô đệm) + Jobs/Burst | Không hở ở biên; đo thời gian dựng mesh / chunk | 4–7 |
 | 4 | Đào/đặt nguyên ô + dựng lại chunk bẩn + collider; kho vật liệu của người chơi ([cơ chế](../02-gameplay/mechanics.md#voxel-world--luật-m1)) | Sửa ô → mesh cập nhật ≤ 2 khung hình trên PC | 3–5 |
 | 5 | Màu vật liệu theo đỉnh (chưa triplanar) | Phân biệt được đất, cỏ, đá, cát | 1–2 |
