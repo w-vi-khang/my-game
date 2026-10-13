@@ -17,26 +17,26 @@ Quy ước: mỗi file có `> Trạng thái: Nháp | Đang xem xét | Chốt`; �
 | Tài liệu | Nội dung | Trạng thái |
 |---|---|---|
 | [summary.md](summary.md) | Tóm tắt game một trang + danh sách cần đặt tên | Nháp |
-| [00-vision.md](00-vision.md) | Pitch, pillars, người chơi, phạm vi | Nháp |
+| [00-vision.md](00-vision.md) | Pitch, pillars, người chơi, phạm vi | Chốt |
 | [01-story/world.md](01-story/world.md) | Thế giới, bối cảnh, tông giọng | Nháp |
 | [01-story/characters.md](01-story/characters.md) | Nhân vật | Nháp |
 | [01-story/plot.md](01-story/plot.md) | Cốt truyện, chương, kết thúc | Nháp |
 | [01-story/naming.md](01-story/naming.md) | Quy ước đặt tên: tên game, vùng đất, loài, nhân vật, người chơi | Nháp |
-| [02-gameplay/core-loop.md](02-gameplay/core-loop.md) | Vòng lặp cốt lõi | Nháp |
-| [02-gameplay/mechanics.md](02-gameplay/mechanics.md) | Cơ chế | Nháp |
+| [02-gameplay/core-loop.md](02-gameplay/core-loop.md) | Vòng lặp cốt lõi | Chốt |
+| [02-gameplay/mechanics.md](02-gameplay/mechanics.md) | Cơ chế | Đang xem xét |
 | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) | Điều khiển, màn hình, HUD, onboarding | Nháp |
 | [02-gameplay/progression.md](02-gameplay/progression.md) | Tiến trình, độ khó, mở khoá | Nháp |
 | [02-gameplay/economy.md](02-gameplay/economy.md) | Tài nguyên, cân bằng | Nháp |
 | [02-gameplay/levels.md](02-gameplay/levels.md) | Level, nội dung | Nháp |
-| [03-art-audio/art-style.md](03-art-audio/art-style.md) | Phong cách hình ảnh, nguồn asset | Nháp |
+| [03-art-audio/art-style.md](03-art-audio/art-style.md) | Phong cách hình ảnh, nguồn asset | Đang xem xét |
 | [03-art-audio/audio.md](03-art-audio/audio.md) | Nhạc, SFX | Nháp |
-| [04-tech/components.md](04-tech/components.md) | Thành phần hệ thống: client Unity + những gì khác | Nháp |
+| [04-tech/components.md](04-tech/components.md) | Thành phần hệ thống: client Unity + những gì khác | Chốt |
 | [04-tech/world-tech.md](04-tech/world-tech.md) | Kỹ thuật tạo world: dữ liệu, sinh theo seed, dựng mesh mịn, chỉnh sửa, lưu trữ, kế hoạch prototype | Nháp |
 | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) | Kỹ thuật mô phỏng nông trại: lệnh làm việc, tìm đường, tua nhanh, kế hoạch prototype | Nháp |
-| [04-tech/tech-stack.md](04-tech/tech-stack.md) | Công nghệ theo từng thành phần | Nháp |
+| [04-tech/tech-stack.md](04-tech/tech-stack.md) | Công nghệ theo từng thành phần | Đang xem xét |
 | [04-tech/architecture.md](04-tech/architecture.md) | Kiến trúc hệ thống, dữ liệu, giao tiếp, client | Nháp |
 | [04-tech/risks.md](04-tech/risks.md) | Rủi ro | Nháp |
-| [05-roadmap.md](05-roadmap.md) | Milestones, ước lượng | Nháp |
+| [05-roadmap.md](05-roadmap.md) | Milestones, ước lượng | Đang xem xét |
 | [glossary.md](glossary.md) | Thuật ngữ | Nháp |
 | [ideas.md](ideas.md) | Kho ý tưởng | Nháp |
 | [README.md](README.md) | Mục lục này | Nháp |

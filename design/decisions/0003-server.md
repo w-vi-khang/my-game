@@ -1,6 +1,7 @@
 # 0003 — Cần Server: backend và game server (PvP thời gian thực)
 
-> Trạng thái: Đề xuất
+> Trạng thái: Chốt
+> Ngày chốt: 2026-10-13 (user)
 > Ngày: 2026-10-11
 
 ## Bối cảnh
@@ -25,9 +26,9 @@
 - **PvP thời gian thực, server-authoritative:** cần game server + hosting, tốn công và chi phí nhất. Rủi ro nhà cung cấp: Unity đã ngừng Multiplay Game Server Hosting từ 31/03/2026 ([status.unity.com](https://status.unity.com/info_notices/362941)).
 
 ## Quyết định
-Đề xuất (chờ user Chốt):
+Chốt (user, 2026-10-13):
 1. Cần **Backend** từ M2, ưu tiên dịch vụ có sẵn. Chọn dịch vụ trong `04-tech/tech-stack.md` sau khi tra giá.
-2. Cần **Game server**: user chọn PvP thời gian thực, server quyết định kết quả (2026-10-11). PvP là chế độ mở sau (cập nhật sau phát hành), có điều kiện tham gia. Hosting chọn khi tới lúc làm PvP. [ý tưởng] Build bằng Unity Dedicated Server từ chính project client ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/dedicated-server-build.html)).
+2. Cần **Game server**: user chọn PvP thời gian thực, server quyết định kết quả (2026-10-11). PvP là chế độ mở sau (cập nhật sau phát hành), có điều kiện tham gia. Hosting chọn khi tới lúc làm PvP. Build bằng Unity Dedicated Server từ chính project client ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/dedicated-server-build.html)).
 
 ## Hệ quả
 - [components.md](../04-tech/components.md): dòng Backend (cần) và Game server (chưa rõ); bảng ranh giới trách nhiệm.

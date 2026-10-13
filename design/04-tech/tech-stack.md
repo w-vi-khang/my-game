@@ -1,15 +1,16 @@
 # Công nghệ
 
-> Trạng thái: Nháp
+> Trạng thái: Đang xem xét
+> Đã chốt phần (user, 2026-10-13) — phần **Client**. Netcode (M3), dịch vụ backend, hosting: chọn sau bằng quyết định mới.
 > Liên quan: [Thành phần](components.md) · [Kiến trúc](architecture.md) · [Rủi ro](risks.md) · [Quyết định client](../decisions/0001-client-unity.md)
 
 Công nghệ theo từng thành phần trong [components.md](components.md). Thành phần mới → thêm một mục `##` cùng cấu trúc.
-Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn là đề xuất của AI [ý tưởng] cho tới khi user đồng ý.
+Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn phần Client: user Chốt 2026-10-13; phần chưa chọn (netcode, backend) ghi rõ tại chỗ.
 
 ## Client (Unity)
 <!-- Version: 6000.4.8f1 (đã cài). Render pipeline (URP/HDRP/Built-in) — chưa chọn, cần quyết định. Nền tảng build. Package: bảng package | dùng cho | lý do — chỉ thêm khi thiết kế cần (Input System, Cinemachine, Addressables...?). Khi tạo project: Asset Serialization = Force Text; Version Control = Visible Meta Files; tạo trong thư mục client/. -->
 - **Version:** Unity 6000.4.8f1 ([0001](../decisions/0001-client-unity.md)).
-- **Render pipeline:** [ý tưởng] **URP**, tạo project từ template Universal 3D — xem đề xuất [0005](../decisions/0005-render-pipeline.md).
+- **Render pipeline:** **URP**, tạo project từ template Universal 3D — [0005](../decisions/0005-render-pipeline.md) (Chốt).
   - URP chạy "from mobile to high-end consoles and PCs" ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/urp-introduction.html)); dành cho dự án cần mở rộng trên mọi nền tảng, hiệu quả trên GPU mobile ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/choose-a-render-pipeline.html)).
   - Manual 6000.4 vẫn gọi Built-in là "the default render pipeline" ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/render-pipelines.html)) → phải chủ động chọn template Universal 3D ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/creating-a-new-project-with-urp.html)).
   - Từ Unity 6.5, Built-in bị deprecated ([upgrade guide 6.5](https://docs.unity.com/en-us/engine/6000.5/manual/upgrade-guides/upgrade-guide-unity65)) → chọn Built-in sẽ phải chuyển sau.
@@ -27,7 +28,7 @@ Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn
 | Dedicated Server | 2.0 | Build game server headless; ký hiệu `UNITY_SERVER` | Sau phát hành | [build Dedicated Server](https://docs.unity3d.com/6000.4/Documentation/Manual/dedicated-server-build.html), [pack-safe](https://docs.unity3d.com/6000.4/Documentation/Manual/pack-safe.html) |
 | Netcode | _(chưa chọn)_ | PvP thời gian thực | M3 (prototype) | Xem bên dưới |
 
-**Voxel world — dựng mesh chunk** [ý tưởng] — chi tiết đầy đủ: [world-tech](world-tech.md).
+**Voxel world — dựng mesh chunk** — chi tiết đầy đủ: [world-tech](world-tech.md).
 - **Độ phân giải dựng mesh ×2** (user, 2026-10-12, sau thử nghiệm art — [art-style](../03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)): mỗi ô gameplay chia 2 × 2 × 2 ô khi dựng mesh; lưới gameplay (chiếm chỗ, tìm đường) vẫn 1 ô. Thử bằng Surface Nets: ~24.000 tam giác cho mảnh 30 × 30 ô (×4 so với ×1) [run]. Meshing xử lý ×8 số ô.
 - **Bề mặt mịn liền** (user, 2026-10-12): mỗi ô lưu mật độ + loại vật liệu thay vì chỉ "có/không có khối"; dựng bề mặt mịn từ lưới bằng một thuật toán kiểu marching cubes / surface nets / dual contouring (chọn khi prototype M1, cân nhắc chất lượng cạnh, số tam giác, đường nối giữa chunk). Vật liệu trộn theo đỉnh, texture dán 3 hướng (triplanar). Đào/đặt = đổi mật độ các ô. Logic (chiếm chỗ, tìm đường) vẫn theo ô. Ước lượng voxel world tăng +10–15 ngày ([roadmap](../05-roadmap.md)).
 - Tự viết meshing, chạy bằng C# Job System + Burst; ghi mesh qua `Mesh.AllocateWritableMeshData` → `Mesh.MeshData` → `Mesh.ApplyAndDisposeWritableMeshData`. API này cho phép truy cập MeshData "from any thread", nên xin nhiều MeshData trong một lần gọi (hợp với gom nhiều chunk bị đổi) ([AllocateWritableMeshData](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh.AllocateWritableMeshData.html), [MeshData](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh.MeshData.html), [ApplyAndDispose](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh.ApplyAndDisposeWritableMeshData.html), [Job System](https://docs.unity3d.com/6000.4/Documentation/Manual/job-system.html)).
@@ -36,9 +37,9 @@ Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn
 - Không dùng Entities (ECS) dù đã là core package ở 6.4 ([pack-core](https://docs.unity3d.com/6000.4/Documentation/Manual/pack-core.html)): thêm một mô hình lập trình cho một người học; Jobs + Burst đủ cho meshing. Xem lại nếu M1 cho thấy số sinh vật lớn bị chậm.
 - Phương án khác: asset voxel có sẵn — chưa tra (tính năng, giá) [chưa xác minh], xem đề xuất C3 trong [roadmap](../05-roadmap.md#kiểm-tra-phạm-vi).
 
-**Vật thể trên lưới** [ý tưởng] — theo [art style](../03-art-audio/art-style.md): sinh vật, cây, vật phẩm là model mịn riêng (không dựng từ khối); mỗi loại có **khung chiếm chỗ** (danh sách ô voxel) trong bảng dữ liệu. Đặt/xoá vật thể = đánh dấu/bỏ đánh dấu các ô trong lưới chiếm chỗ; tìm đường đọc lưới này. Địa hình hiển thị **bề mặt mịn liền** (user, 2026-10-12 — [art style](../03-art-audio/art-style.md)): xem mục dựng mesh ở trên.
+**Vật thể trên lưới** — theo [art style](../03-art-audio/art-style.md): sinh vật, cây, vật phẩm là model mịn riêng (không dựng từ khối); mỗi loại có **khung chiếm chỗ** (danh sách ô voxel) trong bảng dữ liệu. Đặt/xoá vật thể = đánh dấu/bỏ đánh dấu các ô trong lưới chiếm chỗ; tìm đường đọc lưới này. Địa hình hiển thị **bề mặt mịn liền** (user, 2026-10-12 — [art style](../03-art-audio/art-style.md)): xem mục dựng mesh ở trên.
 
-**Tìm đường sinh vật** [ý tưởng]
+**Tìm đường sinh vật**
 - Đề xuất: **tự viết A\* trên lưới voxel**, C# thuần.
   - Lưới voxel đã rời rạc; kiểu di chuyển theo loài (đi bộ, bay, bơi — [cơ chế](../02-gameplay/mechanics.md#tìm-đường-sinh-vật--đình-trệ)) chỉ là luật đi qua ô.
   - Chạy được trong mô phỏng tua nhanh và kiểm thử, không cần scene ([kiến trúc](architecture.md#client-unity)).
@@ -65,5 +66,5 @@ Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn
 ## Hạ tầng & công cụ chung
 <!-- Quản lý mã nguồn (git + LFS), CI/build, quản lý task, công cụ art/âm thanh, môi trường (dev/prod). -->
 - **Mã nguồn:** git, một repo ([0002](../decisions/0002-repo-layout.md)). Đã có [`.gitignore`](../../.gitignore) (bỏ `client/Library`, `Temp`, `Obj`, `Build(s)`, `Logs`, `UserSettings`...) và [`.gitattributes`](../../.gitattributes) (YAML Unity `eol=lf`; ảnh, model, âm thanh, font qua **Git LFS**).
-- **Merge scene/prefab:** [ý tưởng] cấu hình UnityYAMLMerge (Smart Merge) cho git khi bắt đầu M1 ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/SmartMerge.html)) — làm một người nên ít cần, chưa ưu tiên.
+- **Merge scene/prefab:** cấu hình UnityYAMLMerge (Smart Merge) cho git khi bắt đầu M1 ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/SmartMerge.html)) — làm một người nên ít cần, chưa ưu tiên.
 - **CI/build, quản lý task, công cụ art/âm thanh, môi trường dev/prod:** _(chưa có)_

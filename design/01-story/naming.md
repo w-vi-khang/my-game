@@ -10,6 +10,7 @@ Tên riêng trong game (tên game, vùng đất, loài, tộc, phép, nhân vậ
 Danh sách nhắc các mục chưa có tên — kèm ngữ cảnh, số lượng, ưu tiên — nằm ở **[Tóm tắt game › Danh sách cần đặt tên](../summary.md#danh-sách-cần-đặt-tên)** (một nguồn, cập nhật ở đó).
 
 ## Tên game
+**Chọn: Viventa** (user, 2026-10-13). Trước khi dùng chính thức: tra trùng Steam, App Store, Google Play, nhãn hiệu (quy ước ở dưới).
 <!-- Tên chính thức, các phương án, kết quả kiểm tra trùng (store, nhãn hiệu, tên miền) kèm link. -->
 Chưa chốt. Đã thử 8 phương án do AI đề xuất (2026-10-12), kiểm bằng tìm kiếm web + `check_names.py` (denylist gồm tên game tham khảo và tên na ná tìm thấy):
 - **Viventa** — *vivere* (sống) + *-enta*: "sự sống trở lại" → gắn P1 (hồi sinh). **Phương án duy nhất qua cả hai lần kiểm** [ý tưởng]. Đọc: tiếng Việt "vi-ven-ta", tiếng Anh /vɪˈvɛntə/; chưa thấy nghĩa xấu trong tiếng Việt, tiếng Anh; ngôn ngữ khác [chưa xác minh].
@@ -56,8 +57,8 @@ Gợi ý của AI [ý tưởng] (2026-10-12) để user tham khảo khi tự đ�
 <!-- Mọi tên riêng đã đặt. Script check_names.py đọc bảng này: cột 1 = tên, cột 2 = nhóm. Trạng thái: đề xuất / dùng / bỏ. -->
 | Tên | Nhóm | Ý nghĩa / gốc | Trạng thái | Dùng ở |
 |---|---|---|---|---|
-| Aetharyn | Tên game | User đề xuất: aether (khí trời, phép thuật) + -yn | đề xuất | Chờ user quyết — giống 93% "Aethryn", 88% "Aetharon" |
-| Viventa | Tên game | [ý tưởng] vivere (sống) + -enta: sự sống trở lại | đề xuất | — |
+| Aetharyn | Tên game | User đề xuất: aether (khí trời, phép thuật) + -yn | bỏ | User chọn Viventa (2026-10-13) |
+| Viventa | Tên game | vivere (sống) + -enta: sự sống trở lại | dùng | Tên game (user chọn 2026-10-13) |
 | Verdavia | Tên game | [ý tưởng] verde + -via/-ia: vùng đất xanh trở lại | bỏ | Giống 75% "Verdoria's Kingdom Quest" |
 | Faunora | Tên game | [ý tưởng] fauna + flora | bỏ | Giống 86% "Faunori" |
 | Revira | Tên game | [ý tưởng] re- + vir- (sống): hồi sinh | bỏ | Giống 83% "Revita" |

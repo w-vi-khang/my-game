@@ -1,6 +1,7 @@
 # Phong cách hình ảnh
 
-> Trạng thái: Nháp
+> Trạng thái: Đang xem xét
+> Đã chốt phần (user, 2026-10-13) — **hướng phong cách**. Chưa thuộc phần Chốt: bảng màu, độ bão hoà, ánh sáng; các mục còn [ý tưởng] (asset ứng viên, nhóm kích thước, ngân sách polygon tạm, quy trình asset). Mục "Kết quả thử nghiệm art" là nhật ký, cập nhật không cần quyết định mới.
 > Liên quan: [Vision](../00-vision.md) · [Công nghệ](../04-tech/tech-stack.md)
 
 Thống nhất art style trước khi bắt đầu M1 (user, 2026-10-12) — xem B7 trong [roadmap](../05-roadmap.md#công-việc-m0-kế-hoạch--thiết-kế--ưu-tiên-hiện-tại).

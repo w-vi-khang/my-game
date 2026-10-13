@@ -1,6 +1,7 @@
 # Lộ trình
 
-> Trạng thái: Nháp
+> Trạng thái: Đang xem xét
+> Đã chốt phần (user, 2026-10-13) — ước lượng và giả định M1–M2. Mục "Công việc M0" là danh sách theo dõi, cập nhật không cần quyết định mới; M3+ vẫn là ước lượng thô; tính lại sau M1 bằng quyết định mới.
 > Liên quan: [Vision](00-vision.md) · [Cơ chế](02-gameplay/mechanics.md) · [Thành phần](04-tech/components.md) · [Rủi ro](04-tech/risks.md)
 
 ## Quỹ thời gian
@@ -21,23 +22,23 @@
 |---|---|---|---|---|---|---|
 | M0 — Kế hoạch & thiết kế | Đủ kế hoạch để bắt đầu prototype | design/ | Vision, core loop, cơ chế "phải có", thành phần hệ thống, roadmap M1–M2 ở trạng thái Chốt | — | — | Đang làm |
 | M1 — Prototype | Kiểm chứng core loop có vui không | Client | Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 2–3 loài trở lại → đặt lệnh làm việc trồng cây → sản lượng vào kho; chạy được trên 1 máy mobile tầm trung | 95–163 | 114–196 tuần (~2,2–3,8 năm) | Chưa bắt đầu |
-| M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 243–472 | 292–566 tuần (~5,6–10,9 năm) | Chưa bắt đầu |
+| M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 248–482 | 298–578 tuần (~5,7–11,1 năm) | Chưa bắt đầu |
 | M3 — Alpha | Đủ tính năng | Client + Backend | Mọi cơ chế "phải có" chạy được; prototype trận mạng nhỏ (kiểm chứng netcode) | 57–100 + Nghiên cứu _(?)_ | 68–120 tuần | Chưa bắt đầu |
 | M4 — Beta | Đủ nội dung, sửa lỗi | Client + Backend | Chơi hết 3 map không bị chặn; phát hành thử | 83–166 | 100–199 tuần | Chưa bắt đầu |
 | Phát hành | | Client + Backend + vận hành | | — | — | Chưa bắt đầu |
 | Sau phát hành — PvP | PvP thời gian thực | Client + Backend + Game server | Ghép trận theo hạng, game server quyết định kết quả | 65–130 | 78–156 tuần | Chưa bắt đầu |
 
-**Tổng M1–M4:** 478–901 ngày-người → ×1,5 = 717–1.352 → **~11,0–20,8 năm** ở 10 giờ/tuần (cập nhật 2026-10-13: nội dung Map 1 14–27 (trước 10–20), người chơi làm công đoạn 2–4, onboarding 4–8; nước chảy 8–15, tinh linh hỗ trợ 5–10, cutscene 3–6 × 2; thẻ bài & bắt sinh vật 8–14, trang bị 13–23, bảo hiểm gói 1–2, địa hình bề mặt mịn +10–15, biến thể hiển thị 3–6, biến thể 3–5 chưa tính art).
+**Tổng M1–M4:** 483–911 ngày-người → ×1,5 = 725–1.367 → **~11,2–21,0 năm** ở 10 giờ/tuần (cập nhật 2026-10-13: bảo mật & chống gian lận 5–10; nội dung Map 1 14–27 (trước 10–20), người chơi làm công đoạn 2–4, onboarding 4–8; nước chảy 8–15, tinh linh hỗ trợ 5–10, cutscene 3–6 × 2; thẻ bài & bắt sinh vật 8–14, trang bị 13–23, bảo hiểm gói 1–2, địa hình bề mặt mịn +10–15, biến thể hiển thị 3–6, biến thể 3–5 chưa tính art).
 
 ### Hạng mục theo milestone
 Từ bảng cơ chế, trừ dòng có ghi [ý tưởng].
 
 **M1 (95–163):** Voxel world bề mặt mịn liền 35–55 · Sinh vật & loài 5–10 · Chỉ số làm việc 5–8 · Môi trường sống 10–20 · Lệnh làm việc 20–30 · Tìm đường 10–20 · Điều khiển PC + mobile (phần M1) 5–10 · [ý tưởng] Nội dung graybox (2–3 loài, 1 vùng) + thử hiệu năng mobile 5–10.
 
-**M2 (243–472):**
+**M2 (248–482):**
 - Cơ chế (193–373): Nước chảy 8–15 · Tinh linh hỗ trợ 5–10 · Onboarding 4–8 · Người chơi làm công đoạn 2–4 · Cutscene mở đầu 3–6 · Thẻ bài & bắt sinh vật 8–14 · Biến thể hiển thị 3–6 · Sinh map theo seed 15–25 · Khối cốt truyện 2–4 · Chỉ số chiến đấu 6–10 · Nhu cầu sinh vật 8–15 · Tua nhanh 8–15 · Nhập hồn 40–70 · Phép của pháp sư 18–36 · Sưu tầm phép 25–65 · Nhận sinh vật 10–20 · Giới hạn sinh vật 3–6 · Nhiệm vụ & mảnh ký ức 15–25 · Mở map 2–4 · Cấp độ người chơi 3–5 · Điều khiển (phần M2) 5–10.
 - [ý tưởng] Giả định nội dung slice để tính phần "+ x/loài, + x/phép": 5 loài nhập hồn được (×3–6), 8 phép của pháp sư (×1–2), 20 phép sinh vật (×0,5–2).
-- [ý tưởng] Ngoài cơ chế (50–99): dựng backend (tài khoản, lưu cloud, giờ server, rút thưởng, sinh chỉ số cá thể) 15–30 · chọn + tích hợp asset art/âm thanh cho 1 map (không tự làm art) 20–40 · sắp đặt map + viết nhiệm vụ 14–27 (Map 1, [levels](02-gameplay/levels.md) — user chấp nhận 2026-10-13) · skill cân bằng 1–2.
+- [ý tưởng] Ngoài cơ chế (55–109): dựng backend (tài khoản, lưu cloud, giờ server, rút thưởng, sinh chỉ số cá thể) 15–30 · bảo mật & kiểm tra chống gian lận 5–10 (yêu cầu của user khi Chốt components, 2026-10-13 — [kiến trúc](04-tech/architecture.md#bảo-mật--chống-gian-lận)) · chọn + tích hợp asset art/âm thanh cho 1 map (không tự làm art) 20–40 · sắp đặt map + viết nhiệm vụ 14–27 (Map 1, [levels](02-gameplay/levels.md) — user chấp nhận 2026-10-13) · skill cân bằng 1–2.
 
 **M3 (57–100 + ?):** Biến thể 3–5 (chưa tính art) · Tiến hoá 10–15 · Tiền tệ & cửa hàng (gồm bảo hiểm gói) 16–27 · Trang bị (ghép, rèn, lò rèn) 13–23 [ý tưởng milestone] · Điều khiển (phần M3) 5–10 · [ý tưởng] prototype trận mạng nhỏ 10–20 (kiểm chứng rủi ro netcode, [risks](04-tech/risks.md)) · Nghiên cứu _(chưa có ước lượng)_.
 
@@ -48,7 +49,7 @@ Từ bảng cơ chế, trừ dòng có ghi [ý tưởng].
 **Vận hành (liên tục từ M2):** [ý tưởng] backend 0,5–1 ngày-người/tháng (theo dõi, cập nhật, sự cố); chi phí dịch vụ _(chưa tra)_ — xem [0003](decisions/0003-server.md).
 
 ## Kiểm tra phạm vi
-⚠️ **Vượt quỹ thời gian.** Riêng M1 (prototype để biết game có vui không) đã mất ~2,2–3,8 năm ở 10 giờ/tuần; toàn bộ tới M4 ~11,0–20,8 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
+⚠️ **Vượt quỹ thời gian.** Riêng M1 (prototype để biết game có vui không) đã mất ~2,2–3,8 năm ở 10 giờ/tuần; toàn bộ tới M4 ~11,2–21,0 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
 
 **Quyết định của user (2026-10-12): tạm thời chưa cắt, giữ nguyên phạm vi** — làm cùng trợ giúp của AI. Ước lượng trên chưa tính tác động của AI; mức tăng tốc thật [chưa xác minh].
 - [ý tưởng] Đo tốc độ thật trong M1: ghi giờ thực tế từng hạng mục so với ước lượng → sau 4–6 hạng mục, tính lại hệ số cho M2–M4 và xem lại các đề xuất cắt dưới đây.
@@ -88,25 +89,25 @@ gantt
 ## Công việc M0 (kế hoạch & thiết kế) — ưu tiên hiện tại
 Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên>" để AI đổi dòng trạng thái + bảng [README](README.md), hoặc tự sửa).
 
-### A. Quyết định chờ Chốt
-[ý tưởng] Thứ tự duyệt gợi ý (2026-10-13): A1 → A3 → A2 → B6 → B3 → B2 → B4 → B5 → B1 → B7 → B8 — quyết định trước, tài liệu phụ thuộc sau.
-| # | Quyết định | Trạng thái | User cần làm |
-|---|---|---|---|
-| A1 | [0003](decisions/0003-server.md) — cần backend (M2) + game server (PvP sau phát hành) | Đề xuất | Đồng ý → Chốt. Chặn: components.md, architecture.md |
-| A2 | [0004](decisions/0004-tien-nap.md) — tiền nạp ảnh hưởng tốc độ, chặn ở mức tối đa | Đề xuất | Đồng ý → Chốt. Chặn: vision (mô hình kinh doanh), economy.md |
-| A3 | [0005](decisions/0005-render-pipeline.md) — client dùng URP | Đề xuất | Đồng ý → Chốt. Chặn: tech-stack.md, tạo project ở M1 |
-
-### B. Tài liệu phải Chốt trước khi sang M1
-| # | Tài liệu | Còn thiếu trước khi Chốt |
+### A. Quyết định — xong 2026-10-13
+| # | Quyết định | Trạng thái |
 |---|---|---|
-| B1 | [00-vision.md](00-vision.md) | Chấp nhận/sửa pitch [ý tưởng] và điểm khác biệt [ý tưởng] (khảo sát thị trường [chưa xác minh]); người chơi mục tiêu: độ tuổi, kinh nghiệm, thời lượng phiên; ngân sách. Phụ thuộc A2 |
-| B2 | [02-gameplay/core-loop.md](02-gameplay/core-loop.md) | Thời lượng một phiên (PC, mobile); chấp nhận/bỏ 2 [ý tưởng] (phản hồi tức thì, phiên kết thúc khi loài định cư/nhiệm vụ xong) |
-| B3 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) — **ít nhất các cơ chế M1**: voxel world, sinh vật & loài, chỉ số làm việc, môi trường sống, lệnh làm việc, tìm đường, điều khiển PC + mobile | Chấp nhận/bỏ các [ý tưởng] của nhóm M1: độ ưu tiên giữa lệnh; nội tại cộng hiệu quả công đoạn; công đoạn khi sinh vật bị lấy đi; thông báo đình trệ; kiểu di chuyển theo loài; yêu cầu môi trường sống tính theo vùng. (Ba mức đã thay bằng danh sách yêu cầu của loài — user, 2026-10-12.) File còn nhiều phần M2+ chưa xong → xem đề xuất ở cuối mục |
-| B4 | [04-tech/components.md](04-tech/components.md) | Phụ thuộc A1. Chấp nhận/bỏ [ý tưởng]: backend dùng dịch vụ có sẵn; chỉ lưu phần world khác seed; bảng ranh giới trách nhiệm |
-| B5 | [04-tech/tech-stack.md](04-tech/tech-stack.md) — phần Client | Phụ thuộc A3. Chấp nhận/bỏ [ý tưởng]: Input System; meshing tự viết bằng Jobs + Burst; A\* tự viết; uGUI; không dùng ECS |
-| B6 | [05-roadmap.md](05-roadmap.md) — phần M1–M2 | Chấp nhận ước lượng thô + giả định (1 ngày-người = 8 giờ, ×1,5); phạm vi đã giữ nguyên (user, 2026-10-12) |
-| B7 | [03-art-audio/art-style.md](03-art-audio/art-style.md) — **thống nhất art style trước khi bắt đầu** (user, 2026-10-12) | Đã có bản đầu (hướng phong cách, tham khảo, nguồn asset, quy cách kỹ thuật, kết quả thử nghiệm art). Còn: bảng màu, độ bão hoà, ánh sáng; ngân sách polygon là tạm, đo ở M1; ảnh concept theo hướng XING-ART tươi sáng hơn chưa làm |
-| B8 | [01-story/naming.md](01-story/naming.md) — quy ước đặt tên (user, 2026-10-12) | **User tự đặt tên, AI chỉ duyệt** (skill `naming` của kit). Danh sách nhắc ở mục "Cần đặt tên". Cần trước M1: tên game (tạm được). Đang chờ user quyết: Aetharyn / Viventa |
+| A1 | [0003](decisions/0003-server.md) — backend (M2) + game server (PvP sau phát hành) | Chốt 2026-10-13 |
+| A2 | [0004](decisions/0004-tien-nap.md) — tiền nạp ảnh hưởng tốc độ, chặn ở mức tối đa; ngoại lệ giới hạn sinh vật 54/60; túi đồ không có mức tối đa | Chốt 2026-10-13 |
+| A3 | [0005](decisions/0005-render-pipeline.md) — client dùng URP | Chốt 2026-10-13 |
+
+### B. Tài liệu trước khi sang M1 — duyệt 2026-10-13
+`check_design.py` chỉ cho file **Chốt** khi không còn chỗ trống và `[ý tưởng]` → file chốt một phần để ở **Đang xem xét**, phần đã chốt ghi ở dòng thứ hai đầu file (cùng cách (b) của B3).
+| # | Tài liệu | Kết quả | Còn lại |
+|---|---|---|---|
+| B1 | [00-vision.md](00-vision.md) | **Chốt** (người chơi 16+, ngân sách 0 đồng tới M2) | — |
+| B2 | [02-gameplay/core-loop.md](02-gameplay/core-loop.md) | **Chốt** (2 ý tưởng nhận; phiên PC 30–60 phút, mobile 10–20 phút) | — |
+| B3 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) | Cách (b): Đang xem xét, cơ chế M1 đã duyệt; 6 ý tưởng nhóm M1 chốt | Phần M2+ viết dần |
+| B4 | [04-tech/components.md](04-tech/components.md) | Chốt, kèm yêu cầu bảo mật + kiểm tra chống gian lận ([kiến trúc](04-tech/architecture.md#bảo-mật--chống-gian-lận)) | Chọn dịch vụ backend (tra giá) trước M2 |
+| B5 | [04-tech/tech-stack.md](04-tech/tech-stack.md) — phần Client | Phần Client chốt; file Đang xem xét | Netcode (M3), backend |
+| B6 | [05-roadmap.md](05-roadmap.md) — phần M1–M2 | Phần M1–M2 chốt; file Đang xem xét | Tính lại bằng tốc độ thật sau 4–6 hạng mục M1 |
+| B7 | [03-art-audio/art-style.md](03-art-audio/art-style.md) | Hướng phong cách chốt; file Đang xem xét | Bảng màu, độ bão hoà, ánh sáng; ngân sách polygon đo ở M1 |
+| B8 | [01-story/naming.md](01-story/naming.md) | Tên game: **Viventa** | Tra trùng Steam, App Store, Google Play, nhãn hiệu trước khi dùng chính thức |
 
 ### C. Nên viết trước M1 (chưa cần Chốt)
 - [x] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — bản đầu (2026-10-13): camera góc 3 xoay tự do, tay cầm sau phát hành, HUD, onboarding 8 bước có tinh linh. Onboarding 4–8 tách hạng mục riêng ở M2 (user, 2026-10-13).
@@ -129,6 +130,6 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 ### D. Không cần Chốt để sang M1 (viết dần, song song prototype)
 Cốt truyện (world, characters, plot), progression, economy, levels, art-style, audio — theo thứ tự gợi ý ở [README](README.md). Skill (tạo 2026-10-12): cốt truyện → `local-game-story`; map/level → `local-level-design`; số liệu economy/progression → `game-balance` (kit); art/âm thanh → chưa có skill, chờ user quyết hướng dùng MCP (Blender, Figma, âm thanh).
 
-**Đề xuất** [ý tưởng]: trạng thái tính theo file, mà mechanics.md còn nhiều phần M2+ (nhập hồn, phép, PvP...) chưa xong. Hai cách:
+**Đã chọn (b)** (user, 2026-10-13). Ghi lại hai cách đã cân nhắc: trạng thái tính theo file, mà mechanics.md còn nhiều phần M2+ (nhập hồn, phép, PvP...) chưa xong. Hai cách:
 - (a) Tách các cơ chế M1 ra file riêng (vd `02-gameplay/mechanics-m1.md`) để Chốt riêng.
 - (b) Giữ một file, đổi tiêu chí M0 thành "các cơ chế M1 trong mechanics.md đã được user duyệt" và đặt file ở "Đang xem xét".

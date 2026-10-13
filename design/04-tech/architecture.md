@@ -3,7 +3,7 @@
 > Trạng thái: Nháp
 > Liên quan: [Thành phần](components.md) · [Công nghệ](tech-stack.md) · [Cơ chế](../02-gameplay/mechanics.md)
 
-Toàn bộ file là đề xuất của AI [ý tưởng] (2026-10-12; phần Client và Dữ liệu rà lại 2026-10-13 theo world-tech, simulation-tech, controls-ui, levels), dựa trên [components.md](components.md) và [0003](../decisions/0003-server.md) (chưa Chốt). Dịch vụ backend và netcode chưa chọn → chỉ mô tả trách nhiệm, không gắn sản phẩm.
+Toàn bộ file là đề xuất của AI [ý tưởng] (2026-10-12; phần Client và Dữ liệu rà lại 2026-10-13 theo world-tech, simulation-tech, controls-ui, levels), dựa trên [components.md](components.md) và [0003](../decisions/0003-server.md) (Chốt 2026-10-13). Dịch vụ backend và netcode chưa chọn → chỉ mô tả trách nhiệm, không gắn sản phẩm.
 
 ## Kiến trúc hệ thống
 <!-- Mermaid: các thành phần trong components.md và cách chúng giao tiếp (client ↔ server ↔ dịch vụ). Chỉ có client thì ghi rõ "game offline, một thành phần". -->
@@ -52,7 +52,7 @@ flowchart LR
 | Điểm xếp hạng, hạng | Backend | Client, ghép trận | Nhận kết quả từ game server |
 | Trạng thái trận PvP | Game server | Client | Chỉ tồn tại trong trận |
 
-**Câu hỏi mở:** sản lượng nông trại do client tính. Nếu sản lượng đổi được ra tiền trong game hoặc vật phẩm (dùng rút thưởng), sửa client là gian lận được → ảnh hưởng kinh tế chung, dù không ảnh hưởng PvP trực tiếp. [ý tưởng] Backend kiểm tra hợp lý: sản lượng tối đa theo thời gian × số sinh vật × độ thuần thục; vượt thì cắt và ghi lại.
+Sản lượng nông trại do client tính → backend **phải** kiểm tra hợp lý trước khi nhận (yêu cầu chống gian lận của user, 2026-10-13) — xem [Bảo mật & chống gian lận](#bảo-mật--chống-gian-lận).
 
 ## Giao tiếp giữa các thành phần
 <!-- API/giao thức, xác thực, xử lý mất mạng, versioning giữa client và server. Bỏ qua nếu chỉ có client. -->
@@ -61,6 +61,25 @@ flowchart LR
 - Game server ↔ backend: lấy chỉ số sinh vật và phép của hai bên khi bắt đầu trận (không tin client); báo kết quả để tính điểm xếp hạng.
 - **Phiên bản:** client gửi phiên bản app + phiên bản bảng cấu hình; backend từ chối phiên bản quá cũ → yêu cầu cập nhật.
 - **Mất mạng:** game online — mất kết nối thì hiện màn kết nối lại; thao tác chưa gửi được thì xếp hàng gửi lại. Tua nhanh chờ giờ server ([cơ chế](../02-gameplay/mechanics.md#tua-nhanh)).
+
+## Bảo mật & chống gian lận
+**Yêu cầu** (user, 2026-10-13, khi Chốt [components](components.md)): bảo mật và kiểm tra tốt để tránh gian lận. Cách làm dưới đây là đề xuất của AI [ý tưởng]:
+
+| Lớp | Cách làm | Chặn được |
+|---|---|---|
+| Không tin client | Mọi thao tác có giá trị (rút thưởng, tiêu tiền, phân bổ điểm, nhận sinh vật, kết quả bắt) là lệnh gửi backend; backend quyết định và trả kết quả | Sửa số trên máy |
+| Xác thực | Mọi gọi backend kèm phiên đăng nhập của dịch vụ backend; client không chứa khoá bí mật (client dịch ngược được) | Gọi API giả danh |
+| Kiểm tra hợp lý | Sản lượng ≤ trần (thời gian theo giờ server × số sinh vật hoạt động × hiệu quả tối đa); số ô đào/đặt và tài nguyên thu được trong một khoảng thời gian ≤ trần; tiến độ yêu cầu của loài khớp tài nguyên đã dùng; trạng thái mô phỏng hợp lệ (không quá giới hạn sinh vật, chỉ số ≤ trần) | Sửa save, tua nhanh giả |
+| Giờ | Thời gian vắng mặt lấy từ giờ server, không từ thiết bị | Chỉnh giờ máy |
+| Giới hạn tần suất | Mỗi loại lệnh có giới hạn số lần / phút | Spam, bot |
+| Kiểm lại có chọn lọc | Dữ liệu nghi vấn → chạy lại kiểm tra bằng cùng code C# mô phỏng (bản headless) trên dữ liệu đã lưu | Gian lận tinh vi hơn kiểm tra hợp lý |
+| Xử lý vi phạm | Vượt trần → cắt về trần + ghi log; không khoá tài khoản tự động (tránh phạt nhầm) — người làm xem log rồi quyết | Giảm phạt nhầm |
+| Thanh toán | Kiểm biên lai với cửa hàng ứng dụng / Steam ở backend | Mua giả |
+| PvP | Game server lấy chỉ số, phép của hai bên từ backend; game server quyết định kết quả | Sửa chỉ số khi đấu |
+
+- Không làm chống sửa bộ nhớ / chống dịch ngược riêng trên client [ý tưởng]: mọi giá trị đã nằm ở backend → chi phí cao, lợi ích thấp cho một người làm.
+- Trần của kiểm tra hợp lý lấy từ cùng bảng cấu hình cân bằng (`game-balance`) → đổi số cân bằng thì trần đổi theo.
+- **Ước lượng** [ý tưởng]: 5–10 ngày-người ở M2 (ngoài phần dựng backend 15–30); kiểm lại có chọn lọc có thể để M3.
 
 ## Client (Unity)
 <!-- Các hệ thống chính trong client (input, gameplay, UI, save, audio...) — Mermaid; luồng scene; dữ liệu cấu hình (ScriptableObject?). Quy ước code điền khi bắt đầu M1. -->

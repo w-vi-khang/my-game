@@ -93,7 +93,7 @@
     ],
     "check_command": "python3 tools/balance_rules.py check design/data/stats.json",
     "constraints": [
-      "Tiền nạp chỉ ảnh hưởng tốc độ tiến trình; không mua được vượt mức tối đa mà người không nạp đạt được; được tăng tỉ lệ vượt trội (vượt trội bỏ trong PvP); ngoại lệ: giới hạn sinh vật 54 → 60 khi nạp (design/decisions/0004-tien-nap.md — trạng thái Đề xuất, chưa Chốt)"
+      "Tiền nạp chỉ ảnh hưởng tốc độ tiến trình; không mua được vượt mức tối đa mà người không nạp đạt được; được tăng tỉ lệ vượt trội (vượt trội bỏ trong PvP); ngoại lệ: giới hạn sinh vật 54 → 60 khi nạp (design/decisions/0004-tien-nap.md — Chốt 2026-10-13); túi đồ không có mức tối đa"
     ]
   },
   "concept_image": {

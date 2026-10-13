@@ -1,6 +1,7 @@
 # Lối chơi cốt lõi (Core loop)
 
-> Trạng thái: Nháp
+> Trạng thái: Chốt
+> Chốt: 2026-10-13 (user).
 > Liên quan: [Vision](../00-vision.md) · [Cơ chế](mechanics.md) · [Tiến trình](progression.md)
 
 Trọng tâm: **hồi sinh môi trường sống** + **nông trại tự động hoá bằng sinh vật**. Chiến đấu (nhập hồn) và cốt truyện là vòng phụ.
@@ -9,7 +10,7 @@ Trọng tâm: **hồi sinh môi trường sống** + **nông trại tự động
 <!-- Người chơi làm gì liên tục? Hành động → phản hồi → phần thưởng. -->
 - Khám phá → thu thập tài nguyên → đào/đặt khối để cải tạo địa hình → thấy tiến độ yêu cầu môi trường sống của một loài tăng lên.
 - Đặt/sửa lệnh làm việc (vd trồng cây trên một mảnh đất) → sinh vật rảnh nhận công đoạn → sản lượng vào kho.
-- [ý tưởng] Phản hồi tức thì: thanh tiến độ môi trường sống cập nhật ngay khi đặt khối; sinh vật bị đình trệ hiện biểu tượng tại chỗ.
+- Phản hồi tức thì: thanh tiến độ môi trường sống cập nhật ngay khi đặt khối; sinh vật bị đình trệ hiện biểu tượng tại chỗ. (user chốt, 2026-10-13)
 
 ## Vòng lặp một phiên chơi
 <!-- Một lần chơi (vd 10–30 phút) gồm những gì, kết thúc ra sao. -->
@@ -17,8 +18,8 @@ Trọng tâm: **hồi sinh môi trường sống** + **nông trại tự động
 2. Xử lý thông báo đình trệ (sửa đường đi, thêm kho, thêm sinh vật).
 3. Chọn mục tiêu: hồi sinh một loài, làm nhiệm vụ (chính hoặc phụ), khám phá, chiến đấu (gán phép ở màn chuẩn bị chiến đấu).
 4. Mở rộng lệnh làm việc → nhu cầu nhân công tăng → cần thêm loài → quay lại bước 3.
-- [ý tưởng] Phiên kết thúc tự nhiên khi một loài mới định cư hoặc một nhiệm vụ xong.
-- Thời lượng một phiên (PC và mobile): _(chưa có)_
+- Phiên kết thúc tự nhiên khi một loài mới định cư hoặc một nhiệm vụ xong. (user chốt, 2026-10-13)
+- Thời lượng một phiên: **PC 30–60 phút, mobile 10–20 phút** (user, 2026-10-13).
 
 ## Vòng lặp dài hạn
 <!-- Điều gì kéo người chơi quay lại qua nhiều phiên. -->

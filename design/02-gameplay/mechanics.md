@@ -1,6 +1,7 @@
 # Cơ chế
 
-> Trạng thái: Nháp
+> Trạng thái: Đang xem xét
+> Duyệt 2026-10-13 (user, cách (b) ở [roadmap](../05-roadmap.md#công-việc-m0-kế-hoạch--thiết-kế--ưu-tiên-hiện-tại)): **các cơ chế M1 đã duyệt** — voxel world, sinh vật & loài, chỉ số làm việc, môi trường sống, lệnh làm việc, tìm đường, điều khiển PC + mobile. Phần M2+ vẫn là nháp.
 > Liên quan: [Core loop](core-loop.md) · [Điều khiển & UI](controls-ui.md) · [Kinh tế](economy.md)
 
 ## Danh sách cơ chế
@@ -54,8 +55,8 @@
 - **Người chơi tự làm được công đoạn** (user, 2026-10-13), vd cầm cuốc xới ô đất của lệnh → công đoạn đó xong cho ô ấy. Dùng khi chưa có loài đủ năng lực (onboarding bước 6 — [controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding)) hoặc muốn làm nhanh. [ý tưởng] Ước lượng 2–4 ngày-người, M2.
 - **Tối đa 2 sinh vật cùng làm một công đoạn** (user, 2026-10-13) → thời gian công đoạn giảm. Con thứ hai rút ngắn ít hơn con đầu (user chấp nhận đề xuất, 2026-10-13), vd thời gian × 0,6 thay vì × 0,5 — số liệu bằng `game-balance`.
 - Tốc độ/hiệu quả làm công đoạn theo **độ thuần thục** của năng lực tương ứng (vd thuần thục cao rút ngắn thời gian tưới nước, vận chuyển được nhiều hàng hơn mỗi lượt).
-- [ý tưởng] Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd nguyên tố nước tưới nhanh hơn).
-- [ý tưởng] Người chơi đặt độ ưu tiên giữa các lệnh.
+- Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd nguyên tố nước tưới nhanh hơn). (user chốt, 2026-10-13)
+- Người chơi đặt độ ưu tiên giữa các lệnh. (user chốt, 2026-10-13; làm ở M2)
 
 ```mermaid
 stateDiagram-v2
@@ -73,14 +74,14 @@ stateDiagram-v2
 **Trường hợp biên**
 - Không có sinh vật rảnh → lệnh chờ, hiện trong danh sách việc thiếu nhân công.
 - Không sở hữu loài nào có năng lực cho một công đoạn → công đoạn đó chờ; [ý tưởng] thông báo chỉ rõ năng lực còn thiếu (gợi ý loài cần hồi sinh — nối với P1).
-- Sinh vật bị lấy đi (nhập hồn, chuyển lệnh) giữa công đoạn → [ý tưởng] công đoạn trả về trạng thái chờ, giữ tiến độ.
+- Sinh vật bị lấy đi (nhập hồn, chuyển lệnh) giữa công đoạn → công đoạn trả về trạng thái chờ, giữ tiến độ. (user chốt, 2026-10-13)
 - Kho đầy → đình trệ ở khâu vận chuyển.
 
 ### Tìm đường sinh vật & đình trệ
 - Người chơi phải thiết kế địa hình để sinh vật đi lại và làm việc được.
 - Không có đường tới vị trí của công đoạn → công đoạn đó **đình trệ** và gửi thông báo cho người chơi.
-- [ý tưởng] Thông báo chỉ rõ vị trí và lý do (không có đường / thiếu vật tư / kho đầy), bấm vào để xem tại chỗ.
-- [ý tưởng] Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài.
+- Thông báo chỉ rõ vị trí và lý do (không có đường / thiếu vật tư / kho đầy), bấm vào để xem tại chỗ. (user chốt, 2026-10-13)
+- Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài. (user chốt, 2026-10-13)
 
 ### Tua nhanh
 - Khi game tắt: không tính gì.
@@ -93,7 +94,7 @@ stateDiagram-v2
 
 ### Môi trường sống
 - Sinh vật đã thất lạc. Muốn đưa một loài trở lại, người chơi làm việc, cải tạo thế giới và thu thập tài nguyên để tạo môi trường theo yêu cầu của loài đó → mở khoá loài.
-- [ý tưởng] Yêu cầu tính trong một vùng: tỉ lệ loại khối (nước, cỏ, đá...), cây trồng, công trình, loài khác đang có.
+- Yêu cầu tính trong một vùng: tỉ lệ loại khối (nước, cỏ, đá...), cây trồng, công trình, loài khác đang có. (user chốt, 2026-10-13)
 - **Hang động có sinh vật và tài nguyên riêng** (user, 2026-10-13) → có loài sống dưới lòng đất, yêu cầu môi trường sống riêng ([world-tech](../04-tech/world-tech.md#sinh-world-theo-seed)).
 - **Danh sách yêu cầu của loài** (user, 2026-10-12 — thay ý tưởng ba mức xuất hiện → ghé thăm → định cư): mỗi loài có một danh sách yêu cầu (user gọi là "list nhiệm vụ theo loài"). Người chơi hoàn thành dần từng yêu cầu:
   - đạt các yêu cầu mở khoá → loài trở lại;

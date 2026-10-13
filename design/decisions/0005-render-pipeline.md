@@ -1,6 +1,7 @@
 # 0005 — Render pipeline của client: URP
 
-> Trạng thái: Đề xuất
+> Trạng thái: Chốt
+> Ngày chốt: 2026-10-13 (user)
 > Ngày: 2026-10-12
 
 ## Bối cảnh
@@ -13,7 +14,7 @@
 - **HDRP:** không xét vì game cần chạy trên mobile; giới hạn nền tảng của HDRP ở 6000.4 [chưa xác minh] — tra [trang chọn pipeline](https://docs.unity3d.com/6000.4/Documentation/Manual/choose-a-render-pipeline.html) nếu muốn xét lại.
 
 ## Quyết định
-Đề xuất (chờ user Chốt): **URP**, tạo project từ template **Universal 3D**.
+Chốt (user, 2026-10-13): **URP**, tạo project từ template **Universal 3D**.
 
 ## Hệ quả
 - [tech-stack.md](../04-tech/tech-stack.md): mục Client.
