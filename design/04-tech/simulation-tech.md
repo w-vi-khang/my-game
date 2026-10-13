@@ -16,7 +16,7 @@ Phần kỹ thuật nặng thứ hai của M1 (sau world): **lệnh làm việc*
 |---|---|
 | Lệnh làm việc | Vùng (tập ô), hàng đợi (vd loại cây), danh sách công đoạn, trạng thái, độ ưu tiên (M2) |
 | Công đoạn | Loại = **năng lực làm việc** cần (vd tưới nước), ô đích, thời gian gốc, vật tư cần, **tối đa 2 sinh vật đang làm** (user, 2026-10-13), tiến độ (giữ khi bị gián đoạn) |
-| Sinh vật (phần làm việc) | 2 năng lực làm việc, độ thuần thục ×2, tốc độ di chuyển, sức khoẻ, **độ bền làm việc** (giảm khi làm, hồi khi nghỉ), mức bệnh/mệt, trạng thái (rảnh / đang đi / đang làm / nghỉ / bệnh / mệt), khung chiếm chỗ, kiểu di chuyển |
+| Sinh vật (phần làm việc) | 2 năng lực làm việc, độ thuần thục ×2, tốc độ di chuyển, sức khoẻ, **độ bền làm việc** (giảm khi làm, hồi khi nghỉ — user chấp nhận 2026-10-13), mức bệnh/mệt, trạng thái (rảnh / đang đi / đang làm / nghỉ / bệnh / mệt), khung chiếm chỗ, kiểu di chuyển |
 | Kho | Vị trí, sức chứa, tồn kho |
 | Đình trệ | Công đoạn, lý do (không có đường / thiếu vật tư / kho đầy / không có loài có năng lực), vị trí |
 
@@ -43,7 +43,7 @@ flowchart TB
 - Ước tính bằng khoảng cách trên lưới (rẻ); chỉ chạy A\* thật cho cặp đã chọn.
 - Giữ tiến độ khi sinh vật bị lấy đi giữa chừng (nhập hồn, chuyển lệnh) — đúng trường hợp biên trong cơ chế.
 
-**Thời gian một công đoạn:** `thời gian gốc ÷ hệ số thuần thục × hệ số nội tại × hệ số mệt/bệnh × hệ số người làm`; hệ số người làm < 1 khi có 2 sinh vật cùng làm. Các hệ số là bảng dữ liệu, tính bằng `game-balance`.
+**Thời gian một công đoạn:** `thời gian gốc ÷ hệ số thuần thục × hệ số nội tại × hệ số mệt/bệnh × hệ số người làm`; hệ số người làm = 1 khi một sinh vật; khi 2 sinh vật cùng làm, con thứ hai giúp ít hơn con đầu (vd × 0,6 thay vì × 0,5 — user chấp nhận 2026-10-13). Các hệ số là bảng dữ liệu, tính bằng `game-balance`.
 
 **Nghỉ:** độ bền làm việc về 0 → sinh vật về trạng thái nghỉ (tại chỗ hoặc về nơi ở — [ý tưởng]) cho tới khi hồi đủ, rồi mới nhận việc lại. Bệnh/mệt theo mức độ: làm chậm → nghỉ nhiều hơn → dừng (user, 2026-10-13).
 
@@ -73,7 +73,7 @@ Mô hình **nhảy sự kiện** thay vì chạy từng nhịp:
 - Sinh vật ở xa camera: không cần vẽ animation chi tiết; mô hình vẫn chạy.
 
 ## Hiệu năng
-- Số sinh vật hoạt động tối đa = **giới hạn sinh vật** (theo cấp độ người chơi, công trình — [cơ chế](../02-gameplay/mechanics.md#giới-hạn-sinh-vật--kho-sinh-vật)). **Tối đa 60** (user, 2026-10-13) → M1 đo với 60 sinh vật trên máy mobile tầm trung (và 66 nếu ưu đãi nạp +10% vượt trần).
+- Số sinh vật hoạt động tối đa = **giới hạn sinh vật** (theo cấp độ người chơi, công trình — [cơ chế](../02-gameplay/mechanics.md#giới-hạn-sinh-vật--kho-sinh-vật)). Khi mở hết: **54** (không nạp), **60** (có ưu đãi nạp) (user, 2026-10-13) → M1 đo với 60 sinh vật trên máy mobile tầm trung.
 - Đo ở M1: ms mỗi nhịp mô phỏng, số A\* mỗi giây, thời gian tua nhanh 8 giờ vắng mặt.
 
 ## Kế hoạch prototype (M1)
@@ -92,6 +92,5 @@ Chia các hạng mục "Lệnh làm việc 20–30", "Tìm đường 10–20", "
 | | **Cộng** | | **27–45** (trong 35–58 của ba hạng mục) |
 
 ## Câu hỏi mở
-- Ưu đãi nạp +10% giới hạn sinh vật có vượt trần 60 không?
 - Ngưỡng các mức bệnh/mệt; nghỉ tại chỗ hay về nơi ở?
-- Đã trả lời (user, 2026-10-13): tối đa 60 sinh vật hoạt động; bệnh/mệt theo mức độ (chậm → nghỉ nhiều → dừng), sinh vật khoẻ cũng cần nghỉ; tối đa 2 sinh vật cùng làm một công đoạn, giảm thời gian.
+- Đã trả lời (user, 2026-10-13): tối đa 54 sinh vật hoạt động, 60 nếu nạp; độ bền làm việc và con thứ hai giúp ít hơn con đầu — chấp nhận; bệnh/mệt theo mức độ (chậm → nghỉ nhiều → dừng), sinh vật khoẻ cũng cần nghỉ; tối đa 2 sinh vật cùng làm một công đoạn, giảm thời gian.

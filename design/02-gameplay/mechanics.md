@@ -33,13 +33,14 @@
 | Tiến hoá | Tăng bậc → mở ô phép thứ 4, mở rộng phạm vi phép mang được | P2, P4 | Client | Nên có | 10–15 | M3 |
 | Nghiên cứu | Một nguồn phép mới; chi tiết _(chưa có)_ | P2 | Client | _(?)_ | _(?)_ | _(?)_ |
 | Tinh linh hỗ trợ | Tinh linh đi theo người chơi, hỗ trợ bằng thông tin; nâng cấp bằng mảnh ký ức → thông tin nhiều hơn | P1, P3 | Client | Nên có | 5–10 | M2 [ý tưởng] |
+| Onboarding | Tinh linh dẫn người mới qua 8 bước học bằng làm + dạy đúng lúc ([controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding)) | P3, P1 | Client | Phải có | 4–8 | M2 |
 | Nhiệm vụ & mảnh ký ức | Cốt truyện chính + nhiệm vụ phụ mỗi map, không bắt buộc tuần tự | P3 | Client | Phải có | 15–25 | M2 |
 | Mở map | Đạt điều kiện để mở map mới | P3 | Client | Phải có | 2–4 | M2 |
 | Cấp độ người chơi | Tăng từ nhiều nguồn: mở khoá sinh vật mới, hoàn thành nhiệm vụ... | P1, P3 | Client + Backend | Phải có | 3–5 | M2 |
 | Tiền tệ & cửa hàng | Tiền trong game, tiền nạp; làm đẹp (skin), hiệu ứng, tăng cơ hội, đẩy nhanh xây dựng, ưu đãi nạp (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%...) | — (mô hình kinh doanh, xem [vision](../00-vision.md)) | Client + Backend (xác thực thanh toán, bảo hiểm) | Phải có | 16–27 (gồm bảo hiểm gói +1–2) | M3 |
 | Xếp hạng PvP | Điểm xếp hạng từ trận thắng, nhiều sinh vật hơn thì nhiều điểm hơn | P4 | Backend | Nên có | 5–10 | Sau M4 — cùng PvP [ý tưởng] |
 | Chế độ nhiều người | PvP 1v1 thời gian thực qua ghép trận (theo hạng, rồi cấp độ trung bình), 3–5 sinh vật tuỳ thể thức, điểm xếp hạng; game server quyết định kết quả; mở khi đạt ngưỡng PvP. PvE diễn ra trong world riêng | P4 | Client + Backend + Game server ([0003](../decisions/0003-server.md)) | Nên có | 60–120 | Sau M4 — cập nhật sau phát hành [ý tưởng] |
-| Điều khiển PC + mobile | Một bộ điều khiển và UI chạy trên cả hai | — (ràng buộc nền tảng, xem [vision](../00-vision.md)) | Client | Phải có | 15–30 (rải qua các milestone) | M1–M3 |
+| Điều khiển PC + mobile | Một bộ điều khiển và UI chạy trên cả hai; camera góc 3 xoay tự do; tay cầm sau phát hành — [controls-ui](controls-ui.md) | — (ràng buộc nền tảng, xem [vision](../00-vision.md)) | Client | Phải có | 15–30 (rải qua các milestone) | M1–M3 |
 
 ## Chi tiết từng cơ chế
 <!-- Mỗi cơ chế: quy tắc, tham số chính (để tune), trường hợp biên, cách người chơi học. -->
@@ -50,7 +51,7 @@
 - Mỗi lệnh gồm nhiều công đoạn, vd: xới đất → gieo hạt → tưới nước → thu hoạch → vận chuyển.
 - Hệ thống tìm sinh vật đang rảnh **có năng lực làm việc khớp với công đoạn** và phân vào công đoạn còn thiếu người làm. Sinh vật chỉ làm công đoạn thuộc 2 năng lực làm việc của loài (user, 2026-10-12) — xem [Chỉ số sinh vật](#chỉ-số-sinh-vật).
 - Không dùng AI phức tạp: sinh vật chỉ thực hiện công đoạn được giao.
-- **Tối đa 2 sinh vật cùng làm một công đoạn** (user, 2026-10-13) → thời gian công đoạn giảm. [ý tưởng] Con thứ hai rút ngắn ít hơn con đầu (vd thời gian × 0,6 thay vì × 0,5) — số liệu bằng `game-balance`.
+- **Tối đa 2 sinh vật cùng làm một công đoạn** (user, 2026-10-13) → thời gian công đoạn giảm. Con thứ hai rút ngắn ít hơn con đầu (user chấp nhận đề xuất, 2026-10-13), vd thời gian × 0,6 thay vì × 0,5 — số liệu bằng `game-balance`.
 - Tốc độ/hiệu quả làm công đoạn theo **độ thuần thục** của năng lực tương ứng (vd thuần thục cao rút ngắn thời gian tưới nước, vận chuyển được nhiều hàng hơn mỗi lượt).
 - [ý tưởng] Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd nguyên tố nước tưới nhanh hơn).
 - [ý tưởng] Người chơi đặt độ ưu tiên giữa các lệnh.
@@ -109,7 +110,7 @@ Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứn
 - Chỉ số **sức khoẻ** của cá thể giảm khả năng bị bệnh (xem [Chỉ số sinh vật](#chỉ-số-sinh-vật)).
 - Danh sách yêu cầu dùng chung với môi trường sống: một danh sách cho cả mở khoá loài lẫn mức đáp ứng (user, 2026-10-12) → một hệ dữ liệu cho cả hai cơ chế.
 - **Bệnh, mệt tác động theo mức độ** (user, 2026-10-13): nhẹ → làm chậm; nặng hơn → nghỉ nhiều hơn; nặng nhất → dừng làm việc.
-- **Nghỉ là chu kỳ bình thường** (user, 2026-10-13): sinh vật khoẻ mạnh cũng cần những khoảng nghỉ trước khi làm việc trở lại. [ý tưởng] Mỗi sinh vật có độ bền làm việc; làm thì giảm, nghỉ thì hồi; mức đáp ứng nhu cầu cao → hồi nhanh hơn.
+- **Nghỉ là chu kỳ bình thường** (user, 2026-10-13): sinh vật khoẻ mạnh cũng cần những khoảng nghỉ trước khi làm việc trở lại. Mỗi sinh vật có **độ bền làm việc** (user chấp nhận đề xuất, 2026-10-13): làm thì giảm, nghỉ thì hồi; về 0 thì nghỉ tới khi hồi đủ; mức đáp ứng nhu cầu cao → hồi nhanh hơn.
 - Câu hỏi mở: chữa bệnh thế nào; quà là gì; mức đáp ứng tính theo vùng hay toàn map; ngưỡng các mức bệnh/mệt.
 
 ### Sinh vật & loài
@@ -158,6 +159,7 @@ Mô tả của user (2026-10-12).
   1. **Chênh lệch cấp độ** giữa người chơi và sinh vật ngoài tự nhiên. Cấp độ sinh vật ngoài tự nhiên phụ thuộc **danh sách yêu cầu của loài** (user gọi là "bảng nhiệm vụ loài"). Bắt được sinh vật cấp độ cao sẵn → tiết kiệm tài nguyên nâng cấp, nhưng tỉ lệ bắt giảm. Thiết kế để người chơi **thiên về hoàn thành danh sách yêu cầu của loài** (P1).
   2. **Bậc của sinh vật.**
   3. **Bậc thẻ bài.**
+- **Ngoại lệ onboarding** (user, 2026-10-13): lần bắt đầu tiên trong hướng dẫn người mới chắc chắn thành công, dùng thẻ bậc 1 — xem [controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding).
 - **Bốn bậc thẻ bài:**
 
 | Bậc thẻ | Tỉ lệ bắt | Tỉ lệ ra cá thể vượt trội | Hiệu ứng thẻ |
@@ -181,11 +183,12 @@ Mô tả của user (2026-10-12).
 
 ### Giới hạn sinh vật & kho sinh vật
 Mô tả của user (2026-10-12).
-- **Giới hạn sinh vật:** số sinh vật **hoạt động** (đang làm việc hoặc chiến đấu, tính chung một tổng) có giới hạn, tăng theo **cấp độ người chơi** và **công trình**. **Tối đa 60** (user, 2026-10-13).
-  - Cần quyết: ưu đãi nạp "giới hạn sinh vật +10%" làm vượt 60 (→ 66), hay 60 đã gồm phần +10%?
+- **Giới hạn sinh vật:** số sinh vật **hoạt động** (đang làm việc hoặc chiến đấu, tính chung một tổng) có giới hạn, tăng theo **cấp độ người chơi** và **công trình**. Khi mở hết: **54** với người không nạp, **60** với người nạp (user, 2026-10-13) — ưu đãi nạp +10%: 54 × 1,1 = 59,4, làm tròn lên 60.
+  - Đây là **ngoại lệ** của nguyên tắc mức tối đa ([0004](../decisions/0004-tien-nap.md) điểm 2): người nạp có nhiều hơn 6 sinh vật hoạt động mà người không nạp không đạt được. Tác động: nông trại nhanh hơn; PvP không đổi (đội hình 3–5 sinh vật).
+  - [ý tưởng] Ở mức giới hạn thấp hơn: +10% làm tròn lên (vd 20 → 22).
 - Muốn có thêm sinh vật khi đã chạm giới hạn → bỏ bớt sinh vật cũ: thả đi, hoặc tạm cất vào **kho sinh vật**. Sinh vật trong kho sinh vật không tính vào giới hạn, không làm việc, không chiến đấu.
 - **Kho sinh vật chứa thẻ bài** — mỗi cá thể gắn với một thẻ bài (user, 2026-10-12; xem [Thẻ bài & bắt sinh vật](#thẻ-bài--bắt-sinh-vật)).
-- Tiền nạp: giới hạn sinh vật +10% (xem [Kinh tế](economy.md)).
+- Tiền nạp: giới hạn sinh vật +10%, tối đa 54 → 60 (xem [Kinh tế](economy.md)).
 - [ý tưởng] Sinh vật trong kho sinh vật vẫn được tính là đã sở hữu (giữ phép đã mở khoá, giữ tiến độ sưu tầm).
 - Câu hỏi mở: kho sinh vật có giới hạn không; công trình nào tăng giới hạn, tăng bao nhiêu; thả sinh vật có nhận lại gì không; đổi sinh vật giữa kho và đội hình hoạt động có tốn gì không.
 

@@ -11,7 +11,7 @@ Mới liệt kê các dòng chảy đã biết từ cơ chế; số liệu, gi�
 |---|---|---|---|
 | Tài nguyên thế giới (khối, vật liệu) | Khám phá, thu thập | Cải tạo môi trường sống, xây dựng | _(?)_ |
 | Sản lượng nông trại | Lệnh làm việc, tua nhanh | _(chưa có)_ | Sức chứa kho |
-| Sinh vật (cá thể) | Hồi sinh loài, bắt, ấp nở, rút thưởng (chỉ loài đã hồi sinh; backend quyết định kết quả) | Nhân công lệnh làm việc, chiến đấu; thả đi | Giới hạn sinh vật hoạt động theo cấp độ người chơi và công trình (+10% nếu nạp); dư cất vào kho sinh vật |
+| Sinh vật (cá thể) | Hồi sinh loài, bắt, ấp nở, rút thưởng (chỉ loài đã hồi sinh; backend quyết định kết quả) | Nhân công lệnh làm việc, chiến đấu; thả đi | Giới hạn sinh vật hoạt động theo cấp độ người chơi và công trình (+10% nếu nạp; tối đa 54, nạp 60); dư cất vào kho sinh vật |
 | Trang bị | Rèn ở lò rèn, ghép trang bị, gói trang bị | Gắn cho sinh vật; ghép lên bậc cao hơn (tiêu trang bị bậc thấp) | Bậc tối đa người không nạp đạt được |
 | Thẻ bài (bậc 1–4) | _(chưa có)_ | Bắt sinh vật: mất khi bắt không thành, tỉ lệ nhỏ mất khi ném hụt; thành công thì thẻ chứa cá thể | Bậc 4 chắc chắn bắt + vượt trội; bậc cao bán được bằng tiền nạp (0004 điểm 4 sửa 2026-10-12) |
 | Mảnh ký ức | Nhiệm vụ chính mỗi map, mốc hồi sinh | Nâng cấp tinh linh ([ý tưởng] tính theo số đã thu thập, không tiêu) | Theo số map |
@@ -34,6 +34,6 @@ _(chưa có)_
 ## Rủi ro
 <!-- Lạm phát, cày quá dễ/khó, phá game. -->
 - Nguyên tắc (user, 2026-10-12): tiền nạp ảnh hưởng **tốc độ** tiến trình là không tránh được; chặn ở **mức tối đa** — người không nạp cũng đạt được mọi mức tối đa, phần vượt trội bị bỏ trong PvP (xem [cơ chế](mechanics.md#chế-độ-nhiều-người), [0004](../decisions/0004-tien-nap.md)). Ghép trận theo hạng rồi cấp độ trung bình giảm chênh lệch khi đang lên.
-- Ưu đãi nạp (+10% túi đồ, +10% giới hạn sinh vật) làm người nạp có nhiều nhân công hơn → nông trại nhanh hơn. Chấp nhận theo nguyên tắc trên; cần giữ mức % nhỏ.
+- Ưu đãi nạp (+10% túi đồ, +10% giới hạn sinh vật) làm người nạp có nhiều nhân công hơn → nông trại nhanh hơn. Giới hạn sinh vật là **ngoại lệ** của nguyên tắc mức tối đa: 60 so với 54 của người không nạp (user, 2026-10-13) — người nạp giữ lợi thế ~11% nhân công kể cả khi cả hai đã mở hết; không ảnh hưởng PvP. Cần giữ mức % nhỏ.
 - Tăng cơ hội rút thưởng bằng tiền nạp: người không nạp cảm thấy thiệt khi sưu tầm — cần cân bằng tỉ lệ (chưa có số liệu). Bảo hiểm gói (công khai mốc) giới hạn mức xui tệ nhất cho mọi người chơi ([cơ chế](mechanics.md#nhận-sinh-vật)).
 - Đẩy nhanh xây dựng bằng tiền nạp có thể làm vòng lặp lệnh làm việc mất ý nghĩa — cần giới hạn.

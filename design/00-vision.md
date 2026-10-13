@@ -39,7 +39,7 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 - Nền tảng: PC và mobile.
 - Game online: cần tài khoản và kết nối server. Mỗi người chơi có world riêng; PvE trong world riêng, PvP qua ghép trận.
 - Cập nhật thêm map theo phiên bản/mùa; dự kiến 3 map lúc đầu.
-- Mô hình kinh doanh: hai loại tiền — **tiền trong game** (kiếm được khi chơi) và **tiền nạp**. Tiền nạp mang lại: làm đẹp (skin), hiệu ứng, tăng cơ hội (rút thưởng), đẩy nhanh tiến trình xây dựng, và ưu đãi giúp tiến trình dễ thở hơn (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%...). Nguyên tắc (user, 2026-10-12): tiền nạp luôn ảnh hưởng **tốc độ** tiến trình — không tránh được; chỉ chặn ở **mức tối đa**: không mua được thứ người không nạp không đạt được, ở mức tối đa mọi người như nhau trong PvP — xem [0004](decisions/0004-tien-nap.md).
+- Mô hình kinh doanh: hai loại tiền — **tiền trong game** (kiếm được khi chơi) và **tiền nạp**. Tiền nạp mang lại: làm đẹp (skin), hiệu ứng, tăng cơ hội (rút thưởng), đẩy nhanh tiến trình xây dựng, và ưu đãi giúp tiến trình dễ thở hơn (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%...). Nguyên tắc (user, 2026-10-12): tiền nạp luôn ảnh hưởng **tốc độ** tiến trình — không tránh được; chỉ chặn ở **mức tối đa**: không mua được thứ người không nạp không đạt được (ngoại lệ: giới hạn sinh vật 54 → 60), ở mức tối đa mọi người như nhau trong PvP — xem [0004](decisions/0004-tien-nap.md).
 - Free-to-play (tải miễn phí).
 
 ## Điểm khác biệt

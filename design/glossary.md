@@ -67,6 +67,12 @@
 | Bậc | Mức tiến hoá của sinh vật; phép có yêu cầu bậc | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tiến hoá | Tăng bậc sinh vật, mở rộng phạm vi phép mang được | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Chuẩn bị chiến đấu | Màn người chơi gán phép cho sinh vật trước khi chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tâm nhắm | Điểm giữa màn hình; ô / sinh vật dưới tâm nhắm là đích của hành động, cho mọi thiết bị | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Thanh công cụ | Hàng công cụ người chơi cầm (cuốc, khối, lệnh làm việc, thẻ bài, phép của pháp sư); khi nhập hồn đổi thành ô phép | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Hành động chính | Nút dùng công cụ đang cầm (chuột trái / nút chính trên cảm ứng) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Khoá mục tiêu | Camera bám một sinh vật; phép hướng và thẻ bài bay về mục tiêu đó | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Vòng nhắm | Vòng hiện trên mặt đất khi giữ nút phép vùng; thả để dùng phép | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Onboarding (hướng dẫn người mới) | Chuỗi 8 bước tinh linh dẫn người mới học bằng làm, cộng dạy đúng lúc khi việc xảy ra lần đầu | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Bắt / Ấp nở / Rút thưởng | Các cách nhận sinh vật mới | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Gói sách phép | Gói rút thưởng ra phép | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nghiên cứu | Một nguồn phép mới (chi tiết chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -88,10 +94,11 @@
 | Sức khoẻ | Chỉ số làm việc; cao thì sinh vật ít bị bệnh hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bệnh | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao và sức khoẻ cao (tác động chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mệt | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao; theo mức độ: làm chậm → nghỉ nhiều hơn → dừng |
+| Độ bền làm việc | Chỉ số tạm thời của sinh vật: giảm khi làm công đoạn, hồi khi nghỉ; về 0 thì nghỉ tới khi hồi đủ; mức đáp ứng cao hồi nhanh hơn. Khác "sức khoẻ" (chỉ số cố định, giảm khả năng bị bệnh) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Độ bền làm việc | Giảm khi sinh vật làm việc, hồi khi nghỉ; hết thì phải nghỉ trước khi làm lại (ý tưởng; user: sinh vật cần nghỉ) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhu cầu sinh vật | Phần danh sách yêu cầu của loài sau khi đã trở lại; đáp ứng càng nhiều sinh vật càng khoẻ, làm tốt, đôi khi tặng quà (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mức đáp ứng | Mức nhu cầu sinh vật đã được đáp ứng (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình; trần 60 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình; tối đa 54, có ưu đãi nạp 60 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Kho sinh vật | Nơi tạm cất sinh vật (dưới dạng thẻ bài); sinh vật trong kho không tính vào giới hạn sinh vật, không làm việc/chiến đấu. Khác "kho" chứa sản lượng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Vật phẩm phân bổ lại | Vật phẩm dùng để phân bổ lại điểm chỉ số (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Túi đồ | Nơi chứa vật phẩm của người chơi; tiền nạp tăng 10% sức chứa | [02-gameplay/economy.md](02-gameplay/economy.md) |

@@ -21,21 +21,21 @@
 |---|---|---|---|---|---|---|
 | M0 — Kế hoạch & thiết kế | Đủ kế hoạch để bắt đầu prototype | design/ | Vision, core loop, cơ chế "phải có", thành phần hệ thống, roadmap M1–M2 ở trạng thái Chốt | — | — | Đang làm |
 | M1 — Prototype | Kiểm chứng core loop có vui không | Client | Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 2–3 loài trở lại → đặt lệnh làm việc trồng cây → sản lượng vào kho; chạy được trên 1 máy mobile tầm trung | 95–163 | 114–196 tuần (~2,2–3,8 năm) | Chưa bắt đầu |
-| M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 233–453 | 280–544 tuần (~5,4–10,5 năm) | Chưa bắt đầu |
+| M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 237–461 | 284–553 tuần (~5,5–10,6 năm) | Chưa bắt đầu |
 | M3 — Alpha | Đủ tính năng | Client + Backend | Mọi cơ chế "phải có" chạy được; prototype trận mạng nhỏ (kiểm chứng netcode) | 57–100 + Nghiên cứu _(?)_ | 68–120 tuần | Chưa bắt đầu |
 | M4 — Beta | Đủ nội dung, sửa lỗi | Client + Backend | Chơi hết 3 map không bị chặn; phát hành thử | 83–166 | 100–199 tuần | Chưa bắt đầu |
 | Phát hành | | Client + Backend + vận hành | | — | — | Chưa bắt đầu |
 | Sau phát hành — PvP | PvP thời gian thực | Client + Backend + Game server | Ghép trận theo hạng, game server quyết định kết quả | 65–130 | 78–156 tuần | Chưa bắt đầu |
 
-**Tổng M1–M4:** 468–882 ngày-người → ×1,5 = 702–1.323 → **~10,8–20,4 năm** ở 10 giờ/tuần (cập nhật 2026-10-13: nước chảy 8–15, tinh linh hỗ trợ 5–10, cutscene 3–6 × 2; thẻ bài & bắt sinh vật 8–14, trang bị 13–23, bảo hiểm gói 1–2, địa hình bề mặt mịn +10–15, biến thể hiển thị 3–6, biến thể 3–5 chưa tính art).
+**Tổng M1–M4:** 472–890 ngày-người → ×1,5 = 708–1.335 → **~10,9–20,5 năm** ở 10 giờ/tuần (cập nhật 2026-10-13: onboarding 4–8; nước chảy 8–15, tinh linh hỗ trợ 5–10, cutscene 3–6 × 2; thẻ bài & bắt sinh vật 8–14, trang bị 13–23, bảo hiểm gói 1–2, địa hình bề mặt mịn +10–15, biến thể hiển thị 3–6, biến thể 3–5 chưa tính art).
 
 ### Hạng mục theo milestone
 Từ bảng cơ chế, trừ dòng có ghi [ý tưởng].
 
 **M1 (95–163):** Voxel world bề mặt mịn liền 35–55 · Sinh vật & loài 5–10 · Chỉ số làm việc 5–8 · Môi trường sống 10–20 · Lệnh làm việc 20–30 · Tìm đường 10–20 · Điều khiển PC + mobile (phần M1) 5–10 · [ý tưởng] Nội dung graybox (2–3 loài, 1 vùng) + thử hiệu năng mobile 5–10.
 
-**M2 (233–453):**
-- Cơ chế (187–361): Nước chảy 8–15 · Tinh linh hỗ trợ 5–10 · Cutscene mở đầu 3–6 · Thẻ bài & bắt sinh vật 8–14 · Biến thể hiển thị 3–6 · Sinh map theo seed 15–25 · Khối cốt truyện 2–4 · Chỉ số chiến đấu 6–10 · Nhu cầu sinh vật 8–15 · Tua nhanh 8–15 · Nhập hồn 40–70 · Phép của pháp sư 18–36 · Sưu tầm phép 25–65 · Nhận sinh vật 10–20 · Giới hạn sinh vật 3–6 · Nhiệm vụ & mảnh ký ức 15–25 · Mở map 2–4 · Cấp độ người chơi 3–5 · Điều khiển (phần M2) 5–10.
+**M2 (237–461):**
+- Cơ chế (191–369): Nước chảy 8–15 · Tinh linh hỗ trợ 5–10 · Onboarding 4–8 · Cutscene mở đầu 3–6 · Thẻ bài & bắt sinh vật 8–14 · Biến thể hiển thị 3–6 · Sinh map theo seed 15–25 · Khối cốt truyện 2–4 · Chỉ số chiến đấu 6–10 · Nhu cầu sinh vật 8–15 · Tua nhanh 8–15 · Nhập hồn 40–70 · Phép của pháp sư 18–36 · Sưu tầm phép 25–65 · Nhận sinh vật 10–20 · Giới hạn sinh vật 3–6 · Nhiệm vụ & mảnh ký ức 15–25 · Mở map 2–4 · Cấp độ người chơi 3–5 · Điều khiển (phần M2) 5–10.
 - [ý tưởng] Giả định nội dung slice để tính phần "+ x/loài, + x/phép": 5 loài nhập hồn được (×3–6), 8 phép của pháp sư (×1–2), 20 phép sinh vật (×0,5–2).
 - [ý tưởng] Ngoài cơ chế (46–92): dựng backend (tài khoản, lưu cloud, giờ server, rút thưởng, sinh chỉ số cá thể) 15–30 · chọn + tích hợp asset art/âm thanh cho 1 map (không tự làm art) 20–40 · sắp đặt map + viết nhiệm vụ 10–20 · skill cân bằng 1–2.
 
@@ -48,7 +48,7 @@ Từ bảng cơ chế, trừ dòng có ghi [ý tưởng].
 **Vận hành (liên tục từ M2):** [ý tưởng] backend 0,5–1 ngày-người/tháng (theo dõi, cập nhật, sự cố); chi phí dịch vụ _(chưa tra)_ — xem [0003](decisions/0003-server.md).
 
 ## Kiểm tra phạm vi
-⚠️ **Vượt quỹ thời gian.** Riêng M1 (prototype để biết game có vui không) đã mất ~2,2–3,8 năm ở 10 giờ/tuần; toàn bộ tới M4 ~10,8–20,4 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
+⚠️ **Vượt quỹ thời gian.** Riêng M1 (prototype để biết game có vui không) đã mất ~2,2–3,8 năm ở 10 giờ/tuần; toàn bộ tới M4 ~10,9–20,5 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
 
 **Quyết định của user (2026-10-12): tạm thời chưa cắt, giữ nguyên phạm vi** — làm cùng trợ giúp của AI. Ước lượng trên chưa tính tác động của AI; mức tăng tốc thật [chưa xác minh].
 - [ý tưởng] Đo tốc độ thật trong M1: ghi giờ thực tế từng hạng mục so với ước lượng → sau 4–6 hạng mục, tính lại hệ số cho M2–M4 và xem lại các đề xuất cắt dưới đây.
@@ -108,7 +108,7 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 | B8 | [01-story/naming.md](01-story/naming.md) — quy ước đặt tên (user, 2026-10-12) | **User tự đặt tên, AI chỉ duyệt** (skill `naming` của kit). Danh sách nhắc ở mục "Cần đặt tên". Cần trước M1: tên game (tạm được). Đang chờ user quyết: Aetharyn / Viventa |
 
 ### C. Nên viết trước M1 (chưa cần Chốt)
-- [ ] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — đang trống; M1 cần điều khiển PC + cảm ứng.
+- [x] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — bản đầu (2026-10-13): camera góc 3 xoay tự do, tay cầm sau phát hành, HUD, onboarding 8 bước có tinh linh. Onboarding 4–8 tách hạng mục riêng ở M2 (user, 2026-10-13).
 - [ ] [04-tech/architecture.md](04-tech/architecture.md) — bản đầu đã viết; xem lại phần Client.
 - [ ] [04-tech/risks.md](04-tech/risks.md) — rủi ro lớn + milestone kiểm chứng (đã có, chỉ cần rà).
 - [x] Tạo skill cân bằng riêng (user, 2026-10-12) — nay là skill `game-balance` của kit (v0.7.0, 2026-10-12: pity, drop, streak — trước là `luck`, economy, curve) + quy tắc riêng của my-game ở `tools/balance_rules.py` (check, roll). Dữ liệu sẽ nằm ở `design/data/`.

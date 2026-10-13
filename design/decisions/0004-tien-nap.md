@@ -18,7 +18,7 @@
 ## Quyết định
 Đề xuất (chờ user Chốt) — lựa chọn **B**:
 1. Tiền nạp được ảnh hưởng **tốc độ** tiến trình.
-2. **Mức tối đa** (chỉ số, cấp độ, bậc, sở hữu phép/sinh vật, bậc trang bị) người không nạp cũng đạt được; tiền nạp không mua được vượt mức đó.
+2. **Mức tối đa** (chỉ số, cấp độ, bậc, sở hữu phép/sinh vật, bậc trang bị) người không nạp cũng đạt được; tiền nạp không mua được vượt mức đó. **Ngoại lệ** (user, 2026-10-13): giới hạn sinh vật — không nạp tối đa 54, nạp tối đa 60 (+10%); chỉ làm nông trại nhanh hơn, không ảnh hưởng PvP.
 3. Trong PvP: bỏ phần vượt trội; điểm cấp độ/bậc và trang bị vẫn tính → ở mức tối đa mọi người như nhau, chỉ khác cách phân bố, sinh vật, phép và trang bị mang theo.
 4. **Sửa 2026-10-12 (user chọn phương án b):** tiền nạp **được** tăng tỉ lệ vượt trội (vd mua thẻ bài bậc cao; thẻ bậc 4 chắc chắn vượt trội), vì vượt trội không tính trong PvP. Rút gói có bảo hiểm vượt trội, công khai mốc.
 5. Tiền nạp mang lại: làm đẹp (skin), hiệu ứng, tăng cơ hội ra loài khi rút thưởng, đẩy nhanh xây dựng, ưu đãi (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%, phụ trợ khác).
@@ -32,5 +32,6 @@ Thay thế quy tắc 1 ở Bối cảnh (quy tắc đó chưa từng Chốt).
 - [economy.md](../02-gameplay/economy.md): tài nguyên tiền nạp, rủi ro — đã cập nhật.
 - [mechanics.md](../02-gameplay/mechanics.md): nhận sinh vật, chế độ nhiều người, giới hạn sinh vật, tiền tệ & cửa hàng — đã cập nhật.
 - Mọi món trong cửa hàng sau này đối chiếu điểm 2: có bán thứ người không nạp không đạt được không.
+- Ngoại lệ giới hạn sinh vật (54/60) đã ghi ở [mechanics.md](../02-gameplay/mechanics.md#giới-hạn-sinh-vật--kho-sinh-vật), [economy.md](../02-gameplay/economy.md) (2026-10-13). Túi đồ +10% chưa xét: nếu túi đồ có mức tối đa thì cũng là ngoại lệ.
 - Ưu đãi % (túi đồ, giới hạn sinh vật) phải giữ nhỏ; con số cuối cùng tính bằng skill cân bằng.
 - Rút thưởng bằng tiền nạp vẫn có rủi ro quy định loot box [chưa xác minh] — xem [risks.md](../04-tech/risks.md).
