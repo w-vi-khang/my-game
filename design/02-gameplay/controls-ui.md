@@ -142,7 +142,7 @@ flowchart LR
 | 3 | Loài đầu tiên | Danh sách yêu cầu của loài; loài được ghim lên HUD sẵn | Giải thích loài này cần gì | Đạt đủ yêu cầu |
 | 4 | Loài trở lại | — (phần thưởng cảm xúc) | Câu thoại khi loài đầu tiên trở lại ([world](../01-story/world.md)) | Xem xong |
 | 5 | Bắt sinh vật đầu tiên | Thẻ bài, ném thẻ, khoá mục tiêu | Tặng thẻ bậc 1 (không tặng thẻ bậc cao); lần bắt này **chắc chắn thành công** (user, 2026-10-13) — người mới không mất thẻ khi đang học; phân hạng cá thể vẫn theo bậc thẻ như thường | Bắt được 1 sinh vật |
-| 6 | Trồng cây | Lệnh làm việc, chọn vùng 2 điểm, công đoạn | Chỉ mảnh đất; giải thích sinh vật tự nhận việc | Thu hoạch xong vụ đầu |
+| 6 | Trồng cây | Lệnh làm việc, chọn vùng 2 điểm, công đoạn | Chỉ mảnh đất; giải thích sinh vật tự nhận việc. Sinh vật L1 làm 2 công đoạn của nó, **người chơi tự làm các công đoạn còn lại** (user, 2026-10-13 — [cơ chế](mechanics.md#lệnh-làm-việc)) | Thu hoạch xong vụ đầu |
 | 7 | Sinh vật hoang chặn đường — **sau** lệnh làm việc đầu tiên (user, 2026-10-13) | Chuẩn bị chiến đấu, nhập hồn, nhắm phép | Nhắc gán phép, chỉ nút nhập hồn | Thắng trận đầu |
 | 8 | Mảnh ký ức đầu tiên | Nhiệm vụ, mảnh ký ức, bản đồ | Mở bảng nhiệm vụ, chỉ hướng khối cốt truyện | Nhặt mảnh ký ức |
 

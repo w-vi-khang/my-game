@@ -44,7 +44,8 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 
 ```mermaid
 flowchart LR
-    S[Seed người chơi<br/>+ phiên bản bộ sinh] --> H[Địa hình gốc<br/>noise độ cao, vùng khí hậu]
+    S[Seed người chơi<br/>+ phiên bản bộ sinh] --> L[Đặt vùng theo<br/>ràng buộc bố cục]
+    L --> H[Địa hình gốc<br/>noise độ cao theo preset vùng]
     H --> CV[Khoét hang<br/>noise 3D]
     CV --> R[Dán vùng cốt truyện<br/>mẫu sắp đặt tay + cờ khối cốt truyện]
     R --> V[Vật liệu bề mặt<br/>cỏ, cát, đá theo vùng]
@@ -55,7 +56,8 @@ flowchart LR
 
 - **Noise:** `Unity.Mathematics.noise` có `snoise` (simplex), `cnoise` (Perlin), `pnoise`, `cellular`... ([API](https://docs.unity3d.com/Packages/com.unity.mathematics@1.3/api/Unity.Mathematics.noise.html)); bản đi kèm Unity 6000.4.8f1 trên máy: Mathematics 1.3.3, Burst 1.8.29 [run 2026-10-13]. Burst dịch kiểu vector của Unity.Mathematics sang SIMD ([Burst](https://docs.unity3d.com/Packages/com.unity.burst@1.8/manual/csharp-type-support.html)); hàm `noise.*` là phép toán float thuần nên chạy được trong Burst — suy luận, docs không nói rõ [chưa xác minh].
 - **Hang động** (user, 2026-10-13) có **sinh vật và tài nguyên riêng** → có môi trường sống dưới lòng đất ([cơ chế](../02-gameplay/mechanics.md#môi-trường-sống)). [ý tưởng] Khoét bằng noise 3D (vd `snoise` 3D hoặc `cellular` có ngưỡng); giữ lớp đá đáy map; kiểm hang nối được với mặt đất. Hang tối → cần ánh sáng (đèn, vật phát sáng) — xem art style.
-- **Vùng cốt truyện:** mẫu dựng tay (lưu dạng file dữ liệu), dán vào vị trí cố định của map, bật cờ khối cốt truyện cho ô của nó và **đường đi tới nó**.
+- **Bố cục vùng** (user, 2026-10-13): vùng đặt theo seed, phải đạt **ràng buộc bố cục** của map (giáp biển, diện tích, khoảng cách đi bộ) — không đạt thì đổi seed con, sinh lại ([levels](../02-gameplay/levels.md#kích-thước--khung-chung)).
+- **Vùng cốt truyện:** mẫu dựng tay (lưu dạng file dữ liệu), dán vào vị trí do bố cục vùng chọn (trong ràng buộc), bật cờ khối cốt truyện cho ô của nó và **đường đi tới nó**.
 - **Kiểm tra sau khi sinh:** đường tới mọi khối cốt truyện phải đi được (chạy tìm đường) — sai thì sinh lại phần đó.
 - Đổi bộ sinh làm world cũ khác đi → dữ liệu lưu phải ghi **phiên bản bộ sinh** (xem Lưu trữ).
 

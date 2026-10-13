@@ -43,6 +43,8 @@ flowchart TB
 - Ước tính bằng khoảng cách trên lưới (rẻ); chỉ chạy A\* thật cho cặp đã chọn.
 - Giữ tiến độ khi sinh vật bị lấy đi giữa chừng (nhập hồn, chuyển lệnh) — đúng trường hợp biên trong cơ chế.
 
+**Người chơi làm công đoạn** (user, 2026-10-13): hành động của người chơi trên ô của lệnh (xới, gieo, tưới, thu hoạch) gửi vào mô phỏng như một sự kiện "công đoạn xong tại ô" ở nhịp kế tiếp; công đoạn đó không còn thiếu người → ghép việc bỏ qua. [ý tưởng]
+
 **Thời gian một công đoạn:** `thời gian gốc ÷ hệ số thuần thục × hệ số nội tại × hệ số mệt/bệnh × hệ số người làm`; hệ số người làm = 1 khi một sinh vật; khi 2 sinh vật cùng làm, con thứ hai giúp ít hơn con đầu (vd × 0,6 thay vì × 0,5 — user chấp nhận 2026-10-13). Các hệ số là bảng dữ liệu, tính bằng `game-balance`.
 
 **Nghỉ:** độ bền làm việc về 0 → sinh vật về trạng thái nghỉ (tại chỗ hoặc về nơi ở — [ý tưởng]) cho tới khi hồi đủ, rồi mới nhận việc lại. Bệnh/mệt theo mức độ: làm chậm → nghỉ nhiều hơn → dừng (user, 2026-10-13).

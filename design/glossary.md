@@ -57,6 +57,9 @@
 | Seed | Giá trị riêng của mỗi người chơi để sinh phần không thuộc cốt truyện của map | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Khối cốt truyện | Khối thuộc cốt truyện hoặc đường đi tới nó; không phá/đặt được cho tới khi phá đảo map | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phá đảo map | Hoàn thành cốt truyện chính của một map | [02-gameplay/progression.md](02-gameplay/progression.md) |
+| Vùng (của map) | Phần của map mang một kiểu môi trường sống, gắn 1–3 loài (vd bãi khô, vịnh nông, hang). Khác "vùng liên thông" (tìm đường) | [02-gameplay/levels.md](02-gameplay/levels.md) |
+| Preset vùng | Bộ tham số sinh theo seed của một kiểu vùng; dùng lại giữa các map (ý tưởng) | [02-gameplay/levels.md](02-gameplay/levels.md) |
+| Ràng buộc bố cục | Bảng điều kiện mỗi map cho bộ sinh đặt vùng theo seed: vùng nào giáp biển, diện tích, khoảng cách đi bộ tới khối cốt truyện; không đạt thì sinh lại bố cục | [02-gameplay/levels.md](02-gameplay/levels.md) |
 | Đảo sandbox | Vùng cô lập cho co-op (spin-off, tạm bỏ) | [ideas.md](ideas.md) |
 | Phép | Phép thuật; gồm phép của pháp sư và phép sinh vật — hai bộ sưu tầm riêng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phép của pháp sư | Phép phục vụ khám phá, phát triển, tấn công đơn giản | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

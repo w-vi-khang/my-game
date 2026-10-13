@@ -35,7 +35,7 @@
 | Tinh linh hỗ trợ | Tinh linh đi theo người chơi, hỗ trợ bằng thông tin; nâng cấp bằng mảnh ký ức → thông tin nhiều hơn | P1, P3 | Client | Nên có | 5–10 | M2 [ý tưởng] |
 | Onboarding | Tinh linh dẫn người mới qua 8 bước học bằng làm + dạy đúng lúc ([controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding)) | P3, P1 | Client | Phải có | 4–8 | M2 |
 | Nhiệm vụ & mảnh ký ức | Cốt truyện chính + nhiệm vụ phụ mỗi map, không bắt buộc tuần tự | P3 | Client | Phải có | 15–25 | M2 |
-| Mở map | Đạt điều kiện để mở map mới | P3 | Client | Phải có | 2–4 | M2 |
+| Mở map | Đạt điều kiện để mở map mới; điều kiện mở/phá đảo từng map ở [levels](levels.md) | P3 | Client | Phải có | 2–4 | M2 |
 | Cấp độ người chơi | Tăng từ nhiều nguồn: mở khoá sinh vật mới, hoàn thành nhiệm vụ... | P1, P3 | Client + Backend | Phải có | 3–5 | M2 |
 | Tiền tệ & cửa hàng | Tiền trong game, tiền nạp; làm đẹp (skin), hiệu ứng, tăng cơ hội, đẩy nhanh xây dựng, ưu đãi nạp (vật phẩm hỗ trợ, túi đồ +10%, giới hạn sinh vật +10%...) | — (mô hình kinh doanh, xem [vision](../00-vision.md)) | Client + Backend (xác thực thanh toán, bảo hiểm) | Phải có | 16–27 (gồm bảo hiểm gói +1–2) | M3 |
 | Xếp hạng PvP | Điểm xếp hạng từ trận thắng, nhiều sinh vật hơn thì nhiều điểm hơn | P4 | Backend | Nên có | 5–10 | Sau M4 — cùng PvP [ý tưởng] |
@@ -51,6 +51,7 @@
 - Mỗi lệnh gồm nhiều công đoạn, vd: xới đất → gieo hạt → tưới nước → thu hoạch → vận chuyển.
 - Hệ thống tìm sinh vật đang rảnh **có năng lực làm việc khớp với công đoạn** và phân vào công đoạn còn thiếu người làm. Sinh vật chỉ làm công đoạn thuộc 2 năng lực làm việc của loài (user, 2026-10-12) — xem [Chỉ số sinh vật](#chỉ-số-sinh-vật).
 - Không dùng AI phức tạp: sinh vật chỉ thực hiện công đoạn được giao.
+- **Người chơi tự làm được công đoạn** (user, 2026-10-13), vd cầm cuốc xới ô đất của lệnh → công đoạn đó xong cho ô ấy. Dùng khi chưa có loài đủ năng lực (onboarding bước 6 — [controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding)) hoặc muốn làm nhanh. [ý tưởng] Ước lượng 2–4 ngày-người, M2.
 - **Tối đa 2 sinh vật cùng làm một công đoạn** (user, 2026-10-13) → thời gian công đoạn giảm. Con thứ hai rút ngắn ít hơn con đầu (user chấp nhận đề xuất, 2026-10-13), vd thời gian × 0,6 thay vì × 0,5 — số liệu bằng `game-balance`.
 - Tốc độ/hiệu quả làm công đoạn theo **độ thuần thục** của năng lực tương ứng (vd thuần thục cao rút ngắn thời gian tưới nước, vận chuyển được nhiều hàng hơn mỗi lượt).
 - [ý tưởng] Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd nguyên tố nước tưới nhanh hơn).

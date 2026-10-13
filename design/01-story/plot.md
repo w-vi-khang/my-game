@@ -42,7 +42,7 @@ flowchart LR
     MK -- đủ --> HK[Hồi kết<br/>trận chiến với bản ngã cũ]
 ```
 
-**Nhiệm vụ:** chưa viết từng nhiệm vụ (đợi bố trí map — `local-level-design`). Khung cho mỗi map [ý tưởng]:
+**Nhiệm vụ:** chưa viết từng nhiệm vụ. Bố trí Map 1 (gồm Mở đầu, user 2026-10-13) và khung Map 2, 3 ở [levels](../02-gameplay/levels.md); Map 2, 3 mở cùng lúc sau onboarding [ý tưởng]. Khung cho mỗi map [ý tưởng]:
 
 | Nhiệm vụ | Map | Loại | Điều kiện mở | Phần thưởng | Mảnh ký ức |
 |---|---|---|---|---|---|
