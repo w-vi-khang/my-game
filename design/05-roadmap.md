@@ -50,6 +50,13 @@ Từ bảng [cơ chế](02-gameplay/mechanics.md#danh-sách-cơ-chế) (kể c�
 
 **Vận hành (liên tục từ M2):** [ý tưởng] backend 0,5–1 ngày-người/tháng (theo dõi, cập nhật, sự cố); chi phí dịch vụ _(chưa tra)_ — xem [0003](decisions/0003-server.md).
 
+## Theo dõi M1 — giờ thực tế
+Ghi theo AGENTS.local (so với ước lượng; sau 4–6 hạng mục tính lại hệ số). "Giờ" = thời gian thật từ lúc bắt đầu tới lúc kiểm chứng xong, làm cùng AI.
+
+| Bước | Ước lượng (ngày-người) | Thực tế | Ghi chú |
+|---|---|---|---|
+| World bước 1 — lưới, chunk, noise theo seed, tất định | 3–5 | ~0,25 giờ (14:59–15:12, 2026-10-13) | Gồm dọn template, 23 test, build APK, so mã băm trên điện thoại. Chưa tính thời gian user duyệt; một bước chưa đủ để tính lại hệ số |
+
 ## Kiểm tra phạm vi
 ⚠️ **Vượt quỹ thời gian.** Sau C1 ([0007](decisions/0007-m1-toi-gian.md)), M1 còn ~11–19 tháng ở 10 giờ/tuần; toàn bộ tới M4 ~11,7–22,2 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
 
