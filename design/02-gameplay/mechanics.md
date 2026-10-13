@@ -50,6 +50,7 @@
 - Mỗi lệnh gồm nhiều công đoạn, vd: xới đất → gieo hạt → tưới nước → thu hoạch → vận chuyển.
 - Hệ thống tìm sinh vật đang rảnh **có năng lực làm việc khớp với công đoạn** và phân vào công đoạn còn thiếu người làm. Sinh vật chỉ làm công đoạn thuộc 2 năng lực làm việc của loài (user, 2026-10-12) — xem [Chỉ số sinh vật](#chỉ-số-sinh-vật).
 - Không dùng AI phức tạp: sinh vật chỉ thực hiện công đoạn được giao.
+- **Tối đa 2 sinh vật cùng làm một công đoạn** (user, 2026-10-13) → thời gian công đoạn giảm. [ý tưởng] Con thứ hai rút ngắn ít hơn con đầu (vd thời gian × 0,6 thay vì × 0,5) — số liệu bằng `game-balance`.
 - Tốc độ/hiệu quả làm công đoạn theo **độ thuần thục** của năng lực tương ứng (vd thuần thục cao rút ngắn thời gian tưới nước, vận chuyển được nhiều hàng hơn mỗi lượt).
 - [ý tưởng] Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd nguyên tố nước tưới nhanh hơn).
 - [ý tưởng] Người chơi đặt độ ưu tiên giữa các lệnh.
@@ -107,7 +108,9 @@ Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứn
   - đôi lúc tặng quà cho người chơi.
 - Chỉ số **sức khoẻ** của cá thể giảm khả năng bị bệnh (xem [Chỉ số sinh vật](#chỉ-số-sinh-vật)).
 - Danh sách yêu cầu dùng chung với môi trường sống: một danh sách cho cả mở khoá loài lẫn mức đáp ứng (user, 2026-10-12) → một hệ dữ liệu cho cả hai cơ chế.
-- Câu hỏi mở: bệnh và mệt tác động gì (chậm, nghỉ, không làm việc?), chữa thế nào; quà là gì; mức đáp ứng tính theo vùng hay toàn map.
+- **Bệnh, mệt tác động theo mức độ** (user, 2026-10-13): nhẹ → làm chậm; nặng hơn → nghỉ nhiều hơn; nặng nhất → dừng làm việc.
+- **Nghỉ là chu kỳ bình thường** (user, 2026-10-13): sinh vật khoẻ mạnh cũng cần những khoảng nghỉ trước khi làm việc trở lại. [ý tưởng] Mỗi sinh vật có độ bền làm việc; làm thì giảm, nghỉ thì hồi; mức đáp ứng nhu cầu cao → hồi nhanh hơn.
+- Câu hỏi mở: chữa bệnh thế nào; quà là gì; mức đáp ứng tính theo vùng hay toàn map; ngưỡng các mức bệnh/mệt.
 
 ### Sinh vật & loài
 - Mỗi loài có đặc điểm khác nhau, có tính sưu tầm. Loài được đặc trưng bởi **nội tại**; phép thì nhiều loài có thể dùng giống nhau.
@@ -178,7 +181,8 @@ Mô tả của user (2026-10-12).
 
 ### Giới hạn sinh vật & kho sinh vật
 Mô tả của user (2026-10-12).
-- **Giới hạn sinh vật:** số sinh vật **hoạt động** (đang làm việc hoặc chiến đấu, tính chung một tổng) có giới hạn, tăng theo **cấp độ người chơi** và **công trình**.
+- **Giới hạn sinh vật:** số sinh vật **hoạt động** (đang làm việc hoặc chiến đấu, tính chung một tổng) có giới hạn, tăng theo **cấp độ người chơi** và **công trình**. **Tối đa 60** (user, 2026-10-13).
+  - Cần quyết: ưu đãi nạp "giới hạn sinh vật +10%" làm vượt 60 (→ 66), hay 60 đã gồm phần +10%?
 - Muốn có thêm sinh vật khi đã chạm giới hạn → bỏ bớt sinh vật cũ: thả đi, hoặc tạm cất vào **kho sinh vật**. Sinh vật trong kho sinh vật không tính vào giới hạn, không làm việc, không chiến đấu.
 - **Kho sinh vật chứa thẻ bài** — mỗi cá thể gắn với một thẻ bài (user, 2026-10-12; xem [Thẻ bài & bắt sinh vật](#thẻ-bài--bắt-sinh-vật)).
 - Tiền nạp: giới hạn sinh vật +10% (xem [Kinh tế](economy.md)).

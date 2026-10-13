@@ -37,6 +37,7 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 
 4. XONG 2026-10-12/13 (phiên dài, nhiều commit): Chốt 0006 + công cụ kiểm duyệt ảnh lớp 2–3 (tools/asset_gen/concept_check.py, bắt 7/7 lỗi); thẻ bài (ném thẻ, 4 bậc, bậc 4 chắc chắn bắt + vượt trội); phân hạng cá thể 4 hạng (vượt trội ≥ 20% base), PvP bỏ điểm cộng; 0004 điểm 4 sửa (tiền nạp được tăng tỉ lệ vượt trội); design/summary.md (tóm tắt + danh sách cần đặt tên — user tự đặt tên, AI chỉ duyệt; tên game đang cân nhắc Aetharyn / Viventa); thế giới/nhân vật/cốt truyện bản đầu (bản ngã cũ coi sinh vật là công cụ, tinh linh hỗ trợ nâng cấp bằng mảnh ký ức, NPC không phải người, kết "Chấp nhận", vài cutscene); design/04-tech/world-tech.md (kỹ thuật tạo world + kế hoạch prototype M1 9 bước).
 5. XONG 2026-10-13: world-tech trả lời đủ (map 128×128×48 có hang + sinh vật/tài nguyên riêng; nước chảy, không cạn, người chơi tạo nguồn; nguyên ô; đổi bộ sinh → sinh lại chunk chưa sửa); design/04-tech/simulation-tech.md bản đầu.
+5b. XONG 2026-10-13: tối đa 60 sinh vật hoạt động (chờ quyết: +10% nạp có vượt 60?); bệnh/mệt theo mức độ, sinh vật cần nghỉ (độ bền làm việc — ý tưởng); tối đa 2 sinh vật cùng làm một công đoạn.
 6. TRƯỚC ĐÓ (user, 2026-10-13): tập trung kỹ thuật build game, world trước — chờ user trả lời câu hỏi mở trong world-tech.md (kích thước map, nước, công cụ san phẳng, phiên bản bộ sinh); sau đó: controls-ui.md, levels.md.
 
 ## Quyết định quan trọng & lý do
@@ -52,7 +53,7 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 
 ## Prompt tiếp tục
 ```text
-Tiếp tục công việc trong .ai/handoff.md — M0 thiết kế game. Blender đã bật addon MCP for Blender và Start MCP Server.
-Bước tiếp theo: chạy thử nghiệm art bằng AI theo design/05-roadmap.md mục C (1 sinh vật mịn không chibi + rig + animation, 3 biến thể hiển thị, 1 cảnh địa hình mịn mẫu, xuất thử cho Unity), theo design/03-art-audio/art-style.md (tỉ lệ 1 ô = 1 đơn vị, nhân vật cao 1,5).
-Kiểm tra công cụ Blender MCP có sẵn trước; tóm tắt 3 dòng rồi mới làm. Hỏi tôi nơi lưu file .blend/ảnh render trước khi ghi vào repo.
+Tiếp tục công việc trong .ai/handoff.md — M0 thiết kế game. Đọc handoff, design/summary.md, design/04-tech/world-tech.md và design/04-tech/simulation-tech.md, tóm tắt 3 dòng rồi làm.
+Ưu tiên của user: kỹ thuật build game (world trước). Bước tiếp theo: hỏi user câu còn mở (ưu đãi nạp +10% có vượt trần 60 sinh vật không), rồi viết design/02-gameplay/controls-ui.md (điều khiển PC + mobile, HUD, onboarding có tinh linh) bằng skill local-gdd-section.
+Nhớ: user tự đặt tên, AI chỉ duyệt (danh sách nhắc ở design/summary.md).
 ```
