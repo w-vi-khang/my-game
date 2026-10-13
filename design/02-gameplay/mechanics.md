@@ -197,13 +197,13 @@ Mỗi cá thể có **hai bảng chỉ số tách riêng**: **chỉ số làm vi
 |---|---|---|---|---|
 | Phân bố loài | 200 | Loài — đặc trưng của loài; là phần tạo khác biệt chính giữa các loài | Không | Có |
 | Phân bố ngẫu nhiên | 100 | Ngẫu nhiên khi cá thể sinh ra — làm nên sự riêng biệt của cá thể; ít điểm hơn phân bố loài | Không | Có |
-| Điểm cộng cá thể | 0 → +20% base trở lên (vd 300 → 360+) | Ngẫu nhiên theo bậc thẻ (bắt, ấp nở); quyết định **phân hạng cá thể** | Không | **Không** |
+| Điểm cộng cá thể (điểm vượt trội) | 0 → +20% base trở lên (vd 300 → 360+) | Ngẫu nhiên theo bậc thẻ (bắt, ấp nở); quyết định **phân hạng cá thể** (4 hạng) | Không | **Không** |
 | Điểm chỉ số (cấp độ & bậc) | _(chưa có)_ | Người chơi phân bổ tự do | Có — tốn **vật phẩm phân bổ lại** | Có — người chơi nào rồi cũng đạt được |
 
 - Phân bố loài + phân bố ngẫu nhiên là cố định, không phân bổ lại được. Phân bố loài giữ cho phần ngẫu nhiên không làm cá thể quá tệ.
 - **Phân hạng cá thể** (user, 2026-10-12): tổng điểm cơ bản của mỗi cá thể khác nhau trong cùng loài, do **điểm cộng cá thể** (cộng trên base của loài). **Điểm cộng ≥ 20% base → cá thể vượt trội**; dưới ngưỡng đó là các phân hạng thấp hơn. Bậc thẻ bài quyết định phân phối điểm cộng (bậc 4: chắc chắn ≥ 20%).
-  - Câu hỏi mở: có bao nhiêu phân hạng dưới vượt trội, ngưỡng mỗi hạng (vd 0–5%, 5–10%, 10–20%)? Tên các hạng — user tự đặt ([naming](../01-story/naming.md)).
-  - [ý tưởng] Trong PvP bỏ **toàn bộ** điểm cộng cá thể (mọi phân hạng, không chỉ vượt trội) → giữ nguyên quy tắc "cùng loài, cùng cấp độ, cùng bậc thì cùng tổng điểm".
+  - **3 hạng dưới vượt trội** (user, 2026-10-13) → tổng 4 hạng, khớp 4 bậc thẻ bài. Ngưỡng từng hạng: _(chưa có — tính bằng skill `game-balance`)_. Tên các hạng — user tự đặt ([tóm tắt](../summary.md#danh-sách-cần-đặt-tên)).
+  - **Trong PvP chỉ bỏ điểm cộng cá thể** (user, 2026-10-13): cùng loài, cùng cấp độ, cùng bậc thì cùng tổng điểm, chỉ khác phần điểm cộng → bỏ phần này là đủ. Điểm cộng của mọi hạng đều bị bỏ (hạng thấp cũng có điểm cộng, chỉ ít hơn 20% base).
 - **Tổng điểm khác nhau giữa các loài nhưng không quá chênh**; khác biệt chủ yếu ở cách phân bố loài. Loài có tổng điểm thấp hơn đôi khi có phân bố "đẹp" hơn, hợp vai trò hơn.
 - **Điểm chỉ số** nhận khi tăng cấp độ hoặc bậc (tiến hoá); **điểm làm việc và điểm chiến đấu là hai quỹ riêng**. Chỉ cộng thêm, không cắt bớt xuống dưới base. Phân bổ lại được nhưng cần dùng **vật phẩm phân bổ lại** (nguồn _(chưa có)_).
 - Trong PvP: bỏ điểm cộng cá thể (gồm phần vượt trội) → cá thể cùng loài, cùng cấp độ và bậc có **cùng tổng điểm**, chỉ khác **cách phân bố** (phân bố ngẫu nhiên + phân bổ của người chơi).

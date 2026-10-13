@@ -72,7 +72,7 @@ Khám phá, thu thập → cải tạo địa hình → hoàn thành **danh sác
 | Tộc | Nhóm nhiều loài; gợi ý: mỗi tộc một âm đuôi dùng lại trong tên loài | Chưa định số | Tự tạo (≤ 10) |
 | Nguyên tố | Bộ nguyên tố chưa định (lửa, nước, cỏ...?) | Chưa định | Dịch |
 | Loài | Theo tộc, nguyên tố, nội tại, map | ~10 (slice) | Tự tạo (≤ 12) |
-| Phân hạng cá thể | Các hạng chất lượng cá thể; cao nhất là "vượt trội" (≥ 20% base) | Chưa định số hạng | Dịch |
+| Phân hạng cá thể | 4 hạng chất lượng cá thể (3 hạng thường + "vượt trội" ≥ 20% base), khớp 4 bậc thẻ | 4 | Dịch |
 | "Phép sinh vật", "phép của pháp sư", "nhập hồn" | Tên hiển thị của 2 loại phép và hành động nhập vào sinh vật | 3 | Dịch hoặc tự tạo |
 | Từng phép | ~20 phép sinh vật + ~8 phép pháp sư (slice) | ~28 | Dịch (≤ 16) |
 | Mức độ hiếm, nhóm phép | Các mức hiếm của phép; nhóm: phổ biến, tộc, nguyên tố, loài | Chưa định | Dịch |
