@@ -50,66 +50,37 @@ namespace Game.World.Tests
         [Test]
         public void ClosedSurfaceAcrossChunks()
         {
-            // Hàn cả map theo vị trí đỉnh. Mặt khối trên lưới nguyên → không có đỉnh chữ T; mỗi cạnh dùng bởi 2 tam giác
-            // (hoặc 4 khi hai ô chỉ chạm nhau theo cạnh chéo), số chẵn. Cạnh dùng 1 lần chỉ được phép ở mép map (bề mặt hở ra biển).
-            var edgeUse = new Dictionary<(long, long), int>();
-            var keyPos = new Dictionary<long, float3>();
+            // Hàn cả map theo vị trí đỉnh: mỗi cạnh a→b có đúng chừng ấy cạnh b→a (mặt kín, cùng chiều) — kể cả qua biên chunk
+            // và chỗ bo cạnh. Chỉ cho phép hở ở mép map (mặt đất cắt ngang ở biên map, không có vách — 0009).
+            var parts = new List<(float3[], int[], float3)>();
             for (int c = 0; c < meshes.Length; c++)
-            {
-                var m = meshes[c];
-                float3 o = ChunkOrigin(c);
-                for (int t = 0; t < m.Indices.Length; t += 3)
-                for (int e = 0; e < 3; e++)
-                {
-                    float3 a = m.Vertices[m.Indices[t + e]] + o, b = m.Vertices[m.Indices[t + (e + 1) % 3]] + o;
-                    long ka = Key(a), kb = Key(b);
-                    keyPos[ka] = a;
-                    keyPos[kb] = b;
-                    var k = ka < kb ? (ka, kb) : (kb, ka);
-                    edgeUse.TryGetValue(k, out int n);
-                    edgeUse[k] = n + 1;
-                }
-            }
-            int open = 0, odd = 0, four = 0;
-            foreach (var kv in edgeUse)
-            {
-                bool rim = OnMapRim(keyPos[kv.Key.Item1]) && OnMapRim(keyPos[kv.Key.Item2]);
-                if (kv.Value == 1 && !rim)
-                {
-                    open++;
-                    if (open <= 5)
-                        TestContext.WriteLine($"OPEN {keyPos[kv.Key.Item1]} - {keyPos[kv.Key.Item2]}");
-                }
-                if (kv.Value == 4)
-                    four++;
-                if (kv.Value != 1 && kv.Value % 2 == 1)
-                    odd++;
-            }
-            TestContext.WriteLine($"SEAM cạnh {edgeUse.Count}, hở trong map {open}, dùng 4 lần (chạm chéo) {four}");
-            Assert.AreEqual(0, open, "cạnh hở bên trong map (thiếu mặt, vd ở biên chunk)");
-            Assert.AreEqual(0, odd, "cạnh dùng số lẻ > 1 lần");
+                parts.Add((meshes[c].Vertices, meshes[c].Indices, ChunkOrigin(c)));
+            int bad = MeshChecks.UnbalancedEdges(parts, (a, b) => OnMapRim(a) && OnMapRim(b), TestContext.WriteLine);
+            Assert.AreEqual(0, bad, "cạnh hở hoặc lệch chiều bên trong map");
         }
 
-        /// <summary>Cạnh nằm trên mép map theo x/z (mặt đất cắt ngang ở biên map, không có vách — 0009).</summary>
-        static bool OnMapRim(float3 p) => p.x == 0f || p.z == 0f || p.x == world.Size.X || p.z == world.Size.Z;
+        /// <summary>Điểm nằm trên mép map theo x/z.</summary>
+        static bool OnMapRim(float3 p) => p.x < 1e-3f || p.z < 1e-3f || p.x > world.Size.X - 1e-3f || p.z > world.Size.Z - 1e-3f;
 
         [Test]
         public void NoDuplicateFacesAcrossChunks()
         {
-            // Mỗi mặt (tâm + hướng) chỉ một chunk vẽ.
-            var seen = new HashSet<(long, int)>();
+            // Collider = đúng một tứ giác vuông cho mỗi mặt lộ → mỗi mặt (tâm + hướng) chỉ một chunk sinh.
+            var seen = new HashSet<(long, long)>();
+            int total = 0;
             for (int c = 0; c < meshes.Length; c++)
             {
-                var m = meshes[c];
+                var v = meshes[c].ColliderVertices;
                 float3 o = ChunkOrigin(c);
-                for (int q = 0; q < m.Vertices.Length; q += 4)
+                for (int q = 0; q < v.Length; q += 4)
                 {
-                    float3 center = (m.Vertices[q] + m.Vertices[q + 2]) * 0.5f + o;
-                    float3 nrm = m.Normals[q];
-                    int dir = nrm.x > 0.5f ? 0 : nrm.x < -0.5f ? 1 : nrm.y > 0.5f ? 2 : nrm.y < -0.5f ? 3 : nrm.z > 0.5f ? 4 : 5;
-                    Assert.IsTrue(seen.Add((Key(center), dir)), $"mặt trùng ở {center} hướng {nrm} (chunk {c})");
+                    float3 center = (v[q] + v[q + 2]) * 0.5f + o;
+                    float3 nrm = math.normalize(math.cross(v[q + 1] - v[q], v[q + 3] - v[q]));
+                    Assert.IsTrue(seen.Add((Key(center), Key(nrm))), $"mặt trùng ở {center} (chunk {c})");
+                    total++;
                 }
             }
+            Assert.Greater(total, 0);
         }
 
         [Test]

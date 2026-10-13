@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Game.Core;
 using NUnit.Framework;
 using Unity.Mathematics;
@@ -5,9 +6,11 @@ using UnityEngine;
 
 namespace Game.World.Tests
 {
-    /// <summary>Bước 5.1 (decision 0011): mesh khối — mặt lộ, màu theo vật liệu, chiều tam giác, 16 bit.</summary>
+    /// <summary>Bước 5.1–5.2 (decision 0011): mesh khối bo cạnh — mặt lộ, màu theo vật liệu, mesh kín, chiều tam giác, 16 bit.</summary>
     public class BlockMesherTests
     {
+        const float R = BlockMesher.BevelRadius;
+
         /// <summary>World 32×16×32, cỏ ở lớp trên cùng, đất bên dưới, mặt đất ở y = groundTop.</summary>
         static WorldData Flat(int groundTop)
         {
@@ -37,7 +40,7 @@ namespace Game.World.Tests
             for (int z = cz * 16; z < cz * 16 + 16; z++)
             for (int x = cx * 16; x < cx * 16 + 16; x++)
             {
-                if (!Solid(x, y, z) || !s.InBounds(x, y, z))
+                if (!Solid(x, y, z))
                     continue;
                 if (!Solid(x + 1, y, z)) faces++;
                 if (!Solid(x - 1, y, z)) faces++;
@@ -49,11 +52,20 @@ namespace Game.World.Tests
             return faces;
         }
 
+        static float3 GeometricNormal(ChunkMesh m, int t)
+        {
+            float3 a = m.Vertices[m.Indices[t]], b = m.Vertices[m.Indices[t + 1]], c = m.Vertices[m.Indices[t + 2]];
+            return math.cross(b - a, c - a);
+        }
+
+        static int Unbalanced(ChunkMesh m) =>
+            MeshChecks.UnbalancedEdges(new[] { (m.Vertices, m.Indices, float3.zero) }, null, TestContext.WriteLine);
+
         [Test]
         public void FlatGroundIsOneQuadPerColumnOnTop()
         {
             var mesh = BlockMesher.Build(Flat(8), 0, 0, 0);
-            // Mặt phẳng, không vách (mép map lấy cột biên) → đúng 16 × 16 mặt trên ở y = 8.
+            // Mặt phẳng, không vách (mép map lấy cột biên), không cạnh lồi → đúng 16 × 16 tứ giác phẳng ở y = 8.
             Assert.AreEqual(16 * 16 * 2, mesh.TriangleCount);
             for (int i = 0; i < mesh.Vertices.Length; i++)
             {
@@ -64,33 +76,97 @@ namespace Game.World.Tests
         }
 
         [Test]
-        public void TriangleCountIsTwicePerExposedFaceOnM1World()
+        public void ColliderIsOneQuadPerExposedFaceOnM1World()
         {
             var world = TerrainGenerator.Generate(new TerrainParams());
             var s = world.Size;
-            int total = 0;
+            int renderTris = 0, colliderTris = 0, faces = 0, maxTris = 0;
             for (int cy = 0; cy < s.ChunksY; cy++)
             for (int cz = 0; cz < s.ChunksZ; cz++)
             for (int cx = 0; cx < s.ChunksX; cx++)
             {
                 var mesh = BlockMesher.Build(world, cx, cy, cz);
-                int faces = CountExposedFaces(world, cx, cy, cz);
-                Assert.AreEqual(faces * 2, mesh.TriangleCount, $"chunk {cx},{cy},{cz}");
-                Assert.AreEqual(faces * 4, mesh.Vertices.Length, $"chunk {cx},{cy},{cz}");
-                total += mesh.TriangleCount;
+                int f = CountExposedFaces(world, cx, cy, cz);
+                Assert.AreEqual(f * 2, mesh.ColliderIndices.Length / 3, $"collider chunk {cx},{cy},{cz}");
+                Assert.AreEqual(f * 4, mesh.ColliderVertices.Length, $"collider chunk {cx},{cy},{cz}");
+                // Mặt bo: 2 (phẳng) .. 18 (lưới 3 × 3) tam giác.
+                Assert.GreaterOrEqual(mesh.TriangleCount, f * 2, $"chunk {cx},{cy},{cz}");
+                Assert.LessOrEqual(mesh.TriangleCount, f * 18, $"chunk {cx},{cy},{cz}");
+                faces += f;
+                renderTris += mesh.TriangleCount;
+                colliderTris += mesh.ColliderIndices.Length / 3;
+                maxTris = math.max(maxTris, mesh.TriangleCount);
             }
-            TestContext.WriteLine($"MESHSTATS khối world_m1: {total} tam giác cả map");
+            TestContext.WriteLine($"MESHSTATS bo cạnh world_m1: {faces} mặt lộ; hiển thị {renderTris} tam giác " +
+                                  $"({(float)renderTris / faces:F2}/mặt), lớn nhất {maxTris}/chunk; collider {colliderTris}");
+        }
+
+        [Test]
+        public void SingleCubeIsRoundedAndClosed()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Stone));
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            Assert.AreEqual(0, Unbalanced(mesh), "khối đơn phải kín");
+            // Mọi đỉnh nằm trên mặt "lõi co r rồi nở r": khoảng cách tới lõi [r, 1 − r]³ đúng bằng r; pháp tuyến hướng ra từ lõi.
+            float3 lo = new float3(4, 8, 4) + R, hi = new float3(5, 9, 5) - R;
+            int rounded = 0;
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                float3 p = mesh.Vertices[i];
+                float3 q = math.clamp(p, lo, hi);
+                Assert.AreEqual(R, math.distance(p, q), 1e-4f, $"đỉnh {i} {p}");
+                Assert.Less(math.distance(mesh.Normals[i], math.normalize(p - q)), 1e-3f, $"pháp tuyến {i}");
+                if (math.cmax(math.abs(math.normalize(p - q))) < 0.99f)
+                    rounded++;
+            }
+            Assert.Greater(rounded, 0, "phải có đỉnh trên phần bo");
+        }
+
+        [Test]
+        public void AllVertexConfigurationsAreClosed()
+        {
+            // Hình bo quanh một đỉnh lưới chỉ phụ thuộc 8 ô quanh nó → thử đủ 256 tổ hợp 2 × 2 × 2 đặt giữa không gian rỗng.
+            for (int config = 1; config < 256; config++)
+            {
+                var w = new WorldData(new WorldSize(16, 16, 16));
+                for (int k = 0; k < 8; k++)
+                    if ((config >> k & 1) != 0)
+                        w.Set(7 + (k & 1), 7 + (k >> 1 & 1), 7 + (k >> 2 & 1), Cell.Make(BlockMaterial.Stone));
+                var mesh = BlockMesher.Build(w, 0, 0, 0);
+                Assert.AreEqual(0, Unbalanced(mesh), $"tổ hợp {config}");
+            }
+        }
+
+        [Test]
+        public void RandomShapesAreClosed()
+        {
+            // Hình ngẫu nhiên 5 × 5 × 5 (mọi kiểu 26 ô lân cận: chạm chéo, lỗ, cột mảnh), seed cố định.
+            var rng = new System.Random(2026);
+            for (int trial = 0; trial < 300; trial++)
+            {
+                var w = new WorldData(new WorldSize(16, 16, 16));
+                double density = 0.3 + 0.4 * rng.NextDouble();
+                for (int y = 5; y < 10; y++)
+                for (int z = 5; z < 10; z++)
+                for (int x = 5; x < 10; x++)
+                    if (rng.NextDouble() < density)
+                        w.Set(x, y, z, Cell.Make(BlockMaterial.Dirt));
+                var mesh = BlockMesher.Build(w, 0, 0, 0);
+                Assert.AreEqual(0, Unbalanced(mesh), $"hình ngẫu nhiên {trial}");
+            }
         }
 
         [Test]
         public void NoFaceBetweenTwoSolidCells()
         {
-            // Hai ô đặc kề nhau giữa không trung: 10 mặt lộ, không có mặt chung ở x = 5.
+            // Hai ô đặc kề nhau giữa không trung: collider 10 mặt; mesh hiển thị không có tam giác nằm trên mặt chung x = 5.
             var w = new WorldData(new WorldSize(16, 16, 16));
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Stone));
             w.Set(5, 8, 4, Cell.Make(BlockMaterial.Stone));
             var mesh = BlockMesher.Build(w, 0, 0, 0);
-            Assert.AreEqual(10 * 2, mesh.TriangleCount);
+            Assert.AreEqual(10 * 2, mesh.ColliderIndices.Length / 3);
+            Assert.AreEqual(0, Unbalanced(mesh));
             for (int t = 0; t < mesh.Indices.Length; t += 3)
             {
                 float3 a = mesh.Vertices[mesh.Indices[t]], b = mesh.Vertices[mesh.Indices[t + 1]], c = mesh.Vertices[mesh.Indices[t + 2]];
@@ -105,14 +181,19 @@ namespace Game.World.Tests
             var w = new WorldData(new WorldSize(16, 16, 16));
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
             var mesh = BlockMesher.Build(w, 0, 0, 0);
-            Assert.AreEqual(6 * 4, mesh.Vertices.Length);
-            for (int i = 0; i < mesh.Vertices.Length; i++)
+            int grassTris = 0;
+            for (int t = 0; t < mesh.Indices.Length; t += 3)
             {
-                uint expected = mesh.Normals[i].y > 0.5f
-                    ? BlockMesher.TopColor(BlockMaterial.Grass)
-                    : BlockMesher.TopColor(BlockMaterial.Dirt);
-                Assert.AreEqual(expected, mesh.Colors[i], $"đỉnh {i} pháp tuyến {mesh.Normals[i]}");
+                uint c0 = mesh.Colors[mesh.Indices[t]];
+                Assert.AreEqual(c0, mesh.Colors[mesh.Indices[t + 1]]);
+                Assert.AreEqual(c0, mesh.Colors[mesh.Indices[t + 2]]);
+                // Tam giác của mặt trên (kể cả dải bo tới 45°) nghiêng < 45° → pháp tuyến hình học y > 0,7.
+                bool top = math.normalize(GeometricNormal(mesh, t)).y > 0.7f;
+                Assert.AreEqual(top ? BlockMesher.TopColor(BlockMaterial.Grass) : BlockMesher.TopColor(BlockMaterial.Dirt), c0, $"tam giác {t / 3}");
+                if (top)
+                    grassTris++;
             }
+            Assert.Greater(grassTris, 0);
         }
 
         [Test]
@@ -123,7 +204,7 @@ namespace Game.World.Tests
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Dirt));
             w.Set(4, 9, 4, Cell.Make(BlockMaterial.Water));
             var mesh = BlockMesher.Build(w, 0, 0, 0);
-            Assert.AreEqual(6 * 2, mesh.TriangleCount);
+            Assert.AreEqual(6 * 2, mesh.ColliderIndices.Length / 3);
         }
 
         [Test]
@@ -133,10 +214,10 @@ namespace Game.World.Tests
             Assert.Greater(mesh.TriangleCount, 0);
             for (int t = 0; t < mesh.Indices.Length; t += 3)
             {
-                float3 a = mesh.Vertices[mesh.Indices[t]], b = mesh.Vertices[mesh.Indices[t + 1]], c = mesh.Vertices[mesh.Indices[t + 2]];
-                // Quy ước như mesher cũ: pháp tuyến hình học = cross(b - a, c - a) cùng hướng pháp tuyến đỉnh.
-                float3 face = math.cross(b - a, c - a);
-                Assert.Greater(math.dot(face, mesh.Normals[mesh.Indices[t]]), 0f, $"tam giác {t / 3}");
+                // Quy ước như mesher cũ: pháp tuyến hình học = cross(b − a, c − a) cùng hướng pháp tuyến đỉnh.
+                float3 face = GeometricNormal(mesh, t);
+                float3 vn = mesh.Normals[mesh.Indices[t]] + mesh.Normals[mesh.Indices[t + 1]] + mesh.Normals[mesh.Indices[t + 2]];
+                Assert.Greater(math.dot(face, vn), 0f, $"tam giác {t / 3}");
             }
         }
 
@@ -148,33 +229,37 @@ namespace Game.World.Tests
             foreach (var mesh in BlockMesher.BuildAll(world))
             {
                 Assert.LessOrEqual(mesh.Vertices.Length, ChunkMeshWriter.MaxVertices16);
+                Assert.LessOrEqual(mesh.ColliderVertices.Length, ChunkMeshWriter.MaxVertices16);
                 maxVerts = math.max(maxVerts, mesh.Vertices.Length);
                 maxTris = math.max(maxTris, mesh.TriangleCount);
                 if (mesh.TriangleCount > 0)
                     surfaceChunks++;
             }
-            TestContext.WriteLine($"MESHSTATS khối: {surfaceChunks}/32 chunk có mặt; lớn nhất {maxTris} tam giác, {maxVerts} đỉnh/chunk");
+            TestContext.WriteLine($"MESHSTATS bo cạnh: {surfaceChunks}/32 chunk có mặt; lớn nhất {maxTris} tam giác, {maxVerts} đỉnh/chunk");
         }
 
         [Test]
-        public void WritesUnityMeshWithColorsAnd16BitIndices()
+        public void WritesUnityMeshWithColorsAndCollider()
         {
             var chunk = BlockMesher.Build(Flat(8), 0, 0, 0);
             var mesh = new Mesh();
+            var collider = new Mesh();
             try
             {
                 ChunkMeshWriter.Write(chunk, mesh);
+                ChunkMeshWriter.WriteColliders(new List<ChunkMesh> { chunk }, new List<Mesh> { collider });
                 Assert.AreEqual(UnityEngine.Rendering.IndexFormat.UInt16, mesh.indexFormat);
                 Assert.AreEqual(chunk.Vertices.Length, mesh.vertexCount);
                 Assert.AreEqual(chunk.Indices.Length, (int)mesh.GetIndexCount(0));
                 Assert.AreEqual(8f, mesh.bounds.max.y, 1e-3f);
-                var colors = mesh.colors32;
-                Assert.AreEqual(chunk.Vertices.Length, colors.Length);
-                Assert.AreEqual(new Color32(118, 186, 72, 255), colors[0]);
+                Assert.AreEqual(new Color32(118, 186, 72, 255), mesh.colors32[0]);
+                Assert.AreEqual(chunk.ColliderVertices.Length, collider.vertexCount);
+                Assert.AreEqual(chunk.ColliderIndices.Length, (int)collider.GetIndexCount(0));
             }
             finally
             {
                 Object.DestroyImmediate(mesh);
+                Object.DestroyImmediate(collider);
             }
         }
     }

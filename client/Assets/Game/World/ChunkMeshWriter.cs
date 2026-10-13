@@ -52,5 +52,35 @@ namespace Game.World
             foreach (var mesh in list)
                 mesh.RecalculateBounds();
         }
+
+        /// <summary>Ghi mesh va chạm (mặt khối vuông, chỉ vị trí) của nhiều chunk trong một lần xin MeshDataArray.</summary>
+        public static void WriteColliders(IReadOnlyList<ChunkMesh> chunks, IReadOnlyList<Mesh> meshes)
+        {
+            if (chunks.Count != meshes.Count)
+                throw new ArgumentException($"{chunks.Count} chunk nhưng {meshes.Count} mesh");
+            for (int k = 0; k < chunks.Count; k++)
+                if (chunks[k].ColliderVertices.Length > MaxVertices16)
+                    throw new InvalidOperationException($"Collider chunk có {chunks[k].ColliderVertices.Length} đỉnh > {MaxVertices16}");
+
+            var array = Mesh.AllocateWritableMeshData(chunks.Count);
+            for (int k = 0; k < chunks.Count; k++)
+            {
+                var chunk = chunks[k];
+                var data = array[k];
+                data.SetVertexBufferParams(chunk.ColliderVertices.Length,
+                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3, 0));
+                data.GetVertexData<float3>(0).CopyFrom(chunk.ColliderVertices);
+                data.SetIndexBufferParams(chunk.ColliderIndices.Length, IndexFormat.UInt16);
+                var indices = data.GetIndexData<ushort>();
+                for (int i = 0; i < chunk.ColliderIndices.Length; i++)
+                    indices[i] = (ushort)chunk.ColliderIndices[i];
+                data.subMeshCount = 1;
+                data.SetSubMesh(0, new SubMeshDescriptor(0, chunk.ColliderIndices.Length));
+            }
+            var list = new List<Mesh>(meshes);
+            Mesh.ApplyAndDisposeWritableMeshData(array, list);
+            foreach (var mesh in list)
+                mesh.RecalculateBounds();
+        }
     }
 }

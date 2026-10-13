@@ -23,6 +23,8 @@ namespace Game.Client
         sealed class ChunkSlot
         {
             public Mesh Mesh;
+            /// <summary>Mặt khối vuông chưa bo (decision 0011) — bake cho MeshCollider.</summary>
+            public Mesh ColliderMesh;
             public MeshCollider Collider;
             public int TriangleCount;
         }
@@ -129,6 +131,10 @@ namespace Game.Client
             foreach (var c in chunkIndices)
                 meshes.Add(slots[c].Mesh);
             ChunkMeshWriter.WriteAll(built, meshes);
+            var colliderMeshes = new List<Mesh>(chunkIndices.Count);
+            foreach (var c in chunkIndices)
+                colliderMeshes.Add(slots[c].ColliderMesh);
+            ChunkMeshWriter.WriteColliders(built, colliderMeshes);
             LastWriteMs = sw.Elapsed.TotalMilliseconds;
 
             sw.Restart();
@@ -137,7 +143,7 @@ namespace Game.Client
             {
                 slots[chunkIndices[k]].TriangleCount = built[k].TriangleCount;
                 if (built[k].TriangleCount > 0)
-                    toBake.Add(meshes[k]);
+                    toBake.Add(colliderMeshes[k]);
             }
             ChunkColliderBaker.BakeAll(toBake);
             foreach (var c in chunkIndices)
@@ -147,7 +153,7 @@ namespace Game.Client
                 slot.Collider.sharedMesh = null;
                 slot.Collider.enabled = slot.TriangleCount > 0;
                 if (slot.TriangleCount > 0)
-                    slot.Collider.sharedMesh = slot.Mesh;
+                    slot.Collider.sharedMesh = slot.ColliderMesh;
             }
             LastBakeMs = sw.Elapsed.TotalMilliseconds;
 
@@ -174,7 +180,8 @@ namespace Game.Client
             col.cookingOptions = ChunkColliderBaker.CookingOptions;
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
             go.AddComponent<MeshRenderer>().sharedMaterial = mat;
-            return new ChunkSlot { Mesh = mesh, Collider = col };
+            var colliderMesh = new Mesh { name = mesh.name + " collider" };
+            return new ChunkSlot { Mesh = mesh, ColliderMesh = colliderMesh, Collider = col };
         }
 
         void ChunkCoords(int c, out int cx, out int cy, out int cz)
