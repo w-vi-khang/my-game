@@ -110,7 +110,7 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 ### C. Nên viết trước M1 (chưa cần Chốt)
 - [x] [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) — bản đầu (2026-10-13): camera góc 3 xoay tự do, tay cầm sau phát hành, HUD, onboarding 8 bước có tinh linh. Onboarding 4–8 tách hạng mục riêng ở M2 (user, 2026-10-13).
 - [x] [02-gameplay/levels.md](02-gameplay/levels.md) — bản đầu (2026-10-13): Map 1 chi tiết (gồm Mở đầu), Map 2, 3 khung. Nội dung Map 1 14–27 (user chấp nhận, đã cộng vào M2).
-- [ ] [04-tech/architecture.md](04-tech/architecture.md) — bản đầu đã viết; xem lại phần Client.
+- [x] [04-tech/architecture.md](04-tech/architecture.md) — phần Client rà lại 2026-10-13: sơ đồ hệ thống client (world, mô phỏng, sự kiện → tinh linh/UI, lưu), bảng hệ thống theo milestone, luồng 2 scene [ý tưởng]; dữ liệu thêm cấu hình map, trạng thái mô phỏng, tiến độ onboarding, cài đặt người chơi.
 - [ ] [04-tech/risks.md](04-tech/risks.md) — rủi ro lớn + milestone kiểm chứng (đã có, chỉ cần rà).
 - [x] Tạo skill cân bằng riêng (user, 2026-10-12) — nay là skill `game-balance` của kit (v0.7.0, 2026-10-12: pity, drop, streak — trước là `luck`, economy, curve) + quy tắc riêng của my-game ở `tools/balance_rules.py` (check, roll). Dữ liệu sẽ nằm ở `design/data/`.
 

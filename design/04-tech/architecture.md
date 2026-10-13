@@ -3,7 +3,7 @@
 > Trạng thái: Nháp
 > Liên quan: [Thành phần](components.md) · [Công nghệ](tech-stack.md) · [Cơ chế](../02-gameplay/mechanics.md)
 
-Toàn bộ file là đề xuất của AI [ý tưởng] (2026-10-12), dựa trên [components.md](components.md) và [0003](../decisions/0003-server.md) (chưa Chốt). Dịch vụ backend và netcode chưa chọn → chỉ mô tả trách nhiệm, không gắn sản phẩm.
+Toàn bộ file là đề xuất của AI [ý tưởng] (2026-10-12; phần Client và Dữ liệu rà lại 2026-10-13 theo world-tech, simulation-tech, controls-ui, levels), dựa trên [components.md](components.md) và [0003](../decisions/0003-server.md) (chưa Chốt). Dịch vụ backend và netcode chưa chọn → chỉ mô tả trách nhiệm, không gắn sản phẩm.
 
 ## Kiến trúc hệ thống
 <!-- Mermaid: các thành phần trong components.md và cách chúng giao tiếp (client ↔ server ↔ dịch vụ). Chỉ có client thì ghi rõ "game offline, một thành phần". -->
@@ -39,7 +39,11 @@ flowchart LR
 |---|---|---|---|
 | Cấu hình game: loài, phép, base chỉ số, hệ số quy đổi, trần, yêu cầu môi trường sống, nhu cầu sinh vật, tỉ lệ rút thưởng | Bảng dữ liệu trong repo | Client (đóng gói), backend, game server — cùng một bản | Có số phiên bản; skill cân bằng đọc/ghi bảng này |
 | Tài khoản | Backend | Client | |
-| World voxel | Backend | Client tải về, lưu cache | Chỉ lưu phần khác với world sinh từ seed, theo chunk |
+| World voxel | Backend | Client tải về, lưu cache | Seed + **phiên bản bộ sinh** + các chunk đã sửa ([world-tech](world-tech.md#lưu-trữ)); phần còn lại sinh lại từ seed |
+| Cấu hình map: preset vùng, ràng buộc bố cục, mẫu khối cốt truyện, vị trí sự kiện | Bảng dữ liệu + file mẫu trong repo | Client (bộ sinh world) | Đi cùng phiên bản bộ sinh ([levels](../02-gameplay/levels.md)) |
+| Trạng thái mô phỏng: vị trí sinh vật, tiến độ công đoạn, độ bền làm việc, mức bệnh/mệt, tồn kho | Client tính | Lưu lên backend cùng world | Thời điểm lưu = mốc tính tua nhanh lần sau ([simulation-tech](simulation-tech.md)) |
+| Tiến độ onboarding, gợi ý tinh linh đã xem | Backend (cùng tiến trình) | Client | Mỗi gợi ý hiện một lần ([controls-ui](../02-gameplay/controls-ui.md#hướng-dẫn-người-mới-onboarding)) |
+| Cài đặt người chơi: đổi phím, bố cục nút cảm ứng, âm lượng | Thiết bị | Client | Mỗi thiết bị một bố cục; đổi phím lưu bằng `SaveBindingOverridesAsJson` của Input System ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)) |
 | Sở hữu sinh vật + chỉ số cá thể (phân bố ngẫu nhiên, vượt trội) | Backend | Client chỉ đọc; game server đọc khi PvP | Backend sinh khi nhận sinh vật; áp chặn quá may |
 | Phân bổ điểm chỉ số | Backend | Client gửi yêu cầu | Backend kiểm: đủ điểm, không dưới base, có vật phẩm phân bổ lại |
 | Tiến trình: cấp độ người chơi, phép sở hữu, nhiệm vụ, mảnh ký ức, loài đã hồi sinh | Backend | Client | |
@@ -60,31 +64,67 @@ flowchart LR
 
 ## Client (Unity)
 <!-- Các hệ thống chính trong client (input, gameplay, UI, save, audio...) — Mermaid; luồng scene; dữ liệu cấu hình (ScriptableObject?). Quy ước code điền khi bắt đầu M1. -->
-Nguyên tắc: **logic tách khỏi hiển thị**. Mô phỏng (lệnh làm việc, chiến đấu) là C# thuần, không phụ thuộc scene → chạy được trong tua nhanh, trong kiểm thử, và trên game server (headless).
+Nguyên tắc:
+- **Logic tách khỏi hiển thị.** Mô phỏng (lệnh làm việc, chiến đấu) là C# thuần, không phụ thuộc scene → chạy được trong tua nhanh, trong kiểm thử, và trên game server (headless).
+- **Tất định:** cùng seed + phiên bản bộ sinh → cùng world; mô phỏng chạy theo **nhịp cố định** với bộ sinh số ngẫu nhiên riêng ([simulation-tech](simulation-tech.md#nguyên-tắc)).
+- **Một chiều dữ liệu:** input → lệnh vào mô phỏng / world; hiển thị, UI chỉ **đọc** trạng thái và nghe **sự kiện**.
 
 ```mermaid
 flowchart TB
-    IN[Input<br/>PC + cảm ứng] --> CTRL[Điều khiển & camera]
-    CTRL --> VOX[Voxel world<br/>chunk, mesh, đào/đặt]
-    VOX --> PATH[Tìm đường<br/>trên lưới voxel]
-    subgraph SIM ["Mô phỏng — C# thuần, không phụ thuộc hiển thị"]
-        WORK[Lệnh làm việc<br/>công đoạn, đình trệ, tua nhanh]
+    IN[Input System<br/>chuột-phím, cảm ứng<br/>tay cầm sau phát hành] --> CTRL[Điều khiển & camera<br/>góc 3, tâm nhắm, khoá mục tiêu,<br/>thanh công cụ]
+    subgraph WORLD ["World"]
+        GEN[Bộ sinh theo seed<br/>bố cục vùng có ràng buộc,<br/>preset vùng, hang, khối cốt truyện]
+        VOX[Dữ liệu voxel<br/>chunk, đào/đặt, cờ khối cốt truyện]
+        MESH[Dựng mesh mịn<br/>Jobs + Burst]
+        WATER[Nước chảy]
+        GEN --> VOX
+        VOX --> MESH
+        VOX <--> WATER
+    end
+    CTRL -->|đào/đặt| VOX
+    subgraph SIM ["Mô phỏng — C# thuần, nhịp cố định"]
+        PATH[Tìm đường A*<br/>vùng liên thông]
+        WORK[Lệnh làm việc<br/>ghép việc, công đoạn, đình trệ,<br/>độ bền làm việc, tua nhanh]
         HAB[Môi trường sống &<br/>nhu cầu sinh vật]
         STAT[Chỉ số sinh vật]
         COMBAT[Chiến đấu<br/>phép, nhập hồn]
     end
-    PATH --> WORK
+    VOX --> PATH
     VOX --> HAB
+    PATH --> WORK
     STAT --> WORK
     STAT --> COMBAT
+    CTRL -->|người chơi làm công đoạn,<br/>đặt lệnh| WORK
+    CTRL -->|nhắm, phép, nhập hồn| COMBAT
+    SIM --> EV[[Sự kiện<br/>loài trở lại, đình trệ,<br/>công đoạn xong, bắt được]]
+    EV --> GUIDE[Tinh linh & onboarding]
     SIM --> VIEW[Hiển thị<br/>sinh vật, animation, hiệu ứng]
-    SIM --> UI[UI / HUD]
-    CFG[(Bảng cấu hình)] --> SIM
+    EV --> UI[UI / HUD]
+    GUIDE --> UI
+    MESH --> VIEW
+    CFG[(Bảng cấu hình<br/>loài, phép, map)] --> GEN
+    CFG --> SIM
     SVC[Lớp dịch vụ<br/>bọc backend] --> SIM
     SVC <--> BE[(Backend - từ M2)]
+    SAVE[Lưu: seed + chunk đã sửa<br/>+ trạng thái mô phỏng] <--> SVC
+    VOX --> SAVE
+    SIM --> SAVE
 ```
 
+| Hệ thống | Trách nhiệm | Chi tiết | Milestone |
+|---|---|---|---|
+| Input, điều khiển & camera | Bảng hành động chung cho chuột-phím và cảm ứng; tâm nhắm, khoá mục tiêu, chọn vùng 2 điểm; camera góc 3 tránh địa hình | [controls-ui](../02-gameplay/controls-ui.md) | M1 (cơ bản), M2 (chiến đấu), M3 (đổi phím) |
+| Bộ sinh world | Bố cục vùng theo seed + ràng buộc, preset vùng, hang, dán khối cốt truyện, kiểm đường đi | [world-tech](world-tech.md#sinh-world-theo-seed), [levels](../02-gameplay/levels.md) | M1 (map nhỏ cố định), M2 (đầy đủ) |
+| Voxel, mesh, nước | Dữ liệu chunk, đào/đặt nguyên ô, dựng mesh mịn, nước chảy | [world-tech](world-tech.md) | M1 (voxel, mesh), M2 (nước) |
+| Mô phỏng nông trại | Nhịp cố định, ghép việc, A\*, đình trệ, độ bền làm việc, người chơi làm công đoạn, tua nhanh nhảy sự kiện | [simulation-tech](simulation-tech.md) | M1, tua nhanh M2 |
+| Môi trường sống & nhu cầu | Đếm yêu cầu của loài theo vùng, mức đáp ứng | [cơ chế](../02-gameplay/mechanics.md#môi-trường-sống) | M1 (một mức), M2 |
+| Chiến đấu | Phép, nhập hồn — viết để chạy được trên game server sau này | [cơ chế](../02-gameplay/mechanics.md#nhập-hồn) | M2 |
+| Sự kiện, tinh linh & onboarding | Mô phỏng phát sự kiện; tinh linh nghe sự kiện để nói, chạy chuỗi onboarding, dạy đúng lúc | [controls-ui](../02-gameplay/controls-ui.md#hướng-dẫn-người-mới-onboarding) | M2 |
+| UI / HUD | Đọc trạng thái + sự kiện; không đổi số trực tiếp | [controls-ui](../02-gameplay/controls-ui.md#hud) | M1 (tối thiểu), M2 |
+| Lưu & lớp dịch vụ | M1 lưu cục bộ qua bản giả; M2 thay bằng backend thật | [world-tech](world-tech.md#lưu-trữ) | M1, M2 |
+
 - **Lớp dịch vụ:** mọi gọi backend đi qua một lớp bọc → M1 dùng bản giả lưu cục bộ; M2 thay bằng dịch vụ thật; đổi nhà cung cấp không đụng gameplay (giảm rủi ro nhà cung cấp, [risks](risks.md)).
-- Chi tiết kỹ thuật: [world-tech](world-tech.md) (world), [simulation-tech](simulation-tech.md) (lệnh làm việc, tìm đường, tua nhanh).
-- **Tìm đường trên lưới voxel:** tính lại theo vùng bị đổi khối (rủi ro M1 trong [risks](risks.md)). Chọn tự viết A* trên lưới hay dùng package của Unity: xem [tech-stack](tech-stack.md).
-- Luồng scene, quy ước code: _(chưa có — điền khi bắt đầu M1)_
+- **Sự kiện:** mô phỏng không gọi thẳng UI hay tinh linh — chỉ phát sự kiện. Khi tua nhanh, sự kiện được gom lại thành báo cáo (màn tua nhanh) thay vì phát từng cái.
+- **Tìm đường trên lưới voxel:** tính lại theo vùng bị đổi khối (rủi ro M1 trong [risks](risks.md)). A\* tự viết: xem [tech-stack](tech-stack.md).
+- **Luồng scene** [ý tưởng]: hai scene — **Khởi động** (đăng nhập, tải cấu hình, sinh/tải world) và **World** (chơi chính). Các bảng phủ (túi đồ, sinh vật...) là UI trong scene World, không phải scene riêng, vì mô phỏng vẫn chạy khi mở bảng ([controls-ui](../02-gameplay/controls-ui.md#màn-hình--luồng)). Trận PvP (sau phát hành) là scene riêng.
+- Quy ước code: _(chưa có — điền khi bắt đầu M1)_
