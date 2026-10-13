@@ -3,14 +3,16 @@
   "name": "my-game",
   "stack": [
     "client: unity 6000.4.8f1 (c#)",
+    "client packages: URP 17.4.0, Input System 1.19.0, Test Framework 1.6.0",
     "thành phần khác: chưa xác định (design/04-tech/components.md)",
     "M1 — prototype client tối giản (design/ vẫn là nguồn chuẩn)",
     "làm một mình (solo)"
   ],
   "verify": {
-    "_comment": "Mỗi lệnh phải exit 0 khi pass. asset_check cần Blender 5.0.1 tại /Applications (0006).",
+    "_comment": "Mỗi lệnh phải exit 0 khi pass. asset_check cần Blender 5.0.1 tại /Applications (0006). client_test: Unity 6000.4.8f1 (UNITY_PATH), Unity phải đang TẮT project client.",
     "design": "python3 tools/check_design.py",
-    "asset_check": "/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/asset_check/selftest.py"
+    "asset_check": "/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/asset_check/selftest.py",
+    "client_test": "python3 tools/unity_test.py EditMode"
   },
   "checklist": [
     "Mọi cơ chế/tính năng gắn với ít nhất một pillar trong design/00-vision.md",
@@ -19,7 +21,11 @@
     "Thay đổi một phần đã rà các phần liên quan (gameplay ↔ economy ↔ progression ↔ roadmap) — không mâu thuẫn số liệu, tên gọi",
     "Ý tưởng chưa chốt được đánh dấu [ý tưởng]; chỉ quyết định trong design/decisions/ có trạng thái Chốt mới coi là đã chốt",
     "Mọi số liệu/khẳng định về game tham khảo, thị trường, công nghệ/dịch vụ (tính năng, giới hạn, giá) có nguồn",
-    "Phạm vi vừa sức một người: tính năng mới có ước lượng công và nằm trong một milestone"
+    "Phạm vi vừa sức một người: tính năng mới có ước lượng công và nằm trong một milestone",
+    "Code trong Game.Core không tham chiếu UnityEngine/UnityEditor (asmdef No Engine References)",
+    "Mỗi bước prototype M1 có test đúng cột 'Xong khi' của world-tech / simulation-tech",
+    "Chỉ làm hạng mục M1 (0007); việc ngoài M1 ghi vào roadmap/ideas",
+    "Ghi giờ thực tế của hạng mục M1 vừa xong so với ước lượng"
   ],
   "_checklist": "Tiêu chí kiểm chứng không chạy bằng lệnh. AI đối chiếu từng mục, ghi đạt/chưa đạt kèm vị trí trong '## Kiểm chứng'.",
   "format_on_edit": {
