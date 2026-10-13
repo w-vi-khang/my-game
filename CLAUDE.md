@@ -10,7 +10,7 @@ File này chỉ chứa thông tin RIÊNG của project.
 ## Tổng quan
 - Project game gồm **nhiều thành phần**. **Client** làm bằng Unity (6000.4.8f1 đã cài trên máy); các thành phần khác (server, công cụ, dịch vụ...) **chưa xác định** — xem `design/04-tech/components.md`.
 - **Một người làm** (solo).
-- **Giai đoạn hiện tại: M0 — kế hoạch & thiết kế. Ưu tiên lên kế hoạch**, chưa làm thành phần nào.
+- **Giai đoạn hiện tại: M1 — prototype client tối giản** (từ 2026-10-13, user; phạm vi: [0007](design/decisions/0007-m1-toi-gian.md)). M0 xong.
 
 ## Cấu trúc
 ```
@@ -18,6 +18,6 @@ design/        kế hoạch & thiết kế — nguồn chuẩn duy nhất cho m�
   decisions/   quyết định đã chốt (mỗi quyết định một file)
   ideas.md     kho ý tưởng chưa dùng
 tools/         script kiểm tra (check_design.py)
-client/        client Unity (chưa tạo — từ M1)
+client/        client Unity (M1 — template Universal 3D, URP)
 <khác>/        thành phần khác, mỗi thành phần một thư mục (khi đã xác định trong components.md)
 ```

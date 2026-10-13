@@ -20,8 +20,8 @@
 
 | Milestone | Mục tiêu | Thành phần | Tiêu chí xong | Ước lượng | Thời gian | Trạng thái |
 |---|---|---|---|---|---|---|
-| M0 — Kế hoạch & thiết kế | Đủ kế hoạch để bắt đầu prototype | design/ | Vision, core loop, thành phần hệ thống ở trạng thái Chốt; cơ chế M1 và roadmap M1–M2 đã duyệt (cách (b), 2026-10-13) | — | — | Đang làm |
-| M1 — Prototype | Kiểm chứng core loop có vui không | Client | **M1 tối giản** ([0007](decisions/0007-m1-toi-gian.md)). Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 3 loài trở lại → đặt lệnh trồng cây → sản lượng vào kho. [ý tưởng] Đo được: ≥ 30 FPS trên 1 máy Android tầm trung (ghi model khi thử); mô phỏng ≤ 5 ms/nhịp với 60 sinh vật giả; thử chơi 3–5 người, 20 phút, theo câu hỏi ở [risks](04-tech/risks.md#kiểm-chứng-sớm-ở-m1) | 39–67 | 47–80 tuần (~11–19 tháng) | Chưa bắt đầu |
+| M0 — Kế hoạch & thiết kế | Đủ kế hoạch để bắt đầu prototype | design/ | Vision, core loop, thành phần hệ thống ở trạng thái Chốt; cơ chế M1 và roadmap M1–M2 đã duyệt (cách (b), 2026-10-13) | — | — | **Xong (2026-10-13)** |
+| M1 — Prototype | Kiểm chứng core loop có vui không | Client | **M1 tối giản** ([0007](decisions/0007-m1-toi-gian.md)). Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 3 loài trở lại → đặt lệnh trồng cây → sản lượng vào kho. Đo được (user duyệt 2026-10-13): ≥ 30 FPS trên 1 máy Android tầm trung (ghi model khi thử); mô phỏng ≤ 5 ms/nhịp với 60 sinh vật giả; thử chơi 3–5 người, 20 phút, theo câu hỏi ở [risks](04-tech/risks.md#kiểm-chứng-sớm-ở-m1) | 39–67 | 47–80 tuần (~11–19 tháng) | **Đang làm** (từ 2026-10-13) |
 | M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 319–608 | 383–730 tuần (~7,4–14,0 năm) | Chưa bắt đầu |
 | M3 — Alpha | Đủ tính năng | Client + Backend | Mọi cơ chế "phải có" chạy được; prototype trận mạng nhỏ (kiểm chứng netcode) | 67–120 | 80–144 tuần | Chưa bắt đầu |
 | M4 — Beta | Đủ nội dung, sửa lỗi | Client + Backend | Chơi hết 3 map không bị chặn; phát hành thử | 83–166 | 100–199 tuần | Chưa bắt đầu |
@@ -88,7 +88,7 @@ gantt
     PvP (117 tuần)                 :pvp, after m4, 819d
 ```
 
-## Công việc M0 (kế hoạch & thiết kế) — ưu tiên hiện tại
+## Công việc M0 (kế hoạch & thiết kế) — xong 2026-10-13, user chuyển sang M1
 Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên>" để AI đổi dòng trạng thái + bảng [README](README.md), hoặc tự sửa).
 
 ### A. Quyết định — xong 2026-10-13

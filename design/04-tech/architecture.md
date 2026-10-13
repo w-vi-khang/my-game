@@ -1,6 +1,7 @@
 # Kiến trúc
 
-> Trạng thái: Nháp
+> Trạng thái: Đang xem xét
+> Đã chốt phần (user, 2026-10-13): nguyên tắc Client, nền tảng code M1. Phần còn lại vẫn là đề xuất [ý tưởng].
 > Liên quan: [Thành phần](components.md) · [Công nghệ](tech-stack.md) · [Cơ chế](../02-gameplay/mechanics.md)
 
 Toàn bộ file là đề xuất của AI [ý tưởng] (2026-10-12; phần Client và Dữ liệu rà lại 2026-10-13 theo world-tech, simulation-tech, controls-ui, levels), dựa trên [components.md](components.md) và [0003](../decisions/0003-server.md) (Chốt 2026-10-13). Dịch vụ backend và netcode chưa chọn → chỉ mô tả trách nhiệm, không gắn sản phẩm.
@@ -85,7 +86,7 @@ Sản lượng nông trại do client tính → backend **phải** kiểm tra h�
 
 ## Client (Unity)
 <!-- Các hệ thống chính trong client (input, gameplay, UI, save, audio...) — Mermaid; luồng scene; dữ liệu cấu hình (ScriptableObject?). Quy ước code điền khi bắt đầu M1. -->
-Nguyên tắc:
+Nguyên tắc (user duyệt 2026-10-13):
 - **Logic tách khỏi hiển thị.** Mô phỏng (lệnh làm việc, chiến đấu) là C# thuần, không phụ thuộc scene → chạy được trong tua nhanh, trong kiểm thử, và trên game server (headless).
 - **Tất định:** cùng seed + phiên bản bộ sinh → cùng world; mô phỏng chạy theo **nhịp cố định** với bộ sinh số ngẫu nhiên riêng ([simulation-tech](simulation-tech.md#nguyên-tắc)).
 - **Một chiều dữ liệu:** input → lệnh vào mô phỏng / world; hiển thị, UI chỉ **đọc** trạng thái và nghe **sự kiện**.
@@ -148,8 +149,8 @@ flowchart TB
 - **Sự kiện:** mô phỏng không gọi thẳng UI hay tinh linh — chỉ phát sự kiện. Khi tua nhanh, sự kiện được gom lại thành báo cáo (màn tua nhanh) thay vì phát từng cái.
 - **Tìm đường trên lưới voxel:** tính lại theo vùng bị đổi khối (rủi ro M1 trong [risks](risks.md)). A\* tự viết: xem [tech-stack](tech-stack.md).
 - **Luồng scene** [ý tưởng]: hai scene — **Khởi động** (đăng nhập, tải cấu hình, sinh/tải world) và **World** (chơi chính). Các bảng phủ (túi đồ, sinh vật...) là UI trong scene World, không phải scene riêng, vì mô phỏng vẫn chạy khi mở bảng ([controls-ui](../02-gameplay/controls-ui.md#màn-hình--luồng)). Trận PvP (sau phát hành) là scene riêng.
-### Nền tảng code M1 — chờ user duyệt
-[ý tưởng] Những gì dòng code đầu tiên của M1 dựa vào (rà soát 2026-10-13). Duyệt phần này + các nguyên tắc ở đầu mục Client + hai kế hoạch prototype ([world-tech](world-tech.md#kế-hoạch-prototype-m1), [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1)) là đủ để bắt đầu code.
+### Nền tảng code M1
+**User duyệt 2026-10-13**, cùng các nguyên tắc ở đầu mục Client và hai kế hoạch prototype ([world-tech](world-tech.md#kế-hoạch-prototype-m1), [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1)). Đây là những gì dòng code đầu tiên của M1 dựa vào.
 
 | Việc | Đề xuất | Lý do / nguồn |
 |---|---|---|

@@ -1,7 +1,9 @@
 # Quy tắc riêng của my-game
 
 ## Giai đoạn & phạm vi project
-- Hiện tại là **M0 — kế hoạch & thiết kế; ưu tiên lên kế hoạch**. KHÔNG tạo project/code cho bất kỳ thành phần nào (client Unity, server, công cụ...) cho tới khi user nói rõ chuyển sang M1. Prototype giấy/HTML để thử ý tưởng thì được, nếu user yêu cầu.
+- Hiện tại là **M1 — prototype client tối giản** (user chuyển 2026-10-13). Chỉ làm hạng mục trong [0007](design/decisions/0007-m1-toi-gian.md) và hai kế hoạch prototype ([world-tech](design/04-tech/world-tech.md#kế-hoạch-prototype-m1), [simulation-tech](design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1)). KHÔNG làm backend, game server hay hạng mục M2+; việc ngoài M1 → ghi vào roadmap/ideas, không tự làm.
+- Code client theo [nền tảng code M1](design/04-tech/architecture.md#nền-tảng-code-m1): `Game.Core` là C# thuần (No Engine References) + test EditMode; mô phỏng dùng số nguyên; sinh địa hình trong Burst `FloatMode.Deterministic`; cấu hình JSON trong `design/data/`.
+- Ghi giờ thực tế từng hạng mục M1 so với ước lượng ([roadmap](design/05-roadmap.md#kiểm-tra-phạm-vi)) — sau 4–6 hạng mục tính lại hệ số.
 - **Ngoại lệ** ([0006](design/decisions/0006-cong-cu-kiem-tra-asset.md), Chốt 2026-10-12): được viết **công cụ của quy trình art** trong `tools/` (kiểm tra asset, kiểm/tạo ảnh concept) trước M1. Không phải code game; không tạo project Unity.
 - **Unity chỉ là client**, không phải toàn bộ project. Không mặc định mọi tính năng chạy trong Unity: mỗi tính năng phải ghi thành phần phụ trách; thành phần mới chỉ thêm qua `design/04-tech/components.md` + quyết định trong `design/decisions/`.
 - Thiết kế kỹ thuật đi từ cấp hệ thống (thành phần, ranh giới, dữ liệu) xuống từng thành phần.

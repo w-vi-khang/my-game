@@ -42,10 +42,10 @@
 ## Kiểm chứng sớm ở M1
 [ý tưởng] Rủi ro "Cao" cần biết sớm nhất, gắn với bước prototype của **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md)) — nếu một bước cho kết quả xấu, dừng làm nội dung và điều chỉnh thiết kế trước.
 
-| Rủi ro | Bước prototype | Ngưỡng [ý tưởng] | Dấu hiệu xấu → hành động |
+| Rủi ro | Bước prototype | Ngưỡng (user duyệt 2026-10-13, số tạm) | Dấu hiệu xấu → hành động |
 |---|---|---|---|
 | Hiệu năng voxel mịn trên mobile | [world-tech](world-tech.md#kế-hoạch-prototype-m1) bước 3, 6 | ≥ 30 FPS khi đào/đặt liên tục trên 1 máy Android tầm trung (ghi model) | Dưới ngưỡng → giảm độ phân giải mesh (×1), thu nhỏ vùng hiển thị |
-| Tất định giữa PC và điện thoại (world chỉ lưu chunk đã sửa) | [world-tech](world-tech.md#kế-hoạch-prototype-m1) bước 1 | Mã băm world từ cùng seed giống nhau trên PC và điện thoại | Đã chọn trước: sinh địa hình trong Burst `FloatMode.Deterministic` ([kiến trúc](architecture.md#nền-tảng-code-m1--chờ-user-duyệt)). Vẫn khác → đổi sang số nguyên / số cố định, hoặc lưu cả world |
+| Tất định giữa PC và điện thoại (world chỉ lưu chunk đã sửa) | [world-tech](world-tech.md#kế-hoạch-prototype-m1) bước 1 | Mã băm world từ cùng seed giống nhau trên PC và điện thoại | Đã chọn trước: sinh địa hình trong Burst `FloatMode.Deterministic` ([kiến trúc](architecture.md#nền-tảng-code-m1)). Vẫn khác → đổi sang số nguyên / số cố định, hoặc lưu cả world |
 | Tìm đường khi đào/đặt | [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1) bước 2 | Tính lại đường không làm rớt khung hình | Giật → làm vùng liên thông + ngân sách A\* sớm hơn (đang để M2) |
 | 60 sinh vật trên mobile | [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1) bước 7 | ≤ 5 ms/nhịp với 60 sinh vật giả | Quá ngưỡng → hạ trần sinh vật hoạt động trước khi làm nội dung |
 | Yêu cầu môi trường sống không vui | [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1) bước 8 + thử chơi | Thử chơi 3–5 người, 20 phút; hỏi: muốn chơi tiếp không, lúc nào thấy chán, có hiểu vì sao loài trở lại, có muốn thêm loài | Đa số thấy như việc vặt → đổi loại yêu cầu trước khi làm 10 loài của slice |

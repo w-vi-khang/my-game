@@ -1,6 +1,7 @@
 # Kỹ thuật mô phỏng nông trại
 
-> Trạng thái: Nháp
+> Trạng thái: Đang xem xét
+> Đã chốt phần (user, 2026-10-13): kế hoạch prototype M1, kỹ thuật môi trường sống. Phần còn lại vẫn là đề xuất.
 > Liên quan: [Kỹ thuật tạo world](world-tech.md) · [Kiến trúc](architecture.md) · [Cơ chế](../02-gameplay/mechanics.md) · [Rủi ro](risks.md)
 
 Phần kỹ thuật nặng thứ hai của M1 (sau world): **lệnh làm việc**, **tìm đường sinh vật**, **tua nhanh**. Luật chơi ở [cơ chế](../02-gameplay/mechanics.md#lệnh-làm-việc) — file này chỉ nói cách làm. Toàn bộ là đề xuất của AI [ý tưởng] (2026-10-13), trừ chỗ ghi nguồn.
@@ -79,7 +80,7 @@ Mô hình **nhảy sự kiện** thay vì chạy từng nhịp:
 - Đo ở M1: ms mỗi nhịp mô phỏng, số A\* mỗi giây, thời gian tua nhanh 8 giờ vắng mặt.
 
 ## Môi trường sống
-[ý tưởng] Phần kỹ thuật của [môi trường sống](../02-gameplay/mechanics.md#môi-trường-sống) — trước đây chưa có (rà soát 2026-10-13).
+User duyệt 2026-10-13 (cùng bước 8 của kế hoạch prototype). Phần kỹ thuật của [môi trường sống](../02-gameplay/mechanics.md#môi-trường-sống) — trước đây chưa có (rà soát 2026-10-13).
 - **Yêu cầu là dữ liệu:** mỗi yêu cầu thuộc một loại chung — số ô vật liệu X ≥ N, số cây loại Y ≥ N, số ô nước ≥ N, có điểm cao ≥ y, có công trình Z, có loài W đang ở. Thêm loài = thêm dữ liệu, không code ([levels](../02-gameplay/levels.md#nội-dung-tái-sử-dụng)).
 - **Đếm theo sự kiện:** world phát sự kiện "ô đổi" (đào/đặt), "cây mọc/bị thu", "công trình đặt/bỏ" → bộ đếm của vùng chứa ô đó cộng/trừ ngay. Không quét lại cả vùng mỗi nhịp → HUD cập nhật tức thì ([core loop](../02-gameplay/core-loop.md)).
 - **Vùng:** M1 = cả map; M2 = vùng của bố cục ([levels](../02-gameplay/levels.md#kích-thước--khung-chung)) — mỗi ô biết mình thuộc vùng nào (bảng theo cột chunk).
@@ -87,7 +88,7 @@ Mô hình **nhảy sự kiện** thay vì chạy từng nhịp:
 - Khi nạp world: tính lại bộ đếm một lần bằng cách quét vùng (không lưu bộ đếm).
 
 ## Kế hoạch prototype (M1)
-Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 2026-10-13). Chia các hạng mục "Lệnh làm việc 7–11", "Tìm đường 4–7", "Chỉ số làm việc 1–2", "Môi trường sống 3–6" của [roadmap](../05-roadmap.md):
+Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 2026-10-13); **kế hoạch user duyệt 2026-10-13**. Chia các hạng mục "Lệnh làm việc 7–11", "Tìm đường 4–7", "Chỉ số làm việc 1–2", "Môi trường sống 3–6" của [roadmap](../05-roadmap.md):
 
 | # | Bước | Xong khi | Ước lượng (ngày-người) |
 |---|---|---|---|
@@ -97,7 +98,7 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 | 4 | Đình trệ + thông báo: không có đường / kho đầy / thiếu năng lực | 3 lý do đều hiện đúng | 1–2 |
 | 5 | Thuần thục + tốc độ vào thời gian công đoạn | Đổi thuần thục → thời gian đổi đúng công thức | 1 |
 | 6 | Hiển thị: nội suy vị trí, trạng thái | Sinh vật đi mượt ở 30 và 60 FPS | 1–2 |
-| 7 | Đo trên mobile với 60 sinh vật giả (sinh bằng lệnh debug) | ≤ 5 ms/nhịp [ý tưởng ngưỡng] | 1 |
+| 7 | Đo trên mobile với 60 sinh vật giả (sinh bằng lệnh debug) | ≤ 5 ms/nhịp (ngưỡng user duyệt 2026-10-13, số tạm) | 1 |
 | 8 | Môi trường sống: đếm yêu cầu theo sự kiện, 3 loài × 2–3 yêu cầu | Đào/đặt → tiến độ đổi ngay; đủ yêu cầu → loài trở lại | 3–6 |
 | | **Cộng** | | **15–26** |
 

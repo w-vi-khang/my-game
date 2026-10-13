@@ -14,7 +14,7 @@ Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn
   - URP chạy "from mobile to high-end consoles and PCs" ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/urp-introduction.html)); dành cho dự án cần mở rộng trên mọi nền tảng, hiệu quả trên GPU mobile ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/choose-a-render-pipeline.html)).
   - Manual 6000.4 vẫn gọi Built-in là "the default render pipeline" ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/render-pipelines.html)) → phải chủ động chọn template Universal 3D ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/creating-a-new-project-with-urp.html)).
   - Từ Unity 6.5, Built-in bị deprecated ([upgrade guide 6.5](https://docs.unity.com/en-us/engine/6000.5/manual/upgrade-guides/upgrade-guide-unity65)) → chọn Built-in sẽ phải chuyển sau.
-- **Nền tảng build:** PC (Windows, macOS), Android (**chỉ ARM64** nếu dùng Burst `FloatMode.Deterministic` cho sinh địa hình — chế độ này chỉ hỗ trợ 64-bit, [docs](https://docs.unity3d.com/Packages/com.unity.burst@1.8/manual/compilation-burstcompile.html) [ý tưởng]), iOS; sau phát hành thêm Linux Dedicated Server cho game server.
+- **Nền tảng build:** PC (Windows, macOS), Android (**chỉ ARM64** nếu dùng Burst `FloatMode.Deterministic` cho sinh địa hình — chế độ này chỉ hỗ trợ 64-bit, [docs](https://docs.unity3d.com/Packages/com.unity.burst@1.8/manual/compilation-burstcompile.html); user duyệt 2026-10-13), iOS; sau phát hành thêm Linux Dedicated Server cho game server.
 
 **Package** (chỉ những gì thiết kế hiện tại cần):
 
@@ -26,8 +26,8 @@ Docs tra ngày 2026-10-12, đúng bản 6000.4 trừ khi ghi khác. Lựa chọn
 | uGUI (Unity UI) | core 2.0 | UI runtime, HUD | M1 | [so sánh UI 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/UI-system-compare.html) — runtime: khuyến nghị uGUI, thay thế UI Toolkit |
 | Addressables | 3.1 | Tải nội dung từ xa (map theo mùa) — chỉ khi chọn tải nội dung thay vì cập nhật app | M3+ (chưa quyết) | [Addressables 3.1](https://docs.unity3d.com/Packages/com.unity.addressables@3.1/manual/index.html) |
 | Dedicated Server | 2.0 | Build game server headless; ký hiệu `UNITY_SERVER` | Sau phát hành | [build Dedicated Server](https://docs.unity3d.com/6000.4/Documentation/Manual/dedicated-server-build.html), [pack-safe](https://docs.unity3d.com/6000.4/Documentation/Manual/pack-safe.html) |
-| Cinemachine | 3.1.7 | Camera góc 3 + CinemachineDeoccluder tránh địa hình [ý tưởng, chờ duyệt] | M1 | [Cinemachine 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/com.unity.cinemachine.html), [Deoccluder](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineDeoccluder.html) |
-| Test Framework | core 6000.4 | Test EditMode cho `Game.Core`, chạy dòng lệnh [ý tưởng, chờ duyệt] | M1 | [Test Framework 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/test-framework/test-framework-introduction.html) |
+| Cinemachine | 3.1.7 | Camera góc 3 + CinemachineDeoccluder tránh địa hình (user duyệt 2026-10-13) | M1 | [Cinemachine 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/com.unity.cinemachine.html), [Deoccluder](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineDeoccluder.html) |
+| Test Framework | core 6000.4 | Test EditMode cho `Game.Core`, chạy dòng lệnh (user duyệt 2026-10-13) | M1 | [Test Framework 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/test-framework/test-framework-introduction.html) |
 | Netcode | _(chưa chọn)_ | PvP thời gian thực | M3 (prototype) | Xem bên dưới |
 
 **Voxel world — dựng mesh chunk** — chi tiết đầy đủ: [world-tech](world-tech.md).

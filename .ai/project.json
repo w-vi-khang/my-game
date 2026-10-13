@@ -1,10 +1,10 @@
 {
-  "_comment": "Cấu hình kit cho project game. Giai đoạn hiện tại: M0 — KẾ HOẠCH & THIẾT KẾ (chưa làm thành phần nào). Khi bắt đầu một thành phần (client Unity, server...): chạy lại /ai-workflow-kit:init để thêm lệnh verify của thành phần đó.",
+  "_comment": "Cấu hình kit cho project game. Giai đoạn hiện tại: M1 — PROTOTYPE CLIENT TỐI GIẢN (từ 2026-10-13, design/decisions/0007-m1-toi-gian.md). Sau khi tạo project trong client/: chạy lại /ai-workflow-kit:init để thêm lệnh verify (test EditMode chạy dòng lệnh) và format_on_edit.",
   "name": "my-game",
   "stack": [
     "client: unity 6000.4.8f1 (c#)",
     "thành phần khác: chưa xác định (design/04-tech/components.md)",
-    "game design — kế hoạch & thiết kế (M0)",
+    "M1 — prototype client tối giản (design/ vẫn là nguồn chuẩn)",
     "làm một mình (solo)"
   ],
   "verify": {
@@ -35,15 +35,11 @@
     "*.jks"
   ],
   "router": {
-    "_comment": "Tinh chỉnh gợi ý skill (kit >= 0.6.0). 'skill': game có kỹ năng sinh vật, không phải skill của kit. disable_skills: skill viết code tắt trong M0 (chưa code) — bỏ khỏi danh sách khi chuyển M1.",
+    "_comment": "Tinh chỉnh gợi ý skill (kit >= 0.6.0). 'skill': game có kỹ năng sinh vật, không phải skill của kit. disable_skills: đã bật lại bug-fix, feature-implementation, code-review khi chuyển M1 (2026-10-13).",
     "ignore_keywords": [
       "skill"
     ],
-    "disable_skills": [
-      "bug-fix",
-      "feature-implementation",
-      "code-review"
-    ]
+    "disable_skills": []
   },
   "naming": {
     "_comment": "Skill naming của kit (>= 0.7.0). denylist: tên của game/tác phẩm khác dễ bị so sánh (vd game tham khảo) — điền khi đặt tên loài/vùng.",

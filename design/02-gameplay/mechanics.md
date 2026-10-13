@@ -51,7 +51,7 @@
 <!-- Mỗi cơ chế: quy tắc, tham số chính (để tune), trường hợp biên, cách người chơi học. -->
 
 ### Luật M1 (M1 tối giản)
-Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decisions/0007-m1-toi-gian.md). Toàn bộ là đề xuất của AI [ý tưởng], chờ user duyệt; số là số tạm, chỉnh khi chơi thử (`game-balance`).
+Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decisions/0007-m1-toi-gian.md). **User duyệt 2026-10-13** (bắt đầu M1); số là số tạm, chỉnh khi chơi thử (`game-balance`).
 
 #### Voxel world — luật M1
 - Vật liệu: **đất, cỏ, đá, cát**; nước tĩnh có sẵn (một hồ nhỏ), không đào/đặt nước ở M1. Hai lớp đáy là đá không đào được.
