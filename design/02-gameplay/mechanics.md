@@ -10,6 +10,7 @@
 | Cơ chế | Mô tả | Pillar | Thành phần | Ưu tiên | Ước lượng | Milestone |
 |---|---|---|---|---|---|---|
 | Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **bề mặt mịn liền** (dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15) | M1 |
+| Nước chảy | Nước chảy theo ô (mực 0–7), tràn vào chỗ đào; ảnh hưởng môi trường sống, tưới nước, tìm đường; M1 dùng nước tĩnh | P1, P2 | Client | Phải có | 8–15 | M2 [ý tưởng] |
 | Biến thể hiển thị | Mỗi cá thể sinh vật, cây, vật thể render khác nhau một chút theo seed riêng (kích thước, màu, hoa văn...), không giống hệt nhau | P2 | Client | Nên có | 3–6 | M2 [ý tưởng] |
 | Biến thể | Dạng khác của loài: cá thể đặc biệt về màu sắc, hình thái; tách riêng với vượt trội | P1, P2 | Client + Backend (sinh khi nhận sinh vật) | Nên có | 3–5 + phần art mỗi biến thể | M3 [ý tưởng] |
 | Sinh map theo seed | Phần không thuộc cốt truyện sinh theo seed của từng người chơi | P3 | Client (+ công cụ sắp đặt?) | Phải có | 15–25 | M2 |

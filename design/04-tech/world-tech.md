@@ -31,11 +31,13 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 | Vật liệu | 8 bit | 0 = rỗng; cỏ, đất, đá, cát, nước... |
 | Cờ khối cốt truyện | 1 bit | Không phá/đặt được tới khi phá đảo map |
 | Cờ đã sửa | 1 bit | Khác với world sinh từ seed → cần lưu |
-| Dự phòng | 6 bit | Vd độ ẩm, đã xới đất (lệnh làm việc) |
+| Mực nước | 3 bit | 0–7: lượng nước trong ô (nước chảy — user, 2026-10-13) [ý tưởng] |
+| Dự phòng | 3 bit | Vd độ ẩm, đã xới đất (lệnh làm việc) |
 
 - **Chiếm chỗ** (sinh vật, cây, vật phẩm) lưu ở **lớp riêng**: danh sách vật thể + khung chiếm chỗ → bảng tra ô → vật thể. Không nhét vào ô địa hình, vì vật thể nhiều ô và di chuyển được.
 - **Chunk:** 16 × 16 × 16 ô gameplay [ý tưởng] → 32 × 32 × 32 ô dựng mesh. 16 là kích thước phổ biến: Minecraft chia chunk 16 × 16 theo chiều ngang, mỗi đoạn cao 16 ([Minecraft Wiki](https://minecraft.wiki/w/Chunk)); Godot Voxel Tools mặc định khối mesh 16, cho phép 32 — 32 ít draw call hơn nhưng sửa voxel chậm hơn ([Voxel Tools](https://voxel-tools.readthedocs.io/en/latest/performance/)).
-- Kích thước map, chiều cao tối đa: _(chưa có)_ — [ý tưởng] M1 thử 128 × 128 × 48 ô (8 × 8 × 3 chunk).
+- **Map 128 × 128 × 48 ô, có hang động** (user, 2026-10-13) → 8 × 8 × 3 = 192 chunk.
+- **Đào/đặt luôn theo nguyên ô** (user, 2026-10-13) → dữ liệu có/không + vật liệu là đủ, không cần mật độ trung gian; dựng mesh ×2 để giữ chi tiết 1 ô (như bản thử).
 
 ## Sinh world theo seed
 [ý tưởng] Chạy trên client (world riêng của người chơi), **tất định**: cùng seed + cùng **phiên bản bộ sinh** → cùng world.
@@ -43,7 +45,8 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 ```mermaid
 flowchart LR
     S[Seed người chơi<br/>+ phiên bản bộ sinh] --> H[Địa hình gốc<br/>noise độ cao, vùng khí hậu]
-    H --> R[Dán vùng cốt truyện<br/>mẫu sắp đặt tay + cờ khối cốt truyện]
+    H --> CV[Khoét hang<br/>noise 3D]
+    CV --> R[Dán vùng cốt truyện<br/>mẫu sắp đặt tay + cờ khối cốt truyện]
     R --> V[Vật liệu bề mặt<br/>cỏ, cát, đá theo vùng]
     V --> P[Cây, tài nguyên<br/>vật thể có khung chiếm chỗ]
     P --> D[Áp các chunk đã sửa<br/>từ dữ liệu lưu]
@@ -51,6 +54,7 @@ flowchart LR
 ```
 
 - **Noise:** `Unity.Mathematics.noise` có `snoise` (simplex), `cnoise` (Perlin), `pnoise`, `cellular`... ([API](https://docs.unity3d.com/Packages/com.unity.mathematics@1.3/api/Unity.Mathematics.noise.html)); bản đi kèm Unity 6000.4.8f1 trên máy: Mathematics 1.3.3, Burst 1.8.29 [run 2026-10-13]. Burst dịch kiểu vector của Unity.Mathematics sang SIMD ([Burst](https://docs.unity3d.com/Packages/com.unity.burst@1.8/manual/csharp-type-support.html)); hàm `noise.*` là phép toán float thuần nên chạy được trong Burst — suy luận, docs không nói rõ [chưa xác minh].
+- **Hang động** (user, 2026-10-13) [ý tưởng]: khoét bằng noise 3D (vd `snoise` 3D hoặc `cellular` có ngưỡng); giữ lớp đá đáy map; kiểm hang nối được với mặt đất. Hang tối → cần ánh sáng (đèn, vật phát sáng) — xem art style.
 - **Vùng cốt truyện:** mẫu dựng tay (lưu dạng file dữ liệu), dán vào vị trí cố định của map, bật cờ khối cốt truyện cho ô của nó và **đường đi tới nó**.
 - **Kiểm tra sau khi sinh:** đường tới mọi khối cốt truyện phải đi được (chạy tìm đường) — sai thì sinh lại phần đó.
 - Đổi bộ sinh làm world cũ khác đi → dữ liệu lưu phải ghi **phiên bản bộ sinh** (xem Lưu trữ).
@@ -68,7 +72,7 @@ flowchart LR
 - **Chạy:** C# Job System + Burst; ghi mesh qua `Mesh.AllocateWritableMeshData` → `Mesh.ApplyAndDisposeWritableMeshData` ([tech-stack](tech-stack.md)).
 - **Chỉ số đỉnh 16 bit đủ:** mesh 16 bit chứa tối đa 65.535 đỉnh; 32 bit không chắc chạy trên mọi máy (vd Android GPU Mali-400 không vẽ) ([Mesh.indexFormat](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh-indexFormat.html)). Một chunk 16 × 16 ô ước ~7.000 tam giác (tỉ lệ từ bản thử 30 × 30) → vài nghìn đỉnh [chưa xác minh — đo ở M1] → dùng 16 bit.
 - **Vật liệu:** gán vật liệu theo đỉnh (trộn ở ranh giới) + texture dán 3 hướng (triplanar) — bản thử gán theo mặt bị răng cưa ([art-style](../03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)).
-- **Nước:** loại vật liệu riêng, mesh phẳng tách khỏi địa hình [ý tưởng].
+- **Nước chảy** (user, 2026-10-13) — xem mục Nước bên dưới.
 - **LOD:** map có ranh giới → M1 **chưa làm LOD**; chỉ thêm nếu đo trên mobile thấy cần.
 
 ## Chỉnh sửa (đào / đặt)
@@ -90,6 +94,15 @@ flowchart LR
 - Mục tiêu: dựng lại mesh sau khi sửa trong "một hoặc hai khung hình" — mức 0fps nêu cho game kiểu Minecraft ([0fps](https://0fps.net/2012/06/30/meshing-in-a-minecraft-game/)).
 - Gom nhiều chunk bẩn vào một lần xin `MeshDataArray` (khuyến nghị của docs `Mesh.MeshData`).
 
+## Nước chảy
+User chọn nước **chảy được** (2026-10-13). [ý tưởng]
+- **Mô phỏng theo ô:** mỗi ô có mực nước 0–7; mỗi nhịp, nước chảy xuống ô dưới nếu trống, rồi tràn ngang sang ô thấp mực hơn — cách làm phổ biến kiểu automat ô [chưa xác minh bằng nguồn]. Chỉ mô phỏng vùng đang "động" (quanh chỗ vừa đào/đặt), vùng đã yên thì ngủ.
+- **Nguồn nước** (suối, biển) giữ mực cố định; nước không có nguồn thì dần lan mỏng/cạn [ý tưởng — cần user duyệt luật].
+- **Hiển thị:** mesh mặt nước riêng, cao theo mực nước, tách khỏi mesh địa hình; shader trong suốt.
+- **Ảnh hưởng gameplay:** môi trường sống (tỉ lệ nước trong vùng), công đoạn tưới nước, tìm đường (ô ngập là vật cản với loài đi bộ, đi được với loài bơi — M2).
+- **Tất định + tua nhanh:** mô phỏng chạy theo nhịp cố định, không phụ thuộc khung hình; khi tua nhanh, cho nước "yên" trước rồi mới tính sản lượng.
+- **Phạm vi:** M1 dùng nước **tĩnh** (mực cố định); nước chảy ở M2. Ước lượng 8–15 ngày-người ([roadmap](../05-roadmap.md)).
+
 ## Va chạm
 - **Chỉ nhân vật người chơi** (và camera) cần va chạm vật lý với địa hình. Sinh vật đi theo lưới (tìm đường), không cần vật lý → ít việc hơn [ý tưởng].
 - `Physics.BakeMesh` an toàn đa luồng, tính trên luồng gọi nó → chạy được trong job; không bake cùng một mesh từ nhiều luồng; collider chỉ dùng lại kết quả bake nếu `cookingOptions` khớp; mesh cần bật Read/Write trong bản build ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Physics.BakeMesh.html)).
@@ -104,7 +117,10 @@ flowchart LR
 
 ## Lưu trữ
 - **Lưu chunk đã sửa, không lưu cả world:** world sinh lại từ seed; chỉ lưu các chunk có ô bị sửa — cách Godot Voxel Tools làm mặc định ("only modified blocks are saved" — [docs](https://voxel-tools.readthedocs.io/en/latest/streams/)).
-- [ý tưởng] Lưu kèm **phiên bản bộ sinh**: đổi bộ sinh ở bản cập nhật → chunk chưa sửa sinh khác đi, nhưng chunk đã lưu giữ nguyên. Ranh giới giữa chunk đã lưu và chunk sinh lại có thể lệch → cần quy tắc chuyển đổi khi đổi phiên bản [chưa xác minh — rủi ro].
+- Lưu kèm **phiên bản bộ sinh**. Khi bản cập nhật đổi bộ sinh: **chunk chưa sửa sinh lại theo cách mới**, chunk đã sửa giữ nguyên (user, 2026-10-13).
+  - [ý tưởng] Ranh giới giữa chunk đã sửa và chunk sinh lại có thể lệch độ cao → chạy một bước "khâu biên" (nội suy độ cao vài ô quanh ranh giới, chỉ trên phía chunk sinh lại).
+  - [ý tưởng] Vật thể người chơi đặt (cây trồng, công trình) làm chunk đó thành "đã sửa" → không bị sinh lại mất.
+  - Vùng cốt truyện là mẫu cố định theo map → không đổi theo bộ sinh.
 - [ý tưởng] Lưu ở backend theo chunk (nén); client giữ bản cache. Chỉ lưu từng ô thay đổi (gọn hơn) để sau, nếu dung lượng backend thành vấn đề ([risks](risks.md)).
 
 ## Hiệu năng & hiển thị
@@ -119,7 +135,7 @@ flowchart LR
 
 | # | Bước | Xong khi | Ước lượng (ngày-người) |
 |---|---|---|---|
-| 1 | Lưới gameplay + chunk + sinh địa hình noise theo seed | Cùng seed → cùng world (kiểm bằng test) | 4–6 |
+| 1 | Lưới gameplay + chunk + sinh địa hình noise theo seed, có hang | Cùng seed → cùng world (kiểm bằng test); hang nối mặt đất | 5–8 |
 | 2 | Surface Nets ×2 + làm mượt, 1 chunk | Mesh khớp bản thử Blender (rãnh 1 ô, ~tam giác) | 5–8 |
 | 3 | Nhiều chunk + nối biên (ô đệm) + Jobs/Burst | Không hở ở biên; đo thời gian dựng mesh / chunk | 5–8 |
 | 4 | Đào/đặt + dựng lại chunk bẩn + bake collider | Sửa ô → mesh cập nhật ≤ 2 khung hình trên PC | 4–6 |
@@ -128,10 +144,9 @@ flowchart LR
 | 7 | Lưới chiếm chỗ + đặt vật thể nhiều ô | Không đặt chồng; tìm đường né vật thể | 3–5 |
 | 8 | Lưu/nạp chunk đã sửa (cục bộ) | Thoát vào lại → giữ đúng chỗ đã đào | 2–4 |
 | 9 | Đo trên mobile tầm trung | Có số liệu: ms/chunk, tam giác, FPS | 2–3 |
-| | **Cộng** | | **31–51** (nằm trong 35–55 của voxel world, chưa gồm tìm đường) |
+| | **Cộng** | | **32–53** (nằm trong 35–55 của voxel world, chưa gồm tìm đường; nước tĩnh) |
 
 ## Câu hỏi mở
-- Kích thước map, chiều cao tối đa, có hang động không?
-- Nước: chảy được hay tĩnh?
-- Đào/đặt luôn theo nguyên ô, hay có công cụ "san phẳng / làm mượt" (cần mật độ trung gian — bản thử cho thấy dữ liệu có/không làm mất ~½ ô ở chi tiết 1 ô)?
-- Phiên bản bộ sinh: khi cập nhật game làm thay đổi world, xử lý chunk chưa sửa ra sao?
+- Luật nước: nước không có nguồn có cạn dần không? Người chơi tạo nguồn nước được không (vd phép, công trình)?
+- Hang động: có sinh vật/tài nguyên riêng trong hang không (ảnh hưởng môi trường sống)?
+- Đã trả lời (user, 2026-10-13): map 128 × 128 × 48, có hang; nước chảy; đào/đặt theo nguyên ô; đổi bộ sinh → chunk chưa sửa sinh lại theo cách mới.
