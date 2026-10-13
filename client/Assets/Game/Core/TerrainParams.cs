@@ -9,8 +9,8 @@ namespace Game.Core
     [Serializable]
     public class TerrainParams
     {
-        /// <summary>Tăng khi đổi thuật toán sinh làm world khác đi (world-tech "Lưu trữ").</summary>
-        public int generatorVersion = 1;
+        /// <summary>Tăng khi đổi thuật toán sinh làm world khác đi (world-tech "Lưu trữ"). 1 = M1 bước 1; 2 = đảo + vành biển (0009).</summary>
+        public int generatorVersion = 2;
         public uint seed = 20261013;
 
         public int sizeX = 64;
@@ -34,6 +34,14 @@ namespace Game.Core
         public float lakeRadius = 9f;
         public float lakeDepth = 7f;
 
+        // ---- Đảo + vành biển (generatorVersion ≥ 2, 0009) ----
+        /// <summary>Số ô từ biên map toàn là đáy biển.</summary>
+        public float islandMargin = 3f;
+        /// <summary>Bề rộng sườn (ô) từ đáy biển lên địa hình noise.</summary>
+        public float islandFalloff = 10f;
+        /// <summary>Đáy biển ở rìa = waterLevel − seaFloorDepth.</summary>
+        public int seaFloorDepth = 3;
+
         public WorldSize Size => new WorldSize(sizeX, sizeY, sizeZ);
 
         public void Validate()
@@ -47,6 +55,10 @@ namespace Game.Core
                 throw new ArgumentException("waterLevel phải nằm trong [minSurface, maxSurface)");
             if (dirtDepth < 0 || sandBand < 0 || lakeRadius <= 0f || lakeDepth < 0f)
                 throw new ArgumentException("dirtDepth, sandBand, lakeDepth ≥ 0; lakeRadius > 0");
+            if (generatorVersion < 1 || generatorVersion > 2)
+                throw new ArgumentException("generatorVersion chỉ hỗ trợ 1 hoặc 2");
+            if (generatorVersion >= 2 && (islandMargin < 0f || islandFalloff <= 0f || seaFloorDepth < 1 || waterLevel - seaFloorDepth < bedrockLayers))
+                throw new ArgumentException("Đảo: islandMargin ≥ 0, islandFalloff > 0, seaFloorDepth ≥ 1, đáy biển không thấp hơn lớp đá đáy");
         }
     }
 }

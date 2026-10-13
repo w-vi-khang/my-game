@@ -50,21 +50,34 @@ namespace Game.World
                             + LipWave2 * math.sin(2f * math.PI * 2.1f * w + 1.7f * phase);
         }
 
-        /// <summary>Màu sRGB (R, G, B) theo vật liệu — tạm cho bước 5.1; texture + ánh sáng tinh chỉnh ở bước 5.4.</summary>
+        /// <summary>Mã hoa văn ghi ở byte alpha của màu đỉnh — shader Game/Terrain vẽ hoa văn theo mã (bước 5.4).</summary>
+        public const byte PatternNone = 0, PatternGrass = 1, PatternDirt = 2, PatternStone = 3, PatternSand = 4;
+
+        /// <summary>Màu sRGB (R, G, B) + mã hoa văn theo vật liệu (bước 5.4: tươi hơn, theo hướng art "tươi sáng").</summary>
         public static uint TopColor(BlockMaterial m) => m switch
         {
-            BlockMaterial.Grass => Pack(118, 186, 72),
-            BlockMaterial.Dirt => Pack(196, 154, 104),
-            BlockMaterial.Stone => Pack(150, 150, 146),
-            BlockMaterial.Sand => Pack(228, 212, 152),
-            BlockMaterial.Bedrock => Pack(90, 88, 86),
-            _ => Pack(255, 0, 255), // không nên xuất hiện — màu chói để dễ thấy lỗi
+            BlockMaterial.Grass => Pack(140, 200, 96, PatternGrass),
+            BlockMaterial.Dirt => Pack(222, 180, 126, PatternDirt),
+            BlockMaterial.Stone => Pack(160, 160, 156, PatternStone),
+            BlockMaterial.Sand => Pack(238, 220, 160, PatternSand),
+            BlockMaterial.Bedrock => Pack(96, 92, 90, PatternStone),
+            _ => Pack(255, 0, 255, PatternNone), // không nên xuất hiện — màu chói để dễ thấy lỗi
         };
 
         /// <summary>Màu sườn/đáy: ô cỏ lộ vách đất (như khối cỏ tham khảo trong 0011); vật liệu khác giữ màu của nó.</summary>
         public static uint SideColor(BlockMaterial m) => m == BlockMaterial.Grass ? TopColor(BlockMaterial.Dirt) : TopColor(m);
 
-        static uint Pack(byte r, byte g, byte b) => r | (uint)g << 8 | (uint)b << 16 | 0xFFu << 24;
+        static uint Pack(byte r, byte g, byte b, byte pattern) => r | (uint)g << 8 | (uint)b << 16 | (uint)pattern << 24;
+
+        /// <summary>Độ sáng theo mức che (AO theo đỉnh, 0fps): 0 = bị che nhiều nhất … 3 = không che.</summary>
+        public static readonly float[] AoBrightness = { 0.62f, 0.74f, 0.87f, 1f };
+
+        /// <summary>Nhân RGB của màu đỉnh với độ sáng AO, giữ byte alpha (mã hoa văn).</summary>
+        public static uint Shade(uint color, float k)
+        {
+            uint r = (uint)math.round((color & 0xFF) * k), g = (uint)math.round((color >> 8 & 0xFF) * k), b = (uint)math.round((color >> 16 & 0xFF) * k);
+            return r | g << 8 | b << 16 | (color & 0xFF000000u);
+        }
 
         // ---- Bảng bo cạnh: [tổ hợp 8 ô (256)] × [điểm lệch khỏi đỉnh lưới (27, mỗi trục −r/0/+r)] ----
         const int TableOffsets = 27;
@@ -397,7 +410,17 @@ namespace Game.World
                 }
                 if (moved == 0)
                 {
-                    AddFlatFace(c, axis, sign, color);
+                    for (int k = 0; k < 16; k++)
+                        gridVert[k] = -1;
+                    int v00 = Vert(0, planeBase, axis, u, v, faceNormal, color, config, gridVert);
+                    int v10 = Vert(3, planeBase, axis, u, v, faceNormal, color, config, gridVert);
+                    int v11 = Vert(15, planeBase, axis, u, v, faceNormal, color, config, gridVert);
+                    int v01 = Vert(12, planeBase, axis, u, v, faceNormal, color, config, gridVert);
+                    // Chia tứ giác theo đường chéo hợp AO (0fps "quad flipping") để không lệch sáng.
+                    bool flip = Ao(v00) + Ao(v11) < Ao(v10) + Ao(v01);
+                    int a = flip ? v10 : v00, b = flip ? v11 : v10, cc = flip ? v01 : v11, d = flip ? v00 : v01;
+                    if (sign > 0) { AddTriangle(a, b, cc); AddTriangle(a, cc, d); }
+                    else { AddTriangle(a, cc, b); AddTriangle(a, d, cc); }
                     return;
                 }
                 bool curvedB = Bit(moved, 1, 0) || Bit(moved, 2, 0), curvedT = Bit(moved, 1, 3) || Bit(moved, 2, 3);
@@ -456,7 +479,7 @@ namespace Game.World
             }
 
             /// <summary>Cắt tai đa giác lồi (toạ độ danh nghĩa trên mặt) — bỏ qua đỉnh thẳng hàng; tam giác ngược kim đồng hồ trong (u, v)
-            /// là mặt trước khi sign > 0 (cùng quy ước AddFlatFace), đảo khi sign &lt; 0.</summary>
+            /// là mặt trước khi sign > 0 (cùng quy ước AddColliderFace), đảo khi sign &lt; 0.</summary>
             void ClipEars(FixedList64Bytes<byte> poly, int sign, int3 planeBase, int axis, int u, int v, float3 faceNormal, uint color,
                 NativeArray<byte> config, NativeArray<int> gridVert)
             {
@@ -532,12 +555,41 @@ namespace Game.World
                 Lookup(planeBase, axis, u, v, i, j, config, out int3 lattice, out int slot);
                 float3 pos = (float3)(lattice - Origin) + TableOffset[slot];
                 float3 nrm = TableMoved[slot] != 0 ? TableNormal[slot] : faceNormal;
+                int ao = AoLevel(slot / TableOffsets, axis, faceNormal[axis] > 0 ? 1 : -1, u, v, i, j);
                 int index = Out.Vertices.Length;
                 Out.Vertices.Add(pos);
                 Out.Normals.Add(nrm);
-                Out.Colors.Add(color);
+                Out.Colors.Add(Shade(color, AoBrightness[ao]));
                 gridVert[key] = index;
                 return index;
+            }
+
+            /// <summary>
+            /// AO theo đỉnh (0fps): trong 2 × 2 ô phía trước mặt quanh đỉnh lưới, ô trước mặt của chính ô này rỗng; hai ô cạnh (side)
+            /// và ô chéo (corner) đặc thì che. Cả hai side đặc → 0; còn lại 3 − số ô đặc.
+            /// </summary>
+            static int AoLevel(int config, int axis, int sign, int u, int v, int i, int j)
+            {
+                int3 d = 0; // ô trước mặt của chính ô, tính theo chỉ số trong 8 ô quanh đỉnh (0/1 mỗi trục)
+                d[axis] = sign > 0 ? 1 : 0;
+                d[u] = i < 2 ? 1 : 0;
+                d[v] = j < 2 ? 1 : 0;
+                int3 s1 = d, s2 = d, cr = d;
+                s1[u] = 1 - s1[u];
+                s2[v] = 1 - s2[v];
+                cr[u] = 1 - cr[u];
+                cr[v] = 1 - cr[v];
+                int side1 = config >> (s1.x + 2 * s1.y + 4 * s1.z) & 1;
+                int side2 = config >> (s2.x + 2 * s2.y + 4 * s2.z) & 1;
+                int corner = config >> (cr.x + 2 * cr.y + 4 * cr.z) & 1;
+                return side1 == 1 && side2 == 1 ? 0 : 3 - side1 - side2 - corner;
+            }
+
+            /// <summary>Độ sáng đã ghi vào đỉnh (tổng RGB) — các đỉnh cùng mặt cùng màu gốc nên so được mức AO.</summary>
+            int Ao(int vertex)
+            {
+                uint c = Out.Colors[vertex];
+                return (int)((c & 0xFF) + (c >> 8 & 0xFF) + (c >> 16 & 0xFF));
             }
 
             bool Moved(int3 planeBase, int axis, int u, int v, int i, int j, NativeArray<byte> config)
@@ -566,24 +618,6 @@ namespace Game.World
                 Out.Indices.Add(a);
                 Out.Indices.Add(b);
                 Out.Indices.Add(c);
-            }
-
-            /// <summary>Tứ giác phẳng trên mặt <paramref name="axis"/> phía <paramref name="sign"/> của ô cục bộ <paramref name="c"/>.
-            /// Thứ tự đỉnh: cross(b − a, c − a) cùng hướng pháp tuyến (test TrianglesFaceTheirNormals).</summary>
-            void AddFlatFace(int3 c, int axis, int sign, uint color)
-            {
-                QuadCorners(c, axis, sign, out float3 p00, out float3 du, out float3 dv, out float3 normal);
-                int i0 = Out.Vertices.Length;
-                Out.Vertices.Add(p00);
-                Out.Vertices.Add(p00 + du);
-                Out.Vertices.Add(p00 + du + dv);
-                Out.Vertices.Add(p00 + dv);
-                for (int k = 0; k < 4; k++)
-                {
-                    Out.Normals.Add(normal);
-                    Out.Colors.Add(color);
-                }
-                AddQuadIndices(Out.Indices, i0, sign);
             }
 
             void AddColliderFace(int3 c, int axis, int sign)

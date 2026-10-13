@@ -8,7 +8,7 @@ namespace Game.Client
 {
     /// <summary>
     /// Scene kiểm tất định (world-tech bước 1): sinh world M1 từ cấu hình, hiện mã băm lên màn hình và ghi log
-    /// "HASHCHECK ..." (đọc bằng adb logcat). Phải trùng Game.World.Tests.GoldenHashTests.ExpectedV1.
+    /// "HASHCHECK ..." (đọc bằng adb logcat). Phải trùng Game.World.Tests.GoldenHashTests.ExpectedV2 (generatorVersion trong cấu hình).
     /// </summary>
     public class HashCheckView : MonoBehaviour
     {

@@ -39,3 +39,4 @@
 | NPC người sống sót dẫn dắt ở mỗi map | AI (2026-10-13) | P3 | loại | User: có NPC nhưng không phải người (sinh vật đặc biệt, máy móc, pho tượng) |
 | Địa hình dựng mesh ×1 (hoặc ×1 làm mượt ít hơn ở vách) | AI (2026-10-12) | — | loại | Rãnh 1 ô bị bóp chữ V; user chọn ×2 |
 | Địa hình bề mặt mịn liền (Surface Nets ×2 + làm mượt ≤ 0,2 ô) | User (2026-10-12) | — | loại | Đã làm ở M1 bước 2–4; mặt lồi lõm thành chấm theo từng ô, "quá bóng, không tự nhiên" → user chọn khối bo cạnh kiểu Pokopia ([0011](decisions/0011-dia-hinh-khoi-bo-canh.md), 2026-10-13) |
+| Khối kính (vật liệu trong suốt, vd tường kính chặn nước biển) | User (2026-10-13) | P1 | để sau | User nhắc khi hỏi ví dụ tường chữ U ([0012](decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)); cần vật liệu mới + vẽ trong suốt, M1 chỉ có đất/cỏ/đá/cát |

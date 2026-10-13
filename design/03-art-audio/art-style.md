@@ -78,6 +78,13 @@ Còn thiếu: số polygon/texture đo thật trên mobile, quy ước khung chi
 ## Kết quả thử nghiệm art (đang làm)
 Kế hoạch: [roadmap](../05-roadmap.md) mục C. File `.blend`, ảnh render và file xuất lưu **ngoài repo** (user, 2026-10-12): `~/Documents/User/khang/Game/art-test/`.
 
+**Địa hình khối trong Unity — bước 5.4 world-tech (2026-10-13)** [ý tưởng — chờ user duyệt ảnh; bảng màu/ánh sáng chưa Chốt]:
+- Màu (sRGB): cỏ (140, 200, 96), đất (222, 180, 126), đá (160, 160, 156), cát (238, 220, 160) — `BlockMesher.TopColor`.
+- Hoa văn tạo bằng code trong shader `Game/Terrain` (không texture, không giấy phép): cỏ loang + đốm sáng thưa; vách đất loang + chấm tối; đá vết loang; cát hạt mịn. AO theo đỉnh làm tối chân tường/góc lõm (độ sáng 0,62–1).
+- Ánh sáng scene TerrainView: môi trường 3 màu (trời (0,72; 0,82; 0,96), chân trời (0,70; 0,69; 0,64), đất (0,42; 0,37; 0,30)); mặt trời 0,9 màu ấm, bóng đổ 0,55; khuếch tán bọc 0,35 → bóng mềm, ít vùng tối (theo "tươi sáng hơn" ở trên). Chưa dùng post-processing.
+- Ảnh: `client/Temp/McpShots/17_look_close_v2.png`, `18_look_overview_v2.png` (không commit).
+- Nền (user yêu cầu 2026-10-13): **đại dương** = mặt phẳng nền shader `Game/Ocean` (sâu (0,10; 0,45; 0,66), nông (0,32; 0,74; 0,80), gợn sóng, lấp lánh) — không phải khối nước thật; **trời có mây** = skybox `Game/SkyClouds` (đỉnh (0,36; 0,62; 0,92), chân trời (0,78; 0,88; 0,97), mây fbm trôi chậm); sương mù cùng màu chân trời. **Bóng hết răng cưa**: URP PC 4096 / 4 tầng / 80 m / bóng mềm cao; Mobile 2048 / 2 tầng / 60 m / bóng mềm vừa. Ảnh: `19_ocean_sky_overview.png`, `20_ocean_sky_low.png`, `21_shadow_close.png`.
+
 **Công cụ — chốt (user, 2026-10-12):** tạo 3D bằng AI qua **Hugging Face Spaces**, gọi bằng token HF của user (quota ZeroGPU tính cho tài khoản đó — [docs](https://huggingface.co/docs/hub/spaces-agents)).
 - Ảnh concept: Space [FLUX.2-klein-4B](https://huggingface.co/spaces/black-forest-labs/FLUX.2-klein-4B) — model **Apache-2.0** ([model](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)). Không dùng bản 9B: FLUX Non-Commercial License ([model card](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B)).
 - Ảnh → GLB: Space [TRELLIS.2](https://huggingface.co/spaces/microsoft/TRELLIS.2) — code + model **MIT** ([repo](https://github.com/microsoft/TRELLIS.2)). API [run]: `/preprocess_image` → `/image_to_3d` (seed, độ phân giải 512/1024/1536) → `/extract_glb` (`decimation_target` mặc định 300.000, `texture_size` mặc định 2048).

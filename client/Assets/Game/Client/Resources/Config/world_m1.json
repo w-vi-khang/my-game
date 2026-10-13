@@ -1,5 +1,5 @@
 {
-    "generatorVersion": 1,
+    "generatorVersion": 2,
     "seed": 20261013,
     "sizeX": 64,
     "sizeY": 32,
@@ -16,5 +16,8 @@
     "waterLevel": 10,
     "sandBand": 1,
     "lakeRadius": 9.0,
-    "lakeDepth": 7.0
+    "lakeDepth": 7.0,
+    "islandMargin": 3.0,
+    "islandFalloff": 10.0,
+    "seaFloorDepth": 3
 }

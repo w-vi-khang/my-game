@@ -254,7 +254,7 @@ namespace Game.World.Tests
                 Assert.AreEqual(chunk.Vertices.Length, mesh.vertexCount);
                 Assert.AreEqual(chunk.Indices.Length, (int)mesh.GetIndexCount(0));
                 Assert.AreEqual(8f, mesh.bounds.max.y, 1e-3f);
-                Assert.AreEqual(new Color32(118, 186, 72, 255), mesh.colors32[0]);
+                Assert.AreEqual(new Color32(140, 200, 96, BlockMesher.PatternGrass), mesh.colors32[0]);
                 Assert.AreEqual(chunk.ColliderVertices.Length, collider.vertexCount);
                 Assert.AreEqual(chunk.ColliderIndices.Length, (int)collider.GetIndexCount(0));
             }
@@ -354,6 +354,48 @@ namespace Game.World.Tests
             Assert.AreEqual(5 * 2, at.Count, "mỗi ranh giới x = 14..18 có một điểm đáy váy mỗi sườn");
             foreach (var kv in at)
                 Assert.AreEqual(2, kv.Value, "điểm đáy váy ở ranh giới phải trùng giữa hai dải kề nhau (kể cả qua biên chunk x = 16)");
+        }
+
+        // ---------------- AO theo đỉnh + mã hoa văn (bước 5.4) ----------------
+
+        [Test]
+        public void ConcaveCornerIsDarkerByVertexAo()
+        {
+            // Nền phẳng (mặt trên y = 8) + một cột tường ở (5, 8, 4): đỉnh mặt nền sát chân tường tối hơn, đỉnh xa tường giữ màu gốc.
+            var w = Flat(8);
+            w.Set(5, 8, 4, Cell.Make(BlockMaterial.Stone));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, grassLip: false);
+            uint baseColor = BlockMesher.TopColor(BlockMaterial.Grass);
+            int darkNearWall = 0, farChecked = 0;
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                float3 p = mesh.Vertices[i];
+                if (math.abs(p.y - 8f) > 1e-4f || mesh.Normals[i].y < 0.99f)
+                    continue;
+                uint c = mesh.Colors[i];
+                Assert.AreEqual(baseColor >> 24, c >> 24, "giữ mã hoa văn");
+                bool touchesWall = p.x >= 5f - 1e-4f && p.x <= 6f + 1e-4f && p.z >= 4f - 1e-4f && p.z <= 5f + 1e-4f;
+                bool far = math.abs(p.x - 5.5f) > 2f || math.abs(p.z - 4.5f) > 2f;
+                if (touchesWall && (c & 0xFF) < (baseColor & 0xFF))
+                    darkNearWall++;
+                if (far)
+                {
+                    Assert.AreEqual(baseColor, c, $"đỉnh xa tường không bị tối ở {p}");
+                    farChecked++;
+                }
+            }
+            Assert.Greater(darkNearWall, 0, "đỉnh nền sát chân tường phải tối hơn (AO)");
+            Assert.Greater(farChecked, 0);
+        }
+
+        [Test]
+        public void ShadeKeepsPatternByte()
+        {
+            uint c = BlockMesher.TopColor(BlockMaterial.Dirt);
+            uint d = BlockMesher.Shade(c, BlockMesher.AoBrightness[0]);
+            Assert.AreEqual(c >> 24, d >> 24);
+            Assert.Less(d & 0xFF, c & 0xFF);
+            Assert.AreEqual(c, BlockMesher.Shade(c, 1f));
         }
     }
 }

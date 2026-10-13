@@ -26,7 +26,7 @@ namespace Game.World.Tests
             var p = JsonUtility.FromJson<TerrainParams>(File.ReadAllText(SourcePath));
             Assert.DoesNotThrow(p.Validate);
             Assert.AreEqual(new WorldSize(64, 32, 64), p.Size);
-            Assert.AreEqual(1, p.generatorVersion);
+            Assert.AreEqual(2, p.generatorVersion);
         }
 
         [Test]

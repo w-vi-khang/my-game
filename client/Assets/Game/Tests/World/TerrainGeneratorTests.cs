@@ -93,5 +93,27 @@ namespace Game.World.Tests
                 Assert.AreEqual(0, Cell.GetReserved(c));
             }
         }
+
+        [Test]
+        public void Version2HasOceanRingAroundIsland()
+        {
+            // 0009: vành biển quanh map — cột cách biên < islandMargin ở đúng đáy biển, nước phủ tới mặt nước; mép map dưới mặt nước.
+            var p = new TerrainParams();
+            Assert.AreEqual(2, p.generatorVersion);
+            var w = TerrainGenerator.Generate(p);
+            int seaFloor = p.waterLevel - p.seaFloorDepth, ring = 0;
+            for (int z = 0; z < p.sizeZ; z++)
+            for (int x = 0; x < p.sizeX; x++)
+            {
+                int edge = System.Math.Min(System.Math.Min(x, z), System.Math.Min(p.sizeX - 1 - x, p.sizeZ - 1 - z));
+                if (edge >= p.islandMargin)
+                    continue;
+                ring++;
+                Assert.AreEqual(seaFloor, w.SurfaceHeight(x, z), $"đáy biển ({x},{z})");
+                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, p.waterLevel, z), $"nước ở mặt biển ({x},{z})");
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, p.waterLevel + 1, z), $"trên mặt biển ({x},{z})");
+            }
+            Assert.Greater(ring, 0);
+        }
     }
 }

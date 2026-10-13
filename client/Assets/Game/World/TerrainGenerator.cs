@@ -44,6 +44,10 @@ namespace Game.World
                     SandBand = p.sandBand,
                     LakeRadius = p.lakeRadius,
                     LakeDepth = p.lakeDepth,
+                    Version = p.generatorVersion,
+                    IslandMargin = p.islandMargin,
+                    IslandFalloff = p.islandFalloff,
+                    SeaFloor = p.waterLevel - p.seaFloorDepth,
                 };
                 job.Schedule(size.X * size.Z, 64).Complete();
                 ranWithBurst = managedFlag[0] == 0;
@@ -68,6 +72,9 @@ namespace Game.World
             public float BaseHeight, Amplitude1, Frequency1, Amplitude2, Frequency2;
             public int MinSurface, MaxSurface, BedrockLayers, DirtDepth, WaterLevel, SandBand;
             public float LakeRadius, LakeDepth;
+            public int Version;
+            public float IslandMargin, IslandFalloff;
+            public int SeaFloor;
 
             public void Execute(int column)
             {
@@ -91,10 +98,23 @@ namespace Game.World
                 if (d < 1f)
                     h -= LakeDepth * (1f - d * d);
 
+                // v2 (0009): hạ dần về đáy biển ở rìa → đảo có vành biển, không mép cắt ngang trên mặt nước.
+                float island = 1f;
+                if (Version >= 2)
+                {
+                    float edge = math.min(math.min(x, z), math.min(SizeX - 1 - x, SizeZ - 1 - z));
+                    island = math.smoothstep(IslandMargin, IslandMargin + IslandFalloff, edge);
+                    h = math.lerp(SeaFloor, h, island);
+                }
+
                 int surface = math.clamp((int)math.floor(h), MinSurface, MaxSurface);
-                // Hồ có thể kéo mặt đất xuống dưới MinSurface — vẫn giữ trên lớp đá đáy.
-                if (d < 1f)
+                // Hồ và sườn xuống biển có thể kéo mặt đất xuống dưới MinSurface — vẫn giữ trên lớp đá đáy.
+                if (d < 1f || island < 1f)
+                {
                     surface = math.max((int)math.floor(h), BedrockLayers);
+                    if (Version >= 2)
+                        surface = math.min(surface, MaxSurface);
+                }
 
                 bool sandTop = surface <= WaterLevel + SandBand;
 
