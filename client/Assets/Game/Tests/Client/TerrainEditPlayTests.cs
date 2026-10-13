@@ -136,10 +136,18 @@ namespace Game.Client.Tests
             // Ô 16,16,16 là góc của 8 chunk (4 × 2 × 4 chunk của map M1).
             var cell = new Vector3Int(16, 16, 16);
             var frames = new List<int>();
+            int surface = view.World.SurfaceHeight(16, 16);
+            if (surface < 16)
+            {
+                // Luật đặt (0012): khối phải kề khối đặc → dựng cột đỡ từ mặt đất (kể cả trong nước) lên y = 15 trước.
+                view.Inventory.Add(BlockMaterial.Dirt, 16 - surface);
+                for (int y = surface + 1; y < 16; y++)
+                    Assert.AreEqual(EditResult.Ok, view.Place(new Vector3Int(16, y, 16), BlockMaterial.Dirt), $"cột đỡ y = {y}");
+                yield return null;
+            }
             int frame = Time.frameCount;
             if (view.World.GetMaterial(16, 16, 16) == BlockMaterial.Empty)
             {
-                view.Inventory.Add(BlockMaterial.Dirt);
                 Assert.AreEqual(EditResult.Ok, view.Place(cell, BlockMaterial.Dirt));
             }
             else

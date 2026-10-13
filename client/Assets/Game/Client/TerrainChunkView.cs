@@ -18,6 +18,8 @@ namespace Game.Client
         public int chunkX = 1;
         public int chunkZ = 1;
         public UnityEngine.Material material;
+        /// <summary>Material mặt nước theo ô (submesh 1, 0012) — nên dùng cùng material với mặt biển nền để liền màu.</summary>
+        public UnityEngine.Material waterMaterial;
         public Color color = Color.white;
 
         sealed class ChunkSlot
@@ -63,13 +65,14 @@ namespace Game.Client
             var p = ConfigLoader.LoadTerrainParams();
             World = TerrainGenerator.Generate(p);
             Inventory = new MaterialInventory();
-            Editor = new WorldEditor(World, Inventory, BlockMesher.CellMargin);
+            Editor = new WorldEditor(World, Inventory, BlockMesher.CellMargin, p.waterLevel);
             Editor.CellChanged += OnCellChanged;
             dirty.Clear();
 
             // Mặc định: shader Game/Terrain (màu đỉnh theo vật liệu, nhám — decision 0011); color là sắc nhân thêm.
             var mat = material != null ? material : CreateTerrainMaterial();
             mat.SetColor("_BaseColor", color);
+            var water = waterMaterial != null ? waterMaterial : CreateWaterMaterial();
 
             var s = World.Size;
             slots = new ChunkSlot[s.ChunkCount];
@@ -79,7 +82,7 @@ namespace Game.Client
                 ChunkCoords(c, out int cx, out int cy, out int cz);
                 if (!allChunks && (cx != chunkX || cz != chunkZ))
                     continue;
-                slots[c] = CreateSlot(cx, cy, cz, mat);
+                slots[c] = CreateSlot(cx, cy, cz, mat, water);
                 shown.Add(c);
             }
 
@@ -161,6 +164,14 @@ namespace Game.Client
             LastRebuildFrame = Time.frameCount;
         }
 
+        static UnityEngine.Material CreateWaterMaterial()
+        {
+            var shader = Shader.Find("Game/Ocean");
+            return shader != null
+                ? new UnityEngine.Material(shader)
+                : new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
+        }
+
         static UnityEngine.Material CreateTerrainMaterial()
         {
             var shader = Shader.Find("Game/Terrain");
@@ -169,7 +180,7 @@ namespace Game.Client
                 : new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
         }
 
-        ChunkSlot CreateSlot(int cx, int cy, int cz, UnityEngine.Material mat)
+        ChunkSlot CreateSlot(int cx, int cy, int cz, UnityEngine.Material mat, UnityEngine.Material water)
         {
             var mesh = new Mesh { name = $"chunk {cx},{cy},{cz}" };
             var go = new GameObject(mesh.name);
@@ -179,7 +190,7 @@ namespace Game.Client
             var col = go.AddComponent<MeshCollider>();
             col.cookingOptions = ChunkColliderBaker.CookingOptions;
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            go.AddComponent<MeshRenderer>().sharedMaterial = mat;
+            go.AddComponent<MeshRenderer>().sharedMaterials = new[] { mat, water }; // submesh 0 địa hình, 1 mặt nước
             var colliderMesh = new Mesh { name = mesh.name + " collider" };
             return new ChunkSlot { Mesh = mesh, ColliderMesh = colliderMesh, Collider = col };
         }

@@ -39,13 +39,18 @@ namespace Game.World
                 data.GetVertexData<float3>(1).CopyFrom(chunk.Normals);
                 data.GetVertexData<uint>(2).CopyFrom(chunk.Colors);
 
-                data.SetIndexBufferParams(chunk.Indices.Length, IndexFormat.UInt16);
+                // Submesh 0 = địa hình, submesh 1 = mặt nước (có thể rỗng) — MeshRenderer có 2 material.
+                int water = chunk.WaterIndices?.Length ?? 0;
+                data.SetIndexBufferParams(chunk.Indices.Length + water, IndexFormat.UInt16);
                 var indices = data.GetIndexData<ushort>();
                 for (int i = 0; i < chunk.Indices.Length; i++)
                     indices[i] = (ushort)chunk.Indices[i];
+                for (int i = 0; i < water; i++)
+                    indices[chunk.Indices.Length + i] = (ushort)chunk.WaterIndices[i];
 
-                data.subMeshCount = 1;
-                data.SetSubMesh(0, new SubMeshDescriptor(0, chunk.Indices.Length));
+                data.subMeshCount = 2;
+                data.SetSubMesh(0, new SubMeshDescriptor(0, chunk.Indices.Length), MeshUpdateFlags.DontRecalculateBounds);
+                data.SetSubMesh(1, new SubMeshDescriptor(chunk.Indices.Length, water), MeshUpdateFlags.DontRecalculateBounds);
             }
             var list = new List<Mesh>(meshes);
             Mesh.ApplyAndDisposeWritableMeshData(array, list);

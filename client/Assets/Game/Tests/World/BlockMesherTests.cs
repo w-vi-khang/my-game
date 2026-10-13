@@ -397,5 +397,33 @@ namespace Game.World.Tests
             Assert.Less(d & 0xFF, c & 0xFF);
             Assert.AreEqual(c, BlockMesher.Shade(c, 1f));
         }
+
+        // ---------------- Mặt nước theo ô (bước 5c, 0012) ----------------
+
+        [Test]
+        public void WaterSurfaceOnlyWhereAirIsAbove()
+        {
+            // Cột nước 2 ô (y 7, 8) trên nền đá: chỉ ô trên cùng có mặt nước, ở y = 9 − WaterSurfaceDrop. Ô nước bị đá đè: không có.
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 6, 4, Cell.Make(BlockMaterial.Stone));
+            w.Set(4, 7, 4, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(8, 7, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(8, 8, 8, Cell.Make(BlockMaterial.Stone));
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            Assert.AreEqual(2, mesh.WaterTriangleCount, "đúng một tứ giác mặt nước");
+            for (int k = 0; k < mesh.WaterIndices.Length; k++)
+            {
+                float3 p = mesh.Vertices[mesh.WaterIndices[k]];
+                Assert.AreEqual(9f - BlockMesher.WaterSurfaceDrop, p.y, 1e-5f);
+                Assert.That(p.x, Is.InRange(4f, 5f));
+                Assert.That(p.z, Is.InRange(4f, 5f));
+            }
+            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
+            {
+                float3 a = mesh.Vertices[mesh.WaterIndices[t]], b = mesh.Vertices[mesh.WaterIndices[t + 1]], c = mesh.Vertices[mesh.WaterIndices[t + 2]];
+                Assert.Greater(math.cross(b - a, c - a).y, 0f, "mặt nước hướng lên (cùng quy ước mặt trước)");
+            }
+        }
     }
 }

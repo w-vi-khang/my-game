@@ -95,6 +95,7 @@ namespace Game.Client
         {
             EditResult.NoMaterial => "kho hết loại này (đào loại đó trước, hoặc chọn loại khác bằng 1–4 / lăn chuột)",
             EditResult.NotEmpty => "ô đã có khối",
+            EditResult.NotAttached => "phải kề một khối đặc",
             EditResult.NotDiggable => "ô rỗng, nước, đá đáy hoặc khối cốt truyện",
             EditResult.OutOfBounds => "ngoài map",
             EditResult.Occupied => "ô đang bị chiếm",

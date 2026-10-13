@@ -34,6 +34,9 @@ namespace Game.World
         public const float LipRound = 0.04f;
         /// <summary>Độ dài váy cỏ dưới mặt trên: LipDepth ± LipWave1 ± LipWave2 (lượn sóng theo toạ độ dọc cạnh).</summary>
         public const float LipDepth = 0.22f, LipWave1 = 0.06f, LipWave2 = 0.03f;
+        /// <summary>Mặt nước của ô nước có không khí phía trên nằm thấp hơn mặt trên ô chừng này (trùng mặt biển nền — OceanBackdrop).</summary>
+        public const float WaterSurfaceDrop = 0.1f;
+
         /// <summary>Số đoạn dọc mỗi cạnh ô của váy cỏ / số đoạn của mảnh góc 1/4 vòng.</summary>
         public const int LipSegments = 4, LipCornerSegments = 3;
 
@@ -288,7 +291,7 @@ namespace Game.World
         {
             public NativeList<float3> Vertices, Normals, ColliderVertices;
             public NativeList<uint> Colors;
-            public NativeList<int> Indices, ColliderIndices;
+            public NativeList<int> Indices, ColliderIndices, WaterIndices;
 
             public static Output Create() => new Output
             {
@@ -298,6 +301,7 @@ namespace Game.World
                 Indices = new NativeList<int>(Allocator.TempJob),
                 ColliderVertices = new NativeList<float3>(Allocator.TempJob),
                 ColliderIndices = new NativeList<int>(Allocator.TempJob),
+                WaterIndices = new NativeList<int>(Allocator.TempJob),
             };
 
             public ChunkMesh ToChunkMesh() => new ChunkMesh
@@ -308,6 +312,7 @@ namespace Game.World
                 Indices = Indices.AsArray().ToArray(),
                 ColliderVertices = ColliderVertices.AsArray().ToArray(),
                 ColliderIndices = ColliderIndices.AsArray().ToArray(),
+                WaterIndices = WaterIndices.AsArray().ToArray(),
             };
 
             public void Dispose()
@@ -318,6 +323,7 @@ namespace Game.World
                 if (Indices.IsCreated) Indices.Dispose();
                 if (ColliderVertices.IsCreated) ColliderVertices.Dispose();
                 if (ColliderIndices.IsCreated) ColliderIndices.Dispose();
+                if (WaterIndices.IsCreated) WaterIndices.Dispose();
             }
         }
 
@@ -365,6 +371,13 @@ namespace Game.World
                     if (g.x >= SizeX || g.y >= SizeY || g.z >= SizeZ)
                         continue;
                     int m = Cells[g.x + SizeX * (g.z + SizeZ * g.y)] & 0xFF;
+                    if (m == (int)BlockMaterial.Water)
+                    {
+                        int above = MaterialAt(g + new int3(0, 1, 0));
+                        if (above == (int)BlockMaterial.Empty)
+                            AddWaterSurface(new int3(x, y, z));
+                        continue;
+                    }
                     if (!IsSolidMaterial(m))
                         continue;
                     for (int axis = 0; axis < 3; axis++)
@@ -778,6 +791,20 @@ namespace Game.World
                     AddOriented(a, b, b + 1, mid);
                     AddOriented(a, b + 1, a + 1, mid);
                 }
+            }
+
+            /// <summary>Mặt nước của ô nước có không khí phía trên (0012): tứ giác ngang ở y + 1 − WaterSurfaceDrop, submesh 1.</summary>
+            void AddWaterSurface(int3 c)
+            {
+                float y = c.y + 1 - WaterSurfaceDrop;
+                float3 up = new float3(0, 1, 0);
+                int i0 = AddVertex(new float3(c.x, y, c.z), up, 0);
+                AddVertex(new float3(c.x + 1, y, c.z), up, 0);
+                AddVertex(new float3(c.x + 1, y, c.z + 1), up, 0);
+                AddVertex(new float3(c.x, y, c.z + 1), up, 0);
+                // Mặt trên (pháp tuyến +y): cross(du, dv) với du = +z, dv = +x theo quy ước trục 1 → thứ tự (0, 3, 2)(0, 2, 1).
+                Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 3); Out.WaterIndices.Add(i0 + 2);
+                Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 2); Out.WaterIndices.Add(i0 + 1);
             }
 
             int AddVertex(float3 p, float3 n, uint color)

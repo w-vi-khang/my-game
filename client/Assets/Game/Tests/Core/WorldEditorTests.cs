@@ -15,7 +15,10 @@ namespace Game.Core.Tests
         public void SetUp()
         {
             world = new WorldData(new WorldSize(32, 16, 32));
-            world.Set(1, 0, 1, Cell.Make(BlockMaterial.Bedrock));
+            // Nền đá đáy y = 0 → ô y = 1 luôn kề khối đặc (luật đặt 0012).
+            for (int z = 0; z < 32; z++)
+            for (int x = 0; x < 32; x++)
+                world.Set(x, 0, z, Cell.Make(BlockMaterial.Bedrock));
             world.Set(1, 1, 1, Cell.Make(BlockMaterial.Dirt));
             world.Set(1, 2, 1, Cell.Make(BlockMaterial.Grass));
             world.Set(2, 1, 1, Cell.Make(BlockMaterial.Water, 7));
@@ -95,7 +98,7 @@ namespace Game.Core.Tests
         {
             inv.Add(BlockMaterial.Dirt, 5);
             Assert.AreEqual(EditResult.NotEmpty, editor.TryPlace(1, 1, 1, BlockMaterial.Dirt));
-            Assert.AreEqual(EditResult.NotEmpty, editor.TryPlace(2, 1, 1, BlockMaterial.Dirt), "nước");
+            Assert.AreEqual(EditResult.NotEmpty, editor.TryPlace(1, 0, 5, BlockMaterial.Dirt), "đá đáy");
             Assert.AreEqual(5, inv.Get(BlockMaterial.Dirt));
             Assert.IsEmpty(changed);
         }

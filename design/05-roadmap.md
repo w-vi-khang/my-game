@@ -66,6 +66,7 @@ Ghi theo AGENTS.local (so với ước lượng; sau 4–6 hạng mục tính l�
 | World bước 5.4 — hoa văn bằng code, AO theo đỉnh, ánh sáng mềm (chờ user duyệt ảnh) | 1–2 | ~0,15 giờ (19:32–19:41, 2026-10-13) | 2 test mới (65 EditMode + 5 PlayMode); sửa lỗi sRGB của 5.1 |
 | World bước 5b (phần hiển thị) — biển nền, trời mây, sương mù; bóng hết răng cưa (user yêu cầu) | 2–3 (cả 5b) | ~0,2 giờ (19:37–19:49, 2026-10-13) | 1 test PlayMode mới (65 EditMode + 6 PlayMode). Chưa làm phần bộ sinh đảo |
 | World bước 5b (bộ sinh đảo, generatorVersion 2) + ghi 0012 | (trong 2–3 của 5b) | ~0,3 giờ (19:58–20:16, 2026-10-13) | 1 test mới + test mã băm v1/v2 (67 EditMode + 6 PlayMode). Chưa so mã băm v2 trên Android |
+| World bước 5c — luật đặt khối + biển loang + mặt nước theo ô ([0012](decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)) | 3–5 | ~0,2 giờ (20:18–20:29, 2026-10-13) | 14 test mới (80 EditMode + 6 PlayMode); 1 test PlayMode cũ sửa theo luật đặt mới |
 
 ## Kiểm tra phạm vi
 ⚠️ **Vượt quỹ thời gian.** Sau C1 ([0007](decisions/0007-m1-toi-gian.md)), M1 còn ~14–23 tháng ở 10 giờ/tuần (sau 0011, 0012); toàn bộ tới M4 ~12,0–22,7 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
