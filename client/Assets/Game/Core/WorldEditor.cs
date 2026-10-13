@@ -24,8 +24,9 @@ namespace Game.Core
     /// <summary>
     /// Đào/đặt nguyên ô theo luật M1 (design/02-gameplay/mechanics.md "Voxel world — luật M1") và tính chunk cần dựng lại
     /// (design/04-tech/world-tech.md "Chỉnh sửa"). Biển tràn + luật đặt khối theo design/decisions/0012: đặt vào ô rỗng hoặc ô
-    /// nước kề mặt một khối đặc; đào ô ≤ mực nước biển kề nước (hoặc biển ngoài map) → nước loang ngay qua các ô rỗng ≤ mực
-    /// nước biển thông với nó (6 hướng). Nước không tự rút.
+    /// nước kề mặt một khối đặc; đào ô ≤ mực nước biển kề nước (hoặc biển ngoài map) → nước lan qua các ô rỗng ≤ mực nước
+    /// biển thông với nó (6 hướng) theo nhịp (design/decisions/0013): StepWater() một nhịp — rơi thẳng xuống ngay, lan ngang/dâng
+    /// 1 ô mỗi nhịp. Nước không tự rút.
     /// </summary>
     public sealed class WorldEditor
     {
@@ -38,8 +39,12 @@ namespace Game.Core
         /// <summary>Mực nước biển S (ô y ≤ S có thể ngập); &lt; 0 → không có biển loang.</summary>
         public readonly int SeaLevel;
 
-        /// <summary>Số ô vừa ngập ở lần đào gần nhất (0 nếu không loang).</summary>
-        public int LastFloodCount { get; private set; }
+        /// <summary>Mặt trước dòng nước: ô sẽ ngập ở nhịp sau (nếu khi đó còn rỗng). Thứ tự chèn cố định → tất định.</summary>
+        readonly List<(int x, int y, int z)> waterFront = new List<(int, int, int)>();
+        readonly HashSet<(int, int, int)> waterFrontSet = new HashSet<(int, int, int)>();
+
+        /// <summary>Còn nước đang lan (gọi StepWater theo nhịp).</summary>
+        public bool HasPendingWater => waterFront.Count > 0;
 
         /// <summary>Móc kiểm tra ô bị chiếm (người chơi, sinh vật, cây, kho). M1 bước 4 chưa có vật thể → mặc định null.</summary>
         public Func<int, int, int, bool> IsOccupied;
@@ -73,7 +78,8 @@ namespace Game.Core
             World.Set(x, y, z, Cell.SetModified(Cell.SetMaterial(cell, BlockMaterial.Empty), true));
             Inventory.Add(material);
             CellChanged?.Invoke(x, y, z);
-            LastFloodCount = Flood(x, y, z);
+            if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
+                AddToFront(x, y, z);
             return EditResult.Ok;
         }
 
@@ -131,40 +137,69 @@ namespace Game.Core
             return World.GetMaterial(x, y, z) == BlockMaterial.Water;
         }
 
-        /// <summary>Biển loang từ ô vừa đào: nếu ô ≤ SeaLevel kề nguồn nước → mọi ô rỗng ≤ SeaLevel thông với nó (6 hướng) thành nước.</summary>
-        int Flood(int x, int y, int z)
+        bool TouchesWater(int x, int y, int z)
         {
-            if (SeaLevel < 0 || y > SeaLevel)
-                return 0;
-            bool touches = false;
             foreach (var (dx, dy, dz) in Faces)
-                touches |= IsWaterSource(x + dx, y + dy, z + dz);
-            if (!touches)
-                return 0;
+                if (IsWaterSource(x + dx, y + dy, z + dz))
+                    return true;
+            return false;
+        }
 
-            var queue = new Queue<(int, int, int)>();
-            int count = 0;
-            Fill(x, y, z);
-            while (queue.Count > 0)
+        bool IsFloodable(int x, int y, int z) =>
+            y <= SeaLevel && World.Size.InBounds(x, y, z) && World.GetMaterial(x, y, z) == BlockMaterial.Empty;
+
+        void AddToFront(int x, int y, int z)
+        {
+            if (waterFrontSet.Add((x, y, z)))
+                waterFront.Add((x, y, z));
+        }
+
+        void FillWater(int x, int y, int z)
+        {
+            ushort old = World.Get(x, y, z);
+            World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(old, BlockMaterial.Water), Cell.MaxWaterLevel), true));
+            CellChanged?.Invoke(x, y, z);
+        }
+
+        /// <summary>
+        /// Một nhịp nước lan (0013): mọi ô ở mặt trước còn rỗng thành nước; từ mỗi ô vừa ngập, nước rơi thẳng xuống qua các ô rỗng
+        /// ≤ SeaLevel ngay trong nhịp; ô rỗng ≤ SeaLevel kề ngang hoặc phía trên các ô vừa ngập vào mặt trước nhịp sau.
+        /// Ô ở mặt trước đã bị đặt khối thì bỏ qua (khối chặn dòng nước). Trả về số ô ngập trong nhịp.
+        /// </summary>
+        public int StepWater()
+        {
+            if (waterFront.Count == 0)
+                return 0;
+            var front = waterFront.ToArray();
+            waterFront.Clear();
+            waterFrontSet.Clear();
+            var filled = new List<(int x, int y, int z)>();
+            foreach (var (x, y, z) in front)
             {
-                var (cx, cy, cz) = queue.Dequeue();
-                foreach (var (dx, dy, dz) in Faces)
+                if (!IsFloodable(x, y, z))
+                    continue;
+                FillWater(x, y, z);
+                filled.Add((x, y, z));
+                for (int fy = y - 1; IsFloodable(x, fy, z); fy--)
                 {
-                    int nx = cx + dx, ny = cy + dy, nz = cz + dz;
-                    if (ny <= SeaLevel && World.Size.InBounds(nx, ny, nz) && World.GetMaterial(nx, ny, nz) == BlockMaterial.Empty)
-                        Fill(nx, ny, nz);
+                    FillWater(x, fy, z);
+                    filled.Add((x, fy, z));
                 }
             }
-            return count;
+            foreach (var (x, y, z) in filled)
+                foreach (var (dx, dy, dz) in Faces)
+                    if (dy >= 0 && IsFloodable(x + dx, y + dy, z + dz))
+                        AddToFront(x + dx, y + dy, z + dz);
+            return filled.Count;
+        }
 
-            void Fill(int fx, int fy, int fz)
-            {
-                ushort old = World.Get(fx, fy, fz);
-                World.Set(fx, fy, fz, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(old, BlockMaterial.Water), Cell.MaxWaterLevel), true));
-                queue.Enqueue((fx, fy, fz));
-                count++;
-                CellChanged?.Invoke(fx, fy, fz);
-            }
+        /// <summary>Chạy StepWater tới khi hết nước đang lan (test, tua nhanh). Trả về tổng số ô ngập.</summary>
+        public int SettleWater(int maxSteps = 100000)
+        {
+            int total = 0;
+            for (int i = 0; i < maxSteps && HasPendingWater; i++)
+                total += StepWater();
+            return total;
         }
 
         /// <summary>Thêm vào <paramref name="result"/> chỉ số mọi chunk có vùng đọc (chunk ± MeshMargin ô) chứa ô (x, y, z), kể cả chunk chéo.</summary>

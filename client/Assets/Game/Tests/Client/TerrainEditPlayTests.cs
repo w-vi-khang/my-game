@@ -186,5 +186,38 @@ namespace Game.Client.Tests
             }
             Debug.Log($"PLAYTEST 1 chunk (TB {n} lần): mesh {mesh / n:F2} ms, ghi {write / n:F2} ms, bake {bake / n:F2} ms");
         }
+
+        [UnityTest]
+        public IEnumerator SeaFlowsInGraduallyAfterDig()
+        {
+            // 0013: đào ô bờ biển ở mực nước biển → không ngập ngay; TerrainChunkView chạy StepWater theo nhịp → ngập sau vài nhịp.
+            var p = ConfigLoader.LoadTerrainParams();
+            int S = p.waterLevel;
+            var w = view.World;
+            Vector3Int cell = default;
+            bool found = false;
+            for (int z = 1; z < p.sizeZ - 1 && !found; z++)
+            for (int x = 1; x < p.sizeX - 1 && !found; x++)
+            {
+                if (!Cell.IsDiggable(w.Get(x, S, z)))
+                    continue;
+                if (w.GetMaterial(x - 1, S, z) == BlockMaterial.Water || w.GetMaterial(x + 1, S, z) == BlockMaterial.Water ||
+                    w.GetMaterial(x, S, z - 1) == BlockMaterial.Water || w.GetMaterial(x, S, z + 1) == BlockMaterial.Water)
+                {
+                    cell = new Vector3Int(x, S, z);
+                    found = true;
+                }
+            }
+            Assert.IsTrue(found, "không có ô bờ biển ở mực nước");
+            Assert.AreEqual(EditResult.Ok, view.Dig(cell));
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(cell.x, cell.y, cell.z), "không ngập ngay khi vừa đào");
+            Assert.IsTrue(view.Editor.HasPendingWater);
+            float start = Time.time;
+            while (view.Editor.HasPendingWater && Time.time - start < 5f)
+                yield return null;
+            Assert.IsFalse(view.Editor.HasPendingWater, "nước phải yên trong 5 giây");
+            Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(cell.x, cell.y, cell.z), "ô bờ biển đã ngập");
+            Assert.Greater(Time.time - start, 0.5f / view.waterStepsPerSecond, "ngập sau ít nhất một nhịp, không tức thời");
+        }
     }
 }

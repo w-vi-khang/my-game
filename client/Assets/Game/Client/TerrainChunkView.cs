@@ -20,6 +20,9 @@ namespace Game.Client
         public UnityEngine.Material material;
         /// <summary>Material mặt nước theo ô (submesh 1, 0012) — nên dùng cùng material với mặt biển nền để liền màu.</summary>
         public UnityEngine.Material waterMaterial;
+        /// <summary>Nhịp nước lan (design/decisions/0013): số lần WorldEditor.StepWater mỗi giây.</summary>
+        public float waterStepsPerSecond = 8f;
+        float waterTimer;
         public Color color = Color.white;
 
         sealed class ChunkSlot
@@ -113,6 +116,7 @@ namespace Game.Client
 
         void LateUpdate()
         {
+            StepWater();
             if (dirty.Count == 0)
                 return;
             // Bỏ chunk không hiển thị (chế độ một cột).
@@ -121,6 +125,24 @@ namespace Game.Client
             Debug.Log($"TERRAINVIEW sửa ô → {LastRebuildChunks} chunk: dựng mesh {LastMeshMs:F2} ms, ghi {LastWriteMs:F2} ms, " +
                       $"bake {LastBakeMs:F2} ms, khung hình {LastRebuildFrame}");
             dirty.Clear();
+        }
+
+        /// <summary>Nước lan theo nhịp cố định (không phụ thuộc khung hình); tối đa 4 nhịp mỗi khung để khung chậm không dồn việc.</summary>
+        void StepWater()
+        {
+            if (Editor == null || !Editor.HasPendingWater || waterStepsPerSecond <= 0f)
+            {
+                waterTimer = 0f;
+                return;
+            }
+            float interval = 1f / waterStepsPerSecond;
+            waterTimer += Time.deltaTime;
+            for (int k = 0; k < 4 && waterTimer >= interval; k++)
+            {
+                Editor.StepWater();
+                waterTimer -= interval;
+            }
+            waterTimer = Mathf.Min(waterTimer, interval);
         }
 
         void Rebuild(List<int> chunkIndices)

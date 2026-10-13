@@ -10,7 +10,7 @@
 
 | Cơ chế | Mô tả | Pillar | Thành phần | Ưu tiên | Ước lượng | Milestone |
 |---|---|---|---|---|---|---|
-| Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **dạng khối bo cạnh, mép cỏ phủ** ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md); dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15): M1 tối giản 17–28 (+2–3 của 0009, +6–9 của 0011, +3–5 của 0012), M2 18–27 | M1 (tối giản — [0007](../decisions/0007-m1-toi-gian.md)), M2 |
+| Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **dạng khối bo cạnh, mép cỏ phủ** ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md); dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15): M1 tối giản 17–28 (+2–3 của 0009, +6–9 của 0011, +3–5 của 0012, +1 của 0013), M2 18–27 | M1 (tối giản — [0007](../decisions/0007-m1-toi-gian.md)), M2 |
 | Nước chảy | Nước chảy theo ô (mực 0–7), tràn vào chỗ đào, không cạn; người chơi tạo được nguồn nước; ảnh hưởng môi trường sống, tưới nước, tìm đường; M1 dùng nước tĩnh | P1, P2 | Client | Phải có | 8–15 | M2 [ý tưởng] |
 | Biến thể hiển thị | Mỗi cá thể sinh vật, cây, vật thể render khác nhau một chút theo seed riêng (kích thước, màu, hoa văn...), không giống hệt nhau | P2 | Client | Nên có | 3–6 | M2 [ý tưởng] |
 | Biến thể | Dạng khác của loài: cá thể đặc biệt về màu sắc, hình thái; tách riêng với vượt trội | P1, P2 | Client + Backend (sinh khi nhận sinh vật) | Nên có | 3–5 + phần art mỗi biến thể | M3 [ý tưởng] |
@@ -55,7 +55,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 
 #### Voxel world — luật M1
 - Vật liệu: **đất, cỏ, đá, cát**; nước có sẵn (biển quanh đảo + hồ). Hai lớp đáy là đá không đào được. Ô nước không đào được (không lấy nước vào kho).
-- **Biển tràn** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)): mực nước biển S = mực nước của world; đào một ô cao ≤ S kề mặt (6 hướng) ô nước hoặc biển ngoài map → nước loang ngay qua mọi ô rỗng ≤ S thông với nó (khe chéo không thông). Ô cao hơn S không ngập. Nước không tự rút — đặt khối/phá tường không làm khô vùng nào. Chảy dần (mực 0–7) là M2.
+- **Biển tràn** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)): mực nước biển S = mực nước của world; đào một ô cao ≤ S kề mặt (6 hướng) ô nước hoặc biển ngoài map → nước lan qua mọi ô rỗng ≤ S thông với nó (khe chéo không thông) **theo nhịp** ([0013](../decisions/0013-nuoc-lan-theo-nhip.md)): rơi thẳng xuống ngay, lan ngang/dâng lên 1 ô mỗi nhịp (~8 nhịp/giây); đặt khối vào đường nước đang lan thì chặn được. Ô cao hơn S không ngập. Nước không tự rút — đặt khối/phá tường không làm khô vùng nào. Chảy dần (mực 0–7) là M2.
 - **Đào** (cuốc): ô thành rỗng, vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2).
 - **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ kho vật liệu; hết thì không đặt được. Đặt vào ô **rỗng hoặc ô nước** (nước ô đó mất), ô phải **kề mặt ít nhất một khối đặc** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)). Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
 - Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → **trồng được**.

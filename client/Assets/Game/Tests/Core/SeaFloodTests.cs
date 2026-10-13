@@ -41,6 +41,13 @@ namespace Game.Core.Tests
             return w;
         }
 
+        /// <summary>Đào rồi cho nước lan tới khi yên; trả về số ô ngập.</summary>
+        static int DigSettle(WorldEditor e, int x, int y, int z)
+        {
+            Assert.AreEqual(EditResult.Ok, e.TryDig(x, y, z), $"đào ({x},{y},{z})");
+            return e.SettleWater();
+        }
+
         static WorldEditor Editor(WorldData w)
         {
             var inv = new MaterialInventory();
@@ -81,9 +88,8 @@ namespace Game.Core.Tests
         {
             var w = Coast();
             var e = Editor(w);
-            Assert.AreEqual(EditResult.Ok, e.TryDig(4, 5, 7));
+            Assert.AreEqual(1, DigSettle(e, 4, 5, 7));
             Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(4, 5, 7));
-            Assert.AreEqual(1, e.LastFloodCount);
             Assert.IsTrue(Cell.IsModified(w.Get(4, 5, 7)));
         }
 
@@ -92,9 +98,8 @@ namespace Game.Core.Tests
         {
             var w = Coast();
             var e = Editor(w);
-            Assert.AreEqual(EditResult.Ok, e.TryDig(4, S + 1, 7));
+            Assert.AreEqual(0, DigSettle(e, 4, S + 1, 7));
             Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(4, S + 1, 7));
-            Assert.AreEqual(0, e.LastFloodCount);
         }
 
         [Test]
@@ -107,12 +112,9 @@ namespace Game.Core.Tests
             for (int x = 6; x <= 8; x++)
                 w.Set(x, y, z, Cell.Make(BlockMaterial.Empty));
             var e = Editor(w);
-            Assert.AreEqual(EditResult.Ok, e.TryDig(9, 4, 7));
-            Assert.AreEqual(0, e.LastFloodCount, "chỉ kề hầm khô, không kề nước → không loang");
-            Assert.AreEqual(EditResult.Ok, e.TryDig(4, 5, 7));
-            Assert.AreEqual(1, e.LastFloodCount);
-            Assert.AreEqual(EditResult.Ok, e.TryDig(5, 5, 7));
-            Assert.AreEqual(1 + 27 + 1, e.LastFloodCount, "ô vừa đào + 27 ô hầm + ô (9, 4, 7) đào trước đó");
+            Assert.AreEqual(0, DigSettle(e, 9, 4, 7), "chỉ kề hầm khô, không kề nước → không loang");
+            Assert.AreEqual(1, DigSettle(e, 4, 5, 7));
+            Assert.AreEqual(1 + 27 + 1, DigSettle(e, 5, 5, 7), "ô vừa đào + 27 ô hầm + ô (9, 4, 7) đào trước đó");
             for (int y = 3; y <= S; y++)
             for (int z = 6; z <= 8; z++)
             for (int x = 6; x <= 8; x++)
@@ -126,7 +128,7 @@ namespace Game.Core.Tests
             var e = Editor(w);
             // (4, 5, 7) chỉ chạm nước theo cạnh chéo nếu bốn ô kề mặt đều đặc: đặt đá ở (3, 5, 7) trước.
             Assert.AreEqual(EditResult.Ok, e.TryPlace(3, 5, 7, BlockMaterial.Stone));
-            Assert.AreEqual(EditResult.Ok, e.TryDig(4, 5, 7));
+            DigSettle(e, 4, 5, 7);
             Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(4, 5, 7), "(3, 5, 6) và (3, 4, 7) là nước nhưng chỉ chạm chéo");
         }
 
@@ -140,11 +142,11 @@ namespace Game.Core.Tests
             for (int y = 0; y <= 8; y++)
                 w.Set(x, y, z, Cell.Make(y == 0 ? BlockMaterial.Bedrock : BlockMaterial.Stone));
             var e = Editor(w);
-            Assert.AreEqual(EditResult.Ok, e.TryDig(0, 3, 5));
+            DigSettle(e, 0, 3, 5);
             Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(0, 3, 5));
-            Assert.AreEqual(EditResult.Ok, e.TryDig(1, 3, 5));
+            DigSettle(e, 1, 3, 5);
             Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(1, 3, 5), "kề ô vừa ngập");
-            Assert.AreEqual(EditResult.Ok, e.TryDig(5, 3, 5));
+            DigSettle(e, 5, 3, 5);
             Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(5, 3, 5), "giữa map, không kề nước");
         }
 
@@ -174,7 +176,7 @@ namespace Game.Core.Tests
             for (int y = S; y >= 1; y--)
             for (int z = 6; z <= 8; z++)
             for (int x = 6; x <= 8; x++)
-                Assert.AreEqual(EditResult.Ok, e.TryDig(x, y, z), $"đào ({x},{y},{z})");
+                DigSettle(e, x, y, z);
         }
 
         static int CountInside(WorldData w, BlockMaterial m)
@@ -225,7 +227,7 @@ namespace Game.Core.Tests
             // Đào bỏ chân tường phía x = 5 (y = 1): tường phía trên vẫn đứng (không có trọng lực), ô chân tường ngập → khe dưới tường.
             for (int z = 6; z <= 8; z++)
             {
-                Assert.AreEqual(EditResult.Ok, e.TryDig(5, 1, z));
+                DigSettle(e, 5, 1, z);
                 Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(5, 1, z), "chân tường kề biển → ngập");
             }
             FillThenDigInside(e);
@@ -239,8 +241,105 @@ namespace Game.Core.Tests
             var e = Editor(w);
             BuildRingWall(e, 1, openSide: false);
             FillThenDigInside(e);
-            Assert.AreEqual(EditResult.Ok, e.TryDig(7, 3, 9), "phá một khối tường");
+            DigSettle(e, 7, 3, 9);
             Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "mở thông ra biển, thấp hơn mực nước → ngập");
+        }
+
+        // ---------------- Lan theo nhịp (0013) ----------------
+
+        /// <summary>Hành lang khô dài 6 ô ở y = S (x 5..10, z 7) trong đất liền của Coast(), mở ra biển khi đào ô (4, S, 7).</summary>
+        static WorldData CoastWithCorridor()
+        {
+            var w = Coast();
+            for (int x = 5; x <= 10; x++)
+                w.Set(x, S, 7, Cell.Make(BlockMaterial.Empty));
+            return w;
+        }
+
+        [Test]
+        public void WaterSpreadsOneCellPerStepSideways()
+        {
+            var w = CoastWithCorridor();
+            var e = Editor(w);
+            Assert.AreEqual(EditResult.Ok, e.TryDig(4, S, 7));
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(4, S, 7), "đào xong chưa ngập — chờ nhịp");
+            Assert.IsTrue(e.HasPendingWater);
+            for (int step = 1; step <= 7; step++)
+            {
+                Assert.AreEqual(1, e.StepWater(), $"nhịp {step}: mỗi nhịp ngập đúng 1 ô dọc hành lang");
+                for (int x = 4; x <= 10; x++)
+                    Assert.AreEqual(x - 4 < step ? BlockMaterial.Water : BlockMaterial.Empty, w.GetMaterial(x, S, 7), $"nhịp {step}, x = {x}");
+            }
+            Assert.AreEqual(0, e.StepWater());
+            Assert.IsFalse(e.HasPendingWater);
+        }
+
+        [Test]
+        public void WaterFallsStraightDownWithinOneStep()
+        {
+            // Giếng khô x = 4, z = 7 từ y = 1 tới S − 1 dưới ô (4, S, 7): đào ô trên cùng → một nhịp ngập cả giếng.
+            var w = Coast();
+            for (int y = 1; y < S; y++)
+                w.Set(4, y, 7, Cell.Make(BlockMaterial.Empty));
+            var e = Editor(w);
+            Assert.AreEqual(EditResult.Ok, e.TryDig(4, S, 7));
+            Assert.AreEqual(S, e.StepWater(), "ô vừa đào + cả giếng bên dưới trong cùng nhịp");
+            for (int y = 1; y <= S; y++)
+                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(4, y, 7));
+        }
+
+        [Test]
+        public void PlacingBlockInFrontStopsTheFlow()
+        {
+            var w = CoastWithCorridor();
+            var e = Editor(w);
+            Assert.AreEqual(EditResult.Ok, e.TryDig(4, S, 7));
+            e.StepWater(); // (4, S, 7)
+            e.StepWater(); // (5, S, 7)
+            Assert.AreEqual(EditResult.Ok, e.TryPlace(7, S, 7, BlockMaterial.Stone), "chặn trước khi nước tới");
+            e.SettleWater();
+            Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(6, S, 7));
+            Assert.AreEqual(BlockMaterial.Stone, w.GetMaterial(7, S, 7));
+            for (int x = 8; x <= 10; x++)
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, S, 7), "sau khối chặn vẫn khô");
+        }
+
+        [Test]
+        public void SteppedResultEqualsInstantRule()
+        {
+            // Trạng thái cuối của lan theo nhịp = mọi ô rỗng ≤ S thông với nước (luật 0012), so với BFS tức thời viết riêng trong test.
+            var w = Coast();
+            var rng = new System.Random(13);
+            for (int k = 0; k < 120; k++)
+                w.Set(rng.Next(4, 16), rng.Next(1, S + 3), rng.Next(0, 16), Cell.Make(BlockMaterial.Empty));
+            w.Set(4, S, 7, Cell.Make(BlockMaterial.Stone)); // ô sẽ đào
+            var expected = (ushort[])w.Cells.Clone();
+            var e = Editor(w);
+            Assert.AreEqual(EditResult.Ok, e.TryDig(4, S, 7));
+            e.SettleWater();
+            // BFS tức thời trên bản sao.
+            var ew = new WorldData(w.Size, expected);
+            ew.Set(4, S, 7, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel)); // ô vừa đào kề biển (3, S, 7)
+            var q = new System.Collections.Generic.Queue<(int, int, int)>();
+            q.Enqueue((4, S, 7));
+            int[,] d = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
+            while (q.Count > 0)
+            {
+                var (x, y, z) = q.Dequeue();
+                for (int i = 0; i < 6; i++)
+                {
+                    int nx = x + d[i, 0], ny = y + d[i, 1], nz = z + d[i, 2];
+                    if (ny <= S && ew.Size.InBounds(nx, ny, nz) && ew.GetMaterial(nx, ny, nz) == BlockMaterial.Empty)
+                    {
+                        ew.Set(nx, ny, nz, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+                        q.Enqueue((nx, ny, nz));
+                    }
+                }
+            }
+            for (int y = 0; y < w.Size.Y; y++)
+            for (int z = 0; z < w.Size.Z; z++)
+            for (int x = 0; x < w.Size.X; x++)
+                Assert.AreEqual(ew.GetMaterial(x, y, z), w.GetMaterial(x, y, z), $"({x},{y},{z})");
         }
     }
 }
