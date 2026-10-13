@@ -79,6 +79,58 @@ namespace Game.World
             }
         }
 
+        /// <summary>Dựng mọi chunk song song (mỗi chunk một job, dùng chung mảng ô chỉ đọc). Thứ tự: x nhanh nhất, rồi z, rồi y.</summary>
+        public static ChunkMesh[] BuildAll(WorldData world)
+        {
+            var size = world.Size;
+            int count = size.ChunkCount;
+            var cells = new NativeArray<ushort>(world.Cells, Allocator.TempJob);
+            var lists = new (NativeList<float3> v, NativeList<float3> n, NativeList<float3> r, NativeList<int> i)[count];
+            var handles = new NativeArray<JobHandle>(count, Allocator.Temp);
+            try
+            {
+                for (int c = 0; c < count; c++)
+                {
+                    int cx = c % size.ChunksX, cz = c / size.ChunksX % size.ChunksZ, cy = c / (size.ChunksX * size.ChunksZ);
+                    lists[c] = (new NativeList<float3>(Allocator.TempJob), new NativeList<float3>(Allocator.TempJob),
+                        new NativeList<float3>(Allocator.TempJob), new NativeList<int>(Allocator.TempJob));
+                    handles[c] = new MeshJob
+                    {
+                        Cells = cells,
+                        SizeX = size.X, SizeY = size.Y, SizeZ = size.Z,
+                        Origin = new int3(cx, cy, cz) * WorldSize.ChunkSize,
+                        MaxShiftSamples = MaxShift * Resolution,
+                        Vertices = lists[c].v, Normals = lists[c].n, RawVertices = lists[c].r, Indices = lists[c].i,
+                    }.Schedule();
+                }
+                JobHandle.CompleteAll(handles);
+                var result = new ChunkMesh[count];
+                for (int c = 0; c < count; c++)
+                {
+                    result[c] = new ChunkMesh
+                    {
+                        Vertices = lists[c].v.AsArray().ToArray(),
+                        Normals = lists[c].n.AsArray().ToArray(),
+                        RawVertices = lists[c].r.AsArray().ToArray(),
+                        Indices = lists[c].i.AsArray().ToArray(),
+                    };
+                }
+                return result;
+            }
+            finally
+            {
+                handles.Dispose();
+                foreach (var l in lists)
+                {
+                    if (l.v.IsCreated) l.v.Dispose();
+                    if (l.n.IsCreated) l.n.Dispose();
+                    if (l.r.IsCreated) l.r.Dispose();
+                    if (l.i.IsCreated) l.i.Dispose();
+                }
+                cells.Dispose();
+            }
+        }
+
         [BurstCompile(CompileSynchronously = true)]
         struct MeshJob : IJob
         {
@@ -288,8 +340,11 @@ namespace Game.World
             {
                 if (y < 0)
                     return true;
-                if (y >= SizeY || x < 0 || z < 0 || x >= SizeX || z >= SizeZ)
+                if (y >= SizeY)
                     return false;
+                // Ngoài map theo x/z: lấy cột biên gần nhất → không sinh vách đứng ở mép map (0009).
+                x = math.clamp(x, 0, SizeX - 1);
+                z = math.clamp(z, 0, SizeZ - 1);
                 var m = (BlockMaterial)(Cells[x + SizeX * (z + SizeZ * y)] & 0xFF);
                 return m != BlockMaterial.Empty && m != BlockMaterial.Water;
             }

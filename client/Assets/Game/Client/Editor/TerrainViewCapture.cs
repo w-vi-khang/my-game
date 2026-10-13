@@ -38,6 +38,10 @@ namespace Game.Client.Editor
             Object.FindAnyObjectByType<TerrainChunkView>().Build();
 
             var cam = Camera.main;
+            cam.transform.position = new Vector3(-14f, 46f, -14f);
+            cam.transform.LookAt(new Vector3(32f, 8f, 32f));
+            cam.backgroundColor = new Color(0.62f, 0.8f, 0.95f);
+            cam.clearFlags = CameraClearFlags.SolidColor;
             var rt = new RenderTexture(1280, 720, 24);
             cam.targetTexture = rt;
             cam.Render();
