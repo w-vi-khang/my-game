@@ -72,8 +72,10 @@ Sản lượng nông trại do client tính → backend **phải** kiểm tra h�
 | Kiểm tra hợp lý | Sản lượng ≤ trần (thời gian theo giờ server × số sinh vật hoạt động × hiệu quả tối đa); số ô đào/đặt và tài nguyên thu được trong một khoảng thời gian ≤ trần; tiến độ yêu cầu của loài khớp tài nguyên đã dùng; trạng thái mô phỏng hợp lệ (không quá giới hạn sinh vật, chỉ số ≤ trần) | Sửa save, tua nhanh giả |
 | Giờ | Thời gian vắng mặt lấy từ giờ server, không từ thiết bị | Chỉnh giờ máy |
 | Giới hạn tần suất | Mỗi loại lệnh có giới hạn số lần / phút | Spam, bot |
-| Kiểm lại có chọn lọc | Dữ liệu nghi vấn → chạy lại kiểm tra bằng cùng code C# mô phỏng (bản headless) trên dữ liệu đã lưu | Gian lận tinh vi hơn kiểm tra hợp lý |
+| Kiểm lại có chọn lọc | Dữ liệu nghi vấn → chạy lại kiểm tra bằng cùng code C# mô phỏng (bản headless) trên dữ liệu đã lưu — cần backend chạy được C# (tiêu chí chọn backend, [tech-stack](tech-stack.md#thành-phần-khác)) | Gian lận tinh vi hơn kiểm tra hợp lý |
 | Xử lý vi phạm | Vượt trần → cắt về trần + ghi log; không khoá tài khoản tự động (tránh phạt nhầm) — người làm xem log rồi quyết | Giảm phạt nhầm |
+| Phần thưởng PvE, nhiệm vụ, điểm kinh nghiệm | Client báo sự kiện (thắng trận, xong nhiệm vụ); backend tính phần thưởng + điểm kinh nghiệm theo bảng cấu hình, kiểm điều kiện (nhiệm vụ đã mở, chưa nhận, số lần / giờ ≤ trần) | Nhận thưởng lặp, nhiệm vụ giả |
+| Bắt sinh vật | Client báo ném trúng/hụt + mục tiêu; backend quyết định mất thẻ khi hụt, kết quả bắt, chỉ số cá thể | Bắt chắc chắn, chọn cá thể |
 | Thanh toán | Kiểm biên lai với cửa hàng ứng dụng / Steam ở backend | Mua giả |
 | PvP | Game server lấy chỉ số, phép của hai bên từ backend; game server quyết định kết quả | Sửa chỉ số khi đấu |
 
@@ -135,12 +137,12 @@ flowchart TB
 | Input, điều khiển & camera | Bảng hành động chung cho chuột-phím và cảm ứng; tâm nhắm, khoá mục tiêu, chọn vùng 2 điểm; camera góc 3 tránh địa hình | [controls-ui](../02-gameplay/controls-ui.md) | M1 (cơ bản), M2 (chiến đấu), M3 (đổi phím) |
 | Bộ sinh world | Bố cục vùng theo seed + ràng buộc, preset vùng, hang, dán khối cốt truyện, kiểm đường đi | [world-tech](world-tech.md#sinh-world-theo-seed), [levels](../02-gameplay/levels.md) | M1 (map nhỏ cố định), M2 (đầy đủ) |
 | Voxel, mesh, nước | Dữ liệu chunk, đào/đặt nguyên ô, dựng mesh mịn, nước chảy | [world-tech](world-tech.md) | M1 (voxel, mesh), M2 (nước) |
-| Mô phỏng nông trại | Nhịp cố định, ghép việc, A\*, đình trệ, độ bền làm việc, người chơi làm công đoạn, tua nhanh nhảy sự kiện | [simulation-tech](simulation-tech.md) | M1, tua nhanh M2 |
-| Môi trường sống & nhu cầu | Đếm yêu cầu của loài theo vùng, mức đáp ứng | [cơ chế](../02-gameplay/mechanics.md#môi-trường-sống) | M1 (một mức), M2 |
+| Mô phỏng nông trại | Nhịp cố định, ghép việc, A\*, đình trệ, độ bền làm việc, người chơi làm công đoạn, tua nhanh nhảy sự kiện | [simulation-tech](simulation-tech.md) | M1 tối giản: nhịp, A\* đi bộ, một lệnh trồng cây, đình trệ ([0007](../decisions/0007-m1-toi-gian.md)); M2: phần còn lại |
+| Môi trường sống & nhu cầu | Đếm yêu cầu của loài theo vùng bằng sự kiện đổi ô, mức đáp ứng | [simulation-tech](simulation-tech.md#môi-trường-sống), [cơ chế](../02-gameplay/mechanics.md#môi-trường-sống) | M1 (một vùng = cả map), M2 |
 | Chiến đấu | Phép, nhập hồn — viết để chạy được trên game server sau này | [cơ chế](../02-gameplay/mechanics.md#nhập-hồn) | M2 |
 | Sự kiện, tinh linh & onboarding | Mô phỏng phát sự kiện; tinh linh nghe sự kiện để nói, chạy chuỗi onboarding, dạy đúng lúc | [controls-ui](../02-gameplay/controls-ui.md#hướng-dẫn-người-mới-onboarding) | M2 |
 | UI / HUD | Đọc trạng thái + sự kiện; không đổi số trực tiếp | [controls-ui](../02-gameplay/controls-ui.md#hud) | M1 (tối thiểu), M2 |
-| Lưu & lớp dịch vụ | M1 lưu cục bộ qua bản giả; M2 thay bằng backend thật | [world-tech](world-tech.md#lưu-trữ) | M1, M2 |
+| Lưu & lớp dịch vụ | M1 không lưu world ([0007](../decisions/0007-m1-toi-gian.md)); M2 lưu qua backend thật | [world-tech](world-tech.md#lưu-trữ) | M2 (M1 chỉ có lớp bọc giả) |
 
 - **Lớp dịch vụ:** mọi gọi backend đi qua một lớp bọc → M1 dùng bản giả lưu cục bộ; M2 thay bằng dịch vụ thật; đổi nhà cung cấp không đụng gameplay (giảm rủi ro nhà cung cấp, [risks](risks.md)).
 - **Sự kiện:** mô phỏng không gọi thẳng UI hay tinh linh — chỉ phát sự kiện. Khi tua nhanh, sự kiện được gom lại thành báo cáo (màn tua nhanh) thay vì phát từng cái.

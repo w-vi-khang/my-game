@@ -12,3 +12,5 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0004](0004-tien-nap.md) | Tiền nạp: ảnh hưởng tốc độ, chặn ở mức tối đa | Chốt |
 | [0005](0005-render-pipeline.md) | Render pipeline của client: URP | Chốt |
 | [0006](0006-cong-cu-kiem-tra-asset.md) | Công cụ kiểm tra asset (ngoại lệ M0) | Chốt |
+| [0007](0007-m1-toi-gian.md) | M1 tối giản (áp dụng C1) | Chốt |
+| [0008](0008-sua-loi-sau-ra-soat-m0.md) | Sửa lời văn trong file đã Chốt sau rà soát M0 | Chốt |

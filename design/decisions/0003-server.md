@@ -31,7 +31,7 @@ Chốt (user, 2026-10-13):
 2. Cần **Game server**: user chọn PvP thời gian thực, server quyết định kết quả (2026-10-11). PvP là chế độ mở sau (cập nhật sau phát hành), có điều kiện tham gia. Hosting chọn khi tới lúc làm PvP. Build bằng Unity Dedicated Server từ chính project client ([docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/dedicated-server-build.html)).
 
 ## Hệ quả
-- [components.md](../04-tech/components.md): dòng Backend (cần) và Game server (chưa rõ); bảng ranh giới trách nhiệm.
+- [components.md](../04-tech/components.md): dòng Backend (cần) và Game server (cần, sau phát hành — sửa lời văn theo [0008](0008-sua-loi-sau-ra-soat-m0.md)); bảng ranh giới trách nhiệm.
 - [mechanics.md](../02-gameplay/mechanics.md): tua nhanh, rút thưởng, chế độ nhiều người phụ thuộc backend.
 - Logic chiến đấu cần tách khỏi hiển thị để chạy được trên game server (headless) — ảnh hưởng kiến trúc client ngay từ M1–M2 dù PvP làm sau.
 - PvP bất đồng bộ và PvP do người chơi làm host: không chọn ([ideas](../ideas.md)).

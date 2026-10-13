@@ -56,7 +56,7 @@ Vùng 1 không khoá cứng; mũi tên đứt là lúc tinh linh bắt đầu ch
 | Khối cốt truyện | 1 cột chunk | Mũi đá ở rìa vách, lồng thẻ bài cũ vỡ | — | — | — |
 | Biển, rìa map | Phần còn lại | Biển sâu, sương | — | — | — |
 
-**Loài** — 10 loài cho slice (khớp giả định của [roadmap](../05-roadmap.md) và [tóm tắt](../summary.md)); bảng dưới user đồng ý (2026-10-13):
+**Loài** — 10 loài cho slice (khớp giả định của [roadmap](../05-roadmap.md) và [tóm tắt](../summary.md)); bảng dưới user đồng ý (2026-10-13). **M1 dùng L1, L2, L3** ([0007](../decisions/0007-m1-toi-gian.md)):
 
 | Mã | Vùng | Kiểu di chuyển | 2 năng lực làm việc | Ghi chú |
 |---|---|---|---|---|
@@ -82,6 +82,7 @@ Vùng 1 không khoá cứng; mũi tên đứt là lúc tinh linh bắt đầu ch
 | Chỗ tỉnh dậy + đường tinh linh dẫn (onboarding bước 1–2) | Vùng 1 | Vị trí, vài ô đất khô được tô viền để đào/đắp |
 | Khối cốt truyện "Mũi đá có lồng thẻ cũ" | Rìa vùng 4 giáp biển, vị trí do seed chọn trong ràng buộc | Mẫu dựng tay + đường đi bộ từ vùng 2 lên (không cần bay/bơi); cờ khối cốt truyện cho mẫu và đường |
 | Chỗ trận chiến đầu tiên (onboarding bước 7) | Giữa vùng 1 và 2 | Một sinh vật hoang chặn lối, chỉ xuất hiện sau bước 6 |
+| NPC "cỗ máy cũ" [ý tưởng] ([characters](../01-story/characters.md)) | Vùng 2, gần đường lên vùng 4 | Vị trí trong ràng buộc bố cục; giao nhiệm vụ phụ của map |
 
 **Phần sinh theo seed** — chỉ luật và tham số, không vẽ tay [ý tưởng]:
 | Preset vùng | Luật / tham số chính |

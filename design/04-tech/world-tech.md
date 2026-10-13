@@ -135,20 +135,19 @@ User chọn nước **chảy được** (2026-10-13). [ý tưởng]
 - Cần đo ở M1 trên máy mobile tầm trung: thời gian dựng mesh một chunk, số tam giác hiển thị, thời gian bake collider ([risks](risks.md)).
 
 ## Kế hoạch prototype (M1)
-[ý tưởng] Chia hạng mục "Voxel world 35–55" và "Tìm đường 10–20" của [roadmap](../05-roadmap.md) thành bước nhỏ, mỗi bước có tiêu chí xong đo được:
+Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 2026-10-13). [ý tưởng] Chia hạng mục "Voxel world tối giản 17–28" của [roadmap](../05-roadmap.md) thành bước nhỏ (tìm đường ở [simulation-tech](simulation-tech.md#kế-hoạch-prototype-m1)), mỗi bước có tiêu chí xong đo được:
 
 | # | Bước | Xong khi | Ước lượng (ngày-người) |
 |---|---|---|---|
-| 1 | Lưới gameplay + chunk + sinh địa hình noise theo seed, có hang | Cùng seed → cùng world (kiểm bằng test); hang nối mặt đất | 5–8 |
-| 2 | Surface Nets ×2 + làm mượt, 1 chunk | Mesh khớp bản thử Blender (rãnh 1 ô, ~tam giác) | 5–8 |
-| 3 | Nhiều chunk + nối biên (ô đệm) + Jobs/Burst | Không hở ở biên; đo thời gian dựng mesh / chunk | 5–8 |
-| 4 | Đào/đặt + dựng lại chunk bẩn + bake collider | Sửa ô → mesh cập nhật ≤ 2 khung hình trên PC | 4–6 |
-| 5 | Vật liệu theo đỉnh + triplanar (URP) | Không răng cưa ở ranh giới vật liệu | 4–7 |
-| 6 | Khối cốt truyện (cờ + dán mẫu) | Không đào được khối cốt truyện; đường tới nó đi được | 2–4 |
-| 7 | Lưới chiếm chỗ + đặt vật thể nhiều ô | Không đặt chồng; tìm đường né vật thể | 3–5 |
-| 8 | Lưu/nạp chunk đã sửa (cục bộ) | Thoát vào lại → giữ đúng chỗ đã đào | 2–4 |
-| 9 | Đo trên mobile tầm trung | Có số liệu: ms/chunk, tam giác, FPS | 2–3 |
-| | **Cộng** | | **32–53** (nằm trong 35–55 của voxel world, chưa gồm tìm đường; nước tĩnh) |
+| 1 | Lưới gameplay + chunk 16³ + địa hình noise với **một seed cố định**, map nhỏ 64 × 64 × 32 (32 chunk), không hang | Cùng seed → cùng world (test); **mã băm world giống nhau trên PC và điện thoại** (kiểm tất định giữa nền tảng) | 3–5 |
+| 2 | Surface Nets ×2 + làm mượt, 1 chunk | Mesh khớp bản thử Blender (rãnh 1 ô, ~tam giác) | 4–6 |
+| 3 | Nhiều chunk + nối biên (ô đệm) + Jobs/Burst | Không hở ở biên; đo thời gian dựng mesh / chunk | 4–7 |
+| 4 | Đào/đặt nguyên ô + dựng lại chunk bẩn + collider; kho vật liệu của người chơi ([cơ chế](../02-gameplay/mechanics.md#voxel-world--luật-m1)) | Sửa ô → mesh cập nhật ≤ 2 khung hình trên PC | 3–5 |
+| 5 | Màu vật liệu theo đỉnh (chưa triplanar) | Phân biệt được đất, cỏ, đá, cát | 1–2 |
+| 6 | Đo trên mobile tầm trung | ≥ 30 FPS khi đào/đặt liên tục; ghi ms/chunk, số tam giác | 2–3 |
+| | **Cộng** | | **17–28** |
+
+**Chuyển sang M2** (18–27, phần "voxel world đầy đủ" của [0007](../decisions/0007-m1-toi-gian.md)): hang noise 3D 4–5 · map 128 × 128 × 48 + hiển thị theo khoảng cách 4–6 · vật liệu trộn + triplanar 3–5 · lưới chiếm chỗ + vật thể nhiều ô 3–5 · lưu/nạp chunk đã sửa 2–4 · phiên bản bộ sinh 2. Khối cốt truyện (2–4) và sinh map theo seed (15–25) là hạng mục M2 riêng.
 
 ## Câu hỏi mở
 - Cách người chơi tạo nguồn nước (phép, công trình?); nguồn nước có xoá/di chuyển được không?

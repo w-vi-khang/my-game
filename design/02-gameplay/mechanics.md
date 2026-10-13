@@ -10,20 +10,24 @@
 
 | Cơ chế | Mô tả | Pillar | Thành phần | Ưu tiên | Ước lượng | Milestone |
 |---|---|---|---|---|---|---|
-| Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **bề mặt mịn liền** (dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15) | M1 |
+| Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **bề mặt mịn liền** (dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15): M1 tối giản 17–28, M2 18–27 | M1 (tối giản — [0007](../decisions/0007-m1-toi-gian.md)), M2 |
 | Nước chảy | Nước chảy theo ô (mực 0–7), tràn vào chỗ đào, không cạn; người chơi tạo được nguồn nước; ảnh hưởng môi trường sống, tưới nước, tìm đường; M1 dùng nước tĩnh | P1, P2 | Client | Phải có | 8–15 | M2 [ý tưởng] |
 | Biến thể hiển thị | Mỗi cá thể sinh vật, cây, vật thể render khác nhau một chút theo seed riêng (kích thước, màu, hoa văn...), không giống hệt nhau | P2 | Client | Nên có | 3–6 | M2 [ý tưởng] |
 | Biến thể | Dạng khác của loài: cá thể đặc biệt về màu sắc, hình thái; tách riêng với vượt trội | P1, P2 | Client + Backend (sinh khi nhận sinh vật) | Nên có | 3–5 + phần art mỗi biến thể | M3 [ý tưởng] |
-| Sinh map theo seed | Phần không thuộc cốt truyện sinh theo seed của từng người chơi | P3 | Client (+ công cụ sắp đặt?) | Phải có | 15–25 | M2 |
+| Sinh map theo seed | Phần không thuộc cốt truyện sinh theo seed của từng người chơi; bố cục vùng theo ràng buộc ([levels](levels.md)) | P1 (vùng môi trường sống cho từng loài), P3 | Client (+ công cụ sắp đặt?) | Phải có | 15–25 | M2 |
 | Khối cốt truyện | Khối cốt truyện + đường đi tới nó không phá/đặt được cho tới khi phá đảo map | P3 | Client | Phải có | 2–4 | M2 |
-| Sinh vật & loài | Nội tại, tộc, nguyên tố (đơn/đôi), cấp độ, bậc; 3 ô phép (bậc 1) / 4 ô phép (bậc 2+) | P2, P4 | Client | Phải có | 5–10 | M1 |
-| Chỉ số làm việc | 2 năng lực làm việc mỗi loài; tốc độ di chuyển, sức khoẻ, độ thuần thục 1–2; phân bố loài + phân bố ngẫu nhiên + điểm chỉ số (quỹ riêng, phân bổ lại bằng vật phẩm); vượt trội làm việc | P2 | Client (+ Backend từ M2: sinh và lưu chỉ số) | Phải có | 5–8 | M1 |
+| Sinh vật & loài | Nội tại, tộc, nguyên tố (đơn/đôi), cấp độ, bậc; 3 ô phép (bậc 1) / 4 ô phép (bậc 2+) | P2, P4 | Client | Phải có | 5–10: M1 2–4, M2 3–6 | M1 (3 loài), M2 |
+| Chỉ số làm việc | 2 năng lực làm việc mỗi loài; tốc độ di chuyển, sức khoẻ, độ thuần thục 1–2; phân bố loài + phân bố ngẫu nhiên + điểm chỉ số (quỹ riêng, phân bổ lại bằng vật phẩm); vượt trội làm việc | P2 | Client (+ Backend từ M2: sinh và lưu chỉ số) | Phải có | 5–8: M1 1–2, M2 4–6 | M1 (thuần thục + tốc độ), M2 |
 | Chỉ số chiến đấu | Máu, giáp, kháng phép, tốc độ đánh, sát thương... + chỉ số đặc trưng loài; phân bố loài + phân bố ngẫu nhiên + điểm chỉ số (quỹ riêng, phân bổ lại bằng vật phẩm); hệ số quy đổi, trần; vượt trội bị bỏ trong PvP | P2, P4 | Client + Backend (sinh chỉ số) + Game server (PvP) | Phải có | 6–10 | M2 |
-| Môi trường sống | Cải tạo thế giới đạt yêu cầu → mở khoá loài | P1 | Client | Phải có | 10–20 | M1 |
+| Môi trường sống | Cải tạo thế giới đạt yêu cầu → mở khoá loài | P1 | Client | Phải có | 10–20: M1 3–6, M2 7–14 | M1 (một vùng), M2 |
 | Nhu cầu sinh vật | Danh sách yêu cầu mỗi loài; mức đáp ứng cao → loài xuất hiện nhiều hơn, ít bệnh/mệt, làm việc tốt hơn, đôi khi tặng quà | P1, P2 | Client | Phải có | 8–15 | M2 |
-| Lệnh làm việc | Người chơi đặt lệnh, chia công đoạn, hệ thống phân sinh vật rảnh có năng lực làm việc phù hợp | P2 | Client | Phải có | 20–30 | M1 |
-| Tìm đường sinh vật | Đi trên địa hình người chơi thiết kế; không tới được → đình trệ + thông báo | P2 | Client | Phải có | 10–20 | M1 |
+| Lệnh làm việc | Người chơi đặt lệnh, chia công đoạn, hệ thống phân sinh vật rảnh có năng lực làm việc phù hợp | P2 | Client | Phải có | 20–30: M1 7–11, M2 13–19 | M1 (một lệnh trồng cây), M2 |
+| Người chơi làm công đoạn | Người chơi tự làm công đoạn của lệnh (vd cầm cuốc xới) khi thiếu loài có năng lực hoặc muốn làm nhanh (user, 2026-10-13) | P2 | Client | Phải có | 2–4 | M2 |
+| Độ ưu tiên giữa các lệnh | Người chơi đặt thứ tự ưu tiên; ghép việc xét lệnh ưu tiên cao trước (user chốt, 2026-10-13) | P2 | Client | Nên có | [ý tưởng] 1–2 | M2 |
+| Tìm đường sinh vật | Đi trên địa hình người chơi thiết kế; không tới được → đình trệ + thông báo | P2 | Client | Phải có | 10–20: M1 4–7, M2 6–13 | M1 (đi bộ, khung 1 × 1), M2 |
+| Kiểu di chuyển bay, bơi | Luật ô đi được cho loài bay (không cần đất dưới chân) và bơi (ô có nước); Map 1 có loài bay, bơi ([levels](levels.md)) | P1, P2 | Client | Phải có | [ý tưởng] 4–8 | M2 |
 | Tua nhanh | Khi vào lại game, tính sản lượng thay vì chạy animation; thời gian vắng mặt lấy từ giờ server | P2 | Client + Backend ([0003](../decisions/0003-server.md)) | Phải có | 8–15 | M2 |
+| Chiến đấu PvE lõi | Sát thương, máu, trúng/né, sinh vật hoang tấn công và AI đơn giản, thắng/thua một trận trong world — nền cho nhập hồn và phép | P4 | Client (logic C# thuần, chạy được trên game server sau này) | Phải có | [ý tưởng] 10–20 | M2 |
 | Nhập hồn | Nhập vào sinh vật, đổi bộ kỹ năng, dùng chung mana | P2, P4 | Client | Phải có | 25–40 + 3–6/loài | M2 |
 | Phép của pháp sư | Phép khám phá, phát triển, tấn công đơn giản (quả cầu lửa, đi trên mặt nước...) | P1, P3 | Client | Phải có | 10–20 + 1–2/phép | M2 |
 | Sưu tầm phép (phép sinh vật) | Mở khoá phép theo nhóm phép, độ hiếm; gán phép vào ô phép ở màn chuẩn bị chiến đấu | P2, P4 | Client | Phải có | 15–25 + 0,5–2/phép | M2 |
@@ -32,7 +36,7 @@
 | Giới hạn sinh vật & kho sinh vật | Giới hạn số sinh vật hoạt động (làm việc + chiến đấu) theo cấp độ người chơi và công trình; dư thì thả hoặc cất vào kho sinh vật | P2 | Client + Backend (sở hữu sinh vật) | Phải có | 3–6 | M2 |
 | Trang bị | Trang bị cho sinh vật, nhiều bậc trang bị; ghép trang bị cùng loại cùng bậc lên bậc cao hơn; rèn ở lò rèn (nguyên liệu + sinh vật phù hợp); cộng chỉ số chiến đấu, tính trong PvP | P2, P4 | Client + Backend (sở hữu, ghép, kết quả rèn) | Phải có | 13–23 | M3 [ý tưởng] |
 | Tiến hoá | Tăng bậc → mở ô phép thứ 4, mở rộng phạm vi phép mang được | P2, P4 | Client | Nên có | 10–15 | M3 |
-| Nghiên cứu | Một nguồn phép mới; chi tiết _(chưa có)_ | P2 | Client | _(?)_ | _(?)_ | _(?)_ |
+| Nghiên cứu | Một nguồn phép mới; chi tiết _(chưa có)_ | P2 | Client | Nên có | [ý tưởng] 10–20 (chưa có thiết kế) | M3 |
 | Tinh linh hỗ trợ | Tinh linh đi theo người chơi, hỗ trợ bằng thông tin; nâng cấp bằng mảnh ký ức → thông tin nhiều hơn | P1, P3 | Client | Nên có | 5–10 | M2 [ý tưởng] |
 | Onboarding | Tinh linh dẫn người mới qua 8 bước học bằng làm + dạy đúng lúc ([controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding)) | P3, P1 | Client | Phải có | 4–8 | M2 |
 | Nhiệm vụ & mảnh ký ức | Cốt truyện chính + nhiệm vụ phụ mỗi map, không bắt buộc tuần tự | P3 | Client | Phải có | 15–25 | M2 |
@@ -46,6 +50,27 @@
 ## Chi tiết từng cơ chế
 <!-- Mỗi cơ chế: quy tắc, tham số chính (để tune), trường hợp biên, cách người chơi học. -->
 
+### Luật M1 (M1 tối giản)
+Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decisions/0007-m1-toi-gian.md). Toàn bộ là đề xuất của AI [ý tưởng], chờ user duyệt; số là số tạm, chỉnh khi chơi thử (`game-balance`).
+
+#### Voxel world — luật M1
+- Vật liệu: **đất, cỏ, đá, cát**; nước tĩnh có sẵn (một hồ nhỏ), không đào/đặt nước ở M1. Hai lớp đáy là đá không đào được.
+- **Đào** (cuốc): ô thành rỗng, vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2).
+- **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ kho vật liệu; hết thì không đặt được. Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
+- Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → **trồng được**.
+
+#### Sinh vật trở lại — luật M1
+- Loài đạt đủ yêu cầu mở khoá → **2 cá thể** xuất hiện ở rìa map, đi về phía người chơi và **tự vào đội làm việc** (chưa có thẻ bài — bắt bằng thẻ từ M2).
+- Chỉ số = base của loài (chưa có phân bố ngẫu nhiên). Chưa có giới hạn sinh vật (tối đa 3 loài × 2 = 6); đo hiệu năng dùng sinh vật giả.
+- Yêu cầu mở khoá (ví dụ để thử): L1 (xới, gieo): ≥ 20 ô cỏ + 1 cây · L2 (tưới, thu hoạch): ≥ 10 ô cỏ cạnh hồ · L3 (vận chuyển, thu hoạch): ≥ 15 ô đá lộ thiên + 1 kho đã đặt.
+
+#### Kho & lệnh trồng cây — luật M1
+- **Một kho**, người chơi đặt bằng công cụ trên ô phẳng, chiếm 1 ô; sức chứa 50 sản lượng.
+- **Một loại cây.** Kho bắt đầu có 10 hạt; mỗi lần thu hoạch được 1 nông sản + 1 hạt → vòng lặp tự duy trì.
+- Công đoạn: xới → gieo (trừ 1 hạt trong kho, chưa cần đi lấy) → tưới (chưa cần lấy nước) → cây lớn 120 giây → thu hoạch (nông sản nằm tại ô) → vận chuyển vào kho.
+- Chưa có L3 → nông sản nằm tại ruộng, đình trệ "thiếu năng lực vận chuyển" — người chơi thấy vì sao cần thêm loài.
+- Kho đầy → đình trệ "kho đầy".
+
 ### Lệnh làm việc
 **Quy tắc**
 - Người chơi đặt lệnh làm việc lên một vùng (vd một mảnh đất để trồng cây). Có thể xếp hàng (queue) nhiều loài cây, trồng lần lượt.
@@ -55,7 +80,7 @@
 - **Người chơi tự làm được công đoạn** (user, 2026-10-13), vd cầm cuốc xới ô đất của lệnh → công đoạn đó xong cho ô ấy. Dùng khi chưa có loài đủ năng lực (onboarding bước 6 — [controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding)) hoặc muốn làm nhanh. [ý tưởng] Ước lượng 2–4 ngày-người, M2.
 - **Tối đa 2 sinh vật cùng làm một công đoạn** (user, 2026-10-13) → thời gian công đoạn giảm. Con thứ hai rút ngắn ít hơn con đầu (user chấp nhận đề xuất, 2026-10-13), vd thời gian × 0,6 thay vì × 0,5 — số liệu bằng `game-balance`.
 - Tốc độ/hiệu quả làm công đoạn theo **độ thuần thục** của năng lực tương ứng (vd thuần thục cao rút ngắn thời gian tưới nước, vận chuyển được nhiều hàng hơn mỗi lượt).
-- Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd nguyên tố nước tưới nhanh hơn). (user chốt, 2026-10-13)
+- Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd loài có nội tại gắn với nước tưới nhanh hơn — nội tại, không phải nguyên tố). (user chốt, 2026-10-13) M1 chưa có nội tại (hệ số = 1).
 - Người chơi đặt độ ưu tiên giữa các lệnh. (user chốt, 2026-10-13; làm ở M2)
 
 ```mermaid
@@ -81,7 +106,7 @@ stateDiagram-v2
 - Người chơi phải thiết kế địa hình để sinh vật đi lại và làm việc được.
 - Không có đường tới vị trí của công đoạn → công đoạn đó **đình trệ** và gửi thông báo cho người chơi.
 - Thông báo chỉ rõ vị trí và lý do (không có đường / thiếu vật tư / kho đầy), bấm vào để xem tại chỗ. (user chốt, 2026-10-13)
-- Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài. (user chốt, 2026-10-13)
+- Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài. (user chốt, 2026-10-13) **M1 chỉ đi bộ**; bay, bơi ở M2 ([0007](../decisions/0007-m1-toi-gian.md)).
 
 ### Tua nhanh
 - Khi game tắt: không tính gì.
@@ -129,7 +154,7 @@ Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứn
 - **Cá thể:** mọi cá thể cùng loài có chung đặc điểm loài (nội tại, tộc, nguyên tố), nhưng mỗi cá thể có **chỉ số cá thể** riêng (phân bố ngẫu nhiên, có thể vượt trội), hợp với chiến đấu hoặc làm việc. Đây là lý do rút thưởng có giá trị. Chi tiết: [Chỉ số sinh vật](#chỉ-số-sinh-vật).
 - **Biến thể** (user, 2026-10-12): một dạng khác của loài — cá thể đặc biệt về **màu sắc, hình thái**. Là phần **riêng biệt với vượt trội** (một cá thể có thể là biến thể, vượt trội, cả hai hoặc không). Khác **biến thể hiển thị** (khác biệt nhỏ ngẫu nhiên ở mọi cá thể).
   - Câu hỏi mở: tỉ lệ ra biến thể; biến thể có ảnh hưởng chỉ số không ([ý tưởng] không — chỉ để sưu tầm, giữ PvP công bằng); mỗi loài có mấy biến thể; có bảo hiểm cho biến thể không.
-- **Vượt trội** được xét mỗi lần người chơi sở hữu một cá thể mới (bắt, ấp nở, rút thưởng...) → sở hữu càng nhiều thì càng nhiều lần có cơ hội ra cá thể vượt trội. Tỉ lệ mỗi lần không đổi. Tiền nạp không trực tiếp tăng tỉ lệ vượt trội; chỉ gián tiếp qua việc sở hữu được nhiều cá thể hơn (user, 2026-10-12). Tỉ lệ: _(chưa có)_
+- **Vượt trội** được xét mỗi lần người chơi sở hữu một cá thể mới (bắt, ấp nở, rút thưởng...) → sở hữu càng nhiều thì càng nhiều lần có cơ hội ra cá thể vượt trội. Tỉ lệ mỗi lần không đổi. Tiền nạp **được** tăng tỉ lệ vượt trội (vd thẻ bài bậc cao) vì vượt trội bị bỏ trong PvP — [0004](../decisions/0004-tien-nap.md) điểm 4 (sửa 2026-10-12, thay câu cũ "không trực tiếp tăng"). Tỉ lệ: _(chưa có)_
 - **Chặn quá may** (user, 2026-10-12): có cơ chế chặn trường hợp người chơi ra vượt trội nhiều bất thường, nhưng **không làm mất may mắn bình thường** — chỉ tác động khi vượt xa mức kỳ vọng. Khi rút gói, vượt trội có **bảo hiểm** (xem Rút thưởng gói bên dưới).
   - [ý tưởng] Cách làm: backend đếm số vượt trội trong N lần sở hữu gần nhất; vượt ngưỡng K (chọn K sao cho người chơi bình thường gần như không chạm, vd xác suất < 1%) → tạm hạ tỉ lệ vượt trội cho tới khi số vượt trội trong cửa sổ N về dưới K. N, K tính bằng skill cân bằng.
 - Sinh vật mới chỉ vào đội hình hoạt động khi còn chỗ — xem [Giới hạn sinh vật & kho sinh vật](#giới-hạn-sinh-vật--kho-sinh-vật).
@@ -319,7 +344,7 @@ Mô tả của user (2026-10-13). Nhân vật: [characters](../01-story/characte
 ### Sinh map theo seed & khối cốt truyện
 - Map là vùng có ranh giới trên world của từng người chơi. Nhà phát triển chỉ sắp đặt các thành phần phục vụ cốt truyện; phần còn lại sinh bằng công cụ/thuật toán theo seed của người chơi → các world tương đồng nhưng riêng biệt.
 - Khi người chơi chưa phá đảo map: khối thuộc cốt truyện và đường đi tới nó không bị phá hay đặt.
-- [ý tưởng] Đánh dấu khối cốt truyện bằng một lớp dữ liệu riêng (mask) phủ lên chunk, gỡ khi phá đảo map.
+- Đánh dấu khối cốt truyện bằng **1 bit trong dữ liệu mỗi ô** ([world-tech](../04-tech/world-tech.md#dữ-liệu-world)), gỡ khi phá đảo map. (Thay ý tưởng lớp mask riêng, 2026-10-13.)
 
 ### Chế độ nhiều người
 - PvE: trong world riêng của mỗi người chơi.
@@ -337,4 +362,4 @@ Mô tả của user (2026-10-13). Nhân vật: [characters](../01-story/characte
   - **Tiền nạp và PvP** (user, 2026-10-12): tiền nạp luôn ảnh hưởng **tốc độ** tiến trình theo cách này hay cách khác — không tránh được. Thứ chặn được là **mức tối đa**: ở mức tối đa mọi người như nhau (vượt trội bị bỏ, không mua được thứ người không nạp không đạt được).
   - Chênh lệch cấp độ/bậc giữa người mới qua ngưỡng và người chơi lâu năm được giảm bằng ghép trận theo hạng và cấp độ trung bình.
 - Co-op đảo sandbox: spin-off, tạm bỏ qua — xem [ideas](../ideas.md).
-- Danh sách mode, chiến đấu theo lượt hay thời gian thực: _(chưa có)_
+- Chiến đấu **thời gian thực** (PvE và PvP — [vision](../00-vision.md), [0003](../decisions/0003-server.md)). Danh sách mode: _(chưa có)_

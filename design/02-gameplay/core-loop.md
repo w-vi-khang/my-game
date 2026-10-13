@@ -18,7 +18,7 @@ Trọng tâm: **hồi sinh môi trường sống** + **nông trại tự động
 2. Xử lý thông báo đình trệ (sửa đường đi, thêm kho, thêm sinh vật).
 3. Chọn mục tiêu: hồi sinh một loài, làm nhiệm vụ (chính hoặc phụ), khám phá, chiến đấu (gán phép ở màn chuẩn bị chiến đấu).
 4. Mở rộng lệnh làm việc → nhu cầu nhân công tăng → cần thêm loài → quay lại bước 3.
-- Phiên kết thúc tự nhiên khi một loài mới định cư hoặc một nhiệm vụ xong. (user chốt, 2026-10-13)
+- Phiên kết thúc tự nhiên khi một loài mới trở lại hoặc một nhiệm vụ xong ([0008](../decisions/0008-sua-loi-sau-ra-soat-m0.md)). (user chốt, 2026-10-13)
 - Thời lượng một phiên: **PC 30–60 phút, mobile 10–20 phút** (user, 2026-10-13).
 
 ## Vòng lặp dài hạn

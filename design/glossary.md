@@ -26,7 +26,7 @@
 | Ghép trang bị | Ghép các trang bị cùng loại, cùng bậc trang bị thành một trang bị bậc cao hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Rèn | Làm trang bị ở lò rèn từ nguyên liệu, cần sinh vật phù hợp | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Ma năng | Tài nguyên nhận khi rút gói sách phép ra phép đã sở hữu; đổi phép trong cửa hàng hoặc chế tác một số trang bị. Khác "mana" (năng lượng dùng phép) — tên dễ nhầm, xem [naming](01-story/naming.md) | [02-gameplay/economy.md](02-gameplay/economy.md) |
-| Biến thể hiển thị | Khác biệt nhỏ về hình ảnh giữa mọi cá thể/vật thể cùng loại (kích thước, màu, hoa văn), sinh theo seed riêng |
+| Biến thể hiển thị | Khác biệt nhỏ về hình ảnh giữa mọi cá thể/vật thể cùng loại (kích thước, màu, hoa văn), sinh theo seed riêng | [03-art-audio/art-style.md](03-art-audio/art-style.md) |
 | Biến thể | Dạng khác của một loài: cá thể đặc biệt về màu sắc, hình thái, hiếm; tách riêng với vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Thẻ bài | Mỗi cá thể gắn một thẻ bài; thẻ là thứ cất trong kho sinh vật; ném thẻ vào sinh vật để bắt | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Ném thẻ | Thao tác bắt: ném thẻ bài vào sinh vật ngoài tự nhiên. Ném hụt: tỉ lệ nhỏ mất thẻ; trúng nhưng bắt không thành: mất thẻ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -47,8 +47,8 @@
 | Đình trệ | Công đoạn không làm được (không có đường, thiếu vật tư, kho đầy) — báo cho người chơi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tua nhanh | Tính sản lượng cho thời gian vắng mặt khi người chơi vào lại, không chạy animation | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhiệm vụ | Nhiệm vụ cốt truyện (chính hoặc phụ) trong một map | [01-story/plot.md](01-story/plot.md) |
-| Tinh linh | Đồng hành luôn đi theo người chơi; mảnh linh hồn của sinh vật từng thân thiết với pháp sư, ở lại để cảm hoá; hỗ trợ bằng thông tin, nâng cấp bằng mảnh ký ức (tên chưa có) |
-| NPC | Nhân vật không do người chơi điều khiển — trong game này không phải người: sinh vật đặc biệt, máy móc, pho tượng | [01-story/characters.md](01-story/characters.md) | [01-story/characters.md](01-story/characters.md) |
+| Tinh linh | Đồng hành luôn đi theo người chơi; mảnh linh hồn của sinh vật từng thân thiết với pháp sư, ở lại để cảm hoá; hỗ trợ bằng thông tin, nâng cấp bằng mảnh ký ức (tên chưa có) | [01-story/characters.md](01-story/characters.md) |
+| NPC | Nhân vật không do người chơi điều khiển — trong game này không phải người: sinh vật đặc biệt, máy móc, pho tượng | [01-story/characters.md](01-story/characters.md) |
 | Bản ngã cũ / bản ngã mới | Pháp sư trước khi mất ký ức (coi sinh vật là công cụ) / sau khi mất ký ức (người chơi điều khiển); đối đầu ở trận chiến cuối | [01-story/characters.md](01-story/characters.md) |
 | Biến cố | Sự kiện bản ngã cũ rút sinh khí của thế giới làm sinh vật thất lạc, pháp sư mất ký ức (tên chưa có) | [01-story/world.md](01-story/world.md) |
 | Sinh khí | Năng lượng sống chảy giữa đất đai và sinh vật — lý do trong truyện của môi trường sống (ý tưởng) | [01-story/world.md](01-story/world.md) |
@@ -96,9 +96,8 @@
 | Độ thuần thục | Chỉ số làm việc ứng với một năng lực làm việc; cao thì làm công đoạn đó hiệu quả hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Sức khoẻ | Chỉ số làm việc; cao thì sinh vật ít bị bệnh hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bệnh | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao và sức khoẻ cao (tác động chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Mệt | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao; theo mức độ: làm chậm → nghỉ nhiều hơn → dừng |
+| Mệt | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao; theo mức độ: làm chậm → nghỉ nhiều hơn → dừng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Độ bền làm việc | Chỉ số tạm thời của sinh vật: giảm khi làm công đoạn, hồi khi nghỉ; về 0 thì nghỉ tới khi hồi đủ; mức đáp ứng cao hồi nhanh hơn. Khác "sức khoẻ" (chỉ số cố định, giảm khả năng bị bệnh) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Độ bền làm việc | Giảm khi sinh vật làm việc, hồi khi nghỉ; hết thì phải nghỉ trước khi làm lại (ý tưởng; user: sinh vật cần nghỉ) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhu cầu sinh vật | Phần danh sách yêu cầu của loài sau khi đã trở lại; đáp ứng càng nhiều sinh vật càng khoẻ, làm tốt, đôi khi tặng quà (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mức đáp ứng | Mức nhu cầu sinh vật đã được đáp ứng (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình; tối đa 54, có ưu đãi nạp 60 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -115,11 +114,19 @@
 | Điểm cộng cá thể | Điểm cộng trên base của loài (user gọi là "điểm vượt trội"), khác nhau giữa các cá thể; quyết định phân hạng cá thể; bị bỏ trong PvP | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phân hạng cá thể | Hạng chất lượng của cá thể theo điểm cộng cá thể: 4 hạng (3 hạng thường + vượt trội); tên các hạng chưa có | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Hệ số quy đổi | Tỉ lệ đổi điểm chỉ số thành giá trị thật; giống nhau ở mọi loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Trần | Giá trị tối đa của một chỉ số (vd tốc độ đánh tối đa 6) |
-| Chặn quá may | Cơ chế hạ tạm tỉ lệ vượt trội khi người chơi ra vượt trội nhiều bất thường; không tác động may mắn bình thường | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Trần | Giá trị tối đa của một chỉ số (vd tốc độ đánh tối đa 6) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chặn quá may | Cơ chế hạ tạm tỉ lệ vượt trội khi người chơi ra vượt trội nhiều bất thường; không tác động may mắn bình thường | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Chỉ số đặc trưng loài | Chỉ số chiến đấu cố định theo loài (vd tầm đánh, tỉ lệ chí mạng); điểm chỉ số không đổi được | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tiền trong game | Tiền người chơi kiếm được khi chơi | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Tiền nạp | Tiền mua bằng tiền thật; ảnh hưởng tốc độ tiến trình nhưng không vượt được mức tối đa người không nạp cũng đạt được | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Thể thức | Kiểu trận PvP, quy định số sinh vật mỗi bên (3–5) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Điểm xếp hạng | Điểm nhận khi thắng PvP, dùng để leo hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Ngưỡng PvP | Mức người chơi phải đạt để chơi PvP. Trong PvP, điểm cấp độ/bậc vẫn tính, chỉ bỏ phần vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Kiểu di chuyển | Cách một loài đi lại: đi bộ, bay, bơi — quyết định ô nào đi được khi tìm đường; M1 chỉ đi bộ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Công trình | Thứ người chơi xây/đặt trên world có chức năng (kho, lò rèn...); một số tăng giới hạn sinh vật | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Kho | Công trình chứa sản lượng nông trại và vật liệu; công đoạn vận chuyển đưa hàng vào kho; đầy thì đình trệ. Khác "kho sinh vật" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Sản lượng | Thứ lệnh làm việc làm ra (vd nông sản từ thu hoạch) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Mốc hồi sinh | Số loài đã trở lại trên một map để nhận mảnh ký ức / phá đảo (vd mốc đầu tiên 3 loài, phá đảo ≥ 7/10) | [02-gameplay/levels.md](02-gameplay/levels.md) |
+| Mở đầu | Phần đầu game nằm trong Map 1: tỉnh dậy, gặp tinh linh, onboarding | [02-gameplay/levels.md](02-gameplay/levels.md) |
+| Vertical slice | Milestone M2: một lát cắt hoàn chỉnh (Map 1 đủ art, âm thanh, UI, backend) | [05-roadmap.md](05-roadmap.md) |
+| Vật liệu (ô) | Loại của một ô voxel (đất, cỏ, đá, cát...); đào ra thì vào kho vật liệu của người chơi, đặt thì tiêu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

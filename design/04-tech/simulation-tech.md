@@ -78,20 +78,30 @@ Mô hình **nhảy sự kiện** thay vì chạy từng nhịp:
 - Số sinh vật hoạt động tối đa = **giới hạn sinh vật** (theo cấp độ người chơi, công trình — [cơ chế](../02-gameplay/mechanics.md#giới-hạn-sinh-vật--kho-sinh-vật)). Khi mở hết: **54** (không nạp), **60** (có ưu đãi nạp) (user, 2026-10-13) → M1 đo với 60 sinh vật trên máy mobile tầm trung.
 - Đo ở M1: ms mỗi nhịp mô phỏng, số A\* mỗi giây, thời gian tua nhanh 8 giờ vắng mặt.
 
+## Môi trường sống
+[ý tưởng] Phần kỹ thuật của [môi trường sống](../02-gameplay/mechanics.md#môi-trường-sống) — trước đây chưa có (rà soát 2026-10-13).
+- **Yêu cầu là dữ liệu:** mỗi yêu cầu thuộc một loại chung — số ô vật liệu X ≥ N, số cây loại Y ≥ N, số ô nước ≥ N, có điểm cao ≥ y, có công trình Z, có loài W đang ở. Thêm loài = thêm dữ liệu, không code ([levels](../02-gameplay/levels.md#nội-dung-tái-sử-dụng)).
+- **Đếm theo sự kiện:** world phát sự kiện "ô đổi" (đào/đặt), "cây mọc/bị thu", "công trình đặt/bỏ" → bộ đếm của vùng chứa ô đó cộng/trừ ngay. Không quét lại cả vùng mỗi nhịp → HUD cập nhật tức thì ([core loop](../02-gameplay/core-loop.md)).
+- **Vùng:** M1 = cả map; M2 = vùng của bố cục ([levels](../02-gameplay/levels.md#kích-thước--khung-chung)) — mỗi ô biết mình thuộc vùng nào (bảng theo cột chunk).
+- **Đạt đủ yêu cầu mở khoá** → phát sự kiện "loài trở lại" → sinh cá thể theo [luật M1](../02-gameplay/mechanics.md#sinh-vật-trở-lại--luật-m1).
+- Khi nạp world: tính lại bộ đếm một lần bằng cách quét vùng (không lưu bộ đếm).
+
 ## Kế hoạch prototype (M1)
-Chia các hạng mục "Lệnh làm việc 20–30", "Tìm đường 10–20", "Chỉ số làm việc 5–8" của [roadmap](../05-roadmap.md):
+Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 2026-10-13). Chia các hạng mục "Lệnh làm việc 7–11", "Tìm đường 4–7", "Chỉ số làm việc 1–2", "Môi trường sống 3–6" của [roadmap](../05-roadmap.md):
 
 | # | Bước | Xong khi | Ước lượng (ngày-người) |
 |---|---|---|---|
-| 1 | Lõi mô phỏng: nhịp cố định, seed, dữ liệu sinh vật / lệnh / công đoạn / kho | Test: cùng đầu vào → cùng kết quả | 3–5 |
-| 2 | A\* theo khung chiếm chỗ + vùng liên thông + cập nhật khi đào/đặt | Rãnh 1 × 2 đi được; tách vùng → đình trệ ngay | 6–10 |
-| 3 | Lệnh trồng cây 4 công đoạn + ghép việc theo năng lực, thuần thục | 3 loài, mỗi loài 2 năng lực, làm xong một vụ | 6–9 |
-| 4 | Đình trệ + thông báo (vị trí, lý do) | 4 lý do đều hiện đúng | 2–4 |
-| 5 | Chỉ số làm việc (tốc độ, thuần thục) vào thời gian công đoạn | Đổi thuần thục → thời gian đổi đúng công thức | 2–3 |
-| 6 | Hiển thị: nội suy vị trí, animation trạng thái | Sinh vật đi mượt ở 30 và 60 FPS | 3–5 |
-| 7 | Tua nhanh nhảy sự kiện + test so với chạy từng nhịp | Lệch ≤ 2% sản lượng sau 8 giờ giả lập | 4–7 |
-| 8 | Đo trên mobile (60 sinh vật) | Có số ms/nhịp, A\*/giây | 1–2 |
-| | **Cộng** | | **27–45** (trong 35–58 của ba hạng mục) |
+| 1 | Lõi mô phỏng: nhịp cố định 10/giây, **số nguyên** (nhịp, tiến độ theo phần nghìn), seed; dữ liệu sinh vật / lệnh / công đoạn / kho | Test: cùng đầu vào → cùng kết quả | 2–4 |
+| 2 | A\* đi bộ, khung 1 × 1, tính lại khi đào/đặt (map nhỏ, chưa cần vùng liên thông) | Đường đúng; đào cắt đường → đình trệ "không có đường" | 3–5 |
+| 3 | Lệnh trồng cây 5 công đoạn + ghép việc theo năng lực, thuần thục; một kho | 3 loài (L1, L2, L3) làm xong một vụ, sản lượng vào kho | 3–5 |
+| 4 | Đình trệ + thông báo: không có đường / kho đầy / thiếu năng lực | 3 lý do đều hiện đúng | 1–2 |
+| 5 | Thuần thục + tốc độ vào thời gian công đoạn | Đổi thuần thục → thời gian đổi đúng công thức | 1 |
+| 6 | Hiển thị: nội suy vị trí, trạng thái | Sinh vật đi mượt ở 30 và 60 FPS | 1–2 |
+| 7 | Đo trên mobile với 60 sinh vật giả (sinh bằng lệnh debug) | ≤ 5 ms/nhịp [ý tưởng ngưỡng] | 1 |
+| 8 | Môi trường sống: đếm yêu cầu theo sự kiện, 3 loài × 2–3 yêu cầu | Đào/đặt → tiến độ đổi ngay; đủ yêu cầu → loài trở lại | 3–6 |
+| | **Cộng** | | **15–26** |
+
+**Chuyển sang M2:** tua nhanh nhảy sự kiện + test lệch ≤ 2% (trong "Tua nhanh 8–15"); vùng liên thông, ngân sách A\*, khung nhiều ô; vật tư, nhiều lệnh, độ ưu tiên; 2 sinh vật cùng làm một công đoạn; độ bền làm việc, nghỉ, bệnh/mệt (trong "Nhu cầu sinh vật"); người chơi làm công đoạn; bay, bơi.
 
 ## Câu hỏi mở
 - Ngưỡng các mức bệnh/mệt; nghỉ tại chỗ hay về nơi ở?

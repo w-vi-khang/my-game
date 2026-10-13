@@ -31,7 +31,7 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 | Khoá mục tiêu | Chuột giữa | Chạm thẳng vào sinh vật | Nhấn cần phải giữ lâu | M2 |
 | Nhập hồn / thoát | R (nhắm sinh vật của mình) | Nút nhập hồn (hiện khi nhắm trúng) | Y | M2 |
 | Đánh thường (khi nhập hồn) | Chuột trái | Nút hành động chính | RT | M2 |
-| Phép 1–4 (khi nhập hồn) | Phím 1–4 (thanh công cụ đổi thành ô phép) | 4 nút quanh nút hành động chính | LB, RB, LT, Y | M2 |
+| Phép 1–4 (khi nhập hồn) | Phím 1–4 (thanh công cụ đổi thành ô phép) | 4 nút quanh nút hành động chính | LB, RB, LT, X (khi nhập hồn X không dùng để tương tác; Y giữ cho nhập hồn / thoát) | M2 |
 | Túi đồ / sinh vật / bản đồ | Tab / C / M | Nút menu → chọn | Select | M2 |
 | Menu, tạm dừng | Esc | Nút menu | Start | M1 |
 
@@ -96,7 +96,8 @@ flowchart TB
 | Tua nhanh | Thời gian vắng mặt, sản lượng nhận được, danh sách đình trệ (chạm để đi tới) | M2 |
 | Lệnh làm việc | Danh sách lệnh, công đoạn, sinh vật đang làm, đình trệ | M1 (bản đơn giản) |
 | Sinh vật | Đội hình hoạt động (x / giới hạn sinh vật), kho sinh vật, chi tiết cá thể (chỉ số, phân hạng, phân bổ điểm, trang bị) | M2 |
-| Danh sách yêu cầu của loài | Mỗi loài: yêu cầu đã/chưa đạt, mức đáp ứng; ghim một loài lên HUD | M1 (bản đơn giản) |
+| Danh sách yêu cầu của loài | Mỗi loài: yêu cầu đã/chưa đạt; ghim một loài lên HUD; mức đáp ứng từ M2 (nhu cầu sinh vật) | M1 (bản đơn giản) |
+| Kho | Sản lượng và vật liệu đang có, sức chứa (mở bằng tương tác với kho) | M1 (bản đơn giản) |
 | Chuẩn bị chiến đấu | Chọn sinh vật, gán phép vào ô phép | M2 |
 | Túi đồ | Vật phẩm, thẻ bài | M2 |
 | Nhiệm vụ & mảnh ký ức | Nhiệm vụ chính/phụ theo map, mảnh ký ức đã có | M2 |
@@ -144,7 +145,7 @@ flowchart LR
 | 5 | Bắt sinh vật đầu tiên | Thẻ bài, ném thẻ, khoá mục tiêu | Tặng thẻ bậc 1 (không tặng thẻ bậc cao); lần bắt này **chắc chắn thành công** (user, 2026-10-13) — người mới không mất thẻ khi đang học; phân hạng cá thể vẫn theo bậc thẻ như thường | Bắt được 1 sinh vật |
 | 6 | Trồng cây | Lệnh làm việc, chọn vùng 2 điểm, công đoạn | Chỉ mảnh đất; giải thích sinh vật tự nhận việc. Sinh vật L1 làm 2 công đoạn của nó, **người chơi tự làm các công đoạn còn lại** (user, 2026-10-13 — [cơ chế](mechanics.md#lệnh-làm-việc)) | Thu hoạch xong vụ đầu |
 | 7 | Sinh vật hoang chặn đường — **sau** lệnh làm việc đầu tiên (user, 2026-10-13) | Chuẩn bị chiến đấu, nhập hồn, nhắm phép | Nhắc gán phép, chỉ nút nhập hồn | Thắng trận đầu |
-| 8 | Mảnh ký ức đầu tiên | Nhiệm vụ, mảnh ký ức, bản đồ | Mở bảng nhiệm vụ, chỉ hướng khối cốt truyện | Nhặt mảnh ký ức |
+| 8 | Mảnh ký ức đầu tiên — khi đạt **mốc hồi sinh đầu tiên (3 loài)** của Map 1 ([levels](levels.md#map-1--đảo-vách-đá-biển)); không ngay sau bước 7 | Nhiệm vụ, mảnh ký ức, bản đồ | Báo mốc đạt, mở bảng nhiệm vụ, chỉ hướng khối cốt truyện | Nhặt mảnh ký ức |
 
 **Dạy đúng lúc** (không đưa vào chuỗi trên) [ý tưởng]: tinh linh nói khi việc xảy ra lần đầu — đình trệ đầu tiên (không dàn dựng), lần đầu chạm giới hạn sinh vật (kho sinh vật), lần đầu vào lại game (tua nhanh), sinh vật đầu tiên đủ điều kiện tiến hoá, đạt ngưỡng PvP.
 

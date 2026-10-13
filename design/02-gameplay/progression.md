@@ -32,7 +32,7 @@ _(chưa có)_
 <!-- Bảng: nội dung | điều kiện mở | thời điểm dự kiến (phút/giờ chơi). -->
 | Nội dung | Điều kiện mở | Thời điểm dự kiến |
 |---|---|---|
-| Map mới | Đạt điều kiện của map trước — điều kiện cụ thể _(chưa có)_; [ý tưởng] hồi sinh đủ N loài của map + xong mốc truyện chính | _(?)_ |
+| Map mới | [ý tưởng] Map 2, 3 mở cùng lúc khi xong onboarding (mảnh ký ức đầu tiên) và đạt cấp độ người chơi X ([levels](levels.md#map-2-map-3--khung-m4)); map theo mùa: _(chưa có)_ | Cấp độ người chơi X _(?)_ |
 | Phá/đặt khối cốt truyện | Phá đảo map đó | _(?)_ |
 | PvP (ghép trận) | Đạt ngưỡng PvP (cấp độ người chơi hoặc yêu cầu nhất định — cụ thể _(chưa có)_). Trong PvP, điểm cấp độ/bậc vẫn tính, chỉ bỏ phần vượt trội | _(?)_ |
 | Loài mới | Đạt yêu cầu môi trường sống | _(?)_ |

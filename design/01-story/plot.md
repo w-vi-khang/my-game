@@ -24,7 +24,7 @@ Tóm tắt (user định hướng 2026-10-13; chi tiết là [ý tưởng]):
 
 | Chương | Mục tiêu người chơi | Sự kiện chính | Cảm xúc |
 |---|---|---|---|
-| Mở đầu | Hồi sinh loài đầu tiên, học cơ chế cơ bản | Tỉnh dậy, gặp tinh linh, loài đầu tiên trở lại | Tò mò, ấm lòng |
+| Mở đầu (nằm trong Map 1 — user, 2026-10-13, [levels](../02-gameplay/levels.md)) | Hồi sinh loài đầu tiên, học cơ chế cơ bản | Tỉnh dậy, gặp tinh linh, loài đầu tiên trở lại | Tò mò, ấm lòng |
 | Map 1 | Hồi sinh vùng đảo | Mảnh ký ức: lần đầu bản ngã cũ dùng thẻ bài giam sinh vật | Bất ngờ ("đó là mình sao?") |
 | Map 2 | Hồi sinh khu rừng | Mảnh ký ức: rút sinh khí cả khu rừng để thử sức mạnh | Day dứt |
 | Map 3 | Hồi sinh phế tích | Mảnh ký ức: sinh vật thân thiết mất đi; tinh linh lộ mình | Xúc động, hiểu ra |
@@ -33,7 +33,7 @@ Tóm tắt (user định hướng 2026-10-13; chi tiết là [ý tưởng]):
 
 ```mermaid
 flowchart LR
-    MD[Mở đầu<br/>gặp tinh linh] --> M1[Map 1]
+    MD[Mở đầu — trong Map 1<br/>gặp tinh linh] --> M1[Phần còn lại của Map 1]
     MD --> M2[Map 2]
     MD --> M3[Map 3]
     MD --> MS[Map theo mùa]

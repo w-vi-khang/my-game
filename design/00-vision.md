@@ -17,6 +17,8 @@ Một pháp sư mất ký ức hồi sinh thế giới phép thuật voxel: cả
 | P3 | **Tự do trong khung truyện** | Có cốt truyện và nhiệm vụ, nhưng không ép làm theo thứ tự. |
 | P4 | **Chiến đấu bằng bộ phép của sinh vật** | Sức mạnh chiến đấu đến từ việc chọn sinh vật và gán phép cho chúng (nguyên tố, tộc, loài, ô phép); người chơi nhập hồn để dùng phép đó. Áp dụng cả khi chơi một mình lẫn ghép trận. |
 
+Ngoại lệ không gắn pillar ([0008](decisions/0008-sua-loi-sau-ra-soat-m0.md)): **Tiền tệ & cửa hàng** (mô hình kinh doanh) và **Điều khiển PC + mobile** (ràng buộc nền tảng) — xem [cơ chế](02-gameplay/mechanics.md#danh-sách-cơ-chế).
+
 ## Người chơi mục tiêu
 <!-- Ai chơi? Chơi bao lâu mỗi lần? Thiết bị? Kinh nghiệm game? -->
 - Thiết bị: PC và mobile.
@@ -53,7 +55,7 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 <!-- Một người làm: quỹ thời gian, ngân sách, kỹ năng mạnh/yếu (code, art, âm thanh). -->
 - Một người làm; dự án indie cá nhân, dài hạn, không có timeline cố định.
 - Client: Unity 6000.4.8f1 ([0001](decisions/0001-client-unity.md)).
-- Quỹ thời gian: ~10 giờ/tuần (user, 2026-10-12) — ước lượng theo phạm vi hiện tại (~11,2–21,0 năm) vượt xa quỹ này, xem [roadmap](05-roadmap.md#kiểm-tra-phạm-vi).
+- Quỹ thời gian: ~10 giờ/tuần (user, 2026-10-12) — ước lượng theo phạm vi hiện tại (~11,7–22,2 năm) vượt xa quỹ này, xem [roadmap](05-roadmap.md#kiểm-tra-phạm-vi).
 - Kỹ năng: mạnh code client (Unity/C#) và backend/server; art, âm thanh, level design không tự làm → asset có sẵn / thuê ngoài (user, 2026-10-12).
 - Ngân sách: **0 đồng tới M2** — chỉ dùng asset miễn phí hoặc đã mua (user, 2026-10-13). Chi phí backend, hosting tính khi chọn dịch vụ ([0003](decisions/0003-server.md)).
 
@@ -63,4 +65,4 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 - Co-op ở giai đoạn đầu: co-op đảo sandbox là spin-off, tạm bỏ ([ideas](ideas.md)). Mọi mode nhiều người không ảnh hưởng tiến trình chính.
 - AI sinh vật tự do phức tạp: sinh vật làm việc theo lệnh làm việc do người chơi đặt.
 - Mô phỏng khi game tắt: chỉ tính bù (tua nhanh) khi người chơi vào lại.
-- Trả tiền để vượt mức tối đa: tiền nạp giúp đi nhanh hơn, nhưng không mua được chỉ số/sức mạnh vượt mức người không nạp cũng đạt được; phần vượt trội bị bỏ trong PvP.
+- Trả tiền để vượt mức tối đa: tiền nạp giúp đi nhanh hơn, nhưng không mua được chỉ số/sức mạnh vượt mức người không nạp cũng đạt được; phần vượt trội bị bỏ trong PvP. Ngoại lệ duy nhất: giới hạn sinh vật 54 → 60 ([0004](decisions/0004-tien-nap.md)).
