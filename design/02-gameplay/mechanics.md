@@ -31,6 +31,7 @@
 | Trang bị | Trang bị cho sinh vật, nhiều bậc trang bị; ghép trang bị cùng loại cùng bậc lên bậc cao hơn; rèn ở lò rèn (nguyên liệu + sinh vật phù hợp); cộng chỉ số chiến đấu, tính trong PvP | P2, P4 | Client + Backend (sở hữu, ghép, kết quả rèn) | Phải có | 13–23 | M3 [ý tưởng] |
 | Tiến hoá | Tăng bậc → mở ô phép thứ 4, mở rộng phạm vi phép mang được | P2, P4 | Client | Nên có | 10–15 | M3 |
 | Nghiên cứu | Một nguồn phép mới; chi tiết _(chưa có)_ | P2 | Client | _(?)_ | _(?)_ | _(?)_ |
+| Tinh linh hỗ trợ | Tinh linh đi theo người chơi, hỗ trợ bằng thông tin; nâng cấp bằng mảnh ký ức → thông tin nhiều hơn | P1, P3 | Client | Nên có | 5–10 | M2 [ý tưởng] |
 | Nhiệm vụ & mảnh ký ức | Cốt truyện chính + nhiệm vụ phụ mỗi map, không bắt buộc tuần tự | P3 | Client | Phải có | 15–25 | M2 |
 | Mở map | Đạt điều kiện để mở map mới | P3 | Client | Phải có | 2–4 | M2 |
 | Cấp độ người chơi | Tăng từ nhiều nguồn: mở khoá sinh vật mới, hoàn thành nhiệm vụ... | P1, P3 | Client + Backend | Phải có | 3–5 | M2 |
@@ -287,6 +288,22 @@ Mọi phép còn có yêu cầu cấp độ và bậc; một số phép yêu c�
 - Dùng chung một nguồn mana.
 - Phép dùng khi nhập hồn là phép đang gán cho sinh vật đó.
 - Chi tiết (thời gian nhập, điều kiện thoát, sinh vật đang làm việc có nhập được không): _(chưa có)_
+
+### Tinh linh hỗ trợ
+Mô tả của user (2026-10-13). Nhân vật: [characters](../01-story/characters.md#nhân-vật-chính-khác).
+- Tinh linh luôn đi theo người chơi, đóng vai **người hỗ trợ**.
+- **Nâng cấp bằng mảnh ký ức** thu thập được → cho **nhiều thông tin hơn**.
+- [ý tưởng] Các mức thông tin (mở dần theo số mảnh ký ức):
+
+| Mức | Thông tin tinh linh cho thêm |
+|---|---|
+| 1 | Hướng dẫn người mới; báo đình trệ; chỉ hướng khối cốt truyện gần nhất |
+| 2 | Gợi ý yêu cầu còn thiếu trong danh sách yêu cầu của loài |
+| 3 | Xem phân hạng cá thể của sinh vật ngoài tự nhiên trước khi ném thẻ |
+| 4 | Ước tỉ lệ bắt với từng bậc thẻ; dấu hiệu biến thể gần đây |
+
+- [ý tưởng] Nâng cấp tính theo **số mảnh ký ức đã thu thập** (không tiêu mảnh) → mảnh ký ức vẫn giữ vai trò cốt truyện.
+- Câu hỏi mở: nâng cấp tự động hay người chơi chọn? Thông tin mức cao có làm game quá dễ không (vd mức 4)?
 
 ### Sinh map theo seed & khối cốt truyện
 - Map là vùng có ranh giới trên world của từng người chơi. Nhà phát triển chỉ sắp đặt các thành phần phục vụ cốt truyện; phần còn lại sinh bằng công cụ/thuật toán theo seed của người chơi → các world tương đồng nhưng riêng biệt.

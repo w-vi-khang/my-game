@@ -19,12 +19,14 @@ Tên riêng để trống — **user tự đặt** ([danh sách cần đặt tê
 | Nhân vật | Vai trò | Quan hệ với người chơi | Xuất hiện |
 |---|---|---|---|
 | **Tinh linh** _(chưa có tên)_ | Luôn đi theo người chơi; dẫn dắt câu chuyện; hướng dẫn người mới [ý tưởng] | Là **mảnh linh hồn của sinh vật từng thân thiết với pháp sư**, để lại để **cảm hoá** pháp sư trên hành trình tìm lại ký ức (user, 2026-10-13) | Mọi map, từ đầu tới cuối |
+| **NPC không phải người** | Giao nhiệm vụ, kể chuyện map — là **sinh vật đặc biệt, máy móc, hay pho tượng** (user, 2026-10-13) | [ý tưởng] Mỗi map 1–2 NPC: vd pho tượng canh giữ phế tích (map 3), cỗ máy cũ trên đảo (map 1), sinh vật già trong rừng (map 2) | Theo map |
 | **Sinh vật thân thiết** _(chưa có tên)_ | Nguồn gốc của tinh linh — chỉ xuất hiện qua mảnh ký ức [ý tưởng] | Người bạn duy nhất của bản ngã cũ; mất đi trong (hoặc trước) biến cố [ý tưởng] | Mảnh ký ức |
 
 [ý tưởng] Về tinh linh:
 - Ban đầu không nói rõ mình là ai; lộ dần theo các mảnh ký ức — người chơi đoán ra trước khi tinh linh nói.
 - Phản ứng với sinh vật vừa trở lại, vừa bắt được (lời thoại ngắn) → gắn cảm xúc với P1, P2 mà không cần cơ chế mới.
-- Câu hỏi mở: tinh linh có vai trò gameplay không (vd chỉ đường, gợi ý yêu cầu môi trường sống, không chiến đấu)? Có hình dạng loài nào — loài có thể sưu tầm trong game, hay độc nhất?
+- **Vai trò gameplay** (user, 2026-10-13): **người hỗ trợ**; **nâng cấp bằng mảnh ký ức** thu thập được → cho **nhiều thông tin hơn** ([cơ chế](../02-gameplay/mechanics.md#tinh-linh-hỗ-trợ)).
+- Câu hỏi mở: tinh linh có hình dạng loài nào — loài có thể sưu tầm, hay độc nhất?
 
 ## Đối thủ / phản diện
 <!-- Ai cản trở, động cơ, cách người chơi đối đầu. -->

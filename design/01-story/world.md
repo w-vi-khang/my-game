@@ -30,7 +30,8 @@ timeline
     Hiện tại : Pháp sư tỉnh dậy cùng một tinh linh, bắt đầu hồi sinh từng vùng đất
 ```
 
-- Câu hỏi mở: có người nào khác còn sống (NPC) không, hay thế giới chỉ còn pháp sư, tinh linh và sinh vật? Có ai từng đi theo bản ngã cũ không?
+- **NPC** (user, 2026-10-13): có NPC nhưng **không phải người** — có thể là sinh vật đặc biệt, máy móc, hay pho tượng ([nhân vật](characters.md#nhân-vật-chính-khác)).
+- Câu hỏi mở: có ai/cái gì từng đi theo bản ngã cũ không?
 
 ## Địa điểm chính
 <!-- Mỗi địa điểm: vai trò trong gameplay + cảm xúc muốn tạo. -->

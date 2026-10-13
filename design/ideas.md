@@ -34,5 +34,6 @@
 | Biến cố phép thuật chung (không ai gây ra) | AI (2026-10-13) | P1 | loại | User chọn: nhân vật chính liên quan |
 | Con người gây ra biến cố (khai thác, chiến tranh phép thuật) | AI (2026-10-13) | P1 | loại | User chọn: nhân vật chính liên quan |
 | Pháp sư: sai lầm có ý tốt / hy sinh ký ức / tự xoá ký ức | AI (2026-10-13) | — | loại | User chọn: bản ngã cũ có mục đích xấu, coi sinh vật là công cụ |
-| NPC người sống sót dẫn dắt ở mỗi map | AI (2026-10-13) | P3 | để sau | User chọn tinh linh đồng hành; NPC có thể thêm sau nếu cần |
+| Kết "Đoàn tụ" (sinh vật thân thiết trở lại từ tinh linh); nhiều kết theo cách đối xử với sinh vật | AI (2026-10-13) | P2 | để sau | User chọn kết "Chấp nhận"; nhiều kết cần cơ chế đo cách đối xử |
+| NPC người sống sót dẫn dắt ở mỗi map | AI (2026-10-13) | P3 | loại | User: có NPC nhưng không phải người (sinh vật đặc biệt, máy móc, pho tượng) |
 | Địa hình dựng mesh ×1 (hoặc ×1 làm mượt ít hơn ở vách) | AI (2026-10-12) | — | loại | Rãnh 1 ô bị bóp chữ V; user chọn ×2 |

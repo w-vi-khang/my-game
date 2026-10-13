@@ -52,7 +52,17 @@ flowchart LR
 
 ## Cách kể chuyện
 <!-- Cutscene, hội thoại, môi trường, nhật ký... phù hợp sức một người làm. -->
-[ý tưởng] Chọn cách rẻ cho một người làm, không cần cutscene dựng phim:
+**Cutscene:** user muốn **vài cutscene** (2026-10-13). [ý tưởng] Dành cho các khoảnh khắc lớn, số lượng ít:
+
+| Cutscene | Khi nào | Milestone |
+|---|---|---|
+| Mở đầu | Tỉnh dậy giữa đất khô héo, gặp tinh linh | M2 (vertical slice) |
+| Tinh linh lộ mình | Mảnh ký ức của map 3 | M3–M4 |
+| Hồi kết | Trước và sau trận chiến với bản ngã cũ | Sau phát hành |
+
+- Ước lượng [ý tưởng]: 3–6 ngày-người mỗi cutscene (dựng cảnh, camera, thoại, nhạc; dùng model có sẵn trong game). Công cụ trong Unity (vd Timeline, Cinemachine): chưa tra docs 6000.4 [chưa xác minh] — tra khi tới M2.
+
+Các cách kể còn lại [ý tưởng], rẻ cho một người làm:
 - **Mảnh ký ức** = cảnh hồi tưởng ngắn tại khối cốt truyện: khung hình tĩnh/màu đơn sắc + vài câu thoại của bản ngã cũ.
 - **Tinh linh** nói vài câu ngắn theo sự kiện (loài trở lại, bắt được sinh vật, nhặt mảnh ký ức) — kể chuyện liên tục mà không cần hội thoại dài.
 - **Môi trường kể chuyện**: thẻ bài cũ vỡ, đất khô quanh nơi bản ngã cũ từng ở — hồi sinh làm những dấu vết đó biến mất.
@@ -61,8 +71,6 @@ flowchart LR
 ## Kết thúc
 <!-- Một hay nhiều kết; điều kiện; cảm xúc để lại. -->
 - **Trận chiến cuối cùng** giữa bản ngã mới và bản ngã cũ (user, 2026-10-13).
-- Tông ấm áp, hy vọng → [ý tưởng] ba hướng để user chọn:
-  - **(a) Chấp nhận:** bản ngã mới thắng nhưng không xoá bản ngã cũ — nhận lấy ký ức và lỗi lầm, chọn con đường khác. Tinh linh yên lòng ra đi (hoặc ở lại).
-  - **(b) Đoàn tụ:** sau trận chiến, sinh khí đủ đầy để sinh vật thân thiết trở lại thật sự từ tinh linh.
-  - **(c) Nhiều kết:** kết thay đổi theo cách người chơi đối xử với sinh vật — cần cơ chế đo "cách đối xử" (cơ chế mới, phải hỏi user).
-- **Phạm vi:** trận chiến cuối là nội dung chiến đấu riêng (trùm, cảnh). Câu chuyện kéo dài qua nhiều mùa → hồi kết ra **sau phát hành**. Ước lượng [ý tưởng]: 10–20 ngày-người (trận trùm + cảnh kết), chưa có trong [roadmap](../05-roadmap.md).
+- **Một kết — "Chấp nhận"** (user chọn, 2026-10-13): bản ngã mới thắng nhưng **không xoá** bản ngã cũ — nhận lấy ký ức và lỗi lầm, chọn con đường khác. [ý tưởng] Tinh linh yên lòng vì người mình thương đã thay đổi; ở lại hay ra đi để user quyết khi viết cảnh kết.
+- Các hướng không chọn (đoàn tụ, nhiều kết) → [ideas](../ideas.md).
+- **Phạm vi:** trận chiến cuối là nội dung chiến đấu riêng (trùm, cảnh). Câu chuyện kéo dài qua nhiều mùa → hồi kết ra **sau phát hành**. Ước lượng [ý tưởng]: 10–20 ngày-người (trận trùm + cảnh kết) — đã ghi ở [roadmap](../05-roadmap.md).
