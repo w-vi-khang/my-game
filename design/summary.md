@@ -53,7 +53,7 @@ Khám phá, thu thập → cải tạo địa hình → hoàn thành **danh sác
 - PvP 1v1 thời gian thực (sau phát hành), 3–5 sinh vật theo **thể thức**; ghép theo **hạng** rồi **cấp độ trung bình**. Trong PvP bỏ điểm cộng cá thể (vượt trội) — ở mức tối đa mọi người như nhau.
 - Hai loại tiền: **tiền trong game**, **tiền nạp**. Tiền nạp ảnh hưởng tốc độ, không vượt mức tối đa người không nạp đạt được ([0004](decisions/0004-tien-nap.md)). **Rút thưởng gói** (sinh vật, sách phép, trang bị) có **bảo hiểm** công khai; **chặn quá may**; phép trùng đổi thành **"ma năng"**.
 
-**Trạng thái:** M0 — kế hoạch & thiết kế. Ước lượng tới M4 ~11,7–22,2 năm ở 10 giờ/tuần, chưa tính tác động của AI ([roadmap](05-roadmap.md)).
+**Trạng thái:** M1 — prototype client tối giản (từ 2026-10-13, [0007](decisions/0007-m1-toi-gian.md)). Ước lượng tới M4 ~11,8–22,3 năm ở 10 giờ/tuần, chưa tính tác động của AI ([roadmap](05-roadmap.md)).
 
 ## Danh sách cần đặt tên
 **User tự đặt tên; AI chỉ duyệt** (kiểm trùng web + `check_names.py`, cách đọc tiếng Việt/tiếng Anh). Nguyên tắc chung đã chốt: tên riêng **tự tạo**, dễ đọc cả tiếng Việt và tiếng Anh, chữ a–z, thị trường toàn cầu ([naming](01-story/naming.md#nguyên-tắc-chung)). Cột "Loại" là gợi ý của AI [ý tưởng]: **tự tạo** = giữ nguyên mọi ngôn ngữ; **dịch** = tên mô tả, dịch theo ngôn ngữ người chơi.

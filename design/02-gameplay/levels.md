@@ -18,7 +18,7 @@ Thời lượng chưa có cơ sở — đo khi chơi thử slice ở M2.
 ### Kích thước & khung chung
 - Mỗi map **128 × 128 × 48 ô** (user, 2026-10-13) = 192 chunk 16³ ([world-tech](../04-tech/world-tech.md#dữ-liệu-world)). Chạy được trên mobile tầm trung hay không: [chưa xác minh — đo ở M1].
 - [ý tưởng] Mực nước biển ở y = 16; đất liền cao tới ~y = 40; hang ở y = 4–16; đáy y = 0–3 là đá không đào được.
-- [ý tưởng] Ranh giới map: biển sâu (bơi được nhưng có dòng chảy đẩy lại) + sương mù ở rìa — không cần tường vô hình.
+- **Ranh giới map** (user, 2026-10-13, [0009](../decisions/0009-dai-duong-va-suong-mu-o-ria-map.md)): **mọi map có đại dương bao quanh**, mép map nằm xa đất liền; phần xa phủ **tường sương mù** — không vách đứng, không cảm giác đụng tường. [ý tưởng] Bơi ra xa thì dòng chảy đẩy lại (bơi là M2).
 - **Bố cục vùng sinh theo seed có ràng buộc** (user, 2026-10-13): bộ sinh đặt các vùng theo seed, mỗi map có một bảng **ràng buộc bố cục** cố định. Ràng buộc của Map 1 [ý tưởng]:
   - Vùng 1 (Mở đầu) ở rìa đảo, giáp biển; vùng 3 (vịnh) và vùng 4 (vách đá) giáp biển; hang nằm dưới vùng 2–3.
   - Diện tích mỗi vùng trong khoảng ghi ở bảng vùng (±25%).

@@ -76,6 +76,7 @@ flowchart LR
 - **Chỉ số đỉnh 16 bit đủ:** mesh 16 bit chứa tối đa 65.535 đỉnh; 32 bit không chắc chạy trên mọi máy (vd Android GPU Mali-400 không vẽ) ([Mesh.indexFormat](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh-indexFormat.html)). Một chunk 16 × 16 ô ước ~7.000 tam giác (tỉ lệ từ bản thử 30 × 30) → vài nghìn đỉnh. Đo 2026-10-13 [run]: chunk nặng nhất của world M1 6.776 tam giác, 3.881 đỉnh → dùng 16 bit.
 - **Vật liệu:** gán vật liệu theo đỉnh (trộn ở ranh giới) + texture dán 3 hướng (triplanar) — bản thử gán theo mặt bị răng cưa ([art-style](../03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)).
 - **Nước chảy** (user, 2026-10-13) — xem mục Nước bên dưới.
+- **Mép map** ([0009](../decisions/0009-dai-duong-va-suong-mu-o-ria-map.md), user 2026-10-13; cách làm là [ý tưởng]): ngoài map lấy mẫu bằng cột biên gần nhất → không sinh vách đứng ở mép; bộ sinh hạ độ cao dần về rìa để luôn có vành biển; đáy biển ở rìa nằm dưới mặt nước, trong sương mù.
 - **LOD:** map có ranh giới → M1 **chưa làm LOD**; chỉ thêm nếu đo trên mobile thấy cần.
 
 ## Chỉnh sửa (đào / đặt)
@@ -133,6 +134,11 @@ User chọn nước **chảy được** (2026-10-13). [ý tưởng]
 - **SRP Batcher** (có trong URP): giảm đổi trạng thái giữa các draw call cho vật liệu cùng shader — hợp nhiều mesh chunk dùng chung một shader địa hình ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/SRPBatcher.html)). Không giảm số draw call.
 - **GPU Resident Drawer**: vẽ GameObject bằng instancing, giảm draw call — cần đường render Forward+ (hoặc Deferred+), nền tảng có compute shader **trừ OpenGL ES** (Android phải Vulkan), MeshRenderer không dùng MaterialPropertyBlock... ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/gpu-resident-drawer.html)) → hợp cho **cây, vật phẩm lặp lại**; mesh chunk là duy nhất nên ít lợi [suy luận].
   - Lưu ý: **biến thể hiển thị** nếu làm bằng MaterialPropertyBlock sẽ không được GPU Resident Drawer vẽ → nên làm biến thể qua dữ liệu instance/shader [ý tưởng, kiểm ở M2].
+- **Culling** (2026-10-13):
+  - Đã có: Surface Nets chỉ sinh mặt ở chỗ giáp đặc/rỗng → không có mặt bị chôn; chunk nằm hẳn trong đất không có mesh. Mỗi chunk là một Renderer riêng → Unity tự bỏ chunk ngoài tầm camera: *"By default, Cameras perform frustum culling"* ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/OcclusionCulling.html)).
+  - Occlusion culling tính sẵn của Unity không dùng được: *"If your Project generates Scene geometry at runtime, then Unity's built-in occlusion culling is not suitable"* (cùng trang).
+  - GPU occlusion culling của URP: cần GPU Resident Drawer (Android phải Vulkan), xấp xỉ mỗi vật bằng hình cầu bao, cảnh ít che khuất thì có thể chậm hơn ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/gpu-culling.html)) → M1 không bật (map nhỏ, không hang, camera nhìn xuống).
+  - M2 có hang + map 128 × 128 × 48 → cần cách bỏ mặt hang khi ở trên mặt đất [ý tưởng]: đánh dấu chunk chỉ có mặt hang, ẩn theo vị trí camera; hoặc GPU occlusion culling nếu Android dùng Vulkan; giới hạn khoảng cách vẽ. Chọn theo số đo ([risks](risks.md)).
 - Cần đo ở M1 trên máy mobile tầm trung: thời gian dựng mesh một chunk, số tam giác hiển thị, thời gian bake collider ([risks](risks.md)).
 
 ## Kế hoạch prototype (M1)
@@ -145,8 +151,9 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 | 3 | Nhiều chunk + nối biên (ô đệm) + Jobs/Burst | Không hở ở biên; đo thời gian dựng mesh / chunk | 4–7 |
 | 4 | Đào/đặt nguyên ô + dựng lại chunk bẩn + collider; kho vật liệu của người chơi ([cơ chế](../02-gameplay/mechanics.md#voxel-world--luật-m1)) | Sửa ô → mesh cập nhật ≤ 2 khung hình trên PC | 3–5 |
 | 5 | Màu vật liệu theo đỉnh (chưa triplanar) | Phân biệt được đất, cỏ, đá, cát | 1–2 |
+| 5b | Đảo + vành biển (generatorVersion 2), mặt nước tĩnh, sương mù có sẵn của Unity + màu nền trùng màu sương ([0009](../decisions/0009-dai-duong-va-suong-mu-o-ria-map.md)) | Từ giữa map không thấy mép map, không vách đứng | 2–3 |
 | 6 | Đo trên mobile tầm trung | ≥ 30 FPS khi đào/đặt liên tục; ghi ms/chunk, số tam giác | 2–3 |
-| | **Cộng** | | **17–28** |
+| | **Cộng** | | **19–31** (17–28 + 2–3 của 0009) |
 
 **Chuyển sang M2** (18–27, phần "voxel world đầy đủ" của [0007](../decisions/0007-m1-toi-gian.md)): hang noise 3D 4–5 · map 128 × 128 × 48 + hiển thị theo khoảng cách 4–6 · vật liệu trộn + triplanar 3–5 · lưới chiếm chỗ + vật thể nhiều ô 3–5 · lưu/nạp chunk đã sửa 2–4 · phiên bản bộ sinh 2. Khối cốt truyện (2–4) và sinh map theo seed (15–25) là hạng mục M2 riêng.
 

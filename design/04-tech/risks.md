@@ -37,7 +37,7 @@
 | Ngoại lệ giới hạn sinh vật 54 / 60 cho người nạp ([0004](../decisions/0004-tien-nap.md)) → người không nạp thấy thiệt ở nông trại dù đã mở hết | Thấp | Trung bình | Không ảnh hưởng PvP; giữ chênh lệch nhỏ (6 sinh vật); theo dõi phản hồi sau phát hành | Sau phát hành |
 | Một bộ điều khiển cho cả PC và mobile | Trung bình | Trung bình | Thiết kế điều khiển cảm ứng từ M1; nhắm theo tâm màn hình + chọn vùng 2 điểm, một nút hành động chính cho mọi thiết bị ([controls-ui](../02-gameplay/controls-ui.md)) | M1 |
 | Trùng ý tưởng với Pokémon Pokopia (Switch 2, 2026 — [Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html)): hồi sinh vùng đất khô héo, sinh vật trở lại, dùng chiêu của sinh vật để đổi thế giới → người chơi thấy game "giống Pokopia" | Cao | Cao | Nhấn mạnh điểm khác biệt user đã chọn ([vision](../00-vision.md)): nhiều cá thể mỗi loài, chiến đấu và nông trại chi tiết hơn; tránh mượn art/tên quá gần (art style tham khảo Pokopia → cần bảng màu, hình dáng sinh vật riêng) | M0 |
-| Dự án dài hạn một người: mất động lực. Ở 10 giờ/tuần, phạm vi hiện tại tới M4 ~11,7–22,2 năm ([roadmap](../05-roadmap.md#kiểm-tra-phạm-vi)) | Cao | Cao | Milestone nhỏ có thứ chơi được; công bố tiến độ | Liên tục |
+| Dự án dài hạn một người: mất động lực. Ở 10 giờ/tuần, phạm vi hiện tại tới M4 ~11,8–22,3 năm ([roadmap](../05-roadmap.md#kiểm-tra-phạm-vi)) | Cao | Cao | Milestone nhỏ có thứ chơi được; công bố tiến độ | Liên tục |
 
 ## Kiểm chứng sớm ở M1
 [ý tưởng] Rủi ro "Cao" cần biết sớm nhất, gắn với bước prototype của **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md)) — nếu một bước cho kết quả xấu, dừng làm nội dung và điều chỉnh thiết kế trước.
