@@ -35,6 +35,9 @@
 | Hiệu ứng thẻ bài | Hiệu ứng hình ảnh (khi xuất hiện, hào quang, mây...) — chỉ thẻ bậc 4 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lò rèn | Công trình để rèn trang bị | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Công cụ kiểm tra asset | Script Blender headless kiểm model 3D theo quy cách trước khi đưa vào client (`tools/asset_check/`) | [decisions/0006](decisions/0006-cong-cu-kiem-tra-asset.md) |
+| Chunk | Khối 16 × 16 × 16 ô gameplay (ý tưởng) — đơn vị dựng mesh, lưu trữ, tải world | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Lưới gameplay / lưới dựng mesh | Lưới 1 ô = 1 đơn vị (nguồn chuẩn, luật chơi, lưu) / lưới ×2 suy ra khi dựng mesh mịn, không lưu | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Phiên bản bộ sinh | Phiên bản thuật toán sinh world từ seed; lưu kèm dữ liệu để biết world gốc | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |
 | Mốc bảo hiểm | Số lần rút liên tiếp tối đa trước khi chắc chắn ra phần thưởng hiếm của gói (ý tưởng cách làm) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lệnh làm việc | Việc người chơi đặt cho sinh vật trên một vùng (vd trồng cây), gồm nhiều công đoạn. Khác với "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

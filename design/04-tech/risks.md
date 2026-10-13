@@ -10,6 +10,8 @@
 | Rủi ro | Khả năng | Ảnh hưởng | Cách giảm | Kiểm chứng ở |
 |---|---|---|---|---|
 | Hiệu năng voxel trên mobile: bề mặt mịn liền (thuật toán dựng mesh mịn, nhiều tam giác hơn khối, trộn vật liệu; dựng mesh ×2 → ~24.000 tam giác mỗi mảnh 30 × 30 ô, gấp 4 lần ×1 — thử nghiệm art 2026-10-12) + model mịn cho sinh vật/cây/vật phẩm + biến thể hiển thị → nhiều polygon/draw call hơn | Cao | Cao | Map có ranh giới; prototype trên máy mobile yếu sớm | M1 |
+| Đổi bộ sinh world ở bản cập nhật → chunk chưa sửa sinh khác đi, lệch với chunk đã lưu ở ranh giới | Trung bình | Cao | Lưu phiên bản bộ sinh kèm dữ liệu; quy tắc chuyển đổi khi đổi phiên bản ([world-tech](world-tech.md#lưu-trữ)) | M2 |
+| Surface Nets có thể tạo đỉnh không đa tạp (non-manifold) ([0fps](https://0fps.net/2012/07/12/smooth-voxel-terrain-part-2/)) → lỗi bóng/va chạm | Trung bình | Trung bình | Kiểm mesh bằng test tự động ở bước 2–3 prototype; collider bake có kiểm tra | M1 |
 | Tìm đường trên địa hình đào/đặt được (cập nhật khi đổi khối) | Trung bình | Cao | Chỉ tính lại vùng bị đổi; giới hạn số sinh vật | M1 |
 | Kết quả tua nhanh lệch với lúc chơi trực tiếp | Trung bình | Trung bình | Một mô hình mô phỏng chung cho cả hai ([cơ chế](../02-gameplay/mechanics.md)) | M1–M2 |
 | Yêu cầu môi trường sống thành việc vặt, không vui | Trung bình | Cao | Graybox thử 2–3 loài trước khi làm nhiều | M1 |

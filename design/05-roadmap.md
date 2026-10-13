@@ -116,7 +116,7 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 - [ ] **Thử nghiệm art bằng AI** — đổi hướng (user, 2026-10-12):
   - [x] Địa hình mịn: dựng mesh ×2, đạt công cụ kiểm tra asset ([art-style](03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)).
   - [x] Công cụ kiểm tra asset ([0006](decisions/0006-cong-cu-kiem-tra-asset.md), Chốt) — selftest trong `verify`.
-  - [ ] Tiếp tục dựng mesh world (ưu tiên trước mắt).
+  - [ ] Tiếp tục dựng mesh world (ưu tiên trước mắt) — tài liệu kỹ thuật + kế hoạch prototype 9 bước: [world-tech](04-tech/world-tech.md) (bản đầu 2026-10-13).
   - [ ] Ảnh concept theo hướng XING-ART nhưng tươi sáng hơn ([art-style](03-art-audio/art-style.md#hướng-phong-cách)).
   - Tạm dừng: sinh vật hoàn chỉnh (rig, animation, biến thể). Sinh vật/nhân vật có thể low-poly.
 - [ ] Việc còn lại sau khi kit phát hành skill `concept-image` (v0.7.0) — từ [.ai/kit-requests/concept-image-skill.md](../.ai/kit-requests/concept-image-skill.md) mục 14:

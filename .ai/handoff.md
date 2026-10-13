@@ -1,7 +1,7 @@
 # Handoff
 
 > Trạng thái: đang dở
-> Cập nhật: 2026-10-12 (cuối phiên)
+> Cập nhật: 2026-10-13
 
 <!-- AI ghi khi context lớn / trước khi /clear / khi user yêu cầu (/ai-workflow-kit:handoff).
 File này được commit (theo sang máy khác). Phiên sau dùng xong (đã tóm tắt, user xác nhận bước tiếp theo) -> XOÁ file;
@@ -34,6 +34,9 @@ M0 — kế hoạch & thiết kế. Đang chốt cơ chế cốt lõi trong `des
 3c. XONG 2026-10-12: trang bị (sinh vật, bậc trang bị, ghép, rèn ở lò rèn, tính PvP; M3 13–23); bảo hiểm gói là cho cá thể vượt trội; art-style.md bản đầu (voxel mịn tham khảo Pokopia, model mịn + khung chiếm chỗ). Phát hiện: Pokopia trùng nhiều ý tưởng cốt lõi → ghi vision + risks. XONG 2026-10-12: địa hình khối theo Pokopia (AI xem ảnh Serebii), 3 trang bị/sinh vật không ngẫu nhiên, bảo hiểm ưu tiên + phần thưởng theo gói, điểm khác biệt với Pokopia; asset ứng viên trong art-style.md.
 
 3d. XONG 2026-10-12: địa hình bề mặt mịn liền (voxel world 35–55), biến thể hiển thị (3–6, M2), không chibi, tỉ lệ 1 ô = 1 đơn vị (nhân vật 1,5 × 1), sinh vật/nhân vật làm bằng AI, ma năng (phép trùng). Tổng M1–M4 ~10,1–19,1 năm. Đã cài (user, 2026-10-12): uv 0.13.0 (brew), MCP `blender` (local config, DISABLE_TELEMETRY=true, BLENDER_MCP_SAFE_MODE=1), addon mcp-for-blender vào Blender 5.0. Bước tiếp: user bật addon + Start MCP Server trong Blender, mở phiên mới → AI chạy thử nghiệm art (kế hoạch trong 05-roadmap mục C).
+
+4. XONG 2026-10-12/13 (phiên dài, nhiều commit): Chốt 0006 + công cụ kiểm duyệt ảnh lớp 2–3 (tools/asset_gen/concept_check.py, bắt 7/7 lỗi); thẻ bài (ném thẻ, 4 bậc, bậc 4 chắc chắn bắt + vượt trội); phân hạng cá thể 4 hạng (vượt trội ≥ 20% base), PvP bỏ điểm cộng; 0004 điểm 4 sửa (tiền nạp được tăng tỉ lệ vượt trội); design/summary.md (tóm tắt + danh sách cần đặt tên — user tự đặt tên, AI chỉ duyệt; tên game đang cân nhắc Aetharyn / Viventa); thế giới/nhân vật/cốt truyện bản đầu (bản ngã cũ coi sinh vật là công cụ, tinh linh hỗ trợ nâng cấp bằng mảnh ký ức, NPC không phải người, kết "Chấp nhận", vài cutscene); design/04-tech/world-tech.md (kỹ thuật tạo world + kế hoạch prototype M1 9 bước).
+5. TIẾP THEO (user, 2026-10-13): tập trung kỹ thuật build game, world trước — chờ user trả lời câu hỏi mở trong world-tech.md (kích thước map, nước, công cụ san phẳng, phiên bản bộ sinh); sau đó: controls-ui.md, levels.md.
 
 ## Quyết định quan trọng & lý do
 - Game online, F2P, tài khoản bắt buộc; PvE ở world riêng; PvP thời gian thực do game server quyết định (user chọn "trận đấu nảy lửa", chống gian lận).
