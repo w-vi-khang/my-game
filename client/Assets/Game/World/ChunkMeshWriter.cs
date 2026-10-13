@@ -9,7 +9,7 @@ namespace Game.World
 {
     /// <summary>
     /// Ghi ChunkMesh vào UnityEngine.Mesh bằng Mesh.AllocateWritableMeshData → ApplyAndDisposeWritableMeshData,
-    /// chỉ số 16 bit (world-tech "Dựng mesh bề mặt mịn"; 32 bit không chắc chạy trên mọi máy).
+    /// chỉ số 16 bit (world-tech "Dựng mesh khối bo cạnh"; 32 bit không chắc chạy trên mọi máy). Luồng 2 = màu đỉnh RGBA8.
     /// </summary>
     public static class ChunkMeshWriter
     {
@@ -33,9 +33,11 @@ namespace Game.World
                 var data = array[k];
                 data.SetVertexBufferParams(chunk.Vertices.Length,
                     new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3, 0),
-                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3, 1));
+                    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3, 1),
+                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4, 2));
                 data.GetVertexData<float3>(0).CopyFrom(chunk.Vertices);
                 data.GetVertexData<float3>(1).CopyFrom(chunk.Normals);
+                data.GetVertexData<uint>(2).CopyFrom(chunk.Colors);
 
                 data.SetIndexBufferParams(chunk.Indices.Length, IndexFormat.UInt16);
                 var indices = data.GetIndexData<ushort>();

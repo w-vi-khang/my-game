@@ -1,6 +1,6 @@
 # 0010 — MCP for Unity: AI làm việc trực tiếp trong Unity Editor đang mở
 
-> Trạng thái: Đề xuất
+> Trạng thái: Chốt
 > Ngày: 2026-10-13
 
 ## Bối cảnh
@@ -15,13 +15,15 @@
 - **Không làm gì:** user chạy test bằng Test Runner trong Editor, hoặc tắt Unity khi AI cần chạy.
 
 ## Quyết định
-User đồng ý cài **MCP for Unity v10.3.0** (2026-10-13). Ghim version (không dùng `#main`); tắt telemetry; chế độ stdio (Claude Code tự chạy server). Chờ user chuyển **Chốt** sau khi dùng thử.
+User đồng ý cài **MCP for Unity v10.3.0** (2026-10-13). Ghim version (không dùng `#main`); tắt telemetry; chế độ stdio (Claude Code tự chạy server). **Chốt** (user, 2026-10-13) sau khi dùng thử một phiên: chạy test EditMode/PlayMode, Play scene, đọc Console, chụp màn hình qua MCP [run].
 
 ## Hệ quả
 - `client/Packages/manifest.json`: `com.coplaydev.unity-mcp` → `…/unity-mcp.git?path=/MCPForUnity#v10.3.0`. Package kéo thêm `com.unity.nuget.newtonsoft-json` và vài module có sẵn (physics2d, animation, uielements, screencapture, unitywebrequest).
 - Package có assembly `MCPForUnity.Runtime` (~2.000 dòng, chỉ helper) không giới hạn Editor → vào cả bản build. Chấp nhận khi prototype; **trước khi phát hành** phải loại khỏi bản build hoặc gỡ package.
 - `.mcp.json` (gốc repo): server `UnityMCP` = `uvx --from mcpforunityserver==10.3.0 mcp-for-unity`, `DISABLE_TELEMETRY=true`. Cần `uv` (đã có 0.13.0) + Python ≥ 3.10.
 - Phía Unity: chọn transport **stdio** trong `Window → MCP for Unity` (mặc định là HTTP); bật tắt telemetry trong cửa sổ đó nếu có.
+- `run_tests` PlayMode tạm bật "tắt domain reload" để giữ kết nối và **ghi vào `client/ProjectSettings/EditorSettings.asset`** (`m_EnterPlayModeOptions: 1`); giá trị trong bộ nhớ được trả lại nhưng file thì không [run 2026-10-13, mã `Editor/Services/TestRunnerService.cs` của package] → sau mỗi lần chạy PlayMode qua MCP: `git checkout -- client/ProjectSettings/EditorSettings.asset`, không commit thay đổi đó.
+- Thử input trong Play bằng chuột/phím ảo: phải tạm đổi `InputSystem.settings` (`AllDeviceInputAlwaysGoesToGameView`, `IgnoreFocus`) vì Editor không focus; trả lại sau khi thử [run 2026-10-13].
 - `tools/unity_test.py` vẫn giữ — dùng khi Unity tắt (và trong `verify`).
 - Gỡ: xoá dòng trong `manifest.json` + `.mcp.json`.
 - [tech-stack](../04-tech/tech-stack.md) mục "Hạ tầng & công cụ chung".

@@ -55,7 +55,7 @@ Thể loại: voxel sandbox + sưu tầm sinh vật + nông trại tự động 
 <!-- Một người làm: quỹ thời gian, ngân sách, kỹ năng mạnh/yếu (code, art, âm thanh). -->
 - Một người làm; dự án indie cá nhân, dài hạn, không có timeline cố định.
 - Client: Unity 6000.4.8f1 ([0001](decisions/0001-client-unity.md)).
-- Quỹ thời gian: ~10 giờ/tuần (user, 2026-10-12) — ước lượng theo phạm vi hiện tại (~11,8–22,3 năm) vượt xa quỹ này, xem [roadmap](05-roadmap.md#kiểm-tra-phạm-vi).
+- Quỹ thời gian: ~10 giờ/tuần (user, 2026-10-12) — ước lượng theo phạm vi hiện tại (~12,0–22,5 năm, sau [0011](decisions/0011-dia-hinh-khoi-bo-canh.md)) vượt xa quỹ này, xem [roadmap](05-roadmap.md#kiểm-tra-phạm-vi).
 - Kỹ năng: mạnh code client (Unity/C#) và backend/server; art, âm thanh, level design không tự làm → asset có sẵn / thuê ngoài (user, 2026-10-12).
 - Ngân sách: **0 đồng tới M2** — chỉ dùng asset miễn phí hoặc đã mua (user, 2026-10-13). Chi phí backend, hosting tính khi chọn dịch vụ ([0003](decisions/0003-server.md)).
 

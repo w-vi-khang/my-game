@@ -10,7 +10,7 @@
 
 | Cơ chế | Mô tả | Pillar | Thành phần | Ưu tiên | Ước lượng | Milestone |
 |---|---|---|---|---|---|---|
-| Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **bề mặt mịn liền** (dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15): M1 tối giản 17–28, M2 18–27 | M1 (tối giản — [0007](../decisions/0007-m1-toi-gian.md)), M2 |
+| Voxel world | Đào/đặt, chunk, lưu world; địa hình hiển thị **dạng khối bo cạnh, mép cỏ phủ** ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md); dữ liệu vẫn là lưới voxel); sinh vật, cây, vật phẩm là model riêng có khung chiếm chỗ nhiều ô voxel ([art style](../03-art-audio/art-style.md)) | P1 | Client | Phải có | 35–55 (bề mặt mịn +10–15): M1 tối giản 17–28 (+2–3 của 0009, +6–9 của 0011), M2 18–27 | M1 (tối giản — [0007](../decisions/0007-m1-toi-gian.md)), M2 |
 | Nước chảy | Nước chảy theo ô (mực 0–7), tràn vào chỗ đào, không cạn; người chơi tạo được nguồn nước; ảnh hưởng môi trường sống, tưới nước, tìm đường; M1 dùng nước tĩnh | P1, P2 | Client | Phải có | 8–15 | M2 [ý tưởng] |
 | Biến thể hiển thị | Mỗi cá thể sinh vật, cây, vật thể render khác nhau một chút theo seed riêng (kích thước, màu, hoa văn...), không giống hệt nhau | P2 | Client | Nên có | 3–6 | M2 [ý tưởng] |
 | Biến thể | Dạng khác của loài: cá thể đặc biệt về màu sắc, hình thái; tách riêng với vượt trội | P1, P2 | Client + Backend (sinh khi nhận sinh vật) | Nên có | 3–5 + phần art mỗi biến thể | M3 [ý tưởng] |

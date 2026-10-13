@@ -18,7 +18,7 @@ namespace Game.Client
         public int chunkX = 1;
         public int chunkZ = 1;
         public UnityEngine.Material material;
-        public Color color = new Color(0.45f, 0.72f, 0.35f);
+        public Color color = Color.white;
 
         sealed class ChunkSlot
         {
@@ -61,12 +61,13 @@ namespace Game.Client
             var p = ConfigLoader.LoadTerrainParams();
             World = TerrainGenerator.Generate(p);
             Inventory = new MaterialInventory();
-            Editor = new WorldEditor(World, Inventory, SurfaceNetsMesher.CellMargin);
+            Editor = new WorldEditor(World, Inventory, BlockMesher.CellMargin);
             Editor.CellChanged += OnCellChanged;
             dirty.Clear();
 
-            var mat = material != null ? material : new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
-            mat.color = color;
+            // Mặc định: shader Game/Terrain (màu đỉnh theo vật liệu, nhám — decision 0011); color là sắc nhân thêm.
+            var mat = material != null ? material : CreateTerrainMaterial();
+            mat.SetColor("_BaseColor", color);
 
             var s = World.Size;
             slots = new ChunkSlot[s.ChunkCount];
@@ -120,7 +121,7 @@ namespace Game.Client
         void Rebuild(List<int> chunkIndices)
         {
             var sw = Stopwatch.StartNew();
-            var built = SurfaceNetsMesher.BuildChunks(World, chunkIndices);
+            var built = BlockMesher.BuildChunks(World, chunkIndices);
             LastMeshMs = sw.Elapsed.TotalMilliseconds;
 
             sw.Restart();
@@ -152,6 +153,14 @@ namespace Game.Client
 
             LastRebuildChunks = chunkIndices.Count;
             LastRebuildFrame = Time.frameCount;
+        }
+
+        static UnityEngine.Material CreateTerrainMaterial()
+        {
+            var shader = Shader.Find("Game/Terrain");
+            return shader != null
+                ? new UnityEngine.Material(shader)
+                : new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
         }
 
         ChunkSlot CreateSlot(int cx, int cy, int cz, UnityEngine.Material mat)

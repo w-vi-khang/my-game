@@ -55,7 +55,7 @@ namespace Game.Client.Tests
             foreach (var c in chunks)
             {
                 int cx = c % s.ChunksX, cz = c / s.ChunksX % s.ChunksZ, cy = c / (s.ChunksX * s.ChunksZ);
-                var expected = SurfaceNetsMesher.Build(view.World, cx, cy, cz);
+                var expected = BlockMesher.Build(view.World, cx, cy, cz);
                 var mesh = view.ChunkMesh(c);
                 Assert.AreEqual(expected.Vertices.Length, mesh.vertexCount, $"chunk {c}: số đỉnh");
                 Assert.AreEqual(expected.Indices.Length, (int)mesh.GetIndexCount(0), $"chunk {c}: số chỉ số");

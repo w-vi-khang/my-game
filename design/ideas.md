@@ -38,3 +38,4 @@
 | Kết "Đoàn tụ" (sinh vật thân thiết trở lại từ tinh linh); nhiều kết theo cách đối xử với sinh vật | AI (2026-10-13) | P2 | để sau | User chọn kết "Chấp nhận"; nhiều kết cần cơ chế đo cách đối xử |
 | NPC người sống sót dẫn dắt ở mỗi map | AI (2026-10-13) | P3 | loại | User: có NPC nhưng không phải người (sinh vật đặc biệt, máy móc, pho tượng) |
 | Địa hình dựng mesh ×1 (hoặc ×1 làm mượt ít hơn ở vách) | AI (2026-10-12) | — | loại | Rãnh 1 ô bị bóp chữ V; user chọn ×2 |
+| Địa hình bề mặt mịn liền (Surface Nets ×2 + làm mượt ≤ 0,2 ô) | User (2026-10-12) | — | loại | Đã làm ở M1 bước 2–4; mặt lồi lõm thành chấm theo từng ô, "quá bóng, không tự nhiên" → user chọn khối bo cạnh kiểu Pokopia ([0011](decisions/0011-dia-hinh-khoi-bo-canh.md), 2026-10-13) |

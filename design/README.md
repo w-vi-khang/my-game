@@ -31,7 +31,7 @@ Quy ước: mỗi file có `> Trạng thái: Nháp | Đang xem xét | Chốt`; �
 | [03-art-audio/art-style.md](03-art-audio/art-style.md) | Phong cách hình ảnh, nguồn asset | Đang xem xét |
 | [03-art-audio/audio.md](03-art-audio/audio.md) | Nhạc, SFX | Nháp |
 | [04-tech/components.md](04-tech/components.md) | Thành phần hệ thống: client Unity + những gì khác | Chốt |
-| [04-tech/world-tech.md](04-tech/world-tech.md) | Kỹ thuật tạo world: dữ liệu, sinh theo seed, dựng mesh mịn, chỉnh sửa, lưu trữ, kế hoạch prototype | Đang xem xét |
+| [04-tech/world-tech.md](04-tech/world-tech.md) | Kỹ thuật tạo world: dữ liệu, sinh theo seed, dựng mesh khối bo cạnh, chỉnh sửa, lưu trữ, kế hoạch prototype | Đang xem xét |
 | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) | Kỹ thuật mô phỏng nông trại: lệnh làm việc, tìm đường, tua nhanh, kế hoạch prototype | Đang xem xét |
 | [04-tech/tech-stack.md](04-tech/tech-stack.md) | Công nghệ theo từng thành phần | Đang xem xét |
 | [04-tech/architecture.md](04-tech/architecture.md) | Kiến trúc hệ thống, dữ liệu, giao tiếp, client | Đang xem xét |

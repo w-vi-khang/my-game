@@ -12,12 +12,13 @@ namespace Game.World.Tests
             CollectionAssert.AreEqual(expected.Indices, actual.Indices, msg);
             CollectionAssert.AreEqual(expected.Vertices, actual.Vertices, msg);
             CollectionAssert.AreEqual(expected.Normals, actual.Normals, msg);
+            CollectionAssert.AreEqual(expected.Colors, actual.Colors, msg);
         }
 
         [Test]
-        public void CellMarginIsTwo()
+        public void CellMarginIsOne()
         {
-            Assert.AreEqual(2, SurfaceNetsMesher.CellMargin);
+            Assert.AreEqual(1, BlockMesher.CellMargin);
         }
 
         [Test]
@@ -26,11 +27,11 @@ namespace Game.World.Tests
             var world = TerrainGenerator.Generate(new TerrainParams());
             var inv = new MaterialInventory();
             inv.Add(BlockMaterial.Dirt, 10000);
-            var editor = new WorldEditor(world, inv, SurfaceNetsMesher.CellMargin);
-            var meshes = SurfaceNetsMesher.BuildAll(world);
+            var editor = new WorldEditor(world, inv, BlockMesher.CellMargin);
+            var meshes = BlockMesher.BuildAll(world);
             var s = world.Size;
             var rng = new System.Random(12345);
-            // Nửa số lần sửa rơi sát biên chunk (ô cục bộ 0, 1, 2, 13, 14, 15) để thử vùng đệm.
+            // Nửa số lần sửa rơi sát biên chunk (ô cục bộ 0, 1, 2, 13, 14, 15) để thử vùng đệm (đệm 1 ô; 2 và 13 kiểm không cần hơn).
             int[] nearEdge = { 0, 1, 2, 13, 14, 15 };
             int Coord(int size) => rng.Next(2) == 0
                 ? rng.Next(size / 16) * 16 + nearEdge[rng.Next(nearEdge.Length)]
@@ -51,14 +52,14 @@ namespace Game.World.Tests
                 edits++;
                 dirty.Clear();
                 editor.AffectedChunks(x, y, z, dirty);
-                var rebuilt = SurfaceNetsMesher.BuildChunks(world, dirty);
+                var rebuilt = BlockMesher.BuildChunks(world, dirty);
                 for (int k = 0; k < dirty.Count; k++)
                     meshes[dirty[k]] = rebuilt[k];
 
                 if (edits % 10 == 0)
                 {
                     checks++;
-                    var full = SurfaceNetsMesher.BuildAll(world);
+                    var full = BlockMesher.BuildAll(world);
                     for (int c = 0; c < full.Length; c++)
                         AssertSameMesh(full[c], meshes[c], $"chunk {c} sau {edits} lần sửa");
                 }
@@ -68,30 +69,27 @@ namespace Game.World.Tests
         }
 
         [Test]
-        public void CellTwoAwayChangesNeighborChunk()
+        public void BorderCellChangesNeighborChunk()
         {
-            // Chứng minh cần đệm 2 ô (không phải 1): đào ô x = 17 (cục bộ 1 của chunk x = 1) làm đổi mesh chunk x = 0.
+            // Đệm 1 ô là cần thiết: đào ô x = 16 (cục bộ 0 của chunk x = 1) làm lộ mặt +x của ô x = 15 → đổi mesh chunk x = 0.
             var world = TerrainGenerator.Generate(new TerrainParams());
-            var editor = new WorldEditor(world, new MaterialInventory(), SurfaceNetsMesher.CellMargin);
+            var editor = new WorldEditor(world, new MaterialInventory(), BlockMesher.CellMargin);
             int tried = 0, changedCases = 0;
             for (int z = 1; z < 15; z += 2)
             {
-                int y = world.SurfaceHeight(17, z);
+                int y = world.SurfaceHeight(16, z);
                 if (y < 0 || y >= 16)
                     continue;
-                var before = SurfaceNetsMesher.Build(world, 0, 0, 0);
-                if (editor.TryDig(17, y, z) != EditResult.Ok)
+                var before = BlockMesher.Build(world, 0, 0, 0);
+                if (editor.TryDig(16, y, z) != EditResult.Ok)
                     continue;
                 tried++;
-                var after = SurfaceNetsMesher.Build(world, 0, 0, 0);
-                bool differs = before.Vertices.Length != after.Vertices.Length;
-                for (int i = 0; !differs && i < after.Vertices.Length; i++)
-                    differs = !before.Vertices[i].Equals(after.Vertices[i]) || !before.Normals[i].Equals(after.Normals[i]);
-                if (differs)
+                var after = BlockMesher.Build(world, 0, 0, 0);
+                if (before.Indices.Length != after.Indices.Length)
                     changedCases++;
             }
             Assert.Greater(tried, 0, "không có cột nào để thử");
-            Assert.Greater(changedCases, 0, $"đào ô cách biên 2 ô không đổi mesh chunk bên cạnh ({tried} lần thử)");
+            Assert.Greater(changedCases, 0, $"đào ô ở biên không đổi mesh chunk bên cạnh ({tried} lần thử)");
         }
     }
 }

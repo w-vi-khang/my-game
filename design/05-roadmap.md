@@ -21,19 +21,19 @@
 | Milestone | Mục tiêu | Thành phần | Tiêu chí xong | Ước lượng | Thời gian | Trạng thái |
 |---|---|---|---|---|---|---|
 | M0 — Kế hoạch & thiết kế | Đủ kế hoạch để bắt đầu prototype | design/ | Vision, core loop, thành phần hệ thống ở trạng thái Chốt; cơ chế M1 và roadmap M1–M2 đã duyệt (cách (b), 2026-10-13) | — | — | **Xong (2026-10-13)** |
-| M1 — Prototype | Kiểm chứng core loop có vui không | Client | **M1 tối giản** ([0007](decisions/0007-m1-toi-gian.md)). Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 3 loài trở lại → đặt lệnh trồng cây → sản lượng vào kho. Đo được (user duyệt 2026-10-13): ≥ 30 FPS trên 1 máy Android tầm trung (ghi model khi thử); mô phỏng ≤ 5 ms/nhịp với 60 sinh vật giả; thử chơi 3–5 người, 20 phút, theo câu hỏi ở [risks](04-tech/risks.md#kiểm-chứng-sớm-ở-m1) | 41–70 | 49–84 tuần (~11–19 tháng) | **Đang làm** (từ 2026-10-13) |
+| M1 — Prototype | Kiểm chứng core loop có vui không | Client | **M1 tối giản** ([0007](decisions/0007-m1-toi-gian.md)). Graybox chơi được vòng lặp 30 giây: cải tạo địa hình → 3 loài trở lại → đặt lệnh trồng cây → sản lượng vào kho. Đo được (user duyệt 2026-10-13): ≥ 30 FPS trên 1 máy Android tầm trung (ghi model khi thử); mô phỏng ≤ 5 ms/nhịp với 60 sinh vật giả; thử chơi 3–5 người, 20 phút, theo câu hỏi ở [risks](04-tech/risks.md#kiểm-chứng-sớm-ở-m1) | 47–79 | 56–95 tuần (~13–22 tháng) | **Đang làm** (từ 2026-10-13) |
 | M2 — Vertical slice | Một lát cắt hoàn chỉnh | Client + Backend | 1 map đủ art, âm thanh, UI; chạy qua backend (tài khoản, lưu, giờ server, rút thưởng); nhập hồn + chiến đấu PvE với phép sinh vật | 321–612 | 385–734 tuần (~7,4–14,1 năm) | Chưa bắt đầu |
 | M3 — Alpha | Đủ tính năng | Client + Backend | Mọi cơ chế "phải có" chạy được; prototype trận mạng nhỏ (kiểm chứng netcode) | 67–120 | 80–144 tuần | Chưa bắt đầu |
 | M4 — Beta | Đủ nội dung, sửa lỗi | Client + Backend | Chơi hết 3 map không bị chặn; phát hành thử | 83–166 | 100–199 tuần | Chưa bắt đầu |
 | Phát hành | | Client + Backend + vận hành | | — | — | Chưa bắt đầu |
 | Sau phát hành — PvP | PvP thời gian thực | Client + Backend + Game server | Ghép trận theo hạng, game server quyết định kết quả | 65–130 | 78–156 tuần | Chưa bắt đầu |
 
-**Tổng M1–M4:** 512–968 ngày-người → ×1,5 = 768–1.452 → **~11,8–22,3 năm** ở 10 giờ/tuần (cập nhật 2026-10-13: đại dương + sương mù rìa map 2–3 ở M1, 2–4 ở M2 — [0009](decisions/0009-dai-duong-va-suong-mu-o-ria-map.md). Sau rà soát: C1 chuyển 56–96 từ M1 sang M2, tổng không đổi; thêm ước lượng còn thiếu — chiến đấu PvE lõi 10–20, bay/bơi 4–8, độ ưu tiên giữa lệnh 1–2, nghiên cứu 10–20. Trước đó: bảo mật & chống gian lận 5–10; nội dung Map 1 14–27 (trước 10–20), người chơi làm công đoạn 2–4, onboarding 4–8; nước chảy 8–15, tinh linh hỗ trợ 5–10, cutscene 3–6 × 2; thẻ bài & bắt sinh vật 8–14, trang bị 13–23, bảo hiểm gói 1–2, địa hình bề mặt mịn +10–15, biến thể hiển thị 3–6, biến thể 3–5 chưa tính art).
+**Tổng M1–M4:** 518–977 ngày-người → ×1,5 = 777–1.466 → **~12,0–22,5 năm** ở 10 giờ/tuần (cập nhật 2026-10-13: địa hình khối bo cạnh + mép cỏ thay bề mặt mịn, M1 +6–9 — [0011](decisions/0011-dia-hinh-khoi-bo-canh.md). Trước đó: đại dương + sương mù rìa map 2–3 ở M1, 2–4 ở M2 — [0009](decisions/0009-dai-duong-va-suong-mu-o-ria-map.md). Sau rà soát: C1 chuyển 56–96 từ M1 sang M2, tổng không đổi; thêm ước lượng còn thiếu — chiến đấu PvE lõi 10–20, bay/bơi 4–8, độ ưu tiên giữa lệnh 1–2, nghiên cứu 10–20. Trước đó: bảo mật & chống gian lận 5–10; nội dung Map 1 14–27 (trước 10–20), người chơi làm công đoạn 2–4, onboarding 4–8; nước chảy 8–15, tinh linh hỗ trợ 5–10, cutscene 3–6 × 2; thẻ bài & bắt sinh vật 8–14, trang bị 13–23, bảo hiểm gói 1–2, địa hình bề mặt mịn +10–15, biến thể hiển thị 3–6, biến thể 3–5 chưa tính art).
 
 ### Hạng mục theo milestone
 Từ bảng [cơ chế](02-gameplay/mechanics.md#danh-sách-cơ-chế) (kể cả dòng có milestone [ý tưởng]) + hạng mục ngoài cơ chế.
 
-**M1 (41–70) — tối giản, [0007](decisions/0007-m1-toi-gian.md) + [0009](decisions/0009-dai-duong-va-suong-mu-o-ria-map.md):** Đảo + vành biển, mặt nước, sương mù có sẵn 2–3 · Voxel world tối giản 17–28 · Sinh vật & loài (3 loài) 2–4 · Chỉ số làm việc (thuần thục + tốc độ) 1–2 · Môi trường sống (một vùng) 3–6 · Lệnh làm việc (một lệnh trồng cây, một kho) 7–11 · Tìm đường (đi bộ, khung 1 × 1) 4–7 · Điều khiển (PC trước, cảm ứng cơ bản) 3–5 · Thử chơi + đo hiệu năng 2–4.
+**M1 (47–79) — tối giản, [0007](decisions/0007-m1-toi-gian.md) + [0009](decisions/0009-dai-duong-va-suong-mu-o-ria-map.md) + [0011](decisions/0011-dia-hinh-khoi-bo-canh.md):** Đảo + vành biển, mặt nước, sương mù có sẵn 2–3 · Voxel world tối giản 17–28 · Hiển thị khối bo cạnh + mép cỏ (thay bước "màu vật liệu" 1–2) +6–9 · Sinh vật & loài (3 loài) 2–4 · Chỉ số làm việc (thuần thục + tốc độ) 1–2 · Môi trường sống (một vùng) 3–6 · Lệnh làm việc (một lệnh trồng cây, một kho) 7–11 · Tìm đường (đi bộ, khung 1 × 1) 4–7 · Điều khiển (PC trước, cảm ứng cơ bản) 3–5 · Thử chơi + đo hiệu năng 2–4.
 
 **M2 (321–612):**
 - Phần chuyển từ M1 theo C1 (53–90): voxel world đầy đủ (map 128 × 128 × 48, hang, lưu chunk, triplanar, vật thể nhiều ô) 18–27 · sinh vật & loài 3–6 · chỉ số làm việc 4–6 · môi trường sống theo vùng 7–14 · lệnh làm việc (nhiều lệnh, vật tư, 2 sinh vật cùng làm) 13–19 · tìm đường (khung nhiều ô, vùng liên thông, ngân sách A\*) 6–13 · điều khiển 2–5.
@@ -60,9 +60,10 @@ Ghi theo AGENTS.local (so với ước lượng; sau 4–6 hạng mục tính l�
 | World bước 2 — Surface Nets ×2 + làm mượt, 1 chunk | 4–6 | ~0,1 giờ (15:12–15:17, 2026-10-13) | 6 test mới (29 tổng), scene TerrainView + ảnh render. Đã làm sẵn phần đệm biên chunk của bước 3 |
 | World bước 3 — nhiều chunk song song, nối biên, đo thời gian | 4–7 | ~0,1 giờ (15:30–15:33, 2026-10-13) | 5 test mới (34 tổng), bỏ vách mép map (0009). Không tính thời gian ghi 0009 + culling (15:17–15:30) |
 | World bước 4 — đào/đặt, dựng lại chunk bẩn, collider, kho vật liệu | 3–5 | ~0,75 giờ (15:45–16:10 + 16:34–16:50, 2026-10-13) | 26 test mới (55 EditMode + 5 PlayMode). Gồm sửa 1 lỗi user gặp khi thử (`MissingReferenceException`), sửa UX (HUD, khung chọn vẽ đè ~3 px), cài + kiểm MCP for Unity ([0010](decisions/0010-mcp-for-unity.md)). Chưa tính thời gian user tự thử bằng chuột thật. Sau 4 bước: thực tế ≪ ước lượng (ước lượng tính cho người làm tay, chưa tính AI) — tính lại hệ số khi đủ 4–6 hạng mục gồm cả phần cần thử chơi |
+| World bước 5.1 — mesher khối + màu theo vật liệu + material nhám ([0011](decisions/0011-dia-hinh-khoi-bo-canh.md)) | 2–3 | ~0,25 giờ (~16:52–17:06, 2026-10-13) | Gồm cập nhật 12 file thiết kế theo 0011. Thay Surface Nets: 4 test mới + viết lại test đường nối (57 EditMode + 5 PlayMode) |
 
 ## Kiểm tra phạm vi
-⚠️ **Vượt quỹ thời gian.** Sau C1 ([0007](decisions/0007-m1-toi-gian.md)), M1 còn ~11–19 tháng ở 10 giờ/tuần; toàn bộ tới M4 ~11,8–22,3 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
+⚠️ **Vượt quỹ thời gian.** Sau C1 ([0007](decisions/0007-m1-toi-gian.md)), M1 còn ~13–22 tháng ở 10 giờ/tuần (sau 0011); toàn bộ tới M4 ~12,0–22,5 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.
 
 **Quyết định của user (2026-10-12): tạm thời chưa cắt, giữ nguyên phạm vi** — làm cùng trợ giúp của AI. Ước lượng trên chưa tính tác động của AI; mức tăng tốc thật [chưa xác minh].
 - [ý tưởng] Đo tốc độ thật trong M1: ghi giờ thực tế từng hạng mục so với ước lượng → sau 4–6 hạng mục, tính lại hệ số cho M2–M4 và xem lại các đề xuất cắt dưới đây.
@@ -78,7 +79,7 @@ Ghi theo AGENTS.local (so với ước lượng; sau 4–6 hạng mục tính l�
 | C5 | Vertical slice nhỏ hơn: 3 loài nhập hồn được, 12 phép sinh vật, 4 phép của pháp sư | 14–36 | Slice ít đa dạng hơn |
 | C6 | Nghiên cứu để sau phát hành (chưa có thiết kế) | chưa ước lượng | Bớt một nguồn phép |
 
-Áp dụng C4 + C5: tổng M1–M4 còn khoảng 434–805 → ×1,5 = 651–1.208 → **~10,0–18,6 năm**. C1 (đã áp dụng) không giảm tổng nhưng đưa câu trả lời "có vui không" về ~11–19 tháng. Vẫn dài; cần thêm giờ/tuần hoặc cắt sâu hơn (vd giảm số cơ chế "phải có" trước phát hành, đưa nhập hồn/phép pháp sư sang cập nhật sau).
+Áp dụng C4 + C5: tổng M1–M4 còn khoảng 440–814 → ×1,5 = 660–1.221 → **~10,2–18,8 năm**. C1 (đã áp dụng) không giảm tổng nhưng đưa câu trả lời "có vui không" về ~11–19 tháng. Vẫn dài; cần thêm giờ/tuần hoặc cắt sâu hơn (vd giảm số cơ chế "phải có" trước phát hành, đưa nhập hồn/phép pháp sư sang cập nhật sau).
 
 ## Sơ đồ
 Phạm vi hiện tại (chưa cắt), lấy giữa khoảng, đã ×1,5, 10 giờ/tuần. Ngày bắt đầu 2026-11-02 là **giả định chỉ để vẽ**, không phải mốc cam kết.

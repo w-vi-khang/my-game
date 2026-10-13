@@ -97,7 +97,7 @@ flowchart TB
     subgraph WORLD ["World"]
         GEN[Bộ sinh theo seed<br/>bố cục vùng có ràng buộc,<br/>preset vùng, hang, khối cốt truyện]
         VOX[Dữ liệu voxel<br/>chunk, đào/đặt, cờ khối cốt truyện]
-        MESH[Dựng mesh mịn<br/>Jobs + Burst]
+        MESH[Dựng mesh khối bo cạnh<br/>Jobs + Burst]
         WATER[Nước chảy]
         GEN --> VOX
         VOX --> MESH
@@ -137,7 +137,7 @@ flowchart TB
 |---|---|---|---|
 | Input, điều khiển & camera | Bảng hành động chung cho chuột-phím và cảm ứng; tâm nhắm, khoá mục tiêu, chọn vùng 2 điểm; camera góc 3 tránh địa hình | [controls-ui](../02-gameplay/controls-ui.md) | M1 (cơ bản), M2 (chiến đấu), M3 (đổi phím) |
 | Bộ sinh world | Bố cục vùng theo seed + ràng buộc, preset vùng, hang, dán khối cốt truyện, kiểm đường đi | [world-tech](world-tech.md#sinh-world-theo-seed), [levels](../02-gameplay/levels.md) | M1 (map nhỏ cố định), M2 (đầy đủ) |
-| Voxel, mesh, nước | Dữ liệu chunk, đào/đặt nguyên ô, dựng mesh mịn, nước chảy | [world-tech](world-tech.md) | M1 (voxel, mesh), M2 (nước) |
+| Voxel, mesh, nước | Dữ liệu chunk, đào/đặt nguyên ô, dựng mesh khối bo cạnh ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md)), nước chảy | [world-tech](world-tech.md) | M1 (voxel, mesh), M2 (nước) |
 | Mô phỏng nông trại | Nhịp cố định, ghép việc, A\*, đình trệ, độ bền làm việc, người chơi làm công đoạn, tua nhanh nhảy sự kiện | [simulation-tech](simulation-tech.md) | M1 tối giản: nhịp, A\* đi bộ, một lệnh trồng cây, đình trệ ([0007](../decisions/0007-m1-toi-gian.md)); M2: phần còn lại |
 | Môi trường sống & nhu cầu | Đếm yêu cầu của loài theo vùng bằng sự kiện đổi ô, mức đáp ứng | [simulation-tech](simulation-tech.md#môi-trường-sống), [cơ chế](../02-gameplay/mechanics.md#môi-trường-sống) | M1 (một vùng = cả map), M2 |
 | Chiến đấu | Phép, nhập hồn — viết để chạy được trên game server sau này | [cơ chế](../02-gameplay/mechanics.md#nhập-hồn) | M2 |

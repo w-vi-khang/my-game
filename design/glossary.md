@@ -38,7 +38,8 @@
 | Nhịp mô phỏng | Bước thời gian cố định của mô phỏng nông trại (vd 10 nhịp/giây), tách khỏi tốc độ khung hình (ý tưởng) | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) |
 | Vùng liên thông | Nhóm ô đi được nối với nhau; khác vùng → không tới được → đình trệ ngay (ý tưởng) | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) |
 | Chunk | Khối 16 × 16 × 16 ô gameplay (ý tưởng) — đơn vị dựng mesh, lưu trữ, tải world | [04-tech/world-tech.md](04-tech/world-tech.md) |
-| Lưới gameplay / lưới dựng mesh | Lưới 1 ô = 1 đơn vị (nguồn chuẩn, luật chơi, lưu) / lưới ×2 suy ra khi dựng mesh mịn, không lưu | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Lưới gameplay | Lưới 1 ô = 1 đơn vị: nguồn chuẩn cho luật chơi, lưu, tìm đường và dựng mesh (từ [0011](decisions/0011-dia-hinh-khoi-bo-canh.md) bỏ lưới dựng mesh ×2) | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Mép cỏ | Phần cỏ của ô cỏ nhô ra khỏi mặt trên và phủ xuống sườn, mép dưới lượn sóng (chỉ hiển thị, không ảnh hưởng luật chơi) | [decisions/0011](decisions/0011-dia-hinh-khoi-bo-canh.md) |
 | Phiên bản bộ sinh | Phiên bản thuật toán sinh world từ seed; lưu kèm dữ liệu để biết world gốc | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |
 | Mốc bảo hiểm | Số lần rút liên tiếp tối đa trước khi chắc chắn ra phần thưởng hiếm của gói (ý tưởng cách làm) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

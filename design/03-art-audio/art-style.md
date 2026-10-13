@@ -9,7 +9,7 @@ Thống nhất art style trước khi bắt đầu M1 (user, 2026-10-12) — xem
 ## Hướng phong cách
 <!-- 3–5 tính từ mô tả cảm giác; 2D/3D, góc camera, bảng màu, độ chi tiết. Chọn phong cách vừa sức một người làm. -->
 Quyết định của user (2026-10-12):
-- **Địa hình: bề mặt mịn liền**, không thấy cạnh khối. Dữ liệu bên dưới vẫn là lưới voxel (đào/đặt, chiếm chỗ, tìm đường theo ô) — chỉ cách hiển thị là mịn.
+- **Địa hình: khối bo cạnh, mép cỏ phủ** ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md), user chốt 2026-10-13 — thay "bề mặt mịn liền, không thấy cạnh khối" chốt 2026-10-12): mặt trên phẳng, cạnh lồi bo nhẹ, sườn ô cỏ màu đất với mép cỏ lượn sóng phủ xuống, vật liệu nhám (không bóng). Dữ liệu bên dưới vẫn là lưới voxel (đào/đặt, chiếm chỗ, tìm đường theo ô).
 - **Cây cối, vật phẩm:** model mịn có hình dạng riêng, **không** low-poly khối vuông kiểu Minecraft.
 - **Sinh vật và nhân vật có thể low-poly** (user, 2026-10-12) — hiểu là low-poly đa giác phẳng có hình dạng riêng, vẫn không phải khối vuông kiểu Minecraft [chưa xác minh với user].
 - **Concept art:** tương tự bộ "Scene Concept" của XING-ART (www.xing-art.com — ảnh user gửi 2026-10-12, không lưu vào repo) **nhưng tươi sáng hơn**. AI quan sát ảnh: 3 mảnh cảnh dạng diorama góc nhìn isometric, cắt lộ lớp đất ở cạnh; vách đá phủ rêu, thác nước đổ xuống hồ xanh ngọc có lá súng, cây cọ, cây lá vàng/hồng/tím, phế tích đá, đường mòn; nét vẽ painterly, hình khối tròn đầy; điểm sáng phát quang (cây/sứa phát sáng). "Tươi sáng hơn" → tăng độ sáng, giảm vùng tối và bóng đậm.
@@ -27,7 +27,7 @@ Hệ quả cho thiết kế [ý tưởng]:
 <!-- Ảnh tham khảo: chỉ ghi link (không chép ảnh có bản quyền vào repo) + điều muốn lấy. -->
 | Tham khảo | Lấy | Không lấy |
 |---|---|---|
-| Pokémon Pokopia — Switch 2, phát hành 05/03/2026 ([Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html), [ảnh trên Serebii](https://serebii.net/pokemonpokopia/pics.shtml)) | Cảm giác tươi sáng; vật thể là model mịn đặt trên lưới. AI quan sát ảnh (2026-10-12): địa hình Pokopia là khối lập phương có texture mềm, mép cỏ phủ cạnh | Địa hình khối (user chọn bề mặt mịn liền); nhân vật chibi; mọi thiết kế, tên có bản quyền của Pokémon |
+| Pokémon Pokopia — Switch 2, phát hành 05/03/2026 ([Nintendo](https://www.nintendo.com/en-gb/Games/Nintendo-Switch-games/Game-2915161.html), [ảnh trên Serebii](https://serebii.net/pokemonpokopia/pics.shtml)) | Cảm giác tươi sáng; vật thể là model mịn đặt trên lưới. AI quan sát ảnh (2026-10-12): địa hình Pokopia là khối lập phương có texture mềm, mép cỏ phủ cạnh. **Từ 2026-10-13 ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md)) lấy nguyên lý địa hình:** khối bo cạnh, mép cỏ lượn sóng phủ qua cạnh vách, vách đất có chấm, ánh sáng mềm không bóng (ảnh user gửi 2026-10-13, không lưu vào repo) | Texture, asset, bảng màu cụ thể của Pokopia; nhân vật chibi; mọi thiết kế, tên có bản quyền của Pokémon |
 | Scene Concept — XING-ART (www.xing-art.com; ảnh user gửi 2026-10-12) | Diorama isometric, vách đá rêu, thác + hồ xanh ngọc, thực vật nhiều màu, điểm phát quang, nét painterly | Độ tối, bóng đậm (user muốn tươi sáng hơn); không chép ảnh/thiết kế cụ thể |
 | Minecraft | — | Cây/vật phẩm low-poly khối vuông (user loại) |
 
@@ -37,8 +37,8 @@ Quyết định của user (2026-10-12): **địa hình và đồ vật dùng as
 - Tiêu chí chọn asset: hỗ trợ **URP** ([0005](../decisions/0005-render-pipeline.md)); giấy phép cho dùng thương mại; giá có nguồn; hợp phong cách mịn, không chibi.
 
 **Địa hình & đồ vật — asset có sẵn** (tra 2026-10-12; giá, version, URP phải kiểm lại trên trang trước khi mua) [ý tưởng]:
-- Địa hình bề mặt mịn cần **bộ vật liệu/texture** (cỏ, đất, đá, cát...) dán theo 3 hướng (triplanar) lên mesh sinh ra từ code — không dùng được pack khối dựng sẵn.
-- Các pack cube world đã tra trước đó ([KUBIKOS](https://assetstore.unity.com/packages/3d/environments/kubikos-3d-cube-world-117341), [Modular Cube World Vol.1](https://assetstore.unity.com/packages/3d/environments/3d-modular-world-cube-world-vol1-251828)) **không hợp** địa hình mịn; chỉ xét phần đồ vật nếu hợp phong cách.
+- Địa hình khối ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md)) cần **bộ texture** (cỏ, đất, đá, cát...) dán theo mặt lên mesh sinh ra từ code — mặt thẳng trục nên không cần triplanar; vẫn không dùng pack khối dựng sẵn (mesh khối bo cạnh + mép cỏ do code sinh).
+- Các pack cube world đã tra trước đó ([KUBIKOS](https://assetstore.unity.com/packages/3d/environments/kubikos-3d-cube-world-117341), [Modular Cube World Vol.1](https://assetstore.unity.com/packages/3d/environments/3d-modular-world-cube-world-vol1-251828)) **không dùng cho địa hình** (mesh do code sinh); chỉ xét phần đồ vật nếu hợp phong cách.
 - Danh sách asset vật liệu địa hình và đồ vật: _(chưa có — cần tra tiếp)_
 
 **Sinh vật & nhân vật — làm bằng AI** (user, 2026-10-12):
@@ -85,7 +85,7 @@ Kế hoạch: [roadmap](../05-roadmap.md) mục C. File `.blend`, ảnh render v
 - Quota free [chưa xác minh]: khoảng 3,5 phút GPU/ngày, có thể giới hạn số lượt ([forum HF](https://discuss.huggingface.co/t/what-is-the-free-zerogpu-quota-for-1-space/178610)) → đủ thử nghiệm, chưa đủ sản xuất. Khi cần nhiều hơn (M2): HF PRO hoặc [fal.ai](https://fal.ai/models/fal-ai/trellis-2) (0,25–0,35 $/lần).
 - Khâu Blender: blender-mcp (cầu nối) + Rigify (rig) + [công cụ kiểm tra asset](../decisions/0006-cong-cu-kiem-tra-asset.md). Các phương án đã xét và loại → [ideas](../ideas.md).
 
-**Địa hình mịn — xong bản đầu** [run 2026-10-12]: mảnh 30 × 30 ô, cao tới 12 ô; dữ liệu voxel có/không + loại vật liệu (cỏ, đất, đá, cát); dựng mesh bằng Surface Nets + làm mượt có giới hạn (mỗi đỉnh lệch ≤ 0,2 ô). Có rãnh rộng 1 ô sâu 2 ô và khối tham chiếu nhân vật 1,5 × 0,7.
+**Địa hình mịn — xong bản đầu** (lịch sử — hướng bề mặt mịn đã thay bởi [0011](../decisions/0011-dia-hinh-khoi-bo-canh.md) 2026-10-13) [run 2026-10-12]: mảnh 30 × 30 ô, cao tới 12 ô; dữ liệu voxel có/không + loại vật liệu (cỏ, đất, đá, cát); dựng mesh bằng Surface Nets + làm mượt có giới hạn (mỗi đỉnh lệch ≤ 0,2 ô). Có rãnh rộng 1 ô sâu 2 ô và khối tham chiếu nhân vật 1,5 × 0,7.
 
 | Phương án | Tam giác (mảnh 30 × 30) | Rãnh 1 ô | Cảm giác |
 |---|---|---|---|

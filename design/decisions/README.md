@@ -15,4 +15,5 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0007](0007-m1-toi-gian.md) | M1 tối giản (áp dụng C1) | Chốt |
 | [0008](0008-sua-loi-sau-ra-soat-m0.md) | Sửa lời văn trong file đã Chốt sau rà soát M0 | Chốt |
 | [0009](0009-dai-duong-va-suong-mu-o-ria-map.md) | Map luôn có đại dương bao quanh, rìa xa là tường sương mù | Chốt |
-| [0010](0010-mcp-for-unity.md) | MCP for Unity: AI làm việc trong Unity Editor đang mở (công cụ phát triển) | Đề xuất |
+| [0010](0010-mcp-for-unity.md) | MCP for Unity: AI làm việc trong Unity Editor đang mở (công cụ phát triển) | Chốt |
+| [0011](0011-dia-hinh-khoi-bo-canh.md) | Địa hình hiển thị dạng khối bo cạnh, mép cỏ phủ (thay bề mặt mịn liền) | Chốt |

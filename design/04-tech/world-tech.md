@@ -12,7 +12,7 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 | Yêu cầu | Nguồn |
 |---|---|
 | Dữ liệu là lưới voxel; đào/đặt theo ô; 1 ô = 1 đơn vị | [art-style](../03-art-audio/art-style.md#quy-cách-kỹ-thuật) |
-| Địa hình hiển thị **bề mặt mịn liền**; dựng mesh **×2** (mỗi ô gameplay = 2 × 2 × 2 ô dựng mesh) | [art-style](../03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm), [tech-stack](tech-stack.md) |
+| Địa hình hiển thị **dạng khối bo cạnh, mép cỏ phủ**; dựng mesh trên lưới gameplay (×1) — thay "bề mặt mịn liền, dựng ×2" | [0011](../decisions/0011-dia-hinh-khoi-bo-canh.md), [art-style](../03-art-audio/art-style.md#hướng-phong-cách) |
 | Nhân vật cao 1,5, rộng 1 → đi vừa rãnh rộng 1 ô, cao 2 ô | [art-style](../03-art-audio/art-style.md#quy-cách-kỹ-thuật) |
 | Sinh vật, cây, vật phẩm là model riêng, chiếm **khung chiếm chỗ** nhiều ô | [art-style](../03-art-audio/art-style.md#hướng-phong-cách) |
 | Map có ranh giới; phần cốt truyện sắp đặt tay (**khối cốt truyện**), phần còn lại sinh theo **seed** của người chơi | [cơ chế](../02-gameplay/mechanics.md#sinh-map-theo-seed--khối-cốt-truyện) |
@@ -22,9 +22,7 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 
 ## Dữ liệu world
 [ý tưởng]
-- **Hai lưới:**
-  - **Lưới gameplay** (1 ô = 1 đơn vị): nguồn chuẩn, dùng cho luật chơi, lưu trữ, tìm đường, môi trường sống.
-  - **Lưới dựng mesh** (×2): suy ra từ lưới gameplay khi dựng mesh, **không lưu**.
+- **Lưới gameplay** (1 ô = 1 đơn vị): nguồn chuẩn, dùng cho luật chơi, lưu trữ, tìm đường, môi trường sống **và dựng mesh** (mỗi mặt ô lộ ra là một mặt khối — [0011](../decisions/0011-dia-hinh-khoi-bo-canh.md)). Lưới dựng mesh ×2 của bản bề mặt mịn đã bỏ.
 - **Mỗi ô gameplay** (2 byte):
 
 | Trường | Kích thước | Ý nghĩa |
@@ -36,9 +34,9 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 | Dự phòng | 3 bit | Vd độ ẩm, đã xới đất (lệnh làm việc) |
 
 - **Chiếm chỗ** (sinh vật, cây, vật phẩm) lưu ở **lớp riêng**: danh sách vật thể + khung chiếm chỗ → bảng tra ô → vật thể. Không nhét vào ô địa hình, vì vật thể nhiều ô và di chuyển được.
-- **Chunk:** 16 × 16 × 16 ô gameplay [ý tưởng] → 32 × 32 × 32 ô dựng mesh. 16 là kích thước phổ biến: Minecraft chia chunk 16 × 16 theo chiều ngang, mỗi đoạn cao 16 ([Minecraft Wiki](https://minecraft.wiki/w/Chunk)); Godot Voxel Tools mặc định khối mesh 16, cho phép 32 — 32 ít draw call hơn nhưng sửa voxel chậm hơn ([Voxel Tools](https://voxel-tools.readthedocs.io/en/latest/performance/)).
+- **Chunk:** 16 × 16 × 16 ô gameplay [ý tưởng]. 16 là kích thước phổ biến: Minecraft chia chunk 16 × 16 theo chiều ngang, mỗi đoạn cao 16 ([Minecraft Wiki](https://minecraft.wiki/w/Chunk)); Godot Voxel Tools mặc định khối mesh 16, cho phép 32 — 32 ít draw call hơn nhưng sửa voxel chậm hơn ([Voxel Tools](https://voxel-tools.readthedocs.io/en/latest/performance/)).
 - **Map 128 × 128 × 48 ô, có hang động** (user, 2026-10-13) → 8 × 8 × 3 = 192 chunk.
-- **Đào/đặt luôn theo nguyên ô** (user, 2026-10-13) → dữ liệu có/không + vật liệu là đủ, không cần mật độ trung gian; dựng mesh ×2 để giữ chi tiết 1 ô (như bản thử).
+- **Đào/đặt luôn theo nguyên ô** (user, 2026-10-13) → dữ liệu có/không + vật liệu là đủ, không cần mật độ trung gian.
 
 ## Sinh world theo seed
 [ý tưởng] Chạy trên client (world riêng của người chơi), **tất định**: cùng seed + cùng **phiên bản bộ sinh** → cùng world.
@@ -62,7 +60,19 @@ flowchart LR
 - **Kiểm tra sau khi sinh:** đường tới mọi khối cốt truyện phải đi được (chạy tìm đường) — sai thì sinh lại phần đó.
 - Đổi bộ sinh làm world cũ khác đi → dữ liệu lưu phải ghi **phiên bản bộ sinh** (xem Lưu trữ).
 
-## Dựng mesh bề mặt mịn
+## Dựng mesh khối bo cạnh
+Theo [0011](../decisions/0011-dia-hinh-khoi-bo-canh.md) (user chốt 2026-10-13), thay bề mặt mịn liền:
+- **Mặt khối:** mỗi mặt ô đặc giáp ô rỗng/nước → một tứ giác (cách "culling" của [0fps](https://0fps.net/2012/06/30/meshing-in-a-minecraft-game/)); không sinh mặt giữa hai ô đặc. World M1 hiện tại: 7.725 mặt lộ → 15.450 tam giác cho cả map, khi chưa bo cạnh (Surface Nets ×2 là 61.800) [run 2026-10-13].
+- **Gộp mặt (greedy meshing)** [ý tưởng, chưa làm ở M1]: gộp các mặt đồng phẳng kề nhau thành tứ giác lớn; chỉ gộp được khi thuộc tính (vật liệu, AO) giống nhau ở mọi đỉnh và có thể sinh đỉnh chữ T ([0fps](https://0fps.net/2012/06/30/meshing-in-a-minecraft-game/), [0fps AO](https://0fps.net/2013/07/03/ambient-occlusion-for-minecraft-like-worlds/)). Bo cạnh + mép cỏ lượn sóng làm mặt kề nhau khác nhau → ít gộp được; chỉ xét nếu đo trên mobile thấy cần.
+- **Bo cạnh lồi** (bước 5.2): mặt lộ thu vào ở cạnh lồi, thêm dải vát/bo + góc, pháp tuyến nội suy; cạnh lõm để vuông. Hình dạng chỉ phụ thuộc 26 ô lân cận → **đệm chunk 1 ô** (bản Surface Nets cần 2). World M1 có 4.520 cạnh lồi [run 2026-10-13].
+- **Mép cỏ** (bước 5.3): mặt trên ô cỏ nhô ra ~0,1 ô, dải phủ xuống sườn với mép dưới lượn sóng tất định theo toạ độ ô; sườn ô cỏ hiện màu đất.
+- **Bóng tối ở góc (AO theo đỉnh)** [ý tưởng, bước 5.4]: mỗi đỉnh tính từ 2 ô cạnh + 1 ô chéo; chia tứ giác theo đường chéo hợp AO để không lệch sáng ([0fps AO](https://0fps.net/2013/07/03/ambient-occlusion-for-minecraft-like-worlds/)).
+- **Collider:** bake từ mặt khối vuông (chưa bo, chưa mép cỏ) — khớp đúng lưới.
+- **Nối giữa các chunk:** mesher đọc ô đệm của chunk bên cạnh để biết mặt nào lộ và hình bo; sửa ô ở biên → dựng lại cả chunk bên cạnh (tối đa 8 chunk khi ở góc).
+
+### Lịch sử: bề mặt mịn (đã thay bởi 0011)
+Dùng ở bước 2–4 (2026-10-13); mã còn trong lịch sử git (commit `f05f917` trở về trước). Lý do thay: mặt lồi lõm thành chấm theo từng ô trên bậc 1 ô, nhìn không tự nhiên (user, 2026-10-13).
+
 | Thuật toán | Cách làm | Hợp với game này |
 |---|---|---|
 | **Surface Nets** | Mỗi ô một đỉnh (trung bình các điểm cắt cạnh), ra mặt tứ giác; dễ làm, nhanh, ít mặt hơn Marching Cubes; đỉnh đặt ngây thơ trông vát cạnh ([0fps](https://0fps.net/2012/07/12/smooth-voxel-terrain-part-2/); gốc: Gibson 1998, [MERL TR99-24](https://merl.com/publications/TR99-24)) | ✅ **Đã thử** trong Blender: ×2 giữ được rãnh 1 ô, ~24.000 tam giác / mảnh 30 × 30 ô [run 2026-10-12] |
@@ -70,13 +80,13 @@ flowchart LR
 | Dual Contouring | Cần dữ liệu Hermite (điểm cắt + pháp tuyến), giữ cạnh sắc ([Ju et al. 2002](https://profiles.wustl.edu/en/publications/dual-contouring-of-hermite-data-2/)); giải bình phương tối thiểu tốn và dễ sai số ([0fps](https://0fps.net/2012/07/12/smooth-voxel-terrain-part-2/)) | Không cần — game muốn mịn, không cần cạnh sắc |
 | Transvoxel | Thêm "ô chuyển tiếp" để nối chunk khác độ phân giải (chỉ khi chênh đúng ×2), không vướng bằng sáng chế ([transvoxel.org](https://transvoxel.org/)) | Dựa trên Marching Cubes → không dùng thẳng với Surface Nets; chỉ cần nếu làm LOD |
 
-Đề xuất [ý tưởng]: **Surface Nets ×2** + làm mượt có giới hạn (mỗi đỉnh lệch ≤ 0,2 ô — như bản thử).
-- **Nối giữa các chunk:** dựng mesh một chunk cần đọc thêm ô đệm của chunk bên cạnh để mặt liền. Với Surface Nets ×2 + làm mượt + pháp tuyến, mesher M1 đọc mẫu −3..34 → **ô −2..17, tức đệm 2 ô mỗi phía** (`SurfaceNetsMesher.CellMargin`; test chứng minh đào ô cách biên 2 ô làm đổi mesh chunk bên cạnh) [repo] [run 2026-10-13]. Sửa ô cách biên ≤ 2 ô → dựng lại cả chunk bên cạnh, kể cả chunk chéo (tối đa 8 chunk).
+- Đã dùng: **Surface Nets ×2** + làm mượt có giới hạn (mỗi đỉnh lệch ≤ 0,2 ô); đọc mẫu −3..34 → đệm 2 ô mỗi phía [repo] [run 2026-10-13].
+
 - **Chạy:** C# Job System + Burst; ghi mesh qua `Mesh.AllocateWritableMeshData` → `Mesh.ApplyAndDisposeWritableMeshData` ([tech-stack](tech-stack.md)).
-- **Chỉ số đỉnh 16 bit đủ:** mesh 16 bit chứa tối đa 65.535 đỉnh; 32 bit không chắc chạy trên mọi máy (vd Android GPU Mali-400 không vẽ) ([Mesh.indexFormat](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh-indexFormat.html)). Một chunk 16 × 16 ô ước ~7.000 tam giác (tỉ lệ từ bản thử 30 × 30) → vài nghìn đỉnh. Đo 2026-10-13 [run]: chunk nặng nhất của world M1 3.800 tam giác, 2.019 đỉnh (không vách mép); cả map 61.800 tam giác → dùng 16 bit.
-- **Vật liệu:** gán vật liệu theo đỉnh (trộn ở ranh giới) + texture dán 3 hướng (triplanar) — bản thử gán theo mặt bị răng cưa ([art-style](../03-art-audio/art-style.md#kết-quả-thử-nghiệm-art-đang-làm)).
+- **Chỉ số đỉnh 16 bit đủ:** mesh 16 bit chứa tối đa 65.535 đỉnh; 32 bit không chắc chạy trên mọi máy (vd Android GPU Mali-400 không vẽ) ([Mesh.indexFormat](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Mesh-indexFormat.html)). Bản Surface Nets: chunk nặng nhất 3.800 tam giác, 2.019 đỉnh; cả map 61.800 tam giác [run 2026-10-13]. Mesh khối có ít tam giác hơn (15.450 cả map khi chưa bo) → vẫn 16 bit; đo lại sau bước 5.2–5.3.
+- **Vật liệu:** màu theo vật liệu ghi vào đỉnh (bước 5.1); texture theo mặt — mặt khối thẳng trục nên UV lấy thẳng từ toạ độ, không cần triplanar (bước 5.4); material nhám, không bóng ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md)).
 - **Nước chảy** (user, 2026-10-13) — xem mục Nước bên dưới.
-- **Mép map** ([0009](../decisions/0009-dai-duong-va-suong-mu-o-ria-map.md), user 2026-10-13; cách làm là [ý tưởng]): ngoài map lấy mẫu bằng cột biên gần nhất → không sinh vách đứng ở mép; bộ sinh hạ độ cao dần về rìa để luôn có vành biển; đáy biển ở rìa nằm dưới mặt nước, trong sương mù.
+- **Mép map** ([0009](../decisions/0009-dai-duong-va-suong-mu-o-ria-map.md), user 2026-10-13; cách làm là [ý tưởng]): ngoài map lấy mẫu bằng cột biên gần nhất → không sinh vách đứng ở mép (giữ khi đổi sang mesh khối); bộ sinh hạ độ cao dần về rìa để luôn có vành biển; đáy biển ở rìa nằm dưới mặt nước, trong sương mù.
 - **LOD:** map có ranh giới → M1 **chưa làm LOD**; chỉ thêm nếu đo trên mobile thấy cần.
 
 ## Chỉnh sửa (đào / đặt)
@@ -135,7 +145,7 @@ User chọn nước **chảy được** (2026-10-13). [ý tưởng]
 - **GPU Resident Drawer**: vẽ GameObject bằng instancing, giảm draw call — cần đường render Forward+ (hoặc Deferred+), nền tảng có compute shader **trừ OpenGL ES** (Android phải Vulkan), MeshRenderer không dùng MaterialPropertyBlock... ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/gpu-resident-drawer.html)) → hợp cho **cây, vật phẩm lặp lại**; mesh chunk là duy nhất nên ít lợi [suy luận].
   - Lưu ý: **biến thể hiển thị** nếu làm bằng MaterialPropertyBlock sẽ không được GPU Resident Drawer vẽ → nên làm biến thể qua dữ liệu instance/shader [ý tưởng, kiểm ở M2].
 - **Culling** (2026-10-13):
-  - Đã có: Surface Nets chỉ sinh mặt ở chỗ giáp đặc/rỗng → không có mặt bị chôn; chunk nằm hẳn trong đất không có mesh. Mỗi chunk là một Renderer riêng → Unity tự bỏ chunk ngoài tầm camera: *"By default, Cameras perform frustum culling"* ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/OcclusionCulling.html)).
+  - Đã có: mesher (Surface Nets trước đây, mesh khối từ 0011) chỉ sinh mặt ở chỗ giáp đặc/rỗng → không có mặt bị chôn; chunk nằm hẳn trong đất không có mesh. Mỗi chunk là một Renderer riêng → Unity tự bỏ chunk ngoài tầm camera: *"By default, Cameras perform frustum culling"* ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/OcclusionCulling.html)).
   - Occlusion culling tính sẵn của Unity không dùng được: *"If your Project generates Scene geometry at runtime, then Unity's built-in occlusion culling is not suitable"* (cùng trang).
   - GPU occlusion culling của URP: cần GPU Resident Drawer (Android phải Vulkan), xấp xỉ mỗi vật bằng hình cầu bao, cảnh ít che khuất thì có thể chậm hơn ([docs](https://docs.unity3d.com/6000.4/Documentation/Manual/urp/gpu-culling.html)) → M1 không bật (map nhỏ, không hang, camera nhìn xuống).
   - M2 có hang + map 128 × 128 × 48 → cần cách bỏ mặt hang khi ở trên mặt đất [ý tưởng]: đánh dấu chunk chỉ có mặt hang, ẩn theo vị trí camera; hoặc GPU occlusion culling nếu Android dùng Vulkan; giới hạn khoảng cách vẽ. Chọn theo số đo ([risks](risks.md)).
@@ -150,12 +160,16 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 | 2 | Surface Nets ×2 + làm mượt, 1 chunk | Mesh khớp bản thử Blender (rãnh 1 ô, ~tam giác) | 4–6 · **Xong 2026-10-13** [run]: rãnh 1 ô giữ bề rộng ≥ 0,9 ô; làm mượt ≤ 0,2 ô; chunk nặng nhất của world M1 6.776 tam giác / 3.881 đỉnh khi còn vách mép map — sau bước 3 (bỏ vách theo 0009) còn 3.800 / 2.019 (ước tính ~7.000; chỉ số 16 bit dư); đã đọc 1 ô đệm → đỉnh và pháp tuyến ở biên tính giống chunk bên cạnh |
 | 3 | Nhiều chunk + nối biên (ô đệm) + Jobs/Burst | Không hở ở biên; đo thời gian dựng mesh / chunk | 4–7 · **Xong 2026-10-13** [run]: ghép cả map không có cạnh hở bên trong; đỉnh chung ở biên cùng pháp tuyến; không vách mép map; dựng song song = dựng từng chunk. Trên Mac (Editor, Burst): 32 chunk song song ~29 ms, 1 chunk ~4,3 ms. 4/93.058 cạnh không đa tạp (hai cột chạm góc chéo — tính chất của Surface Nets, nằm gọn trong chunk) |
 | 4 | Đào/đặt nguyên ô + dựng lại chunk bẩn + collider; kho vật liệu của người chơi ([cơ chế](../02-gameplay/mechanics.md#voxel-world--luật-m1)) | Sửa ô → mesh cập nhật ≤ 2 khung hình trên PC | 3–5 · **Xong 2026-10-13** [run]: mesh + collider cập nhật **ngay trong khung hình sửa ô** (chờ 0 khung hình, test PlayMode); dựng lại từng phần sau 200 lần sửa ngẫu nhiên = dựng lại cả map. Trên Mac (Editor, Burst), mỗi lần sửa: 1 chunk — dựng mesh 4,5 ms + ghi 0,07 ms + bake collider 0,9 ms; góc 8 chunk — 8,3 + 0,3 + 1,3 ms. Đệm thật là 2 ô (không phải 1). Thử bằng chuột trong scene TerrainView: user chưa thử |
-| 5 | Màu vật liệu theo đỉnh (chưa triplanar) | Phân biệt được đất, cỏ, đá, cát | 1–2 |
+| 5 | ~~Màu vật liệu theo đỉnh (chưa triplanar)~~ — thay bằng 5.1–5.4 ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md)) | ~~Phân biệt được đất, cỏ, đá, cát~~ | ~~1–2~~ |
+| 5.1 | Mesher khối (Jobs + Burst) thay Surface Nets: mặt lộ, màu đỉnh theo vật liệu (sườn ô cỏ = đất), đệm chunk 1 ô; material nhám | Dựng lại tăng dần = dựng toàn bộ sau 200 lần sửa; sửa ô → cập nhật ≤ 2 khung hình; không mặt thừa giữa hai ô đặc; tam giác = 2 × mặt lộ | 2–3 · **Xong 2026-10-13** [run]: `BlockMesher` + shader `Game/Terrain` (màu đỉnh, khuếch tán thuần, có bóng); EditMode 57/57, PlayMode 5/5. Cả map 15.450 tam giác (= 2 × 7.725 mặt lộ), chunk nặng nhất 938 tam giác / 1.876 đỉnh; mặt kín (0 cạnh hở trong map). Mac (Editor, Burst): 32 chunk song song 1,0 ms (Surface Nets ~29 ms); sửa ô 1 chunk 0,17 + 0,04 + 0,26 ms (mesh + ghi + bake), góc 8 chunk 0,43 + 0,16 + 0,58 ms, chờ 0 khung hình. Ảnh: bậc thang 1 ô lắt nhắt như dự đoán ở 0011; màu nhạt → chỉnh ở 5.4 |
+| 5.2 | Bo cạnh lồi (dải vát + góc, pháp tuyến nội suy) | Mesh kín ở mọi tổ hợp 26 ô lân cận; đo tam giác/chunk; ảnh so sánh | 2–3 |
+| 5.3 | Mép cỏ lượn sóng phủ xuống sườn | Tất định; mép liền giữa hai ô kề và qua biên chunk | 2–3 |
+| 5.4 | Texture theo mặt + ánh sáng mềm (+ AO theo đỉnh nếu cần) | User duyệt ảnh chụp so với hướng art | 1–2 |
 | 5b | Đảo + vành biển (generatorVersion 2), mặt nước tĩnh, sương mù có sẵn của Unity + màu nền trùng màu sương ([0009](../decisions/0009-dai-duong-va-suong-mu-o-ria-map.md)) | Từ giữa map không thấy mép map, không vách đứng | 2–3 |
 | 6 | Đo trên mobile tầm trung | ≥ 30 FPS khi đào/đặt liên tục; ghi ms/chunk, số tam giác | 2–3 |
-| | **Cộng** | | **19–31** (17–28 + 2–3 của 0009) |
+| | **Cộng** | | **25–40** (17–28 + 2–3 của 0009 − 1–2 của bước 5 cũ + 7–11 của 0011) |
 
-**Chuyển sang M2** (18–27, phần "voxel world đầy đủ" của [0007](../decisions/0007-m1-toi-gian.md)): hang noise 3D 4–5 · map 128 × 128 × 48 + hiển thị theo khoảng cách 4–6 · vật liệu trộn + triplanar 3–5 · lưới chiếm chỗ + vật thể nhiều ô 3–5 · lưu/nạp chunk đã sửa 2–4 · phiên bản bộ sinh 2. Khối cốt truyện (2–4) và sinh map theo seed (15–25) là hạng mục M2 riêng.
+**Chuyển sang M2** (18–27, phần "voxel world đầy đủ" của [0007](../decisions/0007-m1-toi-gian.md)): hang noise 3D 4–5 · map 128 × 128 × 48 + hiển thị theo khoảng cách 4–6 · texture đầy đủ cho mọi vật liệu (mặt khối, không cần triplanar — 0011) 3–5 · lưới chiếm chỗ + vật thể nhiều ô 3–5 · lưu/nạp chunk đã sửa 2–4 · phiên bản bộ sinh 2. Khối cốt truyện (2–4) và sinh map theo seed (15–25) là hạng mục M2 riêng.
 
 ## Câu hỏi mở
 - Cách người chơi tạo nguồn nước (phép, công trình?); nguồn nước có xoá/di chuyển được không?
