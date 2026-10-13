@@ -89,6 +89,7 @@ gantt
 Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên>" để AI đổi dòng trạng thái + bảng [README](README.md), hoặc tự sửa).
 
 ### A. Quyết định chờ Chốt
+[ý tưởng] Thứ tự duyệt gợi ý (2026-10-13): A1 → A3 → A2 → B6 → B3 → B2 → B4 → B5 → B1 → B7 → B8 — quyết định trước, tài liệu phụ thuộc sau.
 | # | Quyết định | Trạng thái | User cần làm |
 |---|---|---|---|
 | A1 | [0003](decisions/0003-server.md) — cần backend (M2) + game server (PvP sau phát hành) | Đề xuất | Đồng ý → Chốt. Chặn: components.md, architecture.md |
@@ -104,7 +105,7 @@ Cập nhật 2026-10-12. Chỉ user chuyển sang **Chốt** (nói "chốt <tên
 | B4 | [04-tech/components.md](04-tech/components.md) | Phụ thuộc A1. Chấp nhận/bỏ [ý tưởng]: backend dùng dịch vụ có sẵn; chỉ lưu phần world khác seed; bảng ranh giới trách nhiệm |
 | B5 | [04-tech/tech-stack.md](04-tech/tech-stack.md) — phần Client | Phụ thuộc A3. Chấp nhận/bỏ [ý tưởng]: Input System; meshing tự viết bằng Jobs + Burst; A\* tự viết; uGUI; không dùng ECS |
 | B6 | [05-roadmap.md](05-roadmap.md) — phần M1–M2 | Chấp nhận ước lượng thô + giả định (1 ngày-người = 8 giờ, ×1,5); phạm vi đã giữ nguyên (user, 2026-10-12) |
-| B7 | [03-art-audio/art-style.md](03-art-audio/art-style.md) — **thống nhất art style trước khi bắt đầu** (user, 2026-10-12) | Đang trống. Cần: hướng phong cách (voxel/low-poly, màu, tỉ lệ sinh vật), tham khảo có link, nguồn asset (hỗ trợ URP — [0005](decisions/0005-render-pipeline.md); giấy phép; giá có nguồn), quy cách kỹ thuật (kích thước khối, số polygon trên mobile) |
+| B7 | [03-art-audio/art-style.md](03-art-audio/art-style.md) — **thống nhất art style trước khi bắt đầu** (user, 2026-10-12) | Đã có bản đầu (hướng phong cách, tham khảo, nguồn asset, quy cách kỹ thuật, kết quả thử nghiệm art). Còn: bảng màu, độ bão hoà, ánh sáng; ngân sách polygon là tạm, đo ở M1; ảnh concept theo hướng XING-ART tươi sáng hơn chưa làm |
 | B8 | [01-story/naming.md](01-story/naming.md) — quy ước đặt tên (user, 2026-10-12) | **User tự đặt tên, AI chỉ duyệt** (skill `naming` của kit). Danh sách nhắc ở mục "Cần đặt tên". Cần trước M1: tên game (tạm được). Đang chờ user quyết: Aetharyn / Viventa |
 
 ### C. Nên viết trước M1 (chưa cần Chốt)
