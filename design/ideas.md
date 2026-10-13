@@ -31,4 +31,8 @@
 | blenderwright (MCP Blender 191 tool, MIT) | User (2026-10-12) | — | để sau | Không thêm khả năng so với blender-mcp + Python; xét lại nếu rig bằng Python hay lỗi |
 | blender-open-mcp, TripoSR | User (2026-10-12) | — | loại | LLM local không cần (đã dùng Claude Code); TripoSR cần CUDA, không rig |
 | BlenderKit cho đồ vật | User (2026-10-12) | — | để sau | Asset Royalty Free/CC0 dùng thương mại được, không được bán lại model; xét ở M2 |
+| Biến cố phép thuật chung (không ai gây ra) | AI (2026-10-13) | P1 | loại | User chọn: nhân vật chính liên quan |
+| Con người gây ra biến cố (khai thác, chiến tranh phép thuật) | AI (2026-10-13) | P1 | loại | User chọn: nhân vật chính liên quan |
+| Pháp sư: sai lầm có ý tốt / hy sinh ký ức / tự xoá ký ức | AI (2026-10-13) | — | loại | User chọn: bản ngã cũ có mục đích xấu, coi sinh vật là công cụ |
+| NPC người sống sót dẫn dắt ở mỗi map | AI (2026-10-13) | P3 | để sau | User chọn tinh linh đồng hành; NPC có thể thêm sau nếu cần |
 | Địa hình dựng mesh ×1 (hoặc ×1 làm mượt ít hơn ở vách) | AI (2026-10-12) | — | loại | Rãnh 1 ô bị bóp chữ V; user chọn ×2 |

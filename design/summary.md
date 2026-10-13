@@ -10,6 +10,7 @@ Một pháp sư mất ký ức hồi sinh một thế giới phép thuật: cả
 
 - **Thể loại:** thế giới voxel (đào/đặt) + sưu tầm sinh vật + nông trại tự động hoá + phiêu lưu cốt truyện.
 - **Nền tảng, thị trường:** PC + mobile; toàn cầu; online, miễn phí (F2P) có nạp tiền.
+- **Câu chuyện:** chính pháp sư — trước khi mất ký ức — đã coi sinh vật là công cụ và gây ra việc chúng thất lạc. Một **tinh linh** (mảnh linh hồn của sinh vật từng thân thiết) đi theo để cảm hoá. Lấy lại ký ức → biết trân trọng sinh vật → trận chiến cuối với **bản ngã cũ**. Tông ấm áp, hy vọng.
 - **Khác Pokémon Pokopia:** nhiều cá thể khác nhau trong mỗi loài; chiến đấu và nông trại chi tiết hơn; Pokopia ưu tiên khám phá cốt truyện.
 
 ## 4 trụ cột (pillars)
@@ -77,7 +78,10 @@ Khám phá, thu thập → cải tạo địa hình → hoàn thành **danh sác
 | Từng phép | ~20 phép sinh vật + ~8 phép pháp sư (slice) | ~28 | Dịch (≤ 16) |
 | Mức độ hiếm, nhóm phép | Các mức hiếm của phép; nhóm: phổ biến, tộc, nguyên tố, loài | Chưa định | Dịch |
 | Danh xưng người chơi | "Pháp sư"; người chơi tự đặt tên nhân vật? | 1 | Dịch |
-| Nhân vật, NPC | Chưa có danh sách ([characters](01-story/characters.md)) | Chưa định | Tự tạo |
+| Tinh linh | Đồng hành luôn đi theo người chơi; mảnh linh hồn của sinh vật từng thân thiết với pháp sư ([characters](01-story/characters.md)) | 1 | Tự tạo |
+| Sinh vật thân thiết | Người bạn duy nhất của bản ngã cũ, nguồn gốc của tinh linh; xuất hiện qua mảnh ký ức | 1 | Tự tạo |
+| Biến cố | Sự kiện bản ngã cũ rút sinh khí làm thế giới khô héo ([world](01-story/world.md)) | 1 | Tự tạo hoặc dịch |
+| Nhân vật, NPC khác | Chưa có (có thể không cần — xem câu hỏi mở trong world) | Chưa định | Tự tạo |
 | Mana | Năng lượng dùng phép, dùng chung khi nhập hồn | 1 | Tự tạo hoặc dịch |
 | **"Ma năng" — cần đổi** | Tài nguyên đổi từ phép trùng; dễ nhầm với mana | 1 | Tự tạo (≤ 10) |
 | Thẻ bài + 4 bậc thẻ | Vật chứa sinh vật, ném để bắt; bậc 4 chắc chắn bắt + vượt trội + hiệu ứng | 1 + 4 | Dịch hoặc tự tạo |

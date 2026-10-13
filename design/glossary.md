@@ -42,6 +42,10 @@
 | Đình trệ | Công đoạn không làm được (không có đường, thiếu vật tư, kho đầy) — báo cho người chơi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tua nhanh | Tính sản lượng cho thời gian vắng mặt khi người chơi vào lại, không chạy animation | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhiệm vụ | Nhiệm vụ cốt truyện (chính hoặc phụ) trong một map | [01-story/plot.md](01-story/plot.md) |
+| Tinh linh | Đồng hành luôn đi theo người chơi; mảnh linh hồn của sinh vật từng thân thiết với pháp sư, ở lại để cảm hoá pháp sư (tên chưa có) | [01-story/characters.md](01-story/characters.md) |
+| Bản ngã cũ / bản ngã mới | Pháp sư trước khi mất ký ức (coi sinh vật là công cụ) / sau khi mất ký ức (người chơi điều khiển); đối đầu ở trận chiến cuối | [01-story/characters.md](01-story/characters.md) |
+| Biến cố | Sự kiện bản ngã cũ rút sinh khí của thế giới làm sinh vật thất lạc, pháp sư mất ký ức (tên chưa có) | [01-story/world.md](01-story/world.md) |
+| Sinh khí | Năng lượng sống chảy giữa đất đai và sinh vật — lý do trong truyện của môi trường sống (ý tưởng) | [01-story/world.md](01-story/world.md) |
 | Mảnh ký ức | Mảnh quá khứ của nhân vật chính; mạch truyện chính xuyên mọi map | [01-story/plot.md](01-story/plot.md) |
 | Map | Vùng có ranh giới trên world của người chơi, có câu chuyện riêng | [01-story/world.md](01-story/world.md) |
 | Seed | Giá trị riêng của mỗi người chơi để sinh phần không thuộc cốt truyện của map | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
