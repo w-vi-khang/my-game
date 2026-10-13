@@ -32,6 +32,7 @@ namespace Game.Client
             public Mesh ColliderMesh;
             public MeshCollider Collider;
             public int TriangleCount;
+            public int WaterTriangleCount;
         }
 
         const string ChunksName = "Chunks";
@@ -112,6 +113,22 @@ namespace Game.Client
 
         public Mesh ChunkMesh(int chunkIndex) => slots?[chunkIndex]?.Mesh;
 
+        /// <summary>Tổng tam giác đang hiển thị: địa hình (kể cả mép cỏ) + mặt nước theo ô (đo mobile, bước 6).</summary>
+        public int TotalTriangles(out int water)
+        {
+            int terrain = 0;
+            water = 0;
+            if (slots == null)
+                return 0;
+            foreach (var s in slots)
+            {
+                if (s == null) continue;
+                terrain += s.TriangleCount;
+                water += s.WaterTriangleCount;
+            }
+            return terrain + water;
+        }
+
         void OnCellChanged(int x, int y, int z) => Editor.AffectedChunks(x, y, z, dirty);
 
         void LateUpdate()
@@ -167,6 +184,7 @@ namespace Game.Client
             for (int k = 0; k < chunkIndices.Count; k++)
             {
                 slots[chunkIndices[k]].TriangleCount = built[k].TriangleCount;
+                slots[chunkIndices[k]].WaterTriangleCount = built[k].WaterTriangleCount;
                 if (built[k].TriangleCount > 0)
                     toBake.Add(colliderMeshes[k]);
             }

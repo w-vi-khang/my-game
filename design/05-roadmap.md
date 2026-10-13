@@ -68,6 +68,7 @@ Ghi theo AGENTS.local (so với ước lượng; sau 4–6 hạng mục tính l�
 | World bước 5b (bộ sinh đảo, generatorVersion 2) + ghi 0012 | (trong 2–3 của 5b) | ~0,3 giờ (19:58–20:16, 2026-10-13) | 1 test mới + test mã băm v1/v2 (67 EditMode + 6 PlayMode). Chưa so mã băm v2 trên Android |
 | World bước 5c — luật đặt khối + biển loang + mặt nước theo ô ([0012](decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)) | 3–5 | ~0,2 giờ (20:18–20:29, 2026-10-13) | 14 test mới (80 EditMode + 6 PlayMode); 1 test PlayMode cũ sửa theo luật đặt mới |
 | World bước 5d — nước lan theo nhịp ([0013](decisions/0013-nuoc-lan-theo-nhip.md)), user thấy nước tràn "gần như ngay lập tức" | 1 | ~0,15 giờ (20:38–20:50, 2026-10-13) | 5 test mới (84 EditMode + 7 PlayMode) |
+| World bước 6 — đo trên điện thoại (TerrainBench, APK Bench) + sửa đường lưới mặt biển trên điện thoại | 2–3 | ~0,45 giờ (20:53–21:08 + 21:12–21:24, 2026-10-13; gồm 2 lần build APK) | Xiaomi 24095PCADG: 60 FPS khi đào/đặt liên tục; mã băm v2 trùng. Hết hạng mục world của M1 |
 
 ## Kiểm tra phạm vi
 ⚠️ **Vượt quỹ thời gian.** Sau C1 ([0007](decisions/0007-m1-toi-gian.md)), M1 còn ~14–24 tháng ở 10 giờ/tuần (sau 0011, 0012, 0013); toàn bộ tới M4 ~12,0–22,7 năm. Rủi ro "mất động lực khi làm một mình" ([risks](04-tech/risks.md)) gần như chắc chắn xảy ra với phạm vi này.

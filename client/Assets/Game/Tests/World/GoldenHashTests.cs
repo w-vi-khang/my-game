@@ -12,7 +12,7 @@ namespace Game.World.Tests
     {
         /// <summary>v1 (M1 bước 1) — đã trùng giữa macOS ARM64 và Android 14 ARM64 (2026-10-13).</summary>
         public const string ExpectedV1 = "86b0747d4b2be65b";
-        /// <summary>v2 (đảo + vành biển, 0009) — chưa so trên điện thoại.</summary>
+        /// <summary>v2 (đảo + vành biển, 0009) — trùng giữa macOS ARM64 và Android 14 ARM64 Xiaomi 24095PCADG (TerrainBench, 2026-10-13).</summary>
         public const string ExpectedV2 = "807d00bd048026a0";
 
         static string Hash(TerrainParams p) => WorldHash.ToHex(WorldHash.Compute(TerrainGenerator.Generate(p)));

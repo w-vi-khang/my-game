@@ -73,19 +73,31 @@ Shader "Game/Terrain"
                 return o;
             }
 
+            // Băm toạ độ ô bằng số nguyên: GPU điện thoại (Mali) được sắp xếp lại phép tính số thực, nên băm bằng frac(p × hằng)
+            // làm cùng một đỉnh lưới ra hai giá trị ở hai ô kề → lộ đường lưới. Phép nguyên chính xác trên mọi GPU.
+            float HashInt(int2 c)
+            {
+                uint2 q = asuint(c) * uint2(1597334673u, 3812015801u);
+                uint n = (q.x ^ q.y) * 1597334673u;
+                n ^= n >> 16;
+                n *= 2246822519u;
+                n ^= n >> 13;
+                return n * (1.0 / 4294967295.0);
+            }
+
+            // Ô có hash (dùng cho chấm/đốm): giữ tên Hash21 nhưng nhận toạ độ ô đã floor (số nguyên dạng float) + độ lệch hằng.
             float Hash21(float2 p)
             {
-                p = frac(p * float2(123.34, 456.21));
-                p += dot(p, p + 45.32);
-                return frac(p.x * p.y);
+                return HashInt((int2)floor(p));
             }
 
             float ValueNoise(float2 p)
             {
-                float2 i = floor(p), f = frac(p);
+                float2 fl = floor(p), f = p - fl;
+                int2 i = (int2)fl;
                 float2 u = f * f * (3.0 - 2.0 * f);
-                return lerp(lerp(Hash21(i), Hash21(i + float2(1, 0)), u.x),
-                            lerp(Hash21(i + float2(0, 1)), Hash21(i + float2(1, 1)), u.x), u.y);
+                return lerp(lerp(HashInt(i), HashInt(i + int2(1, 0)), u.x),
+                            lerp(HashInt(i + int2(0, 1)), HashInt(i + int2(1, 1)), u.x), u.y);
             }
 
             /// Chấm tròn rải ngẫu nhiên: mỗi ô lưới có chấm với xác suất density, bán kính radius (đơn vị ô lưới).
