@@ -51,7 +51,7 @@ Phím cụ thể là đề xuất [ý tưởng]; cho người chơi **đổi ph�
 **Camera** [ý tưởng]
 - Camera theo sau nhân vật; khi địa hình chắn giữa camera và nhân vật (vách, trong hang) → kéo camera lại gần, tra va chạm trên lưới voxel ([world-tech](../04-tech/world-tech.md)).
 - Trong hang: khoảng cách camera mặc định ngắn hơn.
-- Dùng Cinemachine hay tự viết: quyết ở M1 sau khi tra docs 6000.4 [chưa xác minh] — xem [tech-stack](../04-tech/tech-stack.md).
+- Đề xuất Cinemachine 3.1.7 + CinemachineDeoccluder (bản cho 6000.4; cần collider trên chunk) — [kiến trúc](../04-tech/architecture.md#nền-tảng-code-m1--chờ-user-duyệt), [docs](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineDeoccluder.html).
 
 **Mobile** [ý tưởng]
 - Nút cảm ứng tối thiểu 48 × 48 dp theo khuyến nghị Android ([docs](https://developer.android.com/guide/topics/ui/accessibility/apps)); iOS khuyến nghị 44 × 44 pt [chưa xác minh — trang HIG không đọc được, xem lại ở M1].
