@@ -1,6 +1,6 @@
 # Brief 0002 — Simulation bước 2: A\* đi bộ theo khung chiếm chỗ, tính lại khi đào/đặt
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-14
@@ -144,7 +144,13 @@ Task contract: `.ai/tasks/m1-sim-buoc-2-tim-duong.md`. Quyết định: `design/
 - Commit code: 0b7d120 — mới: Core/Sim/GridPathfinder.cs, Tests/Core/Sim/{TestWorlds,GridPathfinderTests,SimulationTerrainTests}.cs (+ .meta); sửa: Core/Sim/{SimConfig,SimData,Simulation,SimHash}.cs, Tests/Core/Sim/{SimulationTests,SimDeterminismTests,SimConfigTests}.cs, design/data/sim_m1.json
 - Lệch brief: không có. Test bước 1 không đổi số nhịp nào (chỉ đổi constructor, world, y). Thêm helper `TestWorlds.Wall` (trong TestWorlds.cs, file test thuộc Phạm vi) để dựng "tường tại x = k".
 
+### Sửa sau review (bước 12)
+- Base commit: c47a97a · Bắt đầu 14:33 · Kết thúc 14:34 (đồng hồ máy)
+- Commit sửa: 9834dee — Core/Sim/Simulation.cs (`Displace` rơi bằng vòng `while`, thêm `ColumnsBodyFree`), Tests/Core/Sim/SimulationTerrainTests.cs (+ `FallsUntilGround`). Lệch brief: không có.
+
 ## Kết quả kiểm chứng
+- Sau sửa bước 12: `refresh_unity` + `read_console` → 0 lỗi; `run_tests` EditMode → 118 total, 118 passed, 0 failed; grep cấm → rỗng; `check_design.py` → exit 0; `git status` trước commit chỉ 2 file trên.
+- Lần đầu (trước sửa): 117/117 đạt, các lệnh khác như dưới.
 - MCP `refresh_unity` + `read_console` (error) → 0 lỗi biên dịch.
 - MCP `run_tests` EditMode → 117 total, 117 passed, 0 failed (102 cũ + 7 GridPathfinder + 8 Terrain). Không chạy PlayMode.
 - `grep -rnE "float|double|System\.Random|UnityEngine|DateTime|Dictionary|HashSet|PriorityQueue" client/Assets/Game/Core/Sim/` → rỗng.
