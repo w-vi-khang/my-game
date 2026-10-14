@@ -29,8 +29,30 @@ namespace Game.Core.Sim
 
     public enum StageStatus : byte { Open = 0, Assigned = 1, Done = 2, Blocked = 3 }
 
-    /// <summary>Lý do đình trệ — bước 4 thêm thông báo và thiếu năng lực.</summary>
-    public enum StallReason : byte { None = 0, NoPath = 1, NoSeeds = 2, StorageFull = 3 }
+    /// <summary>Lý do đình trệ (0016, 0017).</summary>
+    public enum StallReason : byte { None = 0, NoPath = 1, NoSeeds = 2, StorageFull = 3, NoAbility = 4 }
+
+    public enum SimEventKind : byte { StallStarted = 1, StallCleared = 2, CreatureRespawned = 3 }
+
+    /// <summary>Sự kiện thông báo (0017). Đình trệ: CreatureId = -1, Cell = Target của stage. Hiện lại: StageId = -1, Reason = None, Cell = ô hiện lại.</summary>
+    public readonly struct SimEvent
+    {
+        public readonly long Tick;
+        public readonly SimEventKind Kind;
+        public readonly int StageId, CreatureId;
+        public readonly CellPos Cell;
+        public readonly StallReason Reason;
+
+        public SimEvent(long tick, SimEventKind kind, int stageId, int creatureId, CellPos cell, StallReason reason)
+        {
+            Tick = tick;
+            Kind = kind;
+            StageId = stageId;
+            CreatureId = creatureId;
+            Cell = cell;
+            Reason = reason;
+        }
+    }
 
     /// <summary>Cách tới đích: Exact = đứng đúng ô; Adjacent = đứng ở ô kề; AdjacentOrOn = thử ô kề, không được thì đứng trên ô (0016).</summary>
     public enum Approach : byte { Exact = 0, Adjacent = 1, AdjacentOrOn = 2 }
@@ -54,6 +76,9 @@ namespace Game.Core.Sim
         public CellPos Cell;
         public CreatureState State;
         public int StageId = -1;
+        public int HomeId = -1;
+        public bool HomeReachable;
+        public long StuckSince = -1;
         public CellPos MoveTarget;
         public int MoveProgress;
 
@@ -97,6 +122,8 @@ namespace Game.Core.Sim
         public int AssigneeId = -1;
         public bool Carried;
         public StallReason Stall;
+        public StallReason ReportedStall;
+        public int DroppedBy = -1;
         public Approach TargetApproach;
         public readonly Approach DestinationApproach;
         /// <summary>>= 0 chỉ cho công đoạn xới/gieo/tưới/thu hoạch của ô ruộng; vận chuyển của ruộng có PlotId = -1, StorageId >= 0.</summary>
@@ -179,6 +206,28 @@ namespace Game.Core.Sim
         }
     }
 
+    /// <summary>Nhà mẫu M1 — khối đặc (0017). Cell = góc nhỏ nhất.</summary>
+    public sealed class House
+    {
+        public readonly int Id;
+        public readonly CellPos Cell;
+        public readonly int SizeX, SizeZ, SizeY, Capacity;
+        public readonly List<int> Residents = new List<int>();
+
+        public House(int id, CellPos cell, int sizeX, int sizeZ, int sizeY, int capacity)
+        {
+            Id = id;
+            Cell = cell;
+            SizeX = sizeX;
+            SizeZ = sizeZ;
+            SizeY = sizeY;
+            Capacity = capacity;
+        }
+
+        public bool Contains(int x, int y, int z) =>
+            x >= Cell.X && x < Cell.X + SizeX && z >= Cell.Z && z < Cell.Z + SizeZ && y >= Cell.Y && y < Cell.Y + SizeY;
+    }
+
     /// <summary>Quy ước: id = vị trí trong list.</summary>
     public sealed class SimState
     {
@@ -189,6 +238,9 @@ namespace Game.Core.Sim
         public readonly List<WorkOrder> Orders = new List<WorkOrder>();
         public readonly List<Storage> Storages = new List<Storage>();
         public readonly List<FarmPlot> Plots = new List<FarmPlot>();
+        public readonly List<House> Houses = new List<House>();
+        /// <summary>Sự kiện thông báo — mô phỏng chỉ thêm vào, nơi đọc tự Clear. Không tính vào mã băm.</summary>
+        public readonly List<SimEvent> Events = new List<SimEvent>();
 
         public SimState(SimRng rng)
         {

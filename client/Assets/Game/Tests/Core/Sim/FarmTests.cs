@@ -28,7 +28,25 @@ namespace Game.Core.Tests
             if (withL3) sim.AddCreature("L3", new CellPos(9, 2, 5));
             int k = sim.AddStorage(Kho);
             sim.AddFarmOrder(new List<CellPos> { new CellPos(5, 1, 5) }, k);
+            TestWorlds.HomeAll(sim);
             return sim;
+        }
+
+        static List<SimEvent> EventsOf(Simulation sim, int stageId)
+        {
+            var list = new List<SimEvent>();
+            foreach (var e in sim.State.Events)
+                if (e.StageId == stageId) list.Add(e);
+            return list;
+        }
+
+        static void AssertEvent(SimEvent e, SimEventKind kind, long tick, int stageId, CellPos cell, StallReason reason)
+        {
+            Assert.AreEqual(kind, e.Kind);
+            Assert.AreEqual(tick, e.Tick);
+            Assert.AreEqual(stageId, e.StageId);
+            Assert.AreEqual(cell, e.Cell);
+            Assert.AreEqual(reason, e.Reason);
         }
 
         static WorkStage Stage(Simulation sim, WorkAbility a)
@@ -107,7 +125,8 @@ namespace Game.Core.Tests
             var sim = Layout(new SimConfig(), false);
             Run(sim, 1500);
             var haul = Stage(sim, WorkAbility.Haul);
-            Assert.AreEqual(StageStatus.Open, haul.Status);
+            Assert.AreEqual(StageStatus.Blocked, haul.Status);
+            Assert.AreEqual(StallReason.NoAbility, haul.Stall);
             Assert.AreEqual(AssigneeKind.None, haul.AssigneeKind);
             Assert.AreEqual(Site, haul.Target);
             Assert.AreEqual(0, sim.State.Storages[0].Produce);
@@ -121,6 +140,7 @@ namespace Game.Core.Tests
             var l1 = sim.State.Creatures[sim.AddCreature("L1", Site)];
             int k = sim.AddStorage(new CellPos(10, 2, 10));
             sim.AddFarmOrder(new List<CellPos> { new CellPos(5, 1, 5) }, k);
+            TestWorlds.HomeAll(sim);
             sim.Tick();
             Assert.AreEqual(CreatureState.Moving, l1.State);
             CollectionAssert.AreEqual(new[] { new CellPos(6, 2, 5) }, l1.Path);
@@ -147,6 +167,7 @@ namespace Game.Core.Tests
             var l1 = sim.State.Creatures[sim.AddCreature("L1", Site)];
             int k = sim.AddStorage(new CellPos(10, 2, 10));
             sim.AddFarmOrder(new List<CellPos> { new CellPos(5, 1, 5) }, k);
+            TestWorlds.HomeAll(sim);
             sim.Tick();
             Assert.AreEqual(CreatureState.Working, l1.State);
             Assert.AreEqual(Site, l1.Cell);
@@ -187,8 +208,14 @@ namespace Game.Core.Tests
             Assert.AreEqual(StageStatus.Blocked, sow.Status);
             Assert.AreEqual(StallReason.NoSeeds, sow.Stall);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[0].State);
+            var ev = EventsOf(sim, sow.Id);
+            Assert.AreEqual(1, ev.Count);
+            AssertEvent(ev[0], SimEventKind.StallStarted, 75, sow.Id, Site, StallReason.NoSeeds);
             sim.State.Storages[0].Seeds = 1;
             sim.Tick();
+            ev = EventsOf(sim, sow.Id);
+            Assert.AreEqual(2, ev.Count);
+            AssertEvent(ev[1], SimEventKind.StallCleared, 76, sow.Id, Site, StallReason.NoSeeds);
             Assert.AreEqual(StageStatus.Assigned, sow.Status);
             Assert.AreEqual(CreatureState.Working, sim.State.Creatures[0].State);
             Assert.AreEqual(0, sim.State.Storages[0].Seeds);
@@ -206,8 +233,14 @@ namespace Game.Core.Tests
             Assert.AreEqual(StallReason.StorageFull, haul.Stall);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[2].State);
             Assert.AreEqual(0, sim.State.Storages[0].Reserved);
+            var ev = EventsOf(sim, haul.Id);
+            Assert.AreEqual(1, ev.Count);
+            AssertEvent(ev[0], SimEventKind.StallStarted, 1395, haul.Id, Site, StallReason.StorageFull);
             sim.State.Storages[0].Seeds = 8;
             sim.Tick();
+            ev = EventsOf(sim, haul.Id);
+            Assert.AreEqual(2, ev.Count);
+            AssertEvent(ev[1], SimEventKind.StallCleared, 1396, haul.Id, Site, StallReason.StorageFull);
             Assert.AreEqual(StageStatus.Assigned, haul.Status);
             Assert.AreEqual(2, sim.State.Storages[0].Reserved);
         }
@@ -259,6 +292,7 @@ namespace Game.Core.Tests
             Assert.Throws<ArgumentException>(() => sim.AddStorage(new CellPos(6, 2, 5)));
             var c = sim.State.Creatures[sim.AddCreature("L1", new CellPos(4, 2, 5))];
             var stage = sim.State.Stages[sim.AddStage(sim.AddOrder(new List<CellPos>()), WorkAbility.Till, new CellPos(8, 2, 5))];
+            TestWorlds.HomeAll(sim);
             sim.Tick();
             Assert.AreEqual(6, c.Path.Count);
             RunTo(sim, 100);

@@ -19,6 +19,7 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(5, 1, 3));
+            TestWorlds.HomeAll(sim);
             Run(sim, 114);
             Assert.AreEqual(StageStatus.Assigned, sim.State.Stages[s].Status);
             sim.Tick();
@@ -35,6 +36,7 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(2, 1, 2));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(2, 1, 2));
+            TestWorlds.HomeAll(sim);
             sim.Tick();
             Assert.AreEqual(CreatureState.Working, sim.State.Creatures[c].State);
             Assert.AreEqual(0, sim.State.Stages[s].WorkDone);
@@ -50,6 +52,7 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L3", new CellPos(0, 1, 0));
             int s = sim.AddHaulStage(NewOrder(sim), new CellPos(3, 1, 0), new CellPos(3, 1, 4));
+            TestWorlds.HomeAll(sim);
             Run(sim, 16);
             var st = sim.State.Stages[s];
             Assert.IsTrue(st.Carried);
@@ -68,8 +71,10 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Water, new CellPos(1, 1, 0));
+            TestWorlds.HomeAll(sim);
             Run(sim, 10);
-            Assert.AreEqual(StageStatus.Open, sim.State.Stages[s].Status);
+            Assert.AreEqual(StageStatus.Blocked, sim.State.Stages[s].Status);
+            Assert.AreEqual(StallReason.NoAbility, sim.State.Stages[s].Stall);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[c].State);
         }
 
@@ -80,6 +85,7 @@ namespace Game.Core.Tests
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(1, 1, 0));
             sim.State.Stages[s].AssigneeKind = AssigneeKind.Player;
+            TestWorlds.HomeAll(sim);
             Run(sim, 10);
             Assert.AreEqual(StageStatus.Open, sim.State.Stages[s].Status);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[c].State);
@@ -93,6 +99,7 @@ namespace Game.Core.Tests
             int o = NewOrder(sim);
             int a = sim.AddStage(o, WorkAbility.Till, new CellPos(1, 1, 0), 0);
             int b = sim.AddStage(o, WorkAbility.Till, new CellPos(9, 1, 0), 5);
+            TestWorlds.HomeAll(sim);
             sim.Tick();
             Assert.AreEqual(b, sim.State.Creatures[c].StageId);
             Assert.AreEqual(StageStatus.Open, sim.State.Stages[a].Status);
@@ -108,6 +115,7 @@ namespace Game.Core.Tests
             int a = sim.AddCreature("L1", new CellPos(4, 1, 0));
             int b = sim.AddCreature("L1b", new CellPos(0, 1, 6));
             sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(0, 1, 0));
+            TestWorlds.HomeAll(sim);
             sim.Tick();
             Assert.AreNotEqual(-1, sim.State.Creatures[b].StageId);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[a].State);
@@ -125,6 +133,7 @@ namespace Game.Core.Tests
                 sim.AddCreature("L1", new CellPos(4, 1, 2));
                 sim.AddCreature("L1", new CellPos(2, 1, 4));
                 int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(2, 1, 2));
+                TestWorlds.HomeAll(sim);
                 sim.Tick();
                 return sim.State.Stages[s].AssigneeId;
             }
@@ -145,6 +154,7 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(0, 1, 0));
+            TestWorlds.HomeAll(sim);
             Run(sim, 31);
             var st = sim.State.Stages[s];
             Assert.AreEqual(30000, st.WorkDone);
@@ -166,6 +176,7 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L3", new CellPos(0, 1, 0));
             int s = sim.AddHaulStage(NewOrder(sim), new CellPos(0, 1, 0), new CellPos(10, 1, 0));
+            TestWorlds.HomeAll(sim);
             Run(sim, 11);
             var st = sim.State.Stages[s];
             Assert.AreEqual(new CellPos(2, 1, 0), sim.State.Creatures[c].Cell);

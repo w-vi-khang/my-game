@@ -29,6 +29,9 @@ namespace Game.Core.Sim
                 {
                     h = MixInt(h, c.Path[j].X); h = MixInt(h, c.Path[j].Y); h = MixInt(h, c.Path[j].Z);
                 }
+                h = MixInt(h, c.HomeId);
+                h = MixInt(h, c.HomeReachable ? 1 : 0);
+                h = MixLong(h, c.StuckSince);
             }
 
             h = MixInt(h, s.Stages.Count);
@@ -55,6 +58,8 @@ namespace Game.Core.Sim
                 h = MixInt(h, g.StorageId);
                 h = MixInt(h, g.LoadProduce);
                 h = MixInt(h, g.LoadSeeds);
+                h = MixInt(h, (int)g.ReportedStall);
+                h = MixInt(h, g.DroppedBy);
             }
 
             h = MixInt(h, s.Orders.Count);
@@ -96,6 +101,18 @@ namespace Game.Core.Sim
                 h = MixLong(h, p.RipeTick);
                 h = MixInt(h, p.Queue.Count);
                 for (int j = 0; j < p.Queue.Count; j++) h = MixInt(h, p.Queue[j]);
+            }
+
+            h = MixInt(h, s.Houses.Count);
+            for (int i = 0; i < s.Houses.Count; i++)
+            {
+                var o = s.Houses[i];
+                h = MixInt(h, o.Id);
+                h = MixInt(h, o.Cell.X); h = MixInt(h, o.Cell.Y); h = MixInt(h, o.Cell.Z);
+                h = MixInt(h, o.SizeX); h = MixInt(h, o.SizeZ); h = MixInt(h, o.SizeY);
+                h = MixInt(h, o.Capacity);
+                h = MixInt(h, o.Residents.Count);
+                for (int j = 0; j < o.Residents.Count; j++) h = MixInt(h, o.Residents[j]);
             }
             return h;
         }

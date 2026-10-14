@@ -75,6 +75,14 @@ namespace Game.Core.Tests
             c = new SimConfig();
             c.farm.plotQueueCapacity = 0;
             Assert.Throws<ArgumentException>(c.Validate, "hàng đợi 0");
+
+            c = new SimConfig();
+            c.house.capacity = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "nhà sức chứa 0");
+
+            c = new SimConfig();
+            c.creature.stuckTimeMs = 30050;
+            Assert.Throws<ArgumentException>(c.Validate, "stuckTimeMs lẻ nhịp");
         }
     }
 }

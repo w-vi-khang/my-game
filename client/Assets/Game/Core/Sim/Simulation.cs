@@ -12,7 +12,9 @@ namespace Game.Core.Sim
         readonly GridPathfinder pathfinder;
         readonly List<CellPos> tmpPath = new List<CellPos>();
         readonly List<CellPos> goals = new List<CellPos>();
+        readonly List<CellPos> homePath = new List<CellPos>();
         bool terrainDirty;
+        bool homeDirty;
 
         public Simulation(SimConfig config, WorldData world)
         {
@@ -74,6 +76,7 @@ namespace Game.Core.Sim
             if (IsOccupied(cell.X, cell.Y, cell.Z))
                 throw new ArgumentException("Ô đã bị chiếm: " + cell);
             pathfinder.SetBlocked(cell, true);
+            homeDirty = true;
             var st = new Storage(State.Storages.Count, cell, Config.storage.capacity, Config.storage.startSeeds);
             State.Storages.Add(st);
             return st.Id;
@@ -88,7 +91,152 @@ namespace Game.Core.Sim
             var ss = State.Storages;
             for (int i = 0; i < ss.Count; i++)
                 if (ss[i].Cell.X == x && ss[i].Cell.Y == y && ss[i].Cell.Z == z) return true;
+            var hs = State.Houses;
+            for (int i = 0; i < hs.Count; i++)
+                if (hs[i].Contains(x, y, z)) return true;
             return false;
+        }
+
+        /// <summary>Đặt nhà mẫu (khối đặc, 0017); cell = góc nhỏ nhất.</summary>
+        public int AddHouse(CellPos cell)
+        {
+            var hc = Config.house;
+            if (!pathfinder.CanStand(cell, hc.sizeX, hc.sizeZ, hc.sizeY))
+                throw new ArgumentException("Nhà không đặt được tại " + cell);
+            for (int dx = 0; dx < hc.sizeX; dx++)
+                for (int dz = 0; dz < hc.sizeZ; dz++)
+                    for (int dy = 0; dy < hc.sizeY; dy++)
+                        if (IsOccupied(cell.X + dx, cell.Y + dy, cell.Z + dz))
+                            throw new ArgumentException("Ô đã bị chiếm: " + cell.Offset(dx, dy, dz));
+            for (int dx = 0; dx < hc.sizeX; dx++)
+                for (int dz = 0; dz < hc.sizeZ; dz++)
+                    for (int dy = 0; dy < hc.sizeY; dy++)
+                        pathfinder.SetBlocked(cell.Offset(dx, dy, dz), true);
+            var h = new House(State.Houses.Count, cell, hc.sizeX, hc.sizeZ, hc.sizeY, hc.capacity);
+            State.Houses.Add(h);
+            homeDirty = true;
+            return h.Id;
+        }
+
+        public void AssignHome(int creatureId, int houseId)
+        {
+            if (creatureId < 0 || creatureId >= State.Creatures.Count)
+                throw new ArgumentException("Không có sinh vật: " + creatureId);
+            if (houseId < 0 || houseId >= State.Houses.Count)
+                throw new ArgumentException("Không có nhà: " + houseId);
+            var c = State.Creatures[creatureId];
+            var h = State.Houses[houseId];
+            if (c.HomeId >= 0) throw new ArgumentException("Sinh vật đã có nhà: " + creatureId);
+            if (h.Residents.Count >= h.Capacity) throw new ArgumentException("Nhà đã đủ: " + houseId);
+            c.HomeId = houseId;
+            h.Residents.Add(creatureId);
+            homeDirty = true;
+        }
+
+        /// <summary>Ô kề nhà mà sinh vật c đứng được, theo thứ tự +X, −X, +Z, −Z (0017) — điền vào goals.</summary>
+        void HomeGoals(Creature c, House h)
+        {
+            goals.Clear();
+            var a = h.Cell;
+            for (int dz = 0; dz < h.SizeZ; dz++) AddHomeGoal(c, a.Offset(h.SizeX, 0, dz));
+            for (int dz = 0; dz < h.SizeZ; dz++) AddHomeGoal(c, a.Offset(-1, 0, dz));
+            for (int dx = 0; dx < h.SizeX; dx++) AddHomeGoal(c, a.Offset(dx, 0, h.SizeZ));
+            for (int dx = 0; dx < h.SizeX; dx++) AddHomeGoal(c, a.Offset(dx, 0, -1));
+        }
+
+        void AddHomeGoal(Creature c, CellPos p)
+        {
+            for (int k = 0; k < 3; k++)
+            {
+                var n = p.Offset(0, DisplaceY[k], 0);
+                if (pathfinder.CanStand(n, c.SizeX, c.SizeZ, c.SizeY))
+                {
+                    goals.Add(n);
+                    return;
+                }
+            }
+        }
+
+        void HomePhase()
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+            {
+                var c = cs[i];
+                if (c.HomeId < 0) continue;
+                HomeGoals(c, State.Houses[c.HomeId]);
+                c.HomeReachable = pathfinder.FindPathToAny(c.Cell, goals, c.SizeX, c.SizeZ, c.SizeY, homePath);
+            }
+        }
+
+        bool HasHomedAbility(WorkAbility a)
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+                if (cs[i].HomeId >= 0 && cs[i].HasAbility(a)) return true;
+            return false;
+        }
+
+        void StuckPhase()
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+            {
+                var c = cs[i];
+                if (c.HomeId >= 0 && c.State == CreatureState.Idle && !c.HomeReachable)
+                {
+                    if (c.StuckSince < 0) c.StuckSince = State.Tick;
+                    else if (State.Tick - c.StuckSince >= Config.StuckTicks) Respawn(c);
+                }
+                else
+                {
+                    c.StuckSince = -1;
+                }
+            }
+        }
+
+        void Respawn(Creature c)
+        {
+            HomeGoals(c, State.Houses[c.HomeId]);
+            if (goals.Count == 0) return;
+            var cell = goals[0];
+            c.Cell = cell;
+            c.Path.Clear();
+            c.PathIndex = 0;
+            c.MoveProgress = 0;
+            c.MoveTarget = cell;
+            c.StuckSince = -1;
+            c.HomeReachable = true;
+            var stages = State.Stages;
+            for (int i = 0; i < stages.Count; i++)
+            {
+                var g = stages[i];
+                if (g.DroppedBy != c.Id || g.Status == StageStatus.Assigned || g.Status == StageStatus.Done) continue;
+                g.Target = cell;
+                g.DroppedBy = -1;
+                if (g.Status == StageStatus.Blocked && g.Stall == StallReason.NoPath)
+                {
+                    g.Status = StageStatus.Open;
+                    g.Stall = StallReason.None;
+                }
+            }
+            State.Events.Add(new SimEvent(State.Tick, SimEventKind.CreatureRespawned, -1, c.Id, cell, StallReason.None));
+        }
+
+        void ReportPhase()
+        {
+            var stages = State.Stages;
+            for (int i = 0; i < stages.Count; i++)
+            {
+                var g = stages[i];
+                var cur = g.Status == StageStatus.Blocked ? g.Stall : StallReason.None;
+                if (cur == g.ReportedStall) continue;
+                if (cur != StallReason.None)
+                    State.Events.Add(new SimEvent(State.Tick, SimEventKind.StallStarted, g.Id, -1, g.Target, cur));
+                else
+                    State.Events.Add(new SimEvent(State.Tick, SimEventKind.StallCleared, g.Id, -1, g.Target, g.ReportedStall));
+                g.ReportedStall = cur;
+            }
         }
 
         /// <summary>Tin ô đổi (nối vào WorldEditor.CellChanged) — xử lý ở nhịp kế.</summary>
@@ -101,11 +249,19 @@ namespace Game.Core.Sim
             {
                 terrainDirty = false;
                 TerrainPhase();
+                homeDirty = true;
+            }
+            if (homeDirty)
+            {
+                homeDirty = false;
+                HomePhase();
             }
             WorkPhase();
             CropPhase();
             MovePhase();
             AssignPhase();
+            StuckPhase();
+            ReportPhase();
         }
 
         bool CanStand(Creature c) => pathfinder.CanStand(c.Cell, c.SizeX, c.SizeZ, c.SizeY);
@@ -440,7 +596,8 @@ namespace Game.Core.Sim
                 var g = stages[i];
                 if (g.Status != StageStatus.Blocked) continue;
                 if (g.Stall == StallReason.NoSeeds && State.Storages[State.Plots[g.PlotId].StorageId].Seeds > 0
-                    || g.Stall == StallReason.StorageFull && State.Storages[g.StorageId].Free >= g.LoadProduce + g.LoadSeeds)
+                    || g.Stall == StallReason.StorageFull && State.Storages[g.StorageId].Free >= g.LoadProduce + g.LoadSeeds
+                    || g.Stall == StallReason.NoAbility && HasHomedAbility(g.Ability))
                 {
                     g.Status = StageStatus.Open;
                     g.Stall = StallReason.None;
@@ -474,12 +631,18 @@ namespace Game.Core.Sim
                     s.Stall = StallReason.StorageFull;
                     continue;
                 }
+                if (!HasHomedAbility(s.Ability))
+                {
+                    s.Status = StageStatus.Blocked;
+                    s.Stall = StallReason.NoAbility;
+                    continue;
+                }
                 eligible.Clear();
                 scores.Clear();
                 for (int i = 0; i < cs.Count; i++)
                 {
                     var c = cs[i];
-                    if (c.State != CreatureState.Idle || !c.HasAbility(s.Ability)) continue;
+                    if (c.HomeId < 0 || c.State != CreatureState.Idle || !c.HasAbility(s.Ability)) continue;
                     eligible.Add(c);
                     scores.Add((long)CellPos.Manhattan(c.Cell, s.Target) * 100000 / c.MasteryFor(s.Ability));
                 }
@@ -517,6 +680,7 @@ namespace Game.Core.Sim
         {
             if (s.PlotId >= 0 && s.Ability == WorkAbility.Sow) State.Storages[State.Plots[s.PlotId].StorageId].Seeds--;
             if (s.StorageId >= 0) State.Storages[s.StorageId].Reserved += s.LoadProduce + s.LoadSeeds;
+            s.DroppedBy = -1;
             s.Status = StageStatus.Assigned;
             s.AssigneeKind = AssigneeKind.Creature;
             s.AssigneeId = c.Id;
@@ -546,6 +710,7 @@ namespace Game.Core.Sim
             {
                 s.Target = c.Cell;
                 s.Carried = false;
+                s.DroppedBy = c.Id;
             }
             s.Status = StageStatus.Open;
             s.AssigneeKind = AssigneeKind.None;

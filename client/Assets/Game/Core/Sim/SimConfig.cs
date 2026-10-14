@@ -73,6 +73,21 @@ namespace Game.Core.Sim
         public int plotQueueCapacity = 2;
     }
 
+    [Serializable]
+    public class HouseConfig
+    {
+        public int capacity = 2;
+        public int sizeX = 2;
+        public int sizeZ = 2;
+        public int sizeY = 2;
+    }
+
+    [Serializable]
+    public class CreatureConfig
+    {
+        public int stuckTimeMs = 30000;
+    }
+
     /// <summary>
     /// Cấu hình mô phỏng M1. Nguồn chuẩn: design/data/sim_m1.json (đọc bằng JsonUtility — tên trường phải khớp JSON).
     /// Số là số tạm (user 2026-10-14), chỉnh khi chơi thử.
@@ -100,6 +115,8 @@ namespace Game.Core.Sim
         public CropConfig crop = new CropConfig();
         public StorageConfig storage = new StorageConfig();
         public FarmConfig farm = new FarmConfig();
+        public HouseConfig house = new HouseConfig();
+        public CreatureConfig creature = new CreatureConfig();
 
         public static WorkAbility ParseAbility(string s)
         {
@@ -112,6 +129,8 @@ namespace Game.Core.Sim
         public int MsToTicks(int ms) => ms * ticksPerSecond / 1000;
 
         public int GrowTicks => MsToTicks(crop.growTimeMs);
+
+        public int StuckTicks => MsToTicks(creature.stuckTimeMs);
 
         public int BaseTicks(WorkAbility a)
         {
@@ -179,6 +198,12 @@ namespace Game.Core.Sim
                 throw new ArgumentException("storage.startSeeds phải trong [0, capacity].");
             if (farm == null || farm.plotQueueCapacity < 1 || farm.plotQueueCapacity > 8)
                 throw new ArgumentException("farm.plotQueueCapacity phải trong [1, 8].");
+            if (house == null || house.capacity < 1 || house.capacity > 16)
+                throw new ArgumentException("house.capacity phải trong [1, 16].");
+            if (house.sizeX < 1 || house.sizeX > 4 || house.sizeZ < 1 || house.sizeZ > 4 || house.sizeY < 1 || house.sizeY > 4)
+                throw new ArgumentException("house: kích thước phải trong [1, 4] mỗi chiều.");
+            if (creature == null || creature.stuckTimeMs <= 0 || creature.stuckTimeMs % msPerTick != 0)
+                throw new ArgumentException("creature.stuckTimeMs phải > 0 và chia hết cho " + msPerTick + ".");
         }
     }
 }

@@ -27,6 +27,7 @@ namespace Game.Core.Tests
             sim.AddStage(o, WorkAbility.Water, new CellPos(4, 1, 4));
             sim.AddHaulStage(o, new CellPos(2, 1, 2), new CellPos(10, 1, 10));
             sim.AddHaulStage(o, new CellPos(4, 1, 4), new CellPos(10, 1, 10));
+            TestWorlds.HomeAll(sim);
             return sim;
         }
 
@@ -72,6 +73,7 @@ namespace Game.Core.Tests
             int k = sim.AddStorage(new CellPos(5, 2, 8));
             sim.AddFarmOrder(new List<CellPos> { new CellPos(4, 1, 4), new CellPos(5, 1, 4), new CellPos(6, 1, 4) }, k);
             for (int p = 0; p < 3; p++) sim.EnqueueCrop(p);
+            TestWorlds.HomeAll(sim);
             return sim;
         }
 
