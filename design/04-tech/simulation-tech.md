@@ -106,4 +106,5 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 
 ## Câu hỏi mở
 - Ngưỡng các mức bệnh/mệt; nghỉ tại chỗ hay về nơi ở?
+- Sinh vật bị kẹt → biến mất, hiện lại ở nơi ở (user, 2026-10-14, [cơ chế](../02-gameplay/mechanics.md#tìm-đường-sinh-vật--đình-trệ)): định nghĩa "kẹt" trong mô phỏng, ngưỡng thời gian (theo nhịp), nơi ở ở M1, thuộc bước nào / milestone nào.
 - Đã trả lời (user, 2026-10-13): tối đa 54 sinh vật hoạt động, 60 nếu nạp; độ bền làm việc và con thứ hai giúp ít hơn con đầu — chấp nhận; bệnh/mệt theo mức độ (chậm → nghỉ nhiều → dừng), sinh vật khoẻ cũng cần nghỉ; tối đa 2 sinh vật cùng làm một công đoạn, giảm thời gian.

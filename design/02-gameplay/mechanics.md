@@ -109,6 +109,7 @@ stateDiagram-v2
 - Không có đường tới vị trí của công đoạn → công đoạn đó **đình trệ** và gửi thông báo cho người chơi.
 - Thông báo chỉ rõ vị trí và lý do (không có đường / thiếu vật tư / kho đầy), bấm vào để xem tại chỗ. (user chốt, 2026-10-13)
 - Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài. (user chốt, 2026-10-13) **M1 chỉ đi bộ**; bay, bơi ở M2 ([0007](../decisions/0007-m1-toi-gian.md)).
+- **Sinh vật bị kẹt** (user, 2026-10-14): kẹt vì bất kỳ lý do gì quá một khoảng thời gian → sinh vật biến mất và hiện lại ở nơi ở của nó trong vườn của người chơi. Chưa rõ: thế nào là "kẹt" (vd không tới được việc nào và không tự đi ra được, lơ lửng, kẹt trong hố), bao lâu, "nơi ở" là gì (M1 chưa có nơi ở — tạm dùng chỗ sinh vật xuất hiện hoặc kho?), làm ở M1 hay M2. Ước lượng [ý tưởng] ~1 ngày-người.
 
 ### Tua nhanh
 - Khi game tắt: không tính gì.
