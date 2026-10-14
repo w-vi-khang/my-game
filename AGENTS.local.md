@@ -29,3 +29,11 @@
 
 ## Nguồn
 - Game tham khảo, số liệu thị trường, tính năng/giới hạn/giá của công nghệ và dịch vụ: phải có link `[docs]`. Tính năng Unity phải đúng version 6000.4 — tra docs, không dựa vào trí nhớ.
+
+## Phân vai Planner/Executor (kit §10) — riêng my-game
+- **Unity Editor dùng chung qua MCP** ([0010](design/decisions/0010-mcp-for-unity.md)): mỗi lúc chỉ một phiên điều khiển Editor. Executor chạy test (`run_tests` EditMode/PlayMode) và thử trong Play; Planner khi review chỉ đọc kết quả trong brief, chỉ dùng MCP (console, chạy lại test) khi kết quả thiếu/đáng ngờ VÀ executor không đang chạy brief nào. `tools/unity_test.py` chỉ dùng khi Editor tắt.
+- Brief có chạy Unity phải ghi sẵn bước dọn trong mục Kiểm chứng: sau `run_tests` PlayMode → `git checkout -- client/ProjectSettings/EditorSettings.asset`; sau build APK → `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`.
+- **Task contract (`.ai/tasks/`) ≠ brief (`.ai/briefs/`):** task contract = làm gì, vì sao, ngoài phạm vi (user + Planner chốt); brief = phiếu việc cho Executor, tham chiếu task contract. Một bước M1 = 1 task contract, có thể tách nhiều brief.
+- API Unity dùng trong brief: Planner tra docs đúng 6000.4 và ghi link `[docs]` vào brief. Executor gặp API không có trong brief → trạng thái `cần Opus`, không tự tra rồi dùng.
+- Giờ thực tế từng hạng mục M1: Executor ghi thời gian bắt đầu/kết thúc vào mục Kết quả của brief; Planner cộng vào roadmap khi review.
+- Kiểm hình ảnh, cảm giác điều khiển, FPS trên điện thoại → mức review `user xem`; Planner liệt kê cụ thể cần xem gì.

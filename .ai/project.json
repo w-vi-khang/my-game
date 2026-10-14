@@ -9,11 +9,11 @@
     "làm một mình (solo)"
   ],
   "verify": {
-    "_comment": "Mỗi lệnh phải exit 0 khi pass. asset_check cần Blender 5.0.1 tại /Applications (0006). client_test: Unity 6000.4.8f1 (UNITY_PATH), Unity phải đang TẮT project client.",
-    "design": "python3 tools/check_design.py",
-    "asset_check": "/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/asset_check/selftest.py",
-    "client_test": "python3 tools/unity_test.py EditMode",
-    "client_test_play": "python3 tools/unity_test.py PlayMode"
+    "_comment": "Mỗi lệnh phải exit 0 khi pass. asset_check cần Blender 5.0.1 tại /Applications (0006). client_test: Unity 6000.4.8f1 (UNITY_PATH), Unity phải đang TẮT project client. paths (kit ≥ 0.8.0): hook Stop chỉ đòi lệnh khi file đổi khớp; trước commit vẫn chạy đủ (AGENTS §6.4).",
+    "design": { "cmd": "python3 tools/check_design.py", "paths": ["design/", "tools/check_design.py"] },
+    "asset_check": { "cmd": "/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/asset_check/selftest.py", "paths": ["tools/asset_check/", "*.blend"] },
+    "client_test": { "cmd": "python3 tools/unity_test.py EditMode", "paths": ["client/Assets/", "client/Packages/", "client/ProjectSettings/", "tools/unity_test.py"] },
+    "client_test_play": { "cmd": "python3 tools/unity_test.py PlayMode", "paths": ["client/Assets/", "client/Packages/", "client/ProjectSettings/", "tools/unity_test.py"] }
   },
   "checklist": [
     "Mọi cơ chế/tính năng gắn với ít nhất một pillar trong design/00-vision.md",
@@ -150,6 +150,7 @@
     ]
   },
   "context_warn_tokens": 150000,
+  "context_handoff_tokens": 250000,
   "context_window_tokens": 1000000,
-  "_context": "Cảnh báo context theo token thật (kit ≥ 0.5.0). context_window_tokens = cửa sổ của model đang dùng (1M); cảnh báo mạnh khi ≥ 85%."
+  "_context": "Cảnh báo context theo token thật (kit ≥ 0.5.0). context_window_tokens = cửa sổ của model đang dùng (1M); cảnh báo mạnh khi ≥ 85%. context_handoff_tokens (kit ≥ 0.8.0): vượt ngưỡng thì xong bước là handoff + /clear kể cả cùng task."
 }
