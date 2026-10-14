@@ -1,9 +1,9 @@
 # Brief 0003 — Simulation bước 3: lệnh trồng cây 5 công đoạn, ô ruộng có hàng đợi vụ, một kho
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · high
-> Cập nhật: 2026-10-14 15:30
+> Cập nhật: 2026-10-14 (trả lời Vướng mắc)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -121,7 +121,7 @@ Task contract: `.ai/tasks/m1-sim-buoc-3-trong-cay.md`. Quyết định: `design/
      - nhịp 1444: `Produce == 0`. nhịp 1445: haul `Done`, `Produce == 1`, `Seeds == 10`, `Reserved == 0`, L3 ở (6,2,8).
    - `WithoutHaulerProduceStaysAtField` (Layout, không L3): chạy 1500 nhịp → haul `Open`, `AssigneeKind == None`, `Target == (5,2,5)`, `Produce == 0`, `Seeds == 9`.
    - `PrefersNeighborOverPlot`: L1 tại (5,2,5), kho (10,2,10), `AddFarmOrder([(5,1,5)])`. nhịp 1: L1 `Moving`, `Path` = [(6,2,5)]. nhịp 8: L1 ở (6,2,5), `Working`. nhịp 67: xới chưa `Done`; nhịp 68: xới `Done`.
-   - `StandsOnPlotWhenNoNeighbor`: đặt `Stone` tại (6,2,5), (6,3,5), (4,2,5), (4,3,5), (5,2,6), (5,3,6), (5,2,4), (5,3,4). L1 tại (5,2,5), kho (10,2,10), `AddFarmOrder([(5,1,5)])`. nhịp 1: L1 `Working`, ở (5,2,5). nhịp 59: xới chưa `Done`; nhịp 60: `Done`.
+   - `StandsOnPlotWhenNoNeighbor`: đặt `Stone` tại (6,2,5), (6,3,5), (4,2,5), (4,3,5), (5,2,6), (5,3,6), (5,2,4), (5,3,4). L1 tại (5,2,5), kho (10,2,10), `AddFarmOrder([(5,1,5)])`. nhịp 1: L1 `Working`, ở (5,2,5). nhịp 60: xới chưa `Done`; nhịp 61: `Done` (sửa sau Vướng mắc: 1 + 60 = 61).
    - `QueueRepeatsAndCapsAtTwo` (Layout, có L3): trước nhịp 1: `EnqueueCrop(0) == true`, `EnqueueCrop(0) == false`, `Queue.Count == 2`. nhịp 1395: plot `Till`, `Queue.Count == 1`, L1 `Working` ở (6,2,5). nhịp 1455: plot `Sow`, `Seeds == 9`.
    - `NoSeedsWaits`: config `storage.startSeeds = 0`. Layout không L3, chỉ cần L1 (vẫn thêm L2). nhịp 75: gieo `Blocked`, `Stall == NoSeeds`, L1 `Idle`. Gán `Storages[0].Seeds = 1`. nhịp 76: gieo `Assigned`, L1 `Working`, `Seeds == 0`.
    - `StorageFullWaits`: config `storage.capacity = 10` (startSeeds 10). Layout có L3. nhịp 1395: haul `Blocked`, `Stall == StorageFull`, L3 `Idle`, `Reserved == 0`. Gán `Storages[0].Seeds = 8`. nhịp 1396: haul `Assigned`, `Reserved == 2`.
@@ -136,7 +136,9 @@ Task contract: `.ai/tasks/m1-sim-buoc-3-trong-cay.md`. Quyết định: `design/
 
 9. **Biên dịch + `.meta`**: MCP `refresh_unity`, `read_console` không có lỗi.
 
-10. **Commit** sau khi Kiểm chứng đạt: message `M1 sim bước 3: lệnh trồng cây, ô ruộng có hàng đợi vụ, một kho (brief 0003)`. Không push.
+10. **(Sửa sau Vướng mắc 2026-10-14)** `FarmTests.StandsOnPlotWhenNoNeighbor`: Planner tính sai — đúng là chưa `Done` ở nhịp **60**, `Done` ở nhịp **61** (giao + `Working` ở nhịp 1, xới 60 nhịp → 1 + 60). Chỉ sửa 2 số này trong test; không đổi code. Chạy lại Kiểm chứng đầy đủ.
+
+11. **Commit** sau khi Kiểm chứng đạt: message `M1 sim bước 3: lệnh trồng cây, ô ruộng có hàng đợi vụ, một kho (brief 0003)`. Không push.
 
 ## Tiêu chí xong
 - Mọi test ở bước 3, 7, 8 đạt; EditMode toàn bộ 0 fail. Số test = 118 + 1 (`FindPathToAnyPicksNearest`) + 11 (`FarmTests`) + 1 (`FarmOrderSameHashEveryTick`) = **131**.
@@ -178,6 +180,8 @@ Code bước 1–8 đã viết xong, **chưa commit** (nằm trong working tree:
 - Đã kiểm lại: tạm đổi test thành "chưa Done ở nhịp 60, Done ở nhịp 61" → test đạt (đã khôi phục về số trong brief, không giữ sửa đổi). Test cùng loại `PrefersNeighborOverPlot` (tới ở nhịp 8, xong ở nhịp 68 = 8 + 60) khớp.
 - Phương án: (A) sửa số trong brief/test thành 60 → 61 (chưa Done ở nhịp 60, Done ở nhịp 61). (B) giữ 60 và đổi code để làm bắt đầu sớm 1 nhịp — **không** nên, mâu thuẫn test bước 1.
 - Đề xuất: **A**. Sau khi Planner xác nhận, Executor chỉ cần sửa 2 số trong `FarmTests.cs` (`RunTo(sim, 59)` → `RunTo(sim, 60)`), chạy lại, commit.
+
+**Trả lời Planner (2026-10-14): chọn A.** Lỗi tính tay của Planner (quên cộng nhịp giao việc). Đã sửa số ở bước 7 và thêm bước 10. Các chỗ "làm ngay" khác trong brief đã dùng t + B, không đổi.
 
 ---
 <!-- PLANNER ghi khi review. -->
