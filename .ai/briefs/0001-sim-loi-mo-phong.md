@@ -1,6 +1,6 @@
 # Brief 0001 — Simulation bước 1: lõi mô phỏng nhịp cố định, ghép việc, đi theo khoảng cách
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-14
@@ -218,9 +218,17 @@ Task contract: `.ai/tasks/m1-sim-buoc-1-loi-mo-phong.md`. Quyết định phạm
 
 ## Kết quả
 <!-- Base commit (trước khi làm) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
+- Base commit: cd49972
+- Bắt đầu: 2026-10-14 11:05 · Kết thúc: 2026-10-14 11:08 (đồng hồ máy; phần lớn thời gian là ghi file)
+- Commit code: 5c17c4a — file mới: client/Assets/Game/Core/Sim/{SimRng,SimConfig,SimData,Simulation,SimHash}.cs, client/Assets/Game/Tests/Core/Sim/{SimRngTests,SimConfigTests,SimulationTests,SimDeterminismTests}.cs (+ .meta), design/data/sim_m1.json
+- Lệch brief: không có.
 
 ## Kết quả kiểm chứng
-<!-- `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+- MCP `refresh_unity` + `read_console` (error) → 0 lỗi biên dịch.
+- MCP `run_tests` EditMode → 102 total, 102 passed, 0 failed (84 cũ + 18 mới).
+- `grep -rnE "float|double|System\.Random|UnityEngine|DateTime|Dictionary|HashSet" client/Assets/Game/Core/Sim/` → rỗng.
+- `python3 tools/check_design.py` → exit 0.
+- `git status --short` trước commit: chỉ file trong Phạm vi (+ brief).
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
