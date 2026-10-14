@@ -1,6 +1,6 @@
 # Brief 0003 — Simulation bước 3: lệnh trồng cây 5 công đoạn, ô ruộng có hàng đợi vụ, một kho
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-14 (trả lời Vướng mắc)
@@ -165,9 +165,16 @@ Task contract: `.ai/tasks/m1-sim-buoc-3-trong-cay.md`. Quyết định: `design/
 
 ## Kết quả
 - Base commit: 7d602c3
-- Bắt đầu: 2026-10-14 15:32
+- Bắt đầu: 2026-10-14 15:32 · Dừng hỏi Planner 15:36 · Làm tiếp 15:39 · Kết thúc 15:40 (đồng hồ máy)
+- Commit code: 88ee00f — mới: Tests/Core/Sim/FarmTests.cs (+ .meta); sửa: Core/Sim/{GridPathfinder,SimConfig,SimData,SimHash,Simulation}.cs, Tests/Core/Sim/{GridPathfinderTests,SimDeterminismTests,SimConfigTests}.cs, design/data/sim_m1.json
+- Lệch brief: không có. Số trong `StandsOnPlotWhenNoNeighbor` đã sửa theo trả lời Planner (60 → 61); `CopyPath` thay bằng `SetPath` (đặt luôn `MoveTarget`).
 
 ## Kết quả kiểm chứng
+- (Lần cuối, sau trả lời Planner) `refresh_unity` + `read_console` → 0 lỗi biên dịch.
+- MCP `run_tests` EditMode → 131 total, 131 passed, 0 failed (118 + 1 FindPathToAny + 11 Farm + 1 FarmOrderSameHash).
+- grep cấm → rỗng. `python3 tools/check_design.py` → exit 0.
+- `git diff --stat`: không có `SimulationTests.cs`, `SimulationTerrainTests.cs`; `git status` trước commit chỉ file trong Phạm vi.
+- (Lần đầu: 130/131, test lệch đã ghi ở Vướng mắc.)
 - `refresh_unity` + `read_console` → 0 lỗi biên dịch.
 - `run_tests` EditMode toàn bộ → 131 total, 130 passed, **1 failed**: `FarmTests.StandsOnPlotWhenNoNeighbor` (FarmTests.cs:157, `Expected: Done But was: Assigned`).
 - grep cấm → rỗng. Chưa chạy `check_design.py` / commit vì đang dừng.
