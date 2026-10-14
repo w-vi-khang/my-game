@@ -92,7 +92,7 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 
 | # | Bước | Xong khi | Ước lượng (ngày-người) |
 |---|---|---|---|
-| 1 | Lõi mô phỏng: nhịp cố định 10/giây, **số nguyên** (nhịp, tiến độ theo phần nghìn), seed; dữ liệu sinh vật / lệnh / công đoạn / kho; **ghép việc** theo năng lực + thuần thục, **đi theo khoảng cách ô** (chưa A\*), vận chuyển 2 chặng ([0014](../decisions/0014-ghep-viec-o-sim-buoc-1.md)) | Test: cùng đầu vào → cùng kết quả; thời gian xong = nhịp đi + nhịp làm | 3–5 |
+| 1 | Lõi mô phỏng: nhịp cố định 10/giây, **số nguyên** (nhịp, tiến độ theo phần nghìn), seed; dữ liệu sinh vật / lệnh / công đoạn / kho; **ghép việc** theo năng lực + thuần thục, **đi theo khoảng cách ô** (chưa A\*), vận chuyển 2 chặng ([0014](../decisions/0014-ghep-viec-o-sim-buoc-1.md)) | Test: cùng đầu vào → cùng kết quả; thời gian xong = nhịp đi + nhịp làm | 3–5 · **Xong 2026-10-14** [run]: `Game.Core.Sim` (`SimRng` PCG32, `SimConfig` đọc `design/data/sim_m1.json`, `Simulation.Tick()` làm → đi → giao việc, `SimHash`); 18 test mới, EditMode 102/102; mã băm trạng thái trùng từng nhịp qua 2000 nhịp ([brief 0001](../../.ai/briefs/0001-sim-loi-mo-phong.md)) |
 | 2 | A\* đi bộ (thay đi theo khoảng cách của bước 1), khung 1 × 1, tính lại khi đào/đặt (map nhỏ, chưa cần vùng liên thông) | Đường đúng; đào cắt đường → đình trệ "không có đường" | 3–5 |
 | 3 | Lệnh trồng cây 5 công đoạn (ghép việc đã có từ bước 1); một kho | 3 loài (L1, L2, L3) làm xong một vụ, sản lượng vào kho | 2–4 |
 | 4 | Đình trệ + thông báo: không có đường / kho đầy / thiếu năng lực | 3 lý do đều hiện đúng | 1–2 |

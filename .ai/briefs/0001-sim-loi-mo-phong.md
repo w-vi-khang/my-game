@@ -1,6 +1,6 @@
 # Brief 0001 — Simulation bước 1: lõi mô phỏng nhịp cố định, ghép việc, đi theo khoảng cách
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-14
@@ -238,3 +238,10 @@ Task contract: `.ai/tasks/m1-sim-buoc-1-loi-mo-phong.md`. Quyết định phạm
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+**Đã duyệt** (Planner, 2026-10-14, mức đầy đủ).
+- `git show --stat 5c17c4a`: 21 file, đều trong Phạm vi (Core/Sim, Tests/Core/Sim, `.meta`, `design/data/sim_m1.json`).
+- `Simulation.cs`: thứ tự pha làm → đi → giao việc; `StepToward` X → Z → Y; điểm `d × 100000 / thuần thục`; chỉ gọi Rng khi ≥ 2 ứng viên; `Assign` đứng sẵn tại chỗ thì gọi `OnArrive`; `Unassign` giữ `WorkDone`, hàng đang mang rơi tại ô hiện tại — khớp bước 5.
+- `SimConfig.ParseAbility` từ chối chuỗi số; `Validate` đủ các điều kiện của bước 3. `SimHash` trộn đúng thứ tự bước 6.
+- Test: đủ 18 tên, giữ nguyên số tính trước (115, 61, 16/56, 62, 72; 2000 nhịp mọi stage Done). Kết quả EditMode 102/102 do Executor ghi — không chạy lại vì đầy đủ, khớp số test.
+- Ghi chú nhỏ, không cần sửa: khi nhận việc tại chỗ (không đi), `MoveTarget` giữ giá trị cũ — không ảnh hưởng hành vi; bước 2 (A\*) sẽ thay phần đi lại.
+- Đã cập nhật: simulation-tech hàng bước 1, roadmap "Theo dõi M1", task contract.

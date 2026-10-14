@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 1 — lõi mô phỏng nhịp cố định, số nguyên, seed, ghép việc + đi theo khoảng cách
 
-> Trạng thái: user xác nhận 2026-10-14 (phạm vi theo [0014](../../design/decisions/0014-ghep-viec-o-sim-buoc-1.md), số tạm đồng ý) — giao Executor: [brief 0001](../briefs/0001-sim-loi-mo-phong.md)
+> Trạng thái: user xác nhận 2026-10-14 (phạm vi theo [0014](../../design/decisions/0014-ghep-viec-o-sim-buoc-1.md), số tạm đồng ý) — xong 2026-10-14, [brief 0001](../briefs/0001-sim-loi-mo-phong.md) đã duyệt
 
 ## Mục tiêu
 Lõi mô phỏng nông trại M1 ([simulation-tech](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1) bước 1, phạm vi theo 0014): nhịp cố định 10/giây, mọi đại lượng là số nguyên, bộ sinh số ngẫu nhiên có seed riêng; dữ liệu sinh vật / lệnh / công đoạn / kho; bộ quản lý nhiệm vụ tự giao công đoạn cho sinh vật rảnh, đúng năng lực, gần + thuần thục cao trước, công đoạn ưu tiên cao xét trước; sinh vật đi tới nơi làm theo khoảng cách ô (tốn thời gian theo tốc độ loài); vận chuyển đi 2 chặng; bỏ người làm giữa chừng giữ tiến độ.
@@ -11,15 +11,15 @@ Lõi mô phỏng nông trại M1 ([simulation-tech](../../design/04-tech/simulat
 - Nhịp nước lan 8/giây ([0013](../../design/decisions/0013-nuoc-lan-theo-nhip.md), Chốt) giữ nguyên, không gộp vào nhịp mô phỏng.
 
 ## Tiêu chí chấp nhận (kiểm chứng được)
-- [ ] Code trong `Game.Core` (No Engine References), `client/Assets/Game/Core/Sim/`, namespace `Game.Core.Sim`.
-- [ ] `SimRng` (PCG32) cho đúng dãy chuẩn của PCG (seed 42, dãy 54) — test EditMode.
-- [ ] `design/data/sim_m1.json` + `SimConfig` (giá trị mặc định trong code = file) + kiểm hợp lệ — test EditMode.
-- [ ] Thời gian xong một công đoạn = 1 + nhịp đi (từng chặng, làm tròn lên) + nhịp làm — test EditMode với số cụ thể.
-- [ ] Ghép việc: đúng năng lực, điểm khoảng cách ÷ thuần thục, ưu tiên cao trước, hoà điểm bốc thăm theo seed, công đoạn người chơi nhận không giao cho sinh vật — test EditMode.
-- [ ] Bỏ người làm giữa chừng: giữ tiến độ; vận chuyển đang mang → hàng rơi tại ô hiện tại — test EditMode.
-- [ ] **Tất định:** cùng kịch bản 2 lần → cùng mã băm `SimHash` từng nhịp; khác seed → kết quả bốc thăm khác — test EditMode.
-- [ ] EditMode toàn bộ đạt (84 cũ + mới); `python3 tools/check_design.py` exit 0.
-- [ ] Planner khi review: hàng bước 1 trong simulation-tech có kết quả, roadmap "Theo dõi M1" ghi giờ (ước lượng 3–5).
+- [x] Code trong `Game.Core` (No Engine References), `client/Assets/Game/Core/Sim/`, namespace `Game.Core.Sim`.
+- [x] `SimRng` (PCG32) cho đúng dãy chuẩn của PCG (seed 42, dãy 54) — test EditMode.
+- [x] `design/data/sim_m1.json` + `SimConfig` (giá trị mặc định trong code = file) + kiểm hợp lệ — test EditMode.
+- [x] Thời gian xong một công đoạn = 1 + nhịp đi (từng chặng, làm tròn lên) + nhịp làm — test EditMode với số cụ thể.
+- [x] Ghép việc: đúng năng lực, điểm khoảng cách ÷ thuần thục, ưu tiên cao trước, hoà điểm bốc thăm theo seed, công đoạn người chơi nhận không giao cho sinh vật — test EditMode.
+- [x] Bỏ người làm giữa chừng: giữ tiến độ; vận chuyển đang mang → hàng rơi tại ô hiện tại — test EditMode.
+- [x] **Tất định:** cùng kịch bản 2 lần → cùng mã băm `SimHash` từng nhịp; khác seed → kết quả bốc thăm khác — test EditMode.
+- [x] EditMode toàn bộ đạt (84 cũ + mới); `python3 tools/check_design.py` exit 0.
+- [x] Planner khi review: hàng bước 1 trong simulation-tech có kết quả, roadmap "Theo dõi M1" ghi giờ (ước lượng 3–5).
 
 ## Ràng buộc
 - Không `float`/`double`, `System.Random`, `UnityEngine.Random`, `DateTime`, `Dictionary`/`HashSet` (lặp không thứ tự) trong `Game.Core.Sim`.
@@ -36,4 +36,5 @@ Lõi mô phỏng nông trại M1 ([simulation-tech](../../design/04-tech/simulat
 - (đã trả lời, user 2026-10-14) Phạm vi bước 1 → 0014 phương án A; người chơi nhận việc → M2; số tạm → đồng ý.
 
 ## Kết quả
-_(chưa có)_
+- Commit `5c17c4a` (Executor, brief 0001). [run] EditMode 102/102 (84 cũ + 18 mới), `check_design.py` exit 0, grep cấm float/double/Random/UnityEngine/DateTime/Dictionary/HashSet trong `Core/Sim/` rỗng.
+- Review đầy đủ (Planner 2026-10-14): code đúng từng quy tắc của brief, test giữ nguyên số tính trước, không lệch phạm vi.
