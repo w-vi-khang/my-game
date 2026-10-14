@@ -1,6 +1,6 @@
 # Brief 0002 — Simulation bước 2: A\* đi bộ theo khung chiếm chỗ, tính lại khi đào/đặt
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-14
@@ -135,8 +135,17 @@ Task contract: `.ai/tasks/m1-sim-buoc-2-tim-duong.md`. Quyết định: `design/
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: d2ec83c
+- Bắt đầu: 2026-10-14 14:25 · Kết thúc: 2026-10-14 14:28 (đồng hồ máy)
+- Commit code: 0b7d120 — mới: Core/Sim/GridPathfinder.cs, Tests/Core/Sim/{TestWorlds,GridPathfinderTests,SimulationTerrainTests}.cs (+ .meta); sửa: Core/Sim/{SimConfig,SimData,Simulation,SimHash}.cs, Tests/Core/Sim/{SimulationTests,SimDeterminismTests,SimConfigTests}.cs, design/data/sim_m1.json
+- Lệch brief: không có. Test bước 1 không đổi số nhịp nào (chỉ đổi constructor, world, y). Thêm helper `TestWorlds.Wall` (trong TestWorlds.cs, file test thuộc Phạm vi) để dựng "tường tại x = k".
 
 ## Kết quả kiểm chứng
+- MCP `refresh_unity` + `read_console` (error) → 0 lỗi biên dịch.
+- MCP `run_tests` EditMode → 117 total, 117 passed, 0 failed (102 cũ + 7 GridPathfinder + 8 Terrain). Không chạy PlayMode.
+- `grep -rnE "float|double|System\.Random|UnityEngine|DateTime|Dictionary|HashSet|PriorityQueue" client/Assets/Game/Core/Sim/` → rỗng.
+- `python3 tools/check_design.py` → exit 0.
+- `git status --short` trước commit: chỉ file trong Phạm vi.
 
 ## Vướng mắc
 
