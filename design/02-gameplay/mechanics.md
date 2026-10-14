@@ -21,10 +21,11 @@
 | Chỉ số chiến đấu | Máu, giáp, kháng phép, tốc độ đánh, sát thương... + chỉ số đặc trưng loài; phân bố loài + phân bố ngẫu nhiên + điểm chỉ số (quỹ riêng, phân bổ lại bằng vật phẩm); hệ số quy đổi, trần; vượt trội bị bỏ trong PvP | P2, P4 | Client + Backend (sinh chỉ số) + Game server (PvP) | Phải có | 6–10 | M2 |
 | Môi trường sống | Cải tạo thế giới đạt yêu cầu → mở khoá loài | P1 | Client | Phải có | 10–20: M1 3–6, M2 7–14 | M1 (một vùng), M2 |
 | Nhu cầu sinh vật | Danh sách yêu cầu mỗi loài; mức đáp ứng cao → loài xuất hiện nhiều hơn, ít bệnh/mệt, làm việc tốt hơn, đôi khi tặng quà | P1, P2 | Client | Phải có | 8–15 | M2 |
-| Lệnh làm việc | Người chơi đặt lệnh, chia công đoạn, hệ thống phân sinh vật rảnh có năng lực làm việc phù hợp | P2 | Client | Phải có | 20–30: M1 7–11, M2 13–19 | M1 (một lệnh trồng cây), M2 |
+| Lệnh làm việc | Người chơi đặt lệnh, chia công đoạn, hệ thống phân sinh vật rảnh có năng lực làm việc phù hợp | P2 | Client | Phải có | 22–33: M1 8–12 (+1 của [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)), M2 14–21 | M1 (một lệnh trồng cây, ô ruộng có hàng đợi), M2 |
+| Nhà sinh vật | Mỗi sinh vật làm việc có nhà (công trình, hoặc nơi người chơi tự xây); có nhà mới làm việc; rảnh thì hoạt động quanh nhà; bị kẹt thì hiện lại ở nhà (user, 2026-10-14) | P2 | Client | Phải có | [ý tưởng] 6–10: M1 1, M2 5–9 | M1 (nhà mẫu đặt sẵn — [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)), M2 |
 | Người chơi làm công đoạn | Người chơi tự làm công đoạn của lệnh (vd cầm cuốc xới) khi thiếu loài có năng lực hoặc muốn làm nhanh (user, 2026-10-13) | P2 | Client | Phải có | 2–4 | M2 |
 | Độ ưu tiên giữa các lệnh | Người chơi đặt thứ tự ưu tiên; ghép việc xét lệnh ưu tiên cao trước (user chốt, 2026-10-13) | P2 | Client | Nên có | [ý tưởng] 1–2 | M2 |
-| Tìm đường sinh vật | Đi trên địa hình người chơi thiết kế; không tới được → đình trệ + thông báo | P2 | Client | Phải có | 11–21: M1 5–8 (+1 của [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md)), M2 6–13 | M1 (đi bộ, khung chiếm chỗ theo loài), M2 |
+| Tìm đường sinh vật | Đi trên địa hình người chơi thiết kế; không tới được → đình trệ + thông báo | P2 | Client | Phải có | 12–22: M1 6–9 (+1 của [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md), +1 sinh vật bị kẹt của [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)), M2 6–13 | M1 (đi bộ, khung chiếm chỗ theo loài), M2 |
 | Kiểu di chuyển bay, bơi | Luật ô đi được cho loài bay (không cần đất dưới chân) và bơi (ô có nước); Map 1 có loài bay, bơi ([levels](levels.md)) | P1, P2 | Client | Phải có | [ý tưởng] 4–8 | M2 |
 | Tua nhanh | Khi vào lại game, tính sản lượng thay vì chạy animation; thời gian vắng mặt lấy từ giờ server | P2 | Client + Backend ([0003](../decisions/0003-server.md)) | Phải có | 8–15 | M2 |
 | Chiến đấu PvE lõi | Sát thương, máu, trúng/né, sinh vật hoang tấn công và AI đơn giản, thắng/thua một trận trong world — nền cho nhập hồn và phép | P4 | Client (logic C# thuần, chạy được trên game server sau này) | Phải có | [ý tưởng] 10–20 | M2 |
@@ -72,6 +73,13 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - Công đoạn: xới → gieo (trừ 1 hạt trong kho, chưa cần đi lấy) → tưới (chưa cần lấy nước) → cây lớn 120 giây → thu hoạch (nông sản nằm tại ô) → vận chuyển vào kho.
 - Chưa có L3 → nông sản nằm tại ruộng, đình trệ "thiếu năng lực vận chuyển" — người chơi thấy vì sao cần thêm loài.
 - Kho đầy → đình trệ "kho đầy".
+- Chi tiết (user, 2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)):
+  - **Ô ruộng** = ô đất/cỏ có ô trống phía trên. Sinh vật **ưu tiên đứng ở ô kề** để xới/gieo/tưới/thu hoạch; không có ô kề nào tới được thì đứng ngay trên ô ruộng.
+  - **Kho là công trình** có sức chứa, chiếm ô (không đi qua, không đứng lên); vận chuyển tới **một ô kề kho** là giao được.
+  - **Mỗi ô ruộng có chuỗi công đoạn riêng và một hàng đợi vụ**: người chơi xếp lịch (vd lúa, lúa, cà, lúa — mỗi lần chọn thêm một vụ vào cuối). Ô được giao việc liên tục tới khi hết hàng đợi hoặc không đủ điều kiện sản xuất (vd hết hạt → chờ). **Ô ruộng cấp 1 có 2 chỗ trong hàng đợi.** M1 một loại cây; nhiều loại cây + cấp ô ruộng ở M2 [ý tưởng ước lượng 1–2].
+  - Hàng đợi gồm cả vụ đang làm; thu hoạch xong vụ rời hàng đợi, vụ kế bắt đầu lại từ xới (Planner).
+  - Mỗi lần thu hoạch: **1 lượt vận chuyển mang cả 1 nông sản + 1 hạt**; sức chứa 50 **tính chung** nông sản và hạt.
+  - Hiển thị (bước 6): khi vận chuyển sinh vật mang một hộp nhỏ; khi xới, tưới... có biểu tượng nhỏ bên cạnh.
 
 ### Lệnh làm việc
 **Quy tắc**
@@ -109,7 +117,16 @@ stateDiagram-v2
 - Không có đường tới vị trí của công đoạn → công đoạn đó **đình trệ** và gửi thông báo cho người chơi.
 - Thông báo chỉ rõ vị trí và lý do (không có đường / thiếu vật tư / kho đầy), bấm vào để xem tại chỗ. (user chốt, 2026-10-13)
 - Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài. (user chốt, 2026-10-13) **M1 chỉ đi bộ**; bay, bơi ở M2 ([0007](../decisions/0007-m1-toi-gian.md)).
-- **Sinh vật bị kẹt** (user, 2026-10-14): kẹt vì bất kỳ lý do gì quá một khoảng thời gian → sinh vật biến mất và hiện lại ở nơi ở của nó trong vườn của người chơi. Chưa rõ: thế nào là "kẹt" (vd không tới được việc nào và không tự đi ra được, lơ lửng, kẹt trong hố), bao lâu, "nơi ở" là gì (M1 chưa có nơi ở — tạm dùng chỗ sinh vật xuất hiện hoặc kho?), làm ở M1 hay M2. Ước lượng [ý tưởng] ~1 ngày-người.
+- **Sinh vật bị kẹt** (user, 2026-10-14): kẹt vì bất kỳ lý do gì quá một khoảng thời gian → sinh vật biến mất và hiện lại ở **nhà** của nó (xem [Nhà sinh vật](#nhà-sinh-vật)). Kẹt = **không có đường về nhà** liên tục **30 giây** (số tạm, chỉnh bằng `game-balance`). Làm ở M1, simulation bước 4 ([0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)); ước lượng ~1 ngày-người.
+
+### Nhà sinh vật
+Mô tả của user (2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)).
+- Mỗi sinh vật làm việc có **nhà**: một công trình nhà, hoặc nơi người chơi tự xây — có tường bao quanh (cao 1 ô là đủ), có khoảng hở để lắp **cửa** (vật phẩm công trình, nhiều loại và kích thước), có 2 nội thất.
+- **Sinh vật có nhà mới làm việc được.** Sinh vật rảnh hoạt động trong một bán kính quanh nhà.
+- Nhà có nhiều kích thước; mẫu ban đầu **2 × 2 × 2**, sức chứa **2** sinh vật. Sức chứa nhà người chơi tự xây theo diện tích và tường bao.
+- Phần mở đầu: sinh vật có nhà sẵn.
+- **M1:** chỉ nhà mẫu 2 × 2 × 2 đặt bằng code/lệnh debug, mỗi sinh vật gắn một nhà; dùng làm nơi hiện lại khi kẹt + điều kiện "có nhà mới được giao việc" (simulation bước 4, ~1 ngày-người). **M2** [ý tưởng ước lượng]: nhà người chơi tự xây + nhiều kích thước + sức chứa theo diện tích 4–7; sinh vật rảnh đi quanh nhà 1–2.
+- Câu hỏi mở: bán kính hoạt động quanh nhà; "nội thất" gồm những gì; nhà có tăng giới hạn sinh vật không ([Giới hạn sinh vật](#giới-hạn-sinh-vật--kho-sinh-vật)); sinh vật hiện lại ở ô nào của nhà.
 
 ### Tua nhanh
 - Khi game tắt: không tính gì.

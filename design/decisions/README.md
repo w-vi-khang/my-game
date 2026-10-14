@@ -21,3 +21,4 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0013](0013-nuoc-lan-theo-nhip.md) | Nước biển lan theo nhịp (thay "loang ngay" của 0012) | Chốt |
 | [0014](0014-ghep-viec-o-sim-buoc-1.md) | Ghép việc + đi theo khoảng cách làm ở simulation bước 1; người chơi nhận việc để M2 | Chốt |
 | [0015](0015-tim-duong-khung-va-dao-duoi-chan.md) | Tìm đường M1: khung chiếm chỗ 3 chiều, không đi vào nước, đào dưới chân thì sinh vật chạy ra | Chốt |
+| [0016](0016-o-ruong-kho-nha-va-sinh-vat-ket.md) | Ô ruộng có hàng đợi, đứng ô kề để làm, kho là công trình; nhà sinh vật + sinh vật bị kẹt ở simulation bước 4 | Chốt |
