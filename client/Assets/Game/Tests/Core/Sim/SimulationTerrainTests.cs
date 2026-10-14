@@ -106,6 +106,21 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void FallsUntilGround()
+        {
+            var w = TestWorlds.Flat(0);
+            w.Set(5, 1, 5, Cell.Make(BlockMaterial.Dirt));
+            w.Set(5, 2, 5, Cell.Make(BlockMaterial.Dirt));
+            w.Set(5, 3, 5, Cell.Make(BlockMaterial.Dirt));
+            var sim = Build(new SimConfig(), w, out var editor, out _);
+            int c = sim.AddCreature("L1", new CellPos(5, 4, 5));
+            Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 3, 5));
+            Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 2, 5));
+            sim.Tick();
+            Assert.AreEqual(new CellPos(5, 2, 5), sim.State.Creatures[c].Cell);
+        }
+
+        [Test]
         public void DisplacedWorkerKeepsProgress()
         {
             var sim = Build(new SimConfig(), TestWorlds.Flat(1), out var editor, out _);

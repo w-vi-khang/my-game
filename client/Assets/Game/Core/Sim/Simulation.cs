@@ -162,12 +162,17 @@ namespace Game.Core.Sim
                     }
                 }
 
-            if (c.Cell.Y - 1 < 0) return;
+            while (c.Cell.Y - 1 >= 0 && ColumnsBodyFree(c, c.Cell.Y - 1))
+                c.Cell = c.Cell.Offset(0, -1, 0);
+            c.MoveProgress = 0;
+        }
+
+        bool ColumnsBodyFree(Creature c, int y)
+        {
             for (int dx = 0; dx < c.SizeX; dx++)
                 for (int dz = 0; dz < c.SizeZ; dz++)
-                    if (!pathfinder.IsBodyFree(c.Cell.X + dx, c.Cell.Y - 1, c.Cell.Z + dz)) return;
-            c.Cell = c.Cell.Offset(0, -1, 0);
-            c.MoveProgress = 0;
+                    if (!pathfinder.IsBodyFree(c.Cell.X + dx, y, c.Cell.Z + dz)) return false;
+            return true;
         }
 
         void Repath(Creature c)
