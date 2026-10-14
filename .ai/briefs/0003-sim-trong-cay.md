@@ -1,6 +1,6 @@
 # Brief 0003 — Simulation bước 3: lệnh trồng cây 5 công đoạn, ô ruộng có hàng đợi vụ, một kho
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-14 (trả lời Vướng mắc)
@@ -194,3 +194,9 @@ Code bước 1–8 đã viết xong, **chưa commit** (nằm trong working tree:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+**Đã duyệt** (Planner, 2026-10-14 15:45, mức đầy đủ — đọc diff `88ee00f`).
+- Tiêu chí xong: EditMode 131/131 [run, theo Kết quả của Executor]; grep cấm rỗng; `check_design.py` exit 0; `SimulationTests.cs`, `SimulationTerrainTests.cs` không đổi (`git show --stat`). Không chạy lại vì kết quả đủ, không đáng ngờ.
+- Quyết định đã chốt: ô kề theo thứ tự hướng + dy, lấy ô đầu tiên đứng được (`AdjacentGoals`); `PlanTo` đủ 3 cách tiếp cận, `AdjacentOrOn` rơi về `Exact`; kho chặn thân qua `SetBlocked`, `IsOccupied` gồm kho; hạt trừ ở `Assign`, trả ở `Unassign`; chỗ kho giữ/trả đối xứng; `NoSeeds`/`StorageFull` mở lại đầu `AssignPhase`, kiểm trước khi tìm sinh vật; `CropPhase` giữa làm và đi; công đoạn mới tạo trong `OnStageDone`. Số nhịp trong `FarmTests` đúng brief (sau sửa 60 → 61).
+- Phạm vi: 11 file đúng danh sách.
+- Ghi chú nhỏ (không cần sửa): `Search` kiểm lại `CanStand(goals[0])` dù `FindPathToAny` đã lọc — thừa, vô hại. Vướng mắc duy nhất là lỗi tính tay của Planner (quên cộng nhịp giao việc khi đứng sẵn) — bài học: số nhịp "làm ngay" = t + B với t là nhịp giao.
+
