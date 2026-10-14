@@ -1,6 +1,6 @@
 # Brief 0002 — Simulation bước 2: A\* đi bộ theo khung chiếm chỗ, tính lại khi đào/đặt
 
-> Trạng thái: chờ review
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-14
@@ -112,6 +112,10 @@ Task contract: `.ai/tasks/m1-sim-buoc-2-tim-duong.md`. Quyết định: `design/
 
 11. **Commit** sau khi Kiểm chứng đạt: message `M1 sim bước 2: A* đi bộ theo khung chiếm chỗ, tính lại khi đào/đặt (brief 0002)`. Không push.
 
+12. **(Sửa sau review 2026-10-14)** `Simulation.cs` / `Displace`: phần rơi hiện chỉ hạ **1 ô** (`if` một lần rồi `c.Cell.Offset(0, -1, 0)`), sai so với bước 4 ("khi … giảm Y đi 1" là **vòng lặp** tới khi gặp ô đặc hoặc nước). Sửa thành vòng `while (c.Cell.Y - 1 >= 0 && mọi cột khung ở y = c.Cell.Y - 1 đều IsBodyFree) c.Cell = c.Cell.Offset(0, -1, 0);` rồi `c.MoveProgress = 0;`.
+    - Thêm test `FallsUntilGround` vào `SimulationTerrainTests.cs`: `Flat(0)`, `Dirt` tại (5,1,5), (5,2,5), (5,3,5); L1 tại (5,4,5). `TryDig(5,3,5)` và `TryDig(5,2,5)` (cả hai trước khi Tick). Sau 1 nhịp: creature ở (5,2,5). Tổng EditMode = **118**.
+    - Kiểm chứng lại như mục Kiểm chứng; commit riêng, message `M1 sim bước 2: sửa rơi nhiều ô (brief 0002)`.
+
 ## Tiêu chí xong
 - Mọi test ở bước 7–9 đạt; toàn bộ EditMode 0 fail. Số test = 102 + 7 (`GridPathfinderTests`) + 8 (`SimulationTerrainTests`) = **117**.
 - Test bước 1 không đổi số nhịp nào (chỉ đổi world, `y` và constructor).
@@ -153,3 +157,6 @@ Task contract: `.ai/tasks/m1-sim-buoc-2-tim-duong.md`. Quyết định: `design/
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+**Cần sửa** (Planner, 2026-10-14, mức đầy đủ).
+- Đã đối chiếu: `git show --stat 0b7d120` — 16 file, đều trong Phạm vi (`TestWorlds.Wall` là helper trong file test được phép). `GridPathfinder.cs`: `CanStand`/`CanStep`/khoảng trống leo-xuống, thứ tự hướng +X −X +Z −Z và dy 0 +1 −1, heap so f → h → seq, đường không gồm ô xuất phát — khớp. `Simulation.cs`: thứ tự pha, mở lại `NoPath` khi địa hình đổi, kiểm lại đường còn lại, chọn lại ứng viên khi không có đường, `BlockNoPath` qua `Unassign` — khớp. Test bước 1 chỉ đổi constructor, world, y. 117/117 đạt.
+- **Lỗi:** `Displace` chỉ rơi 1 ô, brief yêu cầu rơi tới khi có đáy. Rơi ≥ 2 ô → sinh vật lơ lửng, và vì cờ địa hình đã tắt nên các nhịp sau không sửa nữa. Test `FallsWhenNoNeighbor` chỉ thử rơi 1 ô nên không bắt được (thiếu sót của brief). → Bước 12.
