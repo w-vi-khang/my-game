@@ -1,6 +1,6 @@
 # Brief 0003 — Simulation bước 3: lệnh trồng cây 5 công đoạn, ô ruộng có hàng đợi vụ, một kho
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-14 15:30
@@ -162,10 +162,22 @@ Task contract: `.ai/tasks/m1-sim-buoc-3-trong-cay.md`. Quyết định: `design/
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 7d602c3
+- Bắt đầu: 2026-10-14 15:32
 
 ## Kết quả kiểm chứng
+- `refresh_unity` + `read_console` → 0 lỗi biên dịch.
+- `run_tests` EditMode toàn bộ → 131 total, 130 passed, **1 failed**: `FarmTests.StandsOnPlotWhenNoNeighbor` (FarmTests.cs:157, `Expected: Done But was: Assigned`).
+- grep cấm → rỗng. Chưa chạy `check_design.py` / commit vì đang dừng.
 
 ## Vướng mắc
+Code bước 1–8 đã viết xong, **chưa commit** (nằm trong working tree: Core/Sim/*, Tests/Core/Sim/*, sim_m1.json). 130/131 test đạt; chỉ 1 test lệch.
+
+**Câu hỏi:** `StandsOnPlotWhenNoNeighbor` (bước 7) nói "nhịp 1: L1 `Working` ở (5,2,5). nhịp 59: xới chưa `Done`; nhịp 60: `Done`". Số thực tế: xới `Done` ở **nhịp 61**, chưa `Done` ở nhịp 60.
+- Lý do (code đúng quy ước brief): L1 đứng sẵn tại chỗ → giao việc ở nhịp 1, `Working` ngay nhịp 1, công đoạn xới 60 nhịp → xong ở 1 + 60 = 61. Đúng như "Quy ước thời gian hiện có": "đã đứng đúng chỗ → Working ngay nhịp t, xong ở t + B" và test bước 1 `StageAtCurrentCellStartsImmediately` (xong ở nhịp 61).
+- Đã kiểm lại: tạm đổi test thành "chưa Done ở nhịp 60, Done ở nhịp 61" → test đạt (đã khôi phục về số trong brief, không giữ sửa đổi). Test cùng loại `PrefersNeighborOverPlot` (tới ở nhịp 8, xong ở nhịp 68 = 8 + 60) khớp.
+- Phương án: (A) sửa số trong brief/test thành 60 → 61 (chưa Done ở nhịp 60, Done ở nhịp 61). (B) giữ 60 và đổi code để làm bắt đầu sớm 1 nhịp — **không** nên, mâu thuẫn test bước 1.
+- Đề xuất: **A**. Sau khi Planner xác nhận, Executor chỉ cần sửa 2 số trong `FarmTests.cs` (`RunTo(sim, 59)` → `RunTo(sim, 60)`), chạy lại, commit.
 
 ---
 <!-- PLANNER ghi khi review. -->
