@@ -46,7 +46,7 @@
 | Mốc bảo hiểm | Số lần rút liên tiếp tối đa trước khi chắc chắn ra phần thưởng hiếm của gói (ý tưởng cách làm) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Lệnh làm việc | Việc người chơi đặt cho sinh vật trên một vùng (vd trồng cây), gồm nhiều công đoạn. Khác với "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Công đoạn | Một bước của lệnh làm việc (xới đất, gieo hạt, tưới nước, thu hoạch, vận chuyển...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Đình trệ | Công đoạn không làm được (không có đường, thiếu vật tư, kho đầy) — báo cho người chơi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Đình trệ | Công đoạn không làm được (không có đường, thiếu vật tư, kho đầy, thiếu năng lực) — báo cho người chơi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Khung chiếm chỗ | Hộp ô voxel một sinh vật/vật thể chiếm (rộng X × rộng Z × cao Y, vd 1 × 1 × 2); tìm đường kiểm đủ khung | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) |
 | Tua nhanh | Tính sản lượng cho thời gian vắng mặt khi người chơi vào lại, không chạy animation | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhiệm vụ | Nhiệm vụ cốt truyện (chính hoặc phụ) trong một map | [01-story/plot.md](01-story/plot.md) |
@@ -136,4 +136,4 @@
 | Ô ruộng | Ô đất/cỏ thuộc lệnh trồng cây; có chuỗi công đoạn riêng và hàng đợi vụ; sinh vật ưu tiên đứng ô kề để làm | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Hàng đợi vụ | Danh sách vụ (loại cây) người chơi xếp cho một ô ruộng, gồm cả vụ đang làm; ô ruộng cấp 1 có 2 chỗ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhà (sinh vật) | Công trình hoặc nơi người chơi tự xây (tường bao, cửa, 2 nội thất) cho sinh vật làm việc; có nhà mới làm việc; nơi hiện lại khi bị kẹt | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Bị kẹt (sinh vật) | Không có đường về nhà liên tục quá ngưỡng (M1: 30 giây) → sinh vật hiện lại ở nhà | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bị kẹt (sinh vật) | Rảnh và không có đường về nhà liên tục quá ngưỡng (M1: 30 giây) → sinh vật hiện lại ở nhà ([0017](decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

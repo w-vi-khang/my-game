@@ -118,6 +118,8 @@ stateDiagram-v2
 - Thông báo chỉ rõ vị trí và lý do (không có đường / thiếu vật tư / kho đầy), bấm vào để xem tại chỗ. (user chốt, 2026-10-13)
 - Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài. (user chốt, 2026-10-13) **M1 chỉ đi bộ**; bay, bơi ở M2 ([0007](../decisions/0007-m1-toi-gian.md)).
 - **Sinh vật bị kẹt** (user, 2026-10-14): kẹt vì bất kỳ lý do gì quá một khoảng thời gian → sinh vật biến mất và hiện lại ở **nhà** của nó (xem [Nhà sinh vật](#nhà-sinh-vật)). Kẹt = **không có đường về nhà** liên tục **30 giây** (số tạm, chỉnh bằng `game-balance`). Làm ở M1, simulation bước 4 ([0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)); ước lượng ~1 ngày-người.
+  - Chỉ đếm khi sinh vật **rảnh** (không có việc, hoặc việc vừa bị cắt đường) mà không có đường về nhà; đang đi theo đường hợp lệ hoặc đang làm thì không đếm, có việc lại thì đếm lại từ 0. Hàng đang mang bị rơi khi cắt đường → theo sinh vật về nhà nếu chưa ai nhặt. (user, 2026-10-14, [0017](../decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md))
+- **Thiếu năng lực** (user, 2026-10-14, [0017](../decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)): không sinh vật **có nhà** nào sở hữu năng lực của công đoạn (đang bận vẫn tính là có) → đình trệ. M1: thông báo là danh sách sự kiện trong lõi mô phỏng (bắt đầu / hết đình trệ, không lặp mỗi nhịp); hiển thị ở simulation bước 6.
 
 ### Nhà sinh vật
 Mô tả của user (2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)).
@@ -125,8 +127,9 @@ Mô tả của user (2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sin
 - **Sinh vật có nhà mới làm việc được.** Sinh vật rảnh hoạt động trong một bán kính quanh nhà.
 - Nhà có nhiều kích thước; mẫu ban đầu **2 × 2 × 2**, sức chứa **2** sinh vật. Sức chứa nhà người chơi tự xây theo diện tích và tường bao.
 - Phần mở đầu: sinh vật có nhà sẵn.
+- **M1:** nhà mẫu là **khối đặc** chiếm 8 ô (chặn đi qua, chặn đặt khối, không cửa); sinh vật hiện lại ở ô kề nhà đứng được đầu tiên theo thứ tự cố định ([0017](../decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)).
 - **M1:** chỉ nhà mẫu 2 × 2 × 2 đặt bằng code/lệnh debug, mỗi sinh vật gắn một nhà; dùng làm nơi hiện lại khi kẹt + điều kiện "có nhà mới được giao việc" (simulation bước 4, ~1 ngày-người). **M2** [ý tưởng ước lượng]: nhà người chơi tự xây + nhiều kích thước + sức chứa theo diện tích 4–7; sinh vật rảnh đi quanh nhà 1–2.
-- Câu hỏi mở: bán kính hoạt động quanh nhà; "nội thất" gồm những gì; nhà có tăng giới hạn sinh vật không ([Giới hạn sinh vật](#giới-hạn-sinh-vật--kho-sinh-vật)); sinh vật hiện lại ở ô nào của nhà.
+- Câu hỏi mở: bán kính hoạt động quanh nhà; "nội thất" gồm những gì; nhà có tăng giới hạn sinh vật không ([Giới hạn sinh vật](#giới-hạn-sinh-vật--kho-sinh-vật)). Sinh vật hiện lại ở ô nào: M1 đã trả lời (ô kề, [0017](../decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)); nhà người chơi tự xây (M2) chưa.
 
 ### Tua nhanh
 - Khi game tắt: không tính gì.
