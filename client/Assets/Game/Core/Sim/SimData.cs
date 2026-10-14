@@ -29,8 +29,13 @@ namespace Game.Core.Sim
 
     public enum StageStatus : byte { Open = 0, Assigned = 1, Done = 2, Blocked = 3 }
 
-    /// <summary>Lý do đình trệ — bước 4 thêm kho đầy, thiếu năng lực.</summary>
-    public enum StallReason : byte { None = 0, NoPath = 1 }
+    /// <summary>Lý do đình trệ — bước 4 thêm thông báo và thiếu năng lực.</summary>
+    public enum StallReason : byte { None = 0, NoPath = 1, NoSeeds = 2, StorageFull = 3 }
+
+    /// <summary>Cách tới đích: Exact = đứng đúng ô; Adjacent = đứng ở ô kề; AdjacentOrOn = thử ô kề, không được thì đứng trên ô (0016).</summary>
+    public enum Approach : byte { Exact = 0, Adjacent = 1, AdjacentOrOn = 2 }
+
+    public enum PlotPhase : byte { Idle = 0, Till = 1, Sow = 2, Water = 3, Growing = 4, Harvest = 5 }
 
     /// <summary>Player: người chơi nhận việc qua tab nhiệm vụ — M2 (0014); M1 chỉ có trường.</summary>
     public enum AssigneeKind : byte { None = 0, Creature = 1, Player = 2 }
@@ -92,11 +97,19 @@ namespace Game.Core.Sim
         public int AssigneeId = -1;
         public bool Carried;
         public StallReason Stall;
+        public Approach TargetApproach;
+        public readonly Approach DestinationApproach;
+        /// <summary>>= 0 chỉ cho công đoạn xới/gieo/tưới/thu hoạch của ô ruộng; vận chuyển của ruộng có PlotId = -1, StorageId >= 0.</summary>
+        public readonly int PlotId;
+        public readonly int StorageId;
+        public readonly int LoadProduce, LoadSeeds;
 
         public long WorkRequired => (long)BaseTicks * 1000;
         public int ProgressPermille => (int)(WorkDone * 1000 / WorkRequired);
 
-        public WorkStage(int id, int orderId, WorkAbility ability, CellPos target, bool hasDestination, CellPos destination, int baseTicks, int priority)
+        public WorkStage(int id, int orderId, WorkAbility ability, CellPos target, bool hasDestination, CellPos destination, int baseTicks, int priority,
+            Approach targetApproach = Approach.Exact, Approach destinationApproach = Approach.Exact,
+            int plotId = -1, int storageId = -1, int loadProduce = 0, int loadSeeds = 0)
         {
             Id = id;
             OrderId = orderId;
@@ -106,6 +119,12 @@ namespace Game.Core.Sim
             Destination = destination;
             BaseTicks = baseTicks;
             Priority = priority;
+            TargetApproach = targetApproach;
+            DestinationApproach = destinationApproach;
+            PlotId = plotId;
+            StorageId = storageId;
+            LoadProduce = loadProduce;
+            LoadSeeds = loadSeeds;
         }
     }
 
@@ -129,6 +148,8 @@ namespace Game.Core.Sim
         public readonly int Capacity;
         public int Seeds;
         public int Produce;
+        public int Reserved;
+        public int Free => Capacity - Seeds - Produce - Reserved;
 
         public Storage(int id, CellPos cell, int capacity, int seeds)
         {
@@ -136,6 +157,25 @@ namespace Game.Core.Sim
             Cell = cell;
             Capacity = capacity;
             Seeds = seeds;
+        }
+    }
+
+    public sealed class FarmPlot
+    {
+        public readonly int Id, OrderId, StorageId;
+        public readonly CellPos Soil, Site;
+        public readonly List<int> Queue = new List<int>();
+        public PlotPhase Phase;
+        public int StageId = -1;
+        public long RipeTick;
+
+        public FarmPlot(int id, int orderId, int storageId, CellPos soil)
+        {
+            Id = id;
+            OrderId = orderId;
+            StorageId = storageId;
+            Soil = soil;
+            Site = soil.Offset(0, 1, 0);
         }
     }
 
@@ -148,6 +188,7 @@ namespace Game.Core.Sim
         public readonly List<WorkStage> Stages = new List<WorkStage>();
         public readonly List<WorkOrder> Orders = new List<WorkOrder>();
         public readonly List<Storage> Storages = new List<Storage>();
+        public readonly List<FarmPlot> Plots = new List<FarmPlot>();
 
         public SimState(SimRng rng)
         {

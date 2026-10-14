@@ -15,7 +15,7 @@ namespace Game.Core.Tests
             sim.AddCreature("L2", new CellPos(6, 1, 6));
             sim.AddCreature("L3", new CellPos(3, 1, 3));
             sim.AddCreature("L3", new CellPos(3, 1, 9));
-            sim.AddStorage(new CellPos(10, 1, 10));
+            sim.AddStorage(new CellPos(12, 1, 12));
             var area = new List<CellPos>();
             for (int x = 2; x <= 4; x++)
                 for (int z = 2; z <= 4; z++) area.Add(new CellPos(x, 1, z));
@@ -60,6 +60,31 @@ namespace Game.Core.Tests
             Assert.AreEqual(SimHash.Compute(a.State), SimHash.Compute(b.State));
             a.Tick();
             Assert.AreNotEqual(SimHash.Compute(a.State), SimHash.Compute(b.State));
+        }
+
+        static Simulation BuildCropFarm()
+        {
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(1));
+            sim.AddCreature("L1", new CellPos(1, 2, 1));
+            sim.AddCreature("L1", new CellPos(9, 2, 1));
+            sim.AddCreature("L2", new CellPos(5, 2, 1));
+            sim.AddCreature("L3", new CellPos(9, 2, 9));
+            int k = sim.AddStorage(new CellPos(5, 2, 8));
+            sim.AddFarmOrder(new List<CellPos> { new CellPos(4, 1, 4), new CellPos(5, 1, 4), new CellPos(6, 1, 4) }, k);
+            for (int p = 0; p < 3; p++) sim.EnqueueCrop(p);
+            return sim;
+        }
+
+        [Test]
+        public void FarmOrderSameHashEveryTick()
+        {
+            var a = BuildCropFarm();
+            var b = BuildCropFarm();
+            CollectionAssert.AreEqual(RunHashes(a, 4000), RunHashes(b, 4000));
+            foreach (var p in a.State.Plots) Assert.AreEqual(PlotPhase.Idle, p.Phase, "plot " + p.Id);
+            Assert.AreEqual(6, a.State.Storages[0].Produce);
+            Assert.AreEqual(10, a.State.Storages[0].Seeds);
+            Assert.AreEqual(0, a.State.Storages[0].Reserved);
         }
     }
 }

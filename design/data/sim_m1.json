@@ -15,5 +15,6 @@
         { "id": "L3", "ability1": "Haul", "ability2": "Harvest", "mastery1": 100, "mastery2": 100, "moveSpeedMilliCellsPerSecond": 2000, "sizeX": 1, "sizeZ": 1, "sizeY": 1 }
     ],
     "crop": { "growTimeMs": 120000, "seedsPerHarvest": 1, "producePerHarvest": 1 },
-    "storage": { "capacity": 50, "startSeeds": 10 }
+    "storage": { "capacity": 50, "startSeeds": 10 },
+    "farm": { "plotQueueCapacity": 2 }
 }

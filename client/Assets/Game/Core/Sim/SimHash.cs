@@ -49,6 +49,12 @@ namespace Game.Core.Sim
                 h = MixInt(h, g.AssigneeId);
                 h = MixInt(h, g.Carried ? 1 : 0);
                 h = MixInt(h, (int)g.Stall);
+                h = MixInt(h, (int)g.TargetApproach);
+                h = MixInt(h, (int)g.DestinationApproach);
+                h = MixInt(h, g.PlotId);
+                h = MixInt(h, g.StorageId);
+                h = MixInt(h, g.LoadProduce);
+                h = MixInt(h, g.LoadSeeds);
             }
 
             h = MixInt(h, s.Orders.Count);
@@ -74,6 +80,22 @@ namespace Game.Core.Sim
                 h = MixInt(h, t.Capacity);
                 h = MixInt(h, t.Seeds);
                 h = MixInt(h, t.Produce);
+                h = MixInt(h, t.Reserved);
+            }
+
+            h = MixInt(h, s.Plots.Count);
+            for (int i = 0; i < s.Plots.Count; i++)
+            {
+                var p = s.Plots[i];
+                h = MixInt(h, p.Id);
+                h = MixInt(h, p.OrderId);
+                h = MixInt(h, p.StorageId);
+                h = MixInt(h, p.Soil.X); h = MixInt(h, p.Soil.Y); h = MixInt(h, p.Soil.Z);
+                h = MixInt(h, (int)p.Phase);
+                h = MixInt(h, p.StageId);
+                h = MixLong(h, p.RipeTick);
+                h = MixInt(h, p.Queue.Count);
+                for (int j = 0; j < p.Queue.Count; j++) h = MixInt(h, p.Queue[j]);
             }
             return h;
         }

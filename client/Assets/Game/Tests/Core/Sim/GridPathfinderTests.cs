@@ -93,5 +93,25 @@ namespace Game.Core.Tests
             Assert.IsTrue(pf.FindPath(new CellPos(1, 1, 1), new CellPos(9, 1, 9), 1, 1, 1, b));
             CollectionAssert.AreEqual(a, b);
         }
+
+        [Test]
+        public void FindPathToAnyPicksNearest()
+        {
+            var pf = new GridPathfinder(TestWorlds.Flat(0));
+            var path = new List<CellPos>();
+            var start = new CellPos(1, 1, 1);
+            Assert.IsTrue(pf.FindPathToAny(start, new List<CellPos> { new CellPos(9, 1, 1), new CellPos(3, 1, 4) }, 1, 1, 1, path));
+            Assert.AreEqual(5, path.Count);
+            Assert.AreEqual(new CellPos(3, 1, 4), path[path.Count - 1]);
+
+            Assert.IsTrue(pf.FindPathToAny(start, new List<CellPos> { new CellPos(3, 5, 4), new CellPos(9, 1, 1) }, 1, 1, 1, path));
+            Assert.AreEqual(8, path.Count);
+            Assert.AreEqual(new CellPos(9, 1, 1), path[path.Count - 1]);
+
+            Assert.IsTrue(pf.FindPathToAny(start, new List<CellPos> { start }, 1, 1, 1, path));
+            Assert.AreEqual(0, path.Count);
+
+            Assert.IsFalse(pf.FindPathToAny(start, new List<CellPos>(), 1, 1, 1, path));
+        }
     }
 }

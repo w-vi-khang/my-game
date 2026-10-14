@@ -23,6 +23,8 @@ namespace Game.Core.Sim
         readonly int[] parent;
         readonly int[] seenStamp;
         readonly int[] closedStamp;
+        readonly bool[] blocked;
+        readonly List<CellPos> goalBuf = new List<CellPos>();
         int stamp;
         readonly List<Node> heap = new List<Node>();
 
@@ -34,11 +36,19 @@ namespace Game.Core.Sim
             parent = new int[n];
             seenStamp = new int[n];
             closedStamp = new int[n];
+            blocked = new bool[n];
+        }
+
+        /// <summary>Đánh dấu ô bị công trình chiếm (kho): ô đó không cho thân.</summary>
+        public void SetBlocked(CellPos c, bool value)
+        {
+            if (!world.Size.InBounds(c.X, c.Y, c.Z)) throw new ArgumentException("Ô ngoài map: " + c);
+            blocked[world.Size.Index(c.X, c.Y, c.Z)] = value;
         }
 
         /// <summary>Ô cho thân: trong map và rỗng.</summary>
         public bool IsBodyFree(int x, int y, int z) =>
-            world.Size.InBounds(x, y, z) && world.GetMaterial(x, y, z) == BlockMaterial.Empty;
+            world.Size.InBounds(x, y, z) && !blocked[world.Size.Index(x, y, z)] && world.GetMaterial(x, y, z) == BlockMaterial.Empty;
 
         /// <summary>Ô đỡ: trong map, không rỗng và không phải nước.</summary>
         public bool IsSupport(int x, int y, int z)
@@ -83,8 +93,40 @@ namespace Game.Core.Sim
         {
             result.Clear();
             if (start == goal) return true;
+            goalBuf.Clear();
+            goalBuf.Add(goal);
+            return Search(start, goalBuf, sx, sz, sy, result);
+        }
+
+        /// <summary>A* nhiều đích: đường ngắn nhất tới một trong các ô đích (đích không đứng được bị bỏ).</summary>
+        public bool FindPathToAny(CellPos start, List<CellPos> goals, int sx, int sz, int sy, List<CellPos> result)
+        {
+            result.Clear();
+            goalBuf.Clear();
+            for (int i = 0; i < goals.Count; i++)
+                if (CanStand(goals[i], sx, sz, sy)) goalBuf.Add(goals[i]);
+            if (goalBuf.Count == 0) return false;
+            if (!world.Size.InBounds(start.X, start.Y, start.Z)) return false;
+            for (int i = 0; i < goalBuf.Count; i++)
+                if (goalBuf[i] == start) return true;
+            return Search(start, goalBuf, sx, sz, sy, result);
+        }
+
+        int Heuristic(int x, int z, List<CellPos> goals)
+        {
+            int best = int.MaxValue;
+            for (int i = 0; i < goals.Count; i++)
+            {
+                int h = Math.Abs(goals[i].X - x) + Math.Abs(goals[i].Z - z);
+                if (h < best) best = h;
+            }
+            return best;
+        }
+
+        bool Search(CellPos start, List<CellPos> goals, int sx, int sz, int sy, List<CellPos> result)
+        {
             var size = world.Size;
-            if (!size.InBounds(start.X, start.Y, start.Z) || !CanStand(goal, sx, sz, sy)) return false;
+            if (!size.InBounds(start.X, start.Y, start.Z) || !CanStand(goals[0], sx, sz, sy)) return false;
 
             stamp++;
             heap.Clear();
@@ -93,7 +135,7 @@ namespace Game.Core.Sim
             g[startIdx] = 0;
             parent[startIdx] = -1;
             seenStamp[startIdx] = stamp;
-            int h0 = Math.Abs(goal.X - start.X) + Math.Abs(goal.Z - start.Z);
+            int h0 = Heuristic(start.X, start.Z, goals);
             Push(new Node { F = h0, H = h0, Seq = seq++, Index = startIdx });
 
             while (heap.Count > 0)
@@ -102,7 +144,7 @@ namespace Game.Core.Sim
                 if (closedStamp[cur.Index] == stamp) continue;
                 closedStamp[cur.Index] = stamp;
                 size.Coords(cur.Index, out int cx, out int cy, out int cz);
-                if (cx == goal.X && cy == goal.Y && cz == goal.Z)
+                if (IsGoal(cx, cy, cz, goals))
                 {
                     for (int i = cur.Index; i != startIdx; i = parent[i])
                     {
@@ -129,13 +171,20 @@ namespace Game.Core.Sim
                             seenStamp[ni] = stamp;
                             g[ni] = ng;
                             parent[ni] = cur.Index;
-                            int h = Math.Abs(goal.X - to.X) + Math.Abs(goal.Z - to.Z);
+                            int h = Heuristic(to.X, to.Z, goals);
                             Push(new Node { F = ng + h, H = h, Seq = seq++, Index = ni });
                         }
                         break;
                     }
                 }
             }
+            return false;
+        }
+
+        static bool IsGoal(int x, int y, int z, List<CellPos> goals)
+        {
+            for (int i = 0; i < goals.Count; i++)
+                if (goals[i].X == x && goals[i].Y == y && goals[i].Z == z) return true;
             return false;
         }
 

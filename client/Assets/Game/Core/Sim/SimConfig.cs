@@ -67,6 +67,12 @@ namespace Game.Core.Sim
         public int startSeeds = 10;
     }
 
+    [Serializable]
+    public class FarmConfig
+    {
+        public int plotQueueCapacity = 2;
+    }
+
     /// <summary>
     /// Cấu hình mô phỏng M1. Nguồn chuẩn: design/data/sim_m1.json (đọc bằng JsonUtility — tên trường phải khớp JSON).
     /// Số là số tạm (user 2026-10-14), chỉnh khi chơi thử.
@@ -93,6 +99,7 @@ namespace Game.Core.Sim
         };
         public CropConfig crop = new CropConfig();
         public StorageConfig storage = new StorageConfig();
+        public FarmConfig farm = new FarmConfig();
 
         public static WorkAbility ParseAbility(string s)
         {
@@ -103,6 +110,8 @@ namespace Game.Core.Sim
         }
 
         public int MsToTicks(int ms) => ms * ticksPerSecond / 1000;
+
+        public int GrowTicks => MsToTicks(crop.growTimeMs);
 
         public int BaseTicks(WorkAbility a)
         {
@@ -168,6 +177,8 @@ namespace Game.Core.Sim
                 throw new ArgumentException("storage.capacity phải >= 1.");
             if (storage.startSeeds < 0 || storage.startSeeds > storage.capacity)
                 throw new ArgumentException("storage.startSeeds phải trong [0, capacity].");
+            if (farm == null || farm.plotQueueCapacity < 1 || farm.plotQueueCapacity > 8)
+                throw new ArgumentException("farm.plotQueueCapacity phải trong [1, 8].");
         }
     }
 }

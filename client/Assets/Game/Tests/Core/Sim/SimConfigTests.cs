@@ -71,6 +71,10 @@ namespace Game.Core.Tests
             c = new SimConfig();
             c.storage.startSeeds = 51;
             Assert.Throws<ArgumentException>(c.Validate, "startSeeds > capacity");
+
+            c = new SimConfig();
+            c.farm.plotQueueCapacity = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "hàng đợi 0");
         }
     }
 }
