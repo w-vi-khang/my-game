@@ -1,6 +1,6 @@
 # Brief 0004 — Simulation bước 4: đình trệ + thông báo, nhà mẫu 2 × 2 × 2, sinh vật bị kẹt
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-14
@@ -375,3 +375,21 @@ Code ở commit `af43ba8`.
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+**Đã duyệt** (Planner, 2026-10-14 16:55, mức đầy đủ — đọc diff `5394feb`).
+- Tiêu chí xong:
+  - EditMode 138/138 [run, theo Kết quả của Executor];
+  - grep cấm rỗng; `check_design.py` exit 0;
+  - không chạy lại vì kết quả đủ, không đáng ngờ.
+- Quyết định đã chốt:
+  - `NoAbility`: kiểm sau `NoSeeds`/`StorageFull`, chỉ tính sinh vật có nhà; mở lại ở đầu `AssignPhase`; `eligible` bỏ sinh vật không nhà.
+  - `ReportPhase`: so `ReportedStall` ở cuối nhịp; đổi X → Y chỉ phát `StallStarted(Y)`.
+  - Nhà: `AddHouse` kiểm `CanStand` + `IsOccupied` rồi `SetBlocked` 8 ô; `IsOccupied` gồm nhà; `AssignHome` đủ 4 lỗi.
+  - Ô kề nhà: thứ tự +X/−X/+Z/−Z, dy 0/+1/−1.
+  - `homeDirty`: bật ở `AddStorage`/`AddHouse`/`AssignHome`/sau `TerrainPhase`, tính lại ngay sau địa hình.
+  - `StuckPhase`: đếm khi có nhà + rảnh + không đường về; `Respawn` chờ khi không có ô; hàng đã rơi (`DroppedBy`) theo về, mở lại `NoPath`.
+  - Thứ tự `Tick()` đúng.
+- Test cũ: diff chỉ có `HomeAll`, 2 kỳ vọng `NoAbility`, assert sự kiện, 2 dòng config, `out var editor`; không đổi số nhịp/ô cũ nào. Số trong `HomeTests` đúng brief.
+- Phạm vi: 13 file đúng danh sách; `GridPathfinder*` không đổi.
+- Ghi chú (không cần sửa):
+  - `HasHomedAbility` duyệt toàn bộ sinh vật cho mỗi stage mở, và `ReportPhase` duyệt mọi stage kể cả `Done` → O(stage × sinh vật) mỗi nhịp. Xem lại khi đo ở bước 7.
+  - `Events` không giới hạn kích thước; nơi đọc (bước 6) phải `Clear()`.

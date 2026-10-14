@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 4 — đình trệ + thông báo, nhà mẫu 2 × 2 × 2, sinh vật bị kẹt
 
-> Trạng thái: user xác nhận 2026-10-14 ([0016](../../design/decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md), [0017](../../design/decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)) — giao [brief 0004](../briefs/0004-sim-dinh-tre-nha-ket.md)
+> Trạng thái: user xác nhận 2026-10-14 ([0016](../../design/decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md), [0017](../../design/decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)) — xong 2026-10-14, [brief 0004](../briefs/0004-sim-dinh-tre-nha-ket.md) đã duyệt
 
 ## Mục tiêu
 Bước 4 của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1):
@@ -16,11 +16,11 @@ Bước 4 của [kế hoạch prototype simulation](../../design/04-tech/simulat
 - Thuần thục vào thời gian (bước 5). Đo hiệu năng (bước 7).
 
 ## Tiêu chí chấp nhận (kiểm chứng được)
-- [ ] Nhà chiếm 8 ô, chặn đi qua và chặn đặt khối, kiểm vị trí hợp lệ; sức chứa 2; sinh vật không nhà không được giao việc — test EditMode.
-- [ ] `NoAbility`: chỉ tính sinh vật có nhà; đang bận vẫn tính là có; mở lại khi thêm sinh vật / gắn nhà — test EditMode.
-- [ ] Sự kiện bắt đầu / hết đình trệ đúng nhịp, đúng vị trí cho `NoPath`, `StorageFull`, `NoSeeds`, `NoAbility`; không lặp lại — test EditMode.
-- [ ] Kẹt: rảnh + không có đường về nhà 300 nhịp → hiện lại ở ô kề nhà đầu tiên; đang làm không đếm, có việc lại thì đếm lại từ 0; không có ô hiện lại thì chờ; hàng đã rơi theo về nhà — test EditMode.
-- [ ] Test bước 1–3 giữ nguyên mọi số nhịp (chỉ thêm gắn nhà + 2 kỳ vọng đổi sang `NoAbility`); EditMode toàn bộ đạt; `check_design.py` exit 0. Planner khi review: ghi kết quả vào simulation-tech + roadmap (ước lượng 3–4).
+- [x] Nhà chiếm 8 ô, chặn đi qua và chặn đặt khối, kiểm vị trí hợp lệ; sức chứa 2; sinh vật không nhà không được giao việc — test EditMode.
+- [x] `NoAbility`: chỉ tính sinh vật có nhà; đang bận vẫn tính là có; mở lại khi thêm sinh vật / gắn nhà — test EditMode.
+- [x] Sự kiện bắt đầu / hết đình trệ đúng nhịp, đúng vị trí cho `NoPath`, `StorageFull`, `NoSeeds`, `NoAbility`; không lặp lại — test EditMode.
+- [x] Kẹt: rảnh + không có đường về nhà 300 nhịp → hiện lại ở ô kề nhà đầu tiên; đang làm không đếm, có việc lại thì đếm lại từ 0; không có ô hiện lại thì chờ; hàng đã rơi theo về nhà — test EditMode.
+- [x] Test bước 1–3 giữ nguyên mọi số nhịp (chỉ thêm gắn nhà + 2 kỳ vọng đổi sang `NoAbility`); EditMode toàn bộ đạt; `check_design.py` exit 0. Planner khi review: ghi kết quả vào simulation-tech + roadmap (ước lượng 3–4).
 
 ## Quyết định đã chốt
 - 0016 (user): nhà mẫu 2 × 2 × 2 sức chứa 2, đặt bằng code; có nhà mới làm việc; kẹt 30 giây → hiện lại ở nhà.
@@ -32,3 +32,6 @@ Bước 4 của [kế hoạch prototype simulation](../../design/04-tech/simulat
   - Kiểm đường về nhà theo sự kiện.
   - Chỉ đếm kẹt khi rảnh.
   - Hàng đã rơi theo sinh vật về nhà.
+
+## Kết quả
+- Commit `5394feb`. [run] EditMode 138/138, `check_design.py` exit 0, grep cấm trong `Core/Sim/` rỗng.
