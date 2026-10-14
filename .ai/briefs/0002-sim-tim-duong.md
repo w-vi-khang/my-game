@@ -1,6 +1,6 @@
 # Brief 0002 — Simulation bước 2: A\* đi bộ theo khung chiếm chỗ, tính lại khi đào/đặt
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-14
@@ -166,3 +166,7 @@ Task contract: `.ai/tasks/m1-sim-buoc-2-tim-duong.md`. Quyết định: `design/
 **Cần sửa** (Planner, 2026-10-14, mức đầy đủ).
 - Đã đối chiếu: `git show --stat 0b7d120` — 16 file, đều trong Phạm vi (`TestWorlds.Wall` là helper trong file test được phép). `GridPathfinder.cs`: `CanStand`/`CanStep`/khoảng trống leo-xuống, thứ tự hướng +X −X +Z −Z và dy 0 +1 −1, heap so f → h → seq, đường không gồm ô xuất phát — khớp. `Simulation.cs`: thứ tự pha, mở lại `NoPath` khi địa hình đổi, kiểm lại đường còn lại, chọn lại ứng viên khi không có đường, `BlockNoPath` qua `Unassign` — khớp. Test bước 1 chỉ đổi constructor, world, y. 117/117 đạt.
 - **Lỗi:** `Displace` chỉ rơi 1 ô, brief yêu cầu rơi tới khi có đáy. Rơi ≥ 2 ô → sinh vật lơ lửng, và vì cờ địa hình đã tắt nên các nhịp sau không sửa nữa. Test `FallsWhenNoNeighbor` chỉ thử rơi 1 ô nên không bắt được (thiếu sót của brief). → Bước 12.
+
+**Đã duyệt** (Planner, 2026-10-14, lần 2).
+- `git show 9834dee`: 2 file trong Phạm vi. `Displace` rơi bằng `while` tới khi ô dưới khung không còn cho thân (ô đặc hoặc nước); `FallsUntilGround` rơi 2 ô → (5,2,5). EditMode 118/118 do Executor ghi — khớp số test, không chạy lại.
+- Đã cập nhật: simulation-tech hàng bước 2, roadmap "Theo dõi M1", task contract.
