@@ -65,6 +65,10 @@ namespace Game.Core.Tests
             Assert.Throws<ArgumentException>(c.Validate, "tốc độ quá nhỏ");
 
             c = new SimConfig();
+            c.species[0].sizeX = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "sizeX = 0");
+
+            c = new SimConfig();
             c.storage.startSeeds = 51;
             Assert.Throws<ArgumentException>(c.Validate, "startSeeds > capacity");
         }

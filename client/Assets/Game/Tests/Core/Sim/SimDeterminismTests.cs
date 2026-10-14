@@ -8,25 +8,25 @@ namespace Game.Core.Tests
     {
         static Simulation BuildFarm(uint seed)
         {
-            var sim = new Simulation(new SimConfig { simSeed = seed });
-            sim.AddCreature("L1", new CellPos(0, 0, 0));
-            sim.AddCreature("L1", new CellPos(6, 0, 0));
-            sim.AddCreature("L2", new CellPos(0, 0, 6));
-            sim.AddCreature("L2", new CellPos(6, 0, 6));
-            sim.AddCreature("L3", new CellPos(3, 0, 3));
-            sim.AddCreature("L3", new CellPos(3, 0, 9));
-            sim.AddStorage(new CellPos(10, 0, 10));
+            var sim = new Simulation(new SimConfig { simSeed = seed }, TestWorlds.Flat(0));
+            sim.AddCreature("L1", new CellPos(0, 1, 0));
+            sim.AddCreature("L1", new CellPos(6, 1, 0));
+            sim.AddCreature("L2", new CellPos(0, 1, 6));
+            sim.AddCreature("L2", new CellPos(6, 1, 6));
+            sim.AddCreature("L3", new CellPos(3, 1, 3));
+            sim.AddCreature("L3", new CellPos(3, 1, 9));
+            sim.AddStorage(new CellPos(10, 1, 10));
             var area = new List<CellPos>();
             for (int x = 2; x <= 4; x++)
-                for (int z = 2; z <= 4; z++) area.Add(new CellPos(x, 0, z));
+                for (int z = 2; z <= 4; z++) area.Add(new CellPos(x, 1, z));
             int o = sim.AddOrder(area);
             for (int i = 0; i < area.Count; i++) sim.AddStage(o, WorkAbility.Till, area[i]);
-            sim.AddStage(o, WorkAbility.Water, new CellPos(2, 0, 2));
-            sim.AddStage(o, WorkAbility.Water, new CellPos(2, 0, 4));
-            sim.AddStage(o, WorkAbility.Water, new CellPos(4, 0, 2));
-            sim.AddStage(o, WorkAbility.Water, new CellPos(4, 0, 4));
-            sim.AddHaulStage(o, new CellPos(2, 0, 2), new CellPos(10, 0, 10));
-            sim.AddHaulStage(o, new CellPos(4, 0, 4), new CellPos(10, 0, 10));
+            sim.AddStage(o, WorkAbility.Water, new CellPos(2, 1, 2));
+            sim.AddStage(o, WorkAbility.Water, new CellPos(2, 1, 4));
+            sim.AddStage(o, WorkAbility.Water, new CellPos(4, 1, 2));
+            sim.AddStage(o, WorkAbility.Water, new CellPos(4, 1, 4));
+            sim.AddHaulStage(o, new CellPos(2, 1, 2), new CellPos(10, 1, 10));
+            sim.AddHaulStage(o, new CellPos(4, 1, 4), new CellPos(10, 1, 10));
             return sim;
         }
 

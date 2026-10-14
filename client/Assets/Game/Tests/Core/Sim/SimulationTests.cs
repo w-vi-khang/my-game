@@ -16,25 +16,25 @@ namespace Game.Core.Tests
         [Test]
         public void StageDoneAfterTravelPlusWork()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L1", new CellPos(0, 0, 0));
-            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(5, 0, 3));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
+            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(5, 1, 3));
             Run(sim, 114);
             Assert.AreEqual(StageStatus.Assigned, sim.State.Stages[s].Status);
             sim.Tick();
             var st = sim.State.Stages[s];
             Assert.AreEqual(StageStatus.Done, st.Status);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[c].State);
-            Assert.AreEqual(new CellPos(5, 0, 3), sim.State.Creatures[c].Cell);
+            Assert.AreEqual(new CellPos(5, 1, 3), sim.State.Creatures[c].Cell);
             Assert.AreEqual(1000, st.ProgressPermille);
         }
 
         [Test]
         public void StageAtCurrentCellStartsImmediately()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L1", new CellPos(2, 0, 2));
-            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(2, 0, 2));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L1", new CellPos(2, 1, 2));
+            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(2, 1, 2));
             sim.Tick();
             Assert.AreEqual(CreatureState.Working, sim.State.Creatures[c].State);
             Assert.AreEqual(0, sim.State.Stages[s].WorkDone);
@@ -47,13 +47,13 @@ namespace Game.Core.Tests
         [Test]
         public void HaulTakesTwoLegs()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L3", new CellPos(0, 0, 0));
-            int s = sim.AddHaulStage(NewOrder(sim), new CellPos(3, 0, 0), new CellPos(3, 0, 4));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L3", new CellPos(0, 1, 0));
+            int s = sim.AddHaulStage(NewOrder(sim), new CellPos(3, 1, 0), new CellPos(3, 1, 4));
             Run(sim, 16);
             var st = sim.State.Stages[s];
             Assert.IsTrue(st.Carried);
-            Assert.AreEqual(new CellPos(3, 0, 0), sim.State.Creatures[c].Cell);
+            Assert.AreEqual(new CellPos(3, 1, 0), sim.State.Creatures[c].Cell);
             Assert.AreEqual(CreatureState.Moving, sim.State.Creatures[c].State);
             Run(sim, 39);
             Assert.AreNotEqual(StageStatus.Done, st.Status);
@@ -65,9 +65,9 @@ namespace Game.Core.Tests
         [Test]
         public void OnlyMatchingAbility()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L1", new CellPos(0, 0, 0));
-            int s = sim.AddStage(NewOrder(sim), WorkAbility.Water, new CellPos(1, 0, 0));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
+            int s = sim.AddStage(NewOrder(sim), WorkAbility.Water, new CellPos(1, 1, 0));
             Run(sim, 10);
             Assert.AreEqual(StageStatus.Open, sim.State.Stages[s].Status);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[c].State);
@@ -76,9 +76,9 @@ namespace Game.Core.Tests
         [Test]
         public void PlayerAssignedStageIsSkipped()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L1", new CellPos(0, 0, 0));
-            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(1, 0, 0));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
+            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(1, 1, 0));
             sim.State.Stages[s].AssigneeKind = AssigneeKind.Player;
             Run(sim, 10);
             Assert.AreEqual(StageStatus.Open, sim.State.Stages[s].Status);
@@ -88,11 +88,11 @@ namespace Game.Core.Tests
         [Test]
         public void HigherPriorityFirst()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L1", new CellPos(0, 0, 0));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int o = NewOrder(sim);
-            int a = sim.AddStage(o, WorkAbility.Till, new CellPos(1, 0, 0), 0);
-            int b = sim.AddStage(o, WorkAbility.Till, new CellPos(9, 0, 0), 5);
+            int a = sim.AddStage(o, WorkAbility.Till, new CellPos(1, 1, 0), 0);
+            int b = sim.AddStage(o, WorkAbility.Till, new CellPos(9, 1, 0), 5);
             sim.Tick();
             Assert.AreEqual(b, sim.State.Creatures[c].StageId);
             Assert.AreEqual(StageStatus.Open, sim.State.Stages[a].Status);
@@ -104,10 +104,10 @@ namespace Game.Core.Tests
             var cfg = new SimConfig();
             var list = new List<SpeciesWork>(cfg.species) { new SpeciesWork("L1b", "Till", "Sow", 200, 100, 1500) };
             cfg.species = list.ToArray();
-            var sim = new Simulation(cfg);
-            int a = sim.AddCreature("L1", new CellPos(4, 0, 0));
-            int b = sim.AddCreature("L1b", new CellPos(0, 0, 6));
-            sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(0, 0, 0));
+            var sim = new Simulation(cfg, TestWorlds.Flat(0));
+            int a = sim.AddCreature("L1", new CellPos(4, 1, 0));
+            int b = sim.AddCreature("L1b", new CellPos(0, 1, 6));
+            sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(0, 1, 0));
             sim.Tick();
             Assert.AreNotEqual(-1, sim.State.Creatures[b].StageId);
             Assert.AreEqual(CreatureState.Idle, sim.State.Creatures[a].State);
@@ -119,12 +119,12 @@ namespace Game.Core.Tests
             int First(uint seed)
             {
                 var cfg = new SimConfig { simSeed = seed };
-                var sim = new Simulation(cfg);
-                sim.AddCreature("L1", new CellPos(2, 0, 0));
-                sim.AddCreature("L1", new CellPos(0, 0, 2));
-                sim.AddCreature("L1", new CellPos(4, 0, 2));
-                sim.AddCreature("L1", new CellPos(2, 0, 4));
-                int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(2, 0, 2));
+                var sim = new Simulation(cfg, TestWorlds.Flat(0));
+                sim.AddCreature("L1", new CellPos(2, 1, 0));
+                sim.AddCreature("L1", new CellPos(0, 1, 2));
+                sim.AddCreature("L1", new CellPos(4, 1, 2));
+                sim.AddCreature("L1", new CellPos(2, 1, 4));
+                int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(2, 1, 2));
                 sim.Tick();
                 return sim.State.Stages[s].AssigneeId;
             }
@@ -142,9 +142,9 @@ namespace Game.Core.Tests
         [Test]
         public void UnassignKeepsProgress()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L1", new CellPos(0, 0, 0));
-            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(0, 0, 0));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
+            int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(0, 1, 0));
             Run(sim, 31);
             var st = sim.State.Stages[s];
             Assert.AreEqual(30000, st.WorkDone);
@@ -163,15 +163,15 @@ namespace Game.Core.Tests
         [Test]
         public void UnassignWhileCarryingDropsItem()
         {
-            var sim = new Simulation(new SimConfig());
-            int c = sim.AddCreature("L3", new CellPos(0, 0, 0));
-            int s = sim.AddHaulStage(NewOrder(sim), new CellPos(0, 0, 0), new CellPos(10, 0, 0));
+            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            int c = sim.AddCreature("L3", new CellPos(0, 1, 0));
+            int s = sim.AddHaulStage(NewOrder(sim), new CellPos(0, 1, 0), new CellPos(10, 1, 0));
             Run(sim, 11);
             var st = sim.State.Stages[s];
-            Assert.AreEqual(new CellPos(2, 0, 0), sim.State.Creatures[c].Cell);
+            Assert.AreEqual(new CellPos(2, 1, 0), sim.State.Creatures[c].Cell);
             Assert.IsTrue(st.Carried);
             sim.Unassign(c);
-            Assert.AreEqual(new CellPos(2, 0, 0), st.Target);
+            Assert.AreEqual(new CellPos(2, 1, 0), st.Target);
             Assert.IsFalse(st.Carried);
             Assert.AreEqual(StageStatus.Open, st.Status);
             while (st.Status != StageStatus.Done && sim.State.Tick < 200) sim.Tick();

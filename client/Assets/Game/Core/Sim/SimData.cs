@@ -19,6 +19,7 @@ namespace Game.Core.Sim
         public override int GetHashCode() => unchecked((X * 397 ^ Y) * 397 ^ Z);
         public static bool operator ==(CellPos a, CellPos b) => a.Equals(b);
         public static bool operator !=(CellPos a, CellPos b) => !a.Equals(b);
+        public CellPos Offset(int dx, int dy, int dz) => new CellPos(X + dx, Y + dy, Z + dz);
         public override string ToString() => "(" + X + ", " + Y + ", " + Z + ")";
 
         public static int Manhattan(CellPos a, CellPos b) => Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) + Math.Abs(a.Z - b.Z);
@@ -26,7 +27,10 @@ namespace Game.Core.Sim
 
     public enum CreatureState : byte { Idle = 0, Moving = 1, Working = 2 }
 
-    public enum StageStatus : byte { Open = 0, Assigned = 1, Done = 2 }
+    public enum StageStatus : byte { Open = 0, Assigned = 1, Done = 2, Blocked = 3 }
+
+    /// <summary>Lý do đình trệ — bước 4 thêm kho đầy, thiếu năng lực.</summary>
+    public enum StallReason : byte { None = 0, NoPath = 1 }
 
     /// <summary>Player: người chơi nhận việc qua tab nhiệm vụ — M2 (0014); M1 chỉ có trường.</summary>
     public enum AssigneeKind : byte { None = 0, Creature = 1, Player = 2 }
@@ -38,6 +42,9 @@ namespace Game.Core.Sim
         public readonly WorkAbility Ability1, Ability2;
         public readonly int Mastery1, Mastery2;
         public readonly int SpeedPerTick;
+        public readonly int SizeX, SizeZ, SizeY;
+        public readonly List<CellPos> Path = new List<CellPos>();
+        public int PathIndex;
 
         public CellPos Cell;
         public CreatureState State;
@@ -45,7 +52,7 @@ namespace Game.Core.Sim
         public CellPos MoveTarget;
         public int MoveProgress;
 
-        public Creature(int id, string speciesId, WorkAbility ability1, WorkAbility ability2, int mastery1, int mastery2, int speedPerTick, CellPos cell)
+        public Creature(int id, string speciesId, WorkAbility ability1, WorkAbility ability2, int mastery1, int mastery2, int speedPerTick, int sizeX, int sizeZ, int sizeY, CellPos cell)
         {
             Id = id;
             SpeciesId = speciesId;
@@ -54,8 +61,14 @@ namespace Game.Core.Sim
             Mastery1 = mastery1;
             Mastery2 = mastery2;
             SpeedPerTick = speedPerTick;
+            SizeX = sizeX;
+            SizeZ = sizeZ;
+            SizeY = sizeY;
             Cell = cell;
         }
+
+        public bool Contains(int x, int y, int z) =>
+            x >= Cell.X && x < Cell.X + SizeX && z >= Cell.Z && z < Cell.Z + SizeZ && y >= Cell.Y && y < Cell.Y + SizeY;
 
         public bool HasAbility(WorkAbility a) => a == Ability1 || a == Ability2;
 
@@ -78,6 +91,7 @@ namespace Game.Core.Sim
         public AssigneeKind AssigneeKind;
         public int AssigneeId = -1;
         public bool Carried;
+        public StallReason Stall;
 
         public long WorkRequired => (long)BaseTicks * 1000;
         public int ProgressPermille => (int)(WorkDone * 1000 / WorkRequired);

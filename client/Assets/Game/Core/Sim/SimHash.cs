@@ -23,6 +23,12 @@ namespace Game.Core.Sim
                 h = MixInt(h, c.StageId);
                 h = MixInt(h, c.MoveTarget.X); h = MixInt(h, c.MoveTarget.Y); h = MixInt(h, c.MoveTarget.Z);
                 h = MixInt(h, c.MoveProgress);
+                h = MixInt(h, c.PathIndex);
+                h = MixInt(h, c.Path.Count);
+                for (int j = 0; j < c.Path.Count; j++)
+                {
+                    h = MixInt(h, c.Path[j].X); h = MixInt(h, c.Path[j].Y); h = MixInt(h, c.Path[j].Z);
+                }
             }
 
             h = MixInt(h, s.Stages.Count);
@@ -42,6 +48,7 @@ namespace Game.Core.Sim
                 h = MixInt(h, (int)g.AssigneeKind);
                 h = MixInt(h, g.AssigneeId);
                 h = MixInt(h, g.Carried ? 1 : 0);
+                h = MixInt(h, (int)g.Stall);
             }
 
             h = MixInt(h, s.Orders.Count);

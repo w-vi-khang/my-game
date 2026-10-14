@@ -28,6 +28,9 @@ namespace Game.Core.Sim
         public int mastery1;
         public int mastery2;
         public int moveSpeedMilliCellsPerSecond;
+        public int sizeX = 1;
+        public int sizeZ = 1;
+        public int sizeY = 1;
 
         public SpeciesWork() { }
         public SpeciesWork(string id, string ability1, string ability2, int mastery1, int mastery2, int moveSpeedMilliCellsPerSecond)
@@ -38,6 +41,14 @@ namespace Game.Core.Sim
             this.mastery1 = mastery1;
             this.mastery2 = mastery2;
             this.moveSpeedMilliCellsPerSecond = moveSpeedMilliCellsPerSecond;
+        }
+
+        public SpeciesWork(string id, string ability1, string ability2, int mastery1, int mastery2, int moveSpeedMilliCellsPerSecond, int sizeX, int sizeZ, int sizeY)
+            : this(id, ability1, ability2, mastery1, mastery2, moveSpeedMilliCellsPerSecond)
+        {
+            this.sizeX = sizeX;
+            this.sizeZ = sizeZ;
+            this.sizeY = sizeY;
         }
     }
 
@@ -147,6 +158,8 @@ namespace Game.Core.Sim
                 int spt = SpeedPerTick(sp);
                 if (spt < 1 || spt > 1000)
                     throw new ArgumentException("Loài " + sp.id + ": tốc độ mỗi nhịp phải trong [1, 1000].");
+                if (sp.sizeX < 1 || sp.sizeX > 4 || sp.sizeZ < 1 || sp.sizeZ > 4 || sp.sizeY < 1 || sp.sizeY > 4)
+                    throw new ArgumentException("Loài " + sp.id + ": khung phải trong [1, 4] mỗi chiều.");
             }
 
             if (crop == null || crop.growTimeMs <= 0 || crop.growTimeMs % msPerTick != 0)
