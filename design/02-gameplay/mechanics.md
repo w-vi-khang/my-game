@@ -24,7 +24,7 @@
 | Lệnh làm việc | Người chơi đặt lệnh, chia công đoạn, hệ thống phân sinh vật rảnh có năng lực làm việc phù hợp | P2 | Client | Phải có | 20–30: M1 7–11, M2 13–19 | M1 (một lệnh trồng cây), M2 |
 | Người chơi làm công đoạn | Người chơi tự làm công đoạn của lệnh (vd cầm cuốc xới) khi thiếu loài có năng lực hoặc muốn làm nhanh (user, 2026-10-13) | P2 | Client | Phải có | 2–4 | M2 |
 | Độ ưu tiên giữa các lệnh | Người chơi đặt thứ tự ưu tiên; ghép việc xét lệnh ưu tiên cao trước (user chốt, 2026-10-13) | P2 | Client | Nên có | [ý tưởng] 1–2 | M2 |
-| Tìm đường sinh vật | Đi trên địa hình người chơi thiết kế; không tới được → đình trệ + thông báo | P2 | Client | Phải có | 10–20: M1 4–7, M2 6–13 | M1 (đi bộ, khung 1 × 1), M2 |
+| Tìm đường sinh vật | Đi trên địa hình người chơi thiết kế; không tới được → đình trệ + thông báo | P2 | Client | Phải có | 11–21: M1 5–8 (+1 của [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md)), M2 6–13 | M1 (đi bộ, khung chiếm chỗ theo loài), M2 |
 | Kiểu di chuyển bay, bơi | Luật ô đi được cho loài bay (không cần đất dưới chân) và bơi (ô có nước); Map 1 có loài bay, bơi ([levels](levels.md)) | P1, P2 | Client | Phải có | [ý tưởng] 4–8 | M2 |
 | Tua nhanh | Khi vào lại game, tính sản lượng thay vì chạy animation; thời gian vắng mặt lấy từ giờ server | P2 | Client + Backend ([0003](../decisions/0003-server.md)) | Phải có | 8–15 | M2 |
 | Chiến đấu PvE lõi | Sát thương, máu, trúng/né, sinh vật hoang tấn công và AI đơn giản, thắng/thua một trận trong world — nền cho nhập hồn và phép | P4 | Client (logic C# thuần, chạy được trên game server sau này) | Phải có | [ý tưởng] 10–20 | M2 |
@@ -58,6 +58,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - **Biển tràn** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)): mực nước biển S = mực nước của world; đào một ô cao ≤ S kề mặt (6 hướng) ô nước hoặc biển ngoài map → nước lan qua mọi ô rỗng ≤ S thông với nó (khe chéo không thông) **theo nhịp** ([0013](../decisions/0013-nuoc-lan-theo-nhip.md)): rơi thẳng xuống ngay, lan ngang/dâng lên 1 ô mỗi nhịp (~8 nhịp/giây); đặt khối vào đường nước đang lan thì chặn được. Ô cao hơn S không ngập. Nước không tự rút — đặt khối/phá tường không làm khô vùng nào. Chảy dần (mực 0–7) là M2.
 - **Đào** (cuốc): ô thành rỗng, vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2).
 - **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ kho vật liệu; hết thì không đặt được. Đặt vào ô **rỗng hoặc ô nước** (nước ô đó mất), ô phải **kề mặt ít nhất một khối đặc** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)). Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
+- **Đào dưới chân sinh vật** (user, 2026-10-14, [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md)): được phép; sinh vật chạy ra ô bên cạnh đứng được, không có thì rơi thẳng xuống. Nước lan vào ô sinh vật đứng cũng vậy. Sinh vật không đi vào nước (bơi M2); mỗi loài có khung chiếm chỗ 3 chiều (M1 đều 1 × 1 × 1).
 - Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → **trồng được**.
 
 #### Sinh vật trở lại — luật M1

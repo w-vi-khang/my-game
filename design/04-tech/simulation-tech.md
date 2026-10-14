@@ -93,14 +93,14 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 | # | Bước | Xong khi | Ước lượng (ngày-người) |
 |---|---|---|---|
 | 1 | Lõi mô phỏng: nhịp cố định 10/giây, **số nguyên** (nhịp, tiến độ theo phần nghìn), seed; dữ liệu sinh vật / lệnh / công đoạn / kho; **ghép việc** theo năng lực + thuần thục, **đi theo khoảng cách ô** (chưa A\*), vận chuyển 2 chặng ([0014](../decisions/0014-ghep-viec-o-sim-buoc-1.md)) | Test: cùng đầu vào → cùng kết quả; thời gian xong = nhịp đi + nhịp làm | 3–5 · **Xong 2026-10-14** [run]: `Game.Core.Sim` (`SimRng` PCG32, `SimConfig` đọc `design/data/sim_m1.json`, `Simulation.Tick()` làm → đi → giao việc, `SimHash`); 18 test mới, EditMode 102/102; mã băm trạng thái trùng từng nhịp qua 2000 nhịp ([brief 0001](../../.ai/briefs/0001-sim-loi-mo-phong.md)) |
-| 2 | A\* đi bộ (thay đi theo khoảng cách của bước 1), khung 1 × 1, tính lại khi đào/đặt (map nhỏ, chưa cần vùng liên thông) | Đường đúng; đào cắt đường → đình trệ "không có đường" | 3–5 |
+| 2 | A\* đi bộ (thay đi theo khoảng cách của bước 1), **khung chiếm chỗ 3 chiều theo loài**, không đi vào nước; tính lại khi đào/đặt (map nhỏ, chưa cần vùng liên thông); đào dưới chân → sinh vật chạy ra ([0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md)) | Đường đúng với khung 1 × 1 × 1, 1 × 1 × 2, 2 × 2 × 1; đào cắt đường → đình trệ "không có đường" | 4–6 |
 | 3 | Lệnh trồng cây 5 công đoạn (ghép việc đã có từ bước 1); một kho | 3 loài (L1, L2, L3) làm xong một vụ, sản lượng vào kho | 2–4 |
 | 4 | Đình trệ + thông báo: không có đường / kho đầy / thiếu năng lực | 3 lý do đều hiện đúng | 1–2 |
 | 5 | Thuần thục + tốc độ vào thời gian công đoạn | Đổi thuần thục → thời gian đổi đúng công thức | 1 |
 | 6 | Hiển thị: nội suy vị trí, trạng thái | Sinh vật đi mượt ở 30 và 60 FPS | 1–2 |
 | 7 | Đo trên mobile với 60 sinh vật giả (sinh bằng lệnh debug) | ≤ 5 ms/nhịp (ngưỡng user duyệt 2026-10-13, số tạm) | 1 |
 | 8 | Môi trường sống: đếm yêu cầu theo sự kiện, 3 loài × 2–3 yêu cầu | Đào/đặt → tiến độ đổi ngay; đủ yêu cầu → loài trở lại | 3–6 |
-| | **Cộng** | | **15–26** |
+| | **Cộng** | | **16–27** |
 
 **Chuyển sang M2:** tua nhanh nhảy sự kiện + test lệch ≤ 2% (trong "Tua nhanh 8–15"); vùng liên thông, ngân sách A\*, khung nhiều ô; vật tư, nhiều lệnh, độ ưu tiên; 2 sinh vật cùng làm một công đoạn; độ bền làm việc, nghỉ, bệnh/mệt (trong "Nhu cầu sinh vật"); người chơi làm công đoạn; bay, bơi.
 
