@@ -1,6 +1,6 @@
 # Brief 0004 — Simulation bước 4: đình trệ + thông báo, nhà mẫu 2 × 2 × 2, sinh vật bị kẹt
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-14
@@ -355,10 +355,17 @@ Code ở commit `af43ba8`.
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 79bcd82
+- Bắt đầu: 2026-10-14 16:47 · Kết thúc: 2026-10-14 16:50 (đồng hồ máy)
+- Commit code: 5394feb — mới: Tests/Core/Sim/HomeTests.cs (+ .meta); sửa: Core/Sim/{SimConfig,SimData,Simulation,SimHash}.cs, Tests/Core/Sim/{TestWorlds,SimulationTests,SimulationTerrainTests,FarmTests,SimDeterminismTests,SimConfigTests}.cs, design/data/sim_m1.json
+- Lệch brief: không có. `GridPathfinder.cs`/`GridPathfinderTests.cs` không sửa.
 <!-- Base commit (trước khi làm) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả kiểm chứng
-<!-- `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+- MCP `refresh_unity` + `read_console` (error) → 0 lỗi biên dịch.
+- MCP `run_tests` EditMode → 138 total, 138 passed, 0 failed (131 + 7 HomeTests). Không chạy PlayMode.
+- grep cấm trong Core/Sim → rỗng. `python3 tools/check_design.py` → exit 0.
+- `git status --short` trước commit: chỉ file trong Phạm vi; `GridPathfinder*` không đổi.
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
