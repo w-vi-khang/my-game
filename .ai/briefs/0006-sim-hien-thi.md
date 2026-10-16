@@ -1,9 +1,9 @@
 # Brief 0006 — Simulation bước 6: hiển thị (nội suy vị trí, trạng thái)
 
-> Trạng thái: chờ review
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-16 22:20
+> Cập nhật: 2026-10-16 23:00 — thêm bước 9 (sửa sau user xem)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -66,7 +66,7 @@ API Unity (đã tra docs 6000.4 / Input System 1.19):
 
 ## Quyết định đã chốt (không được đổi)
 - (user) Scene mới `SimView` = bản chép của `TerrainView` + component `SimView` trên `Terrain`. Đào/đặt nối vào mô phỏng: `Editor.IsOccupied = Sim.IsOccupied`, `Editor.CellChanged += Sim.OnCellChanged`.
-- (user) Sinh vật = hộp theo khung, màu theo loài, mũi chỉ hướng. Không làm HUD kho/ruộng.
+- (user) Sinh vật = hộp theo khung, màu theo loài, mũi chỉ hướng. ~~Không làm HUD kho/ruộng.~~ → đổi ở bước 9: có HUD kho/ruộng (user, 2026-10-16).
 - (user) Trạng thái = nhãn Idle/Moving/Working + tiến độ, dấu "!" đỏ + lý do tại ô đình trệ. Chữ **nguyên văn** ở bước 3.
 - (user) Nội suy giữa 2 nhịp (trễ 1 nhịp). Test EditMode giả lập khung. F1 / F2 = 30 / 60 FPS.
 - (Planner) Lớp hiển thị C# thuần nằm trong `Game.Core`, thư mục `client/Assets/Game/Core/View/`, namespace `Game.Core.View`.
@@ -91,6 +91,7 @@ API Unity (đã tra docs 6000.4 / Input System 1.19):
   - `client/Assets/Game/Client/ConfigLoader.cs` (thêm hàm);
   - `client/Assets/Game/Tests/World/ConfigTests.cs` (thêm 1 test);
   - brief này (Trạng thái, Kết quả, Kết quả test, Vướng mắc).
+- Bước 9 (lần 2): tạo `client/Assets/Game/Core/View/SiteStatus.cs`, `client/Assets/Game/Tests/Core/View/SiteStatusTests.cs`; sửa `client/Assets/Game/Client/SimView.cs`, `client/Assets/Game/Tests/Client/SimViewPlayTests.cs`. Ngoài ra không file nào khác.
 - Không được sửa: mọi file khác, nhất là `Core/Sim/*` (trừ tạo `SimDemo.cs`), `TerrainChunkView.cs`, `TerrainEditInput.cs`, `TerrainView.unity`, asmdef, `ProjectSettings/*`, `design/`, `.ai/tasks/`.
 
 ## Các bước
@@ -662,8 +663,146 @@ API Unity (đã tra docs 6000.4 / Input System 1.19):
    - `git diff --quiet -- client/Assets/Game/Client/Scenes/TerrainView.unity` exit 0;
    - Play thử scene trong Editor vài giây: `read_console` (Error) rỗng, có 3 hộp sinh vật (`find_gameobjects` tên bắt đầu "Sinh vật"). Thoát Play.
 
+9. **Sửa sau user xem (lần 2, Planner thêm 2026-10-16)** — bước 1–8 đã xong (commit `487e523`, `4f2932f`), **không làm lại**. Chỉ làm 9.1–9.4. Code ở commit `a3b2bca`.
+   Quyết định (user, 2026-10-16) — bỏ "Không làm HUD kho/ruộng" ở mục Quyết định đã chốt:
+   - kho và ruộng hiện ở **bảng HUD góc trái**, dưới dòng FPS. Không có nhãn nổi trên ô ruộng.
+   - Chữ nguyên văn: `"Kho · nông sản 4 · hạt 10 · 14/50"`. Ruộng: `"Ruộng 0 · trống"` | `"· xới"` | `"· gieo"` | `"· tưới"` | `"· lớn 37%"` | `"· chín"`. % làm tròn xuống.
+   - Ô ruộng đang lớn có **mầm xanh**, cao dần theo %. Sinh vật đang mang hàng có **hộp vàng nhỏ trên lưng**; nhãn trên đầu giữ nguyên.
+
+   Code cần biết:
+   - `FarmPlot.Phase` (`SimData.cs:60` `enum PlotPhase { Idle, Till, Sow, Water, Growing, Harvest }`).
+   - Tưới xong → `Phase = Growing`, `RipeTick = State.Tick + Config.GrowTicks` (`Simulation.cs:447-450`). `Tick >= RipeTick` → `Harvest` (`:487-490`).
+   - `Simulation.Config` public (`:9`); `SimConfig.GrowTicks` (`SimConfig.cs:154`; map M1: 1200 nhịp).
+   - `WorkStage.Carried` (`SimData.cs:123`): bật khi sinh vật tới nơi lấy hàng (`Simulation.cs:577-579`), tắt khi bỏ việc (`:709-712`).
+   - `Storage.Capacity/Seeds/Produce` (`SimData.cs:171-188`).
+
+   1. **`SiteStatus`** — tạo `client/Assets/Game/Core/View/SiteStatus.cs`:
+      ```csharp
+      using Game.Core.Sim;
+
+      namespace Game.Core.View
+      {
+          /// <summary>Chữ bảng HUD kho/ruộng và dấu mang hàng (sim bước 6, sửa sau user xem 2026-10-16).</summary>
+          public static class SiteStatus
+          {
+              /// <summary>"Kho · nông sản 4 · hạt 10 · 14/50" — không tính phần đã giữ chỗ (Reserved).</summary>
+              public static string StorageText(Storage s) =>
+                  "Kho · nông sản " + s.Produce + " · hạt " + s.Seeds + " · " + (s.Seeds + s.Produce) + "/" + s.Capacity;
+
+              /// <summary>% sinh trưởng làm tròn xuống, chặn 0..100. Chỉ có nghĩa khi Phase = Growing.</summary>
+              public static int GrowPercent(FarmPlot p, long tick, int growTicks)
+              {
+                  long done = growTicks - (p.RipeTick - tick);
+                  if (done <= 0) return 0;
+                  if (done >= growTicks) return 100;
+                  return (int)(done * 100 / growTicks);
+              }
+
+              public static string PlotText(FarmPlot p, long tick, int growTicks)
+              {
+                  string head = "Ruộng " + p.Id + " · ";
+                  switch (p.Phase)
+                  {
+                      case PlotPhase.Till: return head + "xới";
+                      case PlotPhase.Sow: return head + "gieo";
+                      case PlotPhase.Water: return head + "tưới";
+                      case PlotPhase.Growing: return head + "lớn " + GrowPercent(p, tick, growTicks) + "%";
+                      case PlotPhase.Harvest: return head + "chín";
+                      default: return head + "trống";
+                  }
+              }
+
+              /// <summary>Đang cầm hàng: công đoạn vận chuyển của sinh vật đã lấy hàng (Carried).</summary>
+              public static bool IsCarrying(SimState s, Creature c)
+              {
+                  if (c.StageId < 0) return false;
+                  var st = s.Stages[c.StageId];
+                  return st.Ability == WorkAbility.Haul && st.Carried;
+              }
+          }
+      }
+      ```
+   2. **Sửa `client/Assets/Game/Client/SimView.cs`** (chỉ những chỗ sau):
+      - Sau dòng `NoseColor` (`:24`) thêm:
+        ```csharp
+        static readonly Color LoadColor = new Color(0.95f, 0.85f, 0.25f);
+        static readonly Color SproutColor = new Color(0.30f, 0.75f, 0.25f);
+        ```
+      - Sau `pivots` (`:40`) thêm:
+        ```csharp
+        readonly List<GameObject> loads = new List<GameObject>();
+        readonly List<Transform> sprouts = new List<Transform>();
+        ```
+      - Sau `BodyCount` (`:47`) thêm `public int SproutCount => sprouts.Count;`.
+      - `Box` (`:153`): đổi `void Box(` → `GameObject Box(`; thêm `return go;` cuối hàm.
+      - `Setup` (`:113-114`): thay vòng `foreach (var p in Sim.State.Plots)` bằng:
+        ```csharp
+        foreach (var p in Sim.State.Plots)
+        {
+            Box("Ruộng " + p.Id, new Vector3(p.Soil.X + 0.5f, p.Soil.Y + 1.02f, p.Soil.Z + 0.5f), new Vector3(0.9f, 0.04f, 0.9f), PlotColor, root);
+            var sprout = Box("Mầm " + p.Id, Vector3.zero, Vector3.one, SproutColor, root);
+            sprout.SetActive(false);
+            sprouts.Add(sprout.transform);
+        }
+        ```
+      - `Update` (`:90`): sau `UpdateBodies();` thêm `UpdateSprouts();`.
+      - `UpdateBodies` (`:131-138`): cuối thân vòng `for` (sau dòng `pivots[i].localRotation = …`) thêm:
+        ```csharp
+        loads[i].SetActive(SiteStatus.IsCarrying(Sim.State, c));
+        ```
+      - Thêm hàm ngay sau `UpdateBodies`:
+        ```csharp
+        void UpdateSprouts()
+        {
+            var ps = Sim.State.Plots;
+            int grow = Sim.Config.GrowTicks;
+            for (int i = 0; i < ps.Count && i < sprouts.Count; i++)
+            {
+                var p = ps[i];
+                bool show = p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest;
+                sprouts[i].gameObject.SetActive(show);
+                if (!show) continue;
+                int pct = p.Phase == PlotPhase.Harvest ? 100 : SiteStatus.GrowPercent(p, Sim.State.Tick, grow);
+                float h = 0.05f + 0.6f * pct / 100f;
+                sprouts[i].localPosition = new Vector3(p.Soil.X + 0.5f, p.Soil.Y + 1.04f + h * 0.5f, p.Soil.Z + 0.5f);
+                sprouts[i].localScale = new Vector3(0.3f, h, 0.3f);
+            }
+        }
+        ```
+      - `CreateBody` (`:141-151`): trước `bodies.Add(body);` thêm:
+        ```csharp
+        var load = Box("Hàng", new Vector3(0f, c.SizeY * 0.4f + 0.15f, 0f), new Vector3(0.35f, 0.3f, 0.35f), LoadColor, body);
+        load.SetActive(false);
+        loads.Add(load);
+        ```
+      - `OnGUI`: ngay sau `GUI.Label(new Rect(10, 100, …), …, hudStyle);` (`:178-179`) thêm:
+        ```csharp
+        int line = 1;
+        foreach (var s in Sim.State.Storages)
+            GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.StorageText(s), hudStyle);
+        foreach (var p in Sim.State.Plots)
+            GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks), hudStyle);
+        ```
+      - Doc comment đầu lớp (`:10-15`): thêm 1 dòng `/// HUD góc trái: kho + từng ô ruộng (giai đoạn, % lớn); mầm xanh cao theo %; hộp vàng trên lưng = đang mang hàng (sửa sau user xem 2026-10-16).`
+      Xong khi: MCP `refresh_unity` → `read_console` (Error) không có lỗi biên dịch.
+   3. **Test** — tạo `client/Assets/Game/Tests/Core/View/SiteStatusTests.cs` (4 test; `namespace Game.Core.Tests`, `using Game.Core.Sim; using Game.Core.View; using NUnit.Framework;`). Chép số đúng như dưới.
+      - `StorageTextFormat`: `var s = new Storage(0, new CellPos(1, 1, 1), 50, 10); s.Produce = 4; s.Reserved = 3;` → `StorageText(s) == "Kho · nông sản 4 · hạt 10 · 14/50"`.
+      - `PlotTextPerPhase`: `var p = new FarmPlot(2, 0, 0, new CellPos(5, 0, 5));`, `growTicks = 1200`, `tick = 100`. Lần lượt đặt `Phase`:
+        - `Idle` → `"Ruộng 2 · trống"`; `Till` → `"Ruộng 2 · xới"`; `Sow` → `"Ruộng 2 · gieo"`; `Water` → `"Ruộng 2 · tưới"`; `Harvest` → `"Ruộng 2 · chín"`;
+        - `Growing` + `RipeTick = 1300`: tick 100 → `"Ruộng 2 · lớn 0%"`, tick 544 → `"Ruộng 2 · lớn 37%"`, tick 1299 → `"Ruộng 2 · lớn 99%"`, tick 1300 → `"Ruộng 2 · lớn 100%"`.
+      - `GrowPercentClamps`: `Phase = Growing`, `RipeTick = 1300`, `growTicks = 1200`: tick 50 → 0; tick 2000 → 100.
+      - `IsCarryingOnlyHaulCarried`: `st = new SimState(new SimRng(1UL, 1UL))`.
+        - `st.Stages.Add(new WorkStage(0, 0, WorkAbility.Haul, new CellPos(5, 1, 5), true, new CellPos(8, 1, 8), 20, 0));`
+        - `st.Stages.Add(new WorkStage(1, 0, WorkAbility.Till, new CellPos(5, 1, 5), false, default, 60, 0));`
+        - sinh vật như bước 7 (mặc định `StageId = -1`).
+        - `StageId = -1` → false. `StageId = 0`, `Stages[0].Carried = false` → false; `= true` → true. `StageId = 1`, `Stages[1].Carried = true` → false.
+   4. **PlayMode** — sửa `SimViewPlayTests.SetsUpDemoAndRestoresFrameRate`: thêm 1 assert `sv.SproutCount == 4` cạnh `sv.BodyCount == 3`. Không đổi gì khác.
+
+   Lệnh chạy cho bước 9: như mục "Lệnh executor chạy" (mong đợi EditMode **194 / 194**, PlayMode 8/8). Trước khi bắt đầu, executor đổi Trạng thái → `đang làm`. Ghi kết quả vào mục Kết quả / Kết quả test dưới tiêu đề **"Lần 2 (bước 9)"**, không xoá phần lần 1.
+
 ## Tiêu chí xong
 - Mọi test ở bước 7 đạt, đúng tên và số. EditMode toàn bộ = **163 + 27 = 190**, PlayMode toàn bộ đạt (cũ + 1).
+- Bước 9: `SiteStatusTests` (4) đạt → EditMode **194**; PlayMode 8/8 (có assert `SproutCount == 4`).
 - `grep -rnE "float|double|System\.Random|UnityEngine|DateTime|Dictionary|HashSet|PriorityQueue" client/Assets/Game/Core/Sim/` → rỗng.
 - `grep -rn "UnityEngine\|UnityEditor" client/Assets/Game/Core/View/` → rỗng.
 - `cmp design/data/sim_m1.json client/Assets/Game/Client/Resources/Config/sim_m1.json` exit 0.
@@ -681,6 +820,7 @@ API Unity (đã tra docs 6000.4 / Input System 1.19):
 - **Bố trí demo trên map M1** (bước 4) · `SimDemoTests` (3) · bố trí đúng; 4 vụ vào kho; chạy mãi không đình trệ.
 - **Config client** (bước 5) · `ConfigTests.SimClientCopyMatchesDesignData` + `cmp` · giống nhau.
 - **`SimView` dựng trong Unity** (bước 6) · `SimViewPlayTests` (1) · dựng được 3 sinh vật, khoá 60 FPS, trả lại cài đặt FPS.
+- **HUD kho/ruộng, % lớn, mang hàng** (bước 9) · `SiteStatusTests` (4) + `SimViewPlayTests` · chữ đúng nguyên văn, % làm tròn xuống và chặn 0..100, chỉ vận chuyển đã lấy hàng mới tính là mang; 4 mầm được dựng.
 - **Scene** (bước 8) · grep guid, `git diff` TerrainView, Play thử · như "Xong khi" bước 8.
 - **Regression mô phỏng bước 1–5** · EditMode toàn bộ · 163 test cũ vẫn đạt (không sửa dòng nào trong `Core/Sim/` cũ).
 - **Regression world/terrain** (scene `TerrainView`, `TerrainEditPlayTests`, `OceanBackdropTests`) · PlayMode toàn bộ · test cũ vẫn đạt.
@@ -712,6 +852,10 @@ Mở `Assets/Game/Client/Scenes/SimView.unity` trong Editor, bấm Play. Bấm v
    - Chờ tới lúc thu hoạch, khoảng 2,5 phút sau khi Play. Mong đợi: hiện "! không có đường" màu đỏ ở chỗ hàng nằm (ô ruộng vừa thu hoạch).
    - Đào bỏ một khối tường tầng dưới → dấu mất, L3 mang hàng vào kho.
 5. **Đào/đặt vẫn chạy như TerrainView.** Đặt khối lên ô có sinh vật / nhà / kho → báo "ô đang bị chiếm".
+6. **(Bước 9) HUD và dấu:**
+   - Dưới dòng FPS: 1 dòng "Kho · nông sản … · hạt … · …/50" + 4 dòng "Ruộng 0..3 · …", đổi theo việc (trống → xới → gieo → tưới → lớn …% → chín).
+   - Ô ruộng đang lớn có mầm xanh cao dần; lúc "chín" mầm cao nhất.
+   - Sinh vật đang mang hàng (thường L3 · đi → vận chuyển, sau khi tới ruộng) có hộp vàng trên lưng; tới kho xong thì mất, số nông sản trong kho tăng.
 
 Phản hồi cho Planner: đạt / không đạt từng mục, kèm ảnh chụp nếu có chỗ lạ.
 
@@ -762,3 +906,5 @@ Planner, 2026-10-16 — user xem (ảnh ở nhịp 1441, 60 FPS): **cần sửa*
 - Thiếu hiển thị (lỗi brief, sửa trong 0006): giai đoạn ruộng + % sinh trưởng; hàng đang mang trên sinh vật; số hàng trong kho.
 - Ngoài 0006 (luật mô phỏng mới, user quyết 2026-10-16 → quyết định mới + task/brief riêng): sinh vật chặn nhau khi đi; rảnh → về quanh nhà + lang thang (kéo từ M2 vào M1); không dừng trên ô ruộng khi không có việc ở đó.
 - Lỗi world "đặt được nhưng không vẽ lại", "dưới là cỏ mà vẽ nâu": Planner kiểm qua MCP (scene tạm, không lưu) — 220 lần đặt + đào trên khắp map đều vẽ lại đúng mặt trên + màu; 1846 tia từ camera SimView chọn ô đào/đặt đều hợp lệ; hố 3 × 3 hiện đúng đáy đất [run]. Chưa tái hiện → chờ user gửi dòng thông báo HUD + ảnh lúc lỗi.
+
+Planner, 2026-10-16 (phiên sau) — viết bước 9 (HUD kho/ruộng, mầm theo %, hộp mang hàng; user chọn HUD góc trái + duyệt chữ). Lỗi world: Planner thử lại trong Play SimView (mô phỏng chạy, camera (26, 26, 10)) theo đúng phép tính ô của `TerrainEditInput` [run]: 63/63 lần đặt cỏ `Ok`; sau khi dựng lại, 59 khối thấy mặt trên, 3 chỉ thấy sườn, 1 bị địa hình che; ảnh chụp thấy rõ các cột cỏ (mặt xanh, sườn nâu). "Cỏ vẽ nâu" khớp thiết kế (sườn ô cỏ màu đất). "Đặt được mà không vẽ" vẫn chưa tái hiện → để ngoài 0006, user gặp lại thì chụp HUD dòng 3.
