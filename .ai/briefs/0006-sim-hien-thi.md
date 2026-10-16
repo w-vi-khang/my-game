@@ -757,3 +757,8 @@ Planner, 2026-10-16 — phần code: **đạt**; chờ user xem (mục "User t�
 - `SimView`: thứ tự KeepFarming → Tick → Capture → ApplyEvents → Clear, nối `IsOccupied` / `CellChanged`, lưu và trả `vSyncCount` / `targetFrameRate` đúng brief.
 - Ghi nhận: lần Play đầu ngay sau khi thêm component không chạy Start (domain reload) — không phải lỗi code.
 - Giờ thực tế ≈ 9 phút làm việc của executor (ước lượng 1–2 ngày-người).
+
+Planner, 2026-10-16 — user xem (ảnh ở nhịp 1441, 60 FPS): **cần sửa**, bước sửa viết ở phiên sau (xem `.ai/handoff.md`).
+- Thiếu hiển thị (lỗi brief, sửa trong 0006): giai đoạn ruộng + % sinh trưởng; hàng đang mang trên sinh vật; số hàng trong kho.
+- Ngoài 0006 (luật mô phỏng mới, user quyết 2026-10-16 → quyết định mới + task/brief riêng): sinh vật chặn nhau khi đi; rảnh → về quanh nhà + lang thang (kéo từ M2 vào M1); không dừng trên ô ruộng khi không có việc ở đó.
+- Lỗi world "đặt được nhưng không vẽ lại", "dưới là cỏ mà vẽ nâu": Planner kiểm qua MCP (scene tạm, không lưu) — 220 lần đặt + đào trên khắp map đều vẽ lại đúng mặt trên + màu; 1846 tia từ camera SimView chọn ô đào/đặt đều hợp lệ; hố 3 × 3 hiện đúng đáy đất [run]. Chưa tái hiện → chờ user gửi dòng thông báo HUD + ảnh lúc lỗi.
