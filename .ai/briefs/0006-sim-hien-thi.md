@@ -1,9 +1,9 @@
 # Brief 0006 — Simulation bước 6: hiển thị (nội suy vị trí, trạng thái)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-16
+> Cập nhật: 2026-10-16 22:13
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -729,10 +729,25 @@ Phản hồi cho Planner: đạt / không đạt từng mục, kèm ảnh chụp
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 0477fb0
+Chạy bằng: Sonnet · medium (claude-sonnet-5-5)
+Bắt đầu: 2026-10-16 22:09 · dừng: 22:13 (chưa làm bước 8)
+Commit code (bước 1–7): 487e523. SimView.cs chép nguyên, không sửa. Chưa tạo scene SimView.unity.
 
 ## Kết quả test
+- EditMode (qua tools/unity_test.py, Editor tắt): 190/190 đạt (gồm 27 test mới + SimClientCopyMatchesDesignData).
+- PlayMode (qua script): 8/8 đạt (cũ 7 + SimViewPlayTests). Đã M	.ai/briefs/0006-sim-hien-thi.md
+Your branch is ahead of 'origin/main' by 9 commits.
+  (use "git push" to publish your local commits) EditorSettings.asset; On branch main
+Your branch is ahead of 'origin/main' by 9 commits.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean sạch.
+- cmp sim_m1.json: exit 0. Hai grep: rỗng. check_design: exit 0.
+- Bước 8 / Play thử scene / MCP : chưa làm (Editor tắt) → xem Vướng mắc.
 
 ## Vướng mắc
+Unity Editor không chạy (MCP báo "No Unity Editor instances found"); brief quy định Editor tắt ở bước 8 → . Bước 1–7 xong và test đạt; còn bước 8 (tạo scene SimView, thêm component, đặt camera, Play thử). Đề xuất: mở Editor rồi chạy lại  chỉ cho bước 8 (hoặc Planner xác nhận cho phép làm bước 8 sau khi mở Editor).
 
 ---
 <!-- PLANNER ghi khi review. -->
