@@ -1,9 +1,9 @@
 # Brief 0005 — Simulation bước 5: thuần thục vào thời gian công đoạn (bảng mức → tốc độ làm mỗi nhịp)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-16
+> Cập nhật: 2026-10-16 (xong)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -292,8 +292,24 @@ Không.
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 2636e37
+- Chạy bằng: Sonnet · medium
+- Giờ thực tế: bắt đầu 21:32, kết thúc 21:34 (đồng hồ máy; phần lớn thời gian là chạy test, Editor tắt)
+- Commit: f86a6dc
+- File đổi: SimConfig.cs, Simulation.cs (1 dòng :419), SimConfigTests.cs, MasteryTests.cs (+.meta), design/data/sim_m1.json
+- Không gặp vướng mắc; không sửa số nào trong test.
 
 ## Kết quả test
+- Tra bảng · đạt · `WorkSpeedFollowsTable` 10 ca.
+- Kiểm bảng khi nạp · đạt · 6 khối mới trong `ValidateRejectsBadValues`.
+- JSON khớp code · đạt · `ConfigMatchesCodeDefaults`, `ConfigParsesAndValidates`.
+- Thời gian làm theo thuần thục · đạt · `WorkTicksFollowTable` 11 ca.
+- Vận chuyển · đạt · `HaulWorkFollowsMastery` 2 ca.
+- Đi + làm · đạt · `TravelPlusWorkUsesMastery`.
+- Đổi sinh vật giữa chừng · đạt · `SwapMidStageKeepsProgressUsesNewSpeed`.
+- Regression bước 1–4 · đạt · toàn bộ test cũ không sửa.
+- Grep API cấm trong Core/Sim · rỗng (grep exit 1).
+- Lệnh: json.tool OK; Editor tắt (MCP không thấy instance) → `python3 tools/unity_test.py EditMode`: 163 test, đạt 163, lỗi 0, bỏ qua 0 (đúng 163 mong đợi); `check_design.py` exit 0; `git diff` Simulation.cs đúng 1 dòng; `git status` chỉ file trong Phạm vi.
 
 ## Vướng mắc
 
