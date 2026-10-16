@@ -21,6 +21,17 @@ namespace Game.World.Tests
         }
 
         [Test]
+        public void SimClientCopyMatchesDesignData()
+        {
+            var src = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "design", "data", "sim_m1.json"));
+            var copy = Path.Combine(Application.dataPath, "Game", "Client", "Resources", "Config", "sim_m1.json");
+            Assert.IsTrue(File.Exists(src), src);
+            Assert.IsTrue(File.Exists(copy), copy);
+            Assert.AreEqual(File.ReadAllText(src), File.ReadAllText(copy),
+                "Bản trong client khác design/data/sim_m1.json — chép lại từ design/data");
+        }
+
+        [Test]
         public void ConfigParsesAndValidates()
         {
             var p = JsonUtility.FromJson<TerrainParams>(File.ReadAllText(SourcePath));

@@ -1,0 +1,82 @@
+using System.IO;
+using Game.Core;
+using Game.Core.Sim;
+using Game.World;
+using NUnit.Framework;
+using UnityEngine;
+
+namespace Game.World.Tests
+{
+    /// <summary>Sim bước 6 — bố trí demo trên map M1 thật (world_m1.json) chạy được, không đình trệ.</summary>
+    public class SimDemoTests
+    {
+        static string Data(string name) => Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "design", "data", name));
+
+        static Simulation NewSim()
+        {
+            var p = JsonUtility.FromJson<TerrainParams>(File.ReadAllText(Data("world_m1.json")));
+            var world = TerrainGenerator.Generate(p);
+            var cfg = JsonUtility.FromJson<SimConfig>(File.ReadAllText(Data("sim_m1.json")));
+            var sim = new Simulation(cfg, world);
+            SimDemo.Build(sim);
+            return sim;
+        }
+
+        static int Run(Simulation sim, int ticks, bool keepFarming)
+        {
+            int stalls = 0;
+            for (int i = 0; i < ticks; i++)
+            {
+                if (keepFarming) SimDemo.KeepFarming(sim);
+                sim.Tick();
+                var ev = sim.State.Events;
+                for (int k = 0; k < ev.Count; k++)
+                    if (ev[k].Kind == SimEventKind.StallStarted) stalls++;
+                ev.Clear();
+            }
+            return stalls;
+        }
+
+        [Test]
+        public void BuildPlacesLayout()
+        {
+            var sim = NewSim();
+            var s = sim.State;
+            Assert.AreEqual(2, s.Houses.Count);
+            Assert.AreEqual(SimDemo.HouseA, s.Houses[0].Cell);
+            Assert.AreEqual(SimDemo.HouseB, s.Houses[1].Cell);
+            Assert.AreEqual(1, s.Storages.Count);
+            Assert.AreEqual(new CellPos(34, 18, 17), s.Storages[0].Cell);
+            Assert.AreEqual(10, s.Storages[0].Seeds);
+            Assert.AreEqual(3, s.Creatures.Count);
+            string[] sp = { "L1", "L2", "L3" };
+            CellPos[] cells = { new CellPos(32, 18, 16), new CellPos(33, 18, 16), new CellPos(36, 18, 16) };
+            int[] homes = { 0, 0, 1 };
+            for (int i = 0; i < 3; i++)
+            {
+                Assert.AreEqual(sp[i], s.Creatures[i].SpeciesId);
+                Assert.AreEqual(cells[i], s.Creatures[i].Cell);
+                Assert.AreEqual(homes[i], s.Creatures[i].HomeId);
+            }
+            Assert.AreEqual(4, s.Plots.Count);
+            for (int i = 0; i < 4; i++) Assert.AreEqual(SimDemo.Soil[i], s.Plots[i].Soil);
+        }
+
+        [Test]
+        public void OneRoundFillsStorage()
+        {
+            var sim = NewSim();
+            Assert.AreEqual(0, Run(sim, 4000, false));
+            Assert.AreEqual(4, sim.State.Storages[0].Produce);
+            Assert.AreEqual(10, sim.State.Storages[0].Seeds);
+        }
+
+        [Test]
+        public void KeepFarmingContinues()
+        {
+            var sim = NewSim();
+            Assert.AreEqual(0, Run(sim, 8000, true));
+            Assert.GreaterOrEqual(sim.State.Storages[0].Produce, 8);
+        }
+    }
+}

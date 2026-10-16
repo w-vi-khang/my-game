@@ -1,0 +1,29 @@
+{
+    "configVersion": 1,
+    "simSeed": 20261014,
+    "ticksPerSecond": 10,
+    "stageTimes": [
+        { "ability": "Till", "baseTimeMs": 6000 },
+        { "ability": "Sow", "baseTimeMs": 3000 },
+        { "ability": "Water", "baseTimeMs": 3000 },
+        { "ability": "Harvest", "baseTimeMs": 4000 },
+        { "ability": "Haul", "baseTimeMs": 2000 }
+    ],
+    "species": [
+        { "id": "L1", "ability1": "Till", "ability2": "Sow", "mastery1": 100, "mastery2": 100, "moveSpeedMilliCellsPerSecond": 1500, "sizeX": 1, "sizeZ": 1, "sizeY": 1 },
+        { "id": "L2", "ability1": "Water", "ability2": "Harvest", "mastery1": 100, "mastery2": 100, "moveSpeedMilliCellsPerSecond": 1500, "sizeX": 1, "sizeZ": 1, "sizeY": 1 },
+        { "id": "L3", "ability1": "Haul", "ability2": "Harvest", "mastery1": 100, "mastery2": 100, "moveSpeedMilliCellsPerSecond": 2000, "sizeX": 1, "sizeZ": 1, "sizeY": 1 }
+    ],
+    "masteryLevels": [
+        { "minMastery": 0, "speedPermille": 500 },
+        { "minMastery": 50, "speedPermille": 750 },
+        { "minMastery": 100, "speedPermille": 1000 },
+        { "minMastery": 200, "speedPermille": 1250 },
+        { "minMastery": 400, "speedPermille": 1500 }
+    ],
+    "crop": { "growTimeMs": 120000, "seedsPerHarvest": 1, "producePerHarvest": 1 },
+    "storage": { "capacity": 50, "startSeeds": 10 },
+    "farm": { "plotQueueCapacity": 2 },
+    "house": { "capacity": 2, "sizeX": 2, "sizeZ": 2, "sizeY": 2 },
+    "creature": { "stuckTimeMs": 30000 }
+}
