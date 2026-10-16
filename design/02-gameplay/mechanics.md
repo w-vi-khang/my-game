@@ -117,6 +117,7 @@ stateDiagram-v2
 - Không có đường tới vị trí của công đoạn → công đoạn đó **đình trệ** và gửi thông báo cho người chơi.
 - Thông báo chỉ rõ vị trí và lý do (không có đường / thiếu vật tư / kho đầy), bấm vào để xem tại chỗ. (user chốt, 2026-10-13)
 - Mỗi loài có kiểu di chuyển (đi bộ, bay, bơi) — ảnh hưởng đường đi và là một lý do để sưu tầm thêm loài. (user chốt, 2026-10-13) **M1 chỉ đi bộ**; bay, bơi ở M2 ([0007](../decisions/0007-m1-toi-gian.md)).
+- **Sinh vật chặn nhau khi đi** (user, 2026-10-16, [0019](../decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md), M1 simulation bước 6b): sinh vật không đi xuyên qua nhau. Gặp con khác chắn → chờ 1 giây rồi tìm đường khác; đối đầu ở lối hẹp → con ưu tiên thấp hơn nhường, kẹt quá 5 giây thì cho đi xuyên; con rảnh tự né khỏi đường. Ô ruộng đi qua được nhưng không dừng trên đó nếu không có việc ở chính ô đó.
 - **Sinh vật bị kẹt** (user, 2026-10-14): kẹt vì bất kỳ lý do gì quá một khoảng thời gian → sinh vật biến mất và hiện lại ở **nhà** của nó (xem [Nhà sinh vật](#nhà-sinh-vật)). Kẹt = **không có đường về nhà** liên tục **30 giây** (số tạm, chỉnh bằng `game-balance`). Làm ở M1, simulation bước 4 ([0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)); ước lượng ~1 ngày-người.
   - Chỉ đếm khi sinh vật **rảnh** (không có việc, hoặc việc vừa bị cắt đường) mà không có đường về nhà; đang đi theo đường hợp lệ hoặc đang làm thì không đếm, có việc lại thì đếm lại từ 0. Hàng đang mang bị rơi khi cắt đường → theo sinh vật về nhà nếu chưa ai nhặt. (user, 2026-10-14, [0017](../decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md))
 - **Thiếu năng lực** (user, 2026-10-14, [0017](../decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)): không sinh vật **có nhà** nào sở hữu năng lực của công đoạn (đang bận vẫn tính là có) → đình trệ. M1: thông báo là danh sách sự kiện trong lõi mô phỏng (bắt đầu / hết đình trệ, không lặp mỗi nhịp); hiển thị ở simulation bước 6.
@@ -124,7 +125,7 @@ stateDiagram-v2
 ### Nhà sinh vật
 Mô tả của user (2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)).
 - Mỗi sinh vật làm việc có **nhà**: một công trình nhà, hoặc nơi người chơi tự xây — có tường bao quanh (cao 1 ô là đủ), có khoảng hở để lắp **cửa** (vật phẩm công trình, nhiều loại và kích thước), có 2 nội thất.
-- **Sinh vật có nhà mới làm việc được.** Sinh vật rảnh hoạt động trong một bán kính quanh nhà.
+- **Sinh vật có nhà mới làm việc được.** Sinh vật rảnh hoạt động trong một bán kính quanh nhà. **M1** (user, 2026-10-16, [0019](../decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)): bán kính **4 ô**; ở ngoài thì đi về; trong bán kính thì mỗi **5–10 giây** đi tới một ô ngẫu nhiên (số tạm, chỉnh bằng `game-balance`); không dừng trên ô ruộng.
 - Nhà có nhiều kích thước; mẫu ban đầu **2 × 2 × 2**, sức chứa **2** sinh vật. Sức chứa nhà người chơi tự xây theo diện tích và tường bao.
 - Phần mở đầu: sinh vật có nhà sẵn.
 - **M1:** nhà mẫu là **khối đặc** chiếm 8 ô (chặn đi qua, chặn đặt khối, không cửa); sinh vật hiện lại ở ô kề nhà đứng được đầu tiên theo thứ tự cố định ([0017](../decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)).
