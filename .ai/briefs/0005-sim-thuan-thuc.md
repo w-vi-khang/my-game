@@ -1,6 +1,6 @@
 # Brief 0005 — Simulation bước 5: thuần thục vào thời gian công đoạn (bảng mức → tốc độ làm mỗi nhịp)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-16 (xong)
@@ -317,3 +317,10 @@ Không.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+**Đã duyệt** (Planner, 2026-10-16, mức đầy đủ).
+- Chạy bằng `Sonnet · medium` = Model thực thi. Mọi dòng ở "Phần cần test" có kết quả (đạt).
+- Diff `f86a6dc`: `SimConfig.cs` đúng mã trong bước 1 (class, bảng, `WorkSpeedPermille`, 5 luật kiểm); `Simulation.cs` đúng 1 dòng `:419`; `sim_m1.json` đúng vị trí; `SimConfigTests.cs` chỉ thêm dòng (40+/0−); `MasteryTests.cs` khớp từng số nhịp / `WorkDone` trong bước 5. Không đụng `SimData.cs`, `SimHash.cs`, test cũ.
+- Phạm vi: chỉ file được phép. Quyết định 0018 giữ nguyên (điểm ghép việc, tốc độ đi không đổi).
+- Không chạy lại test: kết quả đủ, 163 = 138 + 25 khớp kỳ vọng.
+- Ghi chú cho bước 7 (đo hiệu năng): `WorkSpeedPermille` duyệt bảng (5 dòng) mỗi nhịp cho mỗi sinh vật đang làm — rẻ; nếu cần thì lưu sẵn hệ số trong `Creature`.
+- Đã ghi kết quả vào simulation-tech hàng 5 và roadmap "Theo dõi M1".

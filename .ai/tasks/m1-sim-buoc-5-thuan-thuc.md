@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 5 — thuần thục vào thời gian công đoạn (bảng mức → tốc độ làm mỗi nhịp)
 
-> Trạng thái: user xác nhận 2026-10-16 ([0018](../../design/decisions/0018-thuan-thuc-bang-muc.md)) — giao [brief 0005](../briefs/0005-sim-thuan-thuc.md)
+> Trạng thái: user xác nhận 2026-10-16 ([0018](../../design/decisions/0018-thuan-thuc-bang-muc.md)) — xong 2026-10-16, [brief 0005](../briefs/0005-sim-thuan-thuc.md) đã duyệt
 
 ## Mục tiêu
 Bước 5 của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1):
@@ -16,16 +16,16 @@ Bước 5 của [kế hoạch prototype simulation](../../design/04-tech/simulat
 - Đổi thuần thục của L1–L3 (giữ 100).
 
 ## Tiêu chí chấp nhận (kiểm chứng được)
-- [ ] Tra bảng đúng ở mọi ngưỡng biên (1, 49, 50, 99, 100, 199, 200, 399, 400, rất lớn) — test EditMode.
-- [ ] Bảng sai bị từ chối khi nạp (rỗng, ngưỡng đầu > 1, ngưỡng không tăng, hệ số ngoài [1, 10000], hệ số giảm) — test EditMode.
-- [ ] Đổi thuần thục → số nhịp làm = ⌈B × 1000 ÷ hệ số⌉ cho cả năng lực 1 và 2, có trường hợp làm tròn lên — test EditMode.
-- [ ] Đi + làm: nhịp xong = nhịp tới nơi + số nhịp làm theo thuần thục — test EditMode.
-- [ ] Đổi sinh vật giữa chừng: giữ tiến độ, phần còn lại theo hệ số của sinh vật mới — test EditMode.
-- [ ] Test bước 1–4 giữ nguyên mọi số nhịp; EditMode toàn bộ đạt; `check_design.py` exit 0. Planner khi review: ghi kết quả vào simulation-tech + roadmap (ước lượng 1).
+- [x] Tra bảng đúng ở mọi ngưỡng biên (1, 49, 50, 99, 100, 199, 200, 399, 400, rất lớn) — test EditMode.
+- [x] Bảng sai bị từ chối khi nạp (rỗng, ngưỡng đầu > 1, ngưỡng không tăng, hệ số ngoài [1, 10000], hệ số giảm) — test EditMode.
+- [x] Đổi thuần thục → số nhịp làm = ⌈B × 1000 ÷ hệ số⌉ cho cả năng lực 1 và 2, có trường hợp làm tròn lên — test EditMode.
+- [x] Đi + làm: nhịp xong = nhịp tới nơi + số nhịp làm theo thuần thục — test EditMode.
+- [x] Đổi sinh vật giữa chừng: giữ tiến độ, phần còn lại theo hệ số của sinh vật mới — test EditMode.
+- [x] Test bước 1–4 giữ nguyên mọi số nhịp; EditMode toàn bộ đạt; `check_design.py` exit 0. Planner khi review: ghi kết quả vào simulation-tech + roadmap (ước lượng 1).
 
 ## Quyết định đã chốt
 - 0018 (user 2026-10-16): bảng mức theo ngưỡng giá trị; áp theo tốc độ mỗi nhịp; "tốc độ" = tốc độ làm; sức chở để M2; số tạm, L1–L3 giữ 100.
 - 0018 (Planner): bảng tạm 0 → 500, 50 → 750, 100 → 1000, 200 → 1250, 400 → 1500 (‰); luật kiểm bảng khi nạp.
 
 ## Kết quả
-_(chưa có)_
+- Commit `f86a6dc`. [run] EditMode 163/163 (`tools/unity_test.py`, Editor tắt), `check_design.py` exit 0, grep cấm trong `Core/Sim/` rỗng.
