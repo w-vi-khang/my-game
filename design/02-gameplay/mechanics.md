@@ -89,7 +89,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - Không dùng AI phức tạp: sinh vật chỉ thực hiện công đoạn được giao.
 - **Người chơi tự làm được công đoạn** (user, 2026-10-13), vd cầm cuốc xới ô đất của lệnh → công đoạn đó xong cho ô ấy. Dùng khi chưa có loài đủ năng lực (onboarding bước 6 — [controls-ui](controls-ui.md#hướng-dẫn-người-mới-onboarding)) hoặc muốn làm nhanh. [ý tưởng] Ước lượng 2–4 ngày-người, M2. Chi tiết (user, 2026-10-14, [0014](../decisions/0014-ghep-viec-o-sim-buoc-1.md)): người chơi mở tab nhiệm vụ, nhận một công đoạn chưa giao cho sinh vật nào rồi tự đi tới làm; công đoạn dừng giữa chừng giữ tiến độ. M1 chỉ có sẵn trường dữ liệu.
 - **Tối đa 2 sinh vật cùng làm một công đoạn** (user, 2026-10-13) → thời gian công đoạn giảm. Con thứ hai rút ngắn ít hơn con đầu (user chấp nhận đề xuất, 2026-10-13), vd thời gian × 0,6 thay vì × 0,5 — số liệu bằng `game-balance`.
-- Tốc độ/hiệu quả làm công đoạn theo **độ thuần thục** của năng lực tương ứng (vd thuần thục cao rút ngắn thời gian tưới nước, vận chuyển được nhiều hàng hơn mỗi lượt).
+- Tốc độ/hiệu quả làm công đoạn theo **độ thuần thục** của năng lực tương ứng (vd thuần thục cao rút ngắn thời gian tưới nước, vận chuyển được nhiều hàng hơn mỗi lượt). M1 (user, 2026-10-16, [0018](../decisions/0018-thuan-thuc-bang-muc.md)): thuần thục chỉ đổi tốc độ làm, qua **bảng mức thuần thục** (số tạm); vận chuyển nhiều hàng hơn mỗi lượt để M2.
 - Nội tại của loài cộng thêm hiệu quả cho công đoạn (vd loài có nội tại gắn với nước tưới nhanh hơn — nội tại, không phải nguyên tố). (user chốt, 2026-10-13) M1 chưa có nội tại (hệ số = 1).
 - Người chơi đặt độ ưu tiên giữa các lệnh. (user chốt, 2026-10-13; làm ở M2)
 

@@ -97,6 +97,7 @@
 | Chỉ số chiến đấu | Bảng chỉ số dùng khi chiến đấu: máu, giáp, kháng phép, tốc độ đánh, sát thương... + chỉ số đặc trưng loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Năng lực làm việc | Loại công đoạn một loài làm được; mỗi loài có 2 (vd vận chuyển, tưới nước) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Độ thuần thục | Chỉ số làm việc ứng với một năng lực làm việc; cao thì làm công đoạn đó hiệu quả hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bảng mức thuần thục | Bảng dữ liệu: ngưỡng độ thuần thục → hệ số tốc độ làm công đoạn | [04-tech/simulation-tech.md](04-tech/simulation-tech.md) |
 | Sức khoẻ | Chỉ số làm việc; cao thì sinh vật ít bị bệnh hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bệnh | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao và sức khoẻ cao (tác động chưa có) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mệt | Trạng thái xấu của sinh vật; ít xảy ra khi mức đáp ứng nhu cầu cao; theo mức độ: làm chậm → nghỉ nhiều hơn → dừng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

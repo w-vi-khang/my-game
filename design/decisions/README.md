@@ -23,3 +23,4 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0015](0015-tim-duong-khung-va-dao-duoi-chan.md) | Tìm đường M1: khung chiếm chỗ 3 chiều, không đi vào nước, đào dưới chân thì sinh vật chạy ra | Chốt |
 | [0016](0016-o-ruong-kho-nha-va-sinh-vat-ket.md) | Ô ruộng có hàng đợi, đứng ô kề để làm, kho là công trình; nhà sinh vật + sinh vật bị kẹt ở simulation bước 4 | Chốt (định nghĩa "kẹt" làm rõ ở 0017) |
 | [0017](0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md) | Simulation bước 4: thông báo là sự kiện trong lõi, thiếu năng lực, nhà mẫu khối đặc, chỉ đếm kẹt khi rảnh | Chốt |
+| [0018](0018-thuan-thuc-bang-muc.md) | Simulation bước 5: thuần thục vào thời gian công đoạn qua bảng mức, áp theo tốc độ mỗi nhịp | Chốt |
