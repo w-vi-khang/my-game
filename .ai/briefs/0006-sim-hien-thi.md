@@ -735,19 +735,13 @@ Bắt đầu: 2026-10-16 22:09 · dừng: 22:13 (chưa làm bước 8)
 Commit code (bước 1–7): 487e523. SimView.cs chép nguyên, không sửa. Chưa tạo scene SimView.unity.
 
 ## Kết quả test
-- EditMode (qua tools/unity_test.py, Editor tắt): 190/190 đạt (gồm 27 test mới + SimClientCopyMatchesDesignData).
-- PlayMode (qua script): 8/8 đạt (cũ 7 + SimViewPlayTests). Đã M	.ai/briefs/0006-sim-hien-thi.md
-Your branch is ahead of 'origin/main' by 9 commits.
-  (use "git push" to publish your local commits) EditorSettings.asset; On branch main
-Your branch is ahead of 'origin/main' by 9 commits.
-  (use "git push" to publish your local commits)
-
-nothing to commit, working tree clean sạch.
+- EditMode (qua tools/unity_test.py, Editor tắt): 190/190 đạt (27 test mới + SimClientCopyMatchesDesignData).
+- PlayMode (qua tools/unity_test.py): 8/8 đạt (cũ 7 + SimViewPlayTests). Đã `git checkout` EditorSettings.asset; `git status client/ProjectSettings/` sạch.
 - cmp sim_m1.json: exit 0. Hai grep: rỗng. check_design: exit 0.
-- Bước 8 / Play thử scene / MCP : chưa làm (Editor tắt) → xem Vướng mắc.
+- Bước 8 (scene SimView, Play thử, MCP `refresh_unity`/`read_console`): chưa làm, Editor tắt → xem Vướng mắc.
 
 ## Vướng mắc
-Unity Editor không chạy (MCP báo "No Unity Editor instances found"); brief quy định Editor tắt ở bước 8 → . Bước 1–7 xong và test đạt; còn bước 8 (tạo scene SimView, thêm component, đặt camera, Play thử). Đề xuất: mở Editor rồi chạy lại  chỉ cho bước 8 (hoặc Planner xác nhận cho phép làm bước 8 sau khi mở Editor).
+Unity Editor không chạy (MCP báo "No Unity Editor instances found"); brief quy định Editor tắt ở bước 8 → `cần Opus`. Bước 1–7 xong và test đạt; còn bước 8 (tạo scene SimView, thêm component, đặt camera, Play thử). Đề xuất: mở Editor rồi chạy lại `/ai-workflow-kit:exec 0006` chỉ cho bước 8 (hoặc Planner xác nhận cho phép làm bước 8 sau khi mở Editor).
 
 ---
 <!-- PLANNER ghi khi review. -->
