@@ -750,3 +750,10 @@ Không còn (Editor đã mở, bước 8 xong).
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner, 2026-10-16 — phần code: **đạt**; chờ user xem (mục "User tự test" 1–5) rồi mới kết luận.
+- Chạy bằng Sonnet · medium = Model thực thi. Mọi dòng "Phần cần test" có kết quả; dòng hình ảnh/cảm giác = chờ user.
+- Diff `0477fb0..5a6c993`: 35 file, đều trong Phạm vi; `Core/Sim` chỉ thêm `SimDemo.cs`; không đổi test cũ, `TerrainView.unity`, `ProjectSettings/`.
+- Số trong test khớp brief: `SmoothMotionTests` (1,5e-6 × µs, cửa sổ nhịp 2–80, ≥ 200 khung, tới (13, 1, 1)); `SimClockTests` (khung 6k / 3k + 1, 20 / 33323 µs, chặn 5); `SimDemoTests` (4 nông sản, 10 hạt, 0 đình trệ; ≥ 8 sau 8000 nhịp).
+- `SimView`: thứ tự KeepFarming → Tick → Capture → ApplyEvents → Clear, nối `IsOccupied` / `CellChanged`, lưu và trả `vSyncCount` / `targetFrameRate` đúng brief.
+- Ghi nhận: lần Play đầu ngay sau khi thêm component không chạy Start (domain reload) — không phải lỗi code.
+- Giờ thực tế ≈ 9 phút làm việc của executor (ước lượng 1–2 ngày-người).
