@@ -416,7 +416,7 @@ namespace Game.Core.Sim
                 var c = cs[i];
                 if (c.State != CreatureState.Working) continue;
                 var s = State.Stages[c.StageId];
-                s.WorkDone += 1000;
+                s.WorkDone += Config.WorkSpeedPermille(c.MasteryFor(s.Ability));
                 if (s.WorkDone >= s.WorkRequired)
                 {
                     s.WorkDone = s.WorkRequired;

@@ -20,6 +20,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(60, cfg.BaseTicks(WorkAbility.Till));
             Assert.AreEqual(20, cfg.BaseTicks(WorkAbility.Haul));
             Assert.AreEqual(200, cfg.SpeedPerTick(cfg.FindSpecies("L3")));
+            Assert.AreEqual(1000, cfg.WorkSpeedPermille(100));
         }
 
         [Test]
@@ -83,6 +84,45 @@ namespace Game.Core.Tests
             c = new SimConfig();
             c.creature.stuckTimeMs = 30050;
             Assert.Throws<ArgumentException>(c.Validate, "stuckTimeMs lẻ nhịp");
+
+            c = new SimConfig();
+            c.masteryLevels = new MasteryLevel[0];
+            Assert.Throws<ArgumentException>(c.Validate, "bảng mức rỗng");
+
+            c = new SimConfig();
+            c.masteryLevels[0].minMastery = 2;
+            Assert.Throws<ArgumentException>(c.Validate, "ngưỡng đầu > 1");
+
+            c = new SimConfig();
+            c.masteryLevels[2].minMastery = 50;
+            Assert.Throws<ArgumentException>(c.Validate, "ngưỡng không tăng");
+
+            c = new SimConfig();
+            c.masteryLevels[0].speedPermille = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "hệ số 0");
+
+            c = new SimConfig();
+            c.masteryLevels[4].speedPermille = 10001;
+            Assert.Throws<ArgumentException>(c.Validate, "hệ số > 10000");
+
+            c = new SimConfig();
+            c.masteryLevels[3].speedPermille = 900;
+            Assert.Throws<ArgumentException>(c.Validate, "hệ số giảm");
+        }
+
+        [TestCase(1, 500)]
+        [TestCase(49, 500)]
+        [TestCase(50, 750)]
+        [TestCase(99, 750)]
+        [TestCase(100, 1000)]
+        [TestCase(199, 1000)]
+        [TestCase(200, 1250)]
+        [TestCase(399, 1250)]
+        [TestCase(400, 1500)]
+        [TestCase(100000, 1500)]
+        public void WorkSpeedFollowsTable(int mastery, int expected)
+        {
+            Assert.AreEqual(expected, new SimConfig().WorkSpeedPermille(mastery));
         }
     }
 }

@@ -14,6 +14,13 @@
         { "id": "L2", "ability1": "Water", "ability2": "Harvest", "mastery1": 100, "mastery2": 100, "moveSpeedMilliCellsPerSecond": 1500, "sizeX": 1, "sizeZ": 1, "sizeY": 1 },
         { "id": "L3", "ability1": "Haul", "ability2": "Harvest", "mastery1": 100, "mastery2": 100, "moveSpeedMilliCellsPerSecond": 2000, "sizeX": 1, "sizeZ": 1, "sizeY": 1 }
     ],
+    "masteryLevels": [
+        { "minMastery": 0, "speedPermille": 500 },
+        { "minMastery": 50, "speedPermille": 750 },
+        { "minMastery": 100, "speedPermille": 1000 },
+        { "minMastery": 200, "speedPermille": 1250 },
+        { "minMastery": 400, "speedPermille": 1500 }
+    ],
     "crop": { "growTimeMs": 120000, "seedsPerHarvest": 1, "producePerHarvest": 1 },
     "storage": { "capacity": 50, "startSeeds": 10 },
     "farm": { "plotQueueCapacity": 2 },
