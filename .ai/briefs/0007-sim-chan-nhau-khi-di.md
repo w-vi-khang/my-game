@@ -1,9 +1,9 @@
 # Brief 0007 — Simulation bước 6b (phần 1): sinh vật chặn nhau khi đi
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-19 — Planner trả lời vướng mắc Phasing (thêm bước 11)
+> Cập nhật: 2026-10-19 — Planner review: đã duyệt
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -719,6 +719,13 @@ Thêm ghi chú: `GridPathfinder.AddTempBlock/IsBodyFree` & các bước khác ch
 
 ## Review
 - 2026-10-19 — trả lời vướng mắc: lỗi ở thiết kế (Quyết định 9 của Planner), không phải code. Chọn luật "tắt Phasing khi chỗ chiếm không còn chồng" thay cho 3 phương án executor nêu: không cần trường mới, giữ mốc nhịp đã tính. Thêm bước 11; trạng thái → `chờ làm`.
+
+- 2026-10-19 14:34 — **đã duyệt** (mức đầy đủ).
+  - `Chạy bằng` Sonnet · medium = Model thực thi. Mọi dòng "Phần cần test" có kết quả đạt.
+  - `git show --stat 20d0529`: 16 file, đều trong Phạm vi (`FarmTests.cs` theo Quyết định 12). Không còn `TmpTrace.cs`; working tree sạch.
+  - Diff `Simulation.cs` khớp bước 4–6 và 11 từng dòng (MovePhase, HandleBlocked, RepathAvoiding, FindAside, Dodge, StartYield, ResumeAfterYield, HoldForYield, OnArrive, Repath/StopWalk, AssignPhase `StageId >= 0`, Assign/Unassign, Displace, Respawn).
+  - `FarmTests`: 3 mốc nhịp +7 đúng Quyết định 12, nguyên nhân có trace. `QueueRepeatsAndCapsAtTwo` đổi **Seeds 9 → 8** tại nhịp 1455 — không phải "nhịp, ô" như Quyết định 12 cho phép, nhưng là ảnh chụp giữa chừng (haul chưa xong nên hạt chưa về), không phải Seeds cuối; các test khác vẫn kiểm Seeds 10 khi haul xong → chấp nhận, ghi nhận lệch nhỏ.
+  - Giờ executor ghi không khớp git: lần 1 "bắt đầu 12:31" nhưng cần Opus commit 12:35 (bước 1–9 không thể xong trong 4 phút); lần 2 "kết thúc ~14:50" trong khi commit 14:33 và review lúc 14:34. Roadmap ghi theo giờ commit.
 
 ## Kiểm chứng
 Lần 2 (bước 11), chạy qua MCP vì Editor đang mở (`unity_test.py` báo "Multiple Unity instances"):
