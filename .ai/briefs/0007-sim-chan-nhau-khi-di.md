@@ -679,3 +679,9 @@ Thêm ghi chú: `GridPathfinder.AddTempBlock/IsBodyFree` & các bước khác ch
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+Dừng giữa chừng (`cần Opus`), đang chờ Planner quyết định về `Phasing`; chưa kiểm chứng đầy đủ.
+- EditMode (MCP, Editor đang mở): 200/204 đạt, 4 fail (xem Vướng mắc). Biên dịch: 0 lỗi.
+- `cmp` hai file `sim_m1.json`: exit 0.
+- PlayMode, `check_design.py`, grep Game.Core, checklist: chưa chạy / chưa đối chiếu — chờ Planner.
