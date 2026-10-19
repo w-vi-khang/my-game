@@ -31,6 +31,12 @@ namespace Game.Core.Sim
             var sp = Config.FindSpecies(speciesId);
             if (!pathfinder.CanStand(cell, sp.sizeX, sp.sizeZ, sp.sizeY))
                 throw new ArgumentException("Sinh vật không đứng được tại " + cell);
+            for (int i = 0; i < State.Creatures.Count; i++)
+            {
+                var o = State.Creatures[i];
+                if (FramesOverlap(o.Cell, o.SizeX, o.SizeZ, o.SizeY, cell, sp.sizeX, sp.sizeZ, sp.sizeY))
+                    throw new ArgumentException("Ô đã có sinh vật: " + cell);
+            }
             var c = new Creature(State.Creatures.Count, speciesId,
                 SimConfig.ParseAbility(sp.ability1), SimConfig.ParseAbility(sp.ability2),
                 sp.mastery1, sp.mastery2, Config.SpeedPerTick(sp), sp.sizeX, sp.sizeZ, sp.sizeY, cell)
@@ -198,8 +204,15 @@ namespace Game.Core.Sim
         void Respawn(Creature c)
         {
             HomeGoals(c, State.Houses[c.HomeId]);
-            if (goals.Count == 0) return;
-            var cell = goals[0];
+            int pick = -1;
+            for (int i = 0; i < goals.Count; i++)
+                if (FirstBlocker(c, goals[i]) < 0)
+                {
+                    pick = i;
+                    break;
+                }
+            if (pick < 0) return; // mọi ô kề nhà đang có sinh vật → thử lại nhịp sau
+            var cell = goals[pick];
             c.Cell = cell;
             c.Path.Clear();
             c.PathIndex = 0;
@@ -207,6 +220,10 @@ namespace Game.Core.Sim
             c.MoveTarget = cell;
             c.StuckSince = -1;
             c.HomeReachable = true;
+            c.BlockedTicks = 0;
+            c.Phasing = false;
+            c.YieldTo = -1;
+            c.YieldHold = false;
             var stages = State.Stages;
             for (int i = 0; i < stages.Count; i++)
             {
@@ -266,6 +283,73 @@ namespace Game.Core.Sim
 
         bool CanStand(Creature c) => pathfinder.CanStand(c.Cell, c.SizeX, c.SizeZ, c.SizeY);
 
+        /// <summary>Tìm ô tránh / ô né trong tối đa ngần này bước (0019).</summary>
+        const int AsideSearchSteps = 8;
+
+        public static bool FramesOverlap(CellPos a, int asx, int asz, int asy, CellPos b, int bsx, int bsz, int bsy) =>
+            a.X < b.X + bsx && b.X < a.X + asx && a.Z < b.Z + bsz && b.Z < a.Z + asz && a.Y < b.Y + bsy && b.Y < a.Y + asy;
+
+        /// <summary>Chỗ chiếm của o (khung tại Cell, cộng ô kế tiếp khi đã bắt đầu bước sang) chồng lên khung kích thước (sx, sz, sy) tại p.</summary>
+        static bool OccupancyOverlaps(Creature o, CellPos p, int sx, int sz, int sy)
+        {
+            if (FramesOverlap(o.Cell, o.SizeX, o.SizeZ, o.SizeY, p, sx, sz, sy)) return true;
+            return o.State == CreatureState.Moving && o.MoveProgress > 0 && o.PathIndex < o.Path.Count
+                && FramesOverlap(o.Path[o.PathIndex], o.SizeX, o.SizeZ, o.SizeY, p, sx, sz, sy);
+        }
+
+        /// <summary>Id nhỏ nhất của sinh vật khác c có chỗ chiếm chồng lên khung c tại p; -1 = trống.</summary>
+        int FirstBlocker(Creature c, CellPos p)
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+                if (i != c.Id && OccupancyOverlaps(cs[i], p, c.SizeX, c.SizeZ, c.SizeY)) return i;
+            return -1;
+        }
+
+        /// <summary>Khung c tại Cell chồng lên khung tại Cell của sinh vật khác.</summary>
+        bool OverlapsAnyCell(Creature c)
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+                if (i != c.Id && FramesOverlap(cs[i].Cell, cs[i].SizeX, cs[i].SizeZ, cs[i].SizeY, c.Cell, c.SizeX, c.SizeZ, c.SizeY)) return true;
+            return false;
+        }
+
+        /// <summary>Chỗ chiếm của c (Cell + ô kế tiếp đang bước sang) chồng lên khung tại Cell của sinh vật khác — dùng để tắt Phasing.</summary>
+        bool OccupancyOverlapsAnyCell(Creature c)
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+                if (i != c.Id && OccupancyOverlaps(c, cs[i].Cell, cs[i].SizeX, cs[i].SizeZ, cs[i].SizeY)) return true;
+            return false;
+        }
+
+        /// <summary>Khung của y tại p chồng lên w.Cell hoặc phần đường còn lại của w (từ PathIndex).</summary>
+        static bool PathTouches(Creature w, CellPos p, Creature y)
+        {
+            if (FramesOverlap(w.Cell, w.SizeX, w.SizeZ, w.SizeY, p, y.SizeX, y.SizeZ, y.SizeY)) return true;
+            for (int i = w.PathIndex; i < w.Path.Count; i++)
+                if (FramesOverlap(w.Path[i], w.SizeX, w.SizeZ, w.SizeY, p, y.SizeX, y.SizeZ, y.SizeY)) return true;
+            return false;
+        }
+
+        void TempBlockFrame(CellPos a, Creature o)
+        {
+            for (int dx = 0; dx < o.SizeX; dx++)
+                for (int dz = 0; dz < o.SizeZ; dz++)
+                    for (int dy = 0; dy < o.SizeY; dy++)
+                        pathfinder.AddTempBlock(a.X + dx, a.Y + dy, a.Z + dz);
+        }
+
+        void TempBlockOccupancy(Creature o)
+        {
+            TempBlockFrame(o.Cell, o);
+            if (o.State == CreatureState.Moving && o.MoveProgress > 0 && o.PathIndex < o.Path.Count)
+                TempBlockFrame(o.Path[o.PathIndex], o);
+        }
+
+        int Rank(Creature c) => c.StageId >= 0 ? State.Stages[c.StageId].Priority : int.MinValue;
+
         bool FindPath(Creature c, CellPos from, CellPos to) => pathfinder.FindPath(from, to, c.SizeX, c.SizeZ, c.SizeY, tmpPath);
 
         void TerrainPhase()
@@ -320,7 +404,7 @@ namespace Game.Core.Sim
                 for (int k = 0; k < 3; k++)
                 {
                     var n = c.Cell.Offset(DisplaceX[d], DisplaceY[k], DisplaceZ[d]);
-                    if (pathfinder.CanStep(c.Cell, n, c.SizeX, c.SizeZ, c.SizeY))
+                    if (pathfinder.CanStep(c.Cell, n, c.SizeX, c.SizeZ, c.SizeY) && FirstBlocker(c, n) < 0)
                     {
                         c.Cell = n;
                         c.MoveProgress = 0;
@@ -330,6 +414,7 @@ namespace Game.Core.Sim
 
             while (c.Cell.Y - 1 >= 0 && ColumnsBodyFree(c, c.Cell.Y - 1))
                 c.Cell = c.Cell.Offset(0, -1, 0);
+            if (OverlapsAnyCell(c)) c.Phasing = true;
             c.MoveProgress = 0;
         }
 
@@ -343,6 +428,14 @@ namespace Game.Core.Sim
 
         void Repath(Creature c)
         {
+            c.YieldTo = -1;
+            c.YieldHold = false;
+            c.BlockedTicks = 0;
+            if (c.StageId < 0)
+            {
+                StopWalk(c);
+                return;
+            }
             var s = State.Stages[c.StageId];
             bool ok = s.HasDestination && s.Carried
                 ? PlanTo(c, s.Destination, s.DestinationApproach)
@@ -356,6 +449,16 @@ namespace Game.Core.Sim
             {
                 BlockNoPath(c);
             }
+        }
+
+        /// <summary>Sinh vật rảnh đang né mà đường hỏng (địa hình đổi) → đứng lại.</summary>
+        void StopWalk(Creature c)
+        {
+            c.State = CreatureState.Idle;
+            c.Path.Clear();
+            c.PathIndex = 0;
+            c.MoveProgress = 0;
+            c.MoveTarget = c.Cell;
         }
 
         /// <summary>Ô kề của chỗ p (tối đa 4, theo thứ tự hướng) mà sinh vật c đứng được — điền vào goals (0016).</summary>
@@ -554,25 +657,166 @@ namespace Game.Core.Sim
             for (int i = 0; i < cs.Count; i++)
             {
                 var c = cs[i];
+                if (c.Phasing && !OccupancyOverlapsAnyCell(c)) c.Phasing = false;
                 if (c.State != CreatureState.Moving) continue;
-                c.MoveProgress += c.SpeedPerTick;
-                while (c.MoveProgress >= 1000 && c.PathIndex < c.Path.Count)
+                if (c.YieldHold && HoldForYield(c)) continue;
+                if (c.PathIndex < c.Path.Count)
                 {
-                    c.Cell = c.Path[c.PathIndex++];
-                    c.MoveProgress -= 1000;
+                    var next = c.Path[c.PathIndex];
+                    if (!c.Phasing)
+                    {
+                        int b = FirstBlocker(c, next);
+                        if (b >= 0)
+                        {
+                            c.BlockedTicks++;
+                            if (c.BlockedTicks < Config.PhaseTicks)
+                            {
+                                HandleBlocked(c, cs[b], next);
+                                continue;
+                            }
+                            c.Phasing = true;
+                        }
+                    }
+                    c.BlockedTicks = 0;
+                    c.MoveProgress += c.SpeedPerTick;
+                    if (c.MoveProgress >= 1000)
+                    {
+                        c.Cell = next;
+                        c.PathIndex++;
+                        c.MoveProgress -= 1000;
+                        // Phần dư chỉ được giữ (= giữ chỗ ô kế tiếp) khi ô đó trống.
+                        if (c.MoveProgress > 0 && c.PathIndex < c.Path.Count && !c.Phasing && FirstBlocker(c, c.Path[c.PathIndex]) >= 0)
+                            c.MoveProgress = 0;
+                    }
                 }
                 if (c.PathIndex >= c.Path.Count)
                 {
                     c.MoveProgress = 0;
                     c.Path.Clear();
                     c.PathIndex = 0;
-                    OnArrive(c);
+                    if (c.YieldTo >= 0 && !c.YieldHold) ResumeAfterYield(c);
+                    else OnArrive(c);
                 }
             }
         }
 
+        /// <summary>c bị o chắn ô next; BlockedTicks đã tăng và còn dưới PhaseTicks (0019).</summary>
+        void HandleBlocked(Creature c, Creature o, CellPos next)
+        {
+            int wait = Config.BlockWaitTicks;
+            if (c.StageId >= 0 && o.StageId < 0 && (o.State == CreatureState.Idle || PathTouches(c, o.MoveTarget, o)))
+            {
+                if ((c.BlockedTicks == 1 || c.BlockedTicks % wait == 0) && Dodge(o, c)) return;
+            }
+            if (c.BlockedTicks % wait != 0) return;
+            if (RepathAvoiding(c, next)) return;
+            bool headOn = o.State == CreatureState.Moving && o.PathIndex < o.Path.Count
+                && OccupancyOverlaps(c, o.Path[o.PathIndex], o.SizeX, o.SizeZ, o.SizeY);
+            if (!headOn) return;
+            int rc = Rank(c), ro = Rank(o);
+            var y = rc < ro || rc == ro && c.Id > o.Id ? c : o;
+            StartYield(y, y == c ? o : c);
+        }
+
+        /// <summary>Tìm đường khác, coi các sinh vật đang chiếm ô next là vật cản. Thất bại → giữ đường cũ.</summary>
+        bool RepathAvoiding(Creature c, CellPos next)
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+                if (i != c.Id && OccupancyOverlaps(cs[i], next, c.SizeX, c.SizeZ, c.SizeY)) TempBlockOccupancy(cs[i]);
+            bool ok;
+            if (c.StageId >= 0 && c.YieldTo < 0)
+            {
+                var s = State.Stages[c.StageId];
+                ok = s.HasDestination && s.Carried
+                    ? PlanTo(c, s.Destination, s.DestinationApproach)
+                    : PlanTo(c, s.Target, s.TargetApproach);
+            }
+            else
+            {
+                ok = FindPath(c, c.Cell, c.MoveTarget);
+            }
+            pathfinder.ClearTempBlocks();
+            if (!ok) return false;
+            SetPath(c);
+            c.MoveProgress = 0;
+            c.BlockedTicks = 0;
+            return true;
+        }
+
+        /// <summary>Đường cho y tới ô gần nhất ngoài Cell + phần đường còn lại của w, tránh mọi sinh vật khác — vào tmpPath.</summary>
+        bool FindAside(Creature y, Creature w)
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+                if (i != y.Id) TempBlockOccupancy(cs[i]);
+            bool ok = pathfinder.FindPathToNearest(y.Cell, y.SizeX, y.SizeZ, y.SizeY, AsideSearchSteps, p => !PathTouches(w, p, y), tmpPath);
+            pathfinder.ClearTempBlocks();
+            return ok;
+        }
+
+        /// <summary>Sinh vật rảnh o né khỏi đường của w; tới nơi thì Idle (OnArrive).</summary>
+        bool Dodge(Creature o, Creature w)
+        {
+            if (!FindAside(o, w)) return false;
+            o.State = CreatureState.Moving;
+            SetPath(o);
+            o.MoveProgress = 0;
+            o.BlockedTicks = 0;
+            return true;
+        }
+
+        /// <summary>y nhường đường cho w (đối đầu, 0019).</summary>
+        void StartYield(Creature y, Creature w)
+        {
+            if (y.StageId < 0)
+            {
+                Dodge(y, w);
+                return;
+            }
+            if (y.YieldTo == w.Id && !y.YieldHold) return;
+            if (!FindAside(y, w)) return;
+            SetPath(y);
+            y.MoveProgress = 0;
+            y.BlockedTicks = 0;
+            y.YieldTo = w.Id;
+            y.YieldHold = false;
+        }
+
+        /// <summary>Tới ô tránh: lập lại đường tới việc rồi chờ con kia đi qua.</summary>
+        void ResumeAfterYield(Creature c)
+        {
+            int w = c.YieldTo;
+            Repath(c);
+            if (c.State != CreatureState.Moving) return;
+            if (c.Path.Count == 0)
+            {
+                OnArrive(c);
+                return;
+            }
+            c.YieldTo = w;
+            c.YieldHold = true;
+        }
+
+        /// <summary>true = còn phải chờ: ô kế tiếp nằm trên Cell / phần đường còn lại của con được nhường mà nó vẫn đang đi.</summary>
+        bool HoldForYield(Creature c)
+        {
+            var w = State.Creatures[c.YieldTo];
+            if (c.PathIndex < c.Path.Count && w.State == CreatureState.Moving && PathTouches(w, c.Path[c.PathIndex], c)) return true;
+            c.YieldTo = -1;
+            c.YieldHold = false;
+            return false;
+        }
+
         void OnArrive(Creature c)
         {
+            c.YieldTo = -1;
+            c.YieldHold = false;
+            if (c.StageId < 0)
+            {
+                c.State = CreatureState.Idle;
+                return;
+            }
             var s = State.Stages[c.StageId];
             if (s.HasDestination && !s.Carried)
             {
@@ -642,7 +886,7 @@ namespace Game.Core.Sim
                 for (int i = 0; i < cs.Count; i++)
                 {
                     var c = cs[i];
-                    if (c.HomeId < 0 || c.State != CreatureState.Idle || !c.HasAbility(s.Ability)) continue;
+                    if (c.HomeId < 0 || c.StageId >= 0 || !c.HasAbility(s.Ability)) continue;
                     eligible.Add(c);
                     scores.Add((long)CellPos.Manhattan(c.Cell, s.Target) * 100000 / c.MasteryFor(s.Ability));
                 }
@@ -685,6 +929,9 @@ namespace Game.Core.Sim
             s.AssigneeKind = AssigneeKind.Creature;
             s.AssigneeId = c.Id;
             c.StageId = s.Id;
+            c.BlockedTicks = 0;
+            c.YieldTo = -1;
+            c.YieldHold = false;
             c.MoveProgress = 0;
             c.State = CreatureState.Moving;
             if (path.Count == 0)
@@ -717,6 +964,9 @@ namespace Game.Core.Sim
             s.AssigneeId = -1;
             c.State = CreatureState.Idle;
             c.StageId = -1;
+            c.BlockedTicks = 0;
+            c.YieldTo = -1;
+            c.YieldHold = false;
             c.MoveProgress = 0;
             c.Path.Clear();
             c.PathIndex = 0;

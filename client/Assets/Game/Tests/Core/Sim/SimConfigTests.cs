@@ -21,6 +21,8 @@ namespace Game.Core.Tests
             Assert.AreEqual(20, cfg.BaseTicks(WorkAbility.Haul));
             Assert.AreEqual(200, cfg.SpeedPerTick(cfg.FindSpecies("L3")));
             Assert.AreEqual(1000, cfg.WorkSpeedPermille(100));
+            Assert.AreEqual(10, cfg.BlockWaitTicks);
+            Assert.AreEqual(50, cfg.PhaseTicks);
         }
 
         [Test]
@@ -84,6 +86,14 @@ namespace Game.Core.Tests
             c = new SimConfig();
             c.creature.stuckTimeMs = 30050;
             Assert.Throws<ArgumentException>(c.Validate, "stuckTimeMs lẻ nhịp");
+
+            c = new SimConfig();
+            c.creature.blockWaitMs = 1050;
+            Assert.Throws<ArgumentException>(c.Validate, "blockWaitMs lẻ nhịp");
+
+            c = new SimConfig();
+            c.creature.phaseAfterMs = 1000;
+            Assert.Throws<ArgumentException>(c.Validate, "phaseAfterMs <= blockWaitMs");
 
             c = new SimConfig();
             c.masteryLevels = new MasteryLevel[0];

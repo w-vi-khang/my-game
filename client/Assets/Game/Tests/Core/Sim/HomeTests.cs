@@ -178,6 +178,25 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void RespawnSkipsOccupiedHomeCell()
+        {
+            var w = TestWorlds.Flat(1);
+            Hole(w);
+            var sim = new Simulation(new SimConfig(), w);
+            sim.AddHouse(new CellPos(10, 2, 10));
+            sim.AddCreature("L1", new CellPos(3, 2, 3));
+            sim.AddCreature("L2", new CellPos(6, 2, 6));
+            sim.AddCreature("L3", new CellPos(12, 2, 10));
+            sim.AssignHome(0, 0);
+            sim.AssignHome(1, 0);
+            var l1 = sim.State.Creatures[0];
+            RunTo(sim, 301);
+            Assert.AreEqual(new CellPos(12, 2, 11), l1.Cell);
+            Assert.AreEqual(1, sim.State.Events.Count);
+            AssertEvent(sim.State.Events[0], SimEventKind.CreatureRespawned, 301, -1, 0, new CellPos(12, 2, 11), StallReason.None);
+        }
+
+        [Test]
         public void WorkDoesNotCountAndWorkResets()
         {
             var w = TestWorlds.Flat(1);

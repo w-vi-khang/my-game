@@ -101,6 +101,8 @@ namespace Game.Core.Sim
     public class CreatureConfig
     {
         public int stuckTimeMs = 30000;
+        public int blockWaitMs = 1000;
+        public int phaseAfterMs = 5000;
     }
 
     /// <summary>
@@ -154,6 +156,10 @@ namespace Game.Core.Sim
         public int GrowTicks => MsToTicks(crop.growTimeMs);
 
         public int StuckTicks => MsToTicks(creature.stuckTimeMs);
+
+        public int BlockWaitTicks => MsToTicks(creature.blockWaitMs);
+
+        public int PhaseTicks => MsToTicks(creature.phaseAfterMs);
 
         public int BaseTicks(WorkAbility a)
         {
@@ -254,6 +260,10 @@ namespace Game.Core.Sim
                 throw new ArgumentException("house: kích thước phải trong [1, 4] mỗi chiều.");
             if (creature == null || creature.stuckTimeMs <= 0 || creature.stuckTimeMs % msPerTick != 0)
                 throw new ArgumentException("creature.stuckTimeMs phải > 0 và chia hết cho " + msPerTick + ".");
+            if (creature.blockWaitMs <= 0 || creature.blockWaitMs % msPerTick != 0)
+                throw new ArgumentException("creature.blockWaitMs phải > 0 và chia hết cho " + msPerTick + ".");
+            if (creature.phaseAfterMs <= creature.blockWaitMs || creature.phaseAfterMs % msPerTick != 0)
+                throw new ArgumentException("creature.phaseAfterMs phải > blockWaitMs và chia hết cho " + msPerTick + ".");
         }
     }
 }

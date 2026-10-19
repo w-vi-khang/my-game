@@ -32,6 +32,10 @@ namespace Game.Core.Sim
                 h = MixInt(h, c.HomeId);
                 h = MixInt(h, c.HomeReachable ? 1 : 0);
                 h = MixLong(h, c.StuckSince);
+                h = MixInt(h, c.BlockedTicks);
+                h = MixInt(h, c.Phasing ? 1 : 0);
+                h = MixInt(h, c.YieldTo);
+                h = MixInt(h, c.YieldHold ? 1 : 0);
             }
 
             h = MixInt(h, s.Stages.Count);

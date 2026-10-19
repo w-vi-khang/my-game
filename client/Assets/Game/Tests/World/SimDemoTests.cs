@@ -38,6 +38,44 @@ namespace Game.World.Tests
         }
 
         [Test]
+        public void NoTwoCreaturesShareCell()
+        {
+            var sim = NewSim();
+            var cs = sim.State.Creatures;
+            int overlaps = 0;
+            int phasingTicks = 0;
+            for (int t = 0; t < 4000; t++)
+            {
+                SimDemo.KeepFarming(sim);
+                sim.Tick();
+                sim.State.Events.Clear();
+                bool anyPhasing = false;
+                for (int i = 0; i < cs.Count; i++)
+                {
+                    if (cs[i].Phasing) anyPhasing = true;
+                    for (int j = i + 1; j < cs.Count; j++)
+                    {
+                        var a = cs[i];
+                        var b = cs[j];
+                        if (a.Phasing || b.Phasing) continue;
+                        if (Simulation.FramesOverlap(a.Cell, a.SizeX, a.SizeZ, a.SizeY, b.Cell, b.SizeX, b.SizeZ, b.SizeY))
+                        {
+                            overlaps++;
+                            if (overlaps == 1)
+                                TestContext.WriteLine("chồng ô đầu tiên ở nhịp " + sim.State.Tick + ": " + DescribeCreature(a) + " | " + DescribeCreature(b));
+                        }
+                    }
+                }
+                if (anyPhasing) phasingTicks++;
+            }
+            TestContext.WriteLine("nhịp có Phasing: " + phasingTicks);
+            Assert.AreEqual(0, overlaps);
+        }
+
+        static string DescribeCreature(Creature c) =>
+            "id " + c.Id + " ô " + c.Cell + " " + c.State + " stage " + c.StageId;
+
+        [Test]
         public void BuildPlacesLayout()
         {
             var sim = NewSim();

@@ -105,13 +105,13 @@ namespace Game.Core.Tests
             Assert.AreEqual(l3.Id, haul.AssigneeId);
             Assert.AreEqual(2, store.Reserved);
 
-            RunTo(sim, 1410);
+            RunTo(sim, 1417);
             Assert.AreEqual(new CellPos(6, 2, 5), l3.Cell);
             Assert.IsTrue(haul.Carried);
 
-            RunTo(sim, 1444);
+            RunTo(sim, 1451);
             Assert.AreEqual(0, store.Produce);
-            RunTo(sim, 1445);
+            RunTo(sim, 1452);
             Assert.AreEqual(StageStatus.Done, haul.Status);
             Assert.AreEqual(1, store.Produce);
             Assert.AreEqual(10, store.Seeds);
@@ -194,7 +194,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(new CellPos(6, 2, 5), l1.Cell);
             RunTo(sim, 1455);
             Assert.AreEqual(PlotPhase.Sow, plot.Phase);
-            Assert.AreEqual(9, sim.State.Storages[0].Seeds);
+            Assert.AreEqual(8, sim.State.Storages[0].Seeds);
         }
 
         [Test]
@@ -260,7 +260,7 @@ namespace Game.Core.Tests
         public void DroppedLoadReleasesReservation()
         {
             var sim = Layout(new SimConfig(), true);
-            RunTo(sim, 1415);
+            RunTo(sim, 1422);
             var l3 = sim.State.Creatures[2];
             Assert.AreEqual(new CellPos(6, 2, 6), l3.Cell);
             sim.Unassign(2);

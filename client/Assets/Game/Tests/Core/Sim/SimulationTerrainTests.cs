@@ -116,6 +116,19 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void DigUnderCreatureAvoidsOccupiedNeighbor()
+        {
+            var sim = Build(new SimConfig(), TestWorlds.Flat(1), out var editor, out _);
+            int c = sim.AddCreature("L1", new CellPos(5, 2, 5));
+            int o = sim.AddCreature("L2", new CellPos(6, 2, 5));
+            Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 1, 5));
+            TestWorlds.HomeAll(sim);
+            sim.Tick();
+            Assert.AreEqual(new CellPos(4, 2, 5), sim.State.Creatures[c].Cell);
+            Assert.AreEqual(new CellPos(6, 2, 5), sim.State.Creatures[o].Cell);
+        }
+
+        [Test]
         public void FallsWhenNoNeighbor()
         {
             var w = TestWorlds.Flat(0);

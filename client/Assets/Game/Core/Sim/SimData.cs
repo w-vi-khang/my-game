@@ -81,6 +81,14 @@ namespace Game.Core.Sim
         public long StuckSince = -1;
         public CellPos MoveTarget;
         public int MoveProgress;
+        /// <summary>Số nhịp liên tiếp bị sinh vật khác chắn ô kế tiếp (0019).</summary>
+        public int BlockedTicks;
+        /// <summary>Đang đi xuyên (phao, 0019): bỏ qua luật chặn tới khi khung không còn chồng lên sinh vật khác.</summary>
+        public bool Phasing;
+        /// <summary>Đang nhường đường cho sinh vật có id này (đi tới ô tránh hoặc chờ ở đó); -1 = không.</summary>
+        public int YieldTo = -1;
+        /// <summary>Đã tới ô tránh, chờ con kia đi qua rồi mới đi tiếp.</summary>
+        public bool YieldHold;
 
         public Creature(int id, string speciesId, WorkAbility ability1, WorkAbility ability2, int mastery1, int mastery2, int speedPerTick, int sizeX, int sizeZ, int sizeY, CellPos cell)
         {

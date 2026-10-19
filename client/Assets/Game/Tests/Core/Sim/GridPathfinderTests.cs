@@ -7,6 +7,29 @@ namespace Game.Core.Tests
     public class GridPathfinderTests
     {
         [Test]
+        public void TempBlockBlocksUntilCleared()
+        {
+            var pf = new GridPathfinder(TestWorlds.Flat(0));
+            Assert.IsTrue(pf.CanStand(new CellPos(3, 1, 3), 1, 1, 1));
+            pf.AddTempBlock(3, 1, 3);
+            Assert.IsFalse(pf.CanStand(new CellPos(3, 1, 3), 1, 1, 1));
+            pf.ClearTempBlocks();
+            Assert.IsTrue(pf.CanStand(new CellPos(3, 1, 3), 1, 1, 1));
+        }
+
+        [Test]
+        public void NearestFollowsBfsOrder()
+        {
+            var pf = new GridPathfinder(TestWorlds.Flat(0));
+            var result = new List<CellPos>();
+            var start = new CellPos(5, 1, 5);
+            Assert.IsTrue(pf.FindPathToNearest(start, 1, 1, 1, 8, p => p.X == 7, result));
+            CollectionAssert.AreEqual(new[] { new CellPos(6, 1, 5), new CellPos(7, 1, 5) }, result);
+            Assert.IsFalse(pf.FindPathToNearest(start, 1, 1, 1, 1, p => p.X == 7, result));
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [Test]
         public void FlatPathIsManhattan()
         {
             var w = TestWorlds.Flat(0);

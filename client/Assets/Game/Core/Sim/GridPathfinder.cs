@@ -24,6 +24,9 @@ namespace Game.Core.Sim
         readonly int[] seenStamp;
         readonly int[] closedStamp;
         readonly bool[] blocked;
+        readonly bool[] tempBlocked;
+        readonly List<int> tempList = new List<int>();
+        readonly List<int> queue = new List<int>();
         readonly List<CellPos> goalBuf = new List<CellPos>();
         int stamp;
         readonly List<Node> heap = new List<Node>();
@@ -37,6 +40,7 @@ namespace Game.Core.Sim
             seenStamp = new int[n];
             closedStamp = new int[n];
             blocked = new bool[n];
+            tempBlocked = new bool[n];
         }
 
         /// <summary>Đánh dấu ô bị công trình chiếm (kho): ô đó không cho thân.</summary>
@@ -46,9 +50,29 @@ namespace Game.Core.Sim
             blocked[world.Size.Index(c.X, c.Y, c.Z)] = value;
         }
 
-        /// <summary>Ô cho thân: trong map và rỗng.</summary>
-        public bool IsBodyFree(int x, int y, int z) =>
-            world.Size.InBounds(x, y, z) && !blocked[world.Size.Index(x, y, z)] && world.GetMaterial(x, y, z) == BlockMaterial.Empty;
+        /// <summary>Chặn tạm ô (x, y, z) cho thân (sinh vật đang chắn, 0019) tới khi ClearTempBlocks; ngoài map thì bỏ qua.</summary>
+        public void AddTempBlock(int x, int y, int z)
+        {
+            if (!world.Size.InBounds(x, y, z)) return;
+            int i = world.Size.Index(x, y, z);
+            if (tempBlocked[i]) return;
+            tempBlocked[i] = true;
+            tempList.Add(i);
+        }
+
+        public void ClearTempBlocks()
+        {
+            for (int i = 0; i < tempList.Count; i++) tempBlocked[tempList[i]] = false;
+            tempList.Clear();
+        }
+
+        /// <summary>Ô cho thân: trong map, rỗng, không bị công trình hay chặn tạm.</summary>
+        public bool IsBodyFree(int x, int y, int z)
+        {
+            if (!world.Size.InBounds(x, y, z)) return false;
+            int i = world.Size.Index(x, y, z);
+            return !blocked[i] && !tempBlocked[i] && world.GetMaterial(x, y, z) == BlockMaterial.Empty;
+        }
 
         /// <summary>Ô đỡ: trong map, không rỗng và không phải nước.</summary>
         public bool IsSupport(int x, int y, int z)
@@ -110,6 +134,57 @@ namespace Game.Core.Sim
             for (int i = 0; i < goalBuf.Count; i++)
                 if (goalBuf[i] == start) return true;
             return Search(start, goalBuf, sx, sz, sy, result);
+        }
+
+        /// <summary>
+        /// BFS từ start (thứ tự hướng như A*), tối đa maxSteps bước: đường tới ô đầu tiên lấy ra khỏi hàng đợi thoả accept
+        /// (không xét chính start). Đường trong result, không gồm start.
+        /// </summary>
+        public bool FindPathToNearest(CellPos start, int sx, int sz, int sy, int maxSteps, Predicate<CellPos> accept, List<CellPos> result)
+        {
+            result.Clear();
+            var size = world.Size;
+            if (!size.InBounds(start.X, start.Y, start.Z)) return false;
+            stamp++;
+            queue.Clear();
+            int startIdx = size.Index(start.X, start.Y, start.Z);
+            g[startIdx] = 0;
+            parent[startIdx] = -1;
+            seenStamp[startIdx] = stamp;
+            queue.Add(startIdx);
+            for (int head = 0; head < queue.Count; head++)
+            {
+                int ci = queue[head];
+                size.Coords(ci, out int cx, out int cy, out int cz);
+                var cur = new CellPos(cx, cy, cz);
+                if (ci != startIdx && accept(cur))
+                {
+                    for (int i = ci; i != startIdx; i = parent[i])
+                    {
+                        size.Coords(i, out int px, out int py, out int pz);
+                        result.Add(new CellPos(px, py, pz));
+                    }
+                    result.Reverse();
+                    return true;
+                }
+                if (g[ci] >= maxSteps) continue;
+                for (int d = 0; d < 4; d++)
+                    for (int k = 0; k < DirY.Length; k++)
+                    {
+                        var to = new CellPos(cx + DirX[d], cy + DirY[k], cz + DirZ[d]);
+                        if (!size.InBounds(to.X, to.Y, to.Z) || !CanStep(cur, to, sx, sz, sy)) continue;
+                        int ni = size.Index(to.X, to.Y, to.Z);
+                        if (seenStamp[ni] != stamp)
+                        {
+                            seenStamp[ni] = stamp;
+                            g[ni] = g[ci] + 1;
+                            parent[ni] = ci;
+                            queue.Add(ni);
+                        }
+                        break;
+                    }
+            }
+            return false;
         }
 
         int Heuristic(int x, int z, List<CellPos> goals)
