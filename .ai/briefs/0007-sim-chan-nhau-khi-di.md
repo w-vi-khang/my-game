@@ -1,6 +1,6 @@
 # Brief 0007 — Simulation bước 6b (phần 1): sinh vật chặn nhau khi đi
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-19 — Planner trả lời vướng mắc Phasing (thêm bước 11)
@@ -672,15 +672,37 @@ Không (xem hình trong SimView để ở brief 0008, khi có đủ luật rản
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-Base commit: af6ea06
+Base commit: d96ca17 (lần 2, bước 11; lần 1: af6ea06)
 Chạy bằng: Sonnet · medium (OK: brief 0007 cần Sonnet · medium — phiên: claude-sonnet-5-5 · medium)
-Giờ bắt đầu: 12:31
+Giờ bắt đầu: 12:31 (lần 2: 14:26)
+
+### Lần 2 (bước 11)
+Giờ kết thúc: ~14:50. Commit code: 20d0529.
+- Thêm `OccupancyOverlapsAnyCell`, `MovePhase` dùng nó để tắt `Phasing` (đúng bước 11). `HeadOnNoPocketPhasesAtFifty` đạt, giữ nguyên mốc nhịp.
+- Số nhịp có `Phasing` trên map M1 (4000 nhịp `KeepFarming`): **0**; chồng ô: 0.
+- File đổi: `Simulation.cs`, `SimData.cs`, `GridPathfinder.cs`, `SimHash.cs`, `SimConfig.cs`, hai `sim_m1.json`, `TestWorlds.cs`, `SimConfigTests.cs`, `GridPathfinderTests.cs`, `SimulationTerrainTests.cs`, `HomeTests.cs`, `SimDemoTests.cs`, `MovementTests.cs` (+.meta), `FarmTests.cs` (QĐ 12).
+- Bảng test cũ đổi số (Quyết định 12) — `FarmTests.cs`, nguyên nhân xác nhận bằng trace (đã xoá file trace tạm):
+  | test | cũ → mới | nguyên nhân |
+  |---|---|---|
+  | `OneHarvestReachesStorage` :109 | `RunTo 1410` → `1417` (L3 ở (6,2,5)) | L1 rảnh đứng ở (6,2,5) chắn L3 từ nhịp 1406 (bt 1..7); L1 né sang (5,2,5) nhịp 1413; L3 vào (6,2,5) lúc 1417 (+7) |
+  | `OneHarvestReachesStorage` | `RunTo 1444/1445` → `1451/1452` (haul Done, Produce) | cùng trễ +7 |
+  | `DroppedLoadReleasesReservation` :265 | `RunTo 1415` → `1422` (L3 ở (6,2,6)) | cùng trễ +7 |
+  | `QueueRepeatsAndCapsAtTwo` :197 | Seeds 9 → 8 tại nhịp 1455 | L1 đang xới (Working) ở (6,2,5) chắn L3: L3 chờ 10 nhịp (bt 0→10, nhịp 1406–1415) rồi đi vòng (7,2,6),(6,2,6),(5,2,6); tới kho 1445, haul xong sau 1455 nên hạt chưa hoàn về |
 
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · bảng test cũ đổi số (Quyết định 12) · số nhịp có Phasing trên map M1 · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+
+### Lần 2 (bước 11)
+- Mọi dòng "Phần cần test" → **đạt**: `MovementTests` (5/5), `GridPathfinderTests` mới (2), `SimConfigTests`, `SimulationTerrainTests.DigUnderCreatureAvoidsOccupiedNeighbor`, `HomeTests.RespawnSkipsOccupiedHomeCell`, `SimDemoTests.NoTwoCreaturesShareCell` (output "nhịp có Phasing: 0"), `SimDeterminismTests`, `FarmTests` (sau QĐ 12), View EditMode, `SimViewPlayTests`.
+- `cmp design/data/sim_m1.json …/Config/sim_m1.json` → exit 0.
+- MCP refresh/compile → không lỗi biên dịch (console còn một dòng CS2001 cũ về `TmpTrace.cs` đã xoá — tệp trace tạm, vô hại).
+- MCP `run_tests` EditMode toàn bộ → 204/204 đạt.
+- MCP `run_tests` PlayMode toàn bộ → 8/8 đạt; đã `git checkout -- client/ProjectSettings/EditorSettings.asset`; `git status --short client/ProjectSettings/` rỗng.
+- `grep -rnE "float|double|..." client/Assets/Game/Core/Sim/` → rỗng (exit 1).
+- `git status` / `git diff --stat`: chỉ file trong Phạm vi + `FarmTests.cs` (QĐ 12).
 
 ## Vướng mắc
 Code bước 1–9 đã viết đủ (chưa commit, còn trong working tree); biên dịch sạch. EditMode: 200/204 đạt. 4 fail:
