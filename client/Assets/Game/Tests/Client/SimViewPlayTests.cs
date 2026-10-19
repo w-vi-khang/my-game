@@ -23,6 +23,7 @@ namespace Game.Client.Tests
             Assert.IsNotNull(sv.Sim);
             Assert.AreEqual(3, sv.Sim.State.Creatures.Count);
             Assert.AreEqual(3, sv.BodyCount);
+            Assert.AreEqual(4, sv.SproutCount);
             Assert.AreEqual(60, sv.TargetFps);
             Assert.AreEqual(60, Application.targetFrameRate);
             Assert.AreEqual(0, QualitySettings.vSyncCount);
