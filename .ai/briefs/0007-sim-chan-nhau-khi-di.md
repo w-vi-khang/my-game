@@ -1,9 +1,9 @@
 # Brief 0007 — Simulation bước 6b (phần 1): sinh vật chặn nhau khi đi
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-19 12:50
+> Cập nhật: 2026-10-19 — Planner trả lời vướng mắc Phasing (thêm bước 11)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -39,7 +39,7 @@ Phần 1 của [task 6b](../tasks/m1-sim-buoc-6b-luat-di-lai.md) (quyết địn
 6. Ưu tiên = `Priority` của công đoạn đang nhận; sinh vật không có công đoạn = thấp nhất (`int.MinValue`). Bằng nhau → id lớn hơn nhường.
 7. Nhường = đi tới ô gần nhất (BFS, tối đa 8 bước) mà khung không chồng lên `Cell` lẫn phần đường còn lại của con kia; đường đi tránh mọi sinh vật khác. Tới ô tránh → lập lại đường tới việc, **đứng chờ** cho tới khi ô kế tiếp của mình không còn nằm trên phần đường còn lại / ô hiện tại của con kia (hoặc con kia hết `Moving`). Không có ô tránh → không nhường (chờ tiếp, tới 50 thì đi xuyên).
 8. Con rảnh (`StageId < 0`) chắn con đang có việc → con rảnh **né** ngay nhịp chắn đầu tiên (và thử lại ở mỗi bội của 10): đi tới ô tránh như mục 7, tới nơi thì thành `Idle`. Con rảnh khi né có `State = Moving`, `StageId = -1` (CreatureStatus đã hiện "L1 · đi" cho trường hợp này).
-9. Đi xuyên: `Phasing` bỏ qua luật chặn; tắt ở đầu lượt xét của chính nó trong `MovePhase` khi khung tại `Cell` không còn chồng lên `Cell` của con nào. Test "không chung ô" bỏ qua cặp có một con đang `Phasing`.
+9. Đi xuyên: `Phasing` bỏ qua luật chặn; tắt ở đầu lượt xét của chính nó trong `MovePhase` khi **chỗ chiếm** của nó (khung tại `Cell` + ô kế tiếp đang bước sang, như mục 2) không còn chồng lên `Cell` của con nào. *(Sửa 2026-10-19: bản đầu chỉ xét `Cell` → tắt ngay nhịp sau khi bật, bế tắc — vướng mắc của executor.)* Test "không chung ô" bỏ qua cặp có một con đang `Phasing`.
 10. Sinh vật rảnh nhận việc được cả khi đang né (`StageId < 0`, kể cả `Moving`).
 11. Giữ bất biến ở các chỗ dời sinh vật khác: `AddCreature` từ chối ô đã có sinh vật; `Displace` không chọn ô bên cạnh đang bị chiếm (rơi xuống mà chồng → bật `Phasing`); `Respawn` chọn ô kề nhà đầu tiên còn trống, hết ô trống → chờ nhịp sau.
 12. Test cũ đổi số do luật mới: **chỉ** được sửa con số mong đợi (nhịp, ô) — không xoá assert, không đổi bố trí, không nới điều kiện — và chỉ khi nguyên nhân là chờ / né / nhường / đi xuyên. Ghi bảng ở mục Kết quả (xem bước 10). Lỗi khác (exception, đình trệ mới, sản lượng khác, `Produce`/`Seeds` cuối khác) → dừng, `cần Opus`.
@@ -603,6 +603,23 @@ Trước khi bắt đầu: đổi Trạng thái → `đang làm`, ghi giờ bắ
     - Khác → dừng, `cần Opus`.
     Xong rồi commit (chỉ file trong Phạm vi), message `brief 0007: sim 6b chặn nhau khi đi`. Đổi Trạng thái → `chờ review`, ghi giờ kết thúc.
 
+11. **Sửa sau `cần Opus` (Planner, 2026-10-19)** — code bước 1–9 đã có trong working tree, **không làm lại**.
+    - `Simulation.cs`, thêm cạnh `OverlapsAnyCell`:
+      ```csharp
+      /// <summary>Chỗ chiếm của c (Cell + ô kế tiếp đang bước sang) chồng lên khung tại Cell của sinh vật khác — dùng để tắt Phasing.</summary>
+      bool OccupancyOverlapsAnyCell(Creature c)
+      {
+          var cs = State.Creatures;
+          for (int i = 0; i < cs.Count; i++)
+              if (i != c.Id && OccupancyOverlaps(c, cs[i].Cell, cs[i].SizeX, cs[i].SizeZ, cs[i].SizeY)) return true;
+          return false;
+      }
+      ```
+      Dòng đầu vòng lặp `MovePhase` (hiện `:651`) đổi thành `if (c.Phasing && !OccupancyOverlapsAnyCell(c)) c.Phasing = false;`. `Displace` giữ `OverlapsAnyCell` (lúc đó `MoveProgress` = 0).
+    - Mốc nhịp của `HeadOnNoPocketPhasesAtFifty` **giữ nguyên** (Planner đã tính lại với luật mới: nhịp 79–83 B vẫn Phasing vì đang bước sang ô của A; 84–90 chồng ô; 91 tắt).
+    - 3 test `FarmTests` đang fail (`OneHarvestReachesStorage :109`, `QueueRepeatsAndCapsAtTwo :197`, `DroppedLoadReleasesReservation :265`): Planner dự đoán là trường hợp Quyết định 12 — trong `Layout`, L1 xong gieo đứng rảnh ở (6,2,5) = ô kề +X của ruộng, đúng ô L3 tới lấy hàng → L1 né, L3 tới muộn vài nhịp, kéo theo các mốc sau. Sau khi sửa Phasing, chạy lại; còn fail thì in trace (`Cell`, `State`, `BlockedTicks` của L1/L3 quanh nhịp 1395–1460) để xác nhận nguyên nhân rồi sửa số theo Quyết định 12 và ghi bảng. Nguyên nhân khác → dừng, `cần Opus`.
+    - Rồi làm tiếp bước 10 (chạy toàn bộ, commit) và các lệnh ở "Lệnh executor chạy". Ghi kết quả dưới tiêu đề **"Lần 2 (bước 11)"** trong Kết quả / Kết quả test; giữ nguyên ghi chép lần 1.
+
 ## Tiêu chí xong
 - EditMode toàn bộ đạt: 194 cũ + 10 mới = **204 / 204** (mới: 2 GridPathfinder, 5 MovementTests, 1 SimulationTerrain, 1 Home, 1 SimDemo).
 - PlayMode toàn bộ đạt (8/8).
@@ -679,6 +696,7 @@ Thêm ghi chú: `GridPathfinder.AddTempBlock/IsBodyFree` & các bước khác ch
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- 2026-10-19 — trả lời vướng mắc: lỗi ở thiết kế (Quyết định 9 của Planner), không phải code. Chọn luật "tắt Phasing khi chỗ chiếm không còn chồng" thay cho 3 phương án executor nêu: không cần trường mới, giữ mốc nhịp đã tính. Thêm bước 11; trạng thái → `chờ làm`.
 
 ## Kiểm chứng
 Dừng giữa chừng (`cần Opus`), đang chờ Planner quyết định về `Phasing`; chưa kiểm chứng đầy đủ.
