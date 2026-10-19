@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 6b — luật đi lại: chặn nhau, rảnh quanh nhà + lang thang, không dừng trên ô ruộng
 
-> Trạng thái: user quyết 2026-10-16 ([0019](../../design/decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)) — chờ viết brief; làm **trước bước 6a** ([0021](../../design/decisions/0021-lam-6b-truoc-6a.md), user 2026-10-19 — đổi thứ tự của 0020) ([0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), [task 6a](m1-sim-buoc-6a-luat-o-ruong.md)). "Ô ruộng" ở đây = mọi ô của lệnh trồng cây (`FarmPlot.Soil`, đặt qua `AddFarmOrder`); 6a giữ phạm vi này, kể cả ô chưa xới (0020, 0021)
+> Trạng thái: user quyết 2026-10-16 ([0019](../../design/decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)) — brief [0007](../briefs/0007-sim-chan-nhau-khi-di.md) (chặn nhau); brief 0008 (rảnh + ô ruộng) viết sau khi 0007 duyệt; làm **trước bước 6a** ([0021](../../design/decisions/0021-lam-6b-truoc-6a.md), user 2026-10-19 — đổi thứ tự của 0020) ([0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), [task 6a](m1-sim-buoc-6a-luat-o-ruong.md)). "Ô ruộng" ở đây = mọi ô của lệnh trồng cây (`FarmPlot.Soil`, đặt qua `AddFarmOrder`); 6a giữ phạm vi này, kể cả ô chưa xới (0020, 0021)
 
 ## Mục tiêu
 Bước 6b của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1), thêm sau khi user xem SimView (brief 0006). Ước lượng 4–6,5 ngày-người. Xong khi:
@@ -19,7 +19,7 @@ Bước 6b của [kế hoạch prototype simulation](../../design/04-tech/simula
 2. **Rảnh:** ngoài **4 ô** quanh nhà → đi về. Trong bán kính: mỗi **50–100 nhịp** (`SimRng`) đi tới một ô đứng được ngẫu nhiên trong bán kính. Có việc → bỏ lang thang. Số trong `sim_m1.json`.
 3. **Ô ruộng:** đi qua tự do; không dùng làm đích lang thang / chỗ né / chỗ đứng làm việc cho ô khác.
 
-## Planner đề xuất (user xác nhận khi duyệt brief)
+## Planner đề xuất — user xác nhận 2026-10-19 (khi viết brief 0007)
 - Bán kính = Chebyshev X/Z tính từ ô gần nhất của khung nhà, không tính Y.
 - Đứng chờ / nhường trên ô ruộng không tính là "dừng".
 - Chỉ còn ô ruộng khác để đứng làm việc thì vẫn cho đứng (không tạo đình trệ mới).
