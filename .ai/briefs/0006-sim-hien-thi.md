@@ -920,3 +920,9 @@ Planner, 2026-10-16 — user xem (ảnh ở nhịp 1441, 60 FPS): **cần sửa*
 - Lỗi world "đặt được nhưng không vẽ lại", "dưới là cỏ mà vẽ nâu": Planner kiểm qua MCP (scene tạm, không lưu) — 220 lần đặt + đào trên khắp map đều vẽ lại đúng mặt trên + màu; 1846 tia từ camera SimView chọn ô đào/đặt đều hợp lệ; hố 3 × 3 hiện đúng đáy đất [run]. Chưa tái hiện → chờ user gửi dòng thông báo HUD + ảnh lúc lỗi.
 
 Planner, 2026-10-16 (phiên sau) — viết bước 9 (HUD kho/ruộng, mầm theo %, hộp mang hàng; user chọn HUD góc trái + duyệt chữ). Lỗi world: Planner thử lại trong Play SimView (mô phỏng chạy, camera (26, 26, 10)) theo đúng phép tính ô của `TerrainEditInput` [run]: 63/63 lần đặt cỏ `Ok`; sau khi dựng lại, 59 khối thấy mặt trên, 3 chỉ thấy sườn, 1 bị địa hình che; ảnh chụp thấy rõ các cột cỏ (mặt xanh, sườn nâu). "Cỏ vẽ nâu" khớp thiết kế (sườn ô cỏ màu đất). "Đặt được mà không vẽ" vẫn chưa tái hiện → để ngoài 0006, user gặp lại thì chụp HUD dòng 3.
+
+Planner, 2026-10-19 — lần 2 (bước 9), phần code: **đạt**; chờ user xem mục "User tự test" 6 rồi mới kết luận.
+- Chạy bằng Sonnet · medium = Model thực thi. Mọi dòng "Phần cần test" có kết quả (EditMode 194/194, PlayMode 8/8); dòng hình ảnh = chờ user.
+- Diff `af6d174`: 6 file, đúng Phạm vi bước 9. `SiteStatus.cs` trùng từng ký tự với brief [run: diff]; `SimView.cs` chỉ thêm đúng các chỗ ở 9.2; `SiteStatusTests` số khớp 9.3; PlayMode thêm đúng 1 assert `SproutCount == 4`.
+- `grep UnityEngine|UnityEditor` trong `Core/View/` rỗng [run].
+- Giờ thực tế bước 9 ≈ 15 phút executor.
