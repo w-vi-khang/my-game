@@ -1,9 +1,9 @@
 # Brief 0006 — Simulation bước 6: hiển thị (nội suy vị trí, trạng thái)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-16 23:00 — thêm bước 9 (sửa sau user xem)
+> Cập nhật: 2026-10-19 08:15 — executor bắt đầu bước 9 (lần 2)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -889,6 +889,18 @@ File đổi toàn brief: Core/View/{SimClock,SimInterpolator,StallMarkers,Creatu
 
 ## Vướng mắc
 Không còn (Editor đã mở, bước 8 xong).
+
+## Lần 2 (bước 9)
+Base commit: d096ce1
+Chạy bằng: Sonnet · medium (claude-sonnet-5-5)
+Bắt đầu: 2026-10-19 08:15 · xong ≈ 08:30 (đồng hồ máy; ≈ 15 phút).
+Commit code: af6d174. File: Core/View/SiteStatus.cs (+meta), Tests/Core/View/SiteStatusTests.cs (+meta), Client/SimView.cs, Tests/Client/SimViewPlayTests.cs. SimView sửa đúng brief, không lệch.
+
+### Kết quả test (lần 2)
+- `SiteStatusTests` (4) + regression: EditMode MCP **194/194** đạt.
+- PlayMode MCP **8/8** đạt (có assert `SproutCount == 4`). Đã `git checkout` EditorSettings.asset; `client/ProjectSettings/` sạch.
+- Biên dịch: `read_console` (Error) rỗng. Hai grep rỗng; cmp sim_m1.json exit 0; check_design exit 0.
+- HUD kho/ruộng, mầm xanh, hộp vàng trên lưng nhìn bằng mắt: **chờ user** (mục "User tự test" 6).
 
 ---
 <!-- PLANNER ghi khi review. -->
