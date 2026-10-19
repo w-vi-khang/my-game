@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 6b — luật đi lại: chặn nhau, rảnh quanh nhà + lang thang, không dừng trên ô ruộng
 
-> Trạng thái: user quyết 2026-10-16 ([0019](../../design/decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)) — chờ viết brief; làm **sau bước 6a** ([0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), [task 6a](m1-sim-buoc-6a-luat-o-ruong.md)). Sau 6a, "ô ruộng" ở đây = mọi ô của lệnh trồng cây, kể cả ô chưa xới (Planner đề xuất trong 0020, user xác nhận khi duyệt brief)
+> Trạng thái: user quyết 2026-10-16 ([0019](../../design/decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)) — chờ viết brief; làm **trước bước 6a** ([0021](../../design/decisions/0021-lam-6b-truoc-6a.md), user 2026-10-19 — đổi thứ tự của 0020) ([0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), [task 6a](m1-sim-buoc-6a-luat-o-ruong.md)). "Ô ruộng" ở đây = mọi ô của lệnh trồng cây (`FarmPlot.Soil`, đặt qua `AddFarmOrder`); 6a giữ phạm vi này, kể cả ô chưa xới (0020, 0021)
 
 ## Mục tiêu
 Bước 6b của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1), thêm sau khi user xem SimView (brief 0006). Ước lượng 4–6,5 ngày-người. Xong khi:
@@ -31,6 +31,7 @@ Bước 6b của [kế hoạch prototype simulation](../../design/04-tech/simula
 - Gặp con đang làm chắn đường → chờ đúng 10 nhịp rồi đi vòng.
 - Con rảnh đứng giữa đường → tự né, con đang đi không chờ quá 10 nhịp.
 - Rảnh ở xa nhà → về trong bán kính 4; lang thang không bao giờ ra ngoài bán kính, không chọn ô ruộng.
+- **Map M1 thật + `SimDemo`, 4000 nhịp có `KeepFarming`** ([0021](../../design/decisions/0021-lam-6b-truoc-6a.md)): kiểm mọi nhịp → 0 lần hai sinh vật chung ô (theo khung, trừ lúc phao), 0 lần sinh vật rảnh dừng trên ô ruộng (đang đi qua không tính). Mốc trước 6b: 57% / 59% số lần đếm rảnh [run 2026-10-19].
 - Mã băm trùng qua 2000 nhịp với 2 lần chạy cùng seed; `SimDemoTests` (map M1) vẫn 0 đình trệ, đủ sản lượng.
 
 ## Ngoài phạm vi

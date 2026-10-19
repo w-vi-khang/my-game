@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 6a — ô ruộng chỉ có sau khi xới; đặt khối lên / đào ô ruộng thì huỷ vụ, trả hạt
 
-> Trạng thái: user quyết 2026-10-19 ([0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)) — chờ viết brief. Làm **trước** [bước 6b](m1-sim-buoc-6b-luat-di-lai.md).
+> Trạng thái: user quyết 2026-10-19 ([0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)) — chờ viết brief. Làm **sau** [bước 6b](m1-sim-buoc-6b-luat-di-lai.md) ([0021](../../design/decisions/0021-lam-6b-truoc-6a.md), user 2026-10-19); giữ test map M1 của 6b xanh.
 
 ## Mục tiêu
 Bước 6a của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1). Thêm sau khi user chơi thử SimView (brief 0006, 2026-10-19): đặt khối cỏ lên ô ruộng đã xới được, mà mô phỏng vẫn làm ruộng như không có gì. Ước lượng 2,5–4 ngày-người.

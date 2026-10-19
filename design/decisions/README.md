@@ -25,4 +25,5 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0017](0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md) | Simulation bước 4: thông báo là sự kiện trong lõi, thiếu năng lực, nhà mẫu khối đặc, chỉ đếm kẹt khi rảnh | Chốt |
 | [0018](0018-thuan-thuc-bang-muc.md) | Simulation bước 5: thuần thục vào thời gian công đoạn qua bảng mức, áp theo tốc độ mỗi nhịp | Chốt |
 | [0019](0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md) | Simulation bước 6b: sinh vật chặn nhau khi đi, rảnh về quanh nhà + lang thang (kéo từ M2), không dừng trên ô ruộng | Chốt |
-| [0020](0020-o-ruong-tao-khi-xoi-va-huy-vu.md) | Simulation bước 6a (trước 6b): ô ruộng chỉ có sau khi xới; đặt khối lên / đào ô ruộng → huỷ vụ, trả hạt; phép tưới nước (ô đất → cỏ) giữ M2 | Chốt |
+| [0020](0020-o-ruong-tao-khi-xoi-va-huy-vu.md) | Simulation bước 6a (sau 6b — 0021): ô ruộng chỉ có sau khi xới; đặt khối lên / đào ô ruộng → huỷ vụ, trả hạt; phép tưới nước (ô đất → cỏ) giữ M2 | Chốt |
+| [0021](0021-lam-6b-truoc-6a.md) | Làm simulation bước 6b trước 6a; thêm test map M1: 0 lần đứng chung ô, 0 lần rảnh dừng trên ô ruộng | Chốt |

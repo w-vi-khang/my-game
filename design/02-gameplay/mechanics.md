@@ -80,7 +80,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
   - Hàng đợi gồm cả vụ đang làm; thu hoạch xong vụ rời hàng đợi, vụ kế bắt đầu lại từ xới (Planner).
   - Mỗi lần thu hoạch: **1 lượt vận chuyển mang cả 1 nông sản + 1 hạt**; sức chứa 50 **tính chung** nông sản và hạt.
   - Hiển thị (bước 6): khi vận chuyển sinh vật mang một hộp nhỏ; khi xới, tưới... có biểu tượng nhỏ bên cạnh.
-- Ô ruộng và huỷ vụ (user, 2026-10-19, [0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), M1 simulation bước 6a, làm trước 6b):
+- Ô ruộng và huỷ vụ (user, 2026-10-19, [0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), M1 simulation bước 6a, làm sau 6b — [0021](../decisions/0021-lam-6b-truoc-6a.md)):
   - Lệnh trồng cây đặt lên vùng ô đất/cỏ có ô trống phía trên. **Sinh vật xới xong một ô → ô đó thành ô ruộng** (vật liệu mới, màu riêng, không có mép cỏ); từ đó mới gieo/tưới/thu hoạch. Xới ô cỏ làm giảm số ô cỏ của môi trường sống.
   - **Huỷ vụ:** đặt khối lên ô ruộng hoặc đào ô ruộng → vụ đang làm bị huỷ. Đã trừ hạt mà chưa thu hoạch → **trả 1 hạt vào kho ngay** (kho đầy vẫn trả); nông sản chưa thu thì mất. Hàng đã thu hoạch (nằm tại ô hoặc đang chở) vẫn chở vào kho.
   - Sau khi huỷ vụ, **ô rời lệnh, hàng đợi vụ bị xoá**. Đào: ô thành rỗng, +1 đất. Đặt khối lên: ô ruộng bên dưới **trở lại ô đất**. Muốn trồng lại phải đặt lệnh lại.
