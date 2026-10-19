@@ -32,7 +32,7 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 | Nhập hồn / thoát | R (nhắm sinh vật của mình) | Nút nhập hồn (hiện khi nhắm trúng) | Y | M2 |
 | Đánh thường (khi nhập hồn) | Chuột trái | Nút hành động chính | RT | M2 |
 | Phép 1–4 (khi nhập hồn) | Phím 1–4 (thanh công cụ đổi thành ô phép) | 4 nút quanh nút hành động chính | LB, RB, LT, X (khi nhập hồn X không dùng để tương tác; Y giữ cho nhập hồn / thoát) | M2 |
-| Túi đồ / sinh vật / bản đồ | Tab / C / M | Nút menu → chọn | Select | M2 |
+| Túi đồ / sinh vật / bản đồ | Tab / C / M | Nút menu → chọn | Select | M2 (bản đồ: M1 — [0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md); phóng to bằng cuộn chuột / chụm 2 ngón) |
 | Menu, tạm dừng | Esc | Nút menu | Start | M1 |
 
 Phím cụ thể là đề xuất [ý tưởng]; cho người chơi **đổi phím** (M3) — Input System 1.19 có `PerformInteractiveRebinding()` để đổi lúc chạy, `SaveBindingOverridesAsJson` / `LoadBindingOverridesFromJson` để lưu ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)).
@@ -101,7 +101,7 @@ flowchart TB
 | Chuẩn bị chiến đấu | Chọn sinh vật, gán phép vào ô phép | M2 |
 | Túi đồ | Vật phẩm, thẻ bài | M2 |
 | Nhiệm vụ & mảnh ký ức | Nhiệm vụ chính/phụ theo map, mảnh ký ức đã có | M2 |
-| Bản đồ | Map hiện tại, khối cốt truyện đã thấy, đánh dấu đình trệ | M2 |
+| Bản đồ (minimap) | M1 ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)): toàn world nhìn từ trên cao, màu theo tầng độ cao, ranh giới + tên map, vị trí người chơi, dấu mốc (nhà, kho, ô ruộng); phóng to/kéo. M2: khối cốt truyện đã thấy, đánh dấu đình trệ | M1 / M2 |
 | Cửa hàng | Gói, tiền nạp, mốc bảo hiểm công khai | M3 |
 | PvP | Ghép trận, trận, kết quả | Sau M4 |
 

@@ -35,7 +35,7 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 
 - **Chiếm chỗ** (sinh vật, cây, vật phẩm) lưu ở **lớp riêng**: danh sách vật thể + khung chiếm chỗ → bảng tra ô → vật thể. Không nhét vào ô địa hình, vì vật thể nhiều ô và di chuyển được.
 - **Chunk:** 16 × 16 × 16 ô gameplay [ý tưởng]. 16 là kích thước phổ biến: Minecraft chia chunk 16 × 16 theo chiều ngang, mỗi đoạn cao 16 ([Minecraft Wiki](https://minecraft.wiki/w/Chunk)); Godot Voxel Tools mặc định khối mesh 16, cho phép 32 — 32 ít draw call hơn nhưng sửa voxel chậm hơn ([Voxel Tools](https://voxel-tools.readthedocs.io/en/latest/performance/)).
-- **Map 128 × 128 × 48 ô, có hang động** (user, 2026-10-13) → 8 × 8 × 3 = 192 chunk.
+- **Map 128 × 128 × 48 ô, có hang động** (user, 2026-10-13) → 8 × 8 × 3 = 192 chunk. World gồm 3 map liền nhau ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)) → xem [World nhiều map + minimap](#world-nhiều-map--minimap-m1).
 - **Đào/đặt luôn theo nguyên ô** (user, 2026-10-13) → dữ liệu có/không + vật liệu là đủ, không cần mật độ trung gian.
 
 ## Sinh world theo seed
@@ -169,9 +169,40 @@ Theo **M1 tối giản** ([0007](../decisions/0007-m1-toi-gian.md), user chốt 
 | 5c | Luật đặt khối (kề khối đặc, đặt được vào nước) + biển loang khi đào + mặt nước theo ô, mặt biển nền chỉ ngoài map ([0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)) | Test EditMode: đặt không kề khối đặc bị từ chối, đặt vào nước được; đào ô ≤ S kề nước → vùng thông ngập, ô > S không ngập, vùng kín không ngập, tường không chạm đáy → nước luồn; ảnh vùng khô thấp hơn mực nước không hiện nước | 3–5 · **Xong 2026-10-13** [run]: `WorldEditor` (kết quả mới `NotAttached`; đặt vào ô nước; biển loang theo 6 hướng khi đào, ngoài map ở y ≤ S là biển) + 13 test `SeaFloodTests` (gồm tường chữ U: dựng tường không làm rút, kín tới đáy → khô, miệng U ra biển → ngập lại, đào chân tường → nước luồn, phá tường → ngập); mặt nước theo ô = submesh 1 của chunk (material biển), mặt biển nền thành vành khăn khoét map. EditMode 80/80, PlayMode 6/6. Thử trong Play: hố 3 × 3 đào tới y = 7 (dưới mực nước 10) khô, không hiện nước; đào rãnh thông biển → loang 39 ô, hố ngập 36/36. Ảnh: `24_dry_pit_top_1.png`, `25_pit_flooded_close.png` |
 | 6 | Đo trên mobile tầm trung | ≥ 30 FPS khi đào/đặt liên tục; ghi ms/chunk, số tam giác | 2–3 · **Xong 2026-10-13** [run]: `TerrainBench` (scene Bench = bản sao TerrainView, tự chạy 3 s khởi động + 20 s đo, mỗi khung đào/đặt lại một ô ngẫu nhiên, 1/15 lần đào bờ biển cho nước lan), APK `Game/Build APK Bench` (IL2CPP, ARM64). **Xiaomi 24095PCADG** (8 nhân ARM64, Mali-G615 MC2, Vulkan, 2712 × 1220, chất lượng Mobile: bóng 2048 / 2 tầng / bóng mềm): **60,0 FPS** trung bình (chạm trần 60 đặt trong bench), p50 16,64 ms, p99 16,81 ms, max 41,6 ms; 1.200 lần sửa / 1.200 khung, 1,43 chunk mỗi lần dựng lại — mesh 4,08 ms (2,85 ms/chunk) + ghi 0,36 + bake 1,03 ms; 82.746 tam giác (nước 4.370); mã băm v2 `807d00bd048026a0` **trùng Mac**. Chưa đo dư địa trên 60 FPS (trần + vsync). Build tự bật `UnityConnectSettings.m_Enabled` → đã trả về 0. **Sửa sau đo:** mặt biển trên điện thoại lộ đường lưới mảnh (Mac không có, kể cả ảnh ×2) — nguyên nhân khả dĩ [chưa xác minh]: hàm nhiễu băm ô bằng số thực `frac(p × hằng)`, GPU Mali sắp xếp lại phép tính → cùng đỉnh lưới ra 2 giá trị ở 2 ô kề. Đổi sang băm số nguyên trong 3 shader (Terrain, Ocean, SkyClouds) → chạy lại trên máy: **hết đường lưới**, 60,1 FPS, p99 16,87 ms, max 25,0 ms [run] |
 | 5d | Nước lan theo nhịp ([0013](../decisions/0013-nuoc-lan-theo-nhip.md)) | Test: rơi thẳng xuống trong 1 nhịp, lan ngang 1 ô/nhịp, đặt khối chặn được dòng đang lan, trạng thái cuối = luật 0012; client chạy nhịp cố định | 1 · **Xong 2026-10-13** [run]: `WorldEditor` giữ mặt trước dòng nước (`StepWater`, `SettleWater`, `HasPendingWater`); `TerrainChunkView` chạy 8 nhịp/giây, tối đa 4 nhịp/khung. 4 test EditMode (lan ngang 1 ô/nhịp, rơi xuống cả giếng trong 1 nhịp, đặt khối chặn dòng, kết quả = BFS tức thời của 0012) + 1 test PlayMode (đào bờ biển không ngập ngay, ngập sau vài nhịp). EditMode 84/84, PlayMode 7/7. Chưa có hiệu ứng mặt nước dâng dần trong một ô (mỗi ô vẫn đầy/rỗng) |
-| | **Cộng** | | **29–46** (17–28 + 2–3 của 0009 − 1–2 của bước 5 cũ + 7–11 của 0011 + 3–5 của 0012 + 1 của 0013) |
+| 7a | Bộ sinh world nhiều map (generatorVersion 3, [0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)): 3 map liền nhau, ranh giới cong, đại dương bao quanh world, tên tạm trong JSON | Tất định: cùng seed → cùng world + cùng bảng map; mã băm trùng PC và điện thoại. Mỗi map 128 × 128 ±25% cột đất; mỗi đoạn ranh giới lệch khỏi đường thẳng nối hai đầu ≥ 8 ô; cột cách biên world < vành biển là biển | 2–3 [ý tưởng] |
+| 7b | Nạp dần chunk quanh camera (mesh + collider), dữ liệu world giữ cả trong RAM | Đi/bay qua world không thấy lỗ trước mặt; ≥ 30 FPS trên điện thoại khi di chuyển liên tục; ghi bộ nhớ + ms dựng mỗi khung | 4–6 [ý tưởng] (chuyển từ M2) |
+| 7c | Minimap: nền tầng độ cao từ bộ sinh, ranh giới cong, tên map, vị trí người chơi; phóng to/kéo (chuột + chụm 2 ngón) | Test: ảnh nền tất định, đúng màu tầng theo độ cao cột; ranh giới khớp bảng map; user xem | 2–3,5 [ý tưởng] |
+| 7d | Minimap cập nhật khi đào/đặt + dấu mốc (nhà, kho, ô ruộng) | Test: đào/đặt cột → đúng một điểm ảnh đổi theo độ cao mới | 0,5–1 [ý tưởng] |
+| 7e | Mô phỏng trên world lớn: vùng mô phỏng trong Map 1, `SimDemo` đặt lại vị trí | Test mô phỏng cũ đạt; bộ nhớ tìm đường không theo cả world | 0,5–1,5 [ý tưởng] |
+| | **Cộng** | | **38–61** (17–28 + 2–3 của 0009 − 1–2 của bước 5 cũ + 7–11 của 0011 + 3–5 của 0012 + 1 của 0013 + 9–15 của 0022) |
 
-**Chuyển sang M2** (18–27, phần "voxel world đầy đủ" của [0007](../decisions/0007-m1-toi-gian.md)): hang noise 3D 4–5 · map 128 × 128 × 48 + hiển thị theo khoảng cách 4–6 · texture đầy đủ cho mọi vật liệu (mặt khối, không cần triplanar — 0011) 3–5 · lưới chiếm chỗ + vật thể nhiều ô 3–5 · lưu/nạp chunk đã sửa 2–4 · phiên bản bộ sinh 2. Khối cốt truyện (2–4) và sinh map theo seed (15–25) là hạng mục M2 riêng.
+**Chuyển sang M2** (14–21, phần "voxel world đầy đủ" của [0007](../decisions/0007-m1-toi-gian.md)): hang noise 3D 4–5 · ~~map 128 × 128 × 48 + hiển thị theo khoảng cách 4–6~~ (về M1, bước 7a–7b — [0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)) · texture đầy đủ cho mọi vật liệu (mặt khối, không cần triplanar — 0011) 3–5 · lưới chiếm chỗ + vật thể nhiều ô 3–5 · lưu/nạp chunk đã sửa 2–4 · phiên bản bộ sinh 2. Khối cốt truyện (2–4) và sinh map theo seed (15–25) là hạng mục M2 riêng.
+
+## World nhiều map + minimap (M1)
+User chốt 2026-10-19 ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)): world liền một khối gồm 3 map, mỗi map khoảng 128 × 128; ranh giới cong ngẫu nhiên; minimap kiểu lai; nạp dần chunk ngay M1. Cách làm dưới đây là **[ý tưởng]** của AI, chốt từng phần khi viết brief.
+
+```mermaid
+flowchart LR
+    S[Seed + generatorVersion 3] --> C[Tâm 3 map theo seed]
+    C --> M[Bảng map theo cột<br/>Voronoi có méo noise]
+    M --> L[Mặt nạ đất liền<br/>bờ biển méo noise]
+    L --> H[Độ cao từng cột]
+    H --> W[Dữ liệu world<br/>giữ cả trong RAM]
+    H --> MM[Ảnh nền minimap<br/>tầng độ cao]
+    M --> B[Đường ranh giới<br/>+ tên map]
+    W --> ST[Nạp dần mesh + collider<br/>quanh camera]
+    W -- đào/đặt --> MM
+```
+
+- **Kích thước** [ý tưởng]: world 384 × 384 × 48. Đất liền 3 map khoảng 3 × 16.384 cột, vành biển ≥ 24 ô. Tổng 7.077.888 ô = 1.728 chunk 16³. Dữ liệu ô 2 byte → khoảng 14 MB nếu giữ cả world trong RAM [tính từ bảng ô ở trên].
+- **Chia map — Voronoi có méo:** chọn tâm 3 map theo seed, các tâm cách nhau tối thiểu một khoảng. Mỗi cột (x, z) được dịch bằng noise 2 tầng (biên độ khoảng 12–20 ô), rồi thuộc về tâm gần nhất → ranh giới thành đường cong ngẫu nhiên. Kết quả là **bảng map theo cột** (1 byte/cột, 147.456 byte). Dùng chung đường tất định với bộ sinh hiện tại (Burst `FloatMode.Deterministic`, [kiến trúc](architecture.md#nền-tảng-code-m1)).
+- **Đất liền:** bờ biển cũng méo bằng noise, đổi phần "đảo + vành biển" của generatorVersion 2 từ bám mép map sang bám mép world. Mỗi map có thể có preset noise riêng (đồi, phẳng…) để màu tầng trên minimap phân biệt rõ hơn. Map 1 (đảo vách đá) giáp biển ([levels](../02-gameplay/levels.md)).
+- **Ảnh nền minimap:** lấy độ cao mặt đất từng cột thẳng từ bộ sinh, không dựng voxel. Mỗi 4 ô độ cao là một tầng màu (12 tầng với cao 48). Nước tô theo độ sâu. 1 điểm ảnh = 1 cột → ảnh 384 × 384 RGBA khoảng 590 KB. Tạo lại được từ seed nên không lưu.
+- **Ranh giới + tên:** trích đường biên từ bảng map (điểm giữa các cặp cột khác map), làm mượt, rồi vẽ dạng đường vector để phóng to vẫn mịn. Tên map đặt ở trọng tâm map, giữ nguyên cỡ chữ khi phóng to. API UI vẽ đường [chưa xác minh — tra docs 6000.4 khi viết brief].
+- **Phóng to/kéo:** đổi vùng hiển thị của ảnh. Chuột: cuộn để phóng, kéo để dịch. Cảm ứng: chụm 2 ngón. Mở bằng phím M ([controls-ui](../02-gameplay/controls-ui.md)).
+- **Cập nhật khi sửa:** `WorldEditor` đào/đặt ô (x, y, z) → tính lại ô cao nhất của cột (x, z) trong dữ liệu world → ghi lại một điểm ảnh. Khi có lưu world (M2): lúc nạp lại phải tính lại các cột của chunk đã sửa.
+- **Nạp dần chunk:** dữ liệu world sinh một lần lúc vào game. Thời gian sinh cần đo; ước tính tuyến tính từ 3 ms cho 131.072 ô trên điện thoại (bước 1) ra khoảng 160 ms cho 7 triệu ô [ước tính, chưa đo]. Chỉ chunk trong bán kính quanh camera mới có mesh + collider. Mỗi khung dựng tối đa N chunk, ưu tiên chunk gần trước. Gỡ chunk ở bán kính lớn hơn bán kính nạp (có khoảng trễ) để không nạp/gỡ liên tục.
+- **Mô phỏng:** `GridPathfinder` cấp mảng theo số ô của world. Với cả world 7 triệu ô thì khoảng 85 MB → phải giới hạn trong một vùng mô phỏng (vd Map 1), hoặc cấp mảng theo vùng [chưa xác minh].
 
 ## Câu hỏi mở
 - Cách người chơi tạo nguồn nước (phép, công trình?); nguồn nước có xoá/di chuyển được không?

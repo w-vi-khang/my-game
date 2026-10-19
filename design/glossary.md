@@ -57,6 +57,8 @@
 | Sinh khí | Năng lượng sống chảy giữa đất đai và sinh vật — lý do trong truyện của môi trường sống (ý tưởng) | [01-story/world.md](01-story/world.md) |
 | Mảnh ký ức | Mảnh quá khứ của nhân vật chính; mạch truyện chính xuyên mọi map | [01-story/plot.md](01-story/plot.md) |
 | Map | Vùng có ranh giới trên world của người chơi, có câu chuyện riêng | [01-story/world.md](01-story/world.md) |
+| Minimap | Bản đồ toàn world nhìn từ trên cao: màu theo tầng độ cao, ranh giới + tên map, vị trí người chơi, dấu mốc; phóng to/kéo được | [decisions/0022](decisions/0022-world-nhieu-map-va-minimap-m1.md) |
+| Nạp dần chunk | Chỉ dựng mesh + collider cho chunk trong bán kính quanh camera; dữ liệu world vẫn đủ | [04-tech/world-tech.md](04-tech/world-tech.md#world-nhiều-map--minimap-m1) |
 | Seed | Giá trị riêng của mỗi người chơi để sinh phần không thuộc cốt truyện của map | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Khối cốt truyện | Khối thuộc cốt truyện hoặc đường đi tới nó; không phá/đặt được cho tới khi phá đảo map | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phá đảo map | Hoàn thành cốt truyện chính của một map | [02-gameplay/progression.md](02-gameplay/progression.md) |
