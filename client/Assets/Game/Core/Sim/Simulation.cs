@@ -13,6 +13,7 @@ namespace Game.Core.Sim
         readonly List<CellPos> tmpPath = new List<CellPos>();
         readonly List<CellPos> goals = new List<CellPos>();
         readonly List<CellPos> homePath = new List<CellPos>();
+        readonly List<CellPos> wanderCells = new List<CellPos>();
         bool terrainDirty;
         bool homeDirty;
 
@@ -183,6 +184,62 @@ namespace Game.Core.Sim
             return false;
         }
 
+        /// <summary>Con rảnh có nhà: ngoài bán kính hoặc trên ô ruộng → đi ngay; trong bán kính → hẹn rồi lang thang (0019 mục 2–3).</summary>
+        void IdlePhase()
+        {
+            var cs = State.Creatures;
+            for (int i = 0; i < cs.Count; i++)
+            {
+                var c = cs[i];
+                if (c.StageId >= 0 || c.HomeId < 0 || !c.HomeReachable)
+                {
+                    c.WanderAt = -1;
+                    continue;
+                }
+                if (c.State != CreatureState.Idle) continue;
+                var h = State.Houses[c.HomeId];
+                bool mustLeave = OnPlot(c.Cell, c.SizeX, c.SizeZ, c.SizeY)
+                    || HomeDistance(c.Cell, c.SizeX, c.SizeZ, h) > Config.creature.homeRadius;
+                if (!mustLeave)
+                {
+                    if (c.WanderAt < 0) c.WanderAt = State.Tick + NextWanderDelay();
+                    if (State.Tick < c.WanderAt) continue;
+                }
+                c.WanderAt = -1;
+                if (!StartWander(c, h) && !mustLeave) c.WanderAt = State.Tick + NextWanderDelay();
+            }
+        }
+
+        int NextWanderDelay()
+        {
+            int min = Config.WanderMinTicks;
+            int span = Config.WanderMaxTicks - min + 1;
+            return span == 1 ? min : min + State.Rng.NextInt(span);
+        }
+
+        /// <summary>Đi tới một ô ngẫu nhiên trong bán kính quanh nhà h: tới được từ ô kề nhà, không phải ô đang đứng, không phải ô ruộng, không có sinh vật khác.</summary>
+        bool StartWander(Creature c, House h)
+        {
+            HomeGoals(c, h);
+            int r = Config.creature.homeRadius;
+            pathfinder.FloodRegion(goals, c.SizeX, c.SizeZ, c.SizeY, p => HomeDistance(p, c.SizeX, c.SizeZ, h) <= r, wanderCells);
+            int n = 0;
+            for (int i = 0; i < wanderCells.Count; i++)
+            {
+                var p = wanderCells[i];
+                if (p == c.Cell || OnPlot(p, c.SizeX, c.SizeZ, c.SizeY) || FirstBlocker(c, p) >= 0) continue;
+                wanderCells[n++] = p;
+            }
+            if (n == 0) return false;
+            var target = wanderCells[n == 1 ? 0 : State.Rng.NextInt(n)];
+            if (!FindPath(c, c.Cell, target)) return false;
+            c.State = CreatureState.Moving;
+            SetPath(c);
+            c.MoveProgress = 0;
+            c.BlockedTicks = 0;
+            return true;
+        }
+
         void StuckPhase()
         {
             var cs = State.Creatures;
@@ -224,6 +281,7 @@ namespace Game.Core.Sim
             c.Phasing = false;
             c.YieldTo = -1;
             c.YieldHold = false;
+            c.WanderAt = -1;
             var stages = State.Stages;
             for (int i = 0; i < stages.Count; i++)
             {
@@ -278,6 +336,7 @@ namespace Game.Core.Sim
             MovePhase();
             AssignPhase();
             StuckPhase();
+            IdlePhase();
             ReportPhase();
         }
 
@@ -304,6 +363,23 @@ namespace Game.Core.Sim
             for (int i = 0; i < cs.Count; i++)
                 if (i != c.Id && OccupancyOverlaps(cs[i], p, c.SizeX, c.SizeZ, c.SizeY)) return i;
             return -1;
+        }
+
+        /// <summary>Khoảng cách Chebyshev X/Z giữa khung (sx, sz) tại p và khung nhà h; 0 = chạm hoặc chồng; không tính Y (0019).</summary>
+        public static int HomeDistance(CellPos p, int sx, int sz, House h)
+        {
+            int dx = Math.Max(0, Math.Max(h.Cell.X - (p.X + sx - 1), p.X - (h.Cell.X + h.SizeX - 1)));
+            int dz = Math.Max(0, Math.Max(h.Cell.Z - (p.Z + sz - 1), p.Z - (h.Cell.Z + h.SizeZ - 1)));
+            return Math.Max(dx, dz);
+        }
+
+        /// <summary>Khung (sx, sz, sy) tại p chồng lên ô Site của một ô ruộng (0019 mục 3).</summary>
+        public bool OnPlot(CellPos p, int sx, int sz, int sy)
+        {
+            var ps = State.Plots;
+            for (int i = 0; i < ps.Count; i++)
+                if (FramesOverlap(p, sx, sz, sy, ps[i].Site, 1, 1, 1)) return true;
+            return false;
         }
 
         /// <summary>Khung c tại Cell chồng lên khung tại Cell của sinh vật khác.</summary>
@@ -458,23 +534,28 @@ namespace Game.Core.Sim
             c.Path.Clear();
             c.PathIndex = 0;
             c.MoveProgress = 0;
+            c.BlockedTicks = 0;
+            c.WanderAt = -1;
             c.MoveTarget = c.Cell;
         }
 
-        /// <summary>Ô kề của chỗ p (tối đa 4, theo thứ tự hướng) mà sinh vật c đứng được — điền vào goals (0016).</summary>
-        void AdjacentGoals(Creature c, CellPos p)
+        /// <summary>Ô kề của chỗ p (tối đa 4, theo thứ tự hướng) mà sinh vật c đứng được — điền vào goals (0016). skipPlots: bỏ ô ruộng (0019); trả số ô đã bỏ.</summary>
+        int AdjacentGoals(Creature c, CellPos p, bool skipPlots)
         {
             goals.Clear();
+            int skipped = 0;
             for (int d = 0; d < 4; d++)
                 for (int k = 0; k < 3; k++)
                 {
                     var n = p.Offset(DisplaceX[d], DisplaceY[k], DisplaceZ[d]);
                     if (pathfinder.CanStand(n, c.SizeX, c.SizeZ, c.SizeY))
                     {
-                        goals.Add(n);
+                        if (skipPlots && OnPlot(n, c.SizeX, c.SizeZ, c.SizeY)) skipped++;
+                        else goals.Add(n);
                         break;
                     }
                 }
+            return skipped;
         }
 
         /// <summary>Tìm đường tới chỗ site theo cách tiếp cận a; đường trong tmpPath (rỗng = đã đứng đúng chỗ).</summary>
@@ -489,8 +570,13 @@ namespace Game.Core.Sim
                 }
                 return FindPath(c, c.Cell, site);
             }
-            AdjacentGoals(c, site);
+            int skipped = AdjacentGoals(c, site, true);
             if (pathfinder.FindPathToAny(c.Cell, goals, c.SizeX, c.SizeZ, c.SizeY, tmpPath)) return true;
+            if (skipped > 0)
+            {
+                AdjacentGoals(c, site, false);
+                if (pathfinder.FindPathToAny(c.Cell, goals, c.SizeX, c.SizeZ, c.SizeY, tmpPath)) return true;
+            }
             if (a == Approach.AdjacentOrOn) return PlanTo(c, site, Approach.Exact);
             return false;
         }
@@ -710,6 +796,11 @@ namespace Game.Core.Sim
             }
             if (c.BlockedTicks % wait != 0) return;
             if (RepathAvoiding(c, next)) return;
+            if (c.StageId < 0)
+            {
+                StopWalk(c); // con rảnh không có đường khác → đứng lại (Quyết định 8)
+                return;
+            }
             bool headOn = o.State == CreatureState.Moving && o.PathIndex < o.Path.Count
                 && OccupancyOverlaps(c, o.Path[o.PathIndex], o.SizeX, o.SizeZ, o.SizeY);
             if (!headOn) return;
@@ -744,13 +835,13 @@ namespace Game.Core.Sim
             return true;
         }
 
-        /// <summary>Đường cho y tới ô gần nhất ngoài Cell + phần đường còn lại của w, tránh mọi sinh vật khác — vào tmpPath.</summary>
-        bool FindAside(Creature y, Creature w)
+        /// <summary>Đường cho y tới ô gần nhất ngoài Cell + phần đường còn lại của w, tránh mọi sinh vật khác — vào tmpPath; avoidPlots: không nhận ô ruộng.</summary>
+        bool FindAside(Creature y, Creature w, bool avoidPlots)
         {
             var cs = State.Creatures;
             for (int i = 0; i < cs.Count; i++)
                 if (i != y.Id) TempBlockOccupancy(cs[i]);
-            bool ok = pathfinder.FindPathToNearest(y.Cell, y.SizeX, y.SizeZ, y.SizeY, AsideSearchSteps, p => !PathTouches(w, p, y), tmpPath);
+            bool ok = pathfinder.FindPathToNearest(y.Cell, y.SizeX, y.SizeZ, y.SizeY, AsideSearchSteps, p => !PathTouches(w, p, y) && !(avoidPlots && OnPlot(p, y.SizeX, y.SizeZ, y.SizeY)), tmpPath);
             pathfinder.ClearTempBlocks();
             return ok;
         }
@@ -758,11 +849,12 @@ namespace Game.Core.Sim
         /// <summary>Sinh vật rảnh o né khỏi đường của w; tới nơi thì Idle (OnArrive).</summary>
         bool Dodge(Creature o, Creature w)
         {
-            if (!FindAside(o, w)) return false;
+            if (!FindAside(o, w, true)) return false;
             o.State = CreatureState.Moving;
             SetPath(o);
             o.MoveProgress = 0;
             o.BlockedTicks = 0;
+            o.WanderAt = -1;
             return true;
         }
 
@@ -775,7 +867,7 @@ namespace Game.Core.Sim
                 return;
             }
             if (y.YieldTo == w.Id && !y.YieldHold) return;
-            if (!FindAside(y, w)) return;
+            if (!FindAside(y, w, false)) return;
             SetPath(y);
             y.MoveProgress = 0;
             y.BlockedTicks = 0;

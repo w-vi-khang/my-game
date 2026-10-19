@@ -49,6 +49,16 @@ namespace Game.Core.Tests
             if (pocketX >= 0) Pillar(w, pocketX, zc + 2, 3);
         }
 
+        /// <summary>Cấu hình mặc định nhưng con rảnh đứng yên: bán kính phủ cả map 16×16, hẹn lang thang 1 giờ — cho test cũ không kiểm luật rảnh (0019 mục 2).</summary>
+        public static SimConfig NoWander()
+        {
+            var c = new SimConfig();
+            c.creature.homeRadius = 64;
+            c.creature.wanderMinMs = 3600000;
+            c.creature.wanderMaxMs = 3600000;
+            return c;
+        }
+
         static readonly int[,] HomeAnchors = { { 14, 14 }, { 14, 11 }, { 11, 14 } };
 
         /// <summary>Gắn nhà cho mọi sinh vật chưa có nhà (theo id, đủ sức chứa thì sang nhà kế). Neo nhà lần lượt (14, y, 14), (14, y, 11), (11, y, 14); y = ô Empty thấp nhất của cột neo.</summary>

@@ -25,5 +25,5 @@
     "storage": { "capacity": 50, "startSeeds": 10 },
     "farm": { "plotQueueCapacity": 2 },
     "house": { "capacity": 2, "sizeX": 2, "sizeZ": 2, "sizeY": 2 },
-    "creature": { "stuckTimeMs": 30000, "blockWaitMs": 1000, "phaseAfterMs": 5000 }
+    "creature": { "stuckTimeMs": 30000, "blockWaitMs": 1000, "phaseAfterMs": 5000, "homeRadius": 4, "wanderMinMs": 5000, "wanderMaxMs": 10000 }
 }

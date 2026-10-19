@@ -16,7 +16,7 @@ namespace Game.Core.Tests
         [Test]
         public void StageDoneAfterTravelPlusWork()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(5, 1, 3));
             TestWorlds.HomeAll(sim);
@@ -33,7 +33,7 @@ namespace Game.Core.Tests
         [Test]
         public void StageAtCurrentCellStartsImmediately()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(2, 1, 2));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(2, 1, 2));
             TestWorlds.HomeAll(sim);
@@ -49,7 +49,7 @@ namespace Game.Core.Tests
         [Test]
         public void HaulTakesTwoLegs()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L3", new CellPos(0, 1, 0));
             int s = sim.AddHaulStage(NewOrder(sim), new CellPos(3, 1, 0), new CellPos(3, 1, 4));
             TestWorlds.HomeAll(sim);
@@ -68,7 +68,7 @@ namespace Game.Core.Tests
         [Test]
         public void OnlyMatchingAbility()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Water, new CellPos(1, 1, 0));
             TestWorlds.HomeAll(sim);
@@ -81,7 +81,7 @@ namespace Game.Core.Tests
         [Test]
         public void PlayerAssignedStageIsSkipped()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(1, 1, 0));
             sim.State.Stages[s].AssigneeKind = AssigneeKind.Player;
@@ -94,7 +94,7 @@ namespace Game.Core.Tests
         [Test]
         public void HigherPriorityFirst()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int o = NewOrder(sim);
             int a = sim.AddStage(o, WorkAbility.Till, new CellPos(1, 1, 0), 0);
@@ -108,7 +108,7 @@ namespace Game.Core.Tests
         [Test]
         public void ScoreIsDistanceOverMastery()
         {
-            var cfg = new SimConfig();
+            var cfg = TestWorlds.NoWander();
             var list = new List<SpeciesWork>(cfg.species) { new SpeciesWork("L1b", "Till", "Sow", 200, 100, 1500) };
             cfg.species = list.ToArray();
             var sim = new Simulation(cfg, TestWorlds.Flat(0));
@@ -151,7 +151,7 @@ namespace Game.Core.Tests
         [Test]
         public void UnassignKeepsProgress()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L1", new CellPos(0, 1, 0));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(0, 1, 0));
             TestWorlds.HomeAll(sim);
@@ -173,7 +173,7 @@ namespace Game.Core.Tests
         [Test]
         public void UnassignWhileCarryingDropsItem()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             int c = sim.AddCreature("L3", new CellPos(0, 1, 0));
             int s = sim.AddHaulStage(NewOrder(sim), new CellPos(0, 1, 0), new CellPos(10, 1, 0));
             TestWorlds.HomeAll(sim);

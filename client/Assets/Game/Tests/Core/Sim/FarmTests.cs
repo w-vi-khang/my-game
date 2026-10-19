@@ -60,7 +60,7 @@ namespace Game.Core.Tests
         [Test]
         public void OneHarvestReachesStorage()
         {
-            var sim = Layout(new SimConfig(), true);
+            var sim = Layout(TestWorlds.NoWander(), true);
             var st = sim.State;
             var l1 = st.Creatures[0];
             var l2 = st.Creatures[1];
@@ -109,9 +109,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(new CellPos(6, 2, 5), l3.Cell);
             Assert.IsTrue(haul.Carried);
 
-            RunTo(sim, 1451);
+            RunTo(sim, 1458);
             Assert.AreEqual(0, store.Produce);
-            RunTo(sim, 1452);
+            RunTo(sim, 1459);
             Assert.AreEqual(StageStatus.Done, haul.Status);
             Assert.AreEqual(1, store.Produce);
             Assert.AreEqual(10, store.Seeds);
@@ -122,7 +122,7 @@ namespace Game.Core.Tests
         [Test]
         public void WithoutHaulerProduceStaysAtField()
         {
-            var sim = Layout(new SimConfig(), false);
+            var sim = Layout(TestWorlds.NoWander(), false);
             Run(sim, 1500);
             var haul = Stage(sim, WorkAbility.Haul);
             Assert.AreEqual(StageStatus.Blocked, haul.Status);
@@ -136,7 +136,7 @@ namespace Game.Core.Tests
         [Test]
         public void PrefersNeighborOverPlot()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(1));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(1));
             var l1 = sim.State.Creatures[sim.AddCreature("L1", Site)];
             int k = sim.AddStorage(new CellPos(10, 2, 10));
             sim.AddFarmOrder(new List<CellPos> { new CellPos(5, 1, 5) }, k);
@@ -163,7 +163,7 @@ namespace Game.Core.Tests
                 w.Set(x, 2, z, Cell.Make(BlockMaterial.Stone));
                 w.Set(x, 3, z, Cell.Make(BlockMaterial.Stone));
             }
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             var l1 = sim.State.Creatures[sim.AddCreature("L1", Site)];
             int k = sim.AddStorage(new CellPos(10, 2, 10));
             sim.AddFarmOrder(new List<CellPos> { new CellPos(5, 1, 5) }, k);
@@ -181,7 +181,7 @@ namespace Game.Core.Tests
         [Test]
         public void QueueRepeatsAndCapsAtTwo()
         {
-            var sim = Layout(new SimConfig(), true);
+            var sim = Layout(TestWorlds.NoWander(), true);
             Assert.IsTrue(sim.EnqueueCrop(0));
             Assert.IsFalse(sim.EnqueueCrop(0));
             var plot = sim.State.Plots[0];
@@ -200,7 +200,7 @@ namespace Game.Core.Tests
         [Test]
         public void NoSeedsWaits()
         {
-            var cfg = new SimConfig();
+            var cfg = TestWorlds.NoWander();
             cfg.storage.startSeeds = 0;
             var sim = Layout(cfg, false);
             RunTo(sim, 75);
@@ -224,7 +224,7 @@ namespace Game.Core.Tests
         [Test]
         public void StorageFullWaits()
         {
-            var cfg = new SimConfig();
+            var cfg = TestWorlds.NoWander();
             cfg.storage.capacity = 10;
             var sim = Layout(cfg, true);
             RunTo(sim, 1395);
@@ -248,7 +248,7 @@ namespace Game.Core.Tests
         [Test]
         public void SowRefundsSeedWhenUnassigned()
         {
-            var sim = Layout(new SimConfig(), true);
+            var sim = Layout(TestWorlds.NoWander(), true);
             RunTo(sim, 75);
             Assert.AreEqual(9, sim.State.Storages[0].Seeds);
             sim.Unassign(0);
@@ -259,8 +259,8 @@ namespace Game.Core.Tests
         [Test]
         public void DroppedLoadReleasesReservation()
         {
-            var sim = Layout(new SimConfig(), true);
-            RunTo(sim, 1422);
+            var sim = Layout(TestWorlds.NoWander(), true);
+            RunTo(sim, 1429);
             var l3 = sim.State.Creatures[2];
             Assert.AreEqual(new CellPos(6, 2, 6), l3.Cell);
             sim.Unassign(2);
@@ -281,7 +281,7 @@ namespace Game.Core.Tests
         public void StorageBlocksPathAndPlacement()
         {
             var w = TestWorlds.Flat(1);
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             var inv = new MaterialInventory();
             inv.Add(BlockMaterial.Dirt);
             var editor = new WorldEditor(w, inv, 1) { IsOccupied = sim.IsOccupied };
@@ -305,7 +305,7 @@ namespace Game.Core.Tests
         public void AddFarmOrderValidates()
         {
             var w = TestWorlds.Flat(1);
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             int k = sim.AddStorage(new CellPos(10, 2, 10));
             int orders = sim.State.Orders.Count;
             int plots = sim.State.Plots.Count;

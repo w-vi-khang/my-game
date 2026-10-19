@@ -48,7 +48,7 @@ namespace Game.Core.Tests
         [Test]
         public void DigCutsPathThenPlaceRestores()
         {
-            var sim = Build(new SimConfig(), Trench(true), out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), Trench(true), out var editor, out _);
             int c = sim.AddCreature("L1", new CellPos(1, 3, 3));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(9, 3, 3));
             TestWorlds.HomeAll(sim);
@@ -74,7 +74,7 @@ namespace Game.Core.Tests
         [Test]
         public void NoPathAtAssignBlocks()
         {
-            var sim = Build(new SimConfig(), Trench(false), out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), Trench(false), out var editor, out _);
             int c = sim.AddCreature("L1", new CellPos(1, 3, 3));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(9, 3, 3));
             TestWorlds.HomeAll(sim);
@@ -94,7 +94,7 @@ namespace Game.Core.Tests
         [Test]
         public void TriesNextCandidateWhenNoPath()
         {
-            var sim = Build(new SimConfig(), Trench(false), out _, out _);
+            var sim = Build(TestWorlds.NoWander(), Trench(false), out _, out _);
             int a = sim.AddCreature("L1", new CellPos(4, 3, 3));
             int b = sim.AddCreature("L1", new CellPos(8, 3, 9));
             sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(8, 3, 3));
@@ -107,7 +107,7 @@ namespace Game.Core.Tests
         [Test]
         public void DigUnderCreatureStepsAside()
         {
-            var sim = Build(new SimConfig(), TestWorlds.Flat(1), out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), TestWorlds.Flat(1), out var editor, out _);
             int c = sim.AddCreature("L1", new CellPos(5, 2, 5));
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 1, 5));
             TestWorlds.HomeAll(sim);
@@ -118,7 +118,7 @@ namespace Game.Core.Tests
         [Test]
         public void DigUnderCreatureAvoidsOccupiedNeighbor()
         {
-            var sim = Build(new SimConfig(), TestWorlds.Flat(1), out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), TestWorlds.Flat(1), out var editor, out _);
             int c = sim.AddCreature("L1", new CellPos(5, 2, 5));
             int o = sim.AddCreature("L2", new CellPos(6, 2, 5));
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 1, 5));
@@ -135,7 +135,7 @@ namespace Game.Core.Tests
             w.Set(5, 1, 5, Cell.Make(BlockMaterial.Dirt));
             w.Set(5, 2, 5, Cell.Make(BlockMaterial.Dirt));
             w.Set(5, 3, 5, Cell.Make(BlockMaterial.Dirt));
-            var sim = Build(new SimConfig(), w, out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), w, out var editor, out _);
             int c = sim.AddCreature("L1", new CellPos(5, 4, 5));
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 3, 5));
             TestWorlds.HomeAll(sim);
@@ -150,7 +150,7 @@ namespace Game.Core.Tests
             w.Set(5, 1, 5, Cell.Make(BlockMaterial.Dirt));
             w.Set(5, 2, 5, Cell.Make(BlockMaterial.Dirt));
             w.Set(5, 3, 5, Cell.Make(BlockMaterial.Dirt));
-            var sim = Build(new SimConfig(), w, out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), w, out var editor, out _);
             int c = sim.AddCreature("L1", new CellPos(5, 4, 5));
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 3, 5));
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 2, 5));
@@ -162,7 +162,7 @@ namespace Game.Core.Tests
         [Test]
         public void DisplacedWorkerKeepsProgress()
         {
-            var sim = Build(new SimConfig(), TestWorlds.Flat(1), out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), TestWorlds.Flat(1), out var editor, out _);
             int c = sim.AddCreature("L1", new CellPos(5, 2, 5));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(5, 2, 5));
             TestWorlds.HomeAll(sim);
@@ -180,7 +180,7 @@ namespace Game.Core.Tests
         [Test]
         public void OccupiedCoversFrame()
         {
-            var cfg = new SimConfig();
+            var cfg = TestWorlds.NoWander();
             var list = new List<SpeciesWork>(cfg.species) { new SpeciesWork("Tall", "Till", "Sow", 100, 100, 1500, 1, 1, 2) };
             cfg.species = list.ToArray();
             var sim = Build(cfg, TestWorlds.Flat(0), out var editor, out var inv);
@@ -195,7 +195,7 @@ namespace Game.Core.Tests
         [Test]
         public void AddCreatureRejectsFloating()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             Assert.Throws<ArgumentException>(() => sim.AddCreature("L1", new CellPos(3, 5, 3)));
         }
     }

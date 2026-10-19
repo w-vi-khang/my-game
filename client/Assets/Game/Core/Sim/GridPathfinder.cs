@@ -187,6 +187,47 @@ namespace Game.Core.Sim
             return false;
         }
 
+        /// <summary>
+        /// BFS nhiều nguồn: các ô starts trong vùng và đứng được (theo thứ tự danh sách, bỏ trùng), rồi thứ tự hướng như A*;
+        /// chỉ đi vào ô thoả region. result = mọi ô tới được (kể cả nguồn) theo thứ tự lấy ra khỏi hàng đợi.
+        /// </summary>
+        public void FloodRegion(List<CellPos> starts, int sx, int sz, int sy, Predicate<CellPos> region, List<CellPos> result)
+        {
+            result.Clear();
+            var size = world.Size;
+            stamp++;
+            queue.Clear();
+            for (int i = 0; i < starts.Count; i++)
+            {
+                var s = starts[i];
+                if (!size.InBounds(s.X, s.Y, s.Z) || !region(s) || !CanStand(s, sx, sz, sy)) continue;
+                int si = size.Index(s.X, s.Y, s.Z);
+                if (seenStamp[si] == stamp) continue;
+                seenStamp[si] = stamp;
+                queue.Add(si);
+            }
+            for (int head = 0; head < queue.Count; head++)
+            {
+                int ci = queue[head];
+                size.Coords(ci, out int cx, out int cy, out int cz);
+                var cur = new CellPos(cx, cy, cz);
+                result.Add(cur);
+                for (int d = 0; d < 4; d++)
+                    for (int k = 0; k < DirY.Length; k++)
+                    {
+                        var to = new CellPos(cx + DirX[d], cy + DirY[k], cz + DirZ[d]);
+                        if (!size.InBounds(to.X, to.Y, to.Z) || !CanStep(cur, to, sx, sz, sy)) continue;
+                        int ni = size.Index(to.X, to.Y, to.Z);
+                        if (seenStamp[ni] != stamp && region(to))
+                        {
+                            seenStamp[ni] = stamp;
+                            queue.Add(ni);
+                        }
+                        break;
+                    }
+            }
+        }
+
         int Heuristic(int x, int z, List<CellPos> goals)
         {
             int best = int.MaxValue;

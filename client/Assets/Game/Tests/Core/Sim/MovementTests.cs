@@ -41,7 +41,7 @@ namespace Game.Core.Tests
         {
             var w = TestWorlds.Flat(1);
             TestWorlds.Corridor(w, 1, 11, 5, pocketX);
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             sim.AddCreature("L1", new CellPos(1, 2, 5));
             sim.AddCreature("L2", new CellPos(11, 2, 5));
             int o = NewOrder(sim);
@@ -131,7 +131,7 @@ namespace Game.Core.Tests
         [Test]
         public void WorkerBlockingWaitsTenThenDetours()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(1));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(1));
             sim.AddCreature("L1", new CellPos(2, 2, 5));
             sim.AddCreature("L2", new CellPos(5, 2, 5));
             int o = NewOrder(sim);
@@ -172,7 +172,7 @@ namespace Game.Core.Tests
         [Test]
         public void IdleInPathDodges()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(1));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(1));
             sim.AddCreature("L1", new CellPos(2, 2, 5));
             sim.AddCreature("L2", new CellPos(5, 2, 5));
             int s0 = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(8, 2, 5));
@@ -223,7 +223,7 @@ namespace Game.Core.Tests
         [Test]
         public void AddCreatureRejectsOverlap()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(0));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(0));
             sim.AddCreature("L1", new CellPos(3, 1, 3));
             Assert.Throws<ArgumentException>(() => sim.AddCreature("L2", new CellPos(3, 1, 3)));
             Assert.DoesNotThrow(() => sim.AddCreature("L2", new CellPos(4, 1, 3)));

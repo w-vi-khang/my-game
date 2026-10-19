@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Game.Core.Sim;
 using NUnit.Framework;
@@ -15,6 +16,21 @@ namespace Game.Core.Tests
             Assert.IsFalse(pf.CanStand(new CellPos(3, 1, 3), 1, 1, 1));
             pf.ClearTempBlocks();
             Assert.IsTrue(pf.CanStand(new CellPos(3, 1, 3), 1, 1, 1));
+        }
+
+        [Test]
+        public void FloodRegionStaysInRegion()
+        {
+            var pf = new GridPathfinder(TestWorlds.Flat(0));
+            var result = new List<CellPos>();
+            Predicate<CellPos> region = p => Math.Abs(p.X - 5) <= 1 && Math.Abs(p.Z - 5) <= 1;
+            pf.FloodRegion(new List<CellPos> { new CellPos(5, 1, 5), new CellPos(5, 1, 5) }, 1, 1, 1, region, result);
+            Assert.AreEqual(9, result.Count);
+            Assert.AreEqual(new CellPos(5, 1, 5), result[0]);
+            Assert.AreEqual(new CellPos(6, 1, 5), result[1]);
+            for (int i = 0; i < result.Count; i++) Assert.IsTrue(region(result[i]), result[i].ToString());
+            pf.FloodRegion(new List<CellPos> { new CellPos(9, 1, 9) }, 1, 1, 1, region, result);
+            Assert.AreEqual(0, result.Count);
         }
 
         [Test]

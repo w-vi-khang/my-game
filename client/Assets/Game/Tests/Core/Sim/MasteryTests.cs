@@ -15,7 +15,7 @@ namespace Game.Core.Tests
 
         static Simulation Build(params SpeciesWork[] species)
         {
-            var cfg = new SimConfig();
+            var cfg = TestWorlds.NoWander();
             cfg.species = species;
             return new Simulation(cfg, TestWorlds.Flat(0));
         }

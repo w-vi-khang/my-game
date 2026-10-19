@@ -36,6 +36,7 @@ namespace Game.Core.Sim
                 h = MixInt(h, c.Phasing ? 1 : 0);
                 h = MixInt(h, c.YieldTo);
                 h = MixInt(h, c.YieldHold ? 1 : 0);
+                h = MixLong(h, c.WanderAt);
             }
 
             h = MixInt(h, s.Stages.Count);

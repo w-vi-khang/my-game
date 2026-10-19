@@ -40,7 +40,7 @@ namespace Game.Core.Tests
         public void HouseBlocksAndValidates()
         {
             var w = TestWorlds.Flat(1);
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             var inv = new MaterialInventory();
             inv.Add(BlockMaterial.Dirt);
             var editor = new WorldEditor(w, inv, 1) { IsOccupied = sim.IsOccupied };
@@ -83,7 +83,7 @@ namespace Game.Core.Tests
         [Test]
         public void NoHomeNoWork()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(1));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(1));
             sim.AddCreature("L1", new CellPos(2, 2, 2));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(4, 2, 2));
             var stage = sim.State.Stages[s];
@@ -112,7 +112,7 @@ namespace Game.Core.Tests
         [Test]
         public void NoAbilityCountsHomedOwnersOnly()
         {
-            var sim = new Simulation(new SimConfig(), TestWorlds.Flat(1));
+            var sim = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(1));
             sim.AddHouse(new CellPos(10, 2, 10));
             sim.AddCreature("L1", new CellPos(2, 2, 2));
             sim.AssignHome(0, 0);
@@ -147,7 +147,7 @@ namespace Game.Core.Tests
         {
             var w = TestWorlds.Flat(1);
             Hole(w);
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             sim.AddHouse(new CellPos(10, 2, 10));
             sim.AddCreature("L1", new CellPos(3, 2, 3));
             sim.AddCreature("L2", new CellPos(6, 2, 6));
@@ -182,7 +182,7 @@ namespace Game.Core.Tests
         {
             var w = TestWorlds.Flat(1);
             Hole(w);
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             sim.AddHouse(new CellPos(10, 2, 10));
             sim.AddCreature("L1", new CellPos(3, 2, 3));
             sim.AddCreature("L2", new CellPos(6, 2, 6));
@@ -201,7 +201,7 @@ namespace Game.Core.Tests
         {
             var w = TestWorlds.Flat(1);
             Hole(w);
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             sim.AddHouse(new CellPos(10, 2, 10));
             sim.AddCreature("L1", new CellPos(3, 2, 3));
             sim.AssignHome(0, 0);
@@ -235,7 +235,7 @@ namespace Game.Core.Tests
                 Stone(w, x, 2, z);
                 Stone(w, x, 3, z);
             }
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             sim.AddHouse(new CellPos(10, 2, 10));
             sim.AddCreature("L1", new CellPos(3, 2, 3));
             sim.AssignHome(0, 0);
@@ -263,7 +263,7 @@ namespace Game.Core.Tests
                 Stone(w, x, 2, z);
                 Stone(w, x, 3, z);
             }
-            var sim = new Simulation(new SimConfig(), w);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
             sim.AddHouse(new CellPos(10, 2, 10));
             sim.AddCreature("L3", new CellPos(3, 2, 3));
             sim.AssignHome(0, 0);

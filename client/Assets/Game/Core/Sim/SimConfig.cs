@@ -103,6 +103,9 @@ namespace Game.Core.Sim
         public int stuckTimeMs = 30000;
         public int blockWaitMs = 1000;
         public int phaseAfterMs = 5000;
+        public int homeRadius = 4;
+        public int wanderMinMs = 5000;
+        public int wanderMaxMs = 10000;
     }
 
     /// <summary>
@@ -160,6 +163,10 @@ namespace Game.Core.Sim
         public int BlockWaitTicks => MsToTicks(creature.blockWaitMs);
 
         public int PhaseTicks => MsToTicks(creature.phaseAfterMs);
+
+        public int WanderMinTicks => MsToTicks(creature.wanderMinMs);
+
+        public int WanderMaxTicks => MsToTicks(creature.wanderMaxMs);
 
         public int BaseTicks(WorkAbility a)
         {
@@ -264,6 +271,12 @@ namespace Game.Core.Sim
                 throw new ArgumentException("creature.blockWaitMs phải > 0 và chia hết cho " + msPerTick + ".");
             if (creature.phaseAfterMs <= creature.blockWaitMs || creature.phaseAfterMs % msPerTick != 0)
                 throw new ArgumentException("creature.phaseAfterMs phải > blockWaitMs và chia hết cho " + msPerTick + ".");
+            if (creature.homeRadius < 1 || creature.homeRadius > 64)
+                throw new ArgumentException("creature.homeRadius phải trong [1, 64].");
+            if (creature.wanderMinMs <= 0 || creature.wanderMinMs % msPerTick != 0)
+                throw new ArgumentException("creature.wanderMinMs phải > 0 và chia hết cho " + msPerTick + ".");
+            if (creature.wanderMaxMs < creature.wanderMinMs || creature.wanderMaxMs % msPerTick != 0)
+                throw new ArgumentException("creature.wanderMaxMs phải >= wanderMinMs và chia hết cho " + msPerTick + ".");
         }
     }
 }

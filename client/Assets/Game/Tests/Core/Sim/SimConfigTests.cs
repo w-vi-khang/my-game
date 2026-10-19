@@ -23,6 +23,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(1000, cfg.WorkSpeedPermille(100));
             Assert.AreEqual(10, cfg.BlockWaitTicks);
             Assert.AreEqual(50, cfg.PhaseTicks);
+            Assert.AreEqual(4, cfg.creature.homeRadius);
+            Assert.AreEqual(50, cfg.WanderMinTicks);
+            Assert.AreEqual(100, cfg.WanderMaxTicks);
         }
 
         [Test]
@@ -94,6 +97,22 @@ namespace Game.Core.Tests
             c = new SimConfig();
             c.creature.phaseAfterMs = 1000;
             Assert.Throws<ArgumentException>(c.Validate, "phaseAfterMs <= blockWaitMs");
+
+            c = new SimConfig();
+            c.creature.homeRadius = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "homeRadius 0");
+
+            c = new SimConfig();
+            c.creature.homeRadius = 65;
+            Assert.Throws<ArgumentException>(c.Validate, "homeRadius 65");
+
+            c = new SimConfig();
+            c.creature.wanderMinMs = 5050;
+            Assert.Throws<ArgumentException>(c.Validate, "wanderMinMs lẻ nhịp");
+
+            c = new SimConfig();
+            c.creature.wanderMaxMs = 4000;
+            Assert.Throws<ArgumentException>(c.Validate, "wanderMaxMs < wanderMinMs");
 
             c = new SimConfig();
             c.masteryLevels = new MasteryLevel[0];

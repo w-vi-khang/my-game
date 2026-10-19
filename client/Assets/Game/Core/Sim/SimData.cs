@@ -89,6 +89,8 @@ namespace Game.Core.Sim
         public int YieldTo = -1;
         /// <summary>Đã tới ô tránh, chờ con kia đi qua rồi mới đi tiếp.</summary>
         public bool YieldHold;
+        /// <summary>Nhịp hẹn đi lang thang (con rảnh trong bán kính quanh nhà, 0019); -1 = chưa hẹn.</summary>
+        public long WanderAt = -1;
 
         public Creature(int id, string speciesId, WorkAbility ability1, WorkAbility ability2, int mastery1, int mastery2, int speedPerTick, int sizeX, int sizeZ, int sizeY, CellPos cell)
         {

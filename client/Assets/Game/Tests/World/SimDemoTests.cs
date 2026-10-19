@@ -72,6 +72,44 @@ namespace Game.World.Tests
             Assert.AreEqual(0, overlaps);
         }
 
+        [Test]
+        public void IdleStaysNearHomeOffPlots()
+        {
+            var sim = NewSim();
+            var cs = sim.State.Creatures;
+            var prev = new CreatureState[cs.Count];
+            int idleOnPlot = 0, idleOutside = 0, wanderStarts = 0;
+            for (int t = 0; t < 4000; t++)
+            {
+                SimDemo.KeepFarming(sim);
+                sim.Tick();
+                sim.State.Events.Clear();
+                for (int i = 0; i < cs.Count; i++)
+                {
+                    var c = cs[i];
+                    if (c.State == CreatureState.Idle)
+                    {
+                        if (sim.OnPlot(c.Cell, c.SizeX, c.SizeZ, c.SizeY))
+                        {
+                            idleOnPlot++;
+                            if (idleOnPlot == 1) TestContext.WriteLine("rảnh trên ruộng đầu tiên: nhịp " + sim.State.Tick + ", sinh vật " + c.Id);
+                        }
+                        if (Simulation.HomeDistance(c.Cell, c.SizeX, c.SizeZ, sim.State.Houses[c.HomeId]) > sim.Config.creature.homeRadius)
+                            idleOutside++;
+                    }
+                    else if (c.State == CreatureState.Moving && prev[i] == CreatureState.Idle && c.StageId == -1)
+                    {
+                        wanderStarts++;
+                    }
+                    prev[i] = c.State;
+                }
+            }
+            TestContext.WriteLine("idleOnPlot=" + idleOnPlot + " idleOutside=" + idleOutside + " wanderStarts=" + wanderStarts);
+            Assert.AreEqual(0, idleOnPlot);
+            Assert.AreEqual(0, idleOutside);
+            Assert.Greater(wanderStarts, 0);
+        }
+
         static string DescribeCreature(Creature c) =>
             "id " + c.Id + " ô " + c.Cell + " " + c.State + " stage " + c.StageId;
 
