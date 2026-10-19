@@ -1,9 +1,9 @@
 # Brief 0008 — Simulation bước 6b (phần 2): sinh vật rảnh về quanh nhà + lang thang, không dừng trên ô ruộng
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-19 15:17 — Executor xong
+> Cập nhật: 2026-10-19 — Planner review: đã duyệt
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -480,3 +480,4 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
   - `IdleTests`: mốc nhịp đúng như brief (A 1/20/21/70/71, B 50–115, C 1/8/58, D 1/27/28/87/88, E 1/15/74/75, F ô né (5,2,4), G 50 ≤ gap ≤ 100).
   - Test cũ: ngoài đổi `new SimConfig()` → `TestWorlds.NoWander()` chỉ có 3 số `FarmTests` +7 nhịp (Quyết định 12b, có trace). Lệch nhỏ: executor đổi cấu hình cho **mọi** test trong 6 file, kể cả test không hỏng (12a nói "test đó") — không nới assert, chấp nhận.
   - Giờ: brief commit 14:56; executor 15:10–15:17 (khớp giờ commit 15:17).
+- 2026-10-19 — **đã duyệt**: user xem SimView, cả 5 điểm "User tự test" ổn. Task 6b xong.
