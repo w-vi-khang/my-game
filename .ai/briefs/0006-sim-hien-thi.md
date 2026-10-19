@@ -1,9 +1,9 @@
 # Brief 0006 — Simulation bước 6: hiển thị (nội suy vị trí, trạng thái)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-19 08:15 — executor bắt đầu bước 9 (lần 2)
+> Cập nhật: 2026-10-19 — Planner duyệt (user xem lần 2 đạt)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -926,3 +926,12 @@ Planner, 2026-10-19 — lần 2 (bước 9), phần code: **đạt**; chờ user
 - Diff `af6d174`: 6 file, đúng Phạm vi bước 9. `SiteStatus.cs` trùng từng ký tự với brief [run: diff]; `SimView.cs` chỉ thêm đúng các chỗ ở 9.2; `SiteStatusTests` số khớp 9.3; PlayMode thêm đúng 1 assert `SproutCount == 4`.
 - `grep UnityEngine|UnityEditor` trong `Core/View/` rỗng [run].
 - Giờ thực tế bước 9 ≈ 15 phút executor.
+
+Planner, 2026-10-19 — user xem lần 2: **đã duyệt**.
+- User xem [user, 3 ảnh nhịp 253 / 559 / 642]: HUD kho + 4 dòng ruộng đúng chữ, % tăng; mầm xanh trên ô đang lớn; hộp vàng khi L3 chở, tới kho thì mất, kho tăng 1 — đạt.
+- Phản hồi ngoài 0006 (không tính vào brief này):
+  - Đứng chồng nhau → bước 6b ([0019](../../design/decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)), chưa làm. Chạy lại qua MCP thấy L1 + L2 cùng ô (31, 18, 16) [run].
+  - "Tưới đợi gieo hết": chạy lại cho thấy mỗi ô có chuỗi riêng — gieo ô 0 xong nhịp 306 thì L2 đi tưới ô 0 ngay nhịp 306 [run]. Chậm thấy được là L1 (xới + gieo) chọn công đoạn cũ nhất → xới hết 4 ô (nhịp 8–276) rồi mới gieo. User mô tả luật mong muốn = luật hiện tại; còn hỏi thứ tự khi một sinh vật làm được cả hai.
+  - Đào thấy nâu: map sinh 1 lớp cỏ trên cùng rồi tới đất (`TerrainGenerator.cs:130-132`) → vẽ đúng vật liệu. User: "vẽ đúng khối là được".
+  - Đặt/đào trên ô ruộng (`ideas.md:42`, đang để M2): user muốn huỷ vụ + trả hạt; xới biến ô đất/cỏ thành ruộng; người chơi dùng phép tưới biến ô đất thành cỏ → cần quyết định mới + task riêng (milestone chưa chốt).
+- Giờ thực tế 0006: ≈ 9 phút (bước 1–8) + 15 phút (bước 9) executor; ước lượng 1–2 ngày-người.
