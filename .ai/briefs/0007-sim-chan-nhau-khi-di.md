@@ -721,7 +721,13 @@ Thêm ghi chú: `GridPathfinder.AddTempBlock/IsBodyFree` & các bước khác ch
 - 2026-10-19 — trả lời vướng mắc: lỗi ở thiết kế (Quyết định 9 của Planner), không phải code. Chọn luật "tắt Phasing khi chỗ chiếm không còn chồng" thay cho 3 phương án executor nêu: không cần trường mới, giữ mốc nhịp đã tính. Thêm bước 11; trạng thái → `chờ làm`.
 
 ## Kiểm chứng
-Dừng giữa chừng (`cần Opus`), đang chờ Planner quyết định về `Phasing`; chưa kiểm chứng đầy đủ.
-- EditMode (MCP, Editor đang mở): 200/204 đạt, 4 fail (xem Vướng mắc). Biên dịch: 0 lỗi.
-- `cmp` hai file `sim_m1.json`: exit 0.
-- PlayMode, `check_design.py`, grep Game.Core, checklist: chưa chạy / chưa đối chiếu — chờ Planner.
+Lần 2 (bước 11), chạy qua MCP vì Editor đang mở (`unity_test.py` báo "Multiple Unity instances"):
+- EditMode (MCP `run_tests`): 204/204 đạt. PlayMode (MCP): 8/8 đạt; đã dọn `EditorSettings.asset`.
+- `cmp` hai `sim_m1.json`: exit 0. `grep` cấm trong `Core/Sim`: rỗng. `check_design.py`, `asset_check`: không chạy (file đổi ngoài phạm vi).
+- Checklist:
+  - Pillar / thành phần phụ trách (client Unity) / thành phần mới: đạt — không thêm cơ chế hay thành phần mới ngoài task 6b + quyết định 0019.
+  - Glossary, rà phần liên quan, `[ý tưởng]`, nguồn, phạm vi một người: đạt — không sửa `design/` ngoài `sim_m1.json`; không thêm thuật ngữ hay số liệu ngoài.
+  - `Game.Core` không tham chiếu UnityEngine: đạt — grep rỗng.
+  - Test đúng cột "Xong khi": đạt — `MovementTests` (5), `GridPathfinderTests` (2), `SimDemoTests.NoTwoCreaturesShareCell` (0 chồng ô).
+  - Chỉ làm hạng mục M1 (0007): đạt — phần rảnh về nhà/ô ruộng để brief 0008.
+  - Ghi giờ thực tế: lần 1 bắt đầu 12:31; lần 2 14:26 → ~14:50 (Planner cộng vào roadmap khi review).
