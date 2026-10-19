@@ -474,3 +474,9 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+- 2026-10-19 — Planner, phần code: **đạt**; chờ user xem (mục "User tự test" 1–5) rồi mới kết luận.
+  - `Chạy bằng` claude-sonnet-5-5 · medium = Model thực thi. Mọi dòng "Phần cần test" có kết quả đạt; phần hình ảnh = chờ user.
+  - `git show --stat bd83724`: 19 file, đều trong Phạm vi. Diff `Simulation.cs` khớp bước 4–6 từng dòng (IdlePhase sau StuckPhase, NextWanderDelay, StartWander, HomeDistance, OnPlot, StopWalk, AdjacentGoals/PlanTo bỏ ô ruộng rồi mới thử lại, HandleBlocked con rảnh → StopWalk, FindAside avoidPlots, Dodge/StartYield, Respawn).
+  - `IdleTests`: mốc nhịp đúng như brief (A 1/20/21/70/71, B 50–115, C 1/8/58, D 1/27/28/87/88, E 1/15/74/75, F ô né (5,2,4), G 50 ≤ gap ≤ 100).
+  - Test cũ: ngoài đổi `new SimConfig()` → `TestWorlds.NoWander()` chỉ có 3 số `FarmTests` +7 nhịp (Quyết định 12b, có trace). Lệch nhỏ: executor đổi cấu hình cho **mọi** test trong 6 file, kể cả test không hỏng (12a nói "test đó") — không nới assert, chấp nhận.
+  - Giờ: brief commit 14:56; executor 15:10–15:17 (khớp giờ commit 15:17).
