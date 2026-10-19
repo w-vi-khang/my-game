@@ -1,9 +1,9 @@
 # Brief 0008 — Simulation bước 6b (phần 2): sinh vật rảnh về quanh nhà + lang thang, không dừng trên ô ruộng
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-19 — Planner viết
+> Cập nhật: 2026-10-19 15:17 — Executor xong
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -442,9 +442,27 @@ Ghi lại điều gì trông lạ (đi giật, đứng chồng lâu, đứng tr�
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 13cab1e
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ bắt đầu: 15:10 · kết thúc: 15:17 (đồng hồ máy)
+Commit code: bd83724 (brief 0008: sim 6b rảnh quanh nhà, không dừng trên ruộng)
+File đổi: Core/Sim/{Simulation,SimData,SimHash,SimConfig,GridPathfinder}.cs; design/data/sim_m1.json + bản chép Resources/Config; Tests/Core/Sim/{TestWorlds,SimConfigTests,GridPathfinderTests,FarmTests,HomeTests,MasteryTests,MovementTests,SimulationTerrainTests,SimulationTests}.cs; Tests/World/SimDemoTests.cs; mới IdleTests.cs(+.meta).
+Làm đúng brief, không lệch số nhịp ở test mới (7 IdleTests + FloodRegion đạt ngay lần đầu).
+
+Bảng test cũ hỏng (Quyết định 12):
+| test | dòng | cách sửa | nguyên nhân |
+|---|---|---|---|
+| 23 test trong FarmTests, HomeTests, MasteryTests (WorkTicksFollowTable ×11, SwapMidStage…), MovementTests.IdleInPathDodges, SimulationTerrainTests.DisplacedWorkerKeepsProgress, SimulationTests (4) | mọi `new SimConfig()` trong 6 file | (a) → `TestWorlds.NoWander()` (đổi cả ca không hỏng trong cùng file) | con rảnh giờ lang thang/về nhà (0019 mục 2) |
+| FarmTests.OneHarvestReachesStorage | `RunTo 1451/1452` | (b) → `1458/1459` (hauler xong +7 nhịp) | trace: L1 rảnh đứng ở (6,2,5) chắn hauler; Dodge giờ không chọn ô ruộng (5,2,5) nên né sang ô xa hơn (6,2,6)→(7,2,6), hauler tới (6,2,6) lúc 1429 thay vì 1422 (Quyết định 10) |
+| FarmTests.DroppedLoadReleasesReservation | `RunTo 1422` | (b) → `1429` | cùng nguyên nhân |
+
+Số đếm: SimDemoTests.IdleStaysNearHomeOffPlots idleOnPlot=0, idleOutside=0, wanderStarts=76; NoTwoCreaturesShareCell: nhịp có Phasing = 0; test G starts = 23, 26 (32 giá trị gap khác nhau).
+Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` sau PlayMode; `git status client/ProjectSettings/` sạch.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · bảng test cũ (Quyết định 12: test · dòng · cách sửa · nguyên nhân) · số đếm của SimDemo (idleOnPlot, idleOutside, wanderStarts, nhịp có Phasing) · starts của test G · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
+Phần cần test: tất cả **đạt** — Cấu hình (SimConfigTests + ConfigTests); FloodRegionStaysInRegion; IdleTests ×7 (FarIdleWalksBackIntoRadius, WandersOnTimerWithinRadius, IdleOnPlotLeavesAtOnce, WorkStandsOffOtherPlot, WorkStandsOnOtherPlotWhenOnlyChoice, IdleDodgeSkipsPlot, IdleRoamsInsideRadiusOffPlots); SimDemoTests.IdleStaysNearHomeOffPlots; regression MovementTests/NoTwoCreaturesShareCell/SimDeterminismTests/mô phỏng cũ/Core/View + SimViewPlayTests đạt. Phần user tự xem: **chờ user** (mục "User tự test").
+Lệnh: brief_check → OK (sonnet-5-5 · medium); `cmp` 2 JSON → exit 0; refresh_unity + read_console Error → 0 lỗi; EditMode Idle+GridPathfinder → 18/18; EditMode toàn bộ → 213/213 (sau sửa test cũ; lần đầu 188/213); PlayMode → 8/8; `git status client/ProjectSettings/` → sạch; grep cấm trong Core/Sim → rỗng; `git diff --stat` chỉ file trong Phạm vi.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
