@@ -27,7 +27,7 @@ Tổng hợp từ thiết kế (không thêm yêu cầu mới):
 
 | Trường | Kích thước | Ý nghĩa |
 |---|---|---|
-| Vật liệu | 8 bit | 0 = rỗng; cỏ, đất, đá, cát, nước... |
+| Vật liệu | 8 bit | 0 = rỗng; cỏ, đất, đá, cát, nước, ô ruộng ([0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md): chỉ có khi sinh vật xới xong)... |
 | Cờ khối cốt truyện | 1 bit | Không phá/đặt được tới khi phá đảo map |
 | Cờ đã sửa | 1 bit | Khác với world sinh từ seed → cần lưu |
 | Mực nước | 3 bit | 0–7: lượng nước trong ô (nước chảy — user, 2026-10-13) [ý tưởng] |

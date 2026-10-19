@@ -134,7 +134,8 @@
 | Mở đầu | Phần đầu game nằm trong Map 1: tỉnh dậy, gặp tinh linh, onboarding | [02-gameplay/levels.md](02-gameplay/levels.md) |
 | Vertical slice | Milestone M2: một lát cắt hoàn chỉnh (Map 1 đủ art, âm thanh, UI, backend) | [05-roadmap.md](05-roadmap.md) |
 | Vật liệu (ô) | Loại của một ô voxel (đất, cỏ, đá, cát...); đào ra thì vào kho vật liệu của người chơi, đặt thì tiêu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Ô ruộng | Ô đất/cỏ thuộc lệnh trồng cây; có chuỗi công đoạn riêng và hàng đợi vụ; sinh vật ưu tiên đứng ô kề để làm | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ô ruộng | Ô thuộc lệnh trồng cây đã được sinh vật xới xong — vật liệu riêng của world (trước khi xới là ô đất/cỏ của lệnh); có chuỗi công đoạn riêng và hàng đợi vụ; sinh vật ưu tiên đứng ô kề để làm ([0020](decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Huỷ vụ | Vụ đang làm trên một ô ruộng bị bỏ vì ô bị đào hoặc bị đặt khối lên: trả 1 hạt nếu đã trừ mà chưa thu, ô rời lệnh, hàng đợi xoá ([0020](decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Hàng đợi vụ | Danh sách vụ (loại cây) người chơi xếp cho một ô ruộng, gồm cả vụ đang làm; ô ruộng cấp 1 có 2 chỗ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhà (sinh vật) | Công trình hoặc nơi người chơi tự xây (tường bao, cửa, 2 nội thất) cho sinh vật làm việc; có nhà mới làm việc; nơi hiện lại khi bị kẹt | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bị kẹt (sinh vật) | Rảnh và không có đường về nhà liên tục quá ngưỡng (M1: 30 giây) → sinh vật hiện lại ở nhà ([0017](decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

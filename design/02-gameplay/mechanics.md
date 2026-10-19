@@ -60,7 +60,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - **Đào** (cuốc): ô thành rỗng, vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2).
 - **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ kho vật liệu; hết thì không đặt được. Đặt vào ô **rỗng hoặc ô nước** (nước ô đó mất), ô phải **kề mặt ít nhất một khối đặc** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)). Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
 - **Đào dưới chân sinh vật** (user, 2026-10-14, [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md)): được phép; sinh vật chạy ra ô bên cạnh đứng được, không có thì rơi thẳng xuống. Nước lan vào ô sinh vật đứng cũng vậy. Sinh vật không đi vào nước (bơi M2); mỗi loài có khung chiếm chỗ 3 chiều (M1 đều 1 × 1 × 1).
-- Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → **trồng được**.
+- Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → **đặt lệnh trồng cây được**; sinh vật xới xong thì ô thành **ô ruộng** (vật liệu riêng) mới gieo được ([0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)). Đào ô ruộng → +1 đất.
 
 #### Sinh vật trở lại — luật M1
 - Loài đạt đủ yêu cầu mở khoá → **2 cá thể** xuất hiện ở rìa map, đi về phía người chơi và **tự vào đội làm việc** (chưa có thẻ bài — bắt bằng thẻ từ M2).
@@ -74,12 +74,18 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - Chưa có L3 → nông sản nằm tại ruộng, đình trệ "thiếu năng lực vận chuyển" — người chơi thấy vì sao cần thêm loài.
 - Kho đầy → đình trệ "kho đầy".
 - Chi tiết (user, 2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)):
-  - **Ô ruộng** = ô đất/cỏ có ô trống phía trên. Sinh vật **ưu tiên đứng ở ô kề** để xới/gieo/tưới/thu hoạch; không có ô kề nào tới được thì đứng ngay trên ô ruộng.
+  - ~~**Ô ruộng** = ô đất/cỏ có ô trống phía trên.~~ Thay bởi 0020 (dưới). Sinh vật **ưu tiên đứng ở ô kề** để xới/gieo/tưới/thu hoạch; không có ô kề nào tới được thì đứng ngay trên ô ruộng.
   - **Kho là công trình** có sức chứa, chiếm ô (không đi qua, không đứng lên); vận chuyển tới **một ô kề kho** là giao được.
   - **Mỗi ô ruộng có chuỗi công đoạn riêng và một hàng đợi vụ**: người chơi xếp lịch (vd lúa, lúa, cà, lúa — mỗi lần chọn thêm một vụ vào cuối). Ô được giao việc liên tục tới khi hết hàng đợi hoặc không đủ điều kiện sản xuất (vd hết hạt → chờ). **Ô ruộng cấp 1 có 2 chỗ trong hàng đợi.** M1 một loại cây; nhiều loại cây + cấp ô ruộng ở M2 [ý tưởng ước lượng 1–2].
   - Hàng đợi gồm cả vụ đang làm; thu hoạch xong vụ rời hàng đợi, vụ kế bắt đầu lại từ xới (Planner).
   - Mỗi lần thu hoạch: **1 lượt vận chuyển mang cả 1 nông sản + 1 hạt**; sức chứa 50 **tính chung** nông sản và hạt.
   - Hiển thị (bước 6): khi vận chuyển sinh vật mang một hộp nhỏ; khi xới, tưới... có biểu tượng nhỏ bên cạnh.
+- Ô ruộng và huỷ vụ (user, 2026-10-19, [0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), M1 simulation bước 6a, làm trước 6b):
+  - Lệnh trồng cây đặt lên vùng ô đất/cỏ có ô trống phía trên. **Sinh vật xới xong một ô → ô đó thành ô ruộng** (vật liệu mới, màu riêng, không có mép cỏ); từ đó mới gieo/tưới/thu hoạch. Xới ô cỏ làm giảm số ô cỏ của môi trường sống.
+  - **Huỷ vụ:** đặt khối lên ô ruộng hoặc đào ô ruộng → vụ đang làm bị huỷ. Đã trừ hạt mà chưa thu hoạch → **trả 1 hạt vào kho ngay** (kho đầy vẫn trả); nông sản chưa thu thì mất. Hàng đã thu hoạch (nằm tại ô hoặc đang chở) vẫn chở vào kho.
+  - Sau khi huỷ vụ, **ô rời lệnh, hàng đợi vụ bị xoá**. Đào: ô thành rỗng, +1 đất. Đặt khối lên: ô ruộng bên dưới **trở lại ô đất**. Muốn trồng lại phải đặt lệnh lại.
+  - Thứ tự chọn việc giữ như cũ: công đoạn cũ nhất trước (sinh vật làm được cả xới lẫn gieo sẽ xới hết các ô rồi mới gieo).
+  - [ý tưởng] Planner đề xuất, user xác nhận khi duyệt brief: nước tràn lên ô ruộng tính như đặt khối; ô chưa xới bị đào/che → rời lệnh, không trả gì.
 
 ### Lệnh làm việc
 **Quy tắc**
@@ -324,7 +330,7 @@ Mô tả của user (2026-10-12). Công thức để sau.
 
 ### Phép
 Hai loại, **hai bộ sưu tầm riêng** — pháp sư không mang được phép sinh vật:
-- **Phép của pháp sư:** phục vụ khám phá, phát triển, hoặc tấn công đơn giản (vd quả cầu lửa, đi trên mặt nước).
+- **Phép của pháp sư:** phục vụ khám phá, phát triển, hoặc tấn công đơn giản (vd quả cầu lửa, đi trên mặt nước, **phép tưới nước biến ô đất thành ô cỏ** — user, 2026-10-19, [0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), M2; M1 vẫn đặt cỏ trực tiếp).
 - **Phép sinh vật:** chiến đấu chủ yếu dựa vào phép sinh vật. Người chơi gán phép vào ô phép của sinh vật ở màn **chuẩn bị chiến đấu**.
 
 **Nhóm phép** — ai được mang:

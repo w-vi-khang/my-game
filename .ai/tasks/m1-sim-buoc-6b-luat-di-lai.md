@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 6b — luật đi lại: chặn nhau, rảnh quanh nhà + lang thang, không dừng trên ô ruộng
 
-> Trạng thái: user quyết 2026-10-16 ([0019](../../design/decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)) — chờ viết brief
+> Trạng thái: user quyết 2026-10-16 ([0019](../../design/decisions/0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md)) — chờ viết brief; làm **sau bước 6a** ([0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), [task 6a](m1-sim-buoc-6a-luat-o-ruong.md)). Sau 6a, "ô ruộng" ở đây = mọi ô của lệnh trồng cây, kể cả ô chưa xới (Planner đề xuất trong 0020, user xác nhận khi duyệt brief)
 
 ## Mục tiêu
 Bước 6b của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1), thêm sau khi user xem SimView (brief 0006). Ước lượng 4–6,5 ngày-người. Xong khi:
