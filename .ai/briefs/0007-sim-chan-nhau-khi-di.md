@@ -1,9 +1,9 @@
 # Brief 0007 — Simulation bước 6b (phần 1): sinh vật chặn nhau khi đi
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-19
+> Cập nhật: 2026-10-19 12:50
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -655,6 +655,10 @@ Không (xem hình trong SimView để ở brief 0008, khi có đủ luật rản
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: af6ea06
+Chạy bằng: Sonnet · medium (OK: brief 0007 cần Sonnet · medium — phiên: claude-sonnet-5-5 · medium)
+Giờ bắt đầu: 12:31
+
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · bảng test cũ đổi số (Quyết định 12) · số nhịp có Phasing trên map M1 · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
@@ -662,6 +666,13 @@ Không (xem hình trong SimView để ở brief 0008, khi có đủ luật rản
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
 ## Vướng mắc
+Code bước 1–9 đã viết đủ (chưa commit, còn trong working tree); biên dịch sạch. EditMode: 200/204 đạt. 4 fail:
+- `MovementTests.HeadOnNoPocketPhasesAtFifty` (mốc nhịp 84 lệch — dừng theo brief): kỳ vọng B.Cell = (6,2,5) = A.Cell, thực tế A (6,2,5), B (7,2,5) (B chỉ có MoveProgress 150, chưa vào ô A).
+- `FarmTests.DroppedLoadReleasesReservation` (:265), `OneHarvestReachesStorage` (:109), `QueueRepeatsAndCapsAtTwo` (:197, 9 → 8): chưa phân tích (có thể cùng nguyên nhân dưới đây; chưa đụng vào vì chưa rõ có thuộc Quyết định 12 không).
+
+Nguyên nhân đã thấy trong trace (HeadOn(-1)): nhịp 78 B bật `Phasing` và cộng 150 (B.Cell vẫn (7,2,5), A.Cell (6,2,5), không chồng khung). Nhịp 79 đầu lượt B: `Phasing && !OverlapsAnyCell(B)` → tắt `Phasing` ngay (Quyết định 9 viết đúng như vậy), B lại bị A chắn (A ở (6,2,5) chiếm ô B muốn vào), `BlockedTicks` đếm lại từ 1, MoveProgress 150 giữ nguyên. Tới nhịp 85 A tới 50 → A cũng `Phasing` + cộng 150, rồi cả hai lại tắt Phasing và đếm lại. Kết quả: **bế tắc vĩnh viễn** (tới nhịp 95 vẫn A(6,2,5)/B(7,2,5), bt tăng dần rồi lặp), không ai đi xuyên được. Tức Quyết định 9 ("tắt khi khung tại Cell không chồng") mâu thuẫn với mục đích đi xuyên: Phasing phải sống tới khi B đã **đi vào rồi ra khỏi** ô chồng.
+Phương án: (1) Phasing chỉ tắt khi đã từng chồng ô (thêm cờ `PhaseOverlapped`: bật khi `OverlapsAnyCell`, tắt Phasing khi cờ bật mà không còn chồng) — đề xuất; (2) Phasing tắt khi con đi hết `Path` hiện tại / tới đích; (3) Phasing tắt sau N nhịp. Phương án 1 giữ đúng ý 0019. Nếu chọn 1, mốc nhịp ở HeadOnNoPocket (84, 91, 146–178) sẽ khác — cần Opus tính lại; có thể ảnh hưởng 3 test FarmTests.
+Thêm ghi chú: `GridPathfinder.AddTempBlock/IsBodyFree` & các bước khác chạy đúng theo brief; các test MovementTests khác (HeadOnWithPocketYields, WorkerBlocking…, IdleInPathDodges, AddCreatureRejectsOverlap), 2 GridPathfinder, SimConfig, Terrain, Home đều đạt.
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
 
 ---
