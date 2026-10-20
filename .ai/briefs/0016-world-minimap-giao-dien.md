@@ -876,6 +876,13 @@ Task [world bước 7](../tasks/m1-world-buoc-7-nhieu-map-minimap.md), dòng **7
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi.
+- `git show --stat c02650c`: 15 file, đúng Phạm vi (3 file mới + test + .meta, asmdef, TerrainEditInput/DebugFlyCamera/TerrainBench, TerrainViewCapture, 2 scene); không đụng Game.Core/Game.World/`design/`/ProjectSettings.
+- Diff đối chiếu: code trùng brief; sửa 4 chỗ chặn input đúng bước 5; menu đúng bước 6. Lệch duy nhất: `[RequireComponent(typeof(CanvasRenderer))]` trên `MinimapLinesGraphic`/`MinimapMarkerGraphic` — chấp nhận: lỗi ở code mẫu của Planner (graphic tạo bằng `AddComponent` trên GameObject trống không có CanvasRenderer), sửa tối thiểu, không đổi hành vi; executor lẽ ra nên dừng `cần Opus` nhưng thuộc loại sửa lỗi hiển nhiên.
+- Mọi dòng "Phần cần test" có kết quả: 8/8 test mới; PlayMode 27/27 = 19 cũ + 8; EditMode 301/301 (không giảm); scene mỗi file 1 MinimapView; điện thoại font=LegacyRuntime, holeFrames=0, hash a7719c8999939263 khớp.
+- FPS điện thoại 36,1 (đạt ≥ 30) nhưng thấp hơn 53,1 của 7b4 (0014). Nguyên nhân chưa xác minh: Canvas overlay luôn vẽ nút, hoặc nhiệt độ máy (7b3→7b4 từng lệch ngược chiều 42,2→53,1 khi tam giác tăng). Cách xác minh: chạy lại Bench khi máy nguội, so với bản tắt MinimapView.
+- Giờ thực tế: 23:09 → 23:23 (14 phút); 7c gồm 0015 (4 phút) — đã ghi roadmap.
+- User xem (thao tác thật Mac + điện thoại): chờ.
 
 ## Kiểm chứng
 - `client_test` EditMode: đạt 301/301 — chạy qua MCP `run_tests` (Editor đang mở nên không dùng `tools/unity_test.py`, theo AGENTS.local.md).
