@@ -1,6 +1,6 @@
 # Brief 0010 — World bước 7b: nạp dần chunk quanh camera, scene hiển thị chuyển sang world v3
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-20 17:05
@@ -329,6 +329,14 @@ API Unity 6000.4 dùng trong brief (đã tra):
 - Lệnh: `run_tests` EditMode lọc ChunkStreamPlanTests (gộp trong toàn bộ) → đạt; EditMode toàn bộ → 253/253; PlayMode toàn bộ → 12/12 (đã `git checkout` EditorSettings.asset); APK build → có; `git checkout UnityConnectSettings.asset` xong; `git status` chỉ còn file trong Phạm vi.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+
+## Kết quả — sửa lần 1 (bước 11–18)
+- Chạy bằng: claude-sonnet-5-5 · medium. Base `2e53d80`. Giờ: 16:55 → 17:05 (≈ 0,2 h). Commit code: 65e7f19.
+- File đổi: `Terrain.shader`, `Ocean.shader` (sương theo `distance(positionWS, GetCameraPositionWS())`, bỏ `fogFactor` trong Varyings), `DebugFlyCamera.cs` (`IsMoveKeyHeld`), `TerrainEditInput.cs` (bỏ qua đào/đặt khi giữ W/A/S/D/Q/E + dòng hướng dẫn), `Tests/Client/FlyCameraMoveKeyPlayTests.cs` (mới, thêm `using UnityEngine.InputSystem.LowLevel` cho `KeyboardState`), `Game.Client.Tests.asmdef` (+`Unity.InputSystem`), `design/04-tech/world-tech.md` (bước 17).
+- Kết quả: EditMode 253/253; PlayMode 13/13 (gồm `MoveKeysBlockEditOnlyWhileHeld`); `check_design.py` exit 0; không lỗi shader/biên dịch.
+- Bước 15 (hình ảnh qua MCP, Game view 1720×973): `client/Logs/fog_view_minus_z.png` (nhìn −z từ (360,44,192): biển tan vào sương, không còn khe trời sáng, đất ở mép phải mờ dần) và `client/Logs/fog_view_plus_x.png` (nhìn +x: đồi tan dần vào sương, không khe). Ảnh trong thư mục Logs đã ignore. Cần user xem lại bằng mắt.
+- Bước 16 (điện thoại): APK build OK (`client/Builds/bench.apk`, 34,7 MB, 17:02) nhưng `adb devices` không thấy máy USB `PFQCRWVWR46HU4GQ` (đã `kill-server`/`start-server`; cũng không còn thiết bị không dây) → **chờ Planner** đo điện thoại; chưa có dòng `BENCH` mới.
+- Dọn: `EditorSettings.asset`, `UnityConnectSettings.asset` đã checkout; `Bench.unity.meta` checkout; `client/Assets/Resources/` xoá.
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
