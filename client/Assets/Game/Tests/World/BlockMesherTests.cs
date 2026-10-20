@@ -298,6 +298,39 @@ namespace Game.World.Tests
         }
 
         [Test]
+        public void LipProfileIsRoundedPillow()
+        {
+            // Mặt cắt (brief 0014): cuộn trên từ mặt trên xuống mặt trước, mặt trước thẳng ở t = LipOverhang, cuộn dưới vào đáy, mặt dưới nghiêng lên chạm vách.
+            float lo = BlockMesher.LipOverhang, rt = BlockMesher.LipTopRound, rb = BlockMesher.LipBottomRound;
+            float minDepth = BlockMesher.LipDepth - BlockMesher.LipWave1 - BlockMesher.LipWave2;
+            foreach (float depth in new[] { minDepth, BlockMesher.LipDepth, MaxLip })
+            {
+                var p = new float2[BlockMesher.LipProfilePoints];
+                var n = new float2[BlockMesher.LipProfilePoints];
+                for (int i = 0; i < p.Length; i++)
+                {
+                    BlockMesher.LipProfile(i, depth, out p[i], out n[i]);
+                    Assert.AreEqual(1f, math.length(n[i]), 1e-5f, $"depth {depth}, điểm {i}: pháp tuyến đơn vị");
+                    Assert.That(p[i].x, Is.InRange(-1e-5f, lo + 1e-5f), $"depth {depth}, điểm {i}: t trong [0, LipOverhang]");
+                    if (i > 0 && i < 7)
+                        Assert.Less(p[i].y, p[i - 1].y + 1e-6f, $"depth {depth}, điểm {i}: A0..C2 đi xuống");
+                }
+                AssertNear(new float2(lo - rt, 0f), p[0], "A0"); AssertNear(new float2(0f, 1f), n[0], "n A0");
+                AssertNear(new float2(lo, -rt), p[3], "A3"); AssertNear(new float2(1f, 0f), n[3], "n A3");
+                AssertNear(new float2(lo, -(depth - rb)), p[4], "C0"); AssertNear(new float2(1f, 0f), n[4], "n C0");
+                AssertNear(new float2(lo - rb, -depth), p[6], "C2"); AssertNear(new float2(0f, -1f), n[6], "n C2");
+                AssertNear(new float2(0f, -BlockMesher.LipFloor), p[7], "W"); AssertNear(new float2(0f, -1f), n[7], "n W");
+                Assert.Greater(p[7].y, p[6].y + 0.04f, $"depth {depth}: mặt dưới nghiêng lên vào vách");
+            }
+        }
+
+        static void AssertNear(float2 want, float2 got, string what)
+        {
+            Assert.AreEqual(want.x, got.x, 1e-5f, $"{what}.x");
+            Assert.AreEqual(want.y, got.y, 1e-5f, $"{what}.y");
+        }
+
+        [Test]
         public void LipOnlyOnGrassWithOpenTopAndSide()
         {
             // Đá: không mép. Cỏ bị khối đè: không mép. Cỏ lộ mặt trên: có đỉnh nhô ra ngoài ô đúng LipOverhang, váy không sâu quá MaxLip.
@@ -369,12 +402,12 @@ namespace Game.World.Tests
             return dist < float.MaxValue;
         }
 
-        /// <summary>Điểm (x, z) dưới phần mép nhô ra của ô cỏ (4, 8, 4): 4 sườn × sigma {0,3; 0,7} × t {0,01; 0,03; 0,05; 0,07} và 4 góc × r {0,02; 0,05; 0,07} theo đường chéo 45°.</summary>
+        /// <summary>Điểm (x, z) dưới phần mép nhô ra của ô cỏ (4, 8, 4): 4 sườn × sigma {0,3; 0,7} × t {0,01 … 0,11} và 4 góc × r {0,02; 0,05; 0,08; 0,11} theo đường chéo 45° (mép nhô 0,12 — brief 0014).</summary>
         static List<float2> LipFootprint()
         {
             var pts = new List<float2>();
             foreach (float s in new[] { 0.3f, 0.7f })
-            foreach (float t in new[] { 0.01f, 0.03f, 0.05f, 0.07f })
+            foreach (float t in new[] { 0.01f, 0.03f, 0.05f, 0.07f, 0.09f, 0.11f })
             {
                 pts.Add(new float2(5 + t, 4 + s));
                 pts.Add(new float2(4 - t, 4 + s));
@@ -383,7 +416,7 @@ namespace Game.World.Tests
             }
             foreach (int sx in new[] { -1, 1 })
             foreach (int sz in new[] { -1, 1 })
-            foreach (float r in new[] { 0.02f, 0.05f, 0.07f })
+            foreach (float r in new[] { 0.02f, 0.05f, 0.08f, 0.11f })
                 pts.Add(new float2(4.5f + 0.5f * sx + r * 0.70710678f * sx, 4.5f + 0.5f * sz + r * 0.70710678f * sz));
             return pts;
         }
@@ -411,7 +444,7 @@ namespace Game.World.Tests
         public void LipEndCapMatchesClosedCrossSection()
         {
             // Ô cỏ (4, 8, 4) kề ô đá (4, 8, 5) → dải mép sườn +x và −x có nắp ở đầu z = 5 (pháp tuyến (0, 0, 1)).
-            // Nắp là ngũ giác của mặt cắt mới: 5 đỉnh mỗi nắp; dưới đáy phẳng chỉ còn điểm đáy váy (t = LipOverhang).
+            // Nắp là đa giác mặt cắt kín (brief 0014): LipProfilePoints + 2 đỉnh mỗi nắp; dưới độ sâu LipFloor chỉ có cuộn dưới (t ≥ LipOverhang − LipBottomRound).
             var w = new WorldData(new WorldSize(16, 16, 16));
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
             w.Set(4, 8, 5, Cell.Make(BlockMaterial.Stone));
@@ -424,9 +457,9 @@ namespace Game.World.Tests
                     continue;
                 cap++;
                 if (p.y < 9f - BlockMesher.LipFloor - 1e-4f)
-                    Assert.IsTrue(p.x >= 5f + BlockMesher.LipOverhang - 1e-4f || p.x <= 4f - BlockMesher.LipOverhang + 1e-4f, $"nắp lòi dưới đáy phẳng ở {p}");
+                    Assert.IsTrue(p.x >= 5f + BlockMesher.LipOverhang - BlockMesher.LipBottomRound - 1e-4f || p.x <= 4f - BlockMesher.LipOverhang + BlockMesher.LipBottomRound + 1e-4f, $"nắp lòi dưới đáy ở {p}");
             }
-            Assert.AreEqual(2 * 5, cap, "2 nắp × 5 đỉnh");
+            Assert.AreEqual(2 * (BlockMesher.LipProfilePoints + 2), cap, "2 nắp × (LipProfilePoints + 2) đỉnh");
         }
 
         [Test]
@@ -443,7 +476,7 @@ namespace Game.World.Tests
                 CollectionAssert.AreEqual(a[c].Vertices, b[c].Vertices, "tất định: đỉnh");
                 CollectionAssert.AreEqual(a[c].Indices, b[c].Indices, "tất định: chỉ số");
             }
-            // Đỉnh của váy cỏ (ngoài mặt sườn, thấp hơn mặt trên) tại ranh giới hai ô x = 14..18: phải có ở cả dải bên trái lẫn bên phải.
+            // Đỉnh mặt trước của mép cỏ (t = LipOverhang: A3 và C0 của mặt cắt, thấp hơn mặt trên) tại ranh giới hai ô x = 14..18: phải có ở cả dải bên trái lẫn bên phải.
             var at = new Dictionary<long, int>();
             for (int c = 0; c < a.Length; c++)
             {
@@ -460,9 +493,9 @@ namespace Game.World.Tests
                     }
                 }
             }
-            Assert.AreEqual(5 * 2, at.Count, "mỗi ranh giới x = 14..18 có một điểm đáy váy mỗi sườn");
+            Assert.AreEqual(5 * 2 * 2, at.Count, "mỗi ranh giới x = 14..18, mỗi sườn có 2 điểm mặt trước (A3, C0)");
             foreach (var kv in at)
-                Assert.AreEqual(4, kv.Value, "điểm đáy váy ở ranh giới phải trùng giữa hai dải kề nhau (kể cả qua biên chunk x = 16) — mỗi dải 2 đỉnh: váy + mặt dưới");
+                Assert.AreEqual(2, kv.Value, "điểm mặt trước ở ranh giới phải trùng giữa hai dải kề nhau (kể cả qua biên chunk x = 16) — mỗi dải 1 đỉnh mỗi điểm");
         }
 
         // ---------------- AO theo đỉnh + mã hoa văn (bước 5.4) ----------------
