@@ -1,9 +1,9 @@
 # Brief 0010 — World bước 7b: nạp dần chunk quanh camera, scene hiển thị chuyển sang world v3
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 16:30
+> Cập nhật: 2026-10-20 16:25
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -268,9 +268,26 @@ API Unity 6000.4 dùng trong brief (đã tra):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 6d3af87
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Giờ: bắt đầu 15:54, xong code+test khoảng 16:25 (≈ 0,5 h, gồm chờ Unity mở lại và build APK).
+- Commit code: 0565002 (+ Bench.unity.meta đổi guid do Unity tạo lại scene, không có tham chiếu nào tới guid cũ).
+- File đổi: `Core/ChunkStreamPlan.cs` (mới), `Tests/Core/ChunkStreamPlanTests.cs` (mới), `World/BlockMesher.cs`, `World/Game.World.asmdef`, `Tests/World/BlockMesherTests.cs`, `Client/WorldSource.cs` (mới), `TerrainChunkView.cs`, `OceanBackdrop.cs`, `TerrainBench.cs`, `Editor/TerrainViewCapture.cs`, `Tests/Client/TerrainStreamingPlayTests.cs` (mới), scene `TerrainView.unity`, `Bench.unity`, `design/04-tech/world-tech.md` (mục Nạp dần chunk; file này đã được sửa đúng nguyên văn bước 9 trước khi tôi đụng tới — tôi không sửa thêm).
+- Lệch brief: (1) Unity Editor bị tắt giữa chừng khi đang compile; tôi mở lại bằng `open -a Unity`. (2) Menu "Tạo scene Bench" đổi guid `Bench.unity.meta`; đã `git checkout` lại guid cũ. (3) Build APK sinh `client/Assets/Resources/PerformanceTest*.json`; đã xoá, không commit. (4) Chưa chạy phần điện thoại (xem dưới).
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
+- **ChunkStreamPlan**: đạt — 6/6 `ChunkStreamPlanTests` (nằm trong 253).
+- **Ghim mảng BuildChunks**: đạt — `BuildChunksTwice…` + toàn bộ `Game.World.Tests` trong 253/253; chưa thấy cảnh báo NativeArray/safety trong console (chỉ cảnh báo Obsolete sẵn có).
+- **OceanBackdrop v3**: `OceanBackdropTests` đạt (PlayMode 12/12). Mặt biển v3 xem bằng mắt: chờ user.
+- **Nạp dần**: đạt — 4/4 `TerrainStreamingPlayTests`; `STREAMTEST maxLoadedColumns=275`.
+- **Mặc định cũ**: đạt — `TerrainEditPlayTests`, `SimViewPlayTests`, `OceanBackdropTests` trong 12/12.
+- **Scene v3**: đạt — grep: TerrainView và Bench đều có fog 64/120, far clip 128, `source: 1` (2 chỗ), `streaming: 1`; Bench có `TerrainBench` (1).
+- **TerrainView Play**: đạt (qua PlayMode test và menu) — `TERRAINVIEW nạp dần v3: sinh world 14 ms, nạp đầu 174 cột / 522 chunk trong 81 ms, 860297 tam giác`; không lỗi.
+- **Bench trong Editor**: KHÔNG đạt số liệu, không đại diện — Editor chạy ~5 khung/s (p50 198 ms) nên bay 6 ô/khung, mỗi khung nạp tối đa 2 cột → `holeFrames=248`. Dòng: `BENCH ... frames=251 avgFps=6.3 ... buildFrames=251 buildMsAvg=7.04 buildMsP99=9.50 buildMsMax=287.49 | holeFrames=248 maxMissing=99 loadedChunksMax=663 | genMs=37 initialLoadMs=308 | sysMemMaxMB=3058.8 gcReservedMaxMB=1238.1 gcTotalMB=1065.5 worldCellsMB=13.5 | pass30fps=False passNoHole=False | tris=1183841 waterTris=19054 v3` (máy M1, Editor + Metal, đã đưa Editor lên foreground vẫn chậm). Ghi lại, chưa kết luận; số quyết định là điện thoại. Nghi: Editor/Game view chậm (tris 1,18 triệu trong Editor), `maxMissing` do khung quá thưa — chưa xác minh.
+- **Bench trên điện thoại**: chờ user — APK `client/Builds/bench.apk` (34,7 MB) build OK; `adb install` lỗi `INSTALL_FAILED_USER_RESTRICTED: Install canceled by user` (máy 192.168.1.6:5555 từ chối cài; cần bấm "Cài đặt" trên máy). Chưa có dòng BENCH điện thoại.
+- **Tài liệu**: đạt — `check_design.py` exit 0 (47 file).
+- Lệnh: `run_tests` EditMode lọc ChunkStreamPlanTests (gộp trong toàn bộ) → đạt; EditMode toàn bộ → 253/253; PlayMode toàn bộ → 12/12 (đã `git checkout` EditorSettings.asset); APK build → có; `git checkout UnityConnectSettings.asset` xong; `git status` chỉ còn file trong Phạm vi.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
