@@ -16,9 +16,9 @@ namespace Game.World.Tests
         public const string ExpectedV2 = "807d00bd048026a0";
 
         /// <summary>v3 (world nhiều map, 0022) — macOS ARM64 2026-10-20; điện thoại: chờ user (brief 0009).</summary>
-        public const string ExpectedV3World = "0000000000000000";
+        public const string ExpectedV3World = "a7719c8999939263";
         /// <summary>Mã băm bảng map v3 — xem ExpectedV3World.</summary>
-        public const string ExpectedV3Maps = "0000000000000000";
+        public const string ExpectedV3Maps = "ab2074e6196e5f51";
 
         static string Hash(TerrainParams p) => WorldHash.ToHex(WorldHash.Compute(TerrainGenerator.Generate(p)));
 

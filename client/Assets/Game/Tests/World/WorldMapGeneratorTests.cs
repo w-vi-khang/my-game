@@ -296,5 +296,36 @@ namespace Game.World.Tests
                 Assert.AreEqual(0, Cell.GetReserved(c));
             }
         }
+
+        static byte[] StripGrid(byte stripValue)
+        {
+            const byte O = MapTable.Ocean;
+            return new byte[]
+            {
+                0, 0, 0, 1, 1, 1,
+                0, 0, 0, 1, 1, 1,
+                O, stripValue, O, O, O, O,
+            };
+        }
+
+        [Test]
+        public void MergeFragmentsMovesStripToNeighbor()
+        {
+            var ids = StripGrid(1);
+            var before = (byte[])ids.Clone();
+            Assert.AreEqual(1, MapTable.MergeFragments(ids, 6, 3, 2));
+            Assert.AreEqual(0, ids[1 + 6 * 2]);
+            for (int i = 0; i < ids.Length; i++)
+                if (i != 1 + 6 * 2) Assert.AreEqual(before[i], ids[i], $"ô {i}");
+        }
+
+        [Test]
+        public void MergeFragmentsKeepsConnectedMapsUnchanged()
+        {
+            var ids = StripGrid(0);
+            var before = (byte[])ids.Clone();
+            Assert.AreEqual(0, MapTable.MergeFragments(ids, 6, 3, 2));
+            CollectionAssert.AreEqual(before, ids);
+        }
     }
 }

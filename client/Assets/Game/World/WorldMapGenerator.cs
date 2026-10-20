@@ -9,6 +9,7 @@ namespace Game.World
     /// <summary>
     /// Sinh world nhiều map (generatorVersion 3, world-tech bước 7a, decision 0022): khối đất liền giữa world chia 3 map bằng
     /// ranh giới Voronoi méo noise; biển bao quanh. Mọi phép số thực nằm trong job Burst FloatMode.Deterministic.
+    /// Sau job gộp mảnh rời của bảng map (MapTable.MergeFragments).
     /// </summary>
     public static class WorldMapGenerator
     {
@@ -59,7 +60,9 @@ namespace Game.World
                 };
                 job.Schedule(size.X * size.Z, 64).Complete();
                 ranWithBurst = managedFlag[0] == 0;
-                maps = new MapTable(p.sizeX, p.sizeZ, mapIds.ToArray(), (string[])p.mapNames.Clone());
+                var ids = mapIds.ToArray();
+                MapTable.MergeFragments(ids, p.sizeX, p.sizeZ, p.mapCount);
+                maps = new MapTable(p.sizeX, p.sizeZ, ids, (string[])p.mapNames.Clone());
                 return new WorldData(size, cells.ToArray());
             }
             finally
