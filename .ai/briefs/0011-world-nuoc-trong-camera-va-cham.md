@@ -526,3 +526,8 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 - **Bench điện thoại (A) — đạt** (Planner chạy 2026-10-20 19:09, USB): `avgFps=43,0 p99Ms=41,59 maxMs=58,21 | buildMsAvg=7,38 buildMsMax=263,84 | holeFrames=0 | sysMemMaxMB=806,8 | pass30fps=True passNoHole=True | tris=1506249 waterTris=61190 | hash=a7719c8999939263 v3` (0010: 45,6 FPS). Lần build đầu lỗi vì Editor đang Play; đã thoát Play, build lại, trả `UnityConnectSettings.asset` + `Bench.unity.meta`.
 - **User xem (B) — 2026-10-20:** dùng chuột; nước trong, va chạm "khá ổn"; **từ nước nhìn lên tối quá** (ảnh user: mặt nước nhìn từ dưới xanh sẫm). Nguyên nhân: mặt dưới lật pháp tuyến → không nhận sáng mặt trời + SH hướng xuống tối; nền dưới nước = màu sương sẫm (0,08; 0,32; 0,45). → Sửa lần 1: QĐ 10, bước 12–17.
 - Kết luận: cần sửa
+- **Review sửa lần 1 (Opus · medium, 2026-10-20)** — chưa kết luận, chờ user xem.
+  - `Chạy bằng` claude-sonnet-5-5 · medium = `Model thực thi`: khớp. Bước 12–17 có kết quả; EditMode 260/260, PlayMode 15/15; `git status` sạch.
+  - Diff 5976a6a (6 file, +18/−9) — đúng Phạm vi, đúng chữ từng bước: `Ocean.shader` ndl + SampleSH dùng `nLit`, fres/spec giữ `n` (mặt trên không đổi vì `nLit == n` → bench không cần chạy lại); `UnderwaterView` thêm `backgroundColor` (0,42; 0,70; 0,82), `Enter()` dùng nó, `fogColor` (0,14; 0,44; 0,56); menu ghi 4 giá trị; TerrainView + Bench cùng giá trị; test đổi đúng 1 dòng. Tầm 0–40 và `_Alpha` 0,45 giữ nguyên (QĐ 10).
+  - Ảnh: `water_below.png` so với `water_below_old.png` — nền và vùng mặt nước phía trên từ xanh sẫm thành xanh trời sáng; `water_below_up.png` (−60°) nhìn lên toàn xanh sáng, bờ rõ.
+  - Chờ user: xem 3 ảnh + Play TerrainView, lặn xuống nhìn lên.
