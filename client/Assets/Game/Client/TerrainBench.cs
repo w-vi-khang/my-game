@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using Unity.Profiling;
 using Game.Core;
 using Game.World;
 using UnityEngine;
@@ -11,17 +12,30 @@ namespace Game.Client
     /// Chạy tự động trong scene Bench: camera cố định nhìn toàn đảo, khởi động <see cref="warmupSeconds"/> giây, rồi đo
     /// <see cref="measureSeconds"/> giây — mỗi khung hình đào hoặc đặt lại một ô ngẫu nhiên (seed cố định), thỉnh thoảng đào bờ
     /// biển cho nước lan. Kết quả hiện trên màn hình và ghi log "BENCH ..." (đọc bằng adb logcat), kèm mã băm world để so tất định.
+    /// Bước 7b (brief 0010): mặc định bay vòng tròn qua 3 map (30 ô/s), không đào; đo ms dựng mỗi khung, khung có lỗ trong bán kính sương, bộ nhớ.
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class TerrainBench : MonoBehaviour
     {
         public float warmupSeconds = 3f;
-        public float measureSeconds = 20f;
+        public float measureSeconds = 40f;
         /// <summary>Mỗi bao nhiêu lần sửa thì có một lần đào ô bờ biển (cho nước lan).</summary>
         public int coastEvery = 15;
         public int seed = 6;
+        /// <summary>Đào/đặt mỗi khung như bước 6 (mặc định tắt: bay tự động).</summary>
+        public bool editEachFrame = false;
+        public float flySpeed = 30f;
+        public float flyRadius = 96f;
+        public float flyHeight = 44f;
+        public float flyPitch = 20f;
+        public Vector2 flyCenter = new Vector2(192f, 192f);
 
         TerrainChunkView view;
+        Camera cam;
+        ProfilerRecorder systemMem, gcMem;
+        readonly List<float> buildMs = new List<float>();
+        int holeFrames, maxMissing, maxLoadedChunks;
+        long maxSystemMem, maxGcMem;
         System.Random rng;
         readonly List<float> frameMs = new List<float>();
         double meshMs, writeMs, bakeMs;
@@ -32,6 +46,34 @@ namespace Game.Client
         Vector3Int pendingRestore;
         BlockMaterial pendingMaterial;
         bool hasPending;
+
+        void Awake()
+        {
+            cam = Camera.main;
+            PlaceCamera(0f);
+        }
+
+        void OnEnable()
+        {
+            systemMem = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "System Used Memory");
+            gcMem = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Reserved Memory");
+        }
+
+        void OnDisable()
+        {
+            systemMem.Dispose();
+            gcMem.Dispose();
+        }
+
+        /// <summary>Đặt camera trên vòng bay tại góc theta (rad), nhìn theo tiếp tuyến, chúi xuống flyPitch độ.</summary>
+        void PlaceCamera(float theta)
+        {
+            if (cam == null)
+                return;
+            cam.transform.position = new Vector3(flyCenter.x + flyRadius * Mathf.Cos(theta), flyHeight, flyCenter.y + flyRadius * Mathf.Sin(theta));
+            var tangent = new Vector3(-Mathf.Sin(theta), 0f, Mathf.Cos(theta));
+            cam.transform.rotation = Quaternion.LookRotation(tangent) * Quaternion.Euler(flyPitch, 0f, 0f);
+        }
 
         void Start()
         {
@@ -71,8 +113,16 @@ namespace Game.Client
                 meshMs += view.LastMeshMs;
                 writeMs += view.LastWriteMs;
                 bakeMs += view.LastBakeMs;
+                buildMs.Add((float)(view.LastMeshMs + view.LastWriteMs + view.LastBakeMs));
             }
-            EditOnce();
+            PlaceCamera(flySpeed * (t - warmupSeconds) / flyRadius);
+            int missing = view.MissingColumnsWithin(120);
+            if (missing > 0) holeFrames++;
+            maxMissing = Mathf.Max(maxMissing, missing);
+            maxLoadedChunks = Mathf.Max(maxLoadedChunks, view.LoadedChunkCount);
+            if (systemMem.Valid) maxSystemMem = System.Math.Max(maxSystemMem, systemMem.LastValue);
+            if (gcMem.Valid) maxGcMem = System.Math.Max(maxGcMem, gcMem.LastValue);
+            if (editEachFrame) EditOnce();
             result = $"Đang đo… {warmupSeconds + measureSeconds - t:F0} s · {frameMs.Count} khung · {edits} lần sửa";
         }
 
@@ -87,12 +137,11 @@ namespace Game.Client
                 hasPending = false;
                 return;
             }
-            var p = ConfigLoader.LoadTerrainParams();
             bool coast = coastEvery > 0 && edits % coastEvery == 0;
             for (int attempt = 0; attempt < (coast ? 256 : 32); attempt++)
             {
                 int x = rng.Next(4, w.Size.X - 4), z = rng.Next(4, w.Size.Z - 4);
-                int y = coast ? p.waterLevel : w.SurfaceHeight(x, z);
+                int y = coast ? view.Editor.SeaLevel : w.SurfaceHeight(x, z);
                 if (y < 0 || !Cell.IsDiggable(w.Get(x, y, z)))
                     continue;
                 if (coast && !TouchesWaterSideways(w, x, y, z))
@@ -133,7 +182,14 @@ namespace Game.Client
             sb.Append($"frames={frameMs.Count} avgFps={(avgMs > 0 ? 1000f / avgMs : 0):F1} avgMs={avgMs:F2} p50Ms={p50:F2} p99Ms={p99:F2} maxMs={max:F2} | ");
             sb.Append($"edits={edits} rebuilds={rebuilds} chunksPerRebuild={(rebuilds > 0 ? (double)rebuiltChunks / rebuilds : 0):F2} ");
             sb.Append($"meshMsPerRebuild={(rebuilds > 0 ? meshMs / rebuilds : 0):F2} meshMsPerChunk={perChunkMesh:F2} writeMs={(rebuilds > 0 ? writeMs / rebuilds : 0):F2} bakeMs={(rebuilds > 0 ? bakeMs / rebuilds : 0):F2} | ");
-            sb.Append($"tris={tris} waterTris={waterTris} | hash={worldHash} v{ConfigLoader.LoadTerrainParams().generatorVersion}");
+            var sortedBuild = new List<float>(buildMs);
+            sortedBuild.Sort();
+            float sumB = 0;
+            foreach (var f in buildMs) sumB += f;
+            float avg = buildMs.Count > 0 ? sumB / buildMs.Count : 0;
+            float p99b = Pct(sortedBuild, 0.99f), maxb = sortedBuild.Count > 0 ? sortedBuild[sortedBuild.Count - 1] : 0;
+            sb.Append($"fly={flySpeed:F0}u/s r={flyRadius:F0} | buildFrames={buildMs.Count} buildMsAvg={avg:F2} buildMsP99={p99b:F2} buildMsMax={maxb:F2} | holeFrames={holeFrames} maxMissing={maxMissing} loadedChunksMax={maxLoadedChunks} | genMs={view.GenerateMs:F0} initialLoadMs={view.InitialLoadMs:F0} | sysMemMaxMB={maxSystemMem / 1048576.0:F1} gcReservedMaxMB={maxGcMem / 1048576.0:F1} gcTotalMB={System.GC.GetTotalMemory(false) / 1048576.0:F1} worldCellsMB={view.World.Cells.Length * 2 / 1048576.0:F1} | pass30fps={(avgMs > 0 && 1000f / avgMs >= 30f)} passNoHole={(holeFrames == 0)} | ");
+            sb.Append($"tris={tris} waterTris={waterTris} | hash={worldHash} v{view.GeneratorVersion}");
             result = sb.ToString().Replace(" | ", "\n");
             Debug.Log(sb.ToString());
         }

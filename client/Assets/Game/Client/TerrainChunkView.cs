@@ -11,6 +11,7 @@ namespace Game.Client
     /// <summary>
     /// Hiển thị world M1: cả map (bước 3) hoặc một cột chunk (bước 2). Bấm Play trong scene TerrainView, hoặc gọi Build() từ editor.
     /// Bước 4: đào/đặt qua Dig/Place → chunk bẩn dựng lại mesh + bake collider trong LateUpdate của cùng khung hình.
+    /// Bước 7b (brief 0010): source = MapsV3 + streaming → chỉ cột chunk trong loadRadius quanh camera có mesh + collider; gỡ khi > unloadRadius.
     /// </summary>
     public class TerrainChunkView : MonoBehaviour
     {
@@ -24,6 +25,15 @@ namespace Game.Client
         public float waterStepsPerSecond = 8f;
         float waterTimer;
         public Color color = Color.white;
+        /// <summary>Nguồn world (brief 0010). Mặc định đảo v2 — SimView và test cũ không đổi.</summary>
+        public WorldSource source = WorldSource.IslandV2;
+        /// <summary>Chỉ dựng cột chunk quanh streamTarget (world-tech bước 7b). Tắt → dựng như cũ (allChunks/chunkX/chunkZ).</summary>
+        public bool streaming;
+        /// <summary>Tâm nạp dần; null → Camera.main.</summary>
+        public Transform streamTarget;
+        public int loadRadius = 128;
+        public int unloadRadius = 160;
+        public int maxColumnsPerFrame = 2;
 
         sealed class ChunkSlot
         {
@@ -33,6 +43,7 @@ namespace Game.Client
             public MeshCollider Collider;
             public int TriangleCount;
             public int WaterTriangleCount;
+            public GameObject Go;
         }
 
         const string ChunksName = "Chunks";
@@ -40,10 +51,50 @@ namespace Game.Client
         ChunkSlot[] slots;
         Transform chunksRoot;
         readonly List<int> dirty = new List<int>();
+        readonly Stack<ChunkSlot> pool = new Stack<ChunkSlot>();
+        readonly List<int> toLoad = new List<int>();
+        readonly List<int> toUnload = new List<int>();
+        ChunkStreamPlan plan;
+        UnityEngine.Material slotMat, slotWater;
 
         public WorldData World { get; private set; }
         public MaterialInventory Inventory { get; private set; }
         public WorldEditor Editor { get; private set; }
+        /// <summary>Bảng map của world v3; null với v2.</summary>
+        public MapTable Maps { get; private set; }
+        public int GeneratorVersion { get; private set; }
+        /// <summary>Thời gian sinh world (ms).</summary>
+        public double GenerateMs { get; private set; }
+        /// <summary>Thời gian dựng lần đầu (ms).</summary>
+        public double InitialLoadMs { get; private set; }
+        public int LoadedColumnCount => plan != null ? plan.LoadedCount : 0;
+        public int LoadedChunkCount
+        {
+            get
+            {
+                int n = 0;
+                if (slots != null)
+                    foreach (var s in slots)
+                        if (s != null) n++;
+                return n;
+            }
+        }
+        /// <summary>Số cột nạp trong khung gần nhất.</summary>
+        public int LastLoadedColumns { get; private set; }
+
+        /// <summary>Số cột có khoảng cách ≤ radius tới camera mà chưa nạp; 0 nếu không streaming.</summary>
+        public int MissingColumnsWithin(int radius)
+        {
+            if (!streaming || plan == null)
+                return 0;
+            var center = StreamCenter();
+            if (center == null)
+                return 0;
+            var cell = CellAt(center.position);
+            return plan.MissingWithin(cell.x, cell.z, radius);
+        }
+
+        Transform StreamCenter() => streamTarget != null ? streamTarget : (Camera.main != null ? Camera.main.transform : null);
 
         /// <summary>Khung hình (Time.frameCount) của lần dựng lại gần nhất; -1 nếu chưa có.</summary>
         public int LastRebuildFrame { get; private set; } = -1;
@@ -66,10 +117,27 @@ namespace Game.Client
             chunksRoot = new GameObject(ChunksName).transform;
             chunksRoot.SetParent(transform, false);
 
-            var p = ConfigLoader.LoadTerrainParams();
-            World = TerrainGenerator.Generate(p);
+            var gen = Stopwatch.StartNew();
+            int waterLevel;
+            if (source == WorldSource.MapsV3)
+            {
+                var p = ConfigLoader.LoadWorldMapParams();
+                World = WorldMapGenerator.Generate(p, out var maps);
+                Maps = maps;
+                GeneratorVersion = p.generatorVersion;
+                waterLevel = p.waterLevel;
+            }
+            else
+            {
+                var p = ConfigLoader.LoadTerrainParams();
+                World = TerrainGenerator.Generate(p);
+                Maps = null;
+                GeneratorVersion = p.generatorVersion;
+                waterLevel = p.waterLevel;
+            }
+            GenerateMs = gen.Elapsed.TotalMilliseconds;
             Inventory = new MaterialInventory();
-            Editor = new WorldEditor(World, Inventory, BlockMesher.CellMargin, p.waterLevel);
+            Editor = new WorldEditor(World, Inventory, BlockMesher.CellMargin, waterLevel);
             Editor.CellChanged += OnCellChanged;
             dirty.Clear();
 
@@ -77,8 +145,36 @@ namespace Game.Client
             var mat = material != null ? material : CreateTerrainMaterial();
             mat.SetColor("_BaseColor", color);
             var water = waterMaterial != null ? waterMaterial : CreateWaterMaterial();
+            slotMat = mat;
+            slotWater = water;
+            pool.Clear();
 
             var s = World.Size;
+            if (streaming)
+            {
+                plan = new ChunkStreamPlan(s.ChunksX, s.ChunksZ, loadRadius, unloadRadius);
+                slots = new ChunkSlot[s.ChunkCount];
+                var center = StreamCenter();
+                if (center == null)
+                {
+                    Debug.LogError("TERRAINVIEW streaming: không có streamTarget và Camera.main");
+                    return;
+                }
+                var cell = CellAt(center.position);
+                var first = Stopwatch.StartNew();
+                plan.Update(cell.x, cell.z, 0, toLoad, toUnload);
+                var build = new List<int>();
+                AcquireColumns(toLoad, build);
+                Rebuild(build);
+                first.Stop();
+                InitialLoadMs = first.Elapsed.TotalMilliseconds;
+                int streamTris = 0;
+                foreach (var c in build)
+                    streamTris += slots[c].TriangleCount;
+                Debug.Log($"TERRAINVIEW nạp dần v{GeneratorVersion}: sinh world {GenerateMs:F0} ms, nạp đầu {LoadedColumnCount} cột / {LoadedChunkCount} chunk trong {InitialLoadMs:F0} ms, {streamTris} tam giác");
+                return;
+            }
+            plan = null;
             slots = new ChunkSlot[s.ChunkCount];
             var shown = new List<int>();
             for (int c = 0; c < s.ChunkCount; c++)
@@ -96,6 +192,7 @@ namespace Game.Client
             int tris = 0;
             foreach (var c in shown)
                 tris += slots[c].TriangleCount;
+            InitialLoadMs = sw.Elapsed.TotalMilliseconds;
             Debug.Log($"TERRAINVIEW {(allChunks ? "cả map" : "một cột")}: {shown.Count} chunk, {tris} tam giác, " +
                       $"dựng mesh {LastMeshMs:F1} ms, ghi {LastWriteMs:F1} ms, bake {LastBakeMs:F1} ms (tổng {sw.ElapsedMilliseconds} ms)");
         }
@@ -134,13 +231,44 @@ namespace Game.Client
         void LateUpdate()
         {
             StepWater();
-            if (dirty.Count == 0)
+            var build = new List<int>();
+            LastLoadedColumns = 0;
+            if (streaming && plan != null)
+            {
+                var center = StreamCenter();
+                if (center != null)
+                {
+                    var cell = CellAt(center.position);
+                    plan.Update(cell.x, cell.z, maxColumnsPerFrame, toLoad, toUnload);
+                    int cy = World.Size.ChunksY, cols = plan.ColumnCount;
+                    foreach (var col in toUnload)
+                        for (int k = 0; k < cy; k++)
+                        {
+                            int c = col + cols * k;
+                            ReleaseSlot(slots[c]);
+                            slots[c] = null;
+                        }
+                    AcquireColumns(toLoad, build);
+                    LastLoadedColumns = toLoad.Count;
+                }
+            }
+            if (dirty.Count == 0 && build.Count == 0)
                 return;
-            // Bỏ chunk không hiển thị (chế độ một cột).
+            // Bỏ chunk không hiển thị (chế độ một cột / chưa nạp).
             dirty.RemoveAll(c => slots[c] == null);
-            Rebuild(dirty);
-            Debug.Log($"TERRAINVIEW sửa ô → {LastRebuildChunks} chunk: dựng mesh {LastMeshMs:F2} ms, ghi {LastWriteMs:F2} ms, " +
-                      $"bake {LastBakeMs:F2} ms, khung hình {LastRebuildFrame}");
+            bool hadDirty = dirty.Count > 0;
+            foreach (var c in dirty)
+                if (!build.Contains(c))
+                    build.Add(c);
+            if (build.Count == 0)
+            {
+                dirty.Clear();
+                return;
+            }
+            Rebuild(build);
+            if (hadDirty)
+                Debug.Log($"TERRAINVIEW sửa ô → {LastRebuildChunks} chunk: dựng mesh {LastMeshMs:F2} ms, ghi {LastWriteMs:F2} ms, " +
+                          $"bake {LastBakeMs:F2} ms, khung hình {LastRebuildFrame}");
             dirty.Clear();
         }
 
@@ -220,6 +348,40 @@ namespace Game.Client
                 : new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
         }
 
+        void AcquireColumns(List<int> columns, List<int> build)
+        {
+            int cols = plan.ColumnCount;
+            foreach (var col in columns)
+                for (int cy = 0; cy < World.Size.ChunksY; cy++)
+                {
+                    int c = col + cols * cy;
+                    slots[c] = AcquireSlot(col % plan.ColumnsX, cy, col / plan.ColumnsX);
+                    build.Add(c);
+                }
+        }
+
+        ChunkSlot AcquireSlot(int cx, int cy, int cz)
+        {
+            if (pool.Count == 0)
+                return CreateSlot(cx, cy, cz, slotMat, slotWater);
+            var slot = pool.Pop();
+            slot.Go.name = slot.Mesh.name = $"chunk {cx},{cy},{cz}";
+            slot.Go.transform.localPosition = new Vector3(cx, cy, cz) * WorldSize.ChunkSize;
+            slot.Go.SetActive(true);
+            return slot;
+        }
+
+        void ReleaseSlot(ChunkSlot slot)
+        {
+            slot.Collider.sharedMesh = null;
+            slot.Collider.enabled = false;
+            slot.Mesh.Clear();
+            slot.ColliderMesh.Clear();
+            slot.TriangleCount = slot.WaterTriangleCount = 0;
+            slot.Go.SetActive(false);
+            pool.Push(slot);
+        }
+
         ChunkSlot CreateSlot(int cx, int cy, int cz, UnityEngine.Material mat, UnityEngine.Material water)
         {
             var mesh = new Mesh { name = $"chunk {cx},{cy},{cz}" };
@@ -232,7 +394,7 @@ namespace Game.Client
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
             go.AddComponent<MeshRenderer>().sharedMaterials = new[] { mat, water }; // submesh 0 địa hình, 1 mặt nước
             var colliderMesh = new Mesh { name = mesh.name + " collider" };
-            return new ChunkSlot { Mesh = mesh, ColliderMesh = colliderMesh, Collider = col };
+            return new ChunkSlot { Mesh = mesh, ColliderMesh = colliderMesh, Collider = col, Go = go };
         }
 
         void ChunkCoords(int c, out int cx, out int cy, out int cz)

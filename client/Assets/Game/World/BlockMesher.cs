@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Game.Core;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -231,13 +232,18 @@ namespace Game.World
             return BuildChunks(world, all, grassLip);
         }
 
-        /// <summary>Dựng song song các chunk theo chỉ số (x nhanh nhất, rồi z, rồi y); kết quả cùng thứ tự với <paramref name="chunkIndices"/>.</summary>
-        public static ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices, bool grassLip = true)
+        /// <summary>Dựng song song các chunk theo chỉ số (x nhanh nhất, rồi z, rồi y); kết quả cùng thứ tự với <paramref name="chunkIndices"/>. Mảng ô của world được ghim và đọc trực tiếp (không chép, brief 0010).</summary>
+        public static unsafe ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices, bool grassLip = true)
         {
             EnsureTable();
             var size = world.Size;
             int count = chunkIndices.Count;
-            var cells = new NativeArray<ushort>(world.Cells, Allocator.TempJob);
+            void* cellsPtr = UnsafeUtility.PinGCArrayAndGetDataAddress(world.Cells, out ulong cellsGcHandle);
+            var cells = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<ushort>(cellsPtr, world.Cells.Length, Allocator.None);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+            var cellsSafety = AtomicSafetyHandle.Create();
+            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref cells, cellsSafety);
+#endif
             var palette = new NativeArray<uint>(2 * 256, Allocator.TempJob);
             for (int m = 0; m < 256; m++)
             {
@@ -283,7 +289,10 @@ namespace Game.World
                 normal.Dispose();
                 offset.Dispose();
                 palette.Dispose();
-                cells.Dispose();
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                AtomicSafetyHandle.Release(cellsSafety);
+#endif
+                UnsafeUtility.ReleaseGCObject(cellsGcHandle);
             }
         }
 

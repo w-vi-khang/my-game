@@ -62,6 +62,24 @@ namespace Game.World.Tests
             MeshChecks.UnbalancedEdges(new[] { (m.Vertices, m.Indices, float3.zero) }, null, TestContext.WriteLine);
 
         [Test]
+        public void BuildChunksTwiceGivesIdenticalMeshesAndLeavesCellsUnchanged()
+        {
+            var world = TerrainGenerator.Generate(new TerrainParams());
+            var before = (ushort[])world.Cells.Clone();
+            var idx = new[] { 0, 5, 17 };
+            var a = BlockMesher.BuildChunks(world, idx);
+            var b = BlockMesher.BuildChunks(world, idx);
+            for (int k = 0; k < idx.Length; k++)
+            {
+                CollectionAssert.AreEqual(a[k].Vertices, b[k].Vertices, $"Vertices {k}");
+                CollectionAssert.AreEqual(a[k].Indices, b[k].Indices, $"Indices {k}");
+                CollectionAssert.AreEqual(a[k].WaterIndices, b[k].WaterIndices, $"WaterIndices {k}");
+                CollectionAssert.AreEqual(a[k].ColliderIndices, b[k].ColliderIndices, $"ColliderIndices {k}");
+            }
+            CollectionAssert.AreEqual(before, world.Cells);
+        }
+
+        [Test]
         public void FlatGroundIsOneQuadPerColumnOnTop()
         {
             var mesh = BlockMesher.Build(Flat(8), 0, 0, 0);

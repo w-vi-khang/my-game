@@ -49,6 +49,39 @@ namespace Game.Client.Editor
             Debug.Log("TERRAINVIEW đã thêm DebugFlyCamera + TerrainEditInput");
         }
 
+        /// <summary>Bước 7b (brief 0010): scene TerrainView dùng world v3 + nạp dần quanh camera, sương 64–120, far clip 128.</summary>
+        [MenuItem("Game/Chuyển TerrainView sang world v3")]
+        public static void SetupStreamingV3()
+        {
+            EnsureScene();
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            var view = Object.FindAnyObjectByType<TerrainChunkView>();
+            view.source = WorldSource.MapsV3;
+            view.streaming = true;
+            view.streamTarget = Camera.main.transform;
+            view.loadRadius = 128;
+            view.unloadRadius = 160;
+            view.maxColumnsPerFrame = 2;
+            EditorUtility.SetDirty(view);
+            foreach (var ocean in Object.FindObjectsByType<OceanBackdrop>(FindObjectsSortMode.None))
+            {
+                ocean.source = WorldSource.MapsV3;
+                EditorUtility.SetDirty(ocean);
+            }
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogStartDistance = 64f;
+            RenderSettings.fogEndDistance = 120f;
+            var cam = Camera.main;
+            cam.farClipPlane = 128f;
+            cam.transform.position = new Vector3(192f, 40f, 150f);
+            cam.transform.rotation = Quaternion.Euler(25f, 0f, 0f);
+            EditorUtility.SetDirty(cam);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("TERRAINVIEW đã chuyển sang world v3 + nạp dần");
+        }
+
         [MenuItem("Game/Chụp ảnh TerrainView")]
         public static void Capture()
         {
