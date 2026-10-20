@@ -109,7 +109,11 @@ namespace Game.Client
         {
             if (view.Inventory == null)
                 return;
-            var text = "Chuột trái: đào · Chuột phải: đặt loại đang chọn · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\nKho: ";
+            var text = "Chuột trái: đào · Chuột phải: đặt loại đang chọn · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
+            var cam = Camera.main;
+            if (cam != null)
+                text += $"Góc nhìn: {FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y))} (0° = ngang mặt biển, + nhìn lên, - nhìn xuống)\n";
+            text += "Kho: ";
             for (int i = 0; i < Palette.Length; i++)
                 text += i == selected
                     ? $"<b><color=yellow>[{i + 1} {PaletteNames[i]}: {view.Inventory.Get(Palette[i])}]</color></b>   "
@@ -120,7 +124,7 @@ namespace Game.Client
             // Phóng chữ theo chiều cao màn hình (mốc 720p) — màn Retina chữ mặc định quá nhỏ.
             float scale = Mathf.Max(1f, Screen.height / 720f);
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-            GUI.Label(new Rect(10, 10, 1000, 90), text, new GUIStyle(GUI.skin.label) { richText = true });
+            GUI.Label(new Rect(10, 10, 1000, 115), text, new GUIStyle(GUI.skin.label) { richText = true });
         }
 
         LineRenderer CreateOutline()

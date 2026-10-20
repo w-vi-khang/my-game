@@ -130,6 +130,25 @@ namespace Game.Client.Editor
             Debug.Log("TERRAINVIEW đã bật nước trong + camera va chạm + hiệu ứng dưới nước");
         }
 
+        /// <summary>Bước 7b3 (brief 0012): sương biên world trên camera của TerrainView.</summary>
+        [MenuItem("Game/Biên world cho TerrainView")]
+        public static void SetupWorldEdge()
+        {
+            EnsureScene();
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            var view = Object.FindAnyObjectByType<TerrainChunkView>();
+            var cam = Camera.main;
+            var edge = cam.GetComponent<WorldEdgeFog>();
+            if (edge == null)
+                edge = cam.gameObject.AddComponent<WorldEdgeFog>();
+            edge.terrain = view;
+            edge.underwater = cam.GetComponent<UnderwaterView>();
+            EditorUtility.SetDirty(edge);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("TERRAINVIEW đã thêm sương biên world");
+        }
+
         [MenuItem("Game/Chụp ảnh TerrainView")]
         public static void Capture()
         {

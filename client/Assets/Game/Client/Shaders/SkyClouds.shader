@@ -31,6 +31,8 @@ Shader "Game/SkyClouds"
                 half _CloudCover, _CloudSoftness;
                 float _CloudScale, _CloudSpeed;
             CBUFFER_END
+            // Sương biên world (brief 0012): 0 = trời bình thường, 1 = cả trời màu sương. Biến global (Shader.SetGlobalFloat), không khai báo trong Properties.
+            half _EdgeFogBlend;
 
             struct Attributes { float4 positionOS : POSITION; };
             struct Varyings { float4 positionCS : SV_POSITION; float3 dir : TEXCOORD0; };
@@ -94,6 +96,7 @@ Shader "Game/SkyClouds"
                 // Mặt dưới mây tối hơn ở chỗ mây dày.
                 half3 cloudCol = lerp(_CloudColor.rgb, _CloudShadeColor.rgb, saturate((n - _CloudCover) * 2.5));
                 half3 c = lerp(sky, cloudCol, cloud * 0.92);
+                c = lerp(c, unity_FogColor.rgb, _EdgeFogBlend);
                 return half4(c, 1);
             }
             ENDHLSL

@@ -8,6 +8,7 @@ namespace Game.Client
     /// Camera bay để thử world M1 (bước 4, user duyệt 2026-10-13): WASD đi, Q/E xuống/lên, giữ chuột giữa để xoay, Shift đi nhanh.
     /// Chỉ dùng cho prototype — camera thật là Cinemachine (controls-ui).
     /// Bước 7b2 (brief 0011): gán terrain → không vào ô đặc, vào được ô nước, trượt dọc vách.
+    /// Bước 7b3 (brief 0012): không ra khỏi world — chậm dần trong 2 ô cuối trước mép x/z và trần (đỉnh world + 16 ô).
     /// </summary>
     public class DebugFlyCamera : MonoBehaviour
     {
@@ -43,7 +44,9 @@ namespace Game.Client
             var p = t.InverseTransformPoint(transform.position);
             var d = t.InverseTransformVector(delta);
             float x = p.x, y = p.y, z = p.z;
-            FlyCameraCollision.Move(terrain.World, ref x, ref y, ref z, d.x, d.y, d.z, collisionRadius);
+            float dx = d.x, dy = d.y, dz = d.z;
+            FlyCameraBounds.LimitDelta(terrain.World.Size, x, y, z, ref dx, ref dy, ref dz);
+            FlyCameraCollision.Move(terrain.World, ref x, ref y, ref z, dx, dy, dz, collisionRadius);
             transform.position = t.TransformPoint(new Vector3(x, y, z));
         }
 

@@ -32,6 +32,12 @@ namespace Game.Client
 
         void LateUpdate()
         {
+            Refresh();
+        }
+
+        /// <summary>Kiểm camera có dưới nước không và bật/tắt hiệu ứng khi đổi trạng thái; gọi nhiều lần trong một khung không đổi gì thêm (WorldEdgeFog gọi trước khi ghi sương, brief 0012).</summary>
+        public void Refresh()
+        {
             bool under = false;
             if (terrain != null && terrain.World != null)
             {
