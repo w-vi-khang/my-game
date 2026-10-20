@@ -1,9 +1,9 @@
 # Brief 0017 — World 7d (phần 1/2): bản đồ cập nhật khi đào/đặt + lõi đặt dấu mốc (checkpoint, công trình đặc trưng)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 23:59
+> Cập nhật: 2026-10-20 23:51
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -812,8 +812,23 @@ Mở scene TerrainView trên Mac, bấm Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-20 23:45
+- Base commit: 5d4366d
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-20 23:51
+- Commit code: fa0d8b9 — sửa WorldMapParams.cs, MinimapImage.cs, MinimapView.cs, MinimapViewPlayTests.cs, 2 file JSON; tạo LandmarkPlacer.cs, LandmarkPlacerTests.cs, MinimapEditTests.cs (+ .meta)
+- Lệch brief nhỏ: Unity đang ở Play Mode lúc chạy test → dừng Play bằng manage_editor.
 
 ## Kết quả test
+- Biên dịch: read_console error = 0.
+- JSON: `cmp` hai file không in gì; json.load không lỗi → đạt.
+- EditMode lọc (LandmarkPlacerTests + MinimapEditTests + ConfigTests): 17/17 đạt → đạt các dòng: cấu hình, UpdateColumn, số lượng/thứ tự, tất định, đúng map/khô phẳng/xa biên, khoảng cách, checkpoint gần tâm, BorderDistance, không đổi mã băm, cấu hình sai bị ném.
+- EditMode cả bộ: 311/311 đạt. PlayMode cả bộ: 28/28 đạt (gồm `DigUpdatesTexturePixel` + 8 test cũ MinimapViewPlayTests).
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset`; git status sạch trước commit brief.
+- Seed 20261013 (console):
+  - CHECKPOINT Map 1 (123,211) y=18, cách trọng tâm 0,5 ô; Map 2 (210,119) y=27, 0,1 ô; Map 3 (243,238) y=14, 1,3 ô.
+  - LANDMARKS ms=26,0: Công trình 1A (139,269) y=27; 1B (86,171) y=14; 2A (201,143) y=19; 2B (176,113) y=27; 3A (223,201) y=25; 3B (192,202) y=28.
+- Thao tác thật (mục "User tự test"): chờ user.
 
 ## Vướng mắc
 
