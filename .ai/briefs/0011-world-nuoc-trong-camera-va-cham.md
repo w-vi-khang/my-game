@@ -1,9 +1,9 @@
 # Brief 0011 — World bước 7b2: nước trong + camera bay không xuyên khối
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 17:55
+> Cập nhật: 2026-10-20 18:32
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -454,9 +454,27 @@ Mở scene TerrainView, bấm Play, bấm vào Game view (để nhận phím), b
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 011d8a1
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-20 17:59 · kết thúc: 2026-10-20 18:32
+- Commit code: xem `git log` (message `brief 0011: world 7b2 — nước trong + camera va chạm`); brief: `brief 0011: kết quả`
+- File đổi: FlyCameraCollision.cs (+test), Ocean.shader, DebugFlyCamera.cs, UnderwaterView.cs, TerrainViewCapture.cs, Water.mat, FlyCameraWaterPlayTests.cs, TerrainView.unity, Bench.unity, world-tech.md (+ .meta)
+- **Lệch so với brief (Planner xem):** (1) `FlyCameraCollision.MoveAxis` — công thức kẹp ở chiều âm trong brief (`Math.Min(p, …)`) làm `MoveStopsOnFloor` fail (y = 4,25 thay vì 4,251: camera dừng đúng chạm mặt ô, mất Skin). Đã đổi thành gán thẳng `limit` cho cả hai chiều (bỏ `Math.Max/Min(p, …)`); 7/7 đạt. (2) Menu "Tạo scene Bench" tạo lại Bench.unity → guid trong `Bench.unity.meta` đổi; đã `git checkout` trả meta về guid cũ (không có chỗ nào khác tham chiếu guid). (3) Bước 10 (APK/điện thoại) không làm được: `adb devices` rỗng → **chờ Planner**.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · giờ bắt đầu/kết thúc · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
+- Phần cần test:
+  - FlyCameraCollision: đạt — FlyCameraCollisionTests 7/7.
+  - Shader mặc định vẫn đục: đạt — OceanBackdropTests nằm trong PlayMode 15/15; console không lỗi shader; SimView grep guid Ocean.mat = 2.
+  - Nước trong + nhìn từ dưới: đạt (cần user xem) — `client/Logs/water_above.png` thấy đáy cát/bậc đá qua nước gần bờ, xa dần tan vào trắng sương; `client/Logs/water_below.png` (IsUnderwater=True) nền xanh nước, thấy vách bờ phía trước và mặt nước từ dưới.
+  - Va chạm trong Unity: đạt — FlyStopsAboveGround; Fly trên bờ cột (192,58): y=14,251, SurfaceHeight=13 → 13+1,251.
+  - Hiệu ứng dưới nước bật/tắt: đạt — FlyIntoWaterSwitchesUnderwaterView.
+  - Không gán terrain vẫn như cũ: đạt — FlyCameraMoveKeyPlayTests, SimViewPlayTests trong PlayMode 15/15.
+  - Hồi quy world: đạt — EditMode 260/260, PlayMode 15/15.
+  - Scene: đạt — TerrainView + Bench: near clip 0.1, 2 dòng terrain: {fileID: 1663237067}, collisionRadius 0.25, waterMaterial guid 55831bd2…; Water.mat: m_CustomRenderQueue 3000, _Alpha 0.45, _SrcBlend 5, _DstBlend 10, _ZWrite 0, _Cull 0; Ocean.mat không đổi.
+  - Hiệu năng điện thoại: **chờ Planner** — không có thiết bị USB; chưa build APK.
+  - Tài liệu: đạt — check_design.py exit 0.
+- Lệnh: brief_check → OK; run_tests EditMode lọc → 7/7; menu + grep → như trên; EditMode toàn bộ → 260/260; PlayMode toàn bộ → 15/15 (đã `git checkout` EditorSettings.asset); bước 9 → xong; bước 10 → không có máy; check_design → exit 0; git diff Ocean.mat → rỗng.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
