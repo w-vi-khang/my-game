@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 18:32
+> Cập nhật: 2026-10-20 (review lần 1, chờ điện thoại + user xem)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -486,3 +486,14 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+- Review lần 1 (Opus · medium, 2026-10-20) — **chưa kết luận**, chờ 2 việc bên dưới.
+- `Chạy bằng` claude-sonnet-5-5 · medium = `Model thực thi` Sonnet · medium: khớp.
+- Kết quả test: đủ 10/10 dòng; 9 đạt, 1 chờ (hiệu năng điện thoại).
+- Diff 39c906b (16 file) — đúng Phạm vi; `git status` sạch; Ocean.mat không đổi; SimView vẫn trỏ Ocean.mat.
+  - `Ocean.shader`: mặc định Blend 1/0, ZWrite 1, Cull 2, `_Alpha` 1 → alpha = 1, giống shader cũ (QĐ 2). Lật pháp tuyến mặt sau bằng `IS_FRONT_VFACE` (QĐ 4). Alpha = lerp(1, lerp(_Alpha, 1, fres), độ rõ sương) đúng QĐ 3, không đọc depth.
+  - `DebugFlyCamera.Fly`: terrain null → dời như cũ (QĐ 8); có terrain → đổi sang toạ độ local, gọi `FlyCameraCollision.Move`.
+  - `FlyCameraCollision`: luật ô đặc/biên giống `BlockMesher.IsSolid`; thứ tự x → z → y, bước ≤ 0,25, kẹt thì dời tự do (QĐ 5); `IsUnderwater` đúng QĐ 7.
+- **Lệch (1) — công thức kẹp `MoveAxis`:** brief sai, executor sửa đúng. `MoveStopsOnFloor` đi từ 6,5 xuống theo bước 0,25 → tới đúng 4,25 (hộp chạm mặt ô y = 4 nhưng không tính là chồng lấn); bước sau bị chặn, giới hạn 4,251 > p → `Math.Min(p, …)` giữ 4,25, mất Skin. Gán thẳng giới hạn an toàn: khi p không chồng lấn thì giới hạn lệch p tối đa Skin ngược chiều đi → không xuyên vách. Chấp nhận. Ghi nhận: theo "Dừng và chuyển lại Opus khi" (brief mâu thuẫn với test) lẽ ra phải dừng `cần Opus`, không tự sửa — lỗi do Planner viết công thức sai.
+- **Lệch (2) — guid `Bench.unity.meta`:** trả về guid cũ, không ai tham chiếu guid mới. Chấp nhận.
+- **Chờ (A) — bench điện thoại (bước 10):** 2026-10-20 review lại, `adb devices` vẫn rỗng. Khi máy cắm USB: Planner/Executor chạy bước 10 (build APK → cài → logcat), cần `pass30fps=True passNoHole=True`, ghi dòng `BENCH` vào đây.
+- **Chờ (B) — user xem:** 4 mục ở "User tự test" (độ trong 0,45; dưới nước màu + tầm 0–40; va chạm/trượt vách; xuyên hồ không kẹt). Ảnh tham khảo: `client/Logs/water_above.png`, `client/Logs/water_below.png`.
