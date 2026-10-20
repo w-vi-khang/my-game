@@ -1,9 +1,9 @@
 # Brief 0015 — World 7c (phần 1/2): lõi minimap — ảnh nền tầng độ cao, ranh giới, vị trí tên, phóng to/kéo
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 22:50
+> Cập nhật: 2026-10-20 22:56
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -1109,3 +1109,10 @@ Planner gửi ảnh `client/Builds/world_maps_preview.png` khi review. User xem 
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi.
+- `git show --stat deedb6d`: 7 file mới (+ .meta) + `WorldMapPreview.cs` — đúng Phạm vi; asmdef không đổi.
+- 7 file mới trùng từng dòng code trong brief (`diff -w` rỗng); `WorldMapPreview.cs` sửa đúng bước 5.
+- Mọi dòng "Phần cần test" có kết quả: 29/29 test mới, EditMode 301/301; ranh giới lệch ≤ 0,063 (< 0,5), hở 0; tên trong đúng map; mã băm world/maps không đổi; PNG ghi 22:50.
+- User xem bảng màu trên `world_maps_preview.png`: ổn [user 2026-10-20]. Ghi nhận: seed mặc định chỉ có tầng 3–8 và dải nước 0–1 (sâu ≤ 4) → 2 màu nước đậm chưa xuất hiện.
+- Giờ thực tế: 22:46 → 22:50 (4 phút).
+- Kết luận: đã duyệt
