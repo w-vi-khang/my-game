@@ -1,9 +1,9 @@
 # Brief 0009 — World bước 7a: bộ sinh world nhiều map (generatorVersion 3)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 13:10 (Planner trả lời Vướng mắc: thêm gộp mảnh rời — QĐ 10, bước 4b)
+> Cập nhật: 2026-10-20 15:35 (đã duyệt)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -455,3 +455,5 @@ Diện tích map ở 14 (cột đất): 20261013 [17631, 15018, 18115] · 7 [164
 - Giờ executor: 12:05–12:30 + 14:00–14:15 = 40 phút (chưa tính thời gian Planner trả lời Vướng mắc). Cộng vào roadmap + cập nhật world-tech bước 7a khi kết luận.
 - Chờ user: (1) xem ảnh PNG, nhận xét hình dạng; (2) cài `client/Builds/hashcheck.apk`, so `world`/`maps` với `a7719c8999939263` / `ab2074e6196e5f51`, ghi ms, dòng v2 vẫn `807d00bd048026a0`.
 - Điện thoại (Planner tự cài qua adb không dây, user cho phép 2026-10-20): Xiaomi 24095PCADG, Android 14. `HASHCHECK hash=807d00bd048026a0 burst=True ms=6 v=2` · `HASHCHECK3 world=a7719c8999939263 maps=ab2074e6196e5f51 burst=True ms=30 v=3` → trùng `ExpectedV3World` / `ExpectedV3Maps`, v2 không đổi [run `adb logcat -s Unity`]. Còn chờ user: nhận xét ảnh PNG.
+- User xem ảnh `world_maps_preview.png`: "ảnh ổn, duyệt đi" [user 2026-10-20]. Tiêu chí xong đủ; world-tech 7a + roadmap đã cập nhật.
+- Kết luận: đã duyệt
