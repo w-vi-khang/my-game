@@ -101,7 +101,7 @@ flowchart TB
 | Chuẩn bị chiến đấu | Chọn sinh vật, gán phép vào ô phép | M2 |
 | Túi đồ | Vật phẩm, thẻ bài | M2 |
 | Nhiệm vụ & mảnh ký ức | Nhiệm vụ chính/phụ theo map, mảnh ký ức đã có | M2 |
-| Bản đồ (minimap) | M1 ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)): toàn world nhìn từ trên cao, màu theo tầng độ cao, ranh giới + tên map, vị trí người chơi, dấu mốc (nhà, kho, ô ruộng); phóng to/kéo. M2: khối cốt truyện đã thấy, đánh dấu đình trệ | M1 / M2 |
+| Bản đồ (minimap) | M1 ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)): toàn world nhìn từ trên cao, màu theo tầng độ cao, ranh giới + tên map, vị trí người chơi, dấu mốc: công trình đặc trưng của từng map + checkpoint ([0023](../decisions/0023-dau-moc-cong-trinh-checkpoint-va-dan-duong.md)); phóng to/kéo. M2: khối cốt truyện đã thấy, đánh dấu đình trệ; chọn điểm trên bản đồ → dịch chuyển tới checkpoint (nếu điểm đến gần checkpoint hơn người chơi) + đường chỉ dẫn đi bộ trong world và trên bản đồ (0023) | M1 / M2 |
 | Cửa hàng | Gói, tiền nạp, mốc bảo hiểm công khai | M3 |
 | PvP | Ghép trận, trận, kết quả | Sau M4 |
 

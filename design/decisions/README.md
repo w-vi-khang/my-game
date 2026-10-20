@@ -27,4 +27,5 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0019](0019-chan-nhau-ranh-quanh-nha-khong-dung-tren-ruong.md) | Simulation bước 6b: sinh vật chặn nhau khi đi, rảnh về quanh nhà + lang thang (kéo từ M2), không dừng trên ô ruộng | Chốt |
 | [0020](0020-o-ruong-tao-khi-xoi-va-huy-vu.md) | Simulation bước 6a (sau 6b — 0021): ô ruộng chỉ có sau khi xới; đặt khối lên / đào ô ruộng → huỷ vụ, trả hạt; phép tưới nước (ô đất → cỏ) giữ M2 | Chốt |
 | [0021](0021-lam-6b-truoc-6a.md) | Làm simulation bước 6b trước 6a; thêm test map M1: 0 lần đứng chung ô, 0 lần rảnh dừng trên ô ruộng | Chốt |
-| [0022](0022-world-nhieu-map-va-minimap-m1.md) | World liền một khối, 3 map giáp nhau bằng ranh giới cong; minimap phóng to được (lai: nền từ bộ sinh + sửa theo đào/đặt); nạp dần chunk ngay M1; làm trước sim 6a | Chốt |
+| [0022](0022-world-nhieu-map-va-minimap-m1.md) | World liền một khối, 3 map giáp nhau bằng ranh giới cong; minimap phóng to được (lai: nền từ bộ sinh + sửa theo đào/đặt); nạp dần chunk ngay M1; làm trước sim 6a | Chốt ("dấu mốc" làm rõ ở 0023) |
+| [0023](0023-dau-moc-cong-trinh-checkpoint-va-dan-duong.md) | Dấu mốc trên bản đồ = công trình đặc trưng của từng map (khối giữ chỗ do bộ sinh đặt) + 1 checkpoint mỗi map (M1, bước 7d); dịch chuyển tới checkpoint + đường chỉ dẫn đi bộ để M2 | Chốt |
