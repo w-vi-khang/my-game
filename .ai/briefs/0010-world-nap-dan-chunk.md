@@ -353,3 +353,8 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
   - Ghi lại, không chặn: `buildMsMax 240 ms` trên điện thoại (giật lẻ), 1,5 triệu tam giác khi nạp 801 chunk — xem lại khi có điều khiển thật / LOD.
   - Mức `user xem`: chờ user bay thử TerrainView (mục User tự test 1). User báo chưa điều khiển được camera → đang hỏi.
 - Kết luận: cần sửa — user xem (2026-10-20, 2 ảnh): mép trái màn hình lộ mảng trời ở chân trời (vùng chưa nạp; sương theo độ sâu + far clip phẳng, lỗi thiết kế của Planner ở QĐ 4, bài kiểm `MissingWithin(120)` không bắt được); user yêu cầu bỏ đào/đặt khi đang bay. Thêm QĐ 11 + bước 11–18.
+- Đã đối chiếu sửa lần 1 (Planner, 2026-10-20):
+  - `Chạy bằng: claude-sonnet-5-5 · medium` khớp `Model thực thi`. Các dòng "Phần cần test" đều có kết quả (thêm `MoveKeysBlockEditOnlyWhileHeld` trong PlayMode 13/13).
+  - Diff `65e7f19` (8 file, đều trong Phạm vi): 2 shader bỏ `fogFactor` khỏi Varyings, fragment dùng `ComputeFogFactorZ0ToFar(distance(positionWS, GetCameraPositionWS()))` đúng bước 11–12; `IsMoveKeyHeld` + `return` trước đào/đặt (khung chọn vẫn cập nhật) + dòng hướng dẫn đúng bước 13; test đúng bước 14; asmdef chỉ thêm `Unity.InputSystem`; `world-tech.md` đúng nguyên văn bước 17.
+  - Điện thoại `pass30fps=True passNoHole=True` 45,6 FPS (≥ 42,8 trước sửa), mã băm v3 trùng golden; `check_design.py` exit 0 (chạy lại khi review); ảnh `client/Logs/fog_view_minus_z.png`, `fog_view_plus_x.png` có.
+  - Mức `user xem`: chờ user bay thử TerrainView (mép màn hình còn lộ trời không, đào/đặt bị chặn khi giữ phím bay).
