@@ -43,6 +43,12 @@ namespace Game.Client
             }
 
             var mouse = Mouse.current;
+            // Bản đồ đang mở hoặc con trỏ trên nút bản đồ → không lăn chọn loại, không đào/đặt (brief 0016).
+            if (mouse != null && MinimapView.BlocksPointer(mouse.position.ReadValue()))
+            {
+                outline.enabled = false;
+                return;
+            }
             if (mouse != null)
             {
                 // Lăn chuột cũng đổi loại (phòng khi phím số bị bộ gõ tiếng Việt chặn).
@@ -107,7 +113,7 @@ namespace Game.Client
 
         void OnGUI()
         {
-            if (view.Inventory == null)
+            if (view.Inventory == null || MinimapView.IsAnyOpen)
                 return;
             var text = "Chuột trái: đào · Chuột phải: đặt loại đang chọn · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
             var cam = Camera.main;

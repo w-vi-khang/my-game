@@ -199,6 +199,7 @@ namespace Game.Client
 
         void OnGUI()
         {
+            if (MinimapView.IsAnyOpen) return; // Bản đồ mở → ẩn hộp kết quả (brief 0016)
             var style = new GUIStyle(GUI.skin.label) { fontSize = Mathf.Max(18, Screen.height / 40), wordWrap = true };
             style.normal.textColor = Color.white;
             var r = new Rect(30, Screen.height * 0.45f, Screen.width - 60, Screen.height * 0.55f);

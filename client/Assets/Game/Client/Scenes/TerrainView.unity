@@ -273,6 +273,7 @@ GameObject:
   - component: {fileID: 1663237068}
   - component: {fileID: 1663237067}
   - component: {fileID: 1663237069}
+  - component: {fileID: 1663237070}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -334,6 +335,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Client::Game.Client.TerrainEditInput
   maxDistance: 200
   outlinePixels: 3
+--- !u!114 &1663237070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663237066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8585b19aa1b8f48d5968acef1078860f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.MinimapView
+  zoomStep: 1.15
+  borderThickness: 3
+  borderColor: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.92156863}
+  markerColor: {r: 0.92156863, g: 0.23529412, b: 0.19607843, a: 1}
+  labelFontSize: 28
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0

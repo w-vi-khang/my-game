@@ -54,7 +54,7 @@ namespace Game.Client
         {
             var kb = Keyboard.current;
             var mouse = Mouse.current;
-            if (mouse != null && mouse.middleButton.isPressed)
+            if (mouse != null && mouse.middleButton.isPressed && !MinimapView.IsAnyOpen)
             {
                 var d = mouse.delta.ReadValue();
                 yaw += d.x * lookSensitivity;

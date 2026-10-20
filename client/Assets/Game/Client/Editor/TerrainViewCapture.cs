@@ -149,6 +149,20 @@ namespace Game.Client.Editor
             Debug.Log("TERRAINVIEW đã thêm sương biên world");
         }
 
+        /// <summary>Bước 7c (brief 0016): bản đồ (MinimapView) trên TerrainChunkView của TerrainView.</summary>
+        [MenuItem("Game/Bản đồ cho TerrainView")]
+        public static void SetupMinimap()
+        {
+            EnsureScene();
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            var view = Object.FindAnyObjectByType<TerrainChunkView>();
+            if (view.GetComponent<MinimapView>() == null)
+                view.gameObject.AddComponent<MinimapView>();
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("TERRAINVIEW đã thêm bản đồ");
+        }
+
         [MenuItem("Game/Chụp ảnh TerrainView")]
         public static void Capture()
         {
