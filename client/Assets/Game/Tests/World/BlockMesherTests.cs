@@ -338,6 +338,97 @@ namespace Game.World.Tests
                 Assert.IsTrue(math.all(p >= lo - 1e-4f) && math.all(p <= hi + 1e-4f), $"{what}: đỉnh {p} ngoài ô");
         }
 
+        /// <summary>Tia (o, dir) cắt tam giác gần nhất (Möller–Trumbore). normal = GeometricNormal (mặt trước theo quy ước mesher).</summary>
+        static bool FirstHit(ChunkMesh m, float3 o, float3 dir, out float dist, out float3 normal)
+        {
+            dist = float.MaxValue;
+            normal = 0;
+            for (int t = 0; t < m.Indices.Length; t += 3)
+            {
+                float3 a = m.Vertices[m.Indices[t]], b = m.Vertices[m.Indices[t + 1]], c = m.Vertices[m.Indices[t + 2]];
+                float3 e1 = b - a, e2 = c - a, p = math.cross(dir, e2);
+                float det = math.dot(e1, p);
+                if (math.abs(det) < 1e-9f)
+                    continue;
+                float inv = 1f / det;
+                float3 s = o - a;
+                float u = math.dot(s, p) * inv;
+                if (u < 0f || u > 1f)
+                    continue;
+                float3 q = math.cross(s, e1);
+                float v = math.dot(dir, q) * inv;
+                if (v < 0f || u + v > 1f)
+                    continue;
+                float d = math.dot(e2, q) * inv;
+                if (d > 1e-5f && d < dist)
+                {
+                    dist = d;
+                    normal = GeometricNormal(m, t);
+                }
+            }
+            return dist < float.MaxValue;
+        }
+
+        /// <summary>Điểm (x, z) dưới phần mép nhô ra của ô cỏ (4, 8, 4): 4 sườn × sigma {0,3; 0,7} × t {0,01; 0,03; 0,05; 0,07} và 4 góc × r {0,02; 0,05; 0,07} theo đường chéo 45°.</summary>
+        static List<float2> LipFootprint()
+        {
+            var pts = new List<float2>();
+            foreach (float s in new[] { 0.3f, 0.7f })
+            foreach (float t in new[] { 0.01f, 0.03f, 0.05f, 0.07f })
+            {
+                pts.Add(new float2(5 + t, 4 + s));
+                pts.Add(new float2(4 - t, 4 + s));
+                pts.Add(new float2(4 + s, 5 + t));
+                pts.Add(new float2(4 + s, 4 - t));
+            }
+            foreach (int sx in new[] { -1, 1 })
+            foreach (int sz in new[] { -1, 1 })
+            foreach (float r in new[] { 0.02f, 0.05f, 0.07f })
+                pts.Add(new float2(4.5f + 0.5f * sx + r * 0.70710678f * sx, 4.5f + 0.5f * sz + r * 0.70710678f * sz));
+            return pts;
+        }
+
+        [Test]
+        public void LipIsClosedFromBelowAndUnchangedFromAbove()
+        {
+            // Ô cỏ đơn (4, 8, 4), mặt trên y = 9. Tia từ dưới lên vào vùng mép nhô ra phải chạm mặt quay xuống (không nhìn xuyên),
+            // ở giữa đáy váy sâu nhất và đáy phẳng; tia từ trên xuống chạm mặt quay lên (mặt trên hoặc váy) như trước.
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            foreach (var p in LipFootprint())
+            {
+                Assert.IsTrue(FirstHit(mesh, new float3(p.x, 8f, p.y), new float3(0, 1, 0), out float dUp, out float3 nUp), $"dưới {p}: không chạm");
+                Assert.Less(nUp.y, 0f, $"dưới {p}: chạm mặt sau (nhìn xuyên)");
+                Assert.That(8f + dUp, Is.InRange(9f - MaxLip - 1e-4f, 9f - BlockMesher.LipFloor + 1e-4f), $"dưới {p}: độ cao chạm");
+                Assert.IsTrue(FirstHit(mesh, new float3(p.x, 10f, p.y), new float3(0, -1, 0), out float dDown, out float3 nDown), $"trên {p}: không chạm");
+                Assert.Greater(nDown.y, 0f, $"trên {p}: chạm mặt sau");
+                Assert.That(10f - dDown, Is.InRange(9f - MaxLip - 1e-4f, 9f + 1e-4f), $"trên {p}: độ cao chạm");
+            }
+        }
+
+        [Test]
+        public void LipEndCapMatchesClosedCrossSection()
+        {
+            // Ô cỏ (4, 8, 4) kề ô đá (4, 8, 5) → dải mép sườn +x và −x có nắp ở đầu z = 5 (pháp tuyến (0, 0, 1)).
+            // Nắp là ngũ giác của mặt cắt mới: 5 đỉnh mỗi nắp; dưới đáy phẳng chỉ còn điểm đáy váy (t = LipOverhang).
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            w.Set(4, 8, 5, Cell.Make(BlockMaterial.Stone));
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            int cap = 0;
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                float3 p = mesh.Vertices[i];
+                if (!mesh.Normals[i].Equals(new float3(0, 0, 1)) || math.abs(p.z - 5f) > 1e-4f)
+                    continue;
+                cap++;
+                if (p.y < 9f - BlockMesher.LipFloor - 1e-4f)
+                    Assert.IsTrue(p.x >= 5f + BlockMesher.LipOverhang - 1e-4f || p.x <= 4f - BlockMesher.LipOverhang + 1e-4f, $"nắp lòi dưới đáy phẳng ở {p}");
+            }
+            Assert.AreEqual(2 * 5, cap, "2 nắp × 5 đỉnh");
+        }
+
         [Test]
         public void LipIsDeterministicAndContinuousAcrossCellsAndChunks()
         {
@@ -360,7 +451,7 @@ namespace Game.World.Tests
                 foreach (var v in a[c].Vertices)
                 {
                     float3 p = v + o;
-                    bool skirt = (p.z < 4f - 1e-3f || p.z > 5f + 1e-3f) && p.y < 9f - 1e-3f;
+                    bool skirt = (p.z < 4f - BlockMesher.LipOverhang + 1e-3f || p.z > 5f + BlockMesher.LipOverhang - 1e-3f) && p.y < 9f - 1e-3f;
                     if (skirt && p.x >= 14f - 1e-4f && p.x <= 18f + 1e-4f && math.abs(p.x - math.round(p.x)) < 1e-4f)
                     {
                         long k = MeshChecks.Key(p);
@@ -371,7 +462,7 @@ namespace Game.World.Tests
             }
             Assert.AreEqual(5 * 2, at.Count, "mỗi ranh giới x = 14..18 có một điểm đáy váy mỗi sườn");
             foreach (var kv in at)
-                Assert.AreEqual(2, kv.Value, "điểm đáy váy ở ranh giới phải trùng giữa hai dải kề nhau (kể cả qua biên chunk x = 16)");
+                Assert.AreEqual(4, kv.Value, "điểm đáy váy ở ranh giới phải trùng giữa hai dải kề nhau (kể cả qua biên chunk x = 16) — mỗi dải 2 đỉnh: váy + mặt dưới");
         }
 
         // ---------------- AO theo đỉnh + mã hoa văn (bước 5.4) ----------------
