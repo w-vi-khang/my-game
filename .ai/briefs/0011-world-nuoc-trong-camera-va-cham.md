@@ -1,6 +1,6 @@
 # Brief 0011 — World bước 7b2: nước trong + camera bay không xuyên khối
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-20 19:15 (sửa lần 1: từ dưới nước nhìn lên tối)
@@ -531,3 +531,6 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
   - Diff 5976a6a (6 file, +18/−9) — đúng Phạm vi, đúng chữ từng bước: `Ocean.shader` ndl + SampleSH dùng `nLit`, fres/spec giữ `n` (mặt trên không đổi vì `nLit == n` → bench không cần chạy lại); `UnderwaterView` thêm `backgroundColor` (0,42; 0,70; 0,82), `Enter()` dùng nó, `fogColor` (0,14; 0,44; 0,56); menu ghi 4 giá trị; TerrainView + Bench cùng giá trị; test đổi đúng 1 dòng. Tầm 0–40 và `_Alpha` 0,45 giữ nguyên (QĐ 10).
   - Ảnh: `water_below.png` so với `water_below_old.png` — nền và vùng mặt nước phía trên từ xanh sẫm thành xanh trời sáng; `water_below_up.png` (−60°) nhìn lên toàn xanh sáng, bờ rõ.
   - Chờ user: xem 3 ảnh + Play TerrainView, lặn xuống nhìn lên.
+- **User xem sửa lần 1 — 2026-10-20:** "Độ sáng ổn rồi" (qua phiên Planner). Ghi 7b2 Xong trong world-tech.md + giờ thực tế trong 05-roadmap.md; `check_design.py` exit 0.
+- Yêu cầu mới của user (ngoài phạm vi 0011, không làm ở đây) → brief 0012: biên world có sương + bay chậm dần; góc nhìn trên HUD; đóng mặt dưới mép cỏ (nhìn từ dưới bị hở).
+- Kết luận: đã duyệt
