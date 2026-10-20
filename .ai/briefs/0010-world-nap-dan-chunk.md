@@ -1,9 +1,9 @@
 # Brief 0010 — World bước 7b: nạp dần chunk quanh camera, scene hiển thị chuyển sang world v3
 
-> Trạng thái: chờ review
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 16:25
+> Cập nhật: 2026-10-20 17:05
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -55,6 +55,7 @@ API Unity 6000.4 dùng trong brief (đã tra):
 8. **Bench (user chốt): bay tự động, không đào.** Đường bay là vòng tròn tâm (192, 192), bán kính 96 ô, cao y = 44, tốc độ 30 ô/s, nhìn theo hướng bay và chúi xuống 20°. Khởi động 3 s (camera đứng yên ở điểm đầu), đo 40 s (khoảng 2 vòng, đi qua cả 3 map). Giữ code đào/đặt cũ sau cờ `editEachFrame` (mặc định `false`).
 9. **Đạt trên điện thoại:** `avgFps ≥ 30` và `holeFrames = 0`. p99/max chỉ ghi lại, không chặn.
 10. Không đổi: bộ sinh v2/v3, mã băm golden, SimView, HashCheck, `TerrainEditInput`, shader, `world_m1.json`, `world_maps_m1.json`.
+11. **Sửa sau review 1 (user chốt 2026-10-20):** (a) sương tính theo **khoảng cách thật** từ camera tới điểm (không theo độ sâu) trong shader `Game/Terrain` và `Game/Ocean`, vẫn tuyến tính 64–120 từ cài đặt scene; (b) đào/đặt bằng chuột **bị bỏ qua khi đang giữ W/A/S/D/Q/E**; xoay camera bằng chuột giữa vẫn đào/đặt được. Hai điểm này thay QĐ 10 ở phần "shader" và "`TerrainEditInput`". Lý do (a): far clip là mặt phẳng, Game view/điện thoại rộng ~2:1 → mép màn hình nhìn tới ~195 ô, xa hơn bán kính nạp; với sương theo độ sâu, ở mép chưa mờ hết nên lộ vùng chưa nạp (thấy skybox). Sương theo khoảng cách → mọi điểm > 120 ô đã đúng màu sương; skybox dưới chân trời `_HorizonColor` (0,78; 0,88; 0,97) trùng màu sương nên chỗ chưa nạp không còn nhìn ra.
 
 ## Phạm vi
 - Được sửa/tạo:
@@ -68,6 +69,7 @@ API Unity 6000.4 dùng trong brief (đã tra):
   - Scene `TerrainView.unity` và `Bench.unity` (chỉ qua 2 menu ở bước 7)
   - File `.meta` Unity tự tạo cho file mới
   - `design/04-tech/world-tech.md` (chỉ mục "Nạp dần chunk", bước 9)
+  - Sửa sau review 1: `client/Assets/Game/Client/Resources/Shaders/Terrain.shader`, `client/Assets/Game/Client/Shaders/Ocean.shader` (chỉ phần sương), `client/Assets/Game/Client/DebugFlyCamera.cs`, `client/Assets/Game/Client/TerrainEditInput.cs`, `client/Assets/Game/Tests/Client/Game.Client.Tests.asmdef` (chỉ thêm reference `Unity.InputSystem`), `client/Assets/Game/Tests/Client/FlyCameraMoveKeyPlayTests.cs` (mới)
   - File brief này (mục Kết quả trở xuống)
 - Không được sửa: mọi file khác. Riêng `client/ProjectSettings/*` thì trả về sau khi chạy (xem Lệnh executor chạy).
 
@@ -207,6 +209,42 @@ API Unity 6000.4 dùng trong brief (đã tra):
    Không sửa dòng 7b trong bảng kế hoạch (Planner ghi khi review). Xong khi: `python3 tools/check_design.py` exit 0.
 10. Commit theo skill exec (file code + test + scene + meta + world-tech + brief).
 
+### Sửa sau review 1 (Planner 2026-10-20, QĐ 11)
+11. **Sương theo khoảng cách — `Terrain.shader`** (pass chính, dòng `o.fogFactor = ComputeFogFactor(p.positionCS.z);` `:67` và `c = MixFog(c, input.fogFactor);` `:153`):
+    - Bỏ trường `half fogFactor : TEXCOORD2;` khỏi `Varyings` và dòng gán ở `:67` (chỉ số TEXCOORD các trường khác giữ nguyên nếu không trùng).
+    - Ở fragment thay `:153` bằng:
+      `c = MixFog(c, ComputeFogFactorZ0ToFar(distance(input.positionWS, GetCameraPositionWS())));`
+      kèm chú thích một dòng: `// Sương theo khoảng cách thật (brief 0010 QĐ 11): far clip phẳng + màn hình rộng → mép nhìn xa hơn bán kính nạp.`
+    - API: `ComputeFogFactorZ0ToFar(float z)` và `GetCameraPositionWS()` có trong URP 17.4 `ShaderLibrary/ShaderVariablesFunctions.hlsl` (`:315`, `:54` trong `Library/PackageCache/com.unity.render-pipelines.universal@13e5115b98bf`) [repo]; với sương tuyến tính hàm trả `saturate(z * unity_FogParams.z + unity_FogParams.w)` = (end − z)/(end − start). `MixFog(color, fogFactor)` giữ như cũ.
+12. **Sương theo khoảng cách — `Ocean.shader`**: làm y hệt bước 11 (`fogFactor : TEXCOORD1` `:47`, gán `:56`, `MixFog` `:111`; fragment có sẵn `input.positionWS`). Không đổi gì khác trong 2 shader. `SkyClouds.shader` không đổi.
+13. **Chặn đào/đặt khi giữ phím di chuyển:**
+    - `DebugFlyCamera.cs`: thêm `/// <summary>Đang giữ phím di chuyển W/A/S/D/Q/E (brief 0010 QĐ 11).</summary> public static bool IsMoveKeyHeld(Keyboard kb) => kb != null && (kb.wKey.isPressed || kb.aKey.isPressed || kb.sKey.isPressed || kb.dKey.isPressed || kb.qKey.isPressed || kb.eKey.isPressed);`. `Update()` giữ nguyên hành vi.
+    - `TerrainEditInput.cs`, trong `Update()` ngay trước `if (mouse.leftButton.wasPressedThisFrame)` (`:74`): `if (DebugFlyCamera.IsMoveKeyHeld(kb)) return; // Đang bay: chỉ đào/đặt khi dừng (user 2026-10-20).` (khung chọn ô vẫn hiện; `kb` là biến `Keyboard.current` đã có ở đầu `Update()`).
+    - Dòng hướng dẫn `TerrainEditInput.cs:110`: chèn ` · dừng bay mới đào/đặt được` ngay sau `giữ chuột giữa: camera` (trước `\nKho: `). Không đổi gì khác.
+14. **Test `FlyCameraMoveKeyPlayTests.cs`** (namespace `Game.Client.Tests`; thêm `"Unity.InputSystem"` vào `references` của `Game.Client.Tests.asmdef`), 1 test `[Test] MoveKeysBlockEditOnlyWhileHeld`:
+    ```csharp
+    var kb = InputSystem.AddDevice<Keyboard>();
+    try
+    {
+        InputSystem.QueueStateEvent(kb, new KeyboardState()); InputSystem.Update();
+        Assert.IsFalse(DebugFlyCamera.IsMoveKeyHeld(kb));
+        foreach (var k in new[] { Key.W, Key.A, Key.S, Key.D, Key.Q, Key.E })
+        {
+            InputSystem.QueueStateEvent(kb, new KeyboardState(k)); InputSystem.Update();
+            Assert.IsTrue(DebugFlyCamera.IsMoveKeyHeld(kb), k.ToString());
+        }
+        InputSystem.QueueStateEvent(kb, new KeyboardState(Key.LeftShift, Key.Digit1)); InputSystem.Update();
+        Assert.IsFalse(DebugFlyCamera.IsMoveKeyHeld(kb));
+        Assert.IsFalse(DebugFlyCamera.IsMoveKeyHeld(null));
+    }
+    finally { InputSystem.RemoveDevice(kb); }
+    ```
+    API Input System 1.19.0 (đã thấy trong `Library/PackageCache/com.unity.inputsystem@21a28c3a6c83`): `InputSystem.AddDevice<TDevice>` (`InputSystem.cs:1434`), `QueueStateEvent<TState>(InputDevice, TState, double)` (`:2602`), `Update()` (`:2800`), `RemoveDevice(InputDevice)` (`:1537`), `KeyboardState(params Key[])` (`Devices/Keyboard.cs:194`) [repo]; [docs] https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/api/UnityEngine.InputSystem.InputSystem.html
+15. **Kiểm hình ảnh qua MCP:** Game view để Free Aspect (rộng ~2:1). Mở TerrainView, Play, đưa Unity lên foreground (lệnh `osascript` trong `.ai/handoff.md`), đặt camera ở (360, 44, 192) nhìn hướng −z rồi +x (`execute_code` gán `Camera.main.transform`), chờ ≥ 60 khung, chụp 2 ảnh (`manage_camera` hoặc `ScreenCapture`). Cần: mép trái/phải màn hình không còn mảng trời sáng/khe ở chân trời; đất và biển tan vào sương trước khi bị cắt. Ghi đường dẫn ảnh.
+16. **Bench điện thoại chạy lại** (shader đổi): build APK như bước cũ; cài qua **USB** `$ADB -s PFQCRWVWR46HU4GQ install -r client/Builds/bench.apk` (không dây bị chặn cài), mở app, chờ 60 s, đọc logcat. Cần `pass30fps=True passNoHole=True`; ghi nguyên dòng `BENCH`. Không thấy máy → ghi "chờ Planner".
+17. `world-tech.md` mục **Nạp dần chunk**: thay câu `Sương tuyến tính 64–120, far clip 128: phần chưa nạp luôn nằm sau sương.` bằng `Sương tuyến tính 64–120 tính theo khoảng cách thật tới camera (không theo độ sâu — mép màn hình rộng nhìn xa hơn far clip), far clip 128; skybox dưới chân trời cùng màu sương nên phần chưa nạp không lộ (user chốt 2026-10-20).` `check_design.py` exit 0.
+18. Chạy lại: EditMode toàn bộ → 253/253; PlayMode toàn bộ → 13/13 (12 cũ + 1 mới), rồi `git checkout -- client/ProjectSettings/EditorSettings.asset`; sau build APK `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`, xoá `client/Assets/Resources/PerformanceTest*.json` nếu có. Ghi vào mục **Kết quả — sửa lần 1** (mới, dưới "Kết quả test"; không xoá kết quả cũ) gồm `Chạy bằng`, giờ bắt đầu/kết thúc, commit, kết quả bước 14–18. Commit theo skill exec, trạng thái `chờ review`.
+
 ## Tiêu chí xong
 - EditMode toàn bộ đạt: 246 test cũ + 6 `ChunkStreamPlanTests` + 1 test `BlockMesherTests` mới = 253.
 - PlayMode toàn bộ đạt: 8 test cũ + 4 `TerrainStreamingPlayTests` = 12.
@@ -306,3 +344,4 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
   - Tiêu chí xong: EditMode 253/253, PlayMode 12/12, scene grep đúng, APK có, điện thoại `pass30fps=True passNoHole=True` (42,8 FPS), mã băm v3 trùng golden, `check_design.py` exit 0 (chạy lại khi review).
   - Ghi lại, không chặn: `buildMsMax 240 ms` trên điện thoại (giật lẻ), 1,5 triệu tam giác khi nạp 801 chunk — xem lại khi có điều khiển thật / LOD.
   - Mức `user xem`: chờ user bay thử TerrainView (mục User tự test 1). User báo chưa điều khiển được camera → đang hỏi.
+- Kết luận: cần sửa — user xem (2026-10-20, 2 ảnh): mép trái màn hình lộ mảng trời ở chân trời (vùng chưa nạp; sương theo độ sâu + far clip phẳng, lỗi thiết kế của Planner ở QĐ 4, bài kiểm `MissingWithin(120)` không bắt được); user yêu cầu bỏ đào/đặt khi đang bay. Thêm QĐ 11 + bước 11–18.
