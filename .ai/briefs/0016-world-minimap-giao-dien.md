@@ -1,6 +1,6 @@
 # Brief 0016 — World 7c (phần 2/2): giao diện bản đồ — uGUI, phím M, chuột, chụm 2 ngón, điện thoại
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-20 23:30
@@ -882,7 +882,9 @@ Task [world bước 7](../tasks/m1-world-buoc-7-nhieu-map-minimap.md), dòng **7
 - Mọi dòng "Phần cần test" có kết quả: 8/8 test mới; PlayMode 27/27 = 19 cũ + 8; EditMode 301/301 (không giảm); scene mỗi file 1 MinimapView; điện thoại font=LegacyRuntime, holeFrames=0, hash a7719c8999939263 khớp.
 - FPS điện thoại 36,1 (đạt ≥ 30) nhưng thấp hơn 53,1 của 7b4 (0014). Nguyên nhân chưa xác minh: Canvas overlay luôn vẽ nút, hoặc nhiệt độ máy (7b3→7b4 từng lệch ngược chiều 42,2→53,1 khi tam giác tăng). Cách xác minh: chạy lại Bench khi máy nguội, so với bản tắt MinimapView.
 - Giờ thực tế: 23:09 → 23:23 (14 phút); 7c gồm 0015 (4 phút) — đã ghi roadmap.
-- User xem (thao tác thật Mac + điện thoại): chờ.
+- User xem: "đã thử trên Mac và điện thoại, ổn" [user 2026-10-20].
+- Theo dõi: FPS điện thoại 36,1 (7b4: 53,1), nguyên nhân chưa xác minh — không chặn duyệt.
+- Kết luận: đã duyệt
 
 ## Kiểm chứng
 - `client_test` EditMode: đạt 301/301 — chạy qua MCP `run_tests` (Editor đang mở nên không dùng `tools/unity_test.py`, theo AGENTS.local.md).
