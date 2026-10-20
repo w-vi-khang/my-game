@@ -300,3 +300,9 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+- Đã đối chiếu (Planner, 2026-10-20 16:46):
+  - `Chạy bằng: claude-sonnet-5-5 · medium` khớp `Model thực thi: Sonnet · medium`. Mọi dòng "Phần cần test" có kết quả; Bench Editor không đạt nhưng có lý do (Editor không ở foreground → khung đứng), số quyết định là điện thoại: đạt.
+  - Diff `0565002` (19 file, đều trong Phạm vi): `ChunkStreamPlan` theo QĐ 1–3, 5 (cột, khoảng cách tới ô gần nhất bằng `long`, ≤ 128 nạp / > 160 gỡ, tối đa 2 cột, sắp (khoảng cách, chỉ số)); `BlockMesher.BuildChunks` ghim mảng + `Allocator.None`, nhả trong `finally` (QĐ 6); `WorldSource` mặc định `IslandV2`, `streaming` mặc định tắt (QĐ 7); chỉ số chunk `col + cols·cy` khớp thứ tự x → z → y; slot gỡ tắt collider, dựng lại bật theo số tam giác. Không đổi hằng golden.
+  - Tiêu chí xong: EditMode 253/253, PlayMode 12/12, scene grep đúng, APK có, điện thoại `pass30fps=True passNoHole=True` (42,8 FPS), mã băm v3 trùng golden, `check_design.py` exit 0 (chạy lại khi review).
+  - Ghi lại, không chặn: `buildMsMax 240 ms` trên điện thoại (giật lẻ), 1,5 triệu tam giác khi nạp 801 chunk — xem lại khi có điều khiển thật / LOD.
+  - Mức `user xem`: chờ user bay thử TerrainView (mục User tự test 1). User báo chưa điều khiển được camera → đang hỏi.
