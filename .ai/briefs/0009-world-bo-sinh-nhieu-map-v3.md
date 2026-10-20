@@ -1,9 +1,9 @@
 # Brief 0009 — World bước 7a: bộ sinh world nhiều map (generatorVersion 3)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 10:18
+> Cập nhật: 2026-10-20 12:30
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -363,6 +363,16 @@ Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimVi
 
 ## Kết quả
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
+- Base commit: ba77040
+- Chạy bằng: claude-sonnet-5-5 · medium (OK: brief 0009 cần Sonnet · medium — phiên: claude-sonnet-5-5 · medium)
+- Bắt đầu: 2026-10-20 12:05; dừng 12:30 (cần Opus).
+- Đã làm: bước 1–4 (WorldMapParams, MapTable, WorldHash.Compute(MapTable), WorldMapGenerator), 5 (JSON ×2), 6 (ConfigLoader), 7 (WorldMapGeneratorTests), 8 (test golden/config; hằng ExpectedV3* còn "0000000000000000" — chưa lấy), 9 (WorldMapPreview + asmdef), 10 (HashCheckView). Chưa chạy: bước 8 lấy hash, 9–11 chạy menu/build, test toàn bộ. Code để ở commit WIP `brief 0009: WIP`.
+- Bảng chỉnh tham số (Quyết định 9), tham số trả về 18 (giá trị brief) khi dừng:
+
+| Lần | Chỉnh | Kết quả |
+|---|---|---|
+| 0 | borderWarpAmplitude 18 | `EachMapIsOneRegion(7)` hỏng (map 1: 17612 cột, tới được 17587); các test khác đạt (kể cả `EachBorderBendsAtLeast8` 5 seed) |
+| 1 | 18 → 14 (vì EachMapIsOneRegion hỏng) | `EachMapIsOneRegion(7)` VẪN hỏng (17510 / 17487); thêm `EachBorderBendsAtLeast8(123456789)` hỏng (cặp 0-2 dev 7.53) và `(99)` hỏng (cặp 0-2 dev 7.57) |
 
 ## Kết quả test
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
@@ -370,6 +380,15 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
+**Câu hỏi:** Hai test hình dạng mâu thuẫn theo Quyết định 9. Seed 7 luôn có một mảnh nhỏ (~23–25 cột) của map 1 tách khỏi thân chính ở cả 18 lẫn 14 (giảm biên độ méo không chữa được), còn ở 14 ranh giới cặp 0-2 của seed 123456789 và 99 chỉ cong 7,5 (< 8). Quyết định 9 không còn lượt nào hợp lệ (tăng 22 → bend đạt nhưng tới nay chưa đo được region; giảm thêm không được phép). Cần Opus quyết.
+
+Dữ liệu ở 14 (dev các cặp): seed 20261013: 0-1 10.97, 0-2 12.24, 1-2 14.55 · seed 7: 11.66 / 9.69 / 15.28 · seed 123456789: 20.90 / 7.53 / (chưa in vì fail) · seed 42: 20.51 / 11.91 / 9.11 · seed 99: 13.46 / 7.57 / (chưa in).
+Diện tích map ở 14 (cột đất): 20261013 [17631, 15018, 18115] · 7 [16478, 16179, 16695] · 123456789 [17108, 17880, 16502] · 42 [16899, 16752, 16767] · 99 [16979, 16589, 17370] — đều trong [12288, 20480].
+
+**Phương án:**
+- A (đề xuất): giữ borderWarpAmplitude 18 (bend đạt) và sửa nguyên nhân mảnh rời: Voronoi méo bằng noise tần số cao (tầng 2) có thể tạo "đảo" nhỏ; đổi cách méo (vd bỏ tầng 2 hoặc giảm 0,25A → 0,15A) hoặc cho phép test bỏ qua mảnh < 50 cột. Cả hai đều ngoài Quyết định 9.
+- B: thử 22 (đúng Quyết định 9 dòng 1) rồi xem region — executor chưa thử vì region đã hỏng ở cả 18 và 14.
+- C: đổi seed 7 trong danh sách seed test (bị cấm nếu không có lệnh Opus).
 
 ---
 <!-- PLANNER ghi khi review. -->
