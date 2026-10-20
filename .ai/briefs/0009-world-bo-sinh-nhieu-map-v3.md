@@ -441,3 +441,16 @@ Diện tích map ở 14 (cột đất): 20261013 [17631, 15018, 18115] · 7 [164
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+**Lần 1 (Planner Opus, 2026-10-20) — đầy đủ, chờ user xem:**
+- `Chạy bằng` claude-sonnet-5-5 · medium = `Model thực thi` Sonnet · medium (cả 2 lần làm) [repo].
+- Mọi dòng "Phần cần test" có kết quả; điện thoại + nhận xét ảnh = `chờ user`.
+- Diff `ba77040..d5f6b17` (20 file): chỉ file trong Phạm vi; `TerrainGenerator`, `TerrainParams`, `world_m1.json`, scene, sim không đổi; hằng `ExpectedV1/V2` không đổi [run `git diff --stat`].
+- `WorldMapGenerator`: thứ tự rút số (QĐ 7), công thức đất liền/vành biển/Voronoi méo 2 tầng/hoà giữ i nhỏ, mặt đất + lớp ô đúng bước 4; `MergeFragments` gọi sau job, trước khi tạo `MapTable` → nằm trong mã băm bảng map (QĐ 10) [repo `client/Assets/Game/World/WorldMapGenerator.cs`].
+- `MapTable.MergeFragments`: BFS 4 hướng quét theo chỉ số, mảnh giữ lại = lớn nhất (hoà → số thứ tự nhỏ), đích = map có nhiều cạnh chung nhất (`>` nghiêm ngặt), 17 lượt rồi ném `InvalidOperationException` — đúng bước 4b [repo `client/Assets/Game/Core/MapTable.cs`].
+- `WorldHash.Compute(MapTable)`, `ConfigLoader.LoadWorldMapParams`, `HashCheckView` (chữ + log `HASHCHECK3`), `WorldMapPreview` (màu, viền, góc dưới trái), asmdef Editor: đúng bước 3, 6, 9, 10.
+- Test: `EachMapIsOneRegion`, `EachBorderBendsAtLeast8` (P/Q, `dev` bằng double, `|Q−P| ≥ 32`), 2 test `MergeFragments*` đúng bước 7. Không chạy lại test (kết quả đủ: EditMode 246/246, PlayMode 8/8, `HASHCHECK3` trùng golden).
+- Tiêu chí xong: diện tích 5 seed nằm trong [14668, 18242] ⊂ [12288, 20480]; `dev` nhỏ nhất 9.46 (seed 123456789, cặp 0-2) ≥ 8; không chỉnh tham số (A = 18).
+- Ảnh `client/Builds/world_maps_preview.png` Planner đã xem: một khối đất, bờ lượn, biển bao quanh, 3 vùng với 3 viền cong từ gần tâm ra bờ [run].
+- Ghi chú nhỏ (không chặn): dòng "Đã làm" trong Kết quả còn nội dung của lần 1 ("Chưa chạy: bước 8…11") — các dòng sau đã ghi đủ kết quả lần 2.
+- Giờ executor: 12:05–12:30 + 14:00–14:15 = 40 phút (chưa tính thời gian Planner trả lời Vướng mắc). Cộng vào roadmap + cập nhật world-tech bước 7a khi kết luận.
+- Chờ user: (1) xem ảnh PNG, nhận xét hình dạng; (2) cài `client/Builds/hashcheck.apk`, so `world`/`maps` với `a7719c8999939263` / `ab2074e6196e5f51`, ghi ms, dòng v2 vẫn `807d00bd048026a0`.
