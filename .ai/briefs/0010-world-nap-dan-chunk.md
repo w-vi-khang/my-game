@@ -1,9 +1,9 @@
 # Brief 0010 — World bước 7b: nạp dần chunk quanh camera, scene hiển thị chuyển sang world v3
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 17:05
+> Cập nhật: 2026-10-20 17:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -358,3 +358,5 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
   - Diff `65e7f19` (8 file, đều trong Phạm vi): 2 shader bỏ `fogFactor` khỏi Varyings, fragment dùng `ComputeFogFactorZ0ToFar(distance(positionWS, GetCameraPositionWS()))` đúng bước 11–12; `IsMoveKeyHeld` + `return` trước đào/đặt (khung chọn vẫn cập nhật) + dòng hướng dẫn đúng bước 13; test đúng bước 14; asmdef chỉ thêm `Unity.InputSystem`; `world-tech.md` đúng nguyên văn bước 17.
   - Điện thoại `pass30fps=True passNoHole=True` 45,6 FPS (≥ 42,8 trước sửa), mã băm v3 trùng golden; `check_design.py` exit 0 (chạy lại khi review); ảnh `client/Logs/fog_view_minus_z.png`, `fog_view_plus_x.png` có.
   - Mức `user xem`: chờ user bay thử TerrainView (mép màn hình còn lộ trời không, đào/đặt bị chặn khi giữ phím bay).
+- User xem (2026-10-20, ảnh dưới đất nhìn lên): sương mép màn hình + chặn đào/đặt khi bay đạt. Yêu cầu mới ngoài phạm vi 0010 (nước trong suốt, camera không xuyên khối đặc, hiệu ứng dưới nước) → world bước 7b2, brief sau. Ghi giờ vào roadmap.
+- Kết luận: đã duyệt
