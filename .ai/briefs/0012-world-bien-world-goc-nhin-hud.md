@@ -1,9 +1,9 @@
 # Brief 0012 — World 7b3 (phần 1): biên world chậm dần + sương, góc nhìn trên HUD
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 20:55
+> Cập nhật: 2026-10-20
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -360,4 +360,5 @@ Mở scene TerrainView, Play (chuột):
 - Ảnh: `edge_1cell.png` đất ẩn, trời nhạt dần (đúng end ≈ 11); `hud_pitch.png` đọc được `+20°` nhưng chữ trắng mờ trên nền trời sáng.
 - Giờ: kết quả ghi "kết thúc ~20:25 (~35 phút)" nhưng commit kết quả 19:57, ảnh 19:56 → thực tế ~7 phút theo git; roadmap ghi theo git.
 - Đề xuất (ngoài phạm vi): nhãn HUD khó đọc trên trời sáng → nền mờ/viền chữ, nếu user muốn thì brief riêng.
-- Chờ user xem (mục "User tự test" 1–4) rồi mới kết luận.
+- User xem mục "User tự test" 1–4: ổn [user].
+- Kết luận: đã duyệt
