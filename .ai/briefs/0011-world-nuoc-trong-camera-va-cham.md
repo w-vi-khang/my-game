@@ -1,9 +1,9 @@
 # Brief 0011 — World bước 7b2: nước trong + camera bay không xuyên khối
 
-> Trạng thái: chờ review
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 (review lần 1, chờ điện thoại + user xem)
+> Cập nhật: 2026-10-20 19:15 (sửa lần 1: từ dưới nước nhìn lên tối)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -51,6 +51,7 @@ API dùng trong brief (đã tra, Unity 6000.4 / URP 17.4):
 7. **Dưới nước** = ô chứa camera là `Water` và (ô trên không phải `Empty`, hoặc `y < iy + 1 − WaterSurfaceDrop`). Khi dưới nước: sương tuyến tính **0–40**, màu **(0,08; 0,32; 0,45)**; camera `clearFlags = SolidColor`, `backgroundColor` = màu sương nước (không lộ skybox sáng ở chân trời dưới nước). Lên khỏi nước → trả lại đúng giá trị cũ của scene. Chỉ đổi khi trạng thái đổi.
 8. Va chạm chỉ bật khi `DebugFlyCamera.terrain` được gán (TerrainView). `terrain == null` → bay xuyên như cũ (SimView không đổi). Bench tắt `DebugFlyCamera` như cũ.
 9. Không đổi: bộ sinh world, mã băm golden, `BlockMesher`, `TerrainChunkView`, `TerrainEditInput`, `TerrainBench`, `OceanBackdrop`, `SkyClouds.shader`, `Terrain.shader`, scene SimView/HashCheck, file JSON trong `design/data/`.
+10. **Sửa sau review 1 (user 2026-10-20: "từ nước nhìn lên tối quá"):** mặt dưới của mặt nước chiếu sáng theo pháp tuyến hướng lên (như mặt trên); sương dưới nước sáng hơn (0,14; 0,44; 0,56); nền khi dưới nước tách khỏi màu sương, sáng hơn (0,42; 0,70; 0,82) → nhìn lên qua mặt nước thấy sáng. Tầm 0–40 và độ trong 0,45 giữ nguyên (user thấy ổn).
 
 ## Phạm vi
 - Được sửa/tạo:
@@ -403,6 +404,24 @@ API dùng trong brief (đã tra, Unity 6000.4 / URP 17.4):
 10. **Bench trên điện thoại** (nước trong suốt thêm overdraw): menu "Game/Build APK Bench" → `client/Builds/bench.apk`. Cài qua USB: `ADB=/Applications/Unity/Hub/Editor/6000.4.8f1/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb`; `$ADB -s PFQCRWVWR46HU4GQ install -r client/Builds/bench.apk`; `$ADB -s PFQCRWVWR46HU4GQ logcat -c`; `$ADB -s PFQCRWVWR46HU4GQ shell monkey -p com.viventa.bench -c android.intent.category.LAUNCHER 1`; chờ 60 s (chạy nền hoặc Monitor, không `sleep` tiền cảnh); `$ADB -s PFQCRWVWR46HU4GQ logcat -d -s Unity | grep -E "BENCH|TERRAINVIEW"`. Cần `pass30fps=True passNoHole=True`; ghi nguyên dòng `BENCH` (so với 0010: 45,6 FPS). Không thấy máy trong `$ADB devices` → ghi "chờ Planner", không đoán số.
 11. Commit theo skill exec (code + test + shader + material + scene + meta + world-tech + brief), trạng thái `chờ review`.
 
+### Sửa sau review 1 (Planner 2026-10-20, QĐ 10)
+12. **`Ocean.shader` — mặt dưới chiếu sáng như mặt trên.** Trong `frag`, thay dòng `n = IS_FRONT_VFACE(face, n, -n); // …` bằng 2 dòng:
+    ```
+    float3 nLit = n; // chiếu sáng luôn theo pháp tuyến hướng lên: mặt dưới sáng như mặt trên (brief 0011 sửa 1 — từ dưới nhìn lên không tối)
+    n = IS_FRONT_VFACE(face, n, -n); // mặt dưới (camera dưới nước, Cull Off): pháp tuyến quay xuống — chỉ dùng cho fresnel và lấp lánh
+    ```
+    Rồi ở dòng `half ndl = …` đổi `dot(n, light.direction)` thành `dot(nLit, light.direction)`; ở dòng `half3 diffuse = …` đổi `SampleSH(n)` thành `SampleSH(nLit)`. Dòng `spec` và `fres` giữ `n`. Mặt trên không đổi (`nLit == n`).
+13. **`UnderwaterView.cs`:** đổi mặc định `fogColor` thành `new Color(0.14f, 0.44f, 0.56f)`. Thêm trường ngay sau `fogColor`:
+    ```csharp
+    /// <summary>Nền khi dưới nước — sáng hơn sương: nhìn lên qua mặt nước thấy sáng như ánh trời (brief 0011 sửa 1).</summary>
+    public Color backgroundColor = new Color(0.42f, 0.70f, 0.82f);
+    ```
+    Trong `Enter()` đổi `cam.backgroundColor = fogColor;` thành `cam.backgroundColor = backgroundColor;`. Chú thích lớp: thay `nền màu nước` bằng `nền sáng màu nước`.
+14. **Menu `SetupWaterAndCamera`** (`TerrainViewCapture.cs`): sau `under.terrain = view;` thêm `under.fogColor = new Color(0.14f, 0.44f, 0.56f); under.backgroundColor = new Color(0.42f, 0.70f, 0.82f); under.fogStart = 0f; under.fogEnd = 40f;` (scene đã lưu giá trị cũ, đổi mặc định trong code không đủ). Chạy lại menu "Game/Nước trong + camera va chạm cho TerrainView", rồi "Game/Tạo scene Bench"; sau đó nếu `Bench.unity.meta` đổi guid thì `git checkout -- client/Assets/Game/Client/Scenes/Bench.unity.meta`. Xong khi: `grep -n "fogColor\|backgroundColor" client/Assets/Game/Client/Scenes/TerrainView.unity` có (0.14, 0.44, 0.56) và (0.42, 0.7, 0.82) ở component UnderwaterView; Bench giống.
+15. **Test `FlyIntoWaterSwitchesUnderwaterView`:** đổi kiểm `cam.backgroundColor == under.fogColor` thành `cam.backgroundColor == under.backgroundColor`. Không đổi gì khác.
+16. **Ảnh lại qua MCP** (cách như bước 9, Editor ra khỏi Play trước khi chạy menu): chụp lại `client/Logs/water_below.png` (cùng vị trí, `Euler(-15, 0, 0)`) và thêm `client/Logs/water_below_up.png` (cùng vị trí, `Euler(-60, 0, 0)` — nhìn gần thẳng lên mặt nước). Cần: vùng mặt nước phía trên sáng hơn ảnh cũ (so với ảnh `water_below.png` của lần làm đầu — giữ bản cũ thành `water_below_old.png` trước khi chụp).
+17. Chạy lại: EditMode toàn bộ → 260/260; PlayMode toàn bộ → 15/15, rồi `git checkout -- client/ProjectSettings/EditorSettings.asset`. Không cần build APK (bench bay trên cao, không bao giờ dưới nước; mặt trên không đổi). Ghi vào mục **Kết quả — sửa lần 1** (mới, dưới "Kết quả test"; không xoá kết quả cũ): `Chạy bằng`, giờ bắt đầu/kết thúc, commit, kết quả bước 12–17. Commit theo skill exec, trạng thái `chờ review`.
+
 ## Tiêu chí xong
 - EditMode toàn bộ đạt: 253 cũ + 7 `FlyCameraCollisionTests` = **260**.
 - PlayMode toàn bộ đạt: 13 cũ + 2 `FlyCameraWaterPlayTests` = **15**.
@@ -497,3 +516,6 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 - **Lệch (2) — guid `Bench.unity.meta`:** trả về guid cũ, không ai tham chiếu guid mới. Chấp nhận.
 - **Chờ (A) — bench điện thoại (bước 10):** 2026-10-20 review lại, `adb devices` vẫn rỗng. Khi máy cắm USB: Planner/Executor chạy bước 10 (build APK → cài → logcat), cần `pass30fps=True passNoHole=True`, ghi dòng `BENCH` vào đây.
 - **Chờ (B) — user xem:** 4 mục ở "User tự test" (độ trong 0,45; dưới nước màu + tầm 0–40; va chạm/trượt vách; xuyên hồ không kẹt). Ảnh tham khảo: `client/Logs/water_above.png`, `client/Logs/water_below.png`.
+- **Bench điện thoại (A) — đạt** (Planner chạy 2026-10-20 19:09, USB): `avgFps=43,0 p99Ms=41,59 maxMs=58,21 | buildMsAvg=7,38 buildMsMax=263,84 | holeFrames=0 | sysMemMaxMB=806,8 | pass30fps=True passNoHole=True | tris=1506249 waterTris=61190 | hash=a7719c8999939263 v3` (0010: 45,6 FPS). Lần build đầu lỗi vì Editor đang Play; đã thoát Play, build lại, trả `UnityConnectSettings.asset` + `Bench.unity.meta`.
+- **User xem (B) — 2026-10-20:** dùng chuột; nước trong, va chạm "khá ổn"; **từ nước nhìn lên tối quá** (ảnh user: mặt nước nhìn từ dưới xanh sẫm). Nguyên nhân: mặt dưới lật pháp tuyến → không nhận sáng mặt trời + SH hướng xuống tối; nền dưới nước = màu sương sẫm (0,08; 0,32; 0,45). → Sửa lần 1: QĐ 10, bước 12–17.
+- Kết luận: cần sửa
