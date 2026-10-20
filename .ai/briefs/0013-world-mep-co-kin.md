@@ -1,9 +1,9 @@
 # Brief 0013 — World 7b3 (phần 2): đóng mặt dưới mép cỏ
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 20:05
+> Cập nhật: 2026-10-20 21:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -256,8 +256,22 @@ Mở scene TerrainView, Play (chuột): lặn xuống nước cạnh một bờ 
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 3eb46b3
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-20 21:14 · Kết thúc: ~21:40 (~26 phút, phần lớn chờ EditMode ~4,5 phút)
+- Commit code: f0d32bd — client/Assets/Game/World/BlockMesher.cs, client/Assets/Game/Tests/World/BlockMesherTests.cs
+- Lệch brief: không (chép đúng). Ghi chú: Editor đang ở Play lúc đầu → `manage_editor stop` rồi mới chạy test; MESHSTATS đọc từ TestResults.xml (TestContext.WriteLine không vào console).
+- MESHSTATS trước: `MESHSTATS bo cạnh world_m1: 6862 mặt lộ; hiển thị 54322 tam giác (7.92/mặt), lớn nhất 4396/chunk; collider 13724; mép cỏ thêm 22540 → tổng 76862` · `MESHSTATS bo cạnh: 22/32 chunk có mặt; lớn nhất 6090 tam giác, 6747 đỉnh/chunk`
+- MESHSTATS sau: `MESHSTATS bo cạnh world_m1: 6862 mặt lộ; hiển thị 54322 tam giác (7.92/mặt), lớn nhất 4396/chunk; collider 13724; mép cỏ thêm 44376 → tổng 98698` · `MESHSTATS bo cạnh: 22/32 chunk có mặt; lớn nhất 7716 tam giác, 8276 đỉnh/chunk`
+- Mép cỏ thêm: 22540 → 44376 (×1,97, +96,9%); tổng 76862 → 98698 (+28,4%); đỉnh lớn nhất/chunk 6747 → 8276 (≪ 65.535).
 
 ## Kết quả test
+- 2 test mới trước bước 3: không đạt — `LipIsClosedFromBelowAndUnchangedFromAbove`: "dưới float2(5.01f, 4.3f): chạm mặt sau (nhìn xuyên)"; `LipEndCapMatchesClosedCrossSection`: "nắp lòi dưới đáy phẳng ở float3(4.875f, 8.783834f, 5f)". Sau bước 5: đạt cả hai.
+- Mặt dưới dải + góc, nắp, liền giữa ô/chunk (đã sửa), chiều tam giác (`TrianglesFaceTheirNormals`), regression mép cỏ cũ + mesh/seam/incremental/16 bit: đạt — EditMode cả bộ 271/271 (269 + 2 mới).
+- Regression client: đạt — PlayMode 19/19.
+- Số tam giác: xem MESHSTATS ở Kết quả (×1,97, trong dự kiến).
+- Biên dịch 0 lỗi (read_console error rỗng). Đã `git checkout -- EditorSettings.asset`; git status chỉ còn 2 file Phạm vi + brief.
+- Chờ user: "User tự test" 1–3 (nhìn từ dưới nước, từ trên không đổi, đào/đặt).
 
 ## Vướng mắc
 
