@@ -1,9 +1,9 @@
 # Brief 0009 — World bước 7a: bộ sinh world nhiều map (generatorVersion 3)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 12:30
+> Cập nhật: 2026-10-20 13:10 (Planner trả lời Vướng mắc: thêm gộp mảnh rời — QĐ 10, bước 4b)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -49,12 +49,13 @@ Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimVi
 6. **"Cột đất"** (dùng cho tiêu chí diện tích): cột có `SurfaceHeight(x, z) >= waterLevel`, tức trên mặt đất không có nước.
 7. **Thứ tự rút số ngẫu nhiên** trong job phải đúng như bước 4. Đổi thứ tự là ra world khác.
 8. **Tên map** chỉ nằm trong JSON (`mapNames`) và không được đưa vào mã băm.
-9. **Chỉnh tham số khi test hình dạng hỏng** — chỉ được làm đúng như sau, tối đa 4 lần chỉnh, mỗi lần ghi vào bảng ở mục Kết quả:
-   - `EachBorderBendsAtLeast8` hỏng → tăng `borderWarpAmplitude` 18 → 22.
-   - `EachMapIsOneRegion` hỏng → giảm `borderWarpAmplitude` 18 → 14.
+9. **Chỉnh tham số khi test hình dạng hỏng** (Planner sửa 2026-10-20, sau Vướng mắc lần 1) — tính từ `borderWarpAmplitude` 18 **có** bước gộp mảnh rời (QĐ 10); chỉ được làm đúng như sau, tối đa 4 lần chỉnh, mỗi lần ghi vào bảng ở mục Kết quả (đánh số tiếp từ lần 2):
+   - `EachBorderBendsAtLeast8` hỏng → tăng `borderWarpAmplitude` 18 → 22 (chỉ một lần).
+   - `EachMapIsOneRegion` hỏng sau khi đã gộp mảnh → đây là lỗi code của `MergeFragments`, không chỉnh tham số: kiểm lại bước 4b; sửa 2 lần vẫn hỏng → `cần Opus`.
    - `EachMapLandAreaWithin25Percent` hỏng vì map quá nhỏ → tăng `landRadius` thêm 4, tối đa 140. Hỏng vì quá lớn → giảm 4, tối thiểu 124.
    - Hai test mâu thuẫn nhau (vd 22 làm đứt map, 14 làm ranh giới thẳng), hoặc đã hết 4 lần → dừng, `cần Opus`.
    - **Không** đổi danh sách seed test, không đổi công thức, không nới ngưỡng.
+10. **Gộp mảnh rời** (Planner 2026-10-20, trả lời Vướng mắc lần 1). Ranh giới Voronoi méo có thể cắt bờ biển hai lần, để lại một dải cột của map này nằm kẹp giữa map khác và biển (seed 7: dải 25 cột nước nông ven bờ của map 1, 0 cột đất, bao bởi map 2 + biển — Planner đo qua MCP; giữ nguyên ở biên độ 14, 18, 22). Vì vậy sau job luôn chạy `MapTable.MergeFragments` (bước 4b): mỗi map chỉ giữ mảnh lớn nhất, mảnh khác chuyển sang map kề. Chỉ dùng số nguyên, chạy ngoài job → vẫn tất định. Bước này nằm trong mã băm bảng map. `borderWarpAmplitude` trở lại 18.
 
 ## Phạm vi
 - Được tạo:
@@ -203,6 +204,28 @@ Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimVi
 
    Xong khi: biên dịch không lỗi; test `RunsWithBurst` (bước 7) đạt.
 
+4b. **Gộp mảnh rời** (QĐ 10).
+   - Trong `client/Assets/Game/Core/MapTable.cs`, thêm vào lớp `MapTable`:
+     ```csharp
+     /// <summary>Gộp mảnh rời (decision 0022, brief 0009 QĐ 10): mỗi map chỉ giữ mảnh lớn nhất (nối 4 hướng); mảnh khác chuyển sang map kề có nhiều cạnh chung nhất (hoà → chỉ số map nhỏ hơn); mảnh không kề map nào giữ nguyên. Lặp tới khi không đổi. Chỉ số nguyên → tất định. Trả về tổng số cột đã chuyển.</summary>
+     public static int MergeFragments(byte[] ids, int sizeX, int sizeZ, int mapCount)
+     ```
+     Cách làm (cần `using System.Collections.Generic;`):
+     1. Ném `ArgumentException` nếu `ids == null || ids.Length != sizeX * sizeZ || mapCount < 1 || mapCount > 255`.
+     2. Vòng lặp tối đa 16 lượt (lượt thứ 17 vẫn còn đổi → ném `InvalidOperationException("MergeFragments không hội tụ")`). Mỗi lượt:
+        - Gán nhãn mảnh: duyệt chỉ số `c = 0 .. ids.Length − 1` (tức quét z rồi x); bỏ qua `Ocean` và cột đã có nhãn; BFS 4 hướng (trong world) qua các cột cùng giá trị. Mảnh đánh số 0, 1, 2… theo thứ tự tìm thấy; lưu cho mỗi mảnh: map, danh sách cột.
+        - Mảnh giữ lại của mỗi map = mảnh có nhiều cột nhất; hoà → mảnh có số thứ tự nhỏ hơn.
+        - Duyệt các mảnh còn lại theo số thứ tự. Với mỗi mảnh: đếm `edges[m]` = số cặp (cột trong mảnh, cột kề 4 hướng) mà cột kề có `ids` hiện tại `!= Ocean` và khác map của mảnh. Chọn `target` = `m` có `edges[m]` lớn nhất (so sánh `>` nghiêm ngặt khi duyệt `m` từ 0 → hoà giữ `m` nhỏ). Mọi `edges` = 0 → bỏ qua mảnh. Ngược lại gán `ids[c] = (byte)target` cho mọi cột của mảnh, cộng số cột vào bộ đếm lượt.
+        - Bộ đếm lượt = 0 → thoát vòng, trả tổng.
+   - Trong `WorldMapGenerator.Generate`, thay dòng tạo `maps` bằng:
+     ```csharp
+     var ids = mapIds.ToArray();
+     MapTable.MergeFragments(ids, p.sizeX, p.sizeZ, p.mapCount);
+     maps = new MapTable(p.sizeX, p.sizeZ, ids, (string[])p.mapNames.Clone());
+     ```
+     Cập nhật summary của lớp: thêm câu `Sau job gộp mảnh rời của bảng map (MapTable.MergeFragments).`
+   - Xong khi: biên dịch không lỗi; 2 test `MergeFragments*` (bước 7) và `EachMapIsOneRegion` × 5 seed đạt.
+
 5. **JSON**: tạo `design/data/world_maps_m1.json`, viết đúng nội dung dưới đây (4 dấu cách thụt lề, giống `world_m1.json`). Sau đó chép **nguyên byte** sang `client/Assets/Game/Client/Resources/Config/world_maps_m1.json` (`cp`).
    ```json
    {
@@ -264,6 +287,14 @@ Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimVi
      - Assert `|Q − P| >= 32`.
      - `dev` = max trên `B` của `|cross(Q − P, R − P)| / |Q − P|` (tính bằng `double`). Assert `dev >= 8`. Ghi `dev` của từng cặp.
    - `NoFlagsSetByGenerator` (seed 20261013): như `TerrainGeneratorTests :86-95`.
+   - `MergeFragmentsMovesStripToNeighbor` (bước 4b; `O` = `MapTable.Ocean`): lưới `sizeX = 6, sizeZ = 3`, mảng `ids` theo chỉ số `x + 6 * z`:
+     ```text
+     z=0:  0 0 0 1 1 1
+     z=1:  0 0 0 1 1 1
+     z=2:  O 1 O O O O
+     ```
+     Sau `MapTable.MergeFragments(ids, 6, 3, 2)`: trả về `1`; ô `(1, 2)` thành `0`; 17 ô còn lại không đổi.
+   - `MergeFragmentsKeepsConnectedMapsUnchanged`: cùng lưới nhưng ô `(1, 2)` = `0` → trả về `0`, mảng không đổi.
 
    Xong khi: mọi test trong lớp đều đạt. Nếu test hình dạng hỏng thì làm theo Quyết định 9.
 
@@ -322,6 +353,7 @@ Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimVi
 - **Lớp ô đúng luật** (bước 4) · `LayerRules`, `NoFlagsSetByGenerator` · đạt.
 - **Vành biển + bảng map khớp đất/biển** (bước 4) · `SeaRingIsOcean`, `OceanColumnsAreSeaFloorAndLandHasAMap` × 5 seed · đạt.
 - **Diện tích mỗi map 128² ± 25%** (tiêu chí 7a) · `EachMapLandAreaWithin25Percent` × 5 seed · đạt, ghi số.
+- **Gộp mảnh rời** (bước 4b) · `MergeFragmentsMovesStripToNeighbor`, `MergeFragmentsKeepsConnectedMapsUnchanged` · đạt.
 - **Ranh giới cong ≥ 8 ô, map liền một khối** (tiêu chí 7a) · `EachBorderBendsAtLeast8`, `EachMapIsOneRegion` × 5 seed · đạt, ghi `dev`.
 - **Golden hash v3** (bước 8) · `WorldMapsMatchGoldenHash` · đạt.
 - **Golden hash v1/v2 không đổi** (hồi quy, Quyết định 1) · `GoldenHashTests.Version1StillMatchesItsGoldenHash`, `DefaultWorldMatchesGoldenHash` · đạt, hằng không đổi trong diff.
@@ -380,7 +412,9 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
-**Câu hỏi:** Hai test hình dạng mâu thuẫn theo Quyết định 9. Seed 7 luôn có một mảnh nhỏ (~23–25 cột) của map 1 tách khỏi thân chính ở cả 18 lẫn 14 (giảm biên độ méo không chữa được), còn ở 14 ranh giới cặp 0-2 của seed 123456789 và 99 chỉ cong 7,5 (< 8). Quyết định 9 không còn lượt nào hợp lệ (tăng 22 → bend đạt nhưng tới nay chưa đo được region; giảm thêm không được phép). Cần Opus quyết.
+**Trả lời của Planner (2026-10-20 13:10):** chọn hướng A nhưng sửa ở bộ sinh, không nới test. Planner chạy bộ sinh seed 7 qua MCP `execute_code`: mảnh rời của map 1 là dải 25 cột (A=18; 23 cột ở A=14; 29 ở A=22), bbox x285–296 z98–100, cách tâm world ~135 ô, **0 cột đất** (toàn nước nông ở sườn bờ), kề 16 cạnh biển + 14 cạnh map 2 [run]. Nguyên nhân: ranh giới méo cắt bờ biển hai lần — không do biên độ méo, nên chỉnh biên độ không chữa được. Đã thêm QĐ 10 + bước 4b (gộp mảnh rời bằng số nguyên sau job), sửa QĐ 9 (về lại 18; region hỏng sau khi gộp = lỗi code). Làm tiếp từ commit WIP 711755b: bước 4b, test mới ở bước 7, rồi bước 8–12.
+
+**Câu hỏi (executor, lần 1):** Hai test hình dạng mâu thuẫn theo Quyết định 9. Seed 7 luôn có một mảnh nhỏ (~23–25 cột) của map 1 tách khỏi thân chính ở cả 18 lẫn 14 (giảm biên độ méo không chữa được), còn ở 14 ranh giới cặp 0-2 của seed 123456789 và 99 chỉ cong 7,5 (< 8). Quyết định 9 không còn lượt nào hợp lệ (tăng 22 → bend đạt nhưng tới nay chưa đo được region; giảm thêm không được phép). Cần Opus quyết.
 
 Dữ liệu ở 14 (dev các cặp): seed 20261013: 0-1 10.97, 0-2 12.24, 1-2 14.55 · seed 7: 11.66 / 9.69 / 15.28 · seed 123456789: 20.90 / 7.53 / (chưa in vì fail) · seed 42: 20.51 / 11.91 / 9.11 · seed 99: 13.46 / 7.57 / (chưa in).
 Diện tích map ở 14 (cột đất): 20261013 [17631, 15018, 18115] · 7 [16478, 16179, 16695] · 123456789 [17108, 17880, 16502] · 42 [16899, 16752, 16767] · 99 [16979, 16589, 17370] — đều trong [12288, 20480].
