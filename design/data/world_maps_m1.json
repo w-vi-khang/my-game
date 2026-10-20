@@ -27,5 +27,15 @@
     "mapCenterRadius": 64.0,
     "borderWarpAmplitude": 18.0,
     "borderWarpFrequency": 0.01,
-    "mapNames": ["Map 1", "Map 2", "Map 3"]
+    "mapNames": ["Map 1", "Map 2", "Map 3"],
+    "landmarkTypes": [
+        { "map": 0, "name": "Công trình 1A", "count": 1 },
+        { "map": 0, "name": "Công trình 1B", "count": 1 },
+        { "map": 1, "name": "Công trình 2A", "count": 1 },
+        { "map": 1, "name": "Công trình 2B", "count": 1 },
+        { "map": 2, "name": "Công trình 3A", "count": 1 },
+        { "map": 2, "name": "Công trình 3B", "count": 1 }
+    ],
+    "landmarkBorderMargin": 6,
+    "landmarkSpacing": 20
 }

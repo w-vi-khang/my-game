@@ -48,6 +48,8 @@ namespace Game.Client
         readonly HashSet<int> buttonTouches = new HashSet<int>();
         readonly List<int> common = new List<int>();
         float lastZoom = -1f, lastCx, lastCz, lastW, lastH;
+        byte[] rgba;
+        bool pixelsDirty;
 
         public bool IsReady { get; private set; }
         public bool IsOpen { get; private set; }
@@ -55,6 +57,8 @@ namespace Game.Client
         public MinimapViewport Viewport { get; private set; }
         public int BorderCount { get; private set; }
         public double BuildMs { get; private set; }
+        /// <summary>Số lần một điểm ảnh đổi màu do đào/đặt/nước (brief 0017).</summary>
+        public int UpdatedPixelCount { get; private set; }
         public bool PanelActive => panel != null && panel.activeSelf;
         public Rect UvRect => image != null ? image.uvRect : default;
         public int BorderVertexCount => lines != null ? lines.LastVertexCount : 0;
@@ -71,7 +75,24 @@ namespace Game.Client
         void Awake() => view = GetComponent<TerrainChunkView>();
         void OnEnable() => active = this;
         void OnDisable() { if (active == this) active = null; }
-        void OnDestroy() { if (Texture != null) Destroy(Texture); }
+        void OnDestroy()
+        {
+            if (IsReady && view != null && view.Editor != null)
+                view.Editor.CellChanged -= OnCellChanged;
+            if (Texture != null)
+                Destroy(Texture);
+        }
+
+        /// <summary>Ô (x, y, z) đổi → tính lại màu cột (x, z); đổi thì ghi vào texture, Apply một lần cuối Update (brief 0017).</summary>
+        void OnCellChanged(int x, int y, int z)
+        {
+            if (!MinimapImage.UpdateColumn(view.World, rgba, x, z))
+                return;
+            int i = (x + view.World.Size.X * z) * 4;
+            Texture.SetPixel(x, z, new Color32(rgba[i], rgba[i + 1], rgba[i + 2], 255));
+            pixelsDirty = true;
+            UpdatedPixelCount++;
+        }
 
         void Update()
         {
@@ -80,6 +101,11 @@ namespace Game.Client
                 if (view.World == null || view.Maps == null)
                     return;
                 Build();
+            }
+            if (pixelsDirty)
+            {
+                Texture.Apply(false);
+                pixelsDirty = false;
             }
             var kb = Keyboard.current;
             if (kb != null)
@@ -261,7 +287,7 @@ namespace Game.Client
         {
             var sw = Stopwatch.StartNew();
             var s = view.World.Size;
-            var rgba = MinimapImage.Build(view.World);
+            rgba = MinimapImage.Build(view.World);
             var px = new Color32[s.X * s.Z];
             for (int i = 0; i < px.Length; i++)
                 px[i] = new Color32(rgba[i * 4], rgba[i * 4 + 1], rgba[i * 4 + 2], rgba[i * 4 + 3]);
@@ -273,6 +299,7 @@ namespace Game.Client
             };
             Texture.SetPixels32(px);
             Texture.Apply(false);
+            view.Editor.CellChanged += OnCellChanged;
             var borders = MinimapOverlay.Borders(view.Maps);
             BorderCount = borders.Count;
             labelWorld = MinimapOverlay.LabelPositions(view.Maps);

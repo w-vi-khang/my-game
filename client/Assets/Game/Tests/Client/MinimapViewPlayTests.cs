@@ -182,5 +182,48 @@ namespace Game.Client.Tests
             Object.Destroy(go2);
             yield return null;
         }
+
+        [UnityTest]
+        public IEnumerator DigUpdatesTexturePixel()
+        {
+            var w = view.World;
+            int wl = view.Editor.SeaLevel;
+            int fx = -1, fz = -1, top = -1;
+            for (int z = 80; z < 160 && fx < 0; z++)
+                for (int x = 150; x < 234 && fx < 0; x++)
+                {
+                    MinimapImage.ColumnInfo(w, x, z, out int s, out int d);
+                    if (d == 0 && s % MinimapImage.TierHeight == 0 && s >= wl + 2 && Cell.IsDiggable(w.Get(x, s, z)))
+                    {
+                        fx = x;
+                        fz = z;
+                        top = s;
+                    }
+                }
+            Assert.GreaterOrEqual(fx, 0, "không có cột ở mép tầng gần camera");
+            int idx = fx + w.Size.X * fz;
+            var before = map.Texture.GetPixels32()[idx];
+            Assert.AreEqual(EditResult.Ok, view.Dig(new Vector3Int(fx, top, fz)));
+            yield return null;
+            var after = map.Texture.GetPixels32()[idx];
+            uint c = MinimapImage.ColumnColor(w, fx, fz);
+            Assert.AreEqual(new Color32((byte)(c >> 16), (byte)(c >> 8), (byte)c, 255), after);
+            Assert.AreNotEqual(before, after, "điểm ảnh phải đổi");
+            Assert.GreaterOrEqual(map.UpdatedPixelCount, 1);
+            CollectionAssert.AreEqual(MinimapImage.Build(w), ToBytes(map.Texture.GetPixels32()), "texture = ảnh dựng lại từ world đã sửa");
+        }
+
+        static byte[] ToBytes(Color32[] px)
+        {
+            var b = new byte[px.Length * 4];
+            for (int i = 0; i < px.Length; i++)
+            {
+                b[i * 4] = px[i].r;
+                b[i * 4 + 1] = px[i].g;
+                b[i * 4 + 2] = px[i].b;
+                b[i * 4 + 3] = px[i].a;
+            }
+            return b;
+        }
     }
 }

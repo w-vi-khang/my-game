@@ -91,5 +91,23 @@ namespace Game.Core
                 }
             return rgba;
         }
+
+        /// <summary>
+        /// Tính lại màu cột (x, z) vào ảnh RGBA đang giữ (world-tech 7d, brief 0017) — gọi khi ô của cột đổi (đào/đặt, nước lan).
+        /// Trả true khi màu đổi.
+        /// </summary>
+        public static bool UpdateColumn(WorldData world, byte[] rgba, int x, int z)
+        {
+            uint c = ColumnColor(world, x, z);
+            int i = (x + world.Size.X * z) * 4;
+            byte r = (byte)(c >> 16), g = (byte)(c >> 8), b = (byte)c;
+            if (rgba[i] == r && rgba[i + 1] == g && rgba[i + 2] == b && rgba[i + 3] == 255)
+                return false;
+            rgba[i] = r;
+            rgba[i + 1] = g;
+            rgba[i + 2] = b;
+            rgba[i + 3] = 255;
+            return true;
+        }
     }
 }

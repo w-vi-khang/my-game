@@ -51,6 +51,21 @@ namespace Game.Core
         /// <summary>Tên tạm (0022); tên thật user đặt sau qua design/01-story/naming.md.</summary>
         public string[] mapNames = { "Map 1", "Map 2", "Map 3" };
 
+        /// <summary>Công trình đặc trưng của từng map (0023): loại, tên tạm, số lượng — tên thật user đặt sau.</summary>
+        public LandmarkType[] landmarkTypes =
+        {
+            new LandmarkType(0, "Công trình 1A", 1),
+            new LandmarkType(0, "Công trình 1B", 1),
+            new LandmarkType(1, "Công trình 2A", 1),
+            new LandmarkType(1, "Công trình 2B", 1),
+            new LandmarkType(2, "Công trình 3A", 1),
+            new LandmarkType(2, "Công trình 3B", 1),
+        };
+        /// <summary>Dấu mốc cách cột biên (biển, map khác, biên world) ít nhất bấy nhiêu bước 4 hướng trong cùng map.</summary>
+        public int landmarkBorderMargin = 6;
+        /// <summary>Hai dấu mốc cách nhau ít nhất bấy nhiêu ô (đường chim bay).</summary>
+        public int landmarkSpacing = 20;
+
         public WorldSize Size => new WorldSize(sizeX, sizeY, sizeZ);
 
         public void Validate()
@@ -78,6 +93,29 @@ namespace Game.Core
                     throw new ArgumentException("Tên map không được rỗng");
             if (mapCenterRadius <= 0f || mapCenterRadius + lakeRadius >= landRadius - coastWarpAmplitude - coastFalloff)
                 throw new ArgumentException("Hồ phải nằm trọn trong đất liền: mapCenterRadius + lakeRadius < landRadius − coastWarpAmplitude − coastFalloff");
+            if (landmarkTypes == null || landmarkBorderMargin < 2 || landmarkSpacing < 1)
+                throw new ArgumentException("landmarkTypes khác null, landmarkBorderMargin ≥ 2, landmarkSpacing ≥ 1");
+            foreach (var t in landmarkTypes)
+                if (t == null || t.map < 0 || t.map >= mapCount || string.IsNullOrEmpty(t.name) || t.count < 1 || t.count > 8)
+                    throw new ArgumentException("Mỗi landmarkTypes: map trong [0, mapCount), name khác rỗng, count trong [1, 8]");
+        }
+    }
+
+    /// <summary>Một loại công trình đặc trưng của map (0023), đọc từ JSON.</summary>
+    [Serializable]
+    public class LandmarkType
+    {
+        public int map;
+        public string name;
+        public int count = 1;
+
+        public LandmarkType() { }
+
+        public LandmarkType(int map, string name, int count)
+        {
+            this.map = map;
+            this.name = name;
+            this.count = count;
         }
     }
 }
