@@ -25,6 +25,18 @@ namespace Game.Core
             return h;
         }
 
+        /// <summary>Mã băm bảng map (kích thước + id từng cột); không băm tên map.</summary>
+        public static ulong Compute(MapTable maps)
+        {
+            ulong h = OffsetBasis;
+            h = MixInt(h, maps.SizeX);
+            h = MixInt(h, maps.SizeZ);
+            var ids = maps.Ids;
+            for (int i = 0; i < ids.Length; i++)
+                h = (h ^ ids[i]) * Prime;
+            return h;
+        }
+
         public static string ToHex(ulong hash) => hash.ToString("x16");
 
         static ulong MixInt(ulong h, int v)

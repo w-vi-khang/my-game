@@ -2,7 +2,9 @@
     "name": "Game.Client.Editor",
     "rootNamespace": "Game.Client.Editor",
     "references": [
-        "Game.Client"
+        "Game.Client",
+        "Game.Core",
+        "Game.World"
     ],
     "includePlatforms": [
         "Editor"
