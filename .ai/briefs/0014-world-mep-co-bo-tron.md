@@ -1,9 +1,9 @@
 # Brief 0014 — World 7b4: mép cỏ bo tròn ôm khối
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 21:47
+> Cập nhật: 2026-10-20 21:57
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -308,8 +308,20 @@ Mở scene TerrainView, Play (chuột), so với ảnh mép cỏ Pokopia user g�
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: b750455
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-20 21:49 · Kết thúc: 2026-10-20 21:57
+- Commit code: 721a659 — client/Assets/Game/World/BlockMesher.cs, client/Assets/Game/Tests/World/BlockMesherTests.cs
+- Lệch brief: không (chép đúng; viết script chèn nguyên văn khối code trong brief). Test mới đạt ngay sau bước 4; mốc "hỏng trước" bỏ theo brief: footprint t = 0,09 / 0,11 vượt mép cũ 0,08 nên mesher cũ không có mặt để tia chạm.
+- MESHSTATS trước: `MESHSTATS bo cạnh world_m1: 6862 mặt lộ; hiển thị 54322 tam giác (7.92/mặt), lớn nhất 4396/chunk; collider 13724; mép cỏ thêm 44376 → tổng 98698` · `MESHSTATS bo cạnh: 22/32 chunk có mặt; lớn nhất 7716 tam giác, 8276 đỉnh/chunk`
+- MESHSTATS sau: `MESHSTATS bo cạnh world_m1: 6862 mặt lộ; hiển thị 54322 tam giác (7.92/mặt), lớn nhất 4396/chunk; collider 13724; mép cỏ thêm 111256 → tổng 165578` · `MESHSTATS bo cạnh: 22/32 chunk có mặt; lớn nhất 12746 tam giác, 10952 đỉnh/chunk`
+- Số liệu: mép cỏ thêm 44376 → 111256 (×2,51, đúng ước ~×2,5); tổng 98698 → 165578 (+67,8% — lớn hơn nhiều so với "~+3% tổng" ghi trong QĐ 7 của brief; Planner lưu ý khi đo FPS). Đỉnh lớn nhất/chunk 8276 → 10952 (≪ 65.535).
 
 ## Kết quả test
+- Hằng + LipProfile, dải, góc, nắp, kín từ dưới/không đổi từ trên, liền giữa ô/chunk, hướng tam giác, 16-bit, collider: đạt — EditMode `BlockMesherTests` 21/21 (gồm `LipProfileIsRoundedPillow`, 3 test sửa, `LipOnlyOnGrassWithOpenTopAndSide`, `LipDepthStaysInRange`, `TrianglesFaceTheirNormals`, `EveryM1ChunkFits16BitIndices`).
+- Regression: đạt — EditMode cả bộ 272/272 (271 + 1), PlayMode 19/19.
+- Biên dịch 0 lỗi; `grep "LipRound\|tTop"` BlockMesher.cs → không có dòng. Đã `git checkout -- EditorSettings.asset`; git status chỉ còn 2 file Phạm vi + brief.
+- Chờ user: "User tự test" 1–4 (hình gối bo tròn, góc/nối/nắp không khe, nhìn từ dưới nước, đào/đặt).
 
 ## Vướng mắc
 
