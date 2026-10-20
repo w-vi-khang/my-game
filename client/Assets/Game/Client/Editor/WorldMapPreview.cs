@@ -8,25 +8,12 @@ using UnityEngine;
 namespace Game.Client.Editor
 {
     /// <summary>
-    /// Xuất ảnh PNG xem trước world nhiều map (brief 0009, bước 7a): 1 điểm ảnh = 1 cột. Chỉ là công cụ xem hình dạng;
-    /// minimap thật làm ở bước 7c.
+    /// Xuất ảnh PNG xem trước world nhiều map (brief 0009, bước 7a): 1 điểm ảnh = 1 cột, màu theo MinimapImage (brief 0015); ranh giới map tô đen theo cột.
+    /// Chỉ là công cụ xem; minimap trong game làm ở brief 0016.
     /// </summary>
     public static class WorldMapPreview
     {
         const string OutputPath = "Builds/world_maps_preview.png";
-
-        static readonly Color32[] LandTiers =
-        {
-            new Color32(200, 190, 120, 255), new Color32(200, 190, 120, 255), new Color32(200, 190, 120, 255),
-            new Color32(120, 180, 90, 255),
-            new Color32(100, 165, 80, 255),
-            new Color32(85, 150, 70, 255),
-            new Color32(110, 140, 70, 255),
-            new Color32(140, 130, 80, 255),
-            new Color32(150, 120, 90, 255),
-            new Color32(160, 140, 120, 255),
-            new Color32(200, 200, 200, 255),
-        };
 
         [MenuItem("Game/Ảnh xem trước world nhiều map")]
         public static void Export()
@@ -50,16 +37,10 @@ namespace Game.Client.Editor
                 Color32 color;
                 if (id != MapTable.Ocean && ((x + 1 < p.sizeX && IsOtherMap(maps, x + 1, z, id)) || (z + 1 < p.sizeZ && IsOtherMap(maps, x, z + 1, id))))
                     color = new Color32(30, 30, 30, 255);
-                else if (s < p.waterLevel)
-                {
-                    int depth = p.waterLevel - s;
-                    float t = Mathf.Min(depth - 1, 7) / 7f;
-                    color = Color32.Lerp(new Color32(90, 170, 220, 255), new Color32(20, 60, 140, 255), t);
-                }
                 else
                 {
-                    int tier = s / 4;
-                    color = tier >= LandTiers.Length ? new Color32(240, 240, 240, 255) : LandTiers[tier];
+                    uint c = MinimapImage.ColumnColor(world, x, z);
+                    color = new Color32((byte)(c >> 16), (byte)(c >> 8), (byte)c, 255);
                 }
                 px[x + p.sizeX * z] = color;
             }
