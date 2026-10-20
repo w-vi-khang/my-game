@@ -1,7 +1,7 @@
 # Handoff
 
 > Trạng thái: đang dở
-> Cập nhật: 2026-10-20 19:20
+> Cập nhật: 2026-10-20 19:25
 
 <!-- AI ghi khi context lớn / trước khi /clear / khi user yêu cầu (/ai-workflow-kit:handoff).
 File này được commit (theo sang máy khác). Phiên sau dùng xong (đã tóm tắt, user xác nhận bước tiếp theo) -> XOÁ file;
@@ -20,7 +20,7 @@ Task [world bước 7](tasks/m1-world-buoc-7-nhieu-map-minimap.md). Bước 7b2 
 - Đã đề xuất thẻ phiên con exec (task_90bbd7b6, Sonnet · medium, `/ai-workflow-kit:exec 0011 --child`) — chờ user bấm.
 
 ## Còn lại
-1. **Bước tiếp theo:** exec sửa lần 1 (`/ai-workflow-kit:exec 0011`, Sonnet · medium) → review (`/ai-workflow-kit:review-brief 0011`, Opus · medium; đối chiếu bước 12–17, xem 2 ảnh `client/Logs/water_below.png`, `water_below_up.png`) → user xem lại độ sáng khi nhìn lên.
+1. **Bước tiếp theo:** sửa lần 1 đã exec xong (code `5976a6a`, kết quả `b2b752e`, EditMode 260/260, PlayMode 15/15; trạng thái `chờ review`). Còn: review (`/ai-workflow-kit:review-brief 0011`, Opus · medium; đối chiếu bước 12–17, xem 2 ảnh `client/Logs/water_below.png`, `water_below_up.png`) → user xem lại độ sáng khi nhìn lên.
 2. Khi duyệt: ghi dòng 7b2 trong `design/04-tech/world-tech.md` (bảng kế hoạch, "Xong 2026-10-20 [run]" + số liệu bench) và giờ thực tế vào `design/05-roadmap.md` (ước lượng 1–2; brief commit 17:55, executor 17:59–18:32, bench 19:09, sửa lần 1 …).
 3. Sau 7b2: 7c minimap (brief mới).
 
