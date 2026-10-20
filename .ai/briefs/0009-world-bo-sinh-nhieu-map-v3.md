@@ -1,0 +1,378 @@
+# Brief 0009 — World bước 7a: bộ sinh world nhiều map (generatorVersion 3)
+
+> Trạng thái: chờ làm
+> Review: đầy đủ + user xem
+> Model thực thi: Sonnet · medium
+> Cập nhật: 2026-10-20 10:18
+
+<!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
+Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
+Review: nhẹ (đọc mục Kết quả) | đầy đủ (đọc cả diff) | user xem (có phần user tự kiểm bằng mắt/chơi thử) — có thể ghép "đầy đủ + user xem".
+Model thực thi: BẮT BUỘC, đúng dạng `<Model> · <effort>` — Model: Opus | Sonnet | Haiku | Fable; effort: low | medium | high | xhigh | max (chọn theo AGENTS.md §10.2).
+Executor kiểm tra model + effort của phiên TRƯỚC khi làm (scripts/brief_check.py); lệch hoặc không xác định được → cảnh báo user và DỪNG.
+File được commit. Tự kiểm trước khi giao (AGENTS.md §10.3): executor có phải hỏi gì không? còn chỗ nào bỏ ngỏ 2 phương án? -->
+
+## Mục tiêu
+Bước 7a của [task world bước 7](../tasks/m1-world-buoc-7-nhieu-map-minimap.md) (quyết định [0022](../../design/decisions/0022-world-nhieu-map-va-minimap-m1.md)). Viết **bộ sinh world nhiều map** mới (generatorVersion 3): world 384 × 48 × 384 gồm một khối đất liền ở giữa, chia thành 3 map bằng ranh giới cong, biển bao quanh. Bộ sinh trả về dữ liệu world và **bảng map** (mỗi cột thuộc map nào). Bộ sinh phải tất định, có mã băm chuẩn, và chạy được trong scene HashCheck trên điện thoại. Kèm một menu Editor xuất ảnh PNG xem trước để user duyệt hình dạng.
+
+Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimView, Bench) vẫn dùng world v2 64 × 32 × 64. Bước 7b/7e mới chuyển sang v3.
+
+## Bối cảnh cần đọc
+- Bộ sinh v1/v2 (mẫu để chép cách làm; **không sửa** file này): `client/Assets/Game/World/TerrainGenerator.cs`
+  - `Generate :18-61`: cấp `NativeArray<ushort>` `Allocator.TempJob`, schedule `job.Schedule(size.X * size.Z, 64).Complete()`, cờ `ManagedFlag` để biết job có chạy bằng Burst không, `new WorldData(size, cells.ToArray())`, dispose trong `finally`.
+  - `[BurstCompile(FloatMode = FloatMode.Deterministic, CompileSynchronously = true)] struct TerrainJob : IJobParallelFor :63-150`. Rng: `var rng = new Random(Seed);` rồi `rng.NextFloat2(-1000f, 1000f)` `:86-91`. Noise: `noise.snoise(pos * Frequency1 + offset1)` `:95`. Hồ `:97-99`. Đảo v2 `:101-108` (`math.smoothstep`, `math.lerp(SeaFloor, h, island)`). Chọn mặt đất `:110-117`. Ghi lớp ô `:119-142`, công thức nước `(ushort)((ushort)BlockMaterial.Water | (Cell.MaxWaterLevel << Cell.WaterShift))` `:137`, chỉ số `Cells[x + SizeX * (z + SizeZ * y)]` `:141`. `[BurstDiscard] static void MarkIfManaged :145-149`.
+- `client/Assets/Game/Core/TerrainParams.cs` — mẫu lớp cấu hình `[Serializable]` + `Validate()` `:47-62`. **Không sửa.**
+- `client/Assets/Game/Core/WorldData.cs` — `WorldSize(int x, int y, int z)` (chia hết cho 16) `:12-19`, `CellCount :21`, `ChunkCount :25`, `Index(x, y, z) => x + X * (z + Z * y)` `:31`, `WorldData(WorldSize size, ushort[] cells)` `:66-72`, `Get`/`GetMaterial` `:77-81`, `public int SurfaceHeight(int x, int z)` `:84-94` (ô cao nhất không phải Empty/Water; −1 nếu không có).
+- `client/Assets/Game/Core/Cell.cs` — `enum BlockMaterial : byte { Empty = 0, Grass = 1, Dirt = 2, Stone = 3, Sand = 4, Water = 5, Bedrock = 6 }` `:4-14`, `MaxWaterLevel = 7 :22`, `WaterShift = 10 :27`.
+- `client/Assets/Game/Core/WorldHash.cs` — FNV-1a 64 bit: `Compute(WorldData) :12-26`, `ToHex :28`, `MixInt :30-37`.
+- `client/Assets/Game/Client/ConfigLoader.cs :13-24` — `WorldM1Path = "Config/world_m1"`, `LoadTerrainParams()` (Resources.Load<TextAsset> → JsonUtility.FromJson → Validate).
+- `client/Assets/Game/Client/HashCheckView.cs :17-26` — scene HashCheck in mã băm lên màn hình + log `HASHCHECK ...`.
+- `client/Assets/Game/Client/Editor/HashCheckBuild.cs` — menu `Game/Build APK HashCheck` `:32`, ra `Builds/hashcheck.apk` `:19` (đường dẫn tương đối với thư mục `client/`). Thư mục `client/Builds/` đã nằm trong `.gitignore`.
+- Test mẫu: `client/Assets/Game/Tests/World/TerrainGeneratorTests.cs` (`LayerRules :42-84`, `Version2HasOceanRingAroundIsland :97-117`), `GoldenHashTests.cs :11-38`, `ConfigTests.cs :8-50`.
+- Asmdef: `Game.Core` (No Engine References), `Game.World` (Burst, Mathematics, Collections), `Game.World.Tests` (EditMode, tham chiếu Game.Core, Game.World, Unity.Mathematics, Unity.Collections), `Game.Client.Editor` (`client/Assets/Game/Client/Editor/Game.Client.Editor.asmdef`, hiện chỉ tham chiếu `Game.Client`).
+- Thiết kế: [world-tech "World nhiều map + minimap (M1)"](../../design/04-tech/world-tech.md#world-nhiều-map--minimap-m1) và dòng 7a trong bảng kế hoạch prototype.
+- API Unity/package dùng trong brief (đã tra):
+  - `Unity.Mathematics` 1.3.2 (bản trong `client/Library/PackageCache/com.unity.mathematics@19a9377c4ffa`): `noise.snoise(float2)`, `Random.NextFloat(float min, float max)` (`random.cs:472`), `Random.NextFloat2(float min, float max)`, `math.TAU` (float, = 2π, `math.cs:164`), `math.sincos(float x, out float s, out float c)` (`math.cs:4876`), `math.smoothstep`, `math.lerp`, `math.distance`, `math.distancesq`, `math.floor`, `math.clamp`, `math.min`, `math.max` [repo].
+  - Burst `FloatMode.Deterministic`: kết quả số thực giống nhau trên mọi nền tảng được hỗ trợ, dùng bản tất định của các hàm toán, chỉ hỗ trợ 64-bit — [docs](https://docs.unity3d.com/Packages/com.unity.burst@1.8/manual/compilation-burstcompile.html).
+  - `JsonUtility`: trường mảng (`string[]`) của lớp `[Serializable]` được tuần tự hoá — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/script-serialization-rules.html); trường thiếu trong JSON giữ giá trị khởi tạo — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/Manual/json-serialization.html).
+  - `new Texture2D(int width, int height, TextureFormat textureFormat, bool mipChain)` — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Texture2D-ctor.html); texture tạo từ script đọc được (`isReadable` = true) — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Texture-isReadable.html).
+  - `Texture2D.SetPixels32(Color32[] colors, int miplevel = 0)`: mảng chạy theo từng hàng, bắt đầu từ góc **dưới trái**; phải gọi `Apply()` sau đó — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Texture2D.SetPixels32.html).
+  - `Color32.Lerp(Color32 a, Color32 b, float t)` (t bị kẹp vào [0, 1]) — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Color32.Lerp.html).
+  - `ImageConversion.EncodeToPNG(Texture2D tex) : byte[]` (texture không nén, đọc được) — [docs 6000.4](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/ImageConversion.EncodeToPNG.html).
+
+## Quyết định đã chốt (không được đổi)
+1. **File + lớp mới** (user 2026-10-20). v3 nằm ở `WorldMapParams` + `MapTable` + `WorldMapGenerator` + `design/data/world_maps_m1.json`. `TerrainGenerator`, `TerrainParams`, `world_m1.json` và mọi scene/test đang dùng chúng giữ nguyên. Mã băm v1/v2 không đổi.
+2. **Bố cục** (user 2026-10-20): world 384 × 48 × 384. Đất liền là một khối méo noise ở giữa world. 3 tâm map cách đều nhau quanh tâm world, góc xoay theo seed. Ranh giới là Voronoi trên toạ độ đã méo bằng noise 2 tầng. Cột cách biên world < `seaRing` (24) luôn là đáy biển.
+3. **Địa hình** (user 2026-10-20): cả world dùng chung một bộ noise độ cao. Mỗi map có 1 hồ ở tâm map. Không có preset riêng từng map.
+4. **Ảnh xem trước** (user 2026-10-20): menu Editor xuất PNG 384 × 384, 1 điểm ảnh = 1 cột, màu theo bảng ở bước 9. Đây chỉ là công cụ xem, minimap thật làm ở 7c.
+5. **Bảng map**: 1 byte/cột, chỉ số `x + SizeX * z`. Giá trị `0..MapCount−1` là map, `MapTable.Ocean = 255` là biển (cột có `island == 0`, xem công thức).
+6. **"Cột đất"** (dùng cho tiêu chí diện tích): cột có `SurfaceHeight(x, z) >= waterLevel`, tức trên mặt đất không có nước.
+7. **Thứ tự rút số ngẫu nhiên** trong job phải đúng như bước 4. Đổi thứ tự là ra world khác.
+8. **Tên map** chỉ nằm trong JSON (`mapNames`) và không được đưa vào mã băm.
+9. **Chỉnh tham số khi test hình dạng hỏng** — chỉ được làm đúng như sau, tối đa 4 lần chỉnh, mỗi lần ghi vào bảng ở mục Kết quả:
+   - `EachBorderBendsAtLeast8` hỏng → tăng `borderWarpAmplitude` 18 → 22.
+   - `EachMapIsOneRegion` hỏng → giảm `borderWarpAmplitude` 18 → 14.
+   - `EachMapLandAreaWithin25Percent` hỏng vì map quá nhỏ → tăng `landRadius` thêm 4, tối đa 140. Hỏng vì quá lớn → giảm 4, tối thiểu 124.
+   - Hai test mâu thuẫn nhau (vd 22 làm đứt map, 14 làm ranh giới thẳng), hoặc đã hết 4 lần → dừng, `cần Opus`.
+   - **Không** đổi danh sách seed test, không đổi công thức, không nới ngưỡng.
+
+## Phạm vi
+- Được tạo:
+  - `client/Assets/Game/Core/WorldMapParams.cs`, `client/Assets/Game/Core/MapTable.cs`
+  - `client/Assets/Game/World/WorldMapGenerator.cs`
+  - `design/data/world_maps_m1.json`, `client/Assets/Game/Client/Resources/Config/world_maps_m1.json`
+  - `client/Assets/Game/Tests/World/WorldMapGeneratorTests.cs`
+  - `client/Assets/Game/Client/Editor/WorldMapPreview.cs`
+  - các file `.meta` do Unity tạo cho những file trên
+- Được sửa:
+  - `client/Assets/Game/Core/WorldHash.cs` (thêm hàm, không đổi hàm cũ)
+  - `client/Assets/Game/Client/ConfigLoader.cs` (thêm hàm)
+  - `client/Assets/Game/Client/HashCheckView.cs`
+  - `client/Assets/Game/Client/Editor/Game.Client.Editor.asmdef` (thêm tham chiếu)
+  - `client/Assets/Game/Tests/World/GoldenHashTests.cs`, `client/Assets/Game/Tests/World/ConfigTests.cs` (thêm test, không sửa test cũ)
+  - brief này (mục Kết quả trở xuống)
+- Không được sửa: `TerrainGenerator.cs`, `TerrainParams.cs`, `design/data/world_m1.json` và bản chép trong Resources, mọi scene `.unity`, code sim (`Core/Sim/*`), các file trong `design/` (Planner cập nhật world-tech + roadmap khi review).
+
+## Các bước
+1. **`client/Assets/Game/Core/WorldMapParams.cs`** (namespace `Game.Core`, `using System;`). Thêm lớp `[Serializable] public class WorldMapParams` có summary: `Thông số bộ sinh world nhiều map (generatorVersion 3, world-tech bước 7a, decision 0022). Nguồn chuẩn: design/data/world_maps_m1.json (client đọc bản sao trong Resources bằng JsonUtility — tên trường phải khớp JSON). Số là số tạm, chỉnh khi chơi thử.` Các trường và giá trị mặc định, đúng thứ tự sau:
+   ```csharp
+   public int generatorVersion = 3;
+   public uint seed = 20261013;
+   public int sizeX = 384;
+   public int sizeY = 48;
+   public int sizeZ = 384;
+   public float baseHeight = 22f;
+   public float amplitude1 = 10f;
+   public float frequency1 = 0.02f;
+   public float amplitude2 = 2.5f;
+   public float frequency2 = 0.08f;
+   public int minSurface = 10;
+   public int maxSurface = 40;
+   public int bedrockLayers = 2;
+   public int dirtDepth = 3;
+   public int waterLevel = 12;
+   public int sandBand = 1;
+   public float lakeRadius = 12f;
+   public float lakeDepth = 7f;
+   /// <summary>Số ô từ biên world chắc chắn là đáy biển.</summary>
+   public int seaRing = 24;
+   /// <summary>Đáy biển = waterLevel − seaFloorDepth.</summary>
+   public int seaFloorDepth = 4;
+   /// <summary>Bán kính khối đất liền quanh tâm world (ô), trước khi méo.</summary>
+   public float landRadius = 132f;
+   /// <summary>Bề rộng sườn (ô) từ đáy biển lên địa hình noise.</summary>
+   public float coastFalloff = 12f;
+   public float coastWarpAmplitude = 14f;
+   public float coastWarpFrequency = 0.015f;
+   public int mapCount = 3;
+   /// <summary>Khoảng cách từ tâm world tới tâm mỗi map (ô).</summary>
+   public float mapCenterRadius = 64f;
+   public float borderWarpAmplitude = 18f;
+   public float borderWarpFrequency = 0.01f;
+   /// <summary>Tên tạm (0022); tên thật user đặt sau qua design/01-story/naming.md.</summary>
+   public string[] mapNames = { "Map 1", "Map 2", "Map 3" };
+
+   public WorldSize Size => new WorldSize(sizeX, sizeY, sizeZ);
+   ```
+   `public void Validate()` ném `ArgumentException` (thông báo tiếng Việt, mỗi nhóm một câu) khi:
+   - `generatorVersion != 3`;
+   - `Size` không hợp lệ (gọi `var _ = Size;` như TerrainParams);
+   - `bedrockLayers < 1 || bedrockLayers >= minSurface`; `minSurface > maxSurface || maxSurface >= sizeY`; `waterLevel < minSurface || waterLevel >= maxSurface`;
+   - `dirtDepth < 0 || sandBand < 0 || lakeRadius <= 0f || lakeDepth < 0f`;
+   - `seaRing < 1 || seaFloorDepth < 1 || waterLevel - seaFloorDepth < bedrockLayers`;
+   - `landRadius <= 0f || coastFalloff <= 0f || coastWarpAmplitude < 0f || coastWarpFrequency <= 0f || borderWarpAmplitude < 0f || borderWarpFrequency <= 0f`;
+   - `mapCount < 2 || mapCount > 8 || mapNames == null || mapNames.Length != mapCount` hoặc có tên rỗng/null;
+   - `mapCenterRadius <= 0f || mapCenterRadius + lakeRadius >= landRadius - coastWarpAmplitude - coastFalloff` (hồ phải nằm trọn trong đất liền).
+
+   Xong khi: biên dịch không lỗi, `Game.Core` vẫn không tham chiếu UnityEngine.
+
+2. **`client/Assets/Game/Core/MapTable.cs`** (namespace `Game.Core`):
+   ```csharp
+   /// <summary>Bảng map (glossary): mỗi cột (x, z) thuộc map nào; Ocean = cột biển, không thuộc map nào (decision 0022).</summary>
+   public sealed class MapTable
+   {
+       public const byte Ocean = 255;
+       public readonly int SizeX, SizeZ;
+       readonly byte[] ids;
+       readonly string[] names;
+
+       public MapTable(int sizeX, int sizeZ, byte[] ids, string[] names)  // ids.Length phải = sizeX * sizeZ, names != null → không thì ArgumentException
+       public byte[] Ids => ids;
+       public int MapCount => names.Length;
+       public string Name(int map) => names[map];
+       public byte Get(int x, int z) => ids[x + SizeX * z];
+   }
+   ```
+   Xong khi: biên dịch không lỗi.
+
+3. **`client/Assets/Game/Core/WorldHash.cs`**: thêm `public static ulong Compute(MapTable maps)`. Bắt đầu từ `OffsetBasis`, `MixInt(h, maps.SizeX)`, `MixInt(h, maps.SizeZ)`, rồi mỗi byte trong `maps.Ids` lấy `h = (h ^ b) * Prime`. Không băm tên. Không sửa `Compute(WorldData)`.
+
+4. **`client/Assets/Game/World/WorldMapGenerator.cs`** (namespace `Game.World`, cùng các `using` như TerrainGenerator). Summary: `Sinh world nhiều map (generatorVersion 3, world-tech bước 7a, decision 0022): khối đất liền giữa world chia 3 map bằng ranh giới Voronoi méo noise; biển bao quanh. Mọi phép số thực nằm trong job Burst FloatMode.Deterministic.`
+   - API công khai:
+     ```csharp
+     public static WorldData Generate(WorldMapParams p, out MapTable maps) => Generate(p, out maps, out _);
+     public static WorldData Generate(WorldMapParams p, out MapTable maps, out bool ranWithBurst)
+     ```
+     Làm như `TerrainGenerator.Generate :18-61`: `p.Validate()`, cấp `cells` (`NativeArray<ushort>`, `size.CellCount`), `mapIds` (`NativeArray<byte>`, `sizeX * sizeZ`), `managedFlag`, tất cả `Allocator.TempJob`; `Schedule(size.X * size.Z, 64).Complete()`; `maps = new MapTable(p.sizeX, p.sizeZ, mapIds.ToArray(), (string[])p.mapNames.Clone())`; dispose trong `finally`. `Seed = p.seed == 0 ? 1u : p.seed`. `SeaFloor = p.waterLevel - p.seaFloorDepth`.
+   - Job `[BurstCompile(FloatMode = FloatMode.Deterministic, CompileSynchronously = true)] struct WorldMapJob : IJobParallelFor` có `[NativeDisableParallelForRestriction]` cho `Cells` và `ManagedFlag` như TerrainJob (`MapIds` thì mỗi job ghi đúng chỉ số `column` của nó). Trong `Execute(int column)`, viết **đúng thứ tự** sau:
+     ```text
+     MarkIfManaged(ManagedFlag)
+     x = column % SizeX ; z = column / SizeX ; pos = float2(x, z)
+     rng = new Random(Seed)
+     offset1 = rng.NextFloat2(-1000, 1000)      // noise độ cao tầng 1
+     offset2 = rng.NextFloat2(-1000, 1000)      // noise độ cao tầng 2
+     offsetCoast = rng.NextFloat2(-1000, 1000)  // méo bờ biển
+     offsetWarpX1 = rng.NextFloat2(-1000, 1000) // méo ranh giới, trục x, tầng 1
+     offsetWarpZ1 = rng.NextFloat2(-1000, 1000) // trục z, tầng 1
+     offsetWarpX2 = rng.NextFloat2(-1000, 1000) // trục x, tầng 2
+     offsetWarpZ2 = rng.NextFloat2(-1000, 1000) // trục z, tầng 2
+     angle0 = rng.NextFloat(0, math.TAU)
+
+     worldCenter = float2(SizeX, SizeZ) * 0.5
+
+     // Độ cao noise (như v2)
+     h = BaseHeight + Amplitude1 * snoise(pos * Frequency1 + offset1) + Amplitude2 * snoise(pos * Frequency2 + offset2)
+
+     // Tâm map i (i = 0..MapCount-1): a = angle0 + i * (TAU / MapCount); sincos(a, out s, out c);
+     //   center_i = worldCenter + MapCenterRadius * float2(c, s)
+     // Hồ: dLake = min_i distance(pos, center_i) / LakeRadius ; inLake = dLake < 1
+     if (inLake) h -= LakeDepth * (1 - dLake * dLake)
+
+     // Đất liền
+     shore = LandRadius + CoastWarpAmplitude * snoise(pos * CoastWarpFrequency + offsetCoast) - distance(pos, worldCenter)
+     island = smoothstep(0, CoastFalloff, shore)
+     edge = min(min(x, z), min(SizeX - 1 - x, SizeZ - 1 - z))
+     if (edge < SeaRing) island = 0
+     h = lerp(SeaFloor, h, island)
+
+     // Bảng map
+     if (island <= 0) MapIds[column] = 255 (MapTable.Ocean)
+     else
+       f = BorderWarpFrequency ; A = BorderWarpAmplitude
+       q = pos + A * float2(snoise(pos * f + offsetWarpX1), snoise(pos * f + offsetWarpZ1))
+               + (0.25 * A) * float2(snoise(pos * (2 * f) + offsetWarpX2), snoise(pos * (2 * f) + offsetWarpZ2))
+       MapIds[column] = chỉ số i có distancesq(q, center_i) nhỏ nhất (so sánh "<" nghiêm ngặt → hoà thì giữ i nhỏ hơn)
+
+     // Mặt đất — như TerrainJob :110-117, bản v2
+     surface = clamp((int)floor(h), MinSurface, MaxSurface)
+     if (inLake || island < 1) surface = min(max((int)floor(h), BedrockLayers), MaxSurface)
+     sandTop = surface <= WaterLevel + SandBand
+     // Ghi lớp ô: chép nguyên khối vòng for :119-142 của TerrainJob (đá đáy, cỏ/cát, đất, đá, nước đầy, rỗng)
+     ```
+   - Copy `MarkIfManaged` như `:145-149`.
+
+   Xong khi: biên dịch không lỗi; test `RunsWithBurst` (bước 7) đạt.
+
+5. **JSON**: tạo `design/data/world_maps_m1.json`, viết đúng nội dung dưới đây (4 dấu cách thụt lề, giống `world_m1.json`). Sau đó chép **nguyên byte** sang `client/Assets/Game/Client/Resources/Config/world_maps_m1.json` (`cp`).
+   ```json
+   {
+       "generatorVersion": 3,
+       "seed": 20261013,
+       "sizeX": 384,
+       "sizeY": 48,
+       "sizeZ": 384,
+       "baseHeight": 22.0,
+       "amplitude1": 10.0,
+       "frequency1": 0.02,
+       "amplitude2": 2.5,
+       "frequency2": 0.08,
+       "minSurface": 10,
+       "maxSurface": 40,
+       "bedrockLayers": 2,
+       "dirtDepth": 3,
+       "waterLevel": 12,
+       "sandBand": 1,
+       "lakeRadius": 12.0,
+       "lakeDepth": 7.0,
+       "seaRing": 24,
+       "seaFloorDepth": 4,
+       "landRadius": 132.0,
+       "coastFalloff": 12.0,
+       "coastWarpAmplitude": 14.0,
+       "coastWarpFrequency": 0.015,
+       "mapCount": 3,
+       "mapCenterRadius": 64.0,
+       "borderWarpAmplitude": 18.0,
+       "borderWarpFrequency": 0.01,
+       "mapNames": ["Map 1", "Map 2", "Map 3"]
+   }
+   ```
+   Nếu phải chỉnh tham số theo Quyết định 9, sửa **cả 3 chỗ**: 2 file JSON và giá trị mặc định trong `WorldMapParams`.
+
+6. **`client/Assets/Game/Client/ConfigLoader.cs`**: thêm `public const string WorldMapsM1Path = "Config/world_maps_m1";` và `public static WorldMapParams LoadWorldMapParams()`, cùng mẫu với `LoadTerrainParams :16-24` (không thấy file thì ném `FileNotFoundException`, sau đó gọi `Validate`). Cập nhật summary của lớp thành `(world_m1, world_maps_m1, sim_m1)`.
+
+7. **Test `client/Assets/Game/Tests/World/WorldMapGeneratorTests.cs`** (namespace `Game.World.Tests`).
+   - Dùng bộ đệm `static readonly Dictionary<uint, (WorldData world, MapTable maps)>` để mỗi seed chỉ sinh một lần. Xoá bộ đệm trong `[OneTimeTearDown]`.
+   - Hàm `Params(uint seed) => new WorldMapParams { seed = seed }`.
+   - `static readonly uint[] Seeds = { 20261013u, 7u, 123456789u, 42u, 99u };`
+   - Mỗi test ghi số đo bằng `TestContext.WriteLine`.
+
+   Các test:
+   - `RunsWithBurst`: `Generate(Params(20261013), out _, out bool burst)` → `Assert.IsTrue(burst)`.
+   - `SameSeedSameWorldAndMaps`: sinh 2 lần **không qua bộ đệm**. Cả `WorldHash.Compute(world)` và `WorldHash.Compute(maps)` đều bằng nhau. Ghi thời gian sinh (Stopwatch, ms) của lần 2.
+   - `DifferentSeedDifferentWorldAndMaps`: seed 1 và 2 → cả 2 mã băm đều khác.
+   - `SizeIs384x48x384`: `world.Size == new WorldSize(384, 48, 384)`, `ChunkCount == 1728`, `maps.SizeX == 384`, `maps.SizeZ == 384`, `maps.MapCount == 3`, `maps.Name(0) == "Map 1"`.
+   - `LayerRules` (chỉ seed 20261013): chép logic `TerrainGeneratorTests.LayerRules :42-84`, dùng `WorldMapParams`. Thay assert "dưới minSurface chỉ ở lòng hồ" bằng: nếu `s < minSurface` thì ô `s + 1` là nước.
+   - `SeaRingIsOcean` (chỉ seed 20261013): mọi cột có `edge < seaRing` (cùng công thức `edge` như job) → `SurfaceHeight == waterLevel − seaFloorDepth`, ô `waterLevel` là nước, ô `waterLevel + 1` rỗng, `maps.Get == MapTable.Ocean`. Đếm số cột như vậy, phải > 0.
+   - `OceanColumnsAreSeaFloorAndLandHasAMap([ValueSource(nameof(Seeds))] uint seed)`: mọi cột `Ocean` có `SurfaceHeight == seaFloor`; mọi cột đất (Quyết định 6) có `maps.Get != Ocean`; mọi giá trị khác `Ocean` đều `< MapCount`.
+   - `EachMapLandAreaWithin25Percent([ValueSource(nameof(Seeds))] uint seed)`: đếm cột đất theo map. Mỗi map phải nằm trong `[12288, 20480]` (128² ± 25%). Ghi số đếm của cả 3 map.
+   - `EachMapIsOneRegion([ValueSource(nameof(Seeds))] uint seed)`: với mỗi map i, BFS 4 hướng từ cột đầu tiên thuộc i (quét z rồi x), chỉ đi qua cột có `Get == i`. Số cột tới được phải bằng tổng số cột của map i.
+   - `EachBorderBendsAtLeast8([ValueSource(nameof(Seeds))] uint seed)`: với mỗi cặp `a < b`:
+     - `B` = danh sách cột `(x, z)` có `Get == a` và có ít nhất một cột kề 4 hướng (trong world) mang `Get == b`, quét z rồi x.
+     - `B` rỗng → fail "map a và b không giáp nhau".
+     - `P`, `Q` = cặp trong `B` có khoảng cách bình phương (số nguyên) lớn nhất; hoà thì giữ cặp tìm thấy trước (vòng `i < j`, `j` từ `i + 1`).
+     - Assert `|Q − P| >= 32`.
+     - `dev` = max trên `B` của `|cross(Q − P, R − P)| / |Q − P|` (tính bằng `double`). Assert `dev >= 8`. Ghi `dev` của từng cặp.
+   - `NoFlagsSetByGenerator` (seed 20261013): như `TerrainGeneratorTests :86-95`.
+
+   Xong khi: mọi test trong lớp đều đạt. Nếu test hình dạng hỏng thì làm theo Quyết định 9.
+
+8. **`GoldenHashTests.cs` + `ConfigTests.cs`** (chỉ thêm, giữ nguyên test cũ):
+   - `GoldenHashTests`:
+     - thêm `public const string ExpectedV3World = "...";` và `public const string ExpectedV3Maps = "...";`, summary `v3 (world nhiều map, 0022) — macOS ARM64 <ngày>; điện thoại: chờ user (brief 0009).`;
+     - thêm test `WorldMapsMatchGoldenHash`: `new WorldMapParams()`, assert `generatorVersion == 3`, so `WorldHash.ToHex` của world và của maps với 2 hằng.
+     - Cách lấy giá trị: chạy test lần đầu với chuỗi `"0000000000000000"`, lấy giá trị thật từ dòng `TestContext.WriteLine`/thông báo lỗi, chép vào hằng, chạy lại cho đạt. **Chỉ lấy sau khi** mọi test ở bước 7 đã đạt (tham số đã cố định).
+   - `ConfigTests`: thêm 3 test theo mẫu `:14-49`, dùng `world_maps_m1.json` + `WorldMapParams`:
+     - `WorldMapsClientCopyMatchesDesignData`;
+     - `WorldMapsConfigParsesAndValidates` (Size = `384×48×384`, `generatorVersion == 3`, `mapNames.Length == 3`);
+     - `WorldMapsConfigMatchesCodeDefaults` (so `JsonUtility.ToJson`).
+
+9. **Ảnh xem trước `client/Assets/Game/Client/Editor/WorldMapPreview.cs`** (namespace `Game.Client.Editor`):
+   - `using`: `System.Diagnostics` (Stopwatch), `System.IO`, `Game.Core`, `Game.World`, `UnityEditor`, `UnityEngine`; `ConfigLoader` nằm ở namespace cha `Game.Client`. Gọi Debug bằng `UnityEngine.Debug.Log` (tránh trùng tên với `System.Diagnostics.Debug`).
+   - Trước tiên thêm `"Game.Core"` và `"Game.World"` vào `references` của `Game.Client.Editor.asmdef`, sau `"Game.Client"`.
+   - `[MenuItem("Game/Ảnh xem trước world nhiều map")] public static void Export()`:
+     - gọi `ConfigLoader.LoadWorldMapParams()` rồi `WorldMapGenerator.Generate(p, out var maps, out bool burst)`, đo ms;
+     - `var tex = new Texture2D(p.sizeX, p.sizeZ, TextureFormat.RGBA32, false)`;
+     - tạo mảng `Color32[sizeX * sizeZ]`, phần tử `[x + sizeX * z]` (góc dưới trái = (0, 0), +z hướng lên);
+     - `tex.SetPixels32(px); tex.Apply();`
+     - `Directory.CreateDirectory("Builds")`, rồi `File.WriteAllBytes("Builds/world_maps_preview.png", ImageConversion.EncodeToPNG(tex))`;
+     - `UnityEngine.Object.DestroyImmediate(tex)`;
+     - `Debug.Log("WORLDPREVIEW ...")` gồm: seed, ms, burst, 2 mã băm (hex), số cột đất của từng map kèm tên.
+   - Màu mỗi cột (theo thứ tự ưu tiên):
+     1. Viền ranh giới: `Get(x, z) != Ocean` và (`x + 1 < sizeX` và `Get(x + 1, z)` khác Ocean và khác `Get(x, z)`) hoặc (`z + 1 < sizeZ` và `Get(x, z + 1)` khác Ocean và khác `Get(x, z)`) → `(30, 30, 30, 255)`.
+     2. Nước (`s = SurfaceHeight < waterLevel`): `depth = waterLevel − s`, `t = min(depth − 1, 7) / 7f`, màu = `Color32.Lerp(new Color32(90, 170, 220, 255), new Color32(20, 60, 140, 255), t)`.
+     3. Đất: `tier = s / 4`, màu theo bảng `tier → RGB`: 0–2 `(200, 190, 120)` · 3 `(120, 180, 90)` · 4 `(100, 165, 80)` · 5 `(85, 150, 70)` · 6 `(110, 140, 70)` · 7 `(140, 130, 80)` · 8 `(150, 120, 90)` · 9 `(160, 140, 120)` · 10 `(200, 200, 200)` · ≥ 11 `(240, 240, 240)`; alpha 255.
+   - Xong khi: chạy menu (MCP `execute_menu_item` "Game/Ảnh xem trước world nhiều map") → có file `client/Builds/world_maps_preview.png` 384 × 384, console có dòng `WORLDPREVIEW`, không lỗi.
+
+10. **`HashCheckView.cs`**: giữ nguyên phần v2 (dòng `:19-25`). Sau đó sinh thêm world v3 bằng `ConfigLoader.LoadWorldMapParams()` + `WorldMapGenerator.Generate(p3, out var maps, out bool burst3)`, đo ms riêng.
+    - Nối vào `text` (giữ nguyên chữ):
+      ```
+      \n\nworld_maps_m1 v{p3.generatorVersion} seed {p3.seed}\nworld {worldHash3}\nmaps {mapsHash3}\nburst {burst3} · {ms3} ms
+      ```
+    - Thêm log `Debug.Log($"HASHCHECK3 world={worldHash3} maps={mapsHash3} burst={burst3} ms={ms3} v={p3.generatorVersion} seed={p3.seed}");`.
+    - Đổi summary của lớp: thêm câu `Kèm world nhiều map v3 (world_maps_m1) — phải trùng GoldenHashTests.ExpectedV3World / ExpectedV3Maps.`
+    - Xong khi: Play scene `Assets/Game/Client/Scenes/HashCheck.unity` trong Editor → console có dòng `HASHCHECK3` với 2 mã băm trùng 2 hằng ở bước 8 và `burst=True`. Thoát Play.
+
+11. **Build APK cho user kiểm trên điện thoại**: chạy menu `Game/Build APK HashCheck` → `client/Builds/hashcheck.apk`. Máy này không có `adb` trong PATH, nên **không** tự cài: ghi đường dẫn APK vào Kết quả, phần điện thoại để `chờ user`. Sau khi build → `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`. Kiểm `git status`: không còn thay đổi ngoài Phạm vi; nếu có file ProjectSettings khác bị đổi thì ghi lại tên file, **không** tự revert.
+
+12. Commit code (message `brief 0009: bộ sinh world nhiều map v3`), sau đó điền mục Kết quả + Kết quả test, đổi trạng thái → `chờ review`, rồi commit brief.
+
+## Tiêu chí xong
+- Mọi test EditMode đạt: test cũ + `WorldMapGeneratorTests` + 3 test mới trong `ConfigTests` + `WorldMapsMatchGoldenHash`. PlayMode cũ vẫn đạt.
+- `Version1StillMatchesItsGoldenHash` và `DefaultWorldMatchesGoldenHash` (v2) vẫn đạt với hằng cũ, không sửa.
+- Có `client/Builds/world_maps_preview.png` và `client/Builds/hashcheck.apk` (không commit, đã gitignore).
+- `HASHCHECK3` trong Editor trùng golden hash.
+- Mục Kết quả có đủ: thời gian sinh v3 trong Editor (ms); số cột đất từng map × 5 seed; `dev` từng cặp × 5 seed; bảng chỉnh tham số (nếu có); giờ bắt đầu/kết thúc.
+
+## Test sau khi xong
+### Phần cần test
+- **WorldMapParams.Validate + JSON** (bước 1, 5) · `ConfigTests.WorldMapsConfigParsesAndValidates`, `WorldMapsConfigMatchesCodeDefaults`, `WorldMapsClientCopyMatchesDesignData` · đạt.
+- **MapTable + WorldHash.Compute(MapTable)** (bước 2, 3) · `SameSeedSameWorldAndMaps`, `DifferentSeedDifferentWorldAndMaps`, `SizeIs384x48x384` · đạt.
+- **Bộ sinh chạy Burst, tất định** (bước 4) · `RunsWithBurst`, `SameSeedSameWorldAndMaps` · `burst = true`, mã băm bằng nhau.
+- **Lớp ô đúng luật** (bước 4) · `LayerRules`, `NoFlagsSetByGenerator` · đạt.
+- **Vành biển + bảng map khớp đất/biển** (bước 4) · `SeaRingIsOcean`, `OceanColumnsAreSeaFloorAndLandHasAMap` × 5 seed · đạt.
+- **Diện tích mỗi map 128² ± 25%** (tiêu chí 7a) · `EachMapLandAreaWithin25Percent` × 5 seed · đạt, ghi số.
+- **Ranh giới cong ≥ 8 ô, map liền một khối** (tiêu chí 7a) · `EachBorderBendsAtLeast8`, `EachMapIsOneRegion` × 5 seed · đạt, ghi `dev`.
+- **Golden hash v3** (bước 8) · `WorldMapsMatchGoldenHash` · đạt.
+- **Golden hash v1/v2 không đổi** (hồi quy, Quyết định 1) · `GoldenHashTests.Version1StillMatchesItsGoldenHash`, `DefaultWorldMatchesGoldenHash` · đạt, hằng không đổi trong diff.
+- **ConfigLoader** (bước 6) · gián tiếp qua bước 9 + 10 (menu và HashCheck đọc từ Resources) · không lỗi.
+- **Ảnh xem trước** (bước 9) · chạy menu · có file PNG 384 × 384 + dòng `WORLDPREVIEW`.
+- **HashCheck v3** (bước 10) · Play scene HashCheck trong Editor · dòng `HASHCHECK3` trùng 2 hằng, `burst=True`; dòng `HASHCHECK` v2 vẫn `807d00bd048026a0`.
+- **Phần cũ có thể bị ảnh hưởng** (asmdef Editor đổi, Resources thêm file) · toàn bộ EditMode + PlayMode · số test cũ đạt như trước (EditMode 213 + test mới, PlayMode 8/8).
+
+### Lệnh executor chạy
+1. `python3 "<Plugin root>/scripts/brief_check.py" 0009 --model <model id>` (theo skill exec).
+2. MCP `run_tests` EditMode, lọc `Game.World.Tests.WorldMapGeneratorTests` → đạt (lặp theo Quyết định 9 nếu cần).
+3. MCP `run_tests` EditMode toàn bộ → đạt hết; ghi tổng số.
+4. MCP `run_tests` PlayMode toàn bộ → 8/8. Sau đó `git checkout -- client/ProjectSettings/EditorSettings.asset`.
+5. MCP `execute_menu_item` "Game/Ảnh xem trước world nhiều map" → `read_console` lấy dòng `WORLDPREVIEW`; `ls -la client/Builds/world_maps_preview.png`.
+6. Mở scene HashCheck, Play, `read_console` lấy `HASHCHECK` + `HASHCHECK3`, thoát Play.
+7. MCP `execute_menu_item` "Game/Build APK HashCheck" → `ls -la client/Builds/hashcheck.apk`. Sau đó `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`.
+8. `python3 tools/check_design.py` → exit 0.
+9. `git status --short` → chỉ còn file trong Phạm vi (trước commit).
+
+### User tự test
+1. Mở `client/Builds/world_maps_preview.png` (phóng to lên khoảng 2–3 lần). Cần thấy:
+   - một khối đất ở giữa, biển bao quanh, mép ảnh toàn màu biển;
+   - đúng 3 vùng ngăn bởi đường viền đen; mỗi đường viền đi từ gần tâm ra bờ biển và **cong** (không thẳng, không phải hình chữ nhật);
+   - mỗi vùng có một hồ (vệt xanh) ở gần giữa;
+   - bờ biển lượn, không tròn đều.
+   Nhận xét hình dạng có vừa ý không (vd muốn ranh giới cong hơn hay đất to/nhỏ hơn).
+2. Cài `client/Builds/hashcheck.apk` lên điện thoại Android (Xiaomi 24095PCADG đã dùng ở bước 1). Mở app, chờ dòng `world_maps_m1 v3`. Đọc 2 mã `world ...` và `maps ...`, so với `ExpectedV3World` / `ExpectedV3Maps` trong mục Kết quả: phải **trùng**. Ghi thêm số ms hiện trên màn hình. Dòng v2 phía trên vẫn là `807d00bd048026a0`.
+
+## Dừng và chuyển lại Opus khi
+- Brief mơ hồ hoặc mâu thuẫn với code thật.
+- Cần một quyết định thuộc AGENTS.md §3.4 hoặc ngoài "Quyết định đã chốt" (vd đổi công thức, đổi seed test, nới ngưỡng).
+- Test hình dạng vẫn hỏng sau khi chỉnh đúng như Quyết định 9.
+- Mã băm v1/v2 đổi.
+- Cùng một lỗi sửa 2 lần vẫn chưa qua.
+- Phải sửa file ngoài "Phạm vi".
+
+---
+<!-- Từ đây trở xuống: EXECUTOR ghi. -->
+
+## Kết quả
+<!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
+
+## Kết quả test
+<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
+Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+
+## Vướng mắc
+<!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
+
+---
+<!-- PLANNER ghi khi review. -->
+
+## Review
+<!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
