@@ -1,6 +1,6 @@
 # Brief 0009 — World bước 7a: bộ sinh world nhiều map (generatorVersion 3)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-20 13:10 (Planner trả lời Vướng mắc: thêm gộp mảnh rời — QĐ 10, bước 4b)
@@ -397,7 +397,13 @@ Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimVi
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 - Base commit: ba77040
 - Chạy bằng: claude-sonnet-5-5 · medium (OK: brief 0009 cần Sonnet · medium — phiên: claude-sonnet-5-5 · medium)
-- Bắt đầu: 2026-10-20 12:05; dừng 12:30 (cần Opus).
+- Bắt đầu: 2026-10-20 12:05; dừng 12:30 (cần Opus). Làm tiếp lần 2 từ 14:00 (base commit 90b3845, claude-sonnet-5-5 · medium), xong 14:15.
+- Commit code: d5f6b17 (lần 2: MapTable.MergeFragments + gọi trong WorldMapGenerator + 2 test MergeFragments + hằng golden v3); code còn lại ở WIP 711755b. Không chỉnh tham số (borderWarpAmplitude giữ 18, lượt 2+ không cần).
+- Golden v3 (macOS ARM64): ExpectedV3World = a7719c8999939263 · ExpectedV3Maps = ab2074e6196e5f51.
+- APK: client/Builds/hashcheck.apk (34,6 MB); ảnh: client/Builds/world_maps_preview.png (384×384).
+- Thời gian sinh v3 trong Editor: 12–14 ms (test/menu), 23 ms (HashCheck).
+- Cột đất theo map [Map1, Map2, Map3]: 20261013 [17854, 14668, 18242] · 7 [16407, 16302, 16643] · 123456789 [17151, 18045, 16294] · 42 [17104, 16762, 16552] · 99 [16807, 16698, 17433].
+- dev ranh giới [0-1, 0-2, 1-2]: 20261013 [15.46, 15.35, 18.67] · 7 [14.56, 11.38, 17.12] · 123456789 [28.35, 9.46, 24.15] · 42 [23.51, 11.92, 13.04] · 99 [17.03, 11.18, 24.19].
 - Đã làm: bước 1–4 (WorldMapParams, MapTable, WorldHash.Compute(MapTable), WorldMapGenerator), 5 (JSON ×2), 6 (ConfigLoader), 7 (WorldMapGeneratorTests), 8 (test golden/config; hằng ExpectedV3* còn "0000000000000000" — chưa lấy), 9 (WorldMapPreview + asmdef), 10 (HashCheckView). Chưa chạy: bước 8 lấy hash, 9–11 chạy menu/build, test toàn bộ. Code để ở commit WIP `brief 0009: WIP`.
 - Bảng chỉnh tham số (Quyết định 9), tham số trả về 18 (giá trị brief) khi dừng:
 
@@ -405,10 +411,16 @@ Bước này **chỉ** thêm bộ sinh. Các scene đang có (TerrainView, SimVi
 |---|---|---|
 | 0 | borderWarpAmplitude 18 | `EachMapIsOneRegion(7)` hỏng (map 1: 17612 cột, tới được 17587); các test khác đạt (kể cả `EachBorderBendsAtLeast8` 5 seed) |
 | 1 | 18 → 14 (vì EachMapIsOneRegion hỏng) | `EachMapIsOneRegion(7)` VẪN hỏng (17510 / 17487); thêm `EachBorderBendsAtLeast8(123456789)` hỏng (cặp 0-2 dev 7.53) và `(99)` hỏng (cặp 0-2 dev 7.57) |
+| 2 | trả về 18 + MergeFragments (QĐ 10, không chỉnh tham số) | mọi test hình dạng đạt, 5 seed |
 
 ## Kết quả test
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
-Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+- WorldMapParams/JSON (ConfigTests ×3) → đạt (trong EditMode toàn bộ 246/246).
+- MapTable + hash, Burst, tất định, lớp ô, vành biển, bảng map khớp đất/biển, diện tích ±25%, gộp mảnh (2 test), ranh giới cong ≥ 8 + một khối × 5 seed, golden v3 → đạt (WorldMapGeneratorTests 29/29; WorldMapsMatchGoldenHash đạt trong toàn bộ).
+- Golden v1/v2 không đổi → đạt (hằng cũ không sửa).
+- Ảnh xem trước → đạt: dòng `WORLDPREVIEW seed=20261013 ms=14 burst=True world=a7719c8999939263 maps=ab2074e6196e5f51 ...`, PNG 384×384.
+- HashCheck → đạt: `HASHCHECK hash=807d00bd048026a0 ... v=2`; `HASHCHECK3 world=a7719c8999939263 maps=ab2074e6196e5f51 burst=True ms=23 v=3`.
+- Điện thoại + nhận xét ảnh → chờ user.
+- Lệnh: brief_check → OK; EditMode toàn bộ → 246/246; PlayMode → 8/8 (đã `git checkout` EditorSettings.asset); menu ảnh → ok; Play HashCheck → ok; build APK → Succeeded (đã checkout UnityConnectSettings.asset); check_design → exit 0; git status chỉ còn file trong Phạm vi.
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
