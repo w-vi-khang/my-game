@@ -44,7 +44,6 @@ Shader "Game/Ocean"
             {
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
-                half fogFactor : TEXCOORD1;
             };
 
             Varyings vert(Attributes input)
@@ -53,7 +52,6 @@ Shader "Game/Ocean"
                 VertexPositionInputs p = GetVertexPositionInputs(input.positionOS.xyz);
                 o.positionCS = p.positionCS;
                 o.positionWS = p.positionWS;
-                o.fogFactor = ComputeFogFactor(p.positionCS.z);
                 return o;
             }
 
@@ -108,7 +106,8 @@ Shader "Game/Ocean"
                 half3 diffuse = baseCol * (light.color * ndl * shadow * 0.7 + SampleSH(n));
                 half spec = pow(saturate(dot(n, normalize(light.direction + v))), 160.0) * _Glint * shadow;
                 half3 c = diffuse + light.color * spec;
-                c = MixFog(c, input.fogFactor);
+                // Sương theo khoảng cách thật (brief 0010 QĐ 11): far clip phẳng + màn hình rộng → mép nhìn xa hơn bán kính nạp.
+                c = MixFog(c, ComputeFogFactorZ0ToFar(distance(input.positionWS, GetCameraPositionWS())));
                 return half4(c, 1);
             }
             ENDHLSL

@@ -53,7 +53,6 @@ Shader "Game/Terrain"
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 half3 normalWS : TEXCOORD1;
-                half fogFactor : TEXCOORD2;
                 half4 color : COLOR;
             };
 
@@ -64,7 +63,6 @@ Shader "Game/Terrain"
                 o.positionCS = p.positionCS;
                 o.positionWS = p.positionWS;
                 o.normalWS = TransformObjectToWorldNormal(input.normalOS);
-                o.fogFactor = ComputeFogFactor(p.positionCS.z);
                 half4 col = input.color;
             #if !defined(UNITY_COLORSPACE_GAMMA)
                 col.rgb = SRGBToLinear(col.rgb); // màu đỉnh ghi theo sRGB
@@ -150,7 +148,8 @@ Shader "Game/Terrain"
                 half3 direct = light.color * (ndl * light.shadowAttenuation * light.distanceAttenuation);
                 half3 ambient = SampleSH(n) * _AmbientStrength;
                 half3 c = albedo * (direct + ambient);
-                c = MixFog(c, input.fogFactor);
+                // Sương theo khoảng cách thật (brief 0010 QĐ 11): far clip phẳng + màn hình rộng → mép nhìn xa hơn bán kính nạp.
+                c = MixFog(c, ComputeFogFactorZ0ToFar(distance(input.positionWS, GetCameraPositionWS())));
                 return half4(c, 1);
             }
             ENDHLSL

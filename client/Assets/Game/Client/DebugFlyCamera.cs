@@ -22,6 +22,9 @@ namespace Game.Client
             pitch = e.x > 180f ? e.x - 360f : e.x;
         }
 
+        /// <summary>Đang giữ phím di chuyển W/A/S/D/Q/E (brief 0010 QĐ 11).</summary>
+        public static bool IsMoveKeyHeld(Keyboard kb) => kb != null && (kb.wKey.isPressed || kb.aKey.isPressed || kb.sKey.isPressed || kb.dKey.isPressed || kb.qKey.isPressed || kb.eKey.isPressed);
+
         void Update()
         {
             var kb = Keyboard.current;

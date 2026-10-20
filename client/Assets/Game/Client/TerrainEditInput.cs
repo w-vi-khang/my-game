@@ -71,6 +71,8 @@ namespace Game.Client
             float worldPerPixel = 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) / Screen.height;
             outline.widthMultiplier = outlinePixels * worldPerPixel;
 
+            if (DebugFlyCamera.IsMoveKeyHeld(kb)) return; // Đang bay: chỉ đào/đặt khi dừng (user 2026-10-20).
+
             if (mouse.leftButton.wasPressedThisFrame)
             {
                 var m = view.World.Size.InBounds(digCell.x, digCell.y, digCell.z)
@@ -107,7 +109,7 @@ namespace Game.Client
         {
             if (view.Inventory == null)
                 return;
-            var text = "Chuột trái: đào · Chuột phải: đặt loại đang chọn · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera\nKho: ";
+            var text = "Chuột trái: đào · Chuột phải: đặt loại đang chọn · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\nKho: ";
             for (int i = 0; i < Palette.Length; i++)
                 text += i == selected
                     ? $"<b><color=yellow>[{i + 1} {PaletteNames[i]}: {view.Inventory.Get(Palette[i])}]</color></b>   "
