@@ -27,6 +27,7 @@
 | Tạo 3D bằng Hyper3D Rodin / Hunyuan3D cloud qua blender-mcp | AI (2026-10-12) | — | loại | Cần API key riêng; user không dùng key dịch vụ (sợ hết quota giữa chừng). Chọn HF Spaces |
 | Tạo 3D local bằng AssetFurnace (Pixal3D, TRELLIS.2 port Mac) | AI (2026-10-12) | — | loại | README khuyên 32 GB (máy 16 GB); Pixal3D/TRELLIS cần Xcode đầy đủ + Metal 4 (`xcrun metal -std=metal4.0`), có thể cần macOS 26 [run 2026-10-12]; DINOv3 bị khoá. Xét lại nếu đổi máy |
 | Hunyuan3D-2 (local hoặc qua AssetFurnace) | AI (2026-10-12) | — | loại | Giấy phép loại trừ EU, Anh, Hàn Quốc và cấm dùng output ngoài vùng → không hợp game phát hành toàn cầu |
+| Dải tối trên vách đất ngay dưới mép cỏ (bóng đổ giả bằng màu đỉnh, như Pokopia) | AI (2026-10-20, khi xem brief 0013) | — | để sau | User: làm mép cỏ bo tròn (world 7b4) trước, xem rồi mới quyết. Ước ~0,25 ngày, không thêm tam giác |
 | TRELLIS.2 trên Google Colab / Kaggle miễn phí | User (2026-10-12) | — | loại | GPU free 16 GB (T4/P100) < 24 GB TRELLIS.2 yêu cầu; phải build lại extension mỗi phiên |
 | TRELLIS.2 qua fal.ai (0,25–0,35 $/lần) | User (2026-10-12) | — | để sau | Cần tài khoản + credit; dùng khi quota HF free không đủ cho sản xuất (M2) |
 | blenderwright (MCP Blender 191 tool, MIT) | User (2026-10-12) | — | để sau | Không thêm khả năng so với blender-mcp + Python; xét lại nếu rig bằng Python hay lỗi |

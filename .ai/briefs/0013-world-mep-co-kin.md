@@ -1,9 +1,9 @@
 # Brief 0013 — World 7b3 (phần 2): đóng mặt dưới mép cỏ
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 21:32
+> Cập nhật: 2026-10-20
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -284,4 +284,5 @@ Mở scene TerrainView, Play (chuột): lặn xuống nước cạnh một bờ 
 - Test: 2 test mới hỏng trước bước 3 (dòng lỗi đã ghi) và đạt sau; EditMode 271/271, PlayMode 19/19 (không chạy lại — không đáng ngờ). MESHSTATS: mép cỏ ×1,97 (trong dự kiến ×2), đỉnh lớn nhất/chunk 8.276 ≪ 65.535.
 - Điện thoại (Planner, 21:29): menu "Game/Tạo scene Bench" (Bench chép TerrainView, nay có WorldEdgeFog; `Bench.unity.meta` trả guid cũ) → "Game/Build APK Bench" → cài qua adb **không dây 192.168.1.6:5555** (USB `PFQCRWVWR46HU4GQ` không thấy trong `adb devices`). `BENCH ... avgFps=42,2 p99Ms=41,58 ... holeFrames=0 ... pass30fps=True passNoHole=True | tris=2090722` [run] (7b2: 43,0).
 - Giờ: Kết quả ghi "Kết thúc ~21:40" nhưng commit kết quả lúc 21:21 và lúc review là 21:25 → giờ ghi sai; theo git ~7 phút. Lần thứ hai liên tiếp (0012 cũng vậy) — executor nên lấy giờ bằng `date`, không ước đoán.
-- Chờ user xem (mục "User tự test" 1–3) rồi mới kết luận.
+- User xem [user]: đáy kín đạt, nhưng mép cỏ vẫn mỏng, không ôm khối (so với Pokopia) → không phải lỗi so với brief; user chọn đổi mặt cắt thành mép bo tròn ôm khối ở world 7b4 (brief 0014). Dải tối dưới mép cỏ → ideas (để sau).
+- Kết luận: đã duyệt
