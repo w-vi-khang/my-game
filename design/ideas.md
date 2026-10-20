@@ -46,3 +46,4 @@
 | Ô ruộng bị đặt khối lên: giữ ô trong lệnh, tạm dừng; gỡ khối ra thì vụ kế chạy tiếp | AI (2026-10-19) | P2 | loại | User chọn: ô rời lệnh, ô ruộng bên dưới trở lại đất ([0020](decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)) |
 | Huỷ vụ khi cây đã chín: trả cả nông sản + hạt; hoặc chỉ trả hạt khi chưa gieo xong | AI (2026-10-19) | — | loại | User chọn trả 1 hạt, nông sản chưa thu thì mất ([0020](decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)) |
 | Sương che vùng chưa khám phá trên minimap | AI (2026-10-19, khi chốt 0022) | P3 | để sau | Không thuộc phạm vi M1 của [0022](decisions/0022-world-nhieu-map-va-minimap-m1.md); cần lưu vùng đã khám phá cùng dữ liệu world (M2) |
+| Preset noise độ cao riêng cho từng map (đồi, phẳng…), pha trộn quanh ranh giới | AI (2026-10-19, world-tech) | P3 | để sau | User chọn một bộ noise chung cho world v3 ở world bước 7a (2026-10-20); không pha trộn thì thành vách đứng ở ranh giới; thêm khoảng 0,5–1 ngày-người |
