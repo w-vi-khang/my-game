@@ -876,3 +876,10 @@ Task [world bước 7](../tasks/m1-world-buoc-7-nhieu-map-minimap.md), dòng **7
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+- `client_test` EditMode: đạt 301/301 — chạy qua MCP `run_tests` (Editor đang mở nên không dùng `tools/unity_test.py`, theo AGENTS.local.md).
+- `client_test_play` PlayMode: đạt 27/27 (gồm `MinimapViewPlayTests` 8/8) — qua MCP.
+- Không chạy `design`, `asset_check` (file đổi ngoài phạm vi).
+- Checklist: pillar/thành phần/glossary/nhất quán thiết kế/nguồn/ước lượng — không áp dụng (không đổi `design/`; bản đồ là client Unity, hạng mục 7c M1). Game.Core không sửa — đạt. Bước M1 7c có test đúng "Xong khi" — đạt (xem Kết quả test). Chỉ làm hạng mục M1 — đạt. Giờ thực tế ~14 phút — đã ghi ở Kết quả.
+- Dọn: `Bench.unity.meta`, `UnityConnectSettings.asset`, `EditorSettings.asset` do Unity ghi lại đã `git checkout`; `git status` sạch.
