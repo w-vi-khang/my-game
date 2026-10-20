@@ -120,6 +120,10 @@ namespace Game.Client.Editor
             if (under == null)
                 under = cam.gameObject.AddComponent<UnderwaterView>();
             under.terrain = view;
+            under.fogColor = new Color(0.14f, 0.44f, 0.56f);
+            under.backgroundColor = new Color(0.42f, 0.70f, 0.82f);
+            under.fogStart = 0f;
+            under.fogEnd = 40f;
             EditorUtility.SetDirty(under);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);

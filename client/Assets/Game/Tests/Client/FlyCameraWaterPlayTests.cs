@@ -100,7 +100,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(40f, RenderSettings.fogEndDistance, 1e-4f);
             Assert.AreEqual(under.fogColor, RenderSettings.fogColor);
             Assert.AreEqual(CameraClearFlags.SolidColor, cam.clearFlags);
-            Assert.AreEqual(under.fogColor, cam.backgroundColor);
+            Assert.AreEqual(under.backgroundColor, cam.backgroundColor);
             fly.Fly(new Vector3(0, 3.2f, 0));
             yield return null;
             Assert.IsFalse(under.IsUnderwater);

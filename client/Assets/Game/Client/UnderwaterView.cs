@@ -5,14 +5,16 @@ using UnityEngine;
 namespace Game.Client
 {
     /// <summary>
-    /// Camera dưới nước (world-tech bước 7b2, brief 0011): sương ngắn màu nước + nền màu nước (không lộ skybox ở chân trời);
+    /// Camera dưới nước (world-tech bước 7b2, brief 0011): sương ngắn màu nước + nền sáng màu nước (không lộ skybox ở chân trời);
     /// lên khỏi nước thì trả lại sương và nền cũ của scene.
     /// </summary>
     [RequireComponent(typeof(Camera))]
     public class UnderwaterView : MonoBehaviour
     {
         public TerrainChunkView terrain;
-        public Color fogColor = new Color(0.08f, 0.32f, 0.45f);
+        public Color fogColor = new Color(0.14f, 0.44f, 0.56f);
+        /// <summary>Nền khi dưới nước — sáng hơn sương: nhìn lên qua mặt nước thấy sáng như ánh trời (brief 0011 sửa 1).</summary>
+        public Color backgroundColor = new Color(0.42f, 0.70f, 0.82f);
         public float fogStart = 0f;
         public float fogEnd = 40f;
 
@@ -61,7 +63,7 @@ namespace Game.Client
             RenderSettings.fogStartDistance = fogStart;
             RenderSettings.fogEndDistance = fogEnd;
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = fogColor;
+            cam.backgroundColor = backgroundColor;
             IsUnderwater = true;
         }
 

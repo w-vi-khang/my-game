@@ -104,7 +104,8 @@ Shader "Game/Ocean"
                 float h = Waves(uv);
                 float dx = (Waves(uv + float2(e, 0)) - h) / e, dz = (Waves(uv + float2(0, e)) - h) / e;
                 float3 n = normalize(float3(-dx * _RippleStrength, 1, -dz * _RippleStrength));
-                n = IS_FRONT_VFACE(face, n, -n); // mặt dưới (camera dưới nước, Cull Off): pháp tuyến quay xuống
+                float3 nLit = n; // chiếu sáng luôn theo pháp tuyến hướng lên: mặt dưới sáng như mặt trên (brief 0011 sửa 1 — từ dưới nhìn lên không tối)
+                n = IS_FRONT_VFACE(face, n, -n); // mặt dưới (camera dưới nước, Cull Off): pháp tuyến quay xuống — chỉ dùng cho fresnel và lấp lánh
 
                 float3 v = normalize(GetWorldSpaceViewDir(input.positionWS));
                 half fres = pow(1.0 - saturate(dot(v, n)), 3.0);
@@ -112,8 +113,8 @@ Shader "Game/Ocean"
 
                 Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half shadow = light.shadowAttenuation * light.distanceAttenuation;
-                half ndl = saturate((dot(n, light.direction) + 0.3) / 1.3);
-                half3 diffuse = baseCol * (light.color * ndl * shadow * 0.7 + SampleSH(n));
+                half ndl = saturate((dot(nLit, light.direction) + 0.3) / 1.3);
+                half3 diffuse = baseCol * (light.color * ndl * shadow * 0.7 + SampleSH(nLit));
                 half spec = pow(saturate(dot(n, normalize(light.direction + v))), 160.0) * _Glint * shadow;
                 half3 c = diffuse + light.color * spec;
                 // Sương theo khoảng cách thật (brief 0010 QĐ 11): far clip phẳng + màn hình rộng → mép nhìn xa hơn bán kính nạp.
