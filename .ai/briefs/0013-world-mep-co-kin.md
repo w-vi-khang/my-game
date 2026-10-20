@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 21:40
+> Cập nhật: 2026-10-20 21:32
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -279,3 +279,9 @@ Mở scene TerrainView, Play (chuột): lặn xuống nước cạnh một bờ 
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi. 8/8 dòng "Phần cần test" có kết quả; "User tự test" chờ user.
+- Diff f0d32bd (2 file, đúng Phạm vi): `LipFloor`, mặt dưới dải, nắp ngũ giác, mặt dưới góc, 2 test mới + sửa `LipIsDeterministicAndContinuousAcrossCellsAndChunks` khớp nguyên văn bước 1–6. Quyết định 1–6 giữ: chỉ thêm tam giác pháp tuyến −y, không đổi mặt trên/váy/collider.
+- Test: 2 test mới hỏng trước bước 3 (dòng lỗi đã ghi) và đạt sau; EditMode 271/271, PlayMode 19/19 (không chạy lại — không đáng ngờ). MESHSTATS: mép cỏ ×1,97 (trong dự kiến ×2), đỉnh lớn nhất/chunk 8.276 ≪ 65.535.
+- Điện thoại (Planner, 21:29): menu "Game/Tạo scene Bench" (Bench chép TerrainView, nay có WorldEdgeFog; `Bench.unity.meta` trả guid cũ) → "Game/Build APK Bench" → cài qua adb **không dây 192.168.1.6:5555** (USB `PFQCRWVWR46HU4GQ` không thấy trong `adb devices`). `BENCH ... avgFps=42,2 p99Ms=41,58 ... holeFrames=0 ... pass30fps=True passNoHole=True | tris=2090722` [run] (7b2: 43,0).
+- Giờ: Kết quả ghi "Kết thúc ~21:40" nhưng commit kết quả lúc 21:21 và lúc review là 21:25 → giờ ghi sai; theo git ~7 phút. Lần thứ hai liên tiếp (0012 cũng vậy) — executor nên lấy giờ bằng `date`, không ước đoán.
+- Chờ user xem (mục "User tự test" 1–3) rồi mới kết luận.
