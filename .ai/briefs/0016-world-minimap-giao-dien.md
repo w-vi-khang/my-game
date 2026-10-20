@@ -1,6 +1,6 @@
 # Brief 0016 — World 7c (phần 2/2): giao diện bản đồ — uGUI, phím M, chuột, chụm 2 ngón, điện thoại
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-20 23:30
@@ -849,10 +849,28 @@ Task [world bước 7](../tasks/m1-world-buoc-7-nhieu-map-minimap.md), dòng **7
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-20 23:09
+- Base commit: d7863e2
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-20 23:23 (~14 phút thực tế)
+- Commit: c02650c. File đổi: Game.Client.asmdef, MinimapLinesGraphic.cs, MinimapMarkerGraphic.cs, MinimapView.cs, MinimapViewPlayTests.cs (+ .meta), TerrainEditInput.cs, DebugFlyCamera.cs, TerrainBench.cs, Editor/TerrainViewCapture.cs, Scenes/TerrainView.unity, Scenes/Bench.unity.
+- **Lệch so với brief (1 chỗ):** thêm `[RequireComponent(typeof(CanvasRenderer))]` vào `MinimapLinesGraphic` và `MinimapMarkerGraphic` — code mẫu thiếu, `MaskableGraphic` không tự thêm CanvasRenderer → lần chạy đầu 8/8 test hỏng `MissingComponentException ... "Ranh giới"`. Sau sửa 8/8 đạt.
+- Máy Xiaomi nối Wi‑Fi `192.168.1.6:5555` (serial USB không có) — dùng phương án dự phòng của brief.
+- `MINIMAPTEST ranh giới 3 đường, 8804 đỉnh, khung 1374x616, dựng 46.1 ms`
+- Điện thoại: `MINIMAP dựng: ảnh 384x384, 3 đường ranh giới, 3 tên, font=LegacyRuntime, khung 1569x616, 121,9 ms`; BENCH `avgFps=36,1 p99Ms=49,94 holeFrames=0 hash=a7719c8999939263`
 
 ## Kết quả test
+- Biên dịch (bước 1–4) · đạt · `read_console` error = 0.
+- Texture / mở-đóng / uv+ranh giới / tên map / dấu người chơi / kéo-phóng / chặn chuột / đảo v2 · đạt · `MinimapViewPlayTests` 8/8.
+- Regression PlayMode cả bộ · đạt · 27/27.
+- Regression EditMode cả bộ · đạt · 301/301.
+- Scene · đạt · grep guid MinimapView = 1 trong TerrainView.unity và Bench.unity.
+- Điện thoại · đạt · font=LegacyRuntime (≠ null), avgFps 36,1 ≥ 30, holeFrames=0, hash khớp.
+- Thao tác thật (phím M, chuột, chụm 2 ngón, PC + điện thoại) · chờ user.
+- Dọn: EditorSettings.asset, UnityConnectSettings.asset, Bench.unity.meta đã checkout lại; git status sạch sau commit code.
 
 ## Vướng mắc
+(không)
 
 ---
 <!-- PLANNER ghi khi review. -->
