@@ -1,9 +1,9 @@
 # Brief 0015 — World 7c (phần 1/2): lõi minimap — ảnh nền tầng độ cao, ranh giới, vị trí tên, phóng to/kéo
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 22:41
+> Cập nhật: 2026-10-20 22:50
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -1086,8 +1086,22 @@ Planner gửi ảnh `client/Builds/world_maps_preview.png` khi review. User xem 
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-20 22:46
+- Base commit: dae0b43
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-20 22:50
+- Commit code: deedb6d — 7 file mới (3 lớp Core + 4 file test, kèm .meta) + sửa `WorldMapPreview.cs` (bỏ LandTiers, dùng `MinimapImage.ColumnColor`).
+- Ghi chú: Editor đang ở Play Mode (không phải do phiên này) nên chặn run_tests → đã `manage_editor stop`. Không chạy PlayMode nên không cần dọn EditorSettings. `client/Builds/` không xuất hiện trong git status.
 
 ## Kết quả test
+- Biên dịch: 0 lỗi console — đạt.
+- 4 lớp mới: 29/29 đạt (MinimapImageTests 3, MinimapOverlayTests 6, MinimapViewportTests 8, MinimapWorldTests 12) — đạt.
+- `MINIMAP build 384×384 ms=15.5`; `MINIMAP tầng đất có mặt: 3,4,5,6,7,8 · dải nước: 0,1`.
+- Ranh giới (lệch xa nhất 0.063, hở xa nhất 0.000 mọi seed): 20261013: 548 cạnh, 3 đường, 2204 điểm; 7: 519/3/2088; 123456789: 560/3/2252; 42: 562/3/2260; 99: 620/3/2492.
+- Vị trí tên (x, z): 20261013: Map1 (123.9,211.9) Map2 (210.6,119.5) Map3 (244.8,238.6); 7: (141.4,243.8) (174.1,125.8) (263.8,209.4); 123456789: (125.4,214.5) (203.8,122.3) (247.1,246.9); 42: (126.2,206.4) (212.6,123.1) (246.6,246.6); 99: (265.8,172.4) (175.6,262.3) (139.8,143.0).
+- Toàn bộ EditMode: 301/301 đạt (187 s).
+- Menu xem trước: `WORLDPREVIEW seed=20261013 ms=24 burst=True world=a7719c8999939263 maps=ab2074e6196e5f51 land: Map 1=17854 Map 2=14668 Map 3=18242` — mã băm không đổi; PNG ghi 22:50 (23416 byte) — đạt.
+- Bảng màu xem bằng mắt: chờ user (Planner gửi `client/Builds/world_maps_preview.png`).
 
 ## Vướng mắc
 
