@@ -1,9 +1,9 @@
 # Brief 0012 — World 7b3 (phần 1): biên world chậm dần + sương, góc nhìn trên HUD
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 19:50
+> Cập nhật: 2026-10-20 20:25
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -332,8 +332,21 @@ Mở scene TerrainView, Play (chuột):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 6d3d055
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-20 19:50 · Kết thúc: ~2026-10-20 20:25 (~35 phút, phần lớn là chờ EditMode ~3,5 phút)
+- Commit code: ced4c10 — DebugFlyCamera.cs, TerrainViewCapture.cs, TerrainView.unity, SkyClouds.shader, TerrainEditInput.cs, UnderwaterView.cs, WorldEdgeFog.cs(+meta), FlyCameraBounds.cs(+meta), FlyCameraBoundsTests.cs(+meta), WorldBoundsPlayTests.cs(+meta)
+- Lệch brief: không có (chép đúng). Ghi chú: Editor đang ở Play lúc đầu → phải `manage_editor stop` trước khi chạy menu/test; ảnh MCP lưu nhầm vào client/client/Logs, đã chuyển về client/Logs. PlayMode tổng 19 (brief ghi 15 + 4 mới).
 
 ## Kết quả test
+- LimitAxis/LimitDelta, EdgeFactor, EdgeFog, ElevationDegrees, FormatElevation: đạt — EditMode FlyCameraBoundsTests 9/9.
+- DebugFlyCamera.Fly có biên: đạt — PlayMode FlyStopsAtWorldEdge, FlyStopsAtCeiling.
+- WorldEdgeFog + UnderwaterView.Refresh: đạt — PlayMode EdgeFogFollowsDistance, EdgeFogUnderwater.
+- Skybox trộn sương: đạt (xem ảnh) — edge_far.png trời có mây; edge_1cell.png trời nhạt, mây mờ, đất ngoài ~11 ô ẩn; edge_at.png gần như một màu sương.
+- HUD góc nhìn: đạt — Euler (−20,0,0) cho nhãn "Góc nhìn: +20° (0° = ngang mặt biển, …)" (hud_pitch.png; chữ khó đọc trên nền trời sáng, chờ user xem).
+- Regression: đạt — EditMode 269/269, PlayMode 19/19 (gồm FlyCameraWater, MoveKey, Streaming, Edit, SimView).
+- check_design.py: exit 0. Đã `git checkout -- EditorSettings.asset`.
+- Chờ user: mục "User tự test" 1–4 (cảm giác chậm dần, sương, nước gần mép).
 
 ## Vướng mắc
 
