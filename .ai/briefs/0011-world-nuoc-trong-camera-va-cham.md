@@ -1,6 +1,6 @@
 # Brief 0011 — World bước 7b2: nước trong + camera bay không xuyên khối
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-20 19:15 (sửa lần 1: từ dưới nước nhìn lên tối)
@@ -496,6 +496,13 @@ Mở scene TerrainView, bấm Play, bấm vào Game view (để nhận phím), b
 - Lệnh: brief_check → OK; run_tests EditMode lọc → 7/7; menu + grep → như trên; EditMode toàn bộ → 260/260; PlayMode toàn bộ → 15/15 (đã `git checkout` EditorSettings.asset); bước 9 → xong; bước 10 → không có máy; check_design → exit 0; git diff Ocean.mat → rỗng.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+
+## Kết quả — sửa lần 1
+- Base commit: 5c0b3bd · Chạy bằng: claude-sonnet-5-5 · medium · 2026-10-20 19:11 → 19:20
+- Commit: `brief 0011: sửa lần 1 — từ dưới nước nhìn lên sáng hơn` (Ocean.shader, UnderwaterView.cs, TerrainViewCapture.cs, FlyCameraWaterPlayTests.cs, TerrainView.unity, Bench.unity)
+- Bước 12–15: làm đúng brief, không lệch. Menu chạy lại cho TerrainView + Bench; `Bench.unity.meta` đổi guid → đã `git checkout` trả lại. grep scene: TerrainView và Bench có fogColor (0.14, 0.44, 0.56), backgroundColor (0.42, 0.7, 0.82). Console không lỗi.
+- Bước 16: ảnh cũ giữ thành `client/Logs/water_below_old.png`; chụp lại `client/Logs/water_below.png` (Euler −15°) và `client/Logs/water_below_up.png` (Euler −60°), vị trí (192,5; 12,3; 56,5), `IsUnderwater=True`. Nền và mặt nước nhìn lên là xanh trời sáng (không còn xanh sẫm); chờ user xem.
+- Bước 17: EditMode 260/260; PlayMode 15/15; đã `git checkout` EditorSettings.asset; `check_design.py` exit 0. Không build APK (theo brief).
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
