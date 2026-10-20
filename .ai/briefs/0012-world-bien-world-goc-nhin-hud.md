@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 20:25
+> Cập nhật: 2026-10-20 20:55
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -354,3 +354,10 @@ Mở scene TerrainView, Play (chuột):
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi. 9/9 dòng "Phần cần test" có kết quả; dòng skybox + HUD + "User tự test" chờ user.
+- Diff ced4c10 (14 file, đều trong Phạm vi): `FlyCameraBounds.cs`, `WorldEdgeFog.cs` khớp nguyên văn bước 1, 5 (`diff -w` [run]); `DebugFlyCamera`, `UnderwaterView.Refresh`, `SkyClouds` (`_EdgeFogBlend` ngoài CBUFFER), HUD, menu đúng bước 2–4, 6–7. Scene: camera có `WorldEdgeFog` (terrain 1663237067, underwater 41987369). `FlyCameraBounds.cs` chỉ `using System;`.
+- Test: FlyCameraBoundsTests 9 `[Test]`, WorldBoundsPlayTests 4 `[UnityTest]`, giá trị assert đúng bước 8–9; tổng 269/269 + 19/19 (không chạy lại — không đáng ngờ).
+- Ảnh: `edge_1cell.png` đất ẩn, trời nhạt dần (đúng end ≈ 11); `hud_pitch.png` đọc được `+20°` nhưng chữ trắng mờ trên nền trời sáng.
+- Giờ: kết quả ghi "kết thúc ~20:25 (~35 phút)" nhưng commit kết quả 19:57, ảnh 19:56 → thực tế ~7 phút theo git; roadmap ghi theo git.
+- Đề xuất (ngoài phạm vi): nhãn HUD khó đọc trên trời sáng → nền mờ/viền chữ, nếu user muốn thì brief riêng.
+- Chờ user xem (mục "User tự test" 1–4) rồi mới kết luận.
