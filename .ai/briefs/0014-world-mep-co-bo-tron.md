@@ -1,9 +1,9 @@
 # Brief 0014 — World 7b4: mép cỏ bo tròn ôm khối
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 21:57
+> Cập nhật: 2026-10-20 22:08
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -329,3 +329,10 @@ Mở scene TerrainView, Play (chuột), so với ảnh mép cỏ Pokopia user g�
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi. 8/8 dòng "Phần cần test" có kết quả; "User tự test" 1–4: user xem ổn [user].
+- Diff 721a659 (2 file, đúng Phạm vi): hằng, `LipProfile` (hàm duy nhất tính mặt cắt — dải, góc, nắp đều gọi), lưới dải 8 hàng × 5 cột mỗi điểm một đỉnh, góc 7 hàng + W thu về trục, nắp 10 đỉnh quạt từ W — khớp Quyết định 1–7. Test mới `LipProfileIsRoundedPillow` + 3 test sửa đúng bước 2. Không còn `LipRound`, `tTop`.
+- Test: EditMode 272/272, PlayMode 19/19 (không chạy lại — không đáng ngờ). Đỉnh lớn nhất/chunk 10.952 ≪ 65.535.
+- **Planner ước sai** ở Quyết định 7: tổng tam giác MESHSTATS tăng +68% (98.698 → 165.578), không phải "~+3%" — mép cỏ (44.376) đã lớn hơn phần địa hình hiển thị (54.322) nên ×2,5 mép cỏ không nhỏ. Riêng mép cỏ ×2,51 đúng ước.
+- Điện thoại (Planner, 22:06): "Game/Tạo scene Bench" → "Game/Build APK Bench" → cài qua adb không dây 192.168.1.6:5555; lần chạy đầu bị tạm dừng do máy khoá màn hình, chạy lại sau khi user mở khoá. `BENCH ... frames=2124 avgFps=53,1 p99Ms=33,29 ... holeFrames=0 ... pass30fps=True passNoHole=True | tris=3889524` [run]. 7b3: 42,2 FPS với tris=2090722 — FPS cao hơn dù nhiều tam giác hơn, chưa rõ lý do (có thể máy mát hơn sau khi nghỉ) [chưa xác minh]; vẫn đạt ≥ 30. Đã trả `Bench.unity.meta` (guid) + `UnityConnectSettings.asset`.
+- Giờ: 21:49–21:57 lấy bằng `date`, khớp git → ghi vào roadmap.
+- Kết luận: đã duyệt
