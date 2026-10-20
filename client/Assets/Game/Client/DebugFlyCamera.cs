@@ -1,3 +1,4 @@
+using Game.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,12 +7,17 @@ namespace Game.Client
     /// <summary>
     /// Camera bay để thử world M1 (bước 4, user duyệt 2026-10-13): WASD đi, Q/E xuống/lên, giữ chuột giữa để xoay, Shift đi nhanh.
     /// Chỉ dùng cho prototype — camera thật là Cinemachine (controls-ui).
+    /// Bước 7b2 (brief 0011): gán terrain → không vào ô đặc, vào được ô nước, trượt dọc vách.
     /// </summary>
     public class DebugFlyCamera : MonoBehaviour
     {
         public float speed = 10f;
         public float fastMultiplier = 3f;
         public float lookSensitivity = 0.15f;
+        /// <summary>World để chặn camera vào ô đặc (brief 0011); null → bay xuyên như cũ (SimView).</summary>
+        public TerrainChunkView terrain;
+        /// <summary>Nửa cạnh hộp va chạm của camera (ô). Phải lớn hơn khoảng cách từ camera tới góc mặt near clip (near 0,1 → ~0,17).</summary>
+        public float collisionRadius = 0.25f;
 
         float yaw, pitch;
 
@@ -24,6 +30,22 @@ namespace Game.Client
 
         /// <summary>Đang giữ phím di chuyển W/A/S/D/Q/E (brief 0010 QĐ 11).</summary>
         public static bool IsMoveKeyHeld(Keyboard kb) => kb != null && (kb.wKey.isPressed || kb.aKey.isPressed || kb.sKey.isPressed || kb.dKey.isPressed || kb.qKey.isPressed || kb.eKey.isPressed);
+
+        /// <summary>Dời camera theo delta (toạ độ thế giới); có terrain → không vào ô đặc, trượt dọc vách (brief 0011).</summary>
+        public void Fly(Vector3 delta)
+        {
+            if (terrain == null || terrain.World == null)
+            {
+                transform.position += delta;
+                return;
+            }
+            var t = terrain.transform;
+            var p = t.InverseTransformPoint(transform.position);
+            var d = t.InverseTransformVector(delta);
+            float x = p.x, y = p.y, z = p.z;
+            FlyCameraCollision.Move(terrain.World, ref x, ref y, ref z, d.x, d.y, d.z, collisionRadius);
+            transform.position = t.TransformPoint(new Vector3(x, y, z));
+        }
 
         void Update()
         {
@@ -47,7 +69,7 @@ namespace Game.Client
             if (kb.eKey.isPressed) move += Vector3.up;
             if (kb.qKey.isPressed) move -= Vector3.up;
             float v = speed * (kb.leftShiftKey.isPressed ? fastMultiplier : 1f);
-            transform.position += move * (v * Time.deltaTime);
+            Fly(move * (v * Time.deltaTime));
         }
     }
 }

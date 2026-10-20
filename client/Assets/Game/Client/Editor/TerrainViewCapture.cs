@@ -2,6 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Game.Client.Editor
 {
@@ -13,6 +14,8 @@ namespace Game.Client.Editor
     public static class TerrainViewCapture
     {
         const string ScenePath = "Assets/Game/Client/Scenes/TerrainView.unity";
+        const string OceanMatPath = "Assets/Game/Client/Materials/Ocean.mat";
+        const string WaterMatPath = "Assets/Game/Client/Materials/Water.mat";
         const string OutputPath = "Logs/terrain_view.png";
 
         [MenuItem("Game/Tạo scene TerrainView")]
@@ -80,6 +83,47 @@ namespace Game.Client.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log("TERRAINVIEW đã chuyển sang world v3 + nạp dần");
+        }
+
+        /// <summary>Bước 7b2 (brief 0011): mặt nước theo ô dùng Water.mat (trong suốt), camera bay va chạm + hiệu ứng dưới nước, near clip 0,1.</summary>
+        [MenuItem("Game/Nước trong + camera va chạm cho TerrainView")]
+        public static void SetupWaterAndCamera()
+        {
+            EnsureScene();
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            var water = AssetDatabase.LoadAssetAtPath<Material>(WaterMatPath);
+            if (water == null)
+            {
+                water = new Material(AssetDatabase.LoadAssetAtPath<Material>(OceanMatPath)) { name = "Water" };
+                AssetDatabase.CreateAsset(water, WaterMatPath);
+            }
+            water.SetFloat("_Alpha", 0.45f);
+            water.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            water.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            water.SetFloat("_ZWrite", 0f);
+            water.SetFloat("_Cull", (float)CullMode.Off);
+            water.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(water);
+            AssetDatabase.SaveAssets();
+
+            var view = Object.FindAnyObjectByType<TerrainChunkView>();
+            view.waterMaterial = water;
+            EditorUtility.SetDirty(view);
+            var cam = Camera.main;
+            cam.nearClipPlane = 0.1f;
+            EditorUtility.SetDirty(cam);
+            var fly = cam.GetComponent<DebugFlyCamera>();
+            fly.terrain = view;
+            fly.collisionRadius = 0.25f;
+            EditorUtility.SetDirty(fly);
+            var under = cam.GetComponent<UnderwaterView>();
+            if (under == null)
+                under = cam.gameObject.AddComponent<UnderwaterView>();
+            under.terrain = view;
+            EditorUtility.SetDirty(under);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("TERRAINVIEW đã bật nước trong + camera va chạm + hiệu ứng dưới nước");
         }
 
         [MenuItem("Game/Chụp ảnh TerrainView")]

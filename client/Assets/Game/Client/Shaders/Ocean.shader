@@ -1,6 +1,7 @@
 // Nền đại dương (scene TerrainView, 0009): mặt phẳng lớn ngay dưới mặt nước, không phải khối nước thật.
 // Gợn sóng bằng nhiễu theo toạ độ thế giới (pháp tuyến tính từ sai phân), màu sâu/nông theo góc nhìn, ánh mặt trời lấp lánh,
 // nhận bóng của địa hình, sương mù để tan vào chân trời.
+// Brief 0011: material Water.mat bật trong suốt (Blend SrcAlpha/OneMinusSrcAlpha, ZWrite Off, Cull Off) — mặc định vẫn đục như cũ.
 Shader "Game/Ocean"
 {
     Properties
@@ -10,6 +11,11 @@ Shader "Game/Ocean"
         _RippleScale("Ripple scale", Float) = 0.45
         _RippleStrength("Ripple strength", Range(0, 1)) = 0.25
         _Glint("Sun glint", Range(0, 2)) = 0.6
+        _Alpha("Alpha (chỉ material trong suốt)", Range(0, 1)) = 1
+        [HideInInspector] _SrcBlend("Src blend", Float) = 1
+        [HideInInspector] _DstBlend("Dst blend", Float) = 0
+        [HideInInspector] _ZWrite("ZWrite", Float) = 1
+        [HideInInspector] _Cull("Cull", Float) = 2
     }
     SubShader
     {
@@ -21,7 +27,7 @@ Shader "Game/Ocean"
         CBUFFER_START(UnityPerMaterial)
             half4 _DeepColor, _ShallowColor;
             float _RippleScale;
-            half _RippleStrength, _Glint;
+            half _RippleStrength, _Glint, _Alpha;
         CBUFFER_END
         ENDHLSL
 
@@ -29,6 +35,9 @@ Shader "Game/Ocean"
         {
             Name "ForwardLit"
             Tags { "LightMode" = "UniversalForward" }
+            Blend [_SrcBlend] [_DstBlend]
+            ZWrite [_ZWrite]
+            Cull [_Cull]
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -88,13 +97,14 @@ Shader "Game/Ocean"
                 return ValueNoise(p + t * float2(0.06, 0.03)) + 0.5 * ValueNoise(p * 2.3 - t * float2(0.05, 0.08));
             }
 
-            half4 frag(Varyings input) : SV_Target
+            half4 frag(Varyings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 float2 uv = input.positionWS.xz * _RippleScale;
                 const float e = 0.05;
                 float h = Waves(uv);
                 float dx = (Waves(uv + float2(e, 0)) - h) / e, dz = (Waves(uv + float2(0, e)) - h) / e;
                 float3 n = normalize(float3(-dx * _RippleStrength, 1, -dz * _RippleStrength));
+                n = IS_FRONT_VFACE(face, n, -n); // mặt dưới (camera dưới nước, Cull Off): pháp tuyến quay xuống
 
                 float3 v = normalize(GetWorldSpaceViewDir(input.positionWS));
                 half fres = pow(1.0 - saturate(dot(v, n)), 3.0);
@@ -107,8 +117,16 @@ Shader "Game/Ocean"
                 half spec = pow(saturate(dot(n, normalize(light.direction + v))), 160.0) * _Glint * shadow;
                 half3 c = diffuse + light.color * spec;
                 // Sương theo khoảng cách thật (brief 0010 QĐ 11): far clip phẳng + màn hình rộng → mép nhìn xa hơn bán kính nạp.
-                c = MixFog(c, ComputeFogFactorZ0ToFar(distance(input.positionWS, GetCameraPositionWS())));
-                return half4(c, 1);
+                half fogF = ComputeFogFactorZ0ToFar(distance(input.positionWS, GetCameraPositionWS()));
+                c = MixFog(c, fogF);
+                // Nước trong (brief 0011): nhìn xiên đục hơn (fresnel); xa đục dần theo sương → chỗ xa/sâu tan vào màu sương như trên cạn.
+                half fogVis = 1.0; // độ rõ: 1 gần, 0 xa — chỉ tính với sương tuyến tính (scene dùng sương tuyến tính)
+                #if defined(FOG_LINEAR_KEYWORD_DECLARED)
+                if (FOG_LINEAR)
+                    fogVis = fogF;
+                #endif
+                half alpha = lerp(1.0, lerp(_Alpha, 1.0, fres), fogVis);
+                return half4(c, alpha);
             }
             ENDHLSL
         }

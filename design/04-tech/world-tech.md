@@ -114,7 +114,7 @@ User chọn nước **chảy được** (2026-10-13). [ý tưởng]
 - **Nguồn nước** (suối, biển) giữ mực cố định.
 - **Nước không có nguồn không cạn** (user, 2026-10-13): tổng lượng nước được bảo toàn — chỉ chảy/lan, không mất đi.
 - **Người chơi tạo được nguồn nước** (user, 2026-10-13). Cách tạo: _(chưa có)_ — [ý tưởng] phép của pháp sư, hoặc công trình (vd giếng, đài phun).
-- **Hiển thị:** mesh mặt nước riêng, cao theo mực nước, tách khỏi mesh địa hình; shader trong suốt.
+- **Hiển thị:** mesh mặt nước riêng, cao theo mực nước, tách khỏi mesh địa hình; shader trong suốt. M1 (brief 0011, bước 7b2): mặt nước theo ô dùng `Water.mat` — shader `Game/Ocean` chế độ trong suốt, độ đục gốc 0,45, nhìn xiên và ở xa đục dần theo sương (không tính độ sâu); nhìn được từ dưới lên. Camera dưới nước: sương 0–40 màu nước. Camera bay không vào ô đặc, vào được ô nước (hộp 0,25 ô, trượt dọc vách). Mặt biển nền ngoài world vẫn đục.
 - **Ảnh hưởng gameplay:** môi trường sống (tỉ lệ nước trong vùng), công đoạn tưới nước, tìm đường (ô ngập là vật cản với loài đi bộ, đi được với loài bơi — M2).
 - **Tất định + tua nhanh:** mô phỏng chạy theo nhịp cố định, không phụ thuộc khung hình; khi tua nhanh, cho nước "yên" trước rồi mới tính sản lượng.
 - **Phạm vi:** M1 dùng nước **tĩnh** + **biển loang theo nhịp** khi đào ([0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md), [0013](../decisions/0013-nuoc-lan-theo-nhip.md)): ô ≤ mực nước biển thông với nước/biển ngoài map thì ngập — rơi xuống ngay, lan ngang/dâng 1 ô mỗi nhịp cố định; mỗi ô đầy hoặc rỗng; mặt biển nền chỉ ngoài map, trong map vẽ mặt nước theo ô. Nước chảy dần ở M2. Ước lượng 8–15 ngày-người ([roadmap](../05-roadmap.md)).

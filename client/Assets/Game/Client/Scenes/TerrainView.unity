@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 41987366}
   - component: {fileID: 41987365}
   - component: {fileID: 41987368}
+  - component: {fileID: 41987369}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -177,7 +178,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.1
   far clip plane: 128
   field of view: 60
   orthographic: 0
@@ -227,6 +228,24 @@ MonoBehaviour:
   speed: 10
   fastMultiplier: 3
   lookSensitivity: 0.15
+  terrain: {fileID: 1663237067}
+  collisionRadius: 0.25
+--- !u!114 &41987369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41987364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2ea2bcc7f634471196289152a170497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.UnderwaterView
+  terrain: {fileID: 1663237067}
+  fogColor: {r: 0.08, g: 0.32, b: 0.45, a: 1}
+  fogStart: 0
+  fogEnd: 40
 --- !u!1 &1663237066
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,7 +280,7 @@ MonoBehaviour:
   chunkX: 1
   chunkZ: 1
   material: {fileID: 0}
-  waterMaterial: {fileID: 2100000, guid: 3c4f12bab1e8847abb25f093937a9af8, type: 2}
+  waterMaterial: {fileID: 2100000, guid: 55831bd2c396144b1859e169789b714d, type: 2}
   waterStepsPerSecond: 8
   color: {r: 1, g: 1, b: 1, a: 1}
   source: 1
