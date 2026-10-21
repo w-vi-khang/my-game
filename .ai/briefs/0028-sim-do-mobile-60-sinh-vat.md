@@ -443,6 +443,7 @@ Trên điện thoại: Planner đọc logcat và ảnh, user không cần thao t
 - Code commit: 64ecb06 (SimStress.cs, SimBenchMeter.cs, SimBenchBuild.cs, SimBench.unity, 2 file test, sửa GridPathfinder/Simulation/TerrainChunkView/SimView). Không lệch brief.
 - APK đã build: `SimBench build: Succeeded, 848101811 byte` → client/Builds/simbench.apk (không commit).
 - **Dừng ở bước 10:** điện thoại không hiện trong `adb devices` (USB, serial PFQCRWVWR46HU4GQ không thấy; `adb connect 192.168.1.6:5555` → Connection refused; đã kill/start adb server). Chưa cài APK, chưa có số đo. Cần user cắm lại cáp/bật USB debugging, rồi chạy lại từ bước 10.2.
+- **Lần 2 (user bảo thử Wi‑Fi):** USB vẫn không thấy. `adb mdns services` chỉ thấy `192.168.1.7:6060` = model **ADT_3, đang chạy YouTube TV → là Android TV box, KHÔNG phải điện thoại**. Đã cài APK + chạy trên đó (ảnh: đồng bằng, nhà, 60 sinh vật, HUD SIMBENCH đúng). Số đo 81 giây đầu (thiết bị TV, chỉ để tham khảo): fps ≈ 6, ticks ≈ 101/10 s (sim chạy chậm hơn thời gian thực vì khung hình), avgMs ≈ 0,4–0,6, p95Ms ≈ 1,1–2,1, maxMs ≤ 3,4, 0 Exception, thermal 0. Sau đó TV chuyển sang app YouTube nên Unity bị tạm dừng, không có dòng TONG. Log: side-session-notes/0028-logcat-androidtv.txt. Chưa đo trên điện thoại thật.
 
 ## Kết quả test
 - EditMode cả bộ: 371/371 xanh (235 s). 5 test SimStressTests xanh. Runs4000Ticks: `4000 nhịp: 409 ms, AStarCount=3515, BfsCount=1290, produce=46, overlaps=0, idleOnPlot=0, idleOutside=0`. Đồng bằng: `(99, 187) 48 × 48, mặt y 20, vùng x 91..154, z 179..242`; dấu mốc 9, giữ 8, bỏ 1.
