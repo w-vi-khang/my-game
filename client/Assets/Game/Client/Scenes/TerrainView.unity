@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 41987368}
   - component: {fileID: 41987369}
   - component: {fileID: 41987370}
+  - component: {fileID: 41987371}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -248,6 +249,7 @@ MonoBehaviour:
   backgroundColor: {r: 0.42, g: 0.7, b: 0.82, a: 1}
   fogStart: 0
   fogEnd: 40
+  tint: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &41987370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,6 +264,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Client::Game.Client.WorldEdgeFog
   terrain: {fileID: 1663237067}
   underwater: {fileID: 41987369}
+--- !u!114 &41987371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41987364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da265078e94c4d04bb3f5a984d739da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.DayCycleView
+  sun: {fileID: 0}
+  underwater: {fileID: 0}
+  debugKeys: 1
+  benchCycleSeconds: 0
 --- !u!1 &1663237066
 GameObject:
   m_ObjectHideFlags: 0
@@ -352,6 +370,9 @@ MonoBehaviour:
   borderColor: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.92156863}
   markerColor: {r: 0.92156863, g: 0.23529412, b: 0.19607843, a: 1}
   labelFontSize: 28
+  landmarkIconSize: 22
+  landmarkFontSize: 18
+  landmarkLabelZoom: 2
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0

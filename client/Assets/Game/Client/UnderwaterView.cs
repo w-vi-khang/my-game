@@ -17,8 +17,12 @@ namespace Game.Client
         public Color backgroundColor = new Color(0.42f, 0.70f, 0.82f);
         public float fogStart = 0f;
         public float fogEnd = 40f;
+        /// <summary>Nhân vào màu sương/nền dưới nước theo buổi (DayCycleView, brief 0023); trắng = như cũ.</summary>
+        public Color tint = Color.white;
 
         public bool IsUnderwater { get; private set; }
+        public Color CurrentFogColor => fogColor * tint;
+        public Color CurrentBackground => backgroundColor * tint;
 
         Camera cam;
         Color savedFogColor, savedBackground;
@@ -52,6 +56,16 @@ namespace Game.Client
                 Restore();
         }
 
+        /// <summary>Đặt tint; đang dưới nước thì ghi lại màu sương và nền ngay (brief 0023).</summary>
+        public void ApplyTint(Color t)
+        {
+            tint = t;
+            if (!IsUnderwater)
+                return;
+            RenderSettings.fogColor = CurrentFogColor;
+            cam.backgroundColor = CurrentBackground;
+        }
+
         void OnDisable()
         {
             if (IsUnderwater)
@@ -65,11 +79,11 @@ namespace Game.Client
             savedFogEnd = RenderSettings.fogEndDistance;
             savedClearFlags = cam.clearFlags;
             savedBackground = cam.backgroundColor;
-            RenderSettings.fogColor = fogColor;
+            RenderSettings.fogColor = CurrentFogColor;
             RenderSettings.fogStartDistance = fogStart;
             RenderSettings.fogEndDistance = fogEnd;
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = backgroundColor;
+            cam.backgroundColor = CurrentBackground;
             IsUnderwater = true;
         }
 

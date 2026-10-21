@@ -1,5 +1,6 @@
 // Bầu trời có mây (skybox, scene TerrainView): màu chuyển từ chân trời lên đỉnh, mây tạo bằng nhiễu fbm chiếu lên mặt
 // phẳng trời và trôi chậm. Không cần texture. Màu chân trời trùng màu sương mù để biển tan vào trời (0009).
+// Brief 0023: màu, mặt trời/mặt trăng/sao theo buổi qua biến global _Day* (DayCycleView).
 Shader "Game/SkyClouds"
 {
     Properties
@@ -33,6 +34,12 @@ Shader "Game/SkyClouds"
             CBUFFER_END
             // Sương biên world (brief 0012): 0 = trời bình thường, 1 = cả trời màu sương. Biến global (Shader.SetGlobalFloat), không khai báo trong Properties.
             half _EdgeFogBlend;
+            // Buổi trong ngày (brief 0023): DayCycleView ghi các biến global sau; _DayCycleOn = 0 (scene không có DayCycleView) → trời như cũ.
+            half _DayCycleOn;
+            half4 _DayZenith, _DayHorizon, _DayCloud, _DayCloudShade, _DaySunColor, _DayMoonColor;
+            float4 _DaySunDir;      // xyz: hướng tới mặt trời (đơn vị)
+            half _DayStars;         // độ hiện của sao 0..1
+            float4x4 _DayStarRot;   // đổi hướng nhìn sang hệ của bầu sao (xoay cùng mặt trời)
 
             struct Attributes { float4 positionOS : POSITION; };
             struct Varyings { float4 positionCS : SV_POSITION; float3 dir : TEXCOORD0; };
@@ -84,17 +91,39 @@ Shader "Game/SkyClouds"
                 return s;
             }
 
+            // Sao: lưới 3D trên hướng nhìn đã xoay; mỗi ô 1,5 % là sao, sáng nhất ở tâm ô. Băm số nguyên như mây (đúng trên Mali).
+            half StarField(float3 d)
+            {
+                float3 p = mul((float3x3)_DayStarRot, d) * 180.0;
+                float3 fl = floor(p);
+                int3 c = (int3)fl;
+                float h = HashInt(int2(c.x ^ (c.z * 374761393), c.y ^ (c.z * 668265263)));
+                float3 f = p - fl - 0.5;
+                return (half)(step(0.985, h) * saturate(1.0 - length(f) * 2.5));
+            }
+
             half4 frag(Varyings input) : SV_Target
             {
                 float3 d = normalize(input.dir);
                 float up = saturate(d.y);
-                half3 sky = lerp(_HorizonColor.rgb, _ZenithColor.rgb, pow(up, 0.55));
+                half3 zenith = lerp(_ZenithColor.rgb, _DayZenith.rgb, _DayCycleOn);
+                half3 horizon = lerp(_HorizonColor.rgb, _DayHorizon.rgb, _DayCycleOn);
+                half3 cloudLit = lerp(_CloudColor.rgb, _DayCloud.rgb, _DayCycleOn);
+                half3 cloudDark = lerp(_CloudShadeColor.rgb, _DayCloudShade.rgb, _DayCycleOn);
+                half3 sky = lerp(horizon, zenith, pow(up, 0.55));
+                // Mặt trời, mặt trăng (đối diện mặt trời), sao — chỉ trên chân trời; mây che lên trên.
+                float above = smoothstep(0.0, 0.04, d.y);
+                float cs = dot(d, _DaySunDir.xyz);
+                half sunDisc = smoothstep(0.9996, 0.9998, cs);
+                half sunGlow = pow(saturate(cs), 48.0) * 0.35;
+                half moonDisc = smoothstep(0.9997, 0.9999, -cs);
+                sky += _DayCycleOn * above * (_DaySunColor.rgb * (sunDisc + sunGlow) + _DayMoonColor.rgb * moonDisc + StarField(d) * _DayStars);
                 // Mây: chiếu hướng nhìn lên mặt phẳng trời (gần chân trời mây dày, nhỏ lại theo phối cảnh).
                 float2 uv = d.xz / (d.y + 0.12) * _CloudScale + _Time.y * _CloudSpeed * float2(1, 0.4);
                 float n = Fbm(uv);
                 float cloud = smoothstep(_CloudCover, _CloudCover + _CloudSoftness, n) * smoothstep(0.0, 0.18, d.y);
                 // Mặt dưới mây tối hơn ở chỗ mây dày.
-                half3 cloudCol = lerp(_CloudColor.rgb, _CloudShadeColor.rgb, saturate((n - _CloudCover) * 2.5));
+                half3 cloudCol = lerp(cloudLit, cloudDark, saturate((n - _CloudCover) * 2.5));
                 half3 c = lerp(sky, cloudCol, cloud * 0.92);
                 c = lerp(c, unity_FogColor.rgb, _EdgeFogBlend);
                 return half4(c, 1);

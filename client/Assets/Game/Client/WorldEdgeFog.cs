@@ -46,7 +46,7 @@ namespace Game.Client
             RenderSettings.fogEndDistance = end;
             Shader.SetGlobalFloat(BlendProperty, Factor);
             if (under)
-                cam.backgroundColor = Color.Lerp(underwater.backgroundColor, underwater.fogColor, Factor);
+                cam.backgroundColor = Color.Lerp(underwater.CurrentBackground, underwater.CurrentFogColor, Factor);
         }
 
         void OnDisable()
@@ -58,7 +58,7 @@ namespace Game.Client
                 RenderSettings.fogStartDistance = underwater.fogStart;
                 RenderSettings.fogEndDistance = underwater.fogEnd;
                 if (cam != null)
-                    cam.backgroundColor = underwater.backgroundColor;
+                    cam.backgroundColor = underwater.CurrentBackground;
             }
             else if (cam != null)
             {
