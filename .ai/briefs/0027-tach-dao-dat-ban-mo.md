@@ -347,3 +347,9 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+- Planner (Opus · medium), 2026-10-21. Đã đối chiếu:
+  - `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` [repo].
+  - Diff `9cecff2`: `CheckPlace` đúng thứ tự kiểm cũ, không ghi/trừ kho; `TryPlace` gọi `CheckPlace` rồi `TryTake`, phần ghi ô + `RevertFarmlandBelow` giữ nguyên [run] `git show 9cecff2`.
+  - `TerrainEditInput`: Tab → `ToggleTool`, chuột phải đã bỏ, `ShowAim` / `UseTool` / `CreateGhost` (không collider, không đổ bóng) đúng bước 2; shader `Game/GhostBlock` đúng bước 3. Chỉ file trong Phạm vi.
+  - Test mới khớp "Phần cần test" (có `FindColumn`, tiền điều kiện `CheckPlace`); không sửa assert cũ. EditMode 366/366, PlayMode 76/76 theo executor — không chạy lại (kết quả đủ, không đáng ngờ).
+  - Chờ user xem 6 điểm "User tự test" rồi mới kết luận.
