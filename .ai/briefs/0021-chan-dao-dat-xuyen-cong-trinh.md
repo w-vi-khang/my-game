@@ -1,6 +1,6 @@
 # Brief 0021 — Đào/đặt không xuyên qua nhà, kho, dấu mốc
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 12:45
@@ -230,3 +230,8 @@ Không có.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` (Sonnet · medium). Mọi dòng "Phần cần test" có kết quả.
+- Diff `4209dc9` [repo]: đúng QĐ 1–5. Nhà/kho `solid: true`, ruộng/mầm/sinh vật vẫn gỡ collider. `MarkerBox` giữ collider. `IsTerrainCollider` + `Pick` đúng mẫu, cách tính ô không đổi, `Update` dùng `Pick`. Chỉ sửa file trong Phạm vi; `git status` sạch.
+- Test: EditOcclusion 4/4, nhóm PlayMode lọc 27/27, EditMode 322/322, PlayMode 39/39 [theo Kết quả test]; không chạy lại (không đáng ngờ).
+- User xem trên Mac: "ok ổn" [user 2026-10-21].
+- Kết luận: đã duyệt
