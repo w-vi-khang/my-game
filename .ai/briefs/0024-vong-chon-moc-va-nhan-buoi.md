@@ -363,3 +363,8 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+
+## Kiểm chứng
+- EditMode cả bộ (MCP `run_tests`): 340/340 đạt. PlayMode cả bộ: 60/60 đạt. `check_design.py`: hợp lệ. (Không chạy `unity_test.py` vì Editor đang mở; dùng MCP theo quy tắc 0010.)
+- Hai file hook nêu (`Bench.unity.meta`, `UnityConnectSettings.asset`) chỉ là rác do build APK; đã `git checkout`, cây làm việc sạch.
+- Checklist: chỉ đạt các mục áp dụng cho code client — Game.Core không đổi (đạt); chỉ làm hạng mục M1 7f-3 (đạt); test đúng cột "Xong khi" (đạt, 8 test PlayMode); giờ thực tế ~13 phút ghi ở mục Kết quả (Planner cộng vào roadmap). Các mục thiết kế (pillar, glossary, nguồn…) không đụng vì `design/` không sửa.
