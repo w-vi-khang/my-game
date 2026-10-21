@@ -1,9 +1,9 @@
 # Brief 0030 — Simulation bước 7c: công cụ Xới + biển canh tác, bảng chọn giống/hàng đợi, nút Kho (client)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21
+> Cập nhật: 2026-10-21 22:30
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -345,9 +345,16 @@ Mở scene `SimView`, bấm Play (PC). Cần xem:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 8497f6f · Chạy bằng: claude-sonnet-5-5 · medium · Bắt đầu 2026-10-21 22:25 · kết thúc 22:33
+Commit: bc0f01f. File đổi: Client/SimView.cs, Client/TerrainEditInput.cs, Core/View/SiteStatus.cs, Tests/Core/View/SiteStatusTests.cs, Tests/Client/SimFarmUiPlayTests.cs(+.meta). Không lệch brief.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). Giờ bắt đầu / kết thúc. -->
 
 ## Kết quả test
+- SiteStatusTests (CropName, StockPanelText, QueueLine): đạt (EditMode).
+- SimFarmUiPlayTests 9 ca (Tab 3 công cụ, biển hiện cùng khung, biển ẩn khi xới, Unmark/Dig, khung nhắm Xới, chọn/xoá giống, bảng đóng khi đào, demo không refill, Kho + chặn con trỏ): đạt.
+- Phần User tự test (1–8): chờ user.
+- run_tests EditMode → 392/392 đạt. PlayMode → 88/88 đạt (chạy sau khi test mới đã có, một lần). Đã `git checkout` EditorSettings.asset.
+- grep UnityEngine SiteStatus.cs → không có; grep KeepFarming SimView.cs → 1 dòng có `Meter != null`; git status chỉ file trong Phạm vi.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
