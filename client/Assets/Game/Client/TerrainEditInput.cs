@@ -44,8 +44,8 @@ namespace Game.Client
             }
 
             var mouse = Mouse.current;
-            // Bản đồ đang mở hoặc con trỏ trên nút bản đồ → không lăn chọn loại, không đào/đặt (brief 0016).
-            if (mouse != null && MinimapView.BlocksPointer(mouse.position.ReadValue()))
+            // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
+            if (mouse != null && (MinimapView.BlocksPointer(mouse.position.ReadValue()) || TimeDial.BlocksPointer(mouse.position.ReadValue())))
             {
                 outline.enabled = false;
                 return;

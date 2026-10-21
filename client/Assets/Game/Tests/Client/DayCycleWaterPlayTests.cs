@@ -47,7 +47,6 @@ namespace Game.Client.Tests
             day = camGo.AddComponent<DayCycleView>();
             day.sun = light;
             day.underwater = under;
-            day.debugKeys = false;
             day.clockMs = () => now;
             day.secondsNow = () => 0.0;
             S = view.Editor.SeaLevel;

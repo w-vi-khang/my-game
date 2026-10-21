@@ -40,12 +40,13 @@ namespace Game.Client.Editor
                 fly.enabled = false;
             if (view.GetComponent<TerrainBench>() == null)
                 view.gameObject.AddComponent<TerrainBench>();
-            // Brief 0023: đo FPS khi bầu trời xoay — cứ 5 giây tự chọn mốc; không có bàn phím.
+            // Brief 0023/0024: đo FPS khi bầu trời xoay — cứ 5 giây tự chọn mốc; vòng thời điểm mở sẵn.
             foreach (var day in UnityEngine.Object.FindObjectsByType<DayCycleView>(FindObjectsSortMode.None))
             {
                 day.benchCycleSeconds = 5f;
-                day.debugKeys = false;
             }
+            foreach (var dial in UnityEngine.Object.FindObjectsByType<TimeDial>(FindObjectsSortMode.None))
+                dial.startOpen = true;
             EditorSceneManager.SaveScene(scene);
             if (!string.IsNullOrEmpty(active) && active != ScenePath)
                 EditorSceneManager.OpenScene(active, OpenSceneMode.Single);

@@ -1,7 +1,6 @@
 using System;
 using Game.Core.DayCycle;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
 namespace Game.Client
@@ -16,8 +15,6 @@ namespace Game.Client
     {
         public Light sun;
         public UnderwaterView underwater;
-        /// <summary>Phím tạm F5 giữa đêm · F6 bình minh · F7 giữa trưa · F8 hoàng hôn (7f-3 thay bằng vòng chọn).</summary>
-        public bool debugKeys = true;
         /// <summary>&gt; 0: cứ chừng này giây tự chọn mốc (CurrentWindow + 2) % 4 — chỉ dùng ở scene Bench.</summary>
         public float benchCycleSeconds = 0f;
         [NonSerialized] public Func<long> clockMs;
@@ -71,14 +68,6 @@ namespace Game.Client
         {
             if (Day == null)
                 return;
-            if (debugKeys && Keyboard.current != null)
-            {
-                var k = Keyboard.current;
-                if (k.f5Key.wasPressedThisFrame) Select(TimeLandmark.Midnight);
-                if (k.f6Key.wasPressedThisFrame) Select(TimeLandmark.Dawn);
-                if (k.f7Key.wasPressedThisFrame) Select(TimeLandmark.Noon);
-                if (k.f8Key.wasPressedThisFrame) Select(TimeLandmark.Dusk);
-            }
             if (benchCycleSeconds > 0 && Now() >= nextBench)
             {
                 Select((TimeLandmark)(((int)Day.CurrentWindow + 2) % 4));

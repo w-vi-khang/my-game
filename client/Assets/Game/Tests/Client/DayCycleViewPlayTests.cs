@@ -34,7 +34,6 @@ namespace Game.Client.Tests
             camGo.AddComponent<Camera>();
             view = camGo.AddComponent<DayCycleView>();
             view.sun = light;
-            view.debugKeys = false;
             view.clockMs = () => now;
             view.secondsNow = () => t;
             yield return null;
