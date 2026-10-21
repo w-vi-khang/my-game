@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 17:14
+> Cập nhật: 2026-10-21 17:23
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -408,3 +408,19 @@ Lệnh:
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+Planner (Opus · medium), 2026-10-21 17:16–17:23:
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp `Model thực thi`. "Phần cần test" đủ 14 dòng có kết quả. Có 3 dòng `chờ user`: chuột/chạm thật, bấm "Đóng (M)" không đào, điện thoại. Phần điện thoại Planner đã đo lại bên dưới.
+- Diff `c36c48f` [repo]:
+  - `MinimapView.cs` đúng bước 1.1–1.14: `BlocksPointer` có `toggledFrame`; hằng số, thành viên public, `PressAt`, `IsOverButton` hình tròn, `RefreshCorner` chỉ ghi khi đổi; `BuildCorner` đúng thứ tự và số (viền 200, mặt nạ 188 có `Mask` sau `TimeDialGraphic`, nội dung pivot 0, ranh giới dày 2, dấu mốc 14, mũi tên 18, tên map 16, nền N 28). Nút Đóng là con của bảng; không còn `buttonText`.
+  - `TimeDial.cs` đúng 4 dòng.
+  - `MinimapCornerPlayTests.cs` đủ 8 test, assert khớp bảng bước 3.
+  - Không đụng `Game.Core`, test cũ, scene, `TerrainEditInput`, `BenchBuild`.
+- Đo lại điện thoại [run] (máy đã mở khoá, APK `c36c48f`, 192.168.1.6:5555, 17:19):
+  - `MINIMAP dựng: … 9 dấu mốc, ô nhỏ 64 cột 2,938 px/cột …`; `TIMEDIAL dựng: 4 mốc, mở=True`;
+  - BENCH avgFps 35,3, p99Ms 50,02, holeFrames 0, hash `a7719c8999939263`, pass30fps=True; thermal 2 (nóng), ngang 0024;
+  - 0 `Exception` thẻ Unity (1 dòng WindowManager của hệ thống lúc mở app, không phải lỗi app).
+- Ảnh `client/Builds/bench-0025.png`:
+  - ô **tròn** ở góc trên-phải, chữ N trên đỉnh, mũi tên đỏ ở tâm, tên "Map 2" sát mép dưới, ranh giới map và biển ở mép;
+  - nút thời điểm + "Đang ở buổi: Ban ngày" ngay dưới, vòng 4 mốc bên dưới nữa, không chồng ô.
+- Tài liệu: thêm dòng 7g vào bảng giờ `design/05-roadmap.md` (Executor 8 phút) và ghi giờ vào dòng 7g `design/04-tech/world-tech.md`. `check_design.py` hợp lệ.
+- Còn: user xem mục "User tự test" 1–7, chưa kết luận.
