@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace Game.Client
 {
     /// <summary>
-    /// Vòng chọn thời điểm (0024, brief 0024): nút tròn góc trên-phải dưới nút Bản đồ (hoặc phím T) mở vòng 4 mốc theo chiều kim đồng hồ = chiều tiến của pha (trên giữa trưa, phải hoàng hôn, dưới giữa đêm, trái bình minh); bấm mốc → DayCycleView.Select, xoay được thì vòng tự đóng. Dòng "Đang ở buổi: …" luôn hiện. Canvas dựng bằng code, không EventSystem; ẩn khi bản đồ mở.
+    /// Vòng chọn thời điểm (0024, brief 0024): nút tròn góc trên-phải dưới ô minimap (brief 0025) (hoặc phím T) mở vòng 4 mốc theo chiều kim đồng hồ = chiều tiến của pha (trên giữa trưa, phải hoàng hôn, dưới giữa đêm, trái bình minh); bấm mốc → DayCycleView.Select, xoay được thì vòng tự đóng. Dòng "Đang ở buổi: …" luôn hiện. Canvas dựng bằng code, không EventSystem; ẩn khi bản đồ mở.
     /// </summary>
     [RequireComponent(typeof(DayCycleView))]
     public class TimeDial : MonoBehaviour
@@ -255,21 +255,21 @@ namespace Game.Client
             var half = new Vector2(0.5f, 0.5f);
 
             periodText = NewText("Dòng buổi", root, font, 22, TextAnchor.MiddleRight);
-            Place(periodText.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 0.5f), new Vector2(-100f, -120f), new Vector2(420f, 40f));
+            Place(periodText.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 0.5f), new Vector2(-100f, -268f), new Vector2(420f, 40f));
             AddOutline(periodText, new Vector2(2f, -2f));
 
             var controlsRt = Stretch("Nút và vòng", root, Vector2.zero, Vector2.zero, half);
             controls = controlsRt.gameObject.AddComponent<CanvasGroup>();
 
             button = Stretch("Nút thời điểm", controlsRt, Vector2.zero, Vector2.zero, half);
-            Place(button, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -84f), new Vector2(72f, 72f));
+            Place(button, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -232f), new Vector2(72f, 72f));
             AddGraphic(button, TimeDialShape.Disk, ButtonBg);
             var bi = Stretch("Biểu tượng", button, Vector2.zero, Vector2.zero, half);
             Place(bi, half, half, Vector2.zero, new Vector2(56f, 56f));
             buttonIcon = AddGraphic(bi, TimeDialShape.Disk, Color.white);
 
             ring = Stretch("Vòng", controlsRt, Vector2.zero, Vector2.zero, half);
-            Place(ring, new Vector2(1f, 1f), half, new Vector2(-180f, -320f), new Vector2(300f, 300f));
+            Place(ring, new Vector2(1f, 1f), half, new Vector2(-180f, -470f), new Vector2(300f, 300f));
             AddGraphic(ring, TimeDialShape.Disk, RingBg);
             var ci = Stretch("Mốc hiện tại", ring, Vector2.zero, Vector2.zero, half);
             Place(ci, half, half, Vector2.zero, new Vector2(80f, 80f));

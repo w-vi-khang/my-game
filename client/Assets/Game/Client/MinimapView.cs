@@ -10,7 +10,7 @@ namespace Game.Client
 {
     /// <summary>
     /// Bản đồ của world nhiều map (world-tech bước 7c, brief 0016; lõi ở brief 0015).
-    /// Nút "Bản đồ (M)" góc trên-phải hoặc phím M mở/đóng, Esc đóng. Khi mở: bảng phủ màn hình — ảnh nền tầng độ cao, ranh giới, tên map,
+    /// Ô minimap tròn góc trên-phải (brief 0025) luôn hiện vùng 64 × 64 cột quanh người chơi, Bắc lên trên, chữ N ở đỉnh; bấm/chạm ô hoặc phím M mở bản đồ lớn, nút "Đóng (M)" / M / Esc đóng. Khi mở: bảng phủ màn hình — ảnh nền tầng độ cao, ranh giới, tên map,
     /// dấu vị trí + hướng camera; lăn chuột phóng quanh con trỏ, giữ chuột trái kéo để di chuyển; cảm ứng: 1 ngón kéo, 2 ngón chụm.
     /// Canvas dựng bằng code lúc chạy, không EventSystem (tự kiểm con trỏ). World không có bảng map (đảo v2) → không làm gì.
     /// </summary>
@@ -20,11 +20,17 @@ namespace Game.Client
         /// <summary>Bản đồ đang mở — TerrainEditInput, DebugFlyCamera, TerrainBench bỏ chuột/HUD khi true.</summary>
         public static bool IsAnyOpen => active != null && active.IsOpen;
 
-        /// <summary>Điểm màn hình (pixel) thuộc về bản đồ: bản đồ đang mở, hoặc nằm trên nút mở/đóng.</summary>
+        /// <summary>Điểm màn hình (pixel) thuộc về bản đồ: bản đồ đang mở, nằm trên ô tròn / nút Đóng, hoặc khung này vừa bật/tắt (brief 0025).</summary>
         public static bool BlocksPointer(Vector2 screen) =>
-            active != null && active.IsReady && (active.IsOpen || active.IsOverButton(screen));
+            active != null && active.IsReady && (active.IsOpen || active.toggledFrame == Time.frameCount || active.IsOverButton(screen));
 
         static MinimapView active;
+
+        // Ô nhỏ góc trên-phải (brief 0025), đơn vị tham chiếu 1280 × 720.
+        const float CornerSize = 200f, CornerRim = 6f, CornerColumns = 64f;
+        const float CornerLineThickness = 2f, CornerLandmarkSize = 14f, CornerMarkerSize = 18f;
+        static readonly Color CornerRimColor = new Color(0.08f, 0.08f, 0.08f, 0.9f);
+        static readonly Color CornerMaskColor = new Color(0.05f, 0.05f, 0.05f, 1f);
 
         public float zoomStep = 1.15f;
         public float borderThickness = 3f;
@@ -39,7 +45,14 @@ namespace Game.Client
         TerrainChunkView view;
         GameObject panel;
         RectTransform frame, button, marker;
-        Text buttonText;
+        RectTransform corner, cornerContent, cornerMarker;
+        RawImage cornerImage;
+        MinimapLinesGraphic cornerLines;
+        Mask cornerMask;
+        Text cornerName, cornerNorth, closeText;
+        readonly List<RectTransform> cornerLandmarks = new List<RectTransform>();
+        float cornerK;
+        int cornerShownMap = -2;
         RawImage image;
         MinimapLinesGraphic lines;
         readonly List<Text> labels = new List<Text>();
@@ -82,8 +95,27 @@ namespace Game.Client
         public Vector2 MarkerPanelPosition => marker != null ? marker.anchoredPosition : default;
         /// <summary>Góc z của dấu người chơi (độ, 0 = nhìn theo +z world, 270 = nhìn theo +x).</summary>
         public float MarkerAngle => marker != null ? marker.localEulerAngles.z : 0f;
-        /// <summary>Tâm nút mở/đóng theo pixel màn hình.</summary>
-        public Vector2 ButtonScreenCenter => RectTransformUtility.WorldToScreenPoint(null, button.TransformPoint(button.rect.center));
+        /// <summary>Tâm vùng bấm theo pixel màn hình: ô tròn khi đóng, nút Đóng khi mở.</summary>
+        public Vector2 ButtonScreenCenter => IsOpen
+            ? RectTransformUtility.WorldToScreenPoint(null, button.TransformPoint(button.rect.center))
+            : CornerScreenPoint(Vector2.zero);
+        public bool CornerActive => corner != null && corner.gameObject.activeSelf;
+        public MinimapViewport CornerViewport { get; private set; }
+        public Texture CornerTexture => cornerImage != null ? cornerImage.texture : null;
+        public Rect CornerUvRect => cornerImage != null ? cornerImage.uvRect : default;
+        public Vector2 CornerContentPosition => cornerContent != null ? cornerContent.anchoredPosition : default;
+        public float CornerMarkerAngle => cornerMarker != null ? cornerMarker.localEulerAngles.z : 0f;
+        /// <summary>Tên map ở cột dưới người chơi; null khi đang ẩn (biển / ngoài world).</summary>
+        public string CornerMapName => cornerName != null && cornerName.enabled ? cornerName.text : null;
+        public string CornerNorthText => cornerNorth != null ? cornerNorth.text : null;
+        public bool CornerMaskIsDisk => cornerMask != null && cornerMask.enabled && cornerMask.showMaskGraphic
+            && cornerMask.graphic is TimeDialGraphic g && g.shape == TimeDialShape.Disk;
+        public int CornerBorderVertexCount => cornerLines != null ? cornerLines.LastVertexCount : 0;
+        public int CornerLandmarkCount => cornerLandmarks.Count;
+        public Vector2 CornerLandmarkPosition(int i) => cornerLandmarks[i].anchoredPosition;
+        /// <summary>Điểm (local, tính từ tâm ô, đơn vị canvas) → pixel màn hình.</summary>
+        public Vector2 CornerScreenPoint(Vector2 local) => RectTransformUtility.WorldToScreenPoint(null, corner.TransformPoint(corner.rect.center + local));
+        public string CloseButtonText => closeText != null ? closeText.text : null;
 
         void Awake() => view = GetComponent<TerrainChunkView>();
         void OnEnable() => active = this;
@@ -130,6 +162,8 @@ namespace Game.Client
             HandleTouches(Touchscreen.current);
             if (IsOpen)
                 Refresh();
+            else
+                RefreshCorner();
         }
 
         public void SetOpen(bool open)
@@ -138,11 +172,13 @@ namespace Game.Client
                 return;
             IsOpen = open;
             panel.SetActive(open);
-            buttonText.text = open ? "Đóng (M)" : "Bản đồ (M)";
+            corner.gameObject.SetActive(!open);
             mouseDragging = false;
             lastZoom = -1f; // buộc cập nhật uv, ranh giới, tên khi mở
             if (open)
                 Refresh();
+            else
+                RefreshCorner();
         }
 
         void Toggle()
@@ -151,6 +187,15 @@ namespace Game.Client
                 return;
             toggledFrame = Time.frameCount;
             SetOpen(!IsOpen);
+        }
+
+        /// <summary>Một lần bấm/chạm tại điểm màn hình: trúng ô tròn (đóng) hoặc nút Đóng (mở) → bật/tắt, trả true (brief 0025).</summary>
+        public bool PressAt(Vector2 screen)
+        {
+            if (!IsReady || !IsOverButton(screen))
+                return false;
+            Toggle();
+            return true;
         }
 
         /// <summary>Pixel màn hình → toạ độ khung của Viewport (khung pivot (0, 0) nên toạ độ cục bộ = toạ độ khung).</summary>
@@ -164,8 +209,13 @@ namespace Game.Client
         {
             if (!IsReady)
                 return false;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(button, screen, null, out var local);
-            return button.rect.Contains(local);
+            if (IsOpen)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(button, screen, null, out var local);
+                return button.rect.Contains(local);
+            }
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(corner, screen, null, out var c);
+            return (c - corner.rect.center).magnitude <= corner.rect.width * 0.5f;
         }
 
         bool IsOverFrame(Vector2 screen)
@@ -198,11 +248,8 @@ namespace Game.Client
             if (mouse == null)
                 return;
             var pos = mouse.position.ReadValue();
-            if (mouse.leftButton.wasPressedThisFrame && IsOverButton(pos))
-            {
-                Toggle();
+            if (mouse.leftButton.wasPressedThisFrame && PressAt(pos))
                 return;
-            }
             if (!IsOpen)
                 return;
             if (mouse.leftButton.wasPressedThisFrame && IsOverFrame(pos))
@@ -230,13 +277,10 @@ namespace Game.Client
                     if (t.press.isPressed)
                         touches[t.touchId.ReadValue()] = t.position.ReadValue();
 
-            // Ngón mới chạm lên nút → mở/đóng; ngón đó không dùng để kéo/chụm.
+            // Ngón mới chạm lên ô tròn / nút Đóng → mở/đóng; ngón đó không dùng để kéo/chụm.
             foreach (var kv in touches)
-                if (!lastTouches.ContainsKey(kv.Key) && IsOverButton(kv.Value))
-                {
+                if (!lastTouches.ContainsKey(kv.Key) && PressAt(kv.Value))
                     buttonTouches.Add(kv.Key);
-                    Toggle();
-                }
             buttonTouches.RemoveWhere(id => !touches.ContainsKey(id));
 
             if (IsOpen)
@@ -303,6 +347,36 @@ namespace Game.Client
             var f = view.transform.InverseTransformDirection(cam.transform.forward);
             if (f.x * f.x + f.z * f.z > 1e-6f)
                 marker.localEulerAngles = new Vector3(0f, 0f, -Mathf.Atan2(f.x, f.z) * Mathf.Rad2Deg);
+        }
+
+        /// <summary>Ô nhỏ (brief 0025): người chơi ở tâm — dời "Nội dung" + đổi uvRect ảnh nền, xoay mũi tên, tên map ở cột dưới người chơi.</summary>
+        void RefreshCorner()
+        {
+            var cam = Camera.main;
+            cornerMarker.gameObject.SetActive(cam != null);
+            if (cam == null)
+                return;
+            var p = view.transform.InverseTransformPoint(cam.transform.position);
+            CornerViewport.WorldToPanel(p.x, p.z, out float px, out float py);
+            var pos = new Vector2(-px, -py);
+            if (cornerContent.anchoredPosition != pos)
+                cornerContent.anchoredPosition = pos;
+            float W = view.World.Size.X, H = view.World.Size.Z, half = CornerColumns * 0.5f;
+            var uv = new Rect((p.x - half) / W, (p.z - half) / H, CornerColumns / W, CornerColumns / H);
+            if (cornerImage.uvRect != uv)
+                cornerImage.uvRect = uv;
+            var f = view.transform.InverseTransformDirection(cam.transform.forward);
+            if (f.x * f.x + f.z * f.z > 1e-6f)
+                cornerMarker.localEulerAngles = new Vector3(0f, 0f, -Mathf.Atan2(f.x, f.z) * Mathf.Rad2Deg);
+            int cx = Mathf.FloorToInt(p.x), cz = Mathf.FloorToInt(p.z);
+            int id = cx >= 0 && cz >= 0 && cx < view.Maps.SizeX && cz < view.Maps.SizeZ ? view.Maps.Get(cx, cz) : MapTable.Ocean;
+            if (id >= view.Maps.MapCount) id = -1; // Ocean hoặc id lạ → ẩn
+            if (id != cornerShownMap)
+            {
+                cornerShownMap = id;
+                cornerName.enabled = id >= 0;
+                if (id >= 0) cornerName.text = view.Maps.Name(id);
+            }
         }
 
         void Build()
@@ -393,11 +467,13 @@ namespace Game.Client
             mg.color = markerColor;
             mg.raycastTarget = false;
 
-            // Nút mở/đóng: luôn hiện, tạo sau bảng → vẽ đè lên bảng.
-            button = Stretch("Nút bản đồ", root, Vector2.zero, Vector2.zero, new Vector2(1f, 1f));
+            // Nút Đóng trong bảng (brief 0025): chỗ nút cũ, chỉ hiện khi bản đồ mở.
+            button = Stretch("Nút đóng", panelRt, Vector2.zero, Vector2.zero, new Vector2(1f, 1f));
             Place(button, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -16f), new Vector2(180f, 56f));
             AddImage(button, new Color(0.1f, 0.1f, 0.1f, 0.75f));
-            buttonText = NewText("Chữ", button, font, 24, TextAnchor.MiddleCenter);
+            closeText = NewText("Chữ", button, font, 24, TextAnchor.MiddleCenter);
+            closeText.text = "Đóng (M)";
+            BuildCorner(root, font, borders);
 
             Canvas.ForceUpdateCanvases();
             Viewport = new MinimapViewport(s.X, s.Z, Mathf.Max(1f, frame.rect.width), Mathf.Max(1f, frame.rect.height));
@@ -406,7 +482,85 @@ namespace Game.Client
             SetOpen(false);
             sw.Stop();
             BuildMs = sw.Elapsed.TotalMilliseconds;
-            Debug.Log($"MINIMAP dựng: ảnh {s.X}x{s.Z}, {BorderCount} đường ranh giới, {labels.Count} tên, {landmarkIcons.Count} dấu mốc, font={(font != null ? font.name : "null")}, khung {frame.rect.width:F0}x{frame.rect.height:F0}, {BuildMs:F1} ms");
+            Debug.Log($"MINIMAP dựng: ảnh {s.X}x{s.Z}, {BorderCount} đường ranh giới, {labels.Count} tên, {landmarkIcons.Count} dấu mốc, ô nhỏ {CornerColumns:F0} cột {cornerK:F3} px/cột, font={(font != null ? font.name : "null")}, khung {frame.rect.width:F0}x{frame.rect.height:F0}, {BuildMs:F1} ms");
+        }
+
+        void BuildCorner(RectTransform root, Font font, List<float[]> borders)
+        {
+            var half = new Vector2(0.5f, 0.5f);
+            float d = CornerSize - 2f * CornerRim;            // đường kính mặt nạ
+            cornerK = d / CornerColumns;                       // px canvas mỗi cột
+            float W = view.World.Size.X, H = view.World.Size.Z;
+            CornerViewport = new MinimapViewport(W, H, W * cornerK, H * cornerK);
+
+            corner = Stretch("Ô bản đồ", root, Vector2.zero, Vector2.zero, half);
+            Place(corner, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -16f), new Vector2(CornerSize, CornerSize));
+            var rim = corner.gameObject.AddComponent<TimeDialGraphic>();
+            rim.shape = TimeDialShape.Disk;
+            rim.color = CornerRimColor;
+            rim.raycastTarget = false;
+
+            var maskRt = Stretch("Mặt nạ", corner, Vector2.zero, Vector2.zero, half);
+            Place(maskRt, half, half, Vector2.zero, new Vector2(d, d));
+            var maskG = maskRt.gameObject.AddComponent<TimeDialGraphic>();
+            maskG.shape = TimeDialShape.Disk;
+            maskG.color = CornerMaskColor;
+            maskG.raycastTarget = false;
+            cornerMask = maskRt.gameObject.AddComponent<Mask>();
+            cornerMask.showMaskGraphic = true;
+
+            cornerImage = Stretch("Ảnh nền", maskRt, Vector2.zero, Vector2.zero, half).gameObject.AddComponent<RawImage>();
+            cornerImage.texture = Texture;
+            cornerImage.raycastTarget = false;
+
+            cornerContent = Stretch("Nội dung", maskRt, Vector2.zero, Vector2.zero, half);
+            Place(cornerContent, half, Vector2.zero, Vector2.zero, new Vector2(W * cornerK, H * cornerK));
+
+            cornerLines = Stretch("Ranh giới", cornerContent, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<MinimapLinesGraphic>();
+            cornerLines.Lines = borders;
+            cornerLines.Thickness = CornerLineThickness;
+            cornerLines.color = borderColor;
+            cornerLines.Viewport = CornerViewport;
+            cornerLines.raycastTarget = false;
+
+            var lms = view.Landmarks;
+            if (lms != null)
+                for (int i = 0; i < lms.Count; i++)
+                {
+                    var l = lms[i];
+                    var icon = Stretch("Dấu mốc " + i, cornerContent, Vector2.zero, Vector2.zero, half);
+                    CornerViewport.WorldToPanel(l.X + 0.5f, l.Z + 0.5f, out float ix, out float iy);
+                    Place(icon, Vector2.zero, half, new Vector2(ix, iy), new Vector2(CornerLandmarkSize, CornerLandmarkSize));
+                    var g = icon.gameObject.AddComponent<MinimapLandmarkGraphic>();
+                    g.diamond = l.Kind == LandmarkKind.Checkpoint;
+                    g.color = LandmarkStyle.ColorOf(l);
+                    g.raycastTarget = false;
+                    cornerLandmarks.Add(icon);
+                }
+
+            cornerMarker = Stretch("Người chơi", corner, Vector2.zero, Vector2.zero, half);
+            Place(cornerMarker, half, half, Vector2.zero, new Vector2(CornerMarkerSize, CornerMarkerSize));
+            var mg = cornerMarker.gameObject.AddComponent<MinimapMarkerGraphic>();
+            mg.color = markerColor;
+            mg.raycastTarget = false;
+
+            cornerName = NewText("Tên map", corner, font, 16, TextAnchor.MiddleCenter);
+            Place(cornerName.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 18f), new Vector2(160f, 22f));
+            var outline = cornerName.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.85f);
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
+            cornerName.enabled = false;
+
+            var nRt = Stretch("Nền N", corner, Vector2.zero, Vector2.zero, half);
+            Place(nRt, new Vector2(0.5f, 1f), half, new Vector2(0f, -3f), new Vector2(28f, 28f));
+            var nG = nRt.gameObject.AddComponent<TimeDialGraphic>();
+            nG.shape = TimeDialShape.Disk;
+            nG.color = CornerRimColor;
+            nG.raycastTarget = false;
+            cornerNorth = NewText("N", nRt, font, 20, TextAnchor.MiddleCenter);
+            cornerNorth.text = "N";
+
+            cornerShownMap = -2;
         }
 
         /// <summary>RectTransform con giãn theo cha (anchor 0..1) với lề offsetMin/offsetMax.</summary>
