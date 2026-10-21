@@ -65,7 +65,7 @@ namespace Game.Core
         public static bool IsPlaceable(BlockMaterial m) =>
             m == BlockMaterial.Grass || m == BlockMaterial.Dirt || m == BlockMaterial.Stone || m == BlockMaterial.Sand;
 
-        /// <summary>Đào: ô thành rỗng, vật liệu +1 vào kho.</summary>
+        /// <summary>Đào: ô thành rỗng, vật liệu +1 vào kho (ô ruộng → đất, 0020).</summary>
         public EditResult TryDig(int x, int y, int z)
         {
             if (!World.Size.InBounds(x, y, z))
@@ -76,7 +76,7 @@ namespace Game.Core
 
             var material = Cell.GetMaterial(cell);
             World.Set(x, y, z, Cell.SetModified(Cell.SetMaterial(cell, BlockMaterial.Empty), true));
-            Inventory.Add(material);
+            Inventory.Add(material == BlockMaterial.Farmland ? BlockMaterial.Dirt : material);
             CellChanged?.Invoke(x, y, z);
             if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
                 AddToFront(x, y, z);
@@ -103,7 +103,37 @@ namespace Game.Core
 
             World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(cell, material), 0), true));
             CellChanged?.Invoke(x, y, z);
+            RevertFarmlandBelow(x, y, z);
             return EditResult.Ok;
+        }
+
+        /// <summary>Xới (0020): ô đất/cỏ → ô ruộng, cờ đã sửa bật. Chỉ ghi dữ liệu, không phát sự kiện. true khi ô đổi.</summary>
+        public static bool Till(WorldData world, int x, int y, int z)
+        {
+            if (!world.Size.InBounds(x, y, z)) return false;
+            ushort cell = world.Get(x, y, z);
+            var m = Cell.GetMaterial(cell);
+            if (m != BlockMaterial.Dirt && m != BlockMaterial.Grass) return false;
+            world.Set(x, y, z, Cell.SetModified(Cell.SetMaterial(cell, BlockMaterial.Farmland), true));
+            return true;
+        }
+
+        /// <summary>Xới qua editor: như Till, ô đổi thì phát CellChanged (mesh, minimap cập nhật).</summary>
+        public bool TryTill(int x, int y, int z)
+        {
+            if (!Till(World, x, y, z)) return false;
+            CellChanged?.Invoke(x, y, z);
+            return true;
+        }
+
+        /// <summary>Ô (x, y, z) vừa có khối hoặc nước: ô ruộng ngay bên dưới trở lại ô đất (0020).</summary>
+        void RevertFarmlandBelow(int x, int y, int z)
+        {
+            if (y - 1 < 0) return;
+            ushort below = World.Get(x, y - 1, z);
+            if (Cell.GetMaterial(below) != BlockMaterial.Farmland) return;
+            World.Set(x, y - 1, z, Cell.SetModified(Cell.SetMaterial(below, BlockMaterial.Dirt), true));
+            CellChanged?.Invoke(x, y - 1, z);
         }
 
         static readonly (int dx, int dy, int dz)[] Faces = { (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1) };
@@ -159,6 +189,7 @@ namespace Game.Core
             ushort old = World.Get(x, y, z);
             World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(old, BlockMaterial.Water), Cell.MaxWaterLevel), true));
             CellChanged?.Invoke(x, y, z);
+            RevertFarmlandBelow(x, y, z);
         }
 
         /// <summary>

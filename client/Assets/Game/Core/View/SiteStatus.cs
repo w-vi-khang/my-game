@@ -21,6 +21,7 @@ namespace Game.Core.View
         public static string PlotText(FarmPlot p, long tick, int growTicks)
         {
             string head = "Ruộng " + p.Id + " · ";
+            if (p.Removed) return head + "đã huỷ";
             switch (p.Phase)
             {
                 case PlotPhase.Till: return head + "xới";

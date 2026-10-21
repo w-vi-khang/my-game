@@ -106,6 +106,8 @@ namespace Game.Core.Sim
                 h = MixLong(h, p.RipeTick);
                 h = MixInt(h, p.Queue.Count);
                 for (int j = 0; j < p.Queue.Count; j++) h = MixInt(h, p.Queue[j]);
+                h = MixInt(h, p.Tilled ? 1 : 0);
+                h = MixInt(h, p.Removed ? 1 : 0);
             }
 
             h = MixInt(h, s.Houses.Count);

@@ -145,6 +145,11 @@ namespace Game.World.Tests
             Assert.AreEqual(0, Run(sim, 4000, false));
             Assert.AreEqual(4, sim.State.Storages[0].Produce);
             Assert.AreEqual(10, sim.State.Storages[0].Seeds);
+            foreach (var p in sim.State.Plots)
+            {
+                Assert.IsTrue(p.Tilled);
+                Assert.AreEqual(BlockMaterial.Farmland, sim.World.GetMaterial(p.Soil.X, p.Soil.Y, p.Soil.Z));
+            }
         }
 
         [Test]

@@ -13,6 +13,7 @@ namespace Game.Client
     /// Nhãn trên đầu = trạng thái; "!" đỏ = đình trệ tại ô. F1 / F2: khoá 30 / 60 FPS (chỉ Game view trong Editor).
     /// HUD góc trái: kho + từng ô ruộng (giai đoạn, % lớn); mầm xanh cao theo %; hộp vàng trên lưng = đang mang hàng (sửa sau user xem 2026-10-16).
     /// Đào/đặt (TerrainEditInput) báo cho mô phỏng qua WorldEditor.CellChanged; ô có sinh vật/nhà/kho không đặt được.
+    /// Xới xong → ô ruộng (màu riêng, tấm 'Ruộng' ẩn); đào/đặt lên ô ruộng → huỷ vụ, bảng ghi 'đã huỷ' (sim 6a, 0020).
     /// World 3 map (world 7e, brief 0020): Terrain dùng MapsV3 → SimDemo.FindSite chọn chỗ trong Map 1, mô phỏng trong vùng 64 × 64, camera đặt ở trại.
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -44,6 +45,7 @@ namespace Game.Client
         readonly List<Transform> pivots = new List<Transform>();
         readonly List<GameObject> loads = new List<GameObject>();
         readonly List<Transform> sprouts = new List<Transform>();
+        readonly List<GameObject> plotSlabs = new List<GameObject>();
         int savedVSync, savedTargetFps;
         float smoothedDt = 1f / 60f;
         GUIStyle labelStyle, hudStyle;
@@ -99,6 +101,7 @@ namespace Game.Client
             }
             UpdateBodies();
             UpdateSprouts();
+            UpdatePlotSlabs();
         }
 
         void Setup()
@@ -107,8 +110,7 @@ namespace Game.Client
             if (view.Maps == null)
             {
                 Sim = new Simulation(cfg, view.World);
-                view.Editor.IsOccupied = Sim.IsOccupied;
-                view.Editor.CellChanged += Sim.OnCellChanged;
+                Sim.AttachEditor(view.Editor);
                 SimDemo.Build(Sim);
             }
             else
@@ -118,8 +120,7 @@ namespace Game.Client
                 double ms = sw.Elapsed.TotalMilliseconds;
                 Site = site;
                 Sim = new Simulation(cfg, view.World, site.Bounds);
-                view.Editor.IsOccupied = Sim.IsOccupied;
-                view.Editor.CellChanged += Sim.OnCellChanged;
+                Sim.AttachEditor(view.Editor);
                 SimDemo.Build(Sim, site);
                 var camPos = PlaceCamera(site);
                 Debug.Log($"SIMVIEW trại {site}, camera ({camPos.x:F0}, {camPos.y:F0}, {camPos.z:F0}), tìm chỗ {ms:F1} ms, mảng tìm đường {Sim.PathfinderCellCount} ô");
@@ -142,12 +143,13 @@ namespace Game.Client
                 Box("Kho " + s.Id, new Vector3(s.Cell.X + 0.5f, s.Cell.Y + 0.45f, s.Cell.Z + 0.5f), new Vector3(0.9f, 0.9f, 0.9f), StorageColor, root, solid: true);
             foreach (var p in Sim.State.Plots)
             {
-                Box("Ruộng " + p.Id, new Vector3(p.Soil.X + 0.5f, p.Soil.Y + 1.02f, p.Soil.Z + 0.5f), new Vector3(0.9f, 0.04f, 0.9f), PlotColor, root);
+                plotSlabs.Add(Box("Ruộng " + p.Id, new Vector3(p.Soil.X + 0.5f, p.Soil.Y + 1.02f, p.Soil.Z + 0.5f), new Vector3(0.9f, 0.04f, 0.9f), PlotColor, root));
                 var sprout = Box("Mầm " + p.Id, Vector3.zero, Vector3.one, SproutColor, root);
                 sprout.SetActive(false);
                 sprouts.Add(sprout.transform);
             }
             UpdateBodies();
+            UpdatePlotSlabs();
             SetFrameRate(60);
         }
 
@@ -197,6 +199,13 @@ namespace Game.Client
                 pivots[i].localRotation = Quaternion.LookRotation(new Vector3(hx, 0f, hz));
                 loads[i].SetActive(SiteStatus.IsCarrying(Sim.State, c));
             }
+        }
+
+        void UpdatePlotSlabs()
+        {
+            var ps = Sim.State.Plots;
+            for (int i = 0; i < ps.Count && i < plotSlabs.Count; i++)
+                plotSlabs[i].SetActive(!ps[i].Tilled && !ps[i].Removed);
         }
 
         void UpdateSprouts()

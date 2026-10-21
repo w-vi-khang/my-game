@@ -3,13 +3,16 @@ using System.Collections.Generic;
 
 namespace Game.Core.Sim
 {
-    /// <summary>Mô phỏng nông trại M1 — nhịp cố định, số nguyên, tất định (simulation-tech bước 1, 0014). A* đi bộ theo khung chiếm chỗ (bước 2, 0015).</summary>
+    /// <summary>Mô phỏng nông trại M1 — nhịp cố định, số nguyên, tất định (simulation-tech bước 1, 0014). A* đi bộ theo khung chiếm chỗ (bước 2, 0015). Ô ruộng + huỷ vụ (bước 6a, 0020).</summary>
     public sealed class Simulation
     {
         public readonly SimConfig Config;
         public readonly SimState State;
         public readonly WorldData World;
         readonly GridPathfinder pathfinder;
+        bool writingWorld;
+
+        public WorldEditor Editor { get; private set; }
         readonly List<CellPos> tmpPath = new List<CellPos>();
         readonly List<CellPos> goals = new List<CellPos>();
         readonly List<CellPos> homePath = new List<CellPos>();
@@ -297,7 +300,7 @@ namespace Game.Core.Sim
             for (int i = 0; i < stages.Count; i++)
             {
                 var g = stages[i];
-                if (g.DroppedBy != c.Id || g.Status == StageStatus.Assigned || g.Status == StageStatus.Done) continue;
+                if (g.DroppedBy != c.Id || g.Status == StageStatus.Assigned || g.Status == StageStatus.Done || g.Status == StageStatus.Cancelled) continue;
                 g.Target = cell;
                 g.DroppedBy = -1;
                 if (g.Status == StageStatus.Blocked && g.Stall == StallReason.NoPath)
@@ -325,8 +328,66 @@ namespace Game.Core.Sim
             }
         }
 
-        /// <summary>Tin ô đổi (nối vào WorldEditor.CellChanged) — xử lý ở nhịp kế.</summary>
-        public void OnCellChanged(int x, int y, int z) => terrainDirty = true;
+        /// <summary>Tin ô đổi (nối vào WorldEditor.CellChanged) — xử lý ở nhịp kế; ô do mô phỏng tự xới không tính.</summary>
+        public void OnCellChanged(int x, int y, int z) { if (!writingWorld) terrainDirty = true; }
+
+        /// <summary>Nối world editor (0020): đào/đặt báo cho mô phỏng, ô có sinh vật/nhà/kho không đặt được; xới xong ghi ô ruộng qua editor.</summary>
+        public void AttachEditor(WorldEditor editor)
+        {
+            if (editor == null) throw new ArgumentNullException(nameof(editor));
+            if (editor.World != World) throw new ArgumentException("Editor phải sửa cùng WorldData với mô phỏng.");
+            if (Editor != null) throw new InvalidOperationException("Mô phỏng đã nối editor.");
+            Editor = editor;
+            editor.IsOccupied = IsOccupied;
+            editor.CellChanged += OnCellChanged;
+        }
+
+        void WriteFarmland(CellPos c)
+        {
+            if (Editor == null)
+            {
+                WorldEditor.Till(World, c.X, c.Y, c.Z);
+                return;
+            }
+            writingWorld = true;
+            try { Editor.TryTill(c.X, c.Y, c.Z); }
+            finally { writingWorld = false; }
+        }
+
+        /// <summary>Ô ruộng còn nguyên: ô trên rỗng; chưa xới → đất/cỏ, đã xới → ô ruộng (0020).</summary>
+        bool PlotIntact(FarmPlot p)
+        {
+            if (World.GetMaterial(p.Site.X, p.Site.Y, p.Site.Z) != BlockMaterial.Empty) return false;
+            var m = World.GetMaterial(p.Soil.X, p.Soil.Y, p.Soil.Z);
+            return p.Tilled ? m == BlockMaterial.Farmland : m == BlockMaterial.Dirt || m == BlockMaterial.Grass;
+        }
+
+        /// <summary>Huỷ vụ (0020): trả hạt nếu đã trừ mà chưa thu, sinh vật đang làm về rảnh, ô rời lệnh, xoá hàng đợi. Vận chuyển hàng đã thu giữ nguyên.</summary>
+        void CancelPlot(FarmPlot p)
+        {
+            int seeds = p.Phase == PlotPhase.Water || p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest ? 1 : 0;
+            int stageId = p.StageId, creatureId = -1;
+            if (stageId >= 0)
+            {
+                var s = State.Stages[stageId];
+                if (s.Status == StageStatus.Assigned)
+                {
+                    if (s.Ability == WorkAbility.Sow) seeds = 1;
+                    creatureId = s.AssigneeId;
+                    ReleaseCreature(State.Creatures[creatureId]);
+                }
+                s.Status = StageStatus.Cancelled;
+                s.Stall = StallReason.None;
+                s.AssigneeKind = AssigneeKind.None;
+                s.AssigneeId = -1;
+            }
+            State.Storages[p.StorageId].Seeds += seeds;
+            p.Removed = true;
+            p.Queue.Clear();
+            p.Phase = PlotPhase.Idle;
+            p.StageId = -1;
+            State.Events.Add(new SimEvent(State.Tick, SimEventKind.CropCancelled, stageId, creatureId, p.Soil, StallReason.None, seeds));
+        }
 
         public void Tick()
         {
@@ -389,7 +450,7 @@ namespace Game.Core.Sim
         {
             var ps = State.Plots;
             for (int i = 0; i < ps.Count; i++)
-                if (FramesOverlap(p, sx, sz, sy, ps[i].Site, 1, 1, 1)) return true;
+                if (!ps[i].Removed && FramesOverlap(p, sx, sz, sy, ps[i].Site, 1, 1, 1)) return true;
             return false;
         }
 
@@ -441,6 +502,9 @@ namespace Game.Core.Sim
 
         void TerrainPhase()
         {
+            var ps = State.Plots;
+            for (int i = 0; i < ps.Count; i++)
+                if (!ps[i].Removed && !PlotIntact(ps[i])) CancelPlot(ps[i]);
             var stages = State.Stages;
             for (int i = 0; i < stages.Count; i++)
             {
@@ -637,6 +701,7 @@ namespace Game.Core.Sim
                 switch (s.Ability)
                 {
                     case WorkAbility.Till:
+                        if (!p.Tilled) { WriteFarmland(p.Soil); p.Tilled = true; }
                         p.Phase = PlotPhase.Sow;
                         AddPlotStage(p, WorkAbility.Sow);
                         break;
@@ -712,7 +777,7 @@ namespace Game.Core.Sim
                 for (int j = 0; j < i; j++)
                     if (soilCells[j] == f) throw new ArgumentException("Trùng ô ruộng trong danh sách: " + f);
                 for (int j = 0; j < State.Plots.Count; j++)
-                    if (State.Plots[j].Soil == f) throw new ArgumentException("Ô đã là ruộng: " + f);
+                    if (!State.Plots[j].Removed && State.Plots[j].Soil == f) throw new ArgumentException("Ô đã là ruộng: " + f);
             }
             int orderId = AddOrder(soilCells);
             for (int i = 0; i < soilCells.Count; i++)
@@ -725,10 +790,11 @@ namespace Game.Core.Sim
             return orderId;
         }
 
-        /// <summary>Thêm một vụ vào hàng đợi của ô ruộng; false khi hàng đợi đầy.</summary>
+        /// <summary>Thêm một vụ vào hàng đợi của ô ruộng; false khi hàng đợi đầy hoặc ô đã rời lệnh.</summary>
         public bool EnqueueCrop(int plotId)
         {
             var p = State.Plots[plotId];
+            if (p.Removed) return false;
             if (p.Queue.Count >= Config.farm.plotQueueCapacity) return false;
             p.Queue.Add(0);
             if (p.Phase == PlotPhase.Idle) StartCrop(p);
@@ -1067,6 +1133,11 @@ namespace Game.Core.Sim
             s.Status = StageStatus.Open;
             s.AssigneeKind = AssigneeKind.None;
             s.AssigneeId = -1;
+            ReleaseCreature(c);
+        }
+
+        void ReleaseCreature(Creature c)
+        {
             c.State = CreatureState.Idle;
             c.StageId = -1;
             c.BlockedTicks = 0;

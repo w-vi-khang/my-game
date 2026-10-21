@@ -34,5 +34,27 @@ namespace Game.Client.Tests
             Assert.AreEqual(before, Application.targetFrameRate);
             Assert.AreEqual(vs, QualitySettings.vSyncCount);
         }
+
+        [UnityTest]
+        public IEnumerator TilledPlotBecomesFarmlandAndRebuildsChunk()
+        {
+            var go = new GameObject("Terrain");
+            var view = go.AddComponent<TerrainChunkView>();
+            var sv = go.AddComponent<SimView>();
+            yield return null;
+            yield return null;
+
+            var p = sv.Sim.State.Plots[0];
+            int f0 = view.LastRebuildFrame;
+            for (int i = 0; i < 2000 && !p.Tilled; i++) sv.Sim.Tick();
+            Assert.IsTrue(p.Tilled);
+            yield return null;
+
+            Assert.AreEqual(BlockMaterial.Farmland, view.World.GetMaterial(p.Soil.X, p.Soil.Y, p.Soil.Z));
+            Assert.Greater(view.LastRebuildFrame, f0);
+            Assert.AreSame(view.Editor, sv.Sim.Editor);
+            Object.Destroy(go);
+            yield return null;
+        }
     }
 }

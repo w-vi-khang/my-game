@@ -92,14 +92,15 @@ namespace Game.World
         {
             BlockMaterial.Grass => Pack(140, 200, 96, PatternGrass),
             BlockMaterial.Dirt => Pack(222, 180, 126, PatternDirt),
+            BlockMaterial.Farmland => Pack(150, 104, 66, PatternDirt),
             BlockMaterial.Stone => Pack(160, 160, 156, PatternStone),
             BlockMaterial.Sand => Pack(238, 220, 160, PatternSand),
             BlockMaterial.Bedrock => Pack(96, 92, 90, PatternStone),
             _ => Pack(255, 0, 255, PatternNone), // không nên xuất hiện — màu chói để dễ thấy lỗi
         };
 
-        /// <summary>Màu sườn/đáy: ô cỏ lộ vách đất (như khối cỏ tham khảo trong 0011); vật liệu khác giữ màu của nó.</summary>
-        public static uint SideColor(BlockMaterial m) => m == BlockMaterial.Grass ? TopColor(BlockMaterial.Dirt) : TopColor(m);
+        /// <summary>Màu sườn/đáy: ô cỏ và ô ruộng lộ vách đất (như khối cỏ tham khảo trong 0011); vật liệu khác giữ màu của nó.</summary>
+        public static uint SideColor(BlockMaterial m) => m == BlockMaterial.Grass || m == BlockMaterial.Farmland ? TopColor(BlockMaterial.Dirt) : TopColor(m);
 
         static uint Pack(byte r, byte g, byte b, byte pattern) => r | (uint)g << 8 | (uint)b << 16 | (uint)pattern << 24;
 

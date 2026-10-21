@@ -217,6 +217,28 @@ namespace Game.World.Tests
         }
 
         [Test]
+        public void FarmlandTopOwnColorSidesDirtNoLip()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Farmland));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, grassLip: false);
+            int tops = 0;
+            for (int t = 0; t < mesh.Indices.Length; t += 3)
+            {
+                uint c0 = mesh.Colors[mesh.Indices[t]];
+                Assert.AreEqual(c0, mesh.Colors[mesh.Indices[t + 1]]);
+                Assert.AreEqual(c0, mesh.Colors[mesh.Indices[t + 2]]);
+                bool top = math.normalize(GeometricNormal(mesh, t)).y > 0.7f;
+                Assert.AreEqual(top ? BlockMesher.TopColor(BlockMaterial.Farmland) : BlockMesher.TopColor(BlockMaterial.Dirt), c0, $"tam giác {t / 3}");
+                if (top) tops++;
+            }
+            Assert.Greater(tops, 0);
+            Assert.AreNotEqual(BlockMesher.TopColor(BlockMaterial.Dirt), BlockMesher.TopColor(BlockMaterial.Farmland));
+            var withLip = BlockMesher.Build(w, 0, 0, 0);
+            Assert.AreEqual(mesh.TriangleCount, withLip.TriangleCount);
+        }
+
+        [Test]
         public void WaterIsNotSolid()
         {
             // Ô đất dưới ô nước có mặt trên (nước là rỗng với mesher — mặt nước là bước 5b).

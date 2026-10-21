@@ -39,6 +39,18 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void RemovedPlotShowsCancelled()
+        {
+            var p = new FarmPlot(2, 0, 0, new CellPos(5, 0, 5));
+            p.Removed = true;
+            foreach (PlotPhase ph in System.Enum.GetValues(typeof(PlotPhase)))
+            {
+                p.Phase = ph;
+                Assert.AreEqual("Ruộng 2 · đã huỷ", SiteStatus.PlotText(p, 100, 1200));
+            }
+        }
+
+        [Test]
         public void GrowPercentClamps()
         {
             var p = new FarmPlot(2, 0, 0, new CellPos(5, 0, 5));

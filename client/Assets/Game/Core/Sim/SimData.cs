@@ -27,14 +27,14 @@ namespace Game.Core.Sim
 
     public enum CreatureState : byte { Idle = 0, Moving = 1, Working = 2 }
 
-    public enum StageStatus : byte { Open = 0, Assigned = 1, Done = 2, Blocked = 3 }
+    public enum StageStatus : byte { Open = 0, Assigned = 1, Done = 2, Blocked = 3, Cancelled = 4 }
 
     /// <summary>Lý do đình trệ (0016, 0017).</summary>
     public enum StallReason : byte { None = 0, NoPath = 1, NoSeeds = 2, StorageFull = 3, NoAbility = 4 }
 
-    public enum SimEventKind : byte { StallStarted = 1, StallCleared = 2, CreatureRespawned = 3 }
+    public enum SimEventKind : byte { StallStarted = 1, StallCleared = 2, CreatureRespawned = 3, CropCancelled = 4 }
 
-    /// <summary>Sự kiện thông báo (0017). Đình trệ: CreatureId = -1, Cell = Target của stage. Hiện lại: StageId = -1, Reason = None, Cell = ô hiện lại.</summary>
+    /// <summary>Sự kiện thông báo (0017). Đình trệ: CreatureId = -1, Cell = Target của stage. Hiện lại: StageId = -1, Reason = None, Cell = ô hiện lại. Huỷ vụ: Cell = Soil, Seeds = số hạt trả, Reason = None.</summary>
     public readonly struct SimEvent
     {
         public readonly long Tick;
@@ -42,8 +42,9 @@ namespace Game.Core.Sim
         public readonly int StageId, CreatureId;
         public readonly CellPos Cell;
         public readonly StallReason Reason;
+        public readonly int Seeds;
 
-        public SimEvent(long tick, SimEventKind kind, int stageId, int creatureId, CellPos cell, StallReason reason)
+        public SimEvent(long tick, SimEventKind kind, int stageId, int creatureId, CellPos cell, StallReason reason, int seeds = 0)
         {
             Tick = tick;
             Kind = kind;
@@ -51,6 +52,7 @@ namespace Game.Core.Sim
             CreatureId = creatureId;
             Cell = cell;
             Reason = reason;
+            Seeds = seeds;
         }
     }
 
@@ -205,6 +207,10 @@ namespace Game.Core.Sim
         public PlotPhase Phase;
         public int StageId = -1;
         public long RipeTick;
+        /// <summary>Đã xới xong ít nhất một lần → ô là ô ruộng (0020).</summary>
+        public bool Tilled;
+        /// <summary>Đã rời lệnh sau khi huỷ vụ (0020) — không còn công đoạn, không nhận vụ mới.</summary>
+        public bool Removed;
 
         public FarmPlot(int id, int orderId, int storageId, CellPos soil)
         {

@@ -131,6 +131,82 @@ namespace Game.Core.Tests
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(5, 1, 4, BlockMaterial.Dirt));
         }
 
+        [Test]
+        public void DigFarmlandGivesDirt()
+        {
+            world.Set(5, 1, 5, Cell.Make(BlockMaterial.Farmland));
+            Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 1, 5));
+            Assert.AreEqual(BlockMaterial.Empty, world.GetMaterial(5, 1, 5));
+            Assert.AreEqual(1, inv.Get(BlockMaterial.Dirt));
+            Assert.AreEqual(0, inv.Get(BlockMaterial.Farmland));
+        }
+
+        [Test]
+        public void FarmlandNotPlaceable()
+        {
+            Assert.IsFalse(WorldEditor.IsPlaceable(BlockMaterial.Farmland));
+            Assert.AreEqual(EditResult.NotPlaceable, editor.TryPlace(5, 1, 5, BlockMaterial.Farmland));
+        }
+
+        [Test]
+        public void TillTurnsDirtAndGrassIntoFarmland()
+        {
+            world.Set(5, 1, 5, Cell.Make(BlockMaterial.Dirt));
+            world.Set(6, 1, 5, Cell.Make(BlockMaterial.Grass));
+            world.Set(7, 1, 5, Cell.Make(BlockMaterial.Stone));
+            Assert.IsTrue(editor.TryTill(5, 1, 5));
+            Assert.AreEqual(BlockMaterial.Farmland, world.GetMaterial(5, 1, 5));
+            Assert.IsTrue(Cell.IsModified(world.Get(5, 1, 5)));
+            CollectionAssert.AreEqual(new[] { (5, 1, 5) }, changed);
+            Assert.IsTrue(editor.TryTill(6, 1, 5));
+            Assert.AreEqual(2, changed.Count);
+            Assert.IsFalse(editor.TryTill(5, 1, 5));
+            Assert.IsFalse(editor.TryTill(7, 1, 5));
+            Assert.IsFalse(editor.TryTill(-1, 1, 5));
+            Assert.AreEqual(2, changed.Count);
+            world.Set(8, 1, 5, Cell.Make(BlockMaterial.Dirt));
+            Assert.IsTrue(WorldEditor.Till(world, 8, 1, 5));
+            Assert.AreEqual(BlockMaterial.Farmland, world.GetMaterial(8, 1, 5));
+            Assert.AreEqual(2, changed.Count);
+        }
+
+        [Test]
+        public void PlaceAboveFarmlandRevertsItToDirt()
+        {
+            world.Set(5, 1, 5, Cell.Make(BlockMaterial.Farmland));
+            inv.Add(BlockMaterial.Stone);
+            Assert.AreEqual(EditResult.Ok, editor.TryPlace(5, 2, 5, BlockMaterial.Stone));
+            Assert.AreEqual(BlockMaterial.Dirt, world.GetMaterial(5, 1, 5));
+            Assert.IsTrue(Cell.IsModified(world.Get(5, 1, 5)));
+            CollectionAssert.AreEqual(new[] { (5, 2, 5), (5, 1, 5) }, changed);
+        }
+
+        [Test]
+        public void PlaceAboveGrassLeavesItGrass()
+        {
+            world.Set(5, 1, 5, Cell.Make(BlockMaterial.Grass));
+            inv.Add(BlockMaterial.Stone);
+            Assert.AreEqual(EditResult.Ok, editor.TryPlace(5, 2, 5, BlockMaterial.Stone));
+            Assert.AreEqual(BlockMaterial.Grass, world.GetMaterial(5, 1, 5));
+            CollectionAssert.AreEqual(new[] { (5, 2, 5) }, changed);
+        }
+
+        [Test]
+        public void WaterAboveFarmlandRevertsItToDirt()
+        {
+            var ed = new WorldEditor(world, inv, 2, 2);
+            var list = new List<(int, int, int)>();
+            ed.CellChanged += (x, y, z) => list.Add((x, y, z));
+            world.Set(6, 1, 5, Cell.Make(BlockMaterial.Farmland));
+            world.Set(6, 2, 5, Cell.Make(BlockMaterial.Dirt));
+            world.Set(7, 2, 5, Cell.Make(BlockMaterial.Water, 7));
+            Assert.AreEqual(EditResult.Ok, ed.TryDig(6, 2, 5));
+            ed.StepWater();
+            Assert.AreEqual(BlockMaterial.Water, world.GetMaterial(6, 2, 5));
+            Assert.AreEqual(BlockMaterial.Dirt, world.GetMaterial(6, 1, 5));
+            CollectionAssert.Contains(list, (6, 1, 5));
+        }
+
         static List<int> Affected(WorldSize s, int x, int y, int z)
         {
             var r = new List<int>();

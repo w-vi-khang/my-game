@@ -11,6 +11,8 @@ namespace Game.Core
         Water = 5,
         /// <summary>Đá đáy map — không đào được (luật M1, design/02-gameplay/mechanics.md).</summary>
         Bedrock = 6,
+        /// <summary>Ô ruộng: ô đất/cỏ sinh vật đã xới xong (0020). Không đặt được; đào ra +1 đất; bị che thì trở lại đất.</summary>
+        Farmland = 7,
     }
 
     /// <summary>
