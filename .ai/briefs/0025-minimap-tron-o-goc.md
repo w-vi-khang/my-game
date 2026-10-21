@@ -1,9 +1,9 @@
 # Brief 0025 — World 7g: ô minimap tròn luôn hiện ở góc trên-phải, bấm để mở bản đồ lớn
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 17:05
+> Cập nhật: 2026-10-21 17:14
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -369,11 +369,36 @@ Trên Mac, scene `SimView` (và `TerrainView`), nhấn Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 07a8345
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu 2026-10-21 17:06 · Kết thúc 2026-10-21 17:14
+Commit code: c36c48f — MinimapView.cs, TimeDial.cs (4 dòng), Tests/Client/MinimapCornerPlayTests.cs (+.meta). Bench.unity không đổi (EnsureScene tạo lại giống hệt).
+Lệch brief: adb thấy máy qua 192.168.1.6:5555 (serial USB không hiện). Điện thoại KHOÁ (isKeyguardShowing=true) → không chụp màn hình, không có log BENCH/MINIMAP sau ~140 s: **chờ user mở khoá** (app đã cài và đang chạy, nhiệt Thermal Status 2).
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · Bắt đầu / Kết thúc (giờ thực) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+- Ô dựng/mặt nạ/texture/N/64 cột: đạt — CornerBuiltWithCircleMaskAndSharedTexture
+- Theo người chơi: đạt — CornerFollowsCameraPositionAndHeading
+- Tên map: đạt — CornerShowsMapNameUnderPlayer
+- Dấu mốc: đạt — CornerLandmarkIconsAtLandmarkPositions
+- Đào thấy ở ô nhỏ: đạt — DigVisibleInCorner
+- Bấm mở/Đóng: đạt (test PressCornerOpensAndCloseButtonCloses); chuột/chạm thật: chờ user
+- Vùng bấm tròn: đạt — CornerHitTestIsCircular
+- Chặn trong khung bật/tắt: đạt — ToggleFrameBlocksPointer; bấm "Đóng (M)" không đào: chờ user
+- Test cũ (MinimapViewPlayTests, TimeDialPlayTests, TerrainEdit…, Landmark…): đạt trong PlayMode cả bộ
+- Bench + điện thoại (mặt nạ GPU, FPS, ảnh): chờ user mở khoá
+Lệnh:
+1. refresh_unity + read_console error → 0 lỗi
+2. grep buttonText → 0 kết quả
+3. git diff --stat TimeDial.cs → 4 insertions(+), 4 deletions(-)
+4. PlayMode MinimapCornerPlayTests → 8/8 (đã chạy riêng); cả bộ nằm ở mục 6
+5. Build APK Bench → "Bench build: Succeeded", cài Success, chạy; ảnh/log: chờ user mở khoá. Dọn xong.
+6. EditMode 340/340; PlayMode 68/68. Dọn EditorSettings.asset xong.
+7. check_design.py → ✓ design/ hợp lệ
+8. git status chỉ file trong Phạm vi → đã commit
+
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
