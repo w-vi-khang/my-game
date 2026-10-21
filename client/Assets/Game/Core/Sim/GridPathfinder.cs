@@ -19,6 +19,8 @@ namespace Game.Core.Sim
         static readonly int[] DirY = { 0, 1, -1 };
 
         readonly WorldData world;
+        readonly SimBounds bounds;
+        readonly int sizeY;
         readonly int[] g;
         readonly int[] parent;
         readonly int[] seenStamp;
@@ -32,9 +34,18 @@ namespace Game.Core.Sim
         readonly List<Node> heap = new List<Node>();
 
         public GridPathfinder(WorldData world)
+            : this(world, world != null ? SimBounds.Whole(world.Size) : new SimBounds(0, 0, 1, 1))
+        {
+        }
+
+        /// <summary>Tìm đường trong vùng mô phỏng (brief 0019): mảng cấp theo vùng; ô ngoài vùng coi như ngoài map.</summary>
+        public GridPathfinder(WorldData world, SimBounds bounds)
         {
             this.world = world ?? throw new ArgumentNullException(nameof(world));
-            int n = world.Size.CellCount;
+            if (!bounds.FitsIn(world.Size)) throw new ArgumentException("Vùng mô phỏng ngoài world: " + bounds);
+            this.bounds = bounds;
+            sizeY = world.Size.Y;
+            int n = bounds.SizeX * bounds.SizeZ * sizeY;
             g = new int[n];
             parent = new int[n];
             seenStamp = new int[n];
@@ -43,18 +54,36 @@ namespace Game.Core.Sim
             tempBlocked = new bool[n];
         }
 
+        public SimBounds Bounds => bounds;
+
+        /// <summary>Số ô của mảng tìm đường (= SizeX · SizeZ · chiều cao world của vùng).</summary>
+        public int CellCount => g.Length;
+
+        bool InRegion(int x, int y, int z) => y >= 0 && y < sizeY && bounds.Contains(x, z);
+
+        /// <summary>Chỉ số trong vùng: x nhanh nhất, rồi z, rồi y — như WorldSize.Index nhưng tính từ góc vùng.</summary>
+        int Index(int x, int y, int z) => (x - bounds.X0) + bounds.SizeX * ((z - bounds.Z0) + bounds.SizeZ * y);
+
+        void Coords(int i, out int x, out int y, out int z)
+        {
+            x = i % bounds.SizeX + bounds.X0;
+            int rest = i / bounds.SizeX;
+            z = rest % bounds.SizeZ + bounds.Z0;
+            y = rest / bounds.SizeZ;
+        }
+
         /// <summary>Đánh dấu ô bị công trình chiếm (kho): ô đó không cho thân.</summary>
         public void SetBlocked(CellPos c, bool value)
         {
-            if (!world.Size.InBounds(c.X, c.Y, c.Z)) throw new ArgumentException("Ô ngoài map: " + c);
-            blocked[world.Size.Index(c.X, c.Y, c.Z)] = value;
+            if (!InRegion(c.X, c.Y, c.Z)) throw new ArgumentException("Ô ngoài vùng mô phỏng: " + c);
+            blocked[Index(c.X, c.Y, c.Z)] = value;
         }
 
         /// <summary>Chặn tạm ô (x, y, z) cho thân (sinh vật đang chắn, 0019) tới khi ClearTempBlocks; ngoài map thì bỏ qua.</summary>
         public void AddTempBlock(int x, int y, int z)
         {
-            if (!world.Size.InBounds(x, y, z)) return;
-            int i = world.Size.Index(x, y, z);
+            if (!InRegion(x, y, z)) return;
+            int i = Index(x, y, z);
             if (tempBlocked[i]) return;
             tempBlocked[i] = true;
             tempList.Add(i);
@@ -69,15 +98,15 @@ namespace Game.Core.Sim
         /// <summary>Ô cho thân: trong map, rỗng, không bị công trình hay chặn tạm.</summary>
         public bool IsBodyFree(int x, int y, int z)
         {
-            if (!world.Size.InBounds(x, y, z)) return false;
-            int i = world.Size.Index(x, y, z);
+            if (!InRegion(x, y, z)) return false;
+            int i = Index(x, y, z);
             return !blocked[i] && !tempBlocked[i] && world.GetMaterial(x, y, z) == BlockMaterial.Empty;
         }
 
         /// <summary>Ô đỡ: trong map, không rỗng và không phải nước.</summary>
         public bool IsSupport(int x, int y, int z)
         {
-            if (!world.Size.InBounds(x, y, z)) return false;
+            if (!InRegion(x, y, z)) return false;
             var m = world.GetMaterial(x, y, z);
             return m != BlockMaterial.Empty && m != BlockMaterial.Water;
         }
@@ -130,7 +159,7 @@ namespace Game.Core.Sim
             for (int i = 0; i < goals.Count; i++)
                 if (CanStand(goals[i], sx, sz, sy)) goalBuf.Add(goals[i]);
             if (goalBuf.Count == 0) return false;
-            if (!world.Size.InBounds(start.X, start.Y, start.Z)) return false;
+            if (!InRegion(start.X, start.Y, start.Z)) return false;
             for (int i = 0; i < goalBuf.Count; i++)
                 if (goalBuf[i] == start) return true;
             return Search(start, goalBuf, sx, sz, sy, result);
@@ -143,11 +172,10 @@ namespace Game.Core.Sim
         public bool FindPathToNearest(CellPos start, int sx, int sz, int sy, int maxSteps, Predicate<CellPos> accept, List<CellPos> result)
         {
             result.Clear();
-            var size = world.Size;
-            if (!size.InBounds(start.X, start.Y, start.Z)) return false;
+            if (!InRegion(start.X, start.Y, start.Z)) return false;
             stamp++;
             queue.Clear();
-            int startIdx = size.Index(start.X, start.Y, start.Z);
+            int startIdx = Index(start.X, start.Y, start.Z);
             g[startIdx] = 0;
             parent[startIdx] = -1;
             seenStamp[startIdx] = stamp;
@@ -155,13 +183,13 @@ namespace Game.Core.Sim
             for (int head = 0; head < queue.Count; head++)
             {
                 int ci = queue[head];
-                size.Coords(ci, out int cx, out int cy, out int cz);
+                Coords(ci, out int cx, out int cy, out int cz);
                 var cur = new CellPos(cx, cy, cz);
                 if (ci != startIdx && accept(cur))
                 {
                     for (int i = ci; i != startIdx; i = parent[i])
                     {
-                        size.Coords(i, out int px, out int py, out int pz);
+                        Coords(i, out int px, out int py, out int pz);
                         result.Add(new CellPos(px, py, pz));
                     }
                     result.Reverse();
@@ -172,8 +200,8 @@ namespace Game.Core.Sim
                     for (int k = 0; k < DirY.Length; k++)
                     {
                         var to = new CellPos(cx + DirX[d], cy + DirY[k], cz + DirZ[d]);
-                        if (!size.InBounds(to.X, to.Y, to.Z) || !CanStep(cur, to, sx, sz, sy)) continue;
-                        int ni = size.Index(to.X, to.Y, to.Z);
+                        if (!InRegion(to.X, to.Y, to.Z) || !CanStep(cur, to, sx, sz, sy)) continue;
+                        int ni = Index(to.X, to.Y, to.Z);
                         if (seenStamp[ni] != stamp)
                         {
                             seenStamp[ni] = stamp;
@@ -194,14 +222,13 @@ namespace Game.Core.Sim
         public void FloodRegion(List<CellPos> starts, int sx, int sz, int sy, Predicate<CellPos> region, List<CellPos> result)
         {
             result.Clear();
-            var size = world.Size;
             stamp++;
             queue.Clear();
             for (int i = 0; i < starts.Count; i++)
             {
                 var s = starts[i];
-                if (!size.InBounds(s.X, s.Y, s.Z) || !region(s) || !CanStand(s, sx, sz, sy)) continue;
-                int si = size.Index(s.X, s.Y, s.Z);
+                if (!InRegion(s.X, s.Y, s.Z) || !region(s) || !CanStand(s, sx, sz, sy)) continue;
+                int si = Index(s.X, s.Y, s.Z);
                 if (seenStamp[si] == stamp) continue;
                 seenStamp[si] = stamp;
                 queue.Add(si);
@@ -209,15 +236,15 @@ namespace Game.Core.Sim
             for (int head = 0; head < queue.Count; head++)
             {
                 int ci = queue[head];
-                size.Coords(ci, out int cx, out int cy, out int cz);
+                Coords(ci, out int cx, out int cy, out int cz);
                 var cur = new CellPos(cx, cy, cz);
                 result.Add(cur);
                 for (int d = 0; d < 4; d++)
                     for (int k = 0; k < DirY.Length; k++)
                     {
                         var to = new CellPos(cx + DirX[d], cy + DirY[k], cz + DirZ[d]);
-                        if (!size.InBounds(to.X, to.Y, to.Z) || !CanStep(cur, to, sx, sz, sy)) continue;
-                        int ni = size.Index(to.X, to.Y, to.Z);
+                        if (!InRegion(to.X, to.Y, to.Z) || !CanStep(cur, to, sx, sz, sy)) continue;
+                        int ni = Index(to.X, to.Y, to.Z);
                         if (seenStamp[ni] != stamp && region(to))
                         {
                             seenStamp[ni] = stamp;
@@ -241,13 +268,12 @@ namespace Game.Core.Sim
 
         bool Search(CellPos start, List<CellPos> goals, int sx, int sz, int sy, List<CellPos> result)
         {
-            var size = world.Size;
-            if (!size.InBounds(start.X, start.Y, start.Z) || !CanStand(goals[0], sx, sz, sy)) return false;
+            if (!InRegion(start.X, start.Y, start.Z) || !CanStand(goals[0], sx, sz, sy)) return false;
 
             stamp++;
             heap.Clear();
             int seq = 0;
-            int startIdx = size.Index(start.X, start.Y, start.Z);
+            int startIdx = Index(start.X, start.Y, start.Z);
             g[startIdx] = 0;
             parent[startIdx] = -1;
             seenStamp[startIdx] = stamp;
@@ -259,12 +285,12 @@ namespace Game.Core.Sim
                 var cur = Pop();
                 if (closedStamp[cur.Index] == stamp) continue;
                 closedStamp[cur.Index] = stamp;
-                size.Coords(cur.Index, out int cx, out int cy, out int cz);
+                Coords(cur.Index, out int cx, out int cy, out int cz);
                 if (IsGoal(cx, cy, cz, goals))
                 {
                     for (int i = cur.Index; i != startIdx; i = parent[i])
                     {
-                        size.Coords(i, out int px, out int py, out int pz);
+                        Coords(i, out int px, out int py, out int pz);
                         result.Add(new CellPos(px, py, pz));
                     }
                     result.Reverse();
@@ -277,9 +303,9 @@ namespace Game.Core.Sim
                     for (int k = 0; k < DirY.Length; k++)
                     {
                         var to = new CellPos(cx + DirX[d], cy + DirY[k], cz + DirZ[d]);
-                        if (!size.InBounds(to.X, to.Y, to.Z)) continue;
+                        if (!InRegion(to.X, to.Y, to.Z)) continue;
                         if (!CanStep(from, to, sx, sz, sy)) continue;
-                        int ni = size.Index(to.X, to.Y, to.Z);
+                        int ni = Index(to.X, to.Y, to.Z);
                         if (closedStamp[ni] == stamp) break;
                         int ng = g[cur.Index] + 1;
                         if (seenStamp[ni] != stamp || ng < g[ni])

@@ -118,6 +118,8 @@ namespace Game.Core.Sim
         public int configVersion = 1;
         public uint simSeed = 20261014;
         public int ticksPerSecond = 10;
+        /// <summary>Cạnh vùng mô phỏng (cột) quanh trang trại trên world nhiều map (world 7e, brief 0019).</summary>
+        public int regionSize = 64;
         public StageTime[] stageTimes =
         {
             new StageTime("Till", 6000),
@@ -201,6 +203,8 @@ namespace Game.Core.Sim
             if (ticksPerSecond <= 0 || 1000 % ticksPerSecond != 0)
                 throw new ArgumentException("ticksPerSecond phải > 0 và là ước của 1000.");
             int msPerTick = 1000 / ticksPerSecond;
+            if (regionSize < 16 || regionSize > 256)
+                throw new ArgumentException("regionSize phải trong [16, 256].");
 
             int abilityCount = Enum.GetValues(typeof(WorkAbility)).Length;
             if (stageTimes == null || stageTimes.Length != abilityCount)

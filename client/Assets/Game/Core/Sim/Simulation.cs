@@ -18,14 +18,25 @@ namespace Game.Core.Sim
         bool homeDirty;
 
         public Simulation(SimConfig config, WorldData world)
+            : this(config, world, world != null ? SimBounds.Whole(world.Size) : new SimBounds(0, 0, 1, 1))
+        {
+        }
+
+        /// <summary>Mô phỏng trong vùng (world 7e, brief 0019): sinh vật chỉ tìm đường trong bounds.</summary>
+        public Simulation(SimConfig config, WorldData world, SimBounds bounds)
         {
             if (world == null) throw new ArgumentNullException(nameof(world));
             config.Validate();
             Config = config;
             World = world;
-            pathfinder = new GridPathfinder(world);
+            pathfinder = new GridPathfinder(world, bounds);
             State = new SimState(new SimRng(config.simSeed, 1UL));
         }
+
+        public SimBounds Bounds => pathfinder.Bounds;
+
+        /// <summary>Số ô mảng tìm đường — đo bộ nhớ (brief 0019).</summary>
+        public int PathfinderCellCount => pathfinder.CellCount;
 
         public int AddCreature(string speciesId, CellPos cell)
         {
@@ -691,6 +702,8 @@ namespace Game.Core.Sim
                 var f = soilCells[i];
                 if (!size.InBounds(f.X, f.Y, f.Z))
                     throw new ArgumentException("Ô ruộng ngoài map: " + f);
+                if (!Bounds.Contains(f.X, f.Z))
+                    throw new ArgumentException("Ô ruộng ngoài vùng mô phỏng: " + f);
                 var m = World.GetMaterial(f.X, f.Y, f.Z);
                 if (m != BlockMaterial.Dirt && m != BlockMaterial.Grass)
                     throw new ArgumentException("Ô ruộng phải là đất hoặc cỏ: " + f);
