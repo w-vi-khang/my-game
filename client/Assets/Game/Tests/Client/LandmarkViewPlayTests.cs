@@ -66,7 +66,7 @@ namespace Game.Client.Tests
                 Assert.AreEqual(want.g, c.g, 1e-3f);
                 Assert.AreEqual(want.b, c.b, 1e-3f);
             }
-            Assert.AreEqual(0, root.GetComponentsInChildren<Collider>(true).Length);
+            Assert.AreEqual(root.GetComponentsInChildren<MeshRenderer>(true).Length, root.GetComponentsInChildren<Collider>(true).Length); // mỗi khối có collider (brief 0021)
             var baseMat = Resources.Load<Material>("Materials/Landmark");
             Assert.IsNotNull(baseMat, "thiếu Resources/Materials/Landmark.mat");
             Assert.AreEqual("Universal Render Pipeline/Lit", baseMat.shader.name);

@@ -137,9 +137,9 @@ namespace Game.Client
             root.SetParent(transform, false);
             foreach (var h in Sim.State.Houses)
                 Box("Nhà " + h.Id, new Vector3(h.Cell.X + h.SizeX * 0.5f, h.Cell.Y + h.SizeY * 0.5f, h.Cell.Z + h.SizeZ * 0.5f),
-                    new Vector3(h.SizeX * 0.98f, h.SizeY * 0.98f, h.SizeZ * 0.98f), HouseColor, root);
+                    new Vector3(h.SizeX * 0.98f, h.SizeY * 0.98f, h.SizeZ * 0.98f), HouseColor, root, solid: true);
             foreach (var s in Sim.State.Storages)
-                Box("Kho " + s.Id, new Vector3(s.Cell.X + 0.5f, s.Cell.Y + 0.45f, s.Cell.Z + 0.5f), new Vector3(0.9f, 0.9f, 0.9f), StorageColor, root);
+                Box("Kho " + s.Id, new Vector3(s.Cell.X + 0.5f, s.Cell.Y + 0.45f, s.Cell.Z + 0.5f), new Vector3(0.9f, 0.9f, 0.9f), StorageColor, root, solid: true);
             foreach (var p in Sim.State.Plots)
             {
                 Box("Ruộng " + p.Id, new Vector3(p.Soil.X + 0.5f, p.Soil.Y + 1.02f, p.Soil.Z + 0.5f), new Vector3(0.9f, 0.04f, 0.9f), PlotColor, root);
@@ -231,11 +231,12 @@ namespace Game.Client
             pivots.Add(pivot);
         }
 
-        GameObject Box(string name, Vector3 localPos, Vector3 scale, Color color, Transform parent)
+        GameObject Box(string name, Vector3 localPos, Vector3 scale, Color color, Transform parent, bool solid = false)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = name;
-            Destroy(go.GetComponent<Collider>()); // không chặn raycast đào/đặt
+            if (!solid)
+                Destroy(go.GetComponent<Collider>()); // sinh vật, ruộng, mầm: không chặn raycast đào/đặt
             var t = go.transform;
             t.SetParent(parent, false);
             t.localPosition = localPos;

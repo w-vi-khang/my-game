@@ -217,6 +217,9 @@ namespace Game.Client
                       $"dựng mesh {LastMeshMs:F1} ms, ghi {LastWriteMs:F1} ms, bake {LastBakeMs:F1} ms (tổng {sw.ElapsedMilliseconds} ms)");
         }
 
+        /// <summary>Collider thuộc chunk địa hình (không phải khối dấu mốc, công trình…) — brief 0021.</summary>
+        public bool IsTerrainCollider(Collider c) => c != null && chunksRoot != null && c.transform.IsChildOf(chunksRoot);
+
         /// <summary>Ô gameplay chứa điểm (toạ độ thế giới).</summary>
         public Vector3Int CellAt(Vector3 worldPoint)
         {
@@ -368,7 +371,7 @@ namespace Game.Client
                 : new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
         }
 
-        /// <summary>Khối đánh dấu trong world (brief 0018): con "Dấu mốc", mỗi dấu mốc một GameObject đáy ở mặt ô cao nhất; không collider.</summary>
+        /// <summary>Khối đánh dấu trong world (brief 0018): con "Dấu mốc", mỗi dấu mốc một GameObject đáy ở mặt ô cao nhất; có collider để chặn đào/đặt xuyên qua (brief 0021).</summary>
         void BuildLandmarkMarkers()
         {
             var baseMat = Resources.Load<UnityEngine.Material>(LandmarkMaterialPath);
@@ -400,7 +403,7 @@ namespace Game.Client
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = "Khối";
-            DestroyImmediate(go.GetComponent<Collider>()); // không chặn raycast đào/đặt; DestroyImmediate để Build() chạy được cả trong editor
+            // Giữ BoxCollider: dấu mốc che địa hình phía sau → chặn đào/đặt xuyên qua (brief 0021).
             var t = go.transform;
             t.SetParent(parent, false);
             t.localPosition = localPos;

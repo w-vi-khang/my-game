@@ -7,6 +7,7 @@ namespace Game.Client
     /// <summary>
     /// Đào/đặt bằng chuột trong scene TerrainView (world-tech bước 4, user duyệt 2026-10-13):
     /// chuột trái đào, chuột phải đặt, phím 1–4 hoặc lăn chuột chọn đất/cỏ/đá/cát; khung trắng = ô sẽ đào, nhãn góc trái = kho vật liệu + lý do khi không đào/đặt được.
+    /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021).
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -62,14 +63,12 @@ namespace Game.Client
                 return;
 
             var ray = cam.ScreenPointToRay(mouse.position.ReadValue());
-            if (!Physics.Raycast(ray, out var hit, maxDistance))
+            if (!Pick(ray, out var digCell, out var placeCell))
             {
                 outline.enabled = false;
                 return;
             }
 
-            var digCell = view.CellAt(hit.point - hit.normal * 0.5f);
-            var placeCell = view.CellAt(hit.point + hit.normal * 0.5f);
             outline.enabled = true;
             outline.transform.localPosition = digCell;
             // Độ rộng nét theo đơn vị thế giới để ra outlinePixels trên màn hình ở khoảng cách tới tâm ô.
@@ -91,6 +90,19 @@ namespace Game.Client
                 var r = view.Place(placeCell, Palette[selected]);
                 lastResult = r == EditResult.Ok ? $"Đặt {PaletteNames[selected]} {placeCell}" : $"Đặt {PaletteNames[selected]}: không được — {Explain(r)}";
             }
+        }
+
+        /// <summary>
+        /// Ô sẽ đào / ô sẽ đặt theo tia. Chỉ địa hình cho ô chọn: tia trúng trước vào nhà, kho, dấu mốc (có collider) → false (brief 0021).
+        /// </summary>
+        public bool Pick(Ray ray, out Vector3Int digCell, out Vector3Int placeCell)
+        {
+            digCell = placeCell = default;
+            if (!Physics.Raycast(ray, out var hit, maxDistance) || !view.IsTerrainCollider(hit.collider))
+                return false;
+            digCell = view.CellAt(hit.point - hit.normal * 0.5f);
+            placeCell = view.CellAt(hit.point + hit.normal * 0.5f);
+            return true;
         }
 
         static string Name(BlockMaterial m)
