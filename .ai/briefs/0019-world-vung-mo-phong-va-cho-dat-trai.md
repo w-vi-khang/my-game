@@ -565,10 +565,14 @@ Thời điểm dừng: 2026-10-21 12:02. Điều kiện dừng "FindSite ném In
 **Đề xuất:** (C), san cửa sổ 9 × 7 về độ cao `surface` phổ biến nhất (hạ cột cao, đắp Dirt cột thấp) bên trong `FindSite` hoặc hàm riêng `SimDemo.Flatten(world, site)`, điều kiện tìm: chênh ≤ 1 ô so với mode. Planner chốt rồi cập nhật brief.
 
 ## Kiểm chứng
-Đang chờ Planner (brief `cần Opus`, code chưa commit nên chưa xong task).
-- `design`: chạy `python3 tools/check_design.py` (kết quả ở dưới phiên này) — chỉ 2 file `sim_m1.json` đổi trong `design/data/`.
-- `client_test`: không chạy `tools/unity_test.py` vì Unity Editor đang mở (AGENTS.local: dùng MCP). Kết quả MCP EditMode: 22/22 (lọc SimBounds/GridPathfinder/SimDemo/Config), `SimDemoMapsTests` 0/5 — xem Vướng mắc. Chưa chạy cả bộ.
-- Checklist: Game.Core không dùng UnityEngine — đạt (SimBounds/SimDemo/GridPathfinder/Simulation chỉ dùng System). Các mục còn lại chưa đối chiếu: chờ Planner chốt phương án rồi làm xong.
+- `client_test` (EditMode): `unity_test.py` không chạy vì Unity Editor đang mở (AGENTS.local) → dùng MCP `run_tests`: **322/322 đạt** [run].
+- `client_test_play` (PlayMode): MCP `run_tests` **32/32 đạt** [run]; đã `git checkout -- EditorSettings.asset`.
+- Checklist:
+  - Game.Core không tham chiếu UnityEngine — đạt (`grep UnityEngine Core/Sim/` rỗng).
+  - Mỗi bước M1 có test đúng cột "Xong khi" — đạt (SimBoundsTests 6/6, SimDemoMapsTests 5/5 theo brief).
+  - Chỉ làm hạng mục M1 (7e phần 1), không đụng scene/SimView — đạt.
+  - Ghi giờ thực tế — đã ghi Bắt đầu/Kết thúc ở Kết quả; Planner cộng vào roadmap khi review.
+  - Các mục về `design/` (pillar, glossary, nguồn…): không đổi tài liệu thiết kế (chỉ `design/data/sim_m1.json` thêm `regionSize`) — không áp dụng/đạt.
 
 ---
 <!-- PLANNER ghi khi review. -->
