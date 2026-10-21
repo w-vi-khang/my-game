@@ -1,6 +1,6 @@
 # Brief 0020 — World 7e (phần 2/2): scene SimView chạy trên world 3 map (nạp dần), trại demo tự đặt trong Map 1, camera ở trại
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 12:30
@@ -284,10 +284,22 @@ Trong Unity Editor trên Mac, mở `Assets/Game/Client/Scenes/SimView.unity`, b�
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-21 12:16
+- Base commit: 8af4a2f
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-21 12:23; commit code 3a06dbb
+- File: SimView.cs, Scenes/SimView.unity (sửa); Tests/Client/SimViewMapsPlayTests.cs (+.meta, mới). Editor không ghi thêm gì vào scene (không lưu sau Play).
 
 ## Kết quả test
+- Biên dịch: 0 lỗi. Scene: `grep -c` guid SimView = 1; `source: 1`, `streaming: 1` có; `TerrainView.unity` không đổi.
+- PlayMode lọc `SimViewPlayTests` + `SimViewMapsPlayTests`: 4/4 đạt (đảo v2 không sửa test → đạt; 3 test mới đạt).
+- Dòng log: `SIMVIEW trại dời (98, 200), mặt y 17–20, vùng x 99..162, z 186..249, camera (132, 30, 193), tìm chỗ 17–22 ms, mảng tìm đường 196608 ô`; `SIMVIEWTEST nạp quanh trại sau 0 khung`.
+- Mở scene SimView bằng MCP `manage_scene`: không lỗi missing script/YAML. Play: có `SIMVIEW trại …`, `LANDMARKVIEW 9`, `MINIMAP … 9 dấu mốc`; 0 Exception/lỗi trong console.
+- EditMode cả bộ: 322/322. PlayMode cả bộ: 35/35. Đã `git checkout -- EditorSettings.asset`.
+- Hình ảnh/cảm giác: **chờ user** (mục "User tự test").
 
 ## Vướng mắc
+Không có.
 
 ---
 <!-- PLANNER ghi khi review. -->
