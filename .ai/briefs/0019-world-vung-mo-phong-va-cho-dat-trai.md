@@ -1,9 +1,9 @@
 # Brief 0019 — World 7e (phần 1/2): vùng mô phỏng 64 × 64 (tìm đường cấp mảng theo vùng) + SimDemo tự tìm chỗ trong Map 1
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 12:20
+> Cập nhật: 2026-10-21 12:30
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -450,6 +450,45 @@ Không dùng API Unity nào: toàn bộ là C# thuần trong Game.Core (No Engin
    1. `git status --short`: chỉ còn file trong Phạm vi. Commit code với message `brief 0019: vùng mô phỏng 64×64 + SimDemo tự tìm chỗ trong Map 1`.
    2. `date "+%Y-%m-%d %H:%M"` → ghi "Kết thúc", trạng thái `chờ review`, commit brief với message `brief 0019: kết quả`.
 
+9. **Sửa theo Vướng mắc (Planner chốt 2026-10-21 12:30) — nới "cùng một độ cao" thành "gần phẳng, đi được".**
+   Không san phẳng world: không đổi ô, mã băm giữ nguyên, bản đồ và mesh không lệch. Quyết định 5 đổi như sau. Những gì không nhắc tới ở đây thì giữ nguyên.
+   - **Cột hợp lệ:** đúng map, khô, mặt Grass/Dirt, `surface ≥ waterLevel` (như cũ).
+   - **Gần phẳng:** mọi cặp cột kề 4 hướng **trong cửa sổ** chênh độ cao ≤ 1 (sinh vật leo/xuống được).
+   - **Nền nhà phẳng:** 2 × 2 cột dưới mỗi nhà cùng một độ cao. Với cửa sổ có góc (wx, wz): nhà A gồm các cột (wx + 1..2, wz + 4..5), nhà B gồm các cột (wx + 3..4, wz + 4..5).
+   - **Độ cao từng ô:** mỗi ô của bố trí đặt theo mặt đất của chính cột nó: `y = surface(cột) + (yGốc − 17)`. Ô ruộng nằm ở mặt đất; nhà, kho, sinh vật ở mặt đất + 1. Với nhà, "cột" là cột góc nhỏ nhất.
+   - Chọn cửa sổ gần checkpoint, tránh dấu mốc, vùng 64 × 64, ném lỗi khi không tìm được: **như cũ**.
+   Cách làm, sửa trên code đang có trong working tree (chưa commit):
+   1. **`DemoSite`:**
+      - Bỏ `Dy` và `Surface`. Thêm `readonly int[] heights;` gồm 9 × 7 độ cao mặt đất của cửa sổ, chỉ số `rx + SiteSizeX · rz`.
+      - Constructor đổi thành `DemoSite(int dx, int dz, int[] heights, SimBounds bounds)`, có kiểm `heights.Length == SimDemo.SiteSizeX * SimDemo.SiteSizeZ`.
+      - Thêm `public int Height(int x, int z)`: độ cao mặt đất của cột world (x, z) trong cửa sổ, với `rx = x − (Dx + SimDemo.BaseX − 1)`, `rz = z − (Dz + SimDemo.BaseZ − 1)`. Ngoài cửa sổ thì ném `ArgumentOutOfRangeException`.
+      - `Shift(c)` = `new CellPos(c.X + Dx, Height(c.X + Dx, c.Z + Dz) + (c.Y − SimDemo.BaseGround), c.Z + Dz)`.
+      - `ToString()` = `$"dời ({Dx}, {Dz}), mặt y {min}–{max}, vùng {Bounds}"`, với min/max lấy từ `heights`.
+   2. **`SimDemo.Build`:**
+      - Đổi hàm riêng thành `static int Build(Simulation sim, Func<CellPos, CellPos> at)`. Mọi ô đi qua `at(...)`; thứ tự gọi giữ nguyên.
+      - `Build(sim)` gọi `Build(sim, c => c)`. `Build(sim, site)` gọi `Build(sim, site.Shift)`.
+   3. **`FindSite`:**
+      - Thay `IsSiteFlat` bằng `IsSiteWalkable(surface, ok, sx, wx, wz)`. Hàm này trả true khi:
+        - mọi cột trong cửa sổ `ok`;
+        - với mọi cột, chênh với cột bên phải (nếu `dx + 1 < SiteSizeX`) và cột phía trên (nếu `dz + 1 < SiteSizeZ`) ≤ 1;
+        - `FlatSquare(surface, sx, wx + 1, wz + 4)` và `FlatSquare(surface, sx, wx + 3, wz + 4)` đều true. `FlatSquare` là hàm mới: 4 cột (x..x+1, z..z+1) cùng độ cao.
+      - Khi trả kết quả: chép 63 độ cao của cửa sổ vào `heights`, rồi `return new DemoSite(bx + 1 − BaseX, bz + 1 − BaseZ, heights, new SimBounds(x0, z0, regionSize, regionSize));`. Bỏ biến `ground`.
+   4. **`SimDemoMapsTests`:**
+      - `SiteIsFlatDryInMap1AwayFromLandmarks`: thay kiểm "`surface == site.Surface`" và "`site.Dy == …`" bằng các kiểm sau:
+        - `site.Height(x, z) == surface` của mọi cột trong cửa sổ;
+        - mọi cặp cột kề trong cửa sổ chênh ≤ 1;
+        - 2 nền nhà phẳng;
+        - `site.Shift(SimDemo.Soil[i]).Y == site.Height(...)` của cột đó;
+        - `site.Shift(SimDemo.HouseA).Y == site.Height(cột góc) + 1`.
+      - `SiteIsDeterministic`: so `Dx, Dz, Bounds` và 63 giá trị `Height` của cửa sổ.
+      - Các test khác giữ nguyên, vì chúng đã dùng `site.Shift`.
+   5. **Chạy lại:**
+      - EditMode lọc `SimDemoMapsTests` → 5/5. Ghi các dòng `SIMSITE`, `SIMMEM`, `SIMMAPS`.
+      - EditMode cả bộ → 322/322.
+      - PlayMode cả bộ → 32/32. Dọn `EditorSettings.asset`.
+      Nếu `FindSite` vẫn ném lỗi, hoặc `SimDemoMapsTests` có kẹt, chồng ô hay thiếu sản lượng → dừng, trạng thái `cần Opus`, ghi số liệu. Không tự nới thêm.
+   6. **Commit:** commit code + brief theo bước 8.
+
 ## Tiêu chí xong
 - Biên dịch không lỗi; Game.Core vẫn No Engine References (không `using UnityEngine` trong `Core/`).
 - EditMode cả bộ đạt: 311 + 6 + 5 = 322. Mọi test cũ (`GridPathfinderTests`, `Sim*Tests`, `SimDemoTests`, `SimDeterminismTests`, `GoldenHashTests`, `ConfigTests`…) đạt **mà không sửa**.
@@ -526,3 +565,4 @@ Thời điểm dừng: 2026-10-21 12:02. Điều kiện dừng "FindSite ném In
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- **Trả lời Vướng mắc (12:30):** không chọn (A)/(C) — san phẳng đổi ô world sau khi đã dựng mesh/bản đồ (lệch bản đồ, đổi mã băm, phải xử lý thêm ở 0020). Chọn biến thể của (B): cửa sổ gần phẳng (kề nhau chênh ≤ 1, nền 2 nhà phẳng), mỗi ô bố trí lấy độ cao cột của nó — không đổi world. Quyết định 5 sửa trong bước 9.
