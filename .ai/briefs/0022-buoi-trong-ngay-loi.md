@@ -1,9 +1,9 @@
 # Brief 0022 — World 7f-1: lõi buổi trong ngày (`TimeOfDay`, khung mốc, buổi, điều kiện buổi) + `time_m1.json`
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 14:57
+> Cập nhật: 2026-10-21 15:17
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -227,3 +227,12 @@ Lệnh:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Mức: đầy đủ (Opus · medium, phiên con). Đã đọc Kết quả, Kết quả test, `git show --stat 688d197` và diff toàn bộ file lõi + test.
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` Sonnet · medium.
+- Phần cần test: 14/14 dòng có kết quả (17 test mới đạt; EditMode cả bộ 339/339 = 322 + 17; grep UnityEngine trống; check_design hợp lệ). Không chạy lại vì kết quả đủ, khớp số đếm.
+- Phạm vi: 16 file đổi đúng danh sách được tạo/sửa (+ `.meta`); `SimDeterminismTests.cs` chỉ đổi 1 dòng `BuildFarm` → `internal`. Không đụng Sim/*, Client/*, Resources, ProjectSettings, design/ ngoài `time_m1.json`.
+- Quyết định đã chốt 1–10: đối chiếu từng mục trong diff — ms nguyên `int`, không float; `MsPerPermille = 86_400`; `Func<long>` + `Mod` dương; `SelectLandmark` đọc giờ 1 lần, trong khung trả 0 không đổi offset, ngoài khung đặt offset và trả `ForwardArc`; `WindowAt`/`PeriodAt` đúng thứ tự biên, ném ngoài [0; DayMs); `PeriodCondition` chép đúng mẫu `ParseAbility`; namespace `Game.Core.DayCycle`; không có phần 7f-2/7f-3. `time_m1.json` đúng nội dung bước 1.
+- Test khớp từng ca ở bước 6 (giá trị biên, 16 cặp mốc + 4 assert tường minh, giờ âm/lớn, đồng hồ nhảy giờ).
+- Ghi chú (không chặn): `SelectingLandmarkDoesNotChangeSimHash` hiện chỉ chứng minh hai farm cùng seed cho hash trùng; `TimeOfDay` vốn không giữ tham chiếu `Simulation` nên test này là bảo vệ kiến trúc (khi 7f-2 nối vào client), không phải phép đo mạnh. Đúng như brief yêu cầu.
+- Giờ thực tế: 14:52–14:57 (~5 phút). Cộng vào roadmap khi xong cả bước 7f (3 brief).
+- Kết luận: đã duyệt
