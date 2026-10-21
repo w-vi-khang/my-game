@@ -23,7 +23,11 @@ User muốn tập trung vào world: chia world thành các map có ranh giới, 
 - World 384 × 384 × 48, vành biển ≥ 24 ô; chia map bằng Voronoi có méo noise; bảng map 1 byte/cột.
 - Dữ liệu world giữ cả trong RAM (~14 MB), chỉ mesh + collider nạp dần.
 - Mỗi 4 ô độ cao một tầng màu; 1 điểm ảnh = 1 cột.
-- Mô phỏng giới hạn trong vùng Map 1 (bộ nhớ tìm đường).
+- Mô phỏng giới hạn trong vùng Map 1 (bộ nhớ tìm đường). **User chốt 2026-10-21 (7e):**
+  - **vùng mô phỏng** = hộp 64 × 64 cột (đủ chiều cao), quanh trang trại demo; kích thước `regionSize` trong `sim_m1.json`; tìm đường cấp mảng theo vùng (~3,5 MB thay vì ~127 MB cả world);
+  - trang trại demo tự tìm chỗ phẳng 9 × 7 cột trong Map 1, gần checkpoint Map 1, tránh dấu mốc;
+  - scene SimView chuyển sang world 3 map (nạp dần), test mô phỏng cũ trên đảo v2 giữ nguyên.
+  - Tách 2 brief: 0019 lõi (EditMode), 0020 scene SimView (PlayMode + user xem).
 
 ## Cách kiểm
 - 7a (EditMode): tất định + mã băm; diện tích mỗi map ±25%; mỗi đoạn ranh giới lệch khỏi đường thẳng ≥ 8 ô; vành biển; mã băm trên điện thoại.

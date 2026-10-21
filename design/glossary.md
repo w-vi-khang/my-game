@@ -58,6 +58,7 @@
 | Mảnh ký ức | Mảnh quá khứ của nhân vật chính; mạch truyện chính xuyên mọi map | [01-story/plot.md](01-story/plot.md) |
 | Map | Vùng có ranh giới trên world của người chơi, có câu chuyện riêng | [01-story/world.md](01-story/world.md) |
 | Minimap | Bản đồ toàn world nhìn từ trên cao: màu theo tầng độ cao, ranh giới + tên map, vị trí người chơi, dấu mốc (công trình đặc trưng + checkpoint — 0023); phóng to/kéo được | [decisions/0022](decisions/0022-world-nhieu-map-va-minimap-m1.md) |
+| Vùng mô phỏng | Hộp cột (M1: 64 × 64 cột, đủ chiều cao world) mà mô phỏng nông trại chạy trong đó; sinh vật chỉ tìm đường trong vùng — giới hạn bộ nhớ tìm đường trên world lớn | [world-tech](04-tech/world-tech.md) bước 7e |
 | Checkpoint | Điểm cố định trong mỗi map (M1: 1 điểm/map, mở sẵn) hiện trên bản đồ; từ M2 là chỗ người chơi được dịch chuyển tới khi dẫn đường tới điểm gần checkpoint hơn chỗ đang đứng | [decisions/0023](decisions/0023-dau-moc-cong-trinh-checkpoint-va-dan-duong.md) |
 | Công trình đặc trưng | Loại công trình riêng của từng map, hiện làm dấu mốc trên bản đồ; M1 là khối giữ chỗ do bộ sinh đặt theo seed, loại + tên tạm trong JSON | [decisions/0023](decisions/0023-dau-moc-cong-trinh-checkpoint-va-dan-duong.md) |
 | Nạp dần chunk | Chỉ dựng mesh + collider cho chunk trong bán kính quanh camera; dữ liệu world vẫn đủ | [04-tech/world-tech.md](04-tech/world-tech.md#world-nhiều-map--minimap-m1) |
