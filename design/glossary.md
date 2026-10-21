@@ -82,6 +82,7 @@
 | Tâm nhắm | Điểm giữa màn hình; ô / sinh vật dưới tâm nhắm là đích của hành động, cho mọi thiết bị | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Thanh công cụ | Hàng công cụ người chơi cầm (cuốc, khối, lệnh làm việc, thẻ bài, phép của pháp sư); khi nhập hồn đổi thành ô phép | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Hành động chính | Nút dùng công cụ đang cầm (chuột trái / nút chính trên cảm ứng) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Bản mờ | Hình trong suốt của khối sắp đặt, hiện ở ô trống đặt được dưới tâm nhắm khi cầm công cụ khối | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Khoá mục tiêu | Camera bám một sinh vật; phép hướng và thẻ bài bay về mục tiêu đó | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Vòng nhắm | Vòng hiện trên mặt đất khi giữ nút phép vùng; thả để dùng phép | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Onboarding (hướng dẫn người mới) | Chuỗi 8 bước tinh linh dẫn người mới học bằng làm, cộng dạy đúng lúc khi việc xảy ra lần đầu | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |

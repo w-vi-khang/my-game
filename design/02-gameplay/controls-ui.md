@@ -13,6 +13,10 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 **Nguyên tắc** [ý tưởng]
 - **Nhắm theo tâm màn hình** cho mọi thiết bị: ô / sinh vật nằm dưới **tâm nhắm** là đích; ô đích được tô viền. Xoay camera = nhắm → chuột, vuốt màn hình và cần phải tay cầm cùng một cơ chế.
 - **Hành động theo công cụ đang cầm:** **thanh công cụ** chứa cuốc (đào), khối (đặt), lệnh làm việc, thẻ bài, phép của pháp sư. Một nút **hành động chính** dùng công cụ đang cầm → mobile ít nút.
+  - **Nhắm theo công cụ** (user, 2026-10-21, sau khi xem SimView brief 0026): đào và đặt là **hai công cụ riêng**, có phím chuyển giữa đào và đặt.
+    - Cuốc (đào): tô viền **khối đang có** dưới tâm nhắm (như hiện nay).
+    - Khối (đặt): hiện **bản mờ** của khối sắp đặt tại **ô trống kề khối đã có** (ô đặt được), không tô viền khối đã có.
+    - Prototype hiện tại: chuột trái đào, chuột phải đặt, chung một khung chọn trên khối đã có (`TerrainEditInput`). Chưa có brief; thuộc hạng mục "Điều khiển" M1. [ý tưởng] Ước lượng 0,5–1 ngày-người, nằm trong 3–5 của "Điều khiển".
 - **Chọn vùng bằng 2 điểm** (lệnh làm việc, vùng đào): nhắm góc 1 → hành động chính → nhắm góc 2 → hành động chính. Không cần kéo chuột/ngón tay → không tranh với vuốt xoay camera, tay cầm làm được y hệt.
 - Con trỏ chuột khoá ở giữa khi chơi; mở menu / giữ Alt thì hiện con trỏ.
 

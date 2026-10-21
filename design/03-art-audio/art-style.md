@@ -79,7 +79,7 @@ Còn thiếu: số polygon/texture đo thật trên mobile, quy ước khung chi
 Kế hoạch: [roadmap](../05-roadmap.md) mục C. File `.blend`, ảnh render và file xuất lưu **ngoài repo** (user, 2026-10-12): `~/Documents/User/khang/Game/art-test/`.
 
 **Địa hình khối trong Unity — bước 5.4 world-tech (2026-10-13)** [ý tưởng — chờ user duyệt ảnh; bảng màu/ánh sáng chưa Chốt]:
-- Màu (sRGB): cỏ (140, 200, 96), đất (222, 180, 126), đá (160, 160, 156), cát (238, 220, 160) — `BlockMesher.TopColor`.
+- Màu (sRGB): cỏ (140, 200, 96), đất (222, 180, 126), đá (160, 160, 156), cát (238, 220, 160) — `BlockMesher.TopColor`. Ô ruộng (sau khi xới, sim 6a): mặt trên (150, 104, 66) nâu sẫm hơn đất, sườn màu đất, không mép cỏ (user xem đạt 2026-10-21, brief 0026).
 - Hoa văn tạo bằng code trong shader `Game/Terrain` (không texture, không giấy phép): cỏ loang + đốm sáng thưa; vách đất loang + chấm tối; đá vết loang; cát hạt mịn. AO theo đỉnh làm tối chân tường/góc lõm (độ sáng 0,62–1).
 - Ánh sáng scene TerrainView: môi trường 3 màu (trời (0,72; 0,82; 0,96), chân trời (0,70; 0,69; 0,64), đất (0,42; 0,37; 0,30)); mặt trời 0,9 màu ấm, bóng đổ 0,55; khuếch tán bọc 0,35 → bóng mềm, ít vùng tối (theo "tươi sáng hơn" ở trên). Chưa dùng post-processing.
 - Ảnh: `client/Temp/McpShots/17_look_close_v2.png`, `18_look_overview_v2.png` (không commit).

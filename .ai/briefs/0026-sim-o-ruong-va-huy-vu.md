@@ -1,6 +1,6 @@
 # Brief 0026 — Simulation bước 6a: ô ruộng có sau khi xới; đào / đặt khối lên thì huỷ vụ
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 18:05
@@ -455,3 +455,6 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
   - Thiếu nhỏ: `FarmlandTopOwnColorSidesDirtNoLip` không assert `TopColor(Farmland)` ≠ màu lỗi. Không chặn: `TopColor` đã có nhánh Farmland.
   - Planner chạy lại toàn bộ EditMode qua MCP: 364/364 đạt, 89,7 s [run]. PlayMode executor đã chạy 69/69, không chạy lại.
   - Chờ user xem 5 điểm ở "User tự test" rồi mới kết luận.
+  - User xem SimView (2026-10-21): 5/5 điểm "User tự test" đạt; đồng ý đề xuất 8–17 (màu ô ruộng (150, 104, 66), nước tràn = đặt khối…) [user].
+  - User góp ý thêm về nhắm đào/đặt: ghi vào `design/02-gameplay/controls-ui.md`, làm ở brief khác (ngoài phạm vi 0026).
+- Kết luận: đã duyệt

@@ -85,7 +85,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
   - **Huỷ vụ:** đặt khối lên ô ruộng hoặc đào ô ruộng → vụ đang làm bị huỷ. Đã trừ hạt mà chưa thu hoạch → **trả 1 hạt vào kho ngay** (kho đầy vẫn trả); nông sản chưa thu thì mất. Hàng đã thu hoạch (nằm tại ô hoặc đang chở) vẫn chở vào kho.
   - Sau khi huỷ vụ, **ô rời lệnh, hàng đợi vụ bị xoá**. Đào: ô thành rỗng, +1 đất. Đặt khối lên: ô ruộng bên dưới **trở lại ô đất**. Muốn trồng lại phải đặt lệnh lại.
   - Thứ tự chọn việc giữ như cũ: công đoạn cũ nhất trước (sinh vật làm được cả xới lẫn gieo sẽ xới hết các ô rồi mới gieo).
-  - [ý tưởng] Planner đề xuất, user xác nhận khi duyệt brief: nước tràn lên ô ruộng tính như đặt khối; ô chưa xới bị đào/che → rời lệnh, không trả gì.
+  - Nước tràn lên ô ruộng tính như đặt khối; ô chưa xới bị đào/che → rời lệnh, không trả gì (Planner đề xuất, user xác nhận 2026-10-21 khi duyệt brief 0026).
 
 ### Lệnh làm việc
 **Quy tắc**
