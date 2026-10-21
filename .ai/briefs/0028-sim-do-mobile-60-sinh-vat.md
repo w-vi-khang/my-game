@@ -1,9 +1,9 @@
 # Brief 0028 — Simulation bước 7: đo trên điện thoại với 60 sinh vật trên đồng bằng giữa Map 1
 
-> Trạng thái: chờ review
+> Trạng thái: chờ user xem
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 20:30
+> Cập nhật: 2026-10-21 19:50
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -468,4 +468,21 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 <!-- PLANNER ghi khi review. -->
 
 ## Review
-<!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+Planner (Opus · medium), 2026-10-21 19:45–19:50. Phần máy **đạt**; chờ user xem SimBench trên Mac (mục "User tự test").
+- Chạy bằng `claude-sonnet-5-5 · medium`, khớp `Model thực thi`.
+- Diff `64ecb06` [repo] đúng brief:
+  - `SimStress`: làm phẳng đồng bằng theo quyết định 5 và 7, bố trí theo bảng quyết định 8, `WithoutPlain`;
+  - `Tick` + `Lap`: thứ tự pha giữ nguyên;
+  - bộ đếm A\*/BFS nằm ngoài `SimState`;
+  - hook `afterGenerate` đặt trước `BuildLandmarkMarkers`;
+  - `SimView` nhánh `stressBench`, HUD bỏ dòng ô ruộng;
+  - `SimBenchMeter` đúng định dạng log và cách tính percentile.
+  `Game.Core` chỉ dùng `System` / `System.Diagnostics`.
+- Test (Executor báo): EditMode 371/371, PlayMode 79/79. `Runs4000Ticks`: 0 chung ô, 0 rảnh trên ô ruộng, 0 rảnh ngoài bán kính, có 46 nông sản.
+- Điện thoại [run, logcat Executor]:
+  - dòng TONG: 2386 nhịp, **p95 0,956 ms**, `pass5ms=True`, 31,9 FPS, 0 Exception;
+  - lần đo thử đầu chạy nhầm trên hộp Android TV (`192.168.1.7:6060`, ADT_3) cho 6 FPS, không tính.
+- Ghi chú:
+  - Kho chỉ có 10 nông sản trong 240 giây: một vụ dài ~146 giây, và 5 kho × 10 hạt chưa đủ cho 60 ô. Đây là bố trí đo, không phải lỗi.
+  - Pha rảnh (188,5 µs) và pha đi (130,8 µs) tốn nhất. Cần tối ưu thì bắt đầu từ hai pha này. Hiện chưa cần.
+- Đã ghi số vào `design/04-tech/simulation-tech.md` (bước 7) và thêm dòng giờ vào `design/05-roadmap.md`.
