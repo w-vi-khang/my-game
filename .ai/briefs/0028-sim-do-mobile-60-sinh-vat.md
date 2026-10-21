@@ -1,6 +1,6 @@
 # Brief 0028 — Simulation bước 7: đo trên điện thoại với 60 sinh vật trên đồng bằng giữa Map 1
 
-> Trạng thái: chờ làm
+> Trạng thái: đang làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 20:30
@@ -435,9 +435,20 @@ Trên điện thoại: Planner đọc logcat và ảnh, user không cần thao t
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 9ac160c
+- Chạy bằng: claude-sonnet-5-5 · medium (OK: brief 0028 cần Sonnet · medium)
+- Bắt đầu: 2026-10-21 19:03
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
+- Code commit: 64ecb06 (SimStress.cs, SimBenchMeter.cs, SimBenchBuild.cs, SimBench.unity, 2 file test, sửa GridPathfinder/Simulation/TerrainChunkView/SimView). Không lệch brief.
+- APK đã build: `SimBench build: Succeeded, 848101811 byte` → client/Builds/simbench.apk (không commit).
+- **Dừng ở bước 10:** điện thoại không hiện trong `adb devices` (USB, serial PFQCRWVWR46HU4GQ không thấy; `adb connect 192.168.1.6:5555` → Connection refused; đã kill/start adb server). Chưa cài APK, chưa có số đo. Cần user cắm lại cáp/bật USB debugging, rồi chạy lại từ bước 10.2.
+
 ## Kết quả test
+- EditMode cả bộ: 371/371 xanh (235 s). 5 test SimStressTests xanh. Runs4000Ticks: `4000 nhịp: 409 ms, AStarCount=3515, BfsCount=1290, produce=46, overlaps=0, idleOnPlot=0, idleOutside=0`. Đồng bằng: `(99, 187) 48 × 48, mặt y 20, vùng x 91..154, z 179..242`; dấu mốc 9, giữ 8, bỏ 1.
+- PlayMode cả bộ: 79/79 xanh (có 3 test SimBenchPlayTests). Đã `git checkout` EditorSettings.asset.
+- Scene: SimBench.unity có `stressBench: 1`. Build: Succeeded.
+- Điện thoại: chờ (xem trên).
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
