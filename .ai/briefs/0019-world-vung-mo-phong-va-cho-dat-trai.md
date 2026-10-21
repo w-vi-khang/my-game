@@ -1,9 +1,9 @@
 # Brief 0019 — World 7e (phần 1/2): vùng mô phỏng 64 × 64 (tìm đường cấp mảng theo vùng) + SimDemo tự tìm chỗ trong Map 1
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 12:30
+> Cập nhật: 2026-10-21 12:15
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -579,3 +579,16 @@ Thời điểm dừng: 2026-10-21 12:02. Điều kiện dừng "FindSite ném In
 
 ## Review
 - **Trả lời Vướng mắc (12:30):** không chọn (A)/(C) — san phẳng đổi ô world sau khi đã dựng mesh/bản đồ (lệch bản đồ, đổi mã băm, phải xử lý thêm ở 0020). Chọn biến thể của (B): cửa sổ gần phẳng (kề nhau chênh ≤ 1, nền 2 nhà phẳng), mỗi ô bố trí lấy độ cao cột của nó — không đổi world. Quyết định 5 sửa trong bước 9.
+- **Review (12:15), mức đầy đủ:**
+  - `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi`.
+  - Mọi dòng "Phần cần test" đều có kết quả: 322/322 EditMode, 32/32 PlayMode, `SimDemoMapsTests` 5/5, `SimBoundsTests` 6/6, `cmp` 2 JSON giống nhau. Không chạy lại vì kết quả đủ, các số khớp nhau.
+  - `git show --stat f96591f`: chỉ có file trong Phạm vi. Thư mục `Tests/` chỉ có 2 file mới, test cũ không bị sửa.
+  - Diff `GridPathfinder`: chỉ thêm trường, 2 constructor và `InRegion`/`Index`/`Coords`, rồi thay các lời gọi. Không đổi logic hay thứ tự duyệt, đúng QĐ 1–2.
+  - `Simulation`: constructor theo vùng, `AddFarmOrder` chặn ô ngoài vùng (QĐ 3). `SimConfig.regionSize` 64, kiểm [16, 256] (QĐ 4).
+  - `SimDemo` khớp bước 9: `DemoSite` lưu `heights`, có `Height`/`Shift`; `Build` qua `Func`, giữ thứ tự gọi; `IsSiteWalkable` + `FlatSquare` đúng 2 nền nhà (wx+1..2 và wx+3..4, wz+4..5).
+  - Test có kiểm theo cột: độ cao, chênh ≤ 1, nền nhà, `Shift(...).Y`.
+  - `Game.Core` không có `UnityEngine` [run grep]; `git status` sạch.
+  - Số liệu: trại cách checkpoint Map 1 10,6 ô; tìm chỗ 16,6 ms; mảng tìm đường 3,4 MB (cả world 121,5 MB); 8000 nhịp: 0 kẹt, 0 chồng ô, sản lượng 12.
+  - Ghi chú: mốc giờ "12:30" ở bước 9 và trong handoff do Planner ghi sai. Theo git, Planner chốt lúc 12:03, executor xong lúc 12:09.
+  - Đã ghi giờ vào roadmap (bảng giờ thực tế) và world-tech (dòng 7e, phần 1).
+- Kết luận: đã duyệt
