@@ -1,6 +1,6 @@
 # Brief 0021 — Đào/đặt không xuyên qua nhà, kho, dấu mốc
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 12:45
@@ -211,10 +211,20 @@ Mở `Assets/Game/Client/Scenes/SimView.unity`, bấm Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-21 14:11
+- Base commit: 670ff8e
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-21 14:17; commit code 4209dc9
+- File: TerrainEditInput.cs, TerrainChunkView.cs, SimView.cs, LandmarkViewPlayTests.cs (dòng :69) (sửa); EditOcclusionPlayTests.cs (+.meta, mới)
 
 ## Kết quả test
+- Biên dịch: 0 lỗi. `grep -c Physics.Raycast TerrainEditInput.cs` = 1 (trong `Pick`).
+- PlayMode lọc (EditOcclusion, Landmark, TerrainEdit, SimView, SimViewMaps, Minimap): 27/27 đạt, gồm `EditOcclusionPlayTests` 4/4 (nhà/kho chặn, ruộng+sinh vật không chặn, dấu mốc chặn, đất trống vẫn chọn).
+- EditMode cả bộ: 322/322. PlayMode cả bộ: 39/39. Đã `git checkout -- EditorSettings.asset`.
+- Cảm giác khi chơi: **chờ user** (mục "User tự test").
 
 ## Vướng mắc
+Không có.
 
 ---
 <!-- PLANNER ghi khi review. -->
