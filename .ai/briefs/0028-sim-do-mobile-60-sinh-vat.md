@@ -1,6 +1,6 @@
 # Brief 0028 — Simulation bước 7: đo trên điện thoại với 60 sinh vật trên đồng bằng giữa Map 1
 
-> Trạng thái: đang làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 20:30
@@ -444,12 +444,20 @@ Trên điện thoại: Planner đọc logcat và ảnh, user không cần thao t
 - APK đã build: `SimBench build: Succeeded, 848101811 byte` → client/Builds/simbench.apk (không commit).
 - **Dừng ở bước 10:** điện thoại không hiện trong `adb devices` (USB, serial PFQCRWVWR46HU4GQ không thấy; `adb connect 192.168.1.6:5555` → Connection refused; đã kill/start adb server). Chưa cài APK, chưa có số đo. Cần user cắm lại cáp/bật USB debugging, rồi chạy lại từ bước 10.2.
 - **Lần 2 (user bảo thử Wi‑Fi):** USB vẫn không thấy. `adb mdns services` chỉ thấy `192.168.1.7:6060` = model **ADT_3, đang chạy YouTube TV → là Android TV box, KHÔNG phải điện thoại**. Đã cài APK + chạy trên đó (ảnh: đồng bằng, nhà, 60 sinh vật, HUD SIMBENCH đúng). Số đo 81 giây đầu (thiết bị TV, chỉ để tham khảo): fps ≈ 6, ticks ≈ 101/10 s (sim chạy chậm hơn thời gian thực vì khung hình), avgMs ≈ 0,4–0,6, p95Ms ≈ 1,1–2,1, maxMs ≤ 3,4, 0 Exception, thermal 0. Sau đó TV chuyển sang app YouTube nên Unity bị tạm dừng, không có dòng TONG. Log: side-session-notes/0028-logcat-androidtv.txt. Chưa đo trên điện thoại thật.
+- **Lần 3 — ĐO TRÊN ĐIỆN THOẠI THẬT (Xiaomi 24095PCADG, ADB Wi‑Fi 192.168.1.6:5555, màn hình sáng, app foreground):** đủ 240 s, 0 Exception, Thermal Status 2 sau khi chạy. Log đủ 24 dòng cửa sổ + dòng đầu: side-session-notes/…/0028-logcat-phone.txt. Ảnh chụp (client/Builds/simbench-0028.png, không commit): đồng bằng phẳng, hàng nhà nâu, 60 sinh vật màu xanh/tím/cam có nhãn, 5 dòng kho, HUD `SIMBENCH t=20s …` đúng, 32,5 FPS.
+  - `SIMBENCH đồng bằng (99, 187) 48 × 48, mặt y 20, vùng x 91..154, z 179..242, bỏ 1 dấu mốc trong đồng bằng`
+  - `SIMBENCH bố trí: 60 sinh vật, 30 nhà, 5 kho, 60 ô ruộng, mảng tìm đường 196608 ô`
+  - Cửa sổ: avgMs 0,24–0,46, p95Ms 0,58–1,13, maxMs ≤ 1,86, fps ≈ 32,4 (cửa sổ đầu 22,2), maxTicksFrame 1–2, astarPerSec 3,8–8,9, bfsPerSec 2,7–5,1.
+  - `SIMBENCH TONG device=Xiaomi 24095PCADG cpu=ARM64 FP ASIMD AES x8 seconds=240 ticks=2386 avgMs=0,394 p95Ms=0,956 p99Ms=1,347 maxMs=1,864 astarPerSec=6,8 bfsPerSec=3,6 fps=31,9 maxTicksFrame=2 pass5ms=True | phaseUs Terrain=0,7 Home=0,4 Work=13,0 Crop=3,2 Move=130,8 Assign=50,4 Stuck=2,3 Idle=188,5 Report=3,8 | produce=10 seeds=1`
+  - **pass5ms=True** (p95 0,956 ms ≪ 5 ms; ticks 2386 ≥ 1800). Pha tốn nhất: Idle 188,5 µs, Move 130,8 µs, Assign 50,4 µs.
+  - Lưu ý cho Planner: produce=10 trong 240 s trên 15 lệnh × 4 ô — ít nông sản (cây lớn chậm hơn 240 s); FPS ~32 (không phải 60) do dựng hình, không do sim.
+- Giờ kết thúc: 2026-10-21 19:39.
 
 ## Kết quả test
 - EditMode cả bộ: 371/371 xanh (235 s). 5 test SimStressTests xanh. Runs4000Ticks: `4000 nhịp: 409 ms, AStarCount=3515, BfsCount=1290, produce=46, overlaps=0, idleOnPlot=0, idleOutside=0`. Đồng bằng: `(99, 187) 48 × 48, mặt y 20, vùng x 91..154, z 179..242`; dấu mốc 9, giữ 8, bỏ 1.
 - PlayMode cả bộ: 79/79 xanh (có 3 test SimBenchPlayTests). Đã `git checkout` EditorSettings.asset.
 - Scene: SimBench.unity có `stressBench: 1`. Build: Succeeded.
-- Điện thoại: chờ (xem trên).
+- Điện thoại: đạt — `SIMBENCH TONG … pass5ms=True`, ticks 2386, 0 Exception (xem Kết quả, lần 3).
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
