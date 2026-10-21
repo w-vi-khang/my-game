@@ -1,6 +1,6 @@
 # Brief 0018 — World 7d (phần 2/2): hiển thị dấu mốc trong world và trên bản đồ
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 11:05
@@ -418,10 +418,24 @@ Mở scene TerrainView trên Mac, bấm Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-21 11:03
+- Base commit: 2cadbeb
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-21 11:20
+- Commit code: ef3b3c1
+- File: LandmarkStyle.cs, MinimapLandmarkGraphic.cs (mới); TerrainChunkView.cs, MinimapView.cs, MinimapViewPlayTests.cs (sửa); LandmarkViewPlayTests.cs (mới) — kèm .meta
+- Build Bench: `Bench build: Succeeded, 845427275 byte, 00:02:33` → Builds/bench.apk
 
 ## Kết quả test
+- Biên dịch: 0 lỗi (console error rỗng) — đạt.
+- PlayMode lọc `LandmarkViewPlayTests` + `MinimapViewPlayTests`: 13/13 đạt (3 mới Landmark + 10 Minimap gồm `LandmarkIconsAtLandmarkPositions`). Dòng: `LANDMARKVIEWTEST 9 dấu mốc, 7 material, đặt 28.7 ms`; `LANDMARKVIEW 9 dấu mốc, đặt 27.8–31.6 ms` (Editor).
+- EditMode cả bộ: 311/311 đạt.
+- PlayMode cả bộ: 32/32 đạt. Đã `git checkout -- EditorSettings.asset`.
+- Điện thoại: adb serial USB PFQCRWVWR46HU4GQ không có; dùng 192.168.1.6:5555 — cài `Success`, monkey khởi chạy. Máy khoá màn hình (keyguard, screen OFF, app bị APP_CMD_STOP) nên không có dòng LANDMARKVIEW/MINIMAP/BENCH → **chờ user mở khoá** (avgFps/holeFrames/hash chưa đo). Chạy lại: mở khoá máy rồi `monkey -p com.viventa.bench`, chờ 75 s, logcat grep BENCH|MINIMAP|LANDMARKVIEW.
+- Nhìn thật (mục "User tự test"): chờ user.
 
 ## Vướng mắc
+Không có. (Chỉ còn đo điện thoại chờ mở khoá.)
 
 ---
 <!-- PLANNER ghi khi review. -->
