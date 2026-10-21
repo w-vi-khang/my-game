@@ -9,6 +9,10 @@ namespace Game.Core.Sim
     /// </summary>
     public sealed class GridPathfinder
     {
+        /// <summary>Số lần chạy A* / BFS từ lúc tạo (đo sim bước 7, brief 0028) — không vào trạng thái mô phỏng.</summary>
+        public long AStarCount { get; private set; }
+        public long BfsCount { get; private set; }
+
         struct Node
         {
             public int F, H, Seq, Index;
@@ -171,6 +175,7 @@ namespace Game.Core.Sim
         /// </summary>
         public bool FindPathToNearest(CellPos start, int sx, int sz, int sy, int maxSteps, Predicate<CellPos> accept, List<CellPos> result)
         {
+            BfsCount++;
             result.Clear();
             if (!InRegion(start.X, start.Y, start.Z)) return false;
             stamp++;
@@ -221,6 +226,7 @@ namespace Game.Core.Sim
         /// </summary>
         public void FloodRegion(List<CellPos> starts, int sx, int sz, int sy, Predicate<CellPos> region, List<CellPos> result)
         {
+            BfsCount++;
             result.Clear();
             stamp++;
             queue.Clear();
@@ -268,6 +274,7 @@ namespace Game.Core.Sim
 
         bool Search(CellPos start, List<CellPos> goals, int sx, int sz, int sy, List<CellPos> result)
         {
+            AStarCount++;
             if (!InRegion(start.X, start.Y, start.Z) || !CanStand(goals[0], sx, sz, sy)) return false;
 
             stamp++;

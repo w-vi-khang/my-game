@@ -66,6 +66,9 @@ namespace Game.Client
         public MapTable Maps { get; private set; }
         /// <summary>Dấu mốc của world v3 (0023, brief 0017/0018): checkpoint theo map rồi công trình; null với v2.</summary>
         public IReadOnlyList<Landmark> Landmarks { get; private set; }
+
+        /// <summary>Gọi sau khi sinh world + đặt dấu mốc, trước khi dựng khối dấu mốc, editor và mesh (brief 0028); trả danh sách dấu mốc dùng tiếp.</summary>
+        [System.NonSerialized] public System.Func<WorldData, MapTable, WorldMapParams, IReadOnlyList<Landmark>, IReadOnlyList<Landmark>> afterGenerate;
         /// <summary>Thời gian LandmarkPlacer.Place (ms).</summary>
         public double LandmarkMs { get; private set; }
         public int GeneratorVersion { get; private set; }
@@ -153,6 +156,8 @@ namespace Game.Client
                 var lm = Stopwatch.StartNew();
                 Landmarks = LandmarkPlacer.Place(World, Maps, mapParams);
                 LandmarkMs = lm.Elapsed.TotalMilliseconds;
+                if (afterGenerate != null)
+                    Landmarks = afterGenerate(World, Maps, mapParams, Landmarks);
                 BuildLandmarkMarkers();
                 Debug.Log($"LANDMARKVIEW {Landmarks.Count} dấu mốc, đặt {LandmarkMs:F1} ms");
             }

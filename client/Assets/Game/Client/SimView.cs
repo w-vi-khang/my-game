@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game.Core;
 using Game.Core.Sim;
 using Game.Core.View;
 using UnityEngine;
@@ -20,6 +21,12 @@ namespace Game.Client
     public class SimView : MonoBehaviour
     {
         public int maxTicksPerFrame = 5;
+
+        /// <summary>Scene đo sim bước 7 (brief 0028): đồng bằng giữa Map 1 + 60 sinh vật, log SIMBENCH.</summary>
+        public bool stressBench;
+        public float benchSeconds = 240f;
+        public StressPlain? Plain { get; private set; }
+        public SimBenchMeter Meter { get; private set; }
 
         static readonly Color HouseColor = new Color(0.55f, 0.35f, 0.20f);
         static readonly Color StorageColor = new Color(0.60f, 0.60f, 0.60f);
@@ -63,6 +70,21 @@ namespace Game.Client
             view = GetComponent<TerrainChunkView>();
             savedVSync = QualitySettings.vSyncCount;
             savedTargetFps = Application.targetFrameRate;
+            if (stressBench) view.afterGenerate = OnAfterGenerate;
+        }
+
+        public static Vector3 BenchCameraPos(StressPlain p) => new Vector3(p.X0 + p.Size * 0.5f, p.Ground + 34f, p.Z0 - 6f);
+
+        IReadOnlyList<Landmark> OnAfterGenerate(WorldData world, MapTable maps, WorldMapParams p, IReadOnlyList<Landmark> lms)
+        {
+            var plain = SimStress.FlattenPlain(world, maps, 0, p.bedrockLayers, p.dirtDepth, p.waterLevel, ConfigLoader.LoadSimConfig().regionSize);
+            Plain = plain;
+            var cam = Camera.main;
+            if (cam != null)
+                cam.transform.SetPositionAndRotation(BenchCameraPos(plain), Quaternion.Euler(50f, 0f, 0f));
+            var kept = SimStress.WithoutPlain(lms, plain);
+            Debug.Log($"SIMBENCH {plain}, bỏ {lms.Count - kept.Count} dấu mốc trong đồng bằng");
+            return kept;
         }
 
         void OnDestroy()
@@ -93,12 +115,15 @@ namespace Game.Client
             for (int i = 0; i < n; i++)
             {
                 SimDemo.KeepFarming(Sim);
+                long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
                 Sim.Tick();
+                Meter?.AddTick(System.Diagnostics.Stopwatch.GetTimestamp() - t0);
                 interp.Capture(Sim.State);
                 interp.ApplyEvents(events);
                 markers.ApplyEvents(events);
                 events.Clear();
             }
+            Meter?.AddFrame(Time.unscaledTime, Time.unscaledDeltaTime, n, Sim);
             UpdateBodies();
             UpdateSprouts();
             UpdatePlotSlabs();
@@ -107,7 +132,23 @@ namespace Game.Client
         void Setup()
         {
             var cfg = ConfigLoader.LoadSimConfig();
-            if (view.Maps == null)
+            if (stressBench)
+            {
+                if (!Plain.HasValue)
+                {
+                    Debug.LogError("SIMBENCH cần TerrainChunkView source = MapsV3");
+                    enabled = false;
+                    return;
+                }
+                var plain = Plain.Value;
+                Sim = new Simulation(cfg, view.World, plain.Bounds);
+                Sim.AttachEditor(view.Editor);
+                SimStress.Build(Sim, plain);
+                Sim.ProfilePhases = true;
+                Meter = new SimBenchMeter(benchSeconds);
+                Debug.Log($"SIMBENCH bố trí: {Sim.State.Creatures.Count} sinh vật, {Sim.State.Houses.Count} nhà, {Sim.State.Storages.Count} kho, {Sim.State.Plots.Count} ô ruộng, mảng tìm đường {Sim.PathfinderCellCount} ô");
+            }
+            else if (view.Maps == null)
             {
                 Sim = new Simulation(cfg, view.World);
                 Sim.AttachEditor(view.Editor);
@@ -272,8 +313,11 @@ namespace Game.Client
             int line = 1;
             foreach (var s in Sim.State.Storages)
                 GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.StorageText(s), hudStyle);
-            foreach (var p in Sim.State.Plots)
-                GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks), hudStyle);
+            if (Meter == null)
+                foreach (var p in Sim.State.Plots)
+                    GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks), hudStyle);
+            if (Meter != null && Meter.LastLine != null)
+                GUI.Label(new Rect(10, 100 + 24 * line++, 1400, 24), Meter.LastLine, hudStyle);
 
             var cam = Camera.main;
             if (cam == null)

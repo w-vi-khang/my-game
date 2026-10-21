@@ -41,6 +41,14 @@ namespace Game.Core.Sim
         /// <summary>Số ô mảng tìm đường — đo bộ nhớ (brief 0019).</summary>
         public int PathfinderCellCount => pathfinder.CellCount;
 
+        public long AStarCount => pathfinder.AStarCount;
+        public long BfsCount => pathfinder.BfsCount;
+
+        /// <summary>Đo thời gian từng pha của Tick (brief 0028); không vào mã băm.</summary>
+        public bool ProfilePhases;
+        public static readonly string[] PhaseNames = { "Terrain", "Home", "Work", "Crop", "Move", "Assign", "Stuck", "Idle", "Report" };
+        public readonly long[] PhaseTicks = new long[9];
+
         public int AddCreature(string speciesId, CellPos cell)
         {
             var sp = Config.FindSpecies(speciesId);
@@ -392,24 +400,42 @@ namespace Game.Core.Sim
         public void Tick()
         {
             State.Tick++;
+            long t = ProfilePhases ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
             if (terrainDirty)
             {
                 terrainDirty = false;
                 TerrainPhase();
                 homeDirty = true;
             }
+            t = Lap(0, t);
             if (homeDirty)
             {
                 homeDirty = false;
                 HomePhase();
             }
+            t = Lap(1, t);
             WorkPhase();
+            t = Lap(2, t);
             CropPhase();
+            t = Lap(3, t);
             MovePhase();
+            t = Lap(4, t);
             AssignPhase();
+            t = Lap(5, t);
             StuckPhase();
+            t = Lap(6, t);
             IdlePhase();
+            t = Lap(7, t);
             ReportPhase();
+            Lap(8, t);
+        }
+
+        long Lap(int phase, long start)
+        {
+            if (!ProfilePhases) return 0;
+            long now = System.Diagnostics.Stopwatch.GetTimestamp();
+            PhaseTicks[phase] += now - start;
+            return now;
         }
 
         bool CanStand(Creature c) => pathfinder.CanStand(c.Cell, c.SizeX, c.SizeZ, c.SizeY);
