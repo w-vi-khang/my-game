@@ -1,9 +1,9 @@
 # Brief 0023 — World 7f-2: bầu trời, ánh sáng, sương, dưới nước theo pha + xoay 3 giây
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 15:28
+> Cập nhật: 2026-10-21 15:48
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -426,8 +426,27 @@ Trên Mac, scene `SimView` (và `TerrainView`), nhấn Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-21 15:33
+- Base commit: e55cce8
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-21 15:48 · commit code de5fe38
+- File đổi: tạo DaySky.cs, SkyRotation.cs, DayCycleView.cs, Resources/Config/time_m1.json, 4 file test trong Tests/Client (+.meta); sửa ConfigLoader.cs, UnderwaterView.cs, WorldEdgeFog.cs, SkyClouds.shader, BenchBuild.cs, ConfigTests.cs (+1 test), TerrainView.unity, SimView.unity, Bench.unity (EnsureScene tạo lại).
+- Lệch brief:
+  1. `StarsRotateWithSun`: `Vector3.Angle(...) < 0.01` fail ở pha 0,25 (0,028°) do sai số acos float khi 2 vector gần trùng. Đổi sang so khoảng cách vector `< 1.7e-4` (≈0,01°) — cùng ý nghĩa, các test khác giữ nguyên. Logic DaySky không đổi.
+  2. SimView.unity: Unity lưu lại khi save nên diff có thêm giá trị mặc định cho component có sẵn (`landmarkIconSize`… của một MonoBehaviour khác, `tint` của UnderwaterView) và xếp lại thứ tự khối SimView — không đổi hành vi.
+  3. Lệnh `grep -c "Game.Client.DayCycleView"` ở bước 7 đếm 2 mỗi scene (1 khối component + `m_EditorClassIdentifier`), không phải 1; mỗi scene có đúng 1 component (guid script khớp).
+  4. Bước 10 điện thoại: **chưa chạy được** (xem Kết quả test) → chờ user.
 
 ## Kết quả test
+Tất cả phần cần test **đạt**, trừ dòng Bench + điện thoại: **chờ user** (không đo được).
+- Bản sao cấu hình + loader: `cmp` exit 0; `ConfigTests.TimeClientCopyMatchesDesignData` đạt (EditMode 340/340); `LoadTimeConfig` chạy qua DayCycleViewPlayTests/DayCycleWaterPlayTests.
+- Ban ngày như cũ (`NoonMatchesOldSceneLook`), `SunPath`, `ContinuousIncludingWrap`, `NightIsDarkWithStars`, `StarsRotateWithSun` (xem lệch 1): đạt. `SkyRotationTests` (3): đạt.
+- `FlyCameraWaterPlayTests`, `WorldBoundsPlayTests` (cũ): đạt, không sửa. `DayCycleWaterPlayTests` (1): đạt. `DayCycleViewPlayTests` (4): đạt. Chạy lọc 6 lớp: 19/19 đạt.
+- Shader: `read_console` error 0 (chỉ có warning CS0618 FindObjectsSortMode giống các file cũ). Chưa xem trời bằng mắt (user xem).
+- Scene: `DayCycleView` có trên `Main Camera` của TerrainView và SimView; Bench.unity có `debugKeys: 0`, `benchCycleSeconds: 5`.
+- Bench APK: build `Bench build: Succeeded` (00:02:38 → Builds/bench.apk). **Cài/chạy không được**: không thấy thiết bị USB `PFQCRWVWR46HU4GQ`; `192.168.1.6:5555` lúc đầu hiện `device` nhưng `install` báo `adb: device offline`, `disconnect/connect` thì `failed to connect ... Operation timed out` (ping tới 192.168.1.6 vẫn thông). Không có số `DAYCYCLE`, `avgFps`, `hash` → **chờ user** cắm USB/bật lại ADB không dây rồi chạy lại bước 10.2–10.3 (APK đã build sẵn ở client/Builds/bench.apk, build từ commit de5fe38).
+- Dọn: EditorSettings.asset, UnityConnectSettings.asset checkout lại; Bench.unity.meta không đổi.
+- Cả bộ: EditMode 340/340 đạt; PlayMode 52/52 đạt. `check_design.py` hợp lệ. `git status` chỉ còn file trong Phạm vi (đã commit).
 
 ## Vướng mắc
 
