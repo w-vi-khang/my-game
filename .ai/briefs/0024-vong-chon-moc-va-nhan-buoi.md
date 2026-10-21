@@ -347,7 +347,7 @@ Trên Mac, scene `SimView` (và `TerrainView`), nhấn Play:
 - Hình vẽ biểu tượng: biên dịch 0 lỗi; ảnh chờ user mở khoá (ảnh đen); user xem.
 - Dựng/mở-đóng/thứ tự/chọn mốc/tô sáng/mờ khi xoay/chặn con trỏ/ẩn khi bản đồ: đạt — 8 test `TimeDialPlayTests` đạt.
 - Phím T/Esc, cảm ứng: chờ user.
-- Bỏ F5–F8: đạt — `grep debugKeys client/Assets/Game` chỉ còn trong Scenes/Bench.unity cũ (tự tạo lại khi build lần sau; đã tái tạo trong commit), DayCycleView/DayCycleWater test đạt.
+- Bỏ F5–F8: đạt — `grep debugKeys client/Assets/Game` không còn kết quả; DayCycleView/DayCycleWater test đạt.
 - Đào/đặt, bản đồ: đạt (TerrainEdit, EditOcclusion, Minimap, LandmarkView nằm trong PlayMode cả bộ).
 - Scene: đạt — grep TimeDial 1/1, debugKeys 0/0.
 - Điện thoại: `TIMEDIAL dựng: 4 mốc, mở=True`; DAYCYCLE 15 dòng; BENCH avgFps=37,3 p99Ms=49,97 holeFrames=0 hash=a7719c8999939263 pass30fps=True; Exception: 0. (avgFps thấp hơn 50,6 của 0023, máy khoá màn hình — planner cân nhắc đo lại khi mở khoá.)
