@@ -160,6 +160,7 @@ Mô tả của user (2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sin
 Chốt (user, 2026-10-21, [0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)); phục vụ P1; thành phần: client; **M1**, ước lượng 4–6 ngày-người [ý tưởng].
 - Một ngày world = 24 giờ thực; 4 mốc giữa đêm, bình minh, giữa trưa, hoàng hôn.
 - Người chơi chọn mốc bằng vòng 4 biểu tượng (kèm dòng "đang ở buổi …"). Chọn xong, bầu trời xoay tới mốc **theo chiều tiến** (không bao giờ ngược), buổi đổi thật rồi tiếp tục trôi.
+- **Khung mốc** (user, 2026-10-21): chia ngày thành 4 phần bằng nhau, mỗi mốc sở hữu phần từ mốc đó tới mốc kế tiếp (giữa đêm [0; 0,25) · bình minh [0,25; 0,50) · giữa trưa [0,50; 0,75) · hoàng hôn [0,75; 1)). Pha còn trong khung của mốc nào thì chọn lại mốc đó không làm gì; đã trôi ra khỏi khung mới chọn được → cung xoay luôn trong (0; 0,75] ngày.
 - **Không đổi** đồng hồ mô phỏng: lớn cây, xây dựng, nước lan, nhịp sim giữ nguyên.
 - Tương tác lần đầu: điều kiện môi trường sống có thể yêu cầu đang ở buổi X. Loài ngày/đêm, cây theo buổi → M2+ ([ý tưởng]).
 
