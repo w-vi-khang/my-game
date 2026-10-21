@@ -1,6 +1,6 @@
 # Brief 0024 — World 7f-3: vòng chọn 4 mốc + dòng "Đang ở buổi" (thay phím F5–F8)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 16:20
@@ -369,6 +369,8 @@ Planner (Opus · medium, phiên con), 2026-10-21 16:37–16:45:
 - Đo lại điện thoại [run] (máy đã mở khoá, APK từ 58f4c7a, 192.168.1.6:5555, 16:37): `TIMEDIAL dựng: 4 mốc, mở=True, buổi=Day`; 20 dòng `DAYCYCLE`; BENCH avgFps 35,0, p99Ms 58,24, holeFrames 0, hash `a7719c8999939263`, pass30fps=True; 0 `Exception` thẻ Unity. Máy nóng lúc đo (Thermal Status 2, CPU 64,9 °C) — FPS giảm so với 50,6 của 0023 chưa tách được do vòng UI hay do nhiệt; vẫn đạt ≥ 30. Ảnh `client/Builds/bench-0024.png` (chụp lại, ảnh đầu vẫn đen do chụp lúc app chưa lên): thấy nút, dòng "Đang ở buổi: Ban ngày", vòng 4 mốc đúng chiều, nhãn, gợi ý; đang xoay nên mờ.
 - Tài liệu: thêm dòng "Chọn thời điểm" (T / nút tròn / chạm) vào bảng điều khiển `design/02-gameplay/controls-ui.md`; cộng giờ cả bước 7f (Executor 33 phút: 0022 14:52–14:57, 0023 15:33–15:48, 0024 16:23–16:36) vào `design/05-roadmap.md` và dòng 7f của `design/04-tech/world-tech.md` (ghi "chờ user xem 0024"). `check_design.py` hợp lệ.
 - Còn: user xem mục "User tự test" 1–7 → chưa kết luận.
+- User xem 1–7 đều ổn [user 2026-10-21].
+- Kết luận: đã duyệt
 
 ## Kiểm chứng
 - EditMode cả bộ (MCP `run_tests`): 340/340 đạt. PlayMode cả bộ: 60/60 đạt. `check_design.py`: hợp lệ. (Không chạy `unity_test.py` vì Editor đang mở; dùng MCP theo quy tắc 0010.)
