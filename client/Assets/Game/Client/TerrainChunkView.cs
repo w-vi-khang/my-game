@@ -48,6 +48,7 @@ namespace Game.Client
 
         const string ChunksName = "Chunks";
         const string LandmarksName = "Dấu mốc";
+        const string LandmarkMaterialPath = "Materials/Landmark";
 
         ChunkSlot[] slots;
         Transform chunksRoot;
@@ -370,6 +371,12 @@ namespace Game.Client
         /// <summary>Khối đánh dấu trong world (brief 0018): con "Dấu mốc", mỗi dấu mốc một GameObject đáy ở mặt ô cao nhất; không collider.</summary>
         void BuildLandmarkMarkers()
         {
+            var baseMat = Resources.Load<UnityEngine.Material>(LandmarkMaterialPath);
+            if (baseMat == null)
+            {
+                Debug.LogError($"LANDMARKVIEW thiếu Resources/{LandmarkMaterialPath}.mat — bỏ qua khối dấu mốc");
+                return;
+            }
             var root = new GameObject(LandmarksName).transform;
             root.SetParent(transform, false);
             var mats = new Dictionary<uint, UnityEngine.Material>();
@@ -381,15 +388,15 @@ namespace Game.Client
                 var c = LandmarkStyle.ColorOf(l);
                 if (l.Kind == LandmarkKind.Checkpoint)
                 {
-                    MarkerBox(t, new Vector3(0f, 2f, 0f), new Vector3(0.5f, 4f, 0.5f), c, mats);
-                    MarkerBox(t, new Vector3(0f, 4.6f, 0f), new Vector3(1.2f, 1.2f, 1.2f), c, mats);
+                    MarkerBox(t, new Vector3(0f, 2f, 0f), new Vector3(0.5f, 4f, 0.5f), c, mats, baseMat);
+                    MarkerBox(t, new Vector3(0f, 4.6f, 0f), new Vector3(1.2f, 1.2f, 1.2f), c, mats, baseMat);
                 }
                 else
-                    MarkerBox(t, new Vector3(0f, 1.25f, 0f), new Vector3(3f, 2.5f, 3f), c, mats);
+                    MarkerBox(t, new Vector3(0f, 1.25f, 0f), new Vector3(3f, 2.5f, 3f), c, mats, baseMat);
             }
         }
 
-        static void MarkerBox(Transform parent, Vector3 localPos, Vector3 scale, Color32 c, Dictionary<uint, UnityEngine.Material> mats)
+        static void MarkerBox(Transform parent, Vector3 localPos, Vector3 scale, Color32 c, Dictionary<uint, UnityEngine.Material> mats, UnityEngine.Material baseMat)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = "Khối";
@@ -401,7 +408,7 @@ namespace Game.Client
             uint key = (uint)(c.r << 16 | c.g << 8 | c.b);
             if (!mats.TryGetValue(key, out var mat))
             {
-                mat = new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
+                mat = new UnityEngine.Material(baseMat);
                 mat.SetColor("_BaseColor", c);
                 mats[key] = mat;
             }

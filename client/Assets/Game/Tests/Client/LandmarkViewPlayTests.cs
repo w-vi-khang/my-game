@@ -67,6 +67,11 @@ namespace Game.Client.Tests
                 Assert.AreEqual(want.b, c.b, 1e-3f);
             }
             Assert.AreEqual(0, root.GetComponentsInChildren<Collider>(true).Length);
+            var baseMat = Resources.Load<Material>("Materials/Landmark");
+            Assert.IsNotNull(baseMat, "thiếu Resources/Materials/Landmark.mat");
+            Assert.AreEqual("Universal Render Pipeline/Lit", baseMat.shader.name);
+            foreach (var r in root.GetComponentsInChildren<MeshRenderer>())
+                Assert.AreSame(baseMat.shader, r.sharedMaterial.shader);
             var mats = new HashSet<Material>();
             foreach (var r in root.GetComponentsInChildren<MeshRenderer>())
                 mats.Add(r.sharedMaterial);
