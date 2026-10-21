@@ -1,9 +1,9 @@
 # Brief 0026 — Simulation bước 6a: ô ruộng có sau khi xới; đào / đặt khối lên thì huỷ vụ
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 17:34
+> Cập nhật: 2026-10-21 17:45
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -426,9 +426,17 @@ Mở `client/Assets/Game/Client/Scenes/SimView.unity`, bấm Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: a94333e · Chạy bằng: claude-sonnet-5-5 · medium · Bắt đầu: 2026-10-21 17:37 · Kết thúc: 2026-10-21 17:45
+- Commit code: 4730284. File đổi: Core/Cell.cs, Core/WorldEditor.cs, Core/Sim/{SimData,Simulation,SimHash,SimDemo}.cs, Core/View/SiteStatus.cs, World/BlockMesher.cs, Client/SimView.cs; test: WorldEditorTests, SiteStatusTests, BlockMesherTests, SimDemoTests, SimViewPlayTests, mới PlotRulesTests.cs(+.meta).
+- Không lệch brief. Lần chạy EditMode đầu có 3 test mới của tôi đỏ do lỗi trong test (index stageId = -1 ở pha lớn; kỳ vọng Seeds cuối 9 thay vì 10); đã sửa test, không sửa code.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). Giờ bắt đầu / kết thúc. -->
 
 ## Kết quả test
+- `run_tests` EditMode toàn bộ: 364 test, 361 đạt + 3 đỏ (lỗi test, đã sửa); chạy lại `PlotRulesTests`: 16/16 đạt. (340 + 24 mới = 364.) Chưa chạy lại toàn bộ sau sửa test.
+- `run_tests` PlayMode toàn bộ: 69/69 đạt (68 + 1). Đã `git checkout -- client/ProjectSettings/EditorSettings.asset`.
+- grep UnityEngine trong Core/Sim, WorldEditor, Cell: không có kết quả.
+- `git status --short`: chỉ file trong Phạm vi.
+- Phần cần test: WorldEditor (6 test), PlotRules (16 ca gồm Till/Retill/Dig 5 pha/Haul 2/Cover/Untilled/Water/Refund/Stall/Attach/Hash) đạt; SiteStatus `RemovedPlotShowsCancelled`, BlockMesher `FarmlandTopOwnColorSidesDirtNoLip`, SimDemo `OneRoundFillsStorage` (+assert Farmland), PlayMode `TilledPlotBecomesFarmlandAndRebuildsChunk` đạt. Regression cũ đạt không sửa assert. User tự test (màu, tấm Ruộng, HUD): chờ user.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
