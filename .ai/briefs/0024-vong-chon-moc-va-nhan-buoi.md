@@ -363,6 +363,12 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+Planner (Opus · medium, phiên con), 2026-10-21 16:37–16:45:
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp `Model thực thi`. "Phần cần test": đủ 16 dòng có kết quả; 2 dòng `chờ user` (phím T/Esc + cảm ứng; hình vẽ biểu tượng) → user xem.
+- Diff 58f4c7a [repo]: `TimeDial.cs` đúng thành viên public, hằng số, thứ tự `Update`, `PointerDown`/`Choose`, `Refresh` chỉ ghi khi đổi, `Build` đúng số (nút (−16, −84) 72, vòng (−180, −320) 300, dòng buổi (−100, −120)), chữ gợi ý nguyên văn. `TimeDialGraphic.cs` đúng 5 hình theo công thức bước 1. `DayCycleView` chỉ mất `debugKeys` + khối F5–F8 + `using InputSystem`; `TerrainEditInput` chỉ dòng 47–48; `BenchBuild` đúng bước 6; 2 test cũ chỉ xoá 1 dòng mỗi file. Scene: TerrainView/SimView thêm `TimeDial` (`startOpen: 0`), mất `debugKeys`; Bench.unity `startOpen: 1`. Không đụng `Game.Core`, `MinimapView`, `DaySky`, shader, `design/`. Lệch `IsOverButton` private: đúng brief (không có trong danh sách public).
+- Đo lại điện thoại [run] (máy đã mở khoá, APK từ 58f4c7a, 192.168.1.6:5555, 16:37): `TIMEDIAL dựng: 4 mốc, mở=True, buổi=Day`; 20 dòng `DAYCYCLE`; BENCH avgFps 35,0, p99Ms 58,24, holeFrames 0, hash `a7719c8999939263`, pass30fps=True; 0 `Exception` thẻ Unity. Máy nóng lúc đo (Thermal Status 2, CPU 64,9 °C) — FPS giảm so với 50,6 của 0023 chưa tách được do vòng UI hay do nhiệt; vẫn đạt ≥ 30. Ảnh `client/Builds/bench-0024.png` (chụp lại, ảnh đầu vẫn đen do chụp lúc app chưa lên): thấy nút, dòng "Đang ở buổi: Ban ngày", vòng 4 mốc đúng chiều, nhãn, gợi ý; đang xoay nên mờ.
+- Tài liệu: thêm dòng "Chọn thời điểm" (T / nút tròn / chạm) vào bảng điều khiển `design/02-gameplay/controls-ui.md`; cộng giờ cả bước 7f (Executor 33 phút: 0022 14:52–14:57, 0023 15:33–15:48, 0024 16:23–16:36) vào `design/05-roadmap.md` và dòng 7f của `design/04-tech/world-tech.md` (ghi "chờ user xem 0024"). `check_design.py` hợp lệ.
+- Còn: user xem mục "User tự test" 1–7 → chưa kết luận.
 
 ## Kiểm chứng
 - EditMode cả bộ (MCP `run_tests`): 340/340 đạt. PlayMode cả bộ: 60/60 đạt. `check_design.py`: hợp lệ. (Không chạy `unity_test.py` vì Editor đang mở; dùng MCP theo quy tắc 0010.)

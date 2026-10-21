@@ -33,6 +33,7 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 | Đánh thường (khi nhập hồn) | Chuột trái | Nút hành động chính | RT | M2 |
 | Phép 1–4 (khi nhập hồn) | Phím 1–4 (thanh công cụ đổi thành ô phép) | 4 nút quanh nút hành động chính | LB, RB, LT, X (khi nhập hồn X không dùng để tương tác; Y giữ cho nhập hồn / thoát) | M2 |
 | Túi đồ / sinh vật / bản đồ | Tab / C / M | Nút menu → chọn | Select | M2 (bản đồ: M1 — [0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md); phóng to bằng cuộn chuột / chụm 2 ngón) |
+| Chọn thời điểm (vòng 4 mốc: giữa trưa, hoàng hôn, giữa đêm, bình minh) | T hoặc bấm nút tròn góc trên-phải (dưới nút bản đồ); bấm mốc để chọn; Esc / T / bấm ra ngoài để đóng | Chạm nút tròn → chạm mốc; chạm ra ngoài để đóng | _(chưa có)_ | M1 ([0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md), brief 0024; cạnh nút có dòng "Đang ở buổi: …"; ẩn khi bản đồ mở) |
 | Menu, tạm dừng | Esc | Nút menu | Start | M1 |
 
 Phím cụ thể là đề xuất [ý tưởng]; cho người chơi **đổi phím** (M3) — Input System 1.19 có `PerformInteractiveRebinding()` để đổi lúc chạy, `SaveBindingOverridesAsJson` / `LoadBindingOverridesFromJson` để lưu ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)).
