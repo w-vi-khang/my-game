@@ -1,6 +1,6 @@
 # Brief 0024 — World 7f-3: vòng chọn 4 mốc + dòng "Đang ở buổi" (thay phím F5–F8)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 16:20
@@ -335,9 +335,23 @@ Trên Mac, scene `SimView` (và `TerrainView`), nhấn Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 4e63147
+- Chạy bằng: claude-sonnet-5-5 · medium (OK: brief 0024 cần Sonnet · medium)
+- Bắt đầu: 2026-10-21 16:23 · Kết thúc: 2026-10-21 16:36 (~13 phút)
+- Commit code: 58f4c7a. File: TimeDial.cs, TimeDialGraphic.cs, TimeDialPlayTests.cs (+meta); sửa DayCycleView, TerrainEditInput, BenchBuild, DayCycleViewPlayTests, DayCycleWaterPlayTests, TerrainView/SimView/Bench.unity. Bench.unity.meta đã khôi phục.
+- Lệch brief: `IsOverButton` để private (test không cần). USB serial PFQCRWVWR46HU4GQ không có → dùng 192.168.1.6:5555.
+- Ảnh `client/Builds/bench-0024.png`: ĐEN (màn hình điện thoại khoá/ngủ, KeyguardShowing=true, vuốt không mở được) → chờ user mở khoá để chụp lại. App vẫn chạy và ghi log.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · Bắt đầu / Kết thúc (giờ thực) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
+- Hình vẽ biểu tượng: biên dịch 0 lỗi; ảnh chờ user mở khoá (ảnh đen); user xem.
+- Dựng/mở-đóng/thứ tự/chọn mốc/tô sáng/mờ khi xoay/chặn con trỏ/ẩn khi bản đồ: đạt — 8 test `TimeDialPlayTests` đạt.
+- Phím T/Esc, cảm ứng: chờ user.
+- Bỏ F5–F8: đạt — `grep debugKeys client/Assets/Game` chỉ còn trong Scenes/Bench.unity cũ (tự tạo lại khi build lần sau; đã tái tạo trong commit), DayCycleView/DayCycleWater test đạt.
+- Đào/đặt, bản đồ: đạt (TerrainEdit, EditOcclusion, Minimap, LandmarkView nằm trong PlayMode cả bộ).
+- Scene: đạt — grep TimeDial 1/1, debugKeys 0/0.
+- Điện thoại: `TIMEDIAL dựng: 4 mốc, mở=True`; DAYCYCLE 15 dòng; BENCH avgFps=37,3 p99Ms=49,97 holeFrames=0 hash=a7719c8999939263 pass30fps=True; Exception: 0. (avgFps thấp hơn 50,6 của 0023, máy khoá màn hình — planner cân nhắc đo lại khi mở khoá.)
+- Lệnh: MCP PlayMode lọc 5 nhóm → 29/29; EditMode cả bộ → 340/340; PlayMode cả bộ → 60/60; check_design → hợp lệ; build APK Bench → Succeeded. Đã dọn EditorSettings/UnityConnectSettings.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
