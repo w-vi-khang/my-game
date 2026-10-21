@@ -18,8 +18,8 @@ RenderSettings:
   m_FogColor: {r: 0.78, g: 0.88, b: 0.97, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 80
-  m_LinearFogEnd: 300
+  m_LinearFogStart: 64
+  m_LinearFogEnd: 120
   m_AmbientSkyColor: {r: 0.72, g: 0.82, b: 0.96, a: 1}
   m_AmbientEquatorColor: {r: 0.7, g: 0.69, b: 0.64, a: 1}
   m_AmbientGroundColor: {r: 0.42, g: 0.37, b: 0.3, a: 1}
@@ -131,6 +131,8 @@ GameObject:
   - component: {fileID: 41987366}
   - component: {fileID: 41987365}
   - component: {fileID: 41987368}
+  - component: {fileID: 41987369}
+  - component: {fileID: 41987370}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -177,8 +179,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
+  near clip plane: 0.1
+  far clip plane: 128
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -205,8 +207,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 41987364}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.31402215, y: 0.2984021, z: -0.10467436, w: 0.89520365}
-  m_LocalPosition: {x: 26, y: 26, z: 10}
+  m_LocalRotation: {x: 0.21643962, y: 0, z: 0, w: 0.976296}
+  m_LocalPosition: {x: 192, y: 40, z: 150}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -227,6 +229,39 @@ MonoBehaviour:
   speed: 10
   fastMultiplier: 3
   lookSensitivity: 0.15
+  terrain: {fileID: 1663237067}
+  collisionRadius: 0.25
+--- !u!114 &41987369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41987364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2ea2bcc7f634471196289152a170497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.UnderwaterView
+  terrain: {fileID: 1663237067}
+  fogColor: {r: 0.14, g: 0.44, b: 0.56, a: 1}
+  backgroundColor: {r: 0.42, g: 0.7, b: 0.82, a: 1}
+  fogStart: 0
+  fogEnd: 40
+--- !u!114 &41987370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41987364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec98faebf92e540d6b683e44098bb187, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.WorldEdgeFog
+  terrain: {fileID: 1663237067}
+  underwater: {fileID: 41987369}
 --- !u!1 &1663237066
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,6 +274,7 @@ GameObject:
   - component: {fileID: 1663237067}
   - component: {fileID: 1663237069}
   - component: {fileID: 1663237070}
+  - component: {fileID: 1663237071}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -262,9 +298,15 @@ MonoBehaviour:
   chunkX: 1
   chunkZ: 1
   material: {fileID: 0}
-  waterMaterial: {fileID: 2100000, guid: 3c4f12bab1e8847abb25f093937a9af8, type: 2}
+  waterMaterial: {fileID: 2100000, guid: 55831bd2c396144b1859e169789b714d, type: 2}
   waterStepsPerSecond: 8
   color: {r: 1, g: 1, b: 1, a: 1}
+  source: 1
+  streaming: 1
+  streamTarget: {fileID: 41987367}
+  loadRadius: 128
+  unloadRadius: 160
+  maxColumnsPerFrame: 2
 --- !u!4 &1663237068
 Transform:
   m_ObjectHideFlags: 0
@@ -303,10 +345,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1663237066}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdbf1e5920cdf45b7814fd3978fe3828, type: 3}
+  m_Script: {fileID: 11500000, guid: 8585b19aa1b8f48d5968acef1078860f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Game.Client::Game.Client.SimView
-  maxTicksPerFrame: 5
+  m_EditorClassIdentifier: Game.Client::Game.Client.MinimapView
+  zoomStep: 1.15
+  borderThickness: 3
+  borderColor: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.92156863}
+  markerColor: {r: 0.92156863, g: 0.23529412, b: 0.19607843, a: 1}
+  labelFontSize: 28
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0
@@ -468,6 +514,7 @@ MonoBehaviour:
   belowWaterSurface: 0.1
   extent: 400
   cellSize: 16
+  source: 1
 --- !u!23 &2126523793
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -540,6 +587,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1663237071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663237066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdbf1e5920cdf45b7814fd3978fe3828, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.SimView
+  maxTicksPerFrame: 5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ namespace Game.Client
     /// Nhãn trên đầu = trạng thái; "!" đỏ = đình trệ tại ô. F1 / F2: khoá 30 / 60 FPS (chỉ Game view trong Editor).
     /// HUD góc trái: kho + từng ô ruộng (giai đoạn, % lớn); mầm xanh cao theo %; hộp vàng trên lưng = đang mang hàng (sửa sau user xem 2026-10-16).
     /// Đào/đặt (TerrainEditInput) báo cho mô phỏng qua WorldEditor.CellChanged; ô có sinh vật/nhà/kho không đặt được.
+    /// World 3 map (world 7e, brief 0020): Terrain dùng MapsV3 → SimDemo.FindSite chọn chỗ trong Map 1, mô phỏng trong vùng 64 × 64, camera đặt ở trại.
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class SimView : MonoBehaviour
@@ -48,6 +49,9 @@ namespace Game.Client
         GUIStyle labelStyle, hudStyle;
 
         public Simulation Sim { get; private set; }
+        /// <summary>Chỗ đặt trại trên world nhiều map (world 7e, brief 0020); null khi chạy đảo v2.</summary>
+        public DemoSite? Site { get; private set; }
+        UnityEngine.Material boxBase;
         public int TargetFps { get; private set; }
         public int BodyCount => bodies.Count;
         public int SproutCount => sprouts.Count;
@@ -100,10 +104,29 @@ namespace Game.Client
         void Setup()
         {
             var cfg = ConfigLoader.LoadSimConfig();
-            Sim = new Simulation(cfg, view.World);
-            view.Editor.IsOccupied = Sim.IsOccupied;
-            view.Editor.CellChanged += Sim.OnCellChanged;
-            SimDemo.Build(Sim);
+            if (view.Maps == null)
+            {
+                Sim = new Simulation(cfg, view.World);
+                view.Editor.IsOccupied = Sim.IsOccupied;
+                view.Editor.CellChanged += Sim.OnCellChanged;
+                SimDemo.Build(Sim);
+            }
+            else
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                var site = SimDemo.FindSite(view.World, view.Maps, view.Landmarks, 0, ConfigLoader.LoadWorldMapParams().waterLevel, cfg.regionSize);
+                double ms = sw.Elapsed.TotalMilliseconds;
+                Site = site;
+                Sim = new Simulation(cfg, view.World, site.Bounds);
+                view.Editor.IsOccupied = Sim.IsOccupied;
+                view.Editor.CellChanged += Sim.OnCellChanged;
+                SimDemo.Build(Sim, site);
+                var camPos = PlaceCamera(site);
+                Debug.Log($"SIMVIEW trại {site}, camera ({camPos.x:F0}, {camPos.y:F0}, {camPos.z:F0}), tìm chỗ {ms:F1} ms, mảng tìm đường {Sim.PathfinderCellCount} ô");
+            }
+            boxBase = Resources.Load<UnityEngine.Material>("Materials/Landmark");
+            if (boxBase == null)
+                Debug.LogError("SIMVIEW thiếu Resources/Materials/Landmark.mat");
 
             clock = new SimClock(cfg.ticksPerSecond, maxTicksPerFrame);
             interp = new SimInterpolator();
@@ -126,6 +149,31 @@ namespace Game.Client
             }
             UpdateBodies();
             SetFrameRate(60);
+        }
+
+        /// <summary>Camera nhìn vào trại (brief 0020): cột giữa cửa sổ, cao hơn mặt đất 12, lùi 26 theo −z, xoay Euler(25, 0, 0) như scene.</summary>
+        public static Vector3 CameraPosFor(DemoSite site)
+        {
+            int ccx = site.Dx + SimDemo.BaseX - 1 + 4, ccz = site.Dz + SimDemo.BaseZ - 1 + 3;
+            int h = site.Height(ccx, ccz);
+            return new Vector3(ccx + 0.5f, h + 12f, ccz + 0.5f - 26f);
+        }
+
+        /// <summary>Tâm cửa sổ 9 × 7 (toạ độ thế giới, trên mặt đất cột giữa).</summary>
+        public static Vector3 CampCenter(DemoSite site)
+        {
+            int ccx = site.Dx + SimDemo.BaseX - 1 + 4, ccz = site.Dz + SimDemo.BaseZ - 1 + 3;
+            return new Vector3(ccx + 0.5f, site.Height(ccx, ccz) + 1f, ccz + 0.5f);
+        }
+
+        Vector3 PlaceCamera(DemoSite site)
+        {
+            var pos = CameraPosFor(site);
+            var cam = Camera.main;
+            if (cam == null)
+                return pos;
+            cam.transform.SetPositionAndRotation(pos, Quaternion.Euler(25f, 0f, 0f));
+            return pos;
         }
 
         void SetFrameRate(int fps)
@@ -192,7 +240,7 @@ namespace Game.Client
             t.SetParent(parent, false);
             t.localPosition = localPos;
             t.localScale = scale;
-            var mat = new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
+            var mat = new UnityEngine.Material(boxBase != null ? boxBase : GraphicsSettings.currentRenderPipeline.defaultMaterial);
             mat.SetColor("_BaseColor", color);
             go.GetComponent<MeshRenderer>().sharedMaterial = mat;
             return go;
