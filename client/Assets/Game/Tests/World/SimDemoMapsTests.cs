@@ -131,7 +131,7 @@ namespace Game.World.Tests
             Assert.AreEqual(site.Shift(SimDemo.HouseB), s.Houses[1].Cell);
             Assert.AreEqual(1, s.Storages.Count);
             Assert.AreEqual(site.Shift(SimDemo.StorageCell), s.Storages[0].Cell);
-            Assert.AreEqual(10, s.Storages[0].Seeds);
+            Assert.AreEqual(10, s.Stock.Seeds[0]);
             Assert.AreEqual(3, s.Creatures.Count);
             int[] homes = { 0, 0, 1 };
             for (int i = 0; i < 3; i++)
@@ -154,8 +154,8 @@ namespace Game.World.Tests
         {
             var sim = NewSim(out _, out _);
             Assert.AreEqual(0, Run(sim, 4000, false));
-            Assert.AreEqual(4, sim.State.Storages[0].Produce);
-            Assert.AreEqual(10, sim.State.Storages[0].Seeds);
+            Assert.AreEqual(4, sim.State.Stock.Produce[0]);
+            Assert.AreEqual(10, sim.State.Stock.Seeds[0]);
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace Game.World.Tests
                     }
                 }
             }
-            int produce = sim.State.Storages[0].Produce;
+            int produce = sim.State.Stock.Produce[0];
             string line = $"SIMMAPS produce={produce} stalls={stalls} overlaps={overlaps} idleOnPlot={idleOnPlot} idleOutside={idleOutside}";
             TestContext.WriteLine(line);
             UnityEngine.Debug.Log(line);

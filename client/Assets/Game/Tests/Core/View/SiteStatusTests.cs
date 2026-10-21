@@ -9,16 +9,16 @@ namespace Game.Core.Tests
         [Test]
         public void StorageTextFormat()
         {
-            var s = new Storage(0, new CellPos(1, 1, 1), 50, 10);
-            s.Produce = 4;
-            s.Reserved = 3;
+            var s = new Stockpile(2) { Capacity = 50, Reserved = 3 };
+            s.Seeds[0] = 10;
+            s.Produce[0] = 4;
             Assert.AreEqual("Kho · nông sản 4 · hạt 10 · 14/50", SiteStatus.StorageText(s));
         }
 
         [Test]
         public void PlotTextPerPhase()
         {
-            var p = new FarmPlot(2, 0, 0, new CellPos(5, 0, 5));
+            var p = new FarmPlot(2, 0, new CellPos(5, 0, 5));
             const int growTicks = 1200;
             p.Phase = PlotPhase.Idle;
             Assert.AreEqual("Ruộng 2 · trống", SiteStatus.PlotText(p, 100, growTicks));
@@ -41,7 +41,7 @@ namespace Game.Core.Tests
         [Test]
         public void RemovedPlotShowsCancelled()
         {
-            var p = new FarmPlot(2, 0, 0, new CellPos(5, 0, 5));
+            var p = new FarmPlot(2, 0, new CellPos(5, 0, 5));
             p.Removed = true;
             foreach (PlotPhase ph in System.Enum.GetValues(typeof(PlotPhase)))
             {
@@ -53,7 +53,7 @@ namespace Game.Core.Tests
         [Test]
         public void GrowPercentClamps()
         {
-            var p = new FarmPlot(2, 0, 0, new CellPos(5, 0, 5));
+            var p = new FarmPlot(2, 0, new CellPos(5, 0, 5));
             p.Phase = PlotPhase.Growing;
             p.RipeTick = 1300;
             Assert.AreEqual(0, SiteStatus.GrowPercent(p, 50, 1200));

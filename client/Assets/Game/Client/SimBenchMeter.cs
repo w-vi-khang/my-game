@@ -83,12 +83,7 @@ namespace Game.Client
                     double us = sim.PhaseTicks[k] * 1e6 / Stopwatch.Frequency / n;
                     phases += (k > 0 ? " " : "") + $"{Simulation.PhaseNames[k]}={us:F1}";
                 }
-                long produce = 0, seeds = 0;
-                foreach (var s in sim.State.Storages)
-                {
-                    produce += s.Produce;
-                    seeds += s.Seeds;
-                }
+                long produce = sim.State.Stock.ProduceTotal, seeds = sim.State.Stock.SeedsTotal;
                 Summary = $"SIMBENCH TONG device={UnityEngine.SystemInfo.deviceModel} cpu={UnityEngine.SystemInfo.processorType} x{UnityEngine.SystemInfo.processorCount} " +
                           $"seconds={now - start:F0} ticks={all.Count} avgMs={Average(all):F3} p95Ms={p95:F3} p99Ms={Percentile(all, 0.99):F3} maxMs={Max(all):F3} " +
                           $"astarPerSec={(sim.AStarCount - astar0) / span:F1} bfsPerSec={(sim.BfsCount - bfs0) / span:F1} " +

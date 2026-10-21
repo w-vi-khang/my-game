@@ -26,6 +26,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(4, cfg.creature.homeRadius);
             Assert.AreEqual(50, cfg.WanderMinTicks);
             Assert.AreEqual(100, cfg.WanderMaxTicks);
+            Assert.AreEqual(2, cfg.crops.Length);
+            Assert.AreEqual(1200, cfg.GrowTicks(0));
+            Assert.AreEqual(1800, cfg.GrowTicks(1));
         }
 
         [Test]
@@ -75,8 +78,25 @@ namespace Game.Core.Tests
             Assert.Throws<ArgumentException>(c.Validate, "sizeX = 0");
 
             c = new SimConfig();
-            c.storage.startSeeds = 51;
-            Assert.Throws<ArgumentException>(c.Validate, "startSeeds > capacity");
+            c.crops[0].startSeeds = 41;
+            Assert.Throws<ArgumentException>(c.Validate, "tổng startSeeds > capacity");
+
+            c = new SimConfig();
+            c.crops = new CropDef[0];
+            Assert.Throws<ArgumentException>(c.Validate, "crops rỗng");
+
+            c = new SimConfig();
+            c.crops[1].id = c.crops[0].id;
+            Assert.Throws<ArgumentException>(c.Validate, "trùng id cây");
+
+            c = new SimConfig();
+            c.crops[0].growTimeMs = 120050;
+            Assert.Throws<ArgumentException>(c.Validate, "growTimeMs không chia hết msPerTick");
+
+            c = new SimConfig();
+            c.crops[0].seedsPerHarvest = 0;
+            c.crops[0].producePerHarvest = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "mỗi vụ không ra gì");
 
             c = new SimConfig();
             c.farm.plotQueueCapacity = 0;

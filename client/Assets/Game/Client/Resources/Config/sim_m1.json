@@ -1,5 +1,5 @@
 {
-    "configVersion": 1,
+    "configVersion": 2,
     "simSeed": 20261014,
     "ticksPerSecond": 10,
     "regionSize": 64,
@@ -22,8 +22,11 @@
         { "minMastery": 200, "speedPermille": 1250 },
         { "minMastery": 400, "speedPermille": 1500 }
     ],
-    "crop": { "growTimeMs": 120000, "seedsPerHarvest": 1, "producePerHarvest": 1 },
-    "storage": { "capacity": 50, "startSeeds": 10 },
+    "crops": [
+        { "id": "A", "growTimeMs": 120000, "seedsPerHarvest": 1, "producePerHarvest": 1, "startSeeds": 10 },
+        { "id": "B", "growTimeMs": 180000, "seedsPerHarvest": 2, "producePerHarvest": 3, "startSeeds": 10 }
+    ],
+    "storage": { "capacity": 50 },
     "farm": { "plotQueueCapacity": 2 },
     "house": { "capacity": 2, "sizeX": 2, "sizeZ": 2, "sizeY": 2 },
     "creature": { "stuckTimeMs": 30000, "blockWaitMs": 1000, "phaseAfterMs": 5000, "homeRadius": 4, "wanderMinMs": 5000, "wanderMaxMs": 10000 }

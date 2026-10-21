@@ -88,7 +88,12 @@ namespace Game.Core.Sim
             var soil = new CellPos[Soil.Length];
             for (int i = 0; i < Soil.Length; i++)
                 soil[i] = at(Soil[i]);
-            sim.AddFarmOrder(soil, storage);
+            for (int i = 0; i < soil.Length; i++)
+            {
+                int id = sim.MarkTill(soil[i]);
+                if (id < 0) throw new InvalidOperationException("Không đánh dấu được ô ruộng demo " + soil[i]);
+                sim.EnqueueCrop(id, 0);
+            }
             return storage;
         }
 
@@ -187,12 +192,12 @@ namespace Game.Core.Sim
             return false;
         }
 
-        /// <summary>Ô ruộng nào hết vụ trong hàng đợi → thêm một vụ (trang trại demo chạy mãi); ô đã huỷ vụ thì bỏ qua. Gọi trước mỗi Tick().</summary>
+        /// <summary>Ô ruộng nào hết vụ trong hàng đợi → thêm một vụ Cây A (trang trại demo chạy mãi); ô đã huỷ vụ thì bỏ qua. Gọi trước mỗi Tick().</summary>
         public static void KeepFarming(Simulation sim)
         {
             var ps = sim.State.Plots;
             for (int i = 0; i < ps.Count; i++)
-                if (!ps[i].Removed && ps[i].Queue.Count == 0) sim.EnqueueCrop(ps[i].Id);
+                if (!ps[i].Removed && ps[i].Queue.Count == 0) sim.EnqueueCrop(ps[i].Id, 0);
         }
     }
 }

@@ -123,8 +123,7 @@ namespace Game.World.Tests
                     }
                 }
             }
-            long produce = 0;
-            foreach (var st in sim.State.Storages) produce += st.Produce;
+            long produce = sim.State.Stock.ProduceTotal;
             TestContext.WriteLine($"4000 nhịp: {sw.Elapsed.TotalMilliseconds:F0} ms, AStarCount={sim.AStarCount}, BfsCount={sim.BfsCount}, produce={produce}, overlaps={overlaps}, idleOnPlot={idleOnPlot}, idleOutside={idleOutside}");
             Assert.AreEqual(0, overlaps);
             Assert.AreEqual(0, idleOnPlot);

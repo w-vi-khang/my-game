@@ -121,7 +121,7 @@ namespace Game.Core.Tests
         {
             var sim = Ring(Cfg(1, 5000), (12, 10), (12, 11));
             int k = sim.AddStorage(new CellPos(1, 2, 1));
-            sim.AddFarmOrder(new List<CellPos> { new CellPos(12, 1, 11) }, k);
+            foreach (var soilCell in new List<CellPos> { new CellPos(12, 1, 11) }) sim.EnqueueCrop(sim.MarkTill(soilCell), 0);
             sim.AddCreature("L2", new CellPos(12, 2, 11));
             sim.AssignHome(0, 0);
             var c = sim.State.Creatures[0];
@@ -158,7 +158,7 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), w);
             sim.AddCreature("L1", new CellPos(8, 2, 5));
             int k = sim.AddStorage(new CellPos(1, 2, 1));
-            sim.AddFarmOrder(new List<CellPos> { new CellPos(5, 1, 5), new CellPos(6, 1, 5) }, k);
+            foreach (var soilCell in new List<CellPos> { new CellPos(5, 1, 5), new CellPos(6, 1, 5) }) sim.EnqueueCrop(sim.MarkTill(soilCell), 0);
             TestWorlds.HomeAll(sim);
             till = sim.State.Stages[sim.State.Plots[0].StageId];
             return sim;
@@ -208,7 +208,7 @@ namespace Game.Core.Tests
             sim.AddCreature("L2", new CellPos(5, 2, 5));
             int s0 = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(8, 2, 5));
             int k = sim.AddStorage(new CellPos(1, 2, 1));
-            sim.AddFarmOrder(new List<CellPos> { new CellPos(5, 1, 6) }, k);
+            foreach (var soilCell in new List<CellPos> { new CellPos(5, 1, 6) }) sim.EnqueueCrop(sim.MarkTill(soilCell), 0);
             TestWorlds.HomeAll(sim);
             var m = sim.State.Creatures[0];
             var idle = sim.State.Creatures[1];
@@ -259,7 +259,7 @@ namespace Game.Core.Tests
             var sim = new Simulation(new SimConfig(), TestWorlds.Flat(1));
             int h = sim.AddHouse(new CellPos(7, 2, 7));
             int k = sim.AddStorage(new CellPos(1, 2, 14));
-            sim.AddFarmOrder(new List<CellPos> { new CellPos(4, 1, 4), new CellPos(5, 1, 4), new CellPos(4, 1, 5) }, k);
+            foreach (var soilCell in new List<CellPos> { new CellPos(4, 1, 4), new CellPos(5, 1, 4), new CellPos(4, 1, 5) }) sim.EnqueueCrop(sim.MarkTill(soilCell), 0);
             sim.AddCreature("L2", new CellPos(1, 2, 1));
             sim.AddCreature("L2", new CellPos(2, 2, 1));
             sim.AssignHome(0, h);

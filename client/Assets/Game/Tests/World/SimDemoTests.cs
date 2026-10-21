@@ -123,7 +123,7 @@ namespace Game.World.Tests
             Assert.AreEqual(SimDemo.HouseB, s.Houses[1].Cell);
             Assert.AreEqual(1, s.Storages.Count);
             Assert.AreEqual(new CellPos(34, 18, 17), s.Storages[0].Cell);
-            Assert.AreEqual(10, s.Storages[0].Seeds);
+            Assert.AreEqual(10, s.Stock.Seeds[0]);
             Assert.AreEqual(3, s.Creatures.Count);
             string[] sp = { "L1", "L2", "L3" };
             CellPos[] cells = { new CellPos(32, 18, 16), new CellPos(33, 18, 16), new CellPos(36, 18, 16) };
@@ -143,8 +143,8 @@ namespace Game.World.Tests
         {
             var sim = NewSim();
             Assert.AreEqual(0, Run(sim, 4000, false));
-            Assert.AreEqual(4, sim.State.Storages[0].Produce);
-            Assert.AreEqual(10, sim.State.Storages[0].Seeds);
+            Assert.AreEqual(4, sim.State.Stock.Produce[0]);
+            Assert.AreEqual(10, sim.State.Stock.Seeds[0]);
             foreach (var p in sim.State.Plots)
             {
                 Assert.IsTrue(p.Tilled);
@@ -157,7 +157,7 @@ namespace Game.World.Tests
         {
             var sim = NewSim();
             Assert.AreEqual(0, Run(sim, 8000, true));
-            Assert.GreaterOrEqual(sim.State.Storages[0].Produce, 8);
+            Assert.GreaterOrEqual(sim.State.Stock.Produce[0], 8);
         }
     }
 }

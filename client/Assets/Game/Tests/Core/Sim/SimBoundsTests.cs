@@ -81,8 +81,8 @@ namespace Game.Core.Tests
             Assert.Throws<ArgumentException>(() => sim.AddCreature("L1", new CellPos(10, 2, 10)));
             Assert.Throws<ArgumentException>(() => sim.AddStorage(new CellPos(10, 2, 10)));
             Assert.Throws<ArgumentException>(() => sim.AddHouse(new CellPos(10, 2, 10)));
-            Assert.Throws<ArgumentException>(() => sim.AddFarmOrder(new[] { new CellPos(10, 1, 10) }, storage));
-            Assert.DoesNotThrow(() => sim.AddFarmOrder(new[] { new CellPos(3, 1, 3) }, storage));
+            Assert.AreEqual(-1, sim.MarkTill(new CellPos(10, 1, 10)));
+            Assert.GreaterOrEqual(sim.MarkTill(new CellPos(3, 1, 3)), 0);
         }
 
         [Test]

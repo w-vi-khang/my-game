@@ -67,19 +67,31 @@ namespace Game.Core.Sim
         }
     }
 
+    /// <summary>Một loại cây (0025). Số tạm; game-balance đặt sau. startSeeds = hạt loại này mỗi kho góp vào kho chung.</summary>
     [Serializable]
-    public class CropConfig
+    public class CropDef
     {
-        public int growTimeMs = 120000;
-        public int seedsPerHarvest = 1;
-        public int producePerHarvest = 1;
+        public string id;
+        public int growTimeMs;
+        public int seedsPerHarvest;
+        public int producePerHarvest;
+        public int startSeeds;
+
+        public CropDef() { }
+        public CropDef(string id, int growTimeMs, int seedsPerHarvest, int producePerHarvest, int startSeeds)
+        {
+            this.id = id;
+            this.growTimeMs = growTimeMs;
+            this.seedsPerHarvest = seedsPerHarvest;
+            this.producePerHarvest = producePerHarvest;
+            this.startSeeds = startSeeds;
+        }
     }
 
     [Serializable]
     public class StorageConfig
     {
         public int capacity = 50;
-        public int startSeeds = 10;
     }
 
     [Serializable]
@@ -115,7 +127,7 @@ namespace Game.Core.Sim
     [Serializable]
     public class SimConfig
     {
-        public int configVersion = 1;
+        public int configVersion = 2;
         public uint simSeed = 20261014;
         public int ticksPerSecond = 10;
         /// <summary>Cạnh vùng mô phỏng (cột) quanh trang trại trên world nhiều map (world 7e, brief 0019).</summary>
@@ -142,7 +154,11 @@ namespace Game.Core.Sim
             new MasteryLevel(200, 1250),
             new MasteryLevel(400, 1500),
         };
-        public CropConfig crop = new CropConfig();
+        public CropDef[] crops =
+        {
+            new CropDef("A", 120000, 1, 1, 10),
+            new CropDef("B", 180000, 2, 3, 10),
+        };
         public StorageConfig storage = new StorageConfig();
         public FarmConfig farm = new FarmConfig();
         public HouseConfig house = new HouseConfig();
@@ -158,7 +174,7 @@ namespace Game.Core.Sim
 
         public int MsToTicks(int ms) => ms * ticksPerSecond / 1000;
 
-        public int GrowTicks => MsToTicks(crop.growTimeMs);
+        public int GrowTicks(int cropId) => MsToTicks(crops[cropId].growTimeMs);
 
         public int StuckTicks => MsToTicks(creature.stuckTimeMs);
 
@@ -257,12 +273,30 @@ namespace Game.Core.Sim
                     throw new ArgumentException("masteryLevels: speedPermille không được giảm (dòng " + i + ").");
             }
 
-            if (crop == null || crop.growTimeMs <= 0 || crop.growTimeMs % msPerTick != 0)
-                throw new ArgumentException("crop.growTimeMs phải > 0 và chia hết cho " + msPerTick + ".");
             if (storage == null || storage.capacity < 1)
                 throw new ArgumentException("storage.capacity phải >= 1.");
-            if (storage.startSeeds < 0 || storage.startSeeds > storage.capacity)
-                throw new ArgumentException("storage.startSeeds phải trong [0, capacity].");
+            if (crops == null || crops.Length < 1 || crops.Length > 8)
+                throw new ArgumentException("crops phải có 1–8 loại.");
+            int seedSum = 0;
+            for (int i = 0; i < crops.Length; i++)
+            {
+                var c = crops[i];
+                if (c == null || string.IsNullOrEmpty(c.id))
+                    throw new ArgumentException("crops[" + i + "].id không được rỗng.");
+                for (int j = 0; j < i; j++)
+                    if (crops[j].id == c.id)
+                        throw new ArgumentException("crops[" + i + "].id trùng: " + c.id + ".");
+                if (c.growTimeMs <= 0 || c.growTimeMs % msPerTick != 0)
+                    throw new ArgumentException("crops[" + i + "].growTimeMs phải > 0 và chia hết cho " + msPerTick + ".");
+                if (c.seedsPerHarvest < 0 || c.producePerHarvest < 0 || c.startSeeds < 0)
+                    throw new ArgumentException("crops[" + i + "]: seedsPerHarvest, producePerHarvest, startSeeds phải >= 0.");
+                int load = c.seedsPerHarvest + c.producePerHarvest;
+                if (load < 1 || load > storage.capacity)
+                    throw new ArgumentException("crops[" + i + "]: seedsPerHarvest + producePerHarvest phải trong [1, storage.capacity].");
+                seedSum += c.startSeeds;
+            }
+            if (seedSum > storage.capacity)
+                throw new ArgumentException("Tổng crops[].startSeeds phải <= storage.capacity.");
             if (farm == null || farm.plotQueueCapacity < 1 || farm.plotQueueCapacity > 8)
                 throw new ArgumentException("farm.plotQueueCapacity phải trong [1, 8].");
             if (house == null || house.capacity < 1 || house.capacity > 16)

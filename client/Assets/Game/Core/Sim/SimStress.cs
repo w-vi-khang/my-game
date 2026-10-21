@@ -81,7 +81,7 @@ namespace Game.Core.Sim
             return result;
         }
 
-        /// <summary>Đặt 30 nhà, 60 sinh vật, 5 kho, 15 lệnh trồng cây lên mô phỏng mới (chưa có sinh vật).</summary>
+        /// <summary>Đặt 30 nhà, 60 sinh vật, 5 kho, 15 nhóm 4 ô ruộng lên mô phỏng mới (chưa có sinh vật).</summary>
         public static void Build(Simulation sim, StressPlain plain)
         {
             if (sim.State.Creatures.Count != 0)
@@ -110,7 +110,11 @@ namespace Game.Core.Sim
                     new CellPos(ox, plain.Ground, oz), new CellPos(ox + 1, plain.Ground, oz),
                     new CellPos(ox, plain.Ground, oz + 1), new CellPos(ox + 1, plain.Ground, oz + 1),
                 };
-                sim.AddFarmOrder(soil, j);
+                for (int q = 0; q < soil.Length; q++)
+                {
+                    int id = sim.MarkTill(soil[q]);
+                    if (id >= 0) sim.EnqueueCrop(id, 0);
+                }
             }
         }
     }

@@ -252,10 +252,10 @@ namespace Game.Client
         void UpdateSprouts()
         {
             var ps = Sim.State.Plots;
-            int grow = Sim.Config.GrowTicks;
             for (int i = 0; i < ps.Count && i < sprouts.Count; i++)
             {
                 var p = ps[i];
+                int grow = Sim.Config.GrowTicks(p.Queue.Count > 0 ? p.Queue[0] : 0);
                 bool show = p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest;
                 sprouts[i].gameObject.SetActive(show);
                 if (!show) continue;
@@ -311,11 +311,10 @@ namespace Game.Client
             GUI.Label(new Rect(10, 100, 1000, 24),
                 $"F1: 30 FPS · F2: 60 FPS — mục tiêu {TargetFps} · đo {1f / smoothedDt:F1} FPS · nhịp {Sim.State.Tick}", hudStyle);
             int line = 1;
-            foreach (var s in Sim.State.Storages)
-                GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.StorageText(s), hudStyle);
+            GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.StorageText(Sim.State.Stock), hudStyle);
             if (Meter == null)
                 foreach (var p in Sim.State.Plots)
-                    GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks), hudStyle);
+                    GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks(p.Queue.Count > 0 ? p.Queue[0] : 0)), hudStyle);
             if (Meter != null && Meter.LastLine != null)
                 GUI.Label(new Rect(10, 100 + 24 * line++, 1400, 24), Meter.LastLine, hudStyle);
 

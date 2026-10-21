@@ -142,13 +142,15 @@ namespace Game.Core.Sim
         public readonly int PlotId;
         public readonly int StorageId;
         public readonly int LoadProduce, LoadSeeds;
+        /// <summary>Loại cây của hàng chở; -1 = không phải vận chuyển nông sản.</summary>
+        public readonly int CropId;
 
         public long WorkRequired => (long)BaseTicks * 1000;
         public int ProgressPermille => (int)(WorkDone * 1000 / WorkRequired);
 
         public WorkStage(int id, int orderId, WorkAbility ability, CellPos target, bool hasDestination, CellPos destination, int baseTicks, int priority,
             Approach targetApproach = Approach.Exact, Approach destinationApproach = Approach.Exact,
-            int plotId = -1, int storageId = -1, int loadProduce = 0, int loadSeeds = 0)
+            int plotId = -1, int storageId = -1, int loadProduce = 0, int loadSeeds = 0, int cropId = -1)
         {
             Id = id;
             OrderId = orderId;
@@ -164,6 +166,7 @@ namespace Game.Core.Sim
             StorageId = storageId;
             LoadProduce = loadProduce;
             LoadSeeds = loadSeeds;
+            CropId = cropId;
         }
     }
 
@@ -180,43 +183,58 @@ namespace Game.Core.Sim
         }
     }
 
+    /// <summary>Chỗ đặt kho; hàng nằm ở kho chung <see cref="SimState.Stock"/> (0025).</summary>
     public sealed class Storage
     {
         public readonly int Id;
         public readonly CellPos Cell;
         public readonly int Capacity;
-        public int Seeds;
-        public int Produce;
-        public int Reserved;
-        public int Free => Capacity - Seeds - Produce - Reserved;
 
-        public Storage(int id, CellPos cell, int capacity, int seeds)
+        public Storage(int id, CellPos cell, int capacity)
         {
             Id = id;
             Cell = cell;
             Capacity = capacity;
-            Seeds = seeds;
         }
+    }
+
+    /// <summary>Kho chung (0025): hàng của mọi kho tính chung, sức chứa = tổng sức chứa các kho. Mảng theo loại cây.</summary>
+    public sealed class Stockpile
+    {
+        public int Capacity;
+        public readonly int[] Seeds, Produce;
+        public int Reserved;
+
+        public Stockpile(int cropCount)
+        {
+            Seeds = new int[cropCount];
+            Produce = new int[cropCount];
+        }
+
+        public int SeedsTotal { get { int n = 0; for (int i = 0; i < Seeds.Length; i++) n += Seeds[i]; return n; } }
+        public int ProduceTotal { get { int n = 0; for (int i = 0; i < Produce.Length; i++) n += Produce[i]; return n; } }
+        public int Free => Capacity - SeedsTotal - ProduceTotal - Reserved;
     }
 
     public sealed class FarmPlot
     {
-        public readonly int Id, OrderId, StorageId;
+        public readonly int Id, OrderId;
         public readonly CellPos Soil, Site;
         public readonly List<int> Queue = new List<int>();
         public PlotPhase Phase;
         public int StageId = -1;
         public long RipeTick;
-        /// <summary>Đã xới xong ít nhất một lần → ô là ô ruộng (0020).</summary>
+        /// <summary>Đã thành ô ruộng (0020) — xới xong lần đầu.</summary>
         public bool Tilled;
+        /// <summary>Trạng thái "đã xới" (0025): xới xong bật, thu hoạch xong tắt. Vụ bắt đầu khi bật → gieo, tắt → xới.</summary>
+        public bool SoilReady;
         /// <summary>Đã rời lệnh sau khi huỷ vụ (0020) — không còn công đoạn, không nhận vụ mới.</summary>
         public bool Removed;
 
-        public FarmPlot(int id, int orderId, int storageId, CellPos soil)
+        public FarmPlot(int id, int orderId, CellPos soil)
         {
             Id = id;
             OrderId = orderId;
-            StorageId = storageId;
             Soil = soil;
             Site = soil.Offset(0, 1, 0);
         }
@@ -253,14 +271,16 @@ namespace Game.Core.Sim
         public readonly List<WorkStage> Stages = new List<WorkStage>();
         public readonly List<WorkOrder> Orders = new List<WorkOrder>();
         public readonly List<Storage> Storages = new List<Storage>();
+        public readonly Stockpile Stock;
         public readonly List<FarmPlot> Plots = new List<FarmPlot>();
         public readonly List<House> Houses = new List<House>();
         /// <summary>Sự kiện thông báo — mô phỏng chỉ thêm vào, nơi đọc tự Clear. Không tính vào mã băm.</summary>
         public readonly List<SimEvent> Events = new List<SimEvent>();
 
-        public SimState(SimRng rng)
+        public SimState(SimRng rng, int cropCount = 1)
         {
             Rng = rng;
+            Stock = new Stockpile(cropCount);
         }
     }
 }

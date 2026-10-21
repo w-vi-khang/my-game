@@ -6,8 +6,8 @@ namespace Game.Core.View
     public static class SiteStatus
     {
         /// <summary>"Kho · nông sản 4 · hạt 10 · 14/50" — không tính phần đã giữ chỗ (Reserved).</summary>
-        public static string StorageText(Storage s) =>
-            "Kho · nông sản " + s.Produce + " · hạt " + s.Seeds + " · " + (s.Seeds + s.Produce) + "/" + s.Capacity;
+        public static string StorageText(Stockpile s) =>
+            "Kho · nông sản " + s.ProduceTotal + " · hạt " + s.SeedsTotal + " · " + (s.SeedsTotal + s.ProduceTotal) + "/" + s.Capacity;
 
         /// <summary>% sinh trưởng làm tròn xuống, chặn 0..100. Chỉ có nghĩa khi Phase = Growing.</summary>
         public static int GrowPercent(FarmPlot p, long tick, int growTicks)

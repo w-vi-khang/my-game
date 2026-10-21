@@ -15,6 +15,8 @@ namespace Game.Core.Sim
         public WorldEditor Editor { get; private set; }
         readonly List<CellPos> tmpPath = new List<CellPos>();
         readonly List<CellPos> goals = new List<CellPos>();
+        readonly List<CellPos> storeGoals = new List<CellPos>();
+        readonly List<CellPos> storePath = new List<CellPos>();
         readonly List<CellPos> homePath = new List<CellPos>();
         readonly List<CellPos> wanderCells = new List<CellPos>();
         bool terrainDirty;
@@ -33,7 +35,7 @@ namespace Game.Core.Sim
             Config = config;
             World = world;
             pathfinder = new GridPathfinder(world, bounds);
-            State = new SimState(new SimRng(config.simSeed, 1UL));
+            State = new SimState(new SimRng(config.simSeed, 1UL), config.crops.Length);
         }
 
         public SimBounds Bounds => pathfinder.Bounds;
@@ -106,8 +108,10 @@ namespace Game.Core.Sim
                 throw new ArgumentException("Ô đã bị chiếm: " + cell);
             pathfinder.SetBlocked(cell, true);
             homeDirty = true;
-            var st = new Storage(State.Storages.Count, cell, Config.storage.capacity, Config.storage.startSeeds);
+            var st = new Storage(State.Storages.Count, cell, Config.storage.capacity);
             State.Storages.Add(st);
+            State.Stock.Capacity += Config.storage.capacity;
+            for (int k = 0; k < Config.crops.Length; k++) State.Stock.Seeds[k] += Config.crops[k].startSeeds;
             return st.Id;
         }
 
@@ -370,11 +374,15 @@ namespace Game.Core.Sim
             return p.Tilled ? m == BlockMaterial.Farmland : m == BlockMaterial.Dirt || m == BlockMaterial.Grass;
         }
 
-        /// <summary>Huỷ vụ (0020): trả hạt nếu đã trừ mà chưa thu, sinh vật đang làm về rảnh, ô rời lệnh, xoá hàng đợi. Vận chuyển hàng đã thu giữ nguyên.</summary>
-        void CancelPlot(FarmPlot p)
+        /// <summary>Loại cây của vụ đang làm (đầu hàng đợi).</summary>
+        int CropOf(FarmPlot p) => p.Queue[0];
+
+        /// <summary>Bỏ công đoạn đang mở của ô (0020/0025): trả hạt nếu đã trừ mà chưa thu, sinh vật đang làm về rảnh, công đoạn Cancelled. Trả số hạt đã trả.</summary>
+        int AbortActive(FarmPlot p, out int stageId, out int creatureId)
         {
             int seeds = p.Phase == PlotPhase.Water || p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest ? 1 : 0;
-            int stageId = p.StageId, creatureId = -1;
+            stageId = p.StageId;
+            creatureId = -1;
             if (stageId >= 0)
             {
                 var s = State.Stages[stageId];
@@ -389,7 +397,14 @@ namespace Game.Core.Sim
                 s.AssigneeKind = AssigneeKind.None;
                 s.AssigneeId = -1;
             }
-            State.Storages[p.StorageId].Seeds += seeds;
+            if (seeds > 0) State.Stock.Seeds[CropOf(p)] += seeds;
+            return seeds;
+        }
+
+        /// <summary>Huỷ vụ (0020): trả hạt nếu đã trừ mà chưa thu, sinh vật đang làm về rảnh, ô rời lệnh, xoá hàng đợi. Vận chuyển hàng đã thu giữ nguyên.</summary>
+        void CancelPlot(FarmPlot p)
+        {
+            int seeds = AbortActive(p, out int stageId, out int creatureId);
             p.Removed = true;
             p.Queue.Clear();
             p.Phase = PlotPhase.Idle;
@@ -728,8 +743,17 @@ namespace Game.Core.Sim
                 {
                     case WorkAbility.Till:
                         if (!p.Tilled) { WriteFarmland(p.Soil); p.Tilled = true; }
-                        p.Phase = PlotPhase.Sow;
-                        AddPlotStage(p, WorkAbility.Sow);
+                        p.SoilReady = true;
+                        if (p.Queue.Count > 0)
+                        {
+                            p.Phase = PlotPhase.Sow;
+                            AddPlotStage(p, WorkAbility.Sow);
+                        }
+                        else
+                        {
+                            p.Phase = PlotPhase.Idle;
+                            p.StageId = -1;
+                        }
                         break;
                     case WorkAbility.Sow:
                         p.Phase = PlotPhase.Water;
@@ -738,15 +762,19 @@ namespace Game.Core.Sim
                     case WorkAbility.Water:
                         p.Phase = PlotPhase.Growing;
                         p.StageId = -1;
-                        p.RipeTick = State.Tick + Config.GrowTicks;
+                        p.RipeTick = State.Tick + Config.GrowTicks(CropOf(p));
                         break;
                     case WorkAbility.Harvest:
+                        int crop = CropOf(p);
+                        var cd = Config.crops[crop];
+                        int k = NearestStorage(p.Site);
                         var haul = new WorkStage(State.Stages.Count, p.OrderId, WorkAbility.Haul, p.Site, true,
-                            State.Storages[p.StorageId].Cell, Config.BaseTicks(WorkAbility.Haul), 0,
-                            Approach.AdjacentOrOn, Approach.Adjacent, -1, p.StorageId,
-                            Config.crop.producePerHarvest, Config.crop.seedsPerHarvest);
+                            State.Storages[k].Cell, Config.BaseTicks(WorkAbility.Haul), 0,
+                            Approach.AdjacentOrOn, Approach.Adjacent, -1, k,
+                            cd.producePerHarvest, cd.seedsPerHarvest, crop);
                         State.Stages.Add(haul);
                         State.Orders[p.OrderId].StageIds.Add(haul.Id);
+                        p.SoilReady = false;
                         p.Queue.RemoveAt(0);
                         if (p.Queue.Count > 0)
                         {
@@ -762,10 +790,10 @@ namespace Game.Core.Sim
             }
             else if (s.Ability == WorkAbility.Haul && s.StorageId >= 0)
             {
-                var st = State.Storages[s.StorageId];
-                st.Reserved -= s.LoadProduce + s.LoadSeeds;
-                st.Produce += s.LoadProduce;
-                st.Seeds += s.LoadSeeds;
+                var stock = State.Stock;
+                stock.Reserved -= s.LoadProduce + s.LoadSeeds;
+                stock.Produce[s.CropId] += s.LoadProduce;
+                stock.Seeds[s.CropId] += s.LoadSeeds;
             }
         }
 
@@ -783,54 +811,124 @@ namespace Game.Core.Sim
             }
         }
 
-        public int AddFarmOrder(IReadOnlyList<CellPos> soilCells, int storageId)
+        /// <summary>Ô ruộng chưa Removed có Soil = soil; -1 = không có.</summary>
+        public int PlotAt(CellPos soil)
         {
-            if (storageId < 0 || storageId >= State.Storages.Count)
-                throw new ArgumentException("Không có kho: " + storageId);
-            var size = World.Size;
-            for (int i = 0; i < soilCells.Count; i++)
-            {
-                var f = soilCells[i];
-                if (!size.InBounds(f.X, f.Y, f.Z))
-                    throw new ArgumentException("Ô ruộng ngoài map: " + f);
-                if (!Bounds.Contains(f.X, f.Z))
-                    throw new ArgumentException("Ô ruộng ngoài vùng mô phỏng: " + f);
-                var m = World.GetMaterial(f.X, f.Y, f.Z);
-                if (m != BlockMaterial.Dirt && m != BlockMaterial.Grass)
-                    throw new ArgumentException("Ô ruộng phải là đất hoặc cỏ: " + f);
-                if (!size.InBounds(f.X, f.Y + 1, f.Z) || World.GetMaterial(f.X, f.Y + 1, f.Z) != BlockMaterial.Empty)
-                    throw new ArgumentException("Ô phía trên ô ruộng phải rỗng: " + f);
-                for (int j = 0; j < i; j++)
-                    if (soilCells[j] == f) throw new ArgumentException("Trùng ô ruộng trong danh sách: " + f);
-                for (int j = 0; j < State.Plots.Count; j++)
-                    if (!State.Plots[j].Removed && State.Plots[j].Soil == f) throw new ArgumentException("Ô đã là ruộng: " + f);
-            }
-            int orderId = AddOrder(soilCells);
-            for (int i = 0; i < soilCells.Count; i++)
-            {
-                var p = new FarmPlot(State.Plots.Count, orderId, storageId, soilCells[i]);
-                State.Plots.Add(p);
-                p.Queue.Add(0);
-                StartCrop(p);
-            }
-            return orderId;
+            var ps = State.Plots;
+            for (int i = 0; i < ps.Count; i++)
+                if (!ps[i].Removed && ps[i].Soil == soil) return i;
+            return -1;
         }
 
-        /// <summary>Thêm một vụ vào hàng đợi của ô ruộng; false khi hàng đợi đầy hoặc ô đã rời lệnh.</summary>
-        public bool EnqueueCrop(int plotId)
+        /// <summary>Có đánh dấu xới được ô soil không (0025): trong map và vùng mô phỏng, đất/cỏ, ô trên rỗng, chưa là ô ruộng / chưa có biển.</summary>
+        public bool CanMarkTill(CellPos soil)
         {
+            var size = World.Size;
+            if (!size.InBounds(soil.X, soil.Y, soil.Z) || !Bounds.Contains(soil.X, soil.Z)) return false;
+            var m = World.GetMaterial(soil.X, soil.Y, soil.Z);
+            if (m != BlockMaterial.Dirt && m != BlockMaterial.Grass) return false;
+            if (!size.InBounds(soil.X, soil.Y + 1, soil.Z) || World.GetMaterial(soil.X, soil.Y + 1, soil.Z) != BlockMaterial.Empty) return false;
+            return PlotAt(soil) < 0;
+        }
+
+        /// <summary>Đánh dấu xới một ô (0025): ô có biển, mở công đoạn xới. Trả id ô ruộng; -1 khi không hợp lệ.</summary>
+        public int MarkTill(CellPos soil)
+        {
+            if (!CanMarkTill(soil)) return -1;
+            int orderId = AddOrder(new[] { soil });
+            var p = new FarmPlot(State.Plots.Count, orderId, soil);
+            State.Plots.Add(p);
+            p.Phase = PlotPhase.Till;
+            AddPlotStage(p, WorkAbility.Till);
+            return p.Id;
+        }
+
+        /// <summary>Bỏ đánh dấu (0025): chỉ ô có biển (chưa thành ô ruộng). Sinh vật đang xới về rảnh. Không phát sự kiện.</summary>
+        public bool Unmark(int plotId)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || p.Tilled) return false;
+            AbortActive(p, out _, out _);
+            p.Removed = true;
+            p.Queue.Clear();
+            p.Phase = PlotPhase.Idle;
+            p.StageId = -1;
+            return true;
+        }
+
+        /// <summary>Xoá vụ thứ index trong hàng đợi (0025). index 0 khi ô đang làm = huỷ vụ đang làm; ô vẫn là ô ruộng. Không phát sự kiện.</summary>
+        public bool RemoveCrop(int plotId, int index)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || index < 0 || index >= p.Queue.Count) return false;
+            if (index > 0 || p.Phase == PlotPhase.Idle || !p.Tilled)
+            {
+                p.Queue.RemoveAt(index);
+                return true;
+            }
+            var phase = p.Phase;
+            AbortActive(p, out _, out _);
+            p.Queue.RemoveAt(0);
+            p.StageId = -1;
+            if (phase == PlotPhase.Water || phase == PlotPhase.Growing || phase == PlotPhase.Harvest) p.SoilReady = false;
+            if (p.Queue.Count > 0) StartCrop(p);
+            else p.Phase = PlotPhase.Idle;
+            return true;
+        }
+
+        /// <summary>Thêm một vụ loại cropId vào hàng đợi của ô; false khi hàng đợi đầy, ô đã rời lệnh hoặc chưa có kho.</summary>
+        public bool EnqueueCrop(int plotId, int cropId)
+        {
+            if (cropId < 0 || cropId >= Config.crops.Length)
+                throw new ArgumentException("Không có loại cây: " + cropId);
             var p = State.Plots[plotId];
             if (p.Removed) return false;
             if (p.Queue.Count >= Config.farm.plotQueueCapacity) return false;
-            p.Queue.Add(0);
+            if (State.Storages.Count == 0) return false;
+            p.Queue.Add(cropId);
             if (p.Phase == PlotPhase.Idle) StartCrop(p);
             return true;
         }
 
         void StartCrop(FarmPlot p)
         {
-            p.Phase = PlotPhase.Till;
-            AddPlotStage(p, WorkAbility.Till);
+            if (p.SoilReady)
+            {
+                p.Phase = PlotPhase.Sow;
+                AddPlotStage(p, WorkAbility.Sow);
+            }
+            else
+            {
+                p.Phase = PlotPhase.Till;
+                AddPlotStage(p, WorkAbility.Till);
+            }
+        }
+
+        /// <summary>Kho gần nhất theo đường đi khung 1×1×1 từ from tới ô kề kho (0025); bằng nhau → id nhỏ hơn. Không kho nào tới được → gần nhất theo Manhattan.</summary>
+        int NearestStorage(CellPos from)
+        {
+            var ss = State.Storages;
+            int best = -1, bestLen = int.MaxValue;
+            for (int i = 0; i < ss.Count; i++)
+            {
+                storeGoals.Clear();
+                for (int d = 0; d < 4; d++)
+                    for (int k = 0; k < 3; k++)
+                    {
+                        var n = ss[i].Cell.Offset(DisplaceX[d], DisplaceY[k], DisplaceZ[d]);
+                        if (pathfinder.CanStand(n, 1, 1, 1)) { storeGoals.Add(n); break; }
+                    }
+                if (!pathfinder.FindPathToAny(from, storeGoals, 1, 1, 1, storePath)) continue;
+                if (storePath.Count < bestLen) { bestLen = storePath.Count; best = i; }
+            }
+            if (best >= 0) return best;
+            int bestD = int.MaxValue;
+            for (int i = 0; i < ss.Count; i++)
+            {
+                int d = CellPos.Manhattan(from, ss[i].Cell);
+                if (d < bestD) { bestD = d; best = i; }
+            }
+            return best;
         }
 
         void AddPlotStage(FarmPlot p, WorkAbility a)
@@ -1036,8 +1134,8 @@ namespace Game.Core.Sim
             {
                 var g = stages[i];
                 if (g.Status != StageStatus.Blocked) continue;
-                if (g.Stall == StallReason.NoSeeds && State.Storages[State.Plots[g.PlotId].StorageId].Seeds > 0
-                    || g.Stall == StallReason.StorageFull && State.Storages[g.StorageId].Free >= g.LoadProduce + g.LoadSeeds
+                if (g.Stall == StallReason.NoSeeds && State.Stock.Seeds[CropOf(State.Plots[g.PlotId])] > 0
+                    || g.Stall == StallReason.StorageFull && State.Stock.Free >= g.LoadProduce + g.LoadSeeds
                     || g.Stall == StallReason.NoAbility && HasHomedAbility(g.Ability))
                 {
                     g.Status = StageStatus.Open;
@@ -1060,13 +1158,13 @@ namespace Game.Core.Sim
             for (int k = 0; k < open.Count; k++)
             {
                 var s = open[k];
-                if (s.PlotId >= 0 && s.Ability == WorkAbility.Sow && State.Storages[State.Plots[s.PlotId].StorageId].Seeds <= 0)
+                if (s.PlotId >= 0 && s.Ability == WorkAbility.Sow && State.Stock.Seeds[CropOf(State.Plots[s.PlotId])] <= 0)
                 {
                     s.Status = StageStatus.Blocked;
                     s.Stall = StallReason.NoSeeds;
                     continue;
                 }
-                if (s.StorageId >= 0 && State.Storages[s.StorageId].Free < s.LoadProduce + s.LoadSeeds)
+                if (s.StorageId >= 0 && State.Stock.Free < s.LoadProduce + s.LoadSeeds)
                 {
                     s.Status = StageStatus.Blocked;
                     s.Stall = StallReason.StorageFull;
@@ -1119,8 +1217,8 @@ namespace Game.Core.Sim
 
         void Assign(Creature c, WorkStage s, List<CellPos> path)
         {
-            if (s.PlotId >= 0 && s.Ability == WorkAbility.Sow) State.Storages[State.Plots[s.PlotId].StorageId].Seeds--;
-            if (s.StorageId >= 0) State.Storages[s.StorageId].Reserved += s.LoadProduce + s.LoadSeeds;
+            if (s.PlotId >= 0 && s.Ability == WorkAbility.Sow) State.Stock.Seeds[CropOf(State.Plots[s.PlotId])]--;
+            if (s.StorageId >= 0) State.Stock.Reserved += s.LoadProduce + s.LoadSeeds;
             s.DroppedBy = -1;
             s.Status = StageStatus.Assigned;
             s.AssigneeKind = AssigneeKind.Creature;
@@ -1148,8 +1246,8 @@ namespace Game.Core.Sim
             var c = State.Creatures[creatureId];
             if (c.StageId < 0) return;
             var s = State.Stages[c.StageId];
-            if (s.PlotId >= 0 && s.Ability == WorkAbility.Sow) State.Storages[State.Plots[s.PlotId].StorageId].Seeds++;
-            if (s.StorageId >= 0) State.Storages[s.StorageId].Reserved -= s.LoadProduce + s.LoadSeeds;
+            if (s.PlotId >= 0 && s.Ability == WorkAbility.Sow) State.Stock.Seeds[CropOf(State.Plots[s.PlotId])]++;
+            if (s.StorageId >= 0) State.Stock.Reserved -= s.LoadProduce + s.LoadSeeds;
             if (s.Carried)
             {
                 s.Target = c.Cell;

@@ -63,6 +63,7 @@ namespace Game.Core.Sim
                 h = MixInt(h, g.StorageId);
                 h = MixInt(h, g.LoadProduce);
                 h = MixInt(h, g.LoadSeeds);
+                h = MixInt(h, g.CropId);
                 h = MixInt(h, (int)g.ReportedStall);
                 h = MixInt(h, g.DroppedBy);
             }
@@ -88,9 +89,15 @@ namespace Game.Core.Sim
                 h = MixInt(h, t.Id);
                 h = MixInt(h, t.Cell.X); h = MixInt(h, t.Cell.Y); h = MixInt(h, t.Cell.Z);
                 h = MixInt(h, t.Capacity);
-                h = MixInt(h, t.Seeds);
-                h = MixInt(h, t.Produce);
-                h = MixInt(h, t.Reserved);
+            }
+
+            h = MixInt(h, s.Stock.Capacity);
+            h = MixInt(h, s.Stock.Reserved);
+            h = MixInt(h, s.Stock.Seeds.Length);
+            for (int i = 0; i < s.Stock.Seeds.Length; i++)
+            {
+                h = MixInt(h, s.Stock.Seeds[i]);
+                h = MixInt(h, s.Stock.Produce[i]);
             }
 
             h = MixInt(h, s.Plots.Count);
@@ -99,7 +106,6 @@ namespace Game.Core.Sim
                 var p = s.Plots[i];
                 h = MixInt(h, p.Id);
                 h = MixInt(h, p.OrderId);
-                h = MixInt(h, p.StorageId);
                 h = MixInt(h, p.Soil.X); h = MixInt(h, p.Soil.Y); h = MixInt(h, p.Soil.Z);
                 h = MixInt(h, (int)p.Phase);
                 h = MixInt(h, p.StageId);
@@ -108,6 +114,7 @@ namespace Game.Core.Sim
                 for (int j = 0; j < p.Queue.Count; j++) h = MixInt(h, p.Queue[j]);
                 h = MixInt(h, p.Tilled ? 1 : 0);
                 h = MixInt(h, p.Removed ? 1 : 0);
+                h = MixInt(h, p.SoilReady ? 1 : 0);
             }
 
             h = MixInt(h, s.Houses.Count);

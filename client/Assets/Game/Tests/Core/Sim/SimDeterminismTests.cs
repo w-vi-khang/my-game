@@ -71,8 +71,8 @@ namespace Game.Core.Tests
             sim.AddCreature("L2", new CellPos(5, 2, 1));
             sim.AddCreature("L3", new CellPos(9, 2, 9));
             int k = sim.AddStorage(new CellPos(5, 2, 8));
-            sim.AddFarmOrder(new List<CellPos> { new CellPos(4, 1, 4), new CellPos(5, 1, 4), new CellPos(6, 1, 4) }, k);
-            for (int p = 0; p < 3; p++) sim.EnqueueCrop(p);
+            foreach (var soilCell in new List<CellPos> { new CellPos(4, 1, 4), new CellPos(5, 1, 4), new CellPos(6, 1, 4) }) sim.EnqueueCrop(sim.MarkTill(soilCell), 0);
+            for (int p = 0; p < 3; p++) sim.EnqueueCrop(p, 0);
             TestWorlds.HomeAll(sim);
             return sim;
         }
@@ -84,9 +84,9 @@ namespace Game.Core.Tests
             var b = BuildCropFarm();
             CollectionAssert.AreEqual(RunHashes(a, 4000), RunHashes(b, 4000));
             foreach (var p in a.State.Plots) Assert.AreEqual(PlotPhase.Idle, p.Phase, "plot " + p.Id);
-            Assert.AreEqual(6, a.State.Storages[0].Produce);
-            Assert.AreEqual(10, a.State.Storages[0].Seeds);
-            Assert.AreEqual(0, a.State.Storages[0].Reserved);
+            Assert.AreEqual(6, a.State.Stock.Produce[0]);
+            Assert.AreEqual(10, a.State.Stock.Seeds[0]);
+            Assert.AreEqual(0, a.State.Stock.Reserved);
         }
     }
 }
