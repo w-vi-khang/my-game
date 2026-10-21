@@ -1,9 +1,9 @@
 # Brief 0027 — Tách công cụ đào / đặt, bản mờ khi đặt
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 18:25
+> Cập nhật: 2026-10-21 18:33
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -319,9 +319,23 @@ Mở `client/Assets/Game/Client/Scenes/SimView.unity` (rồi `TerrainView.unity`
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: c9d5ea8
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-21 18:26 · Kết thúc: 2026-10-21 18:33 (~0,3 giờ thực tế, chủ yếu chờ EditMode ~5 phút)
+Commit: 9cecff2
+File đổi: Core/WorldEditor.cs, Client/TerrainEditInput.cs, Client/Resources/Shaders/GhostBlock.shader(+.meta), Tests/Core/WorldEditorTests.cs, Tests/Client/TerrainEditPlayTests.cs. Không lệch brief.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). Giờ bắt đầu / kết thúc. -->
 
 ## Kết quả test
+- CheckPlaceMatchesRulesWithoutSideEffects, TryPlaceAgreesWithCheckPlace (EditMode) → đạt.
+- PlayMode mới (ToolStartsDigAndTabToggles, DigToolShowsOutlineOnly, PlaceToolShowsGhostAtPlaceCell, GhostRedWhenOutOfMaterial, GhostHiddenWhenRuleFails, GhostHasNoColliderAndShader, UseToolDigsOrPlacesByTool) → đạt.
+- Regression (WorldEditor/SeaFlood/PlotRules/Minimap EditMode, PlayMode cũ) → đạt, không sửa assert.
+- User tự test (6 mục) → chờ user.
+- refresh_unity + read_console Error → 0 lỗi; GhostBlock.shader.meta đã sinh.
+- run_tests EditMode → 366/366 passed (364+2).
+- run_tests PlayMode → 76/76 passed (69+7); đã `git checkout -- client/ProjectSettings/EditorSettings.asset`.
+- grep UnityEngine WorldEditor.cs → không có.
+- git status --short → chỉ file trong Phạm vi (+ brief).
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
