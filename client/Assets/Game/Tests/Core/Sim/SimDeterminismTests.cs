@@ -6,7 +6,7 @@ namespace Game.Core.Tests
 {
     public class SimDeterminismTests
     {
-        static Simulation BuildFarm(uint seed)
+        internal static Simulation BuildFarm(uint seed)
         {
             var sim = new Simulation(new SimConfig { simSeed = seed }, TestWorlds.Flat(0));
             sim.AddCreature("L1", new CellPos(0, 1, 0));

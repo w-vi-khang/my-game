@@ -1,0 +1,12 @@
+{
+    "configVersion": 1,
+    "midnightPermille": 0,
+    "dawnPermille": 250,
+    "noonPermille": 500,
+    "duskPermille": 750,
+    "dawnStartPermille": 200,
+    "dayStartPermille": 300,
+    "duskStartPermille": 700,
+    "nightStartPermille": 800,
+    "rotateDurationMs": 3000
+}
