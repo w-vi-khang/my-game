@@ -1,6 +1,6 @@
 # Brief 0029 — Simulation bước 7b: đánh dấu xới từng ô, 2 loại cây, kho thông nhau (lõi)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21
@@ -488,3 +488,11 @@ Regression SimDemoTests, SimDemoMapsTests, SimStressTests, PlayMode SimView*/Sim
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` Sonnet · medium.
+- Phần cần test 1–15 + SimConfigTests + regression đều có kết quả trong "Kết quả test" (EditMode 389, sau sửa CropQueueTests 18/18; PlayMode 79/79).
+- Diff `58ecb89` (23 file, đều trong Phạm vi): `SimConfig` (CropDef, crops, Validate), `Simulation` (kho chung, `NearestStorage`, `MarkTill`/`Unmark`/`RemoveCrop`/`EnqueueCrop`/`StartCrop`/`AbortActive`, nhánh Till/Harvest/Haul), `SimHash` — khớp bước 3–7 và luật 6–20.
+- Test cũ: chỉ đổi cách gọi; hai chỗ đổi số đúng bước 11 (`crops[1].startSeeds = 0`, `Produce[0] = 31`); `MarkTillValidates` đếm lại theo ca mới (orders/plots + 2). Mốc FarmTests giữ.
+- Ba chỗ executor chỉnh trong test mới (`NoSeedsOnlyBlocksThatCrop` tìm gieo theo PlotId, `StorageFullIsPooled` đo Free ở nhịp 1390, `Unmark…` so vật liệu trước khi đánh dấu) là sửa cách đo, không nới luật — chấp nhận. Mốc ca 2 và ca 5 đúng brief.
+- Ghi chú: chưa chạy lại EditMode toàn bộ sau khi sửa test mới; chỉ đổi file test nên chấp nhận. Lượt verify trước commit kế sẽ chạy đủ.
+- Giờ thực tế: ~8 phút (21:02–21:10, chưa tính chờ Unity) so với ước lượng 2,5–5 ngày-người — cộng vào roadmap khi xong cả bước 7b/7c.
+- Kết luận: đã duyệt
