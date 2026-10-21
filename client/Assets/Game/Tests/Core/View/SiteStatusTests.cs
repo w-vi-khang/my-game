@@ -16,6 +16,48 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void CropNameUsesConfigId()
+        {
+            var cfg = new SimConfig();
+            Assert.AreEqual("Cây A", SiteStatus.CropName(cfg, 0));
+            Assert.AreEqual("Cây B", SiteStatus.CropName(cfg, 1));
+        }
+
+        [Test]
+        public void StockPanelTextFormat()
+        {
+            var s = new Stockpile(2) { Capacity = 100, Reserved = 5 };
+            s.Seeds[0] = 9;
+            s.Produce[0] = 4;
+            s.Seeds[1] = 10;
+            s.Produce[1] = 3;
+            Assert.AreEqual("Kho chung · đã dùng 26/100\nCây A · nông sản 4 · hạt 9\nCây B · nông sản 3 · hạt 10",
+                SiteStatus.StockPanelText(s, new SimConfig()));
+        }
+
+        [Test]
+        public void QueueLineStates()
+        {
+            var cfg = new SimConfig();
+            var p = new FarmPlot(0, 0, new CellPos(0, 0, 0));
+            p.Queue.Add(0);
+            p.Queue.Add(1);
+            p.Tilled = true;
+            p.Phase = PlotPhase.Sow;
+            Assert.AreEqual("1. Cây A — đang làm", SiteStatus.QueueLine(p, cfg, 0));
+            Assert.AreEqual("2. Cây B — chờ", SiteStatus.QueueLine(p, cfg, 1));
+            p.Tilled = false;
+            p.Phase = PlotPhase.Till;
+            Assert.AreEqual("1. Cây A — chờ", SiteStatus.QueueLine(p, cfg, 0));
+            p.Tilled = true;
+            p.Phase = PlotPhase.Idle;
+            Assert.AreEqual("1. Cây A — chờ", SiteStatus.QueueLine(p, cfg, 0));
+            p.Queue.Clear();
+            p.Queue.Add(1);
+            Assert.AreEqual("2. (trống)", SiteStatus.QueueLine(p, cfg, 1));
+        }
+
+        [Test]
         public void PlotTextPerPhase()
         {
             var p = new FarmPlot(2, 0, new CellPos(5, 0, 5));

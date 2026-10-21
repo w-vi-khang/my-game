@@ -5,8 +5,8 @@ using UnityEngine.InputSystem;
 
 namespace Game.Client
 {
-    /// <summary>Công cụ đang cầm (brief 0027): Tab chuyển.</summary>
-    public enum EditTool { Dig, Place }
+    /// <summary>Công cụ đang cầm (brief 0027, 0030): Tab xoay Đào → Đặt → Xới (Xới khi có SimView).</summary>
+    public enum EditTool { Dig, Place, Till }
 
     /// <summary>
     /// Đào/đặt bằng chuột trong scene TerrainView (world-tech bước 4, user duyệt 2026-10-13):
@@ -30,6 +30,11 @@ namespace Game.Client
         LineRenderer outline;
         int selected;
         string lastResult = "";
+        SimView simView;
+        /// <summary>SimView cùng GameObject đã dựng Sim; null → không có công cụ Xới (scene TerrainView). Tìm lại mỗi lần vì SimView có thể thêm sau Awake.</summary>
+        SimView Farm { get { if (simView == null) simView = GetComponent<SimView>(); return simView != null && simView.Sim != null ? simView : null; } }
+        public bool TillAvailable => Farm != null;
+        public TillResult LastTill { get; private set; }
 
         /// <summary>Màu bản mờ khi kho hết loại đang chọn.</summary>
         public static readonly Color MissingColor = new Color(1f, 0.2f, 0.2f, 0.5f);
@@ -63,8 +68,8 @@ namespace Game.Client
             }
 
             var mouse = Mouse.current;
-            // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
-            if (mouse != null && (MinimapView.BlocksPointer(mouse.position.ReadValue()) || TimeDial.BlocksPointer(mouse.position.ReadValue())))
+            // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
+            if (mouse != null && (MinimapView.BlocksPointer(mouse.position.ReadValue()) || TimeDial.BlocksPointer(mouse.position.ReadValue()) || SimView.BlocksPointer(mouse.position.ReadValue())))
             {
                 ShowAim(false, default, default);
                 return;
@@ -102,8 +107,8 @@ namespace Game.Client
             if (mouse.leftButton.wasPressedThisFrame) UseTool(digCell, placeCell);
         }
 
-        /// <summary>Tab: Đào ⇄ Đặt.</summary>
-        public void ToggleTool() => Tool = Tool == EditTool.Dig ? EditTool.Place : EditTool.Dig;
+        /// <summary>Tab: Đào → Đặt → Xới (khi có SimView) → Đào.</summary>
+        public void ToggleTool() => Tool = Tool == EditTool.Dig ? EditTool.Place : Tool == EditTool.Place && TillAvailable ? EditTool.Till : EditTool.Dig;
 
         /// <summary>Màu bản mờ của vật liệu: TopColor, alpha 0,5.</summary>
         public static Color GhostColorOf(BlockMaterial m)
@@ -121,6 +126,13 @@ namespace Game.Client
             outline.enabled = false;
             ghostRenderer.enabled = false;
             if (!picked || view.Editor == null) return;
+            if (Tool == EditTool.Till)
+            {
+                if (Farm == null || !Farm.CanTillAt(digCell)) return;
+                outline.enabled = true;
+                outline.transform.localPosition = digCell;
+                return;
+            }
             if (Tool == EditTool.Dig)
             {
                 outline.enabled = true;
@@ -138,6 +150,19 @@ namespace Game.Client
         /// <summary>Chuột trái: dùng công cụ đang cầm; ghi dòng kết quả ở HUD.</summary>
         public EditResult UseTool(Vector3Int digCell, Vector3Int placeCell)
         {
+            if (Tool == EditTool.Till)
+            {
+                LastTill = Farm != null ? Farm.UseTill(digCell) : TillResult.Invalid;
+                lastResult = LastTill switch
+                {
+                    TillResult.Marked => $"Đánh dấu xới {digCell}",
+                    TillResult.Unmarked => $"Bỏ đánh dấu {digCell}",
+                    TillResult.OpenedPlot => $"Mở ruộng {Farm.OpenPlotId}",
+                    _ => $"Xới {digCell}: không được — chỉ mặt trên ô đất/cỏ, phía trên trống, trong vùng trại",
+                };
+                // Giữ chữ ký EditResult cho Đào/Đặt; kết quả Xới đọc ở LastTill.
+                return LastTill == TillResult.Invalid ? EditResult.NotPlaceable : EditResult.Ok;
+            }
             if (Tool == EditTool.Dig)
             {
                 var m = view.World.Size.InBounds(digCell.x, digCell.y, digCell.z)
@@ -186,7 +211,9 @@ namespace Game.Client
         {
             if (view.Inventory == null || MinimapView.IsAnyOpen)
                 return;
-            var text = $"Công cụ: <b><color=yellow>{(Tool == EditTool.Dig ? "Đào" : "Đặt")}</color></b> (Tab đổi) · Chuột trái: dùng công cụ · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
+            var text = $"Công cụ: <b><color=yellow>{(Tool switch { EditTool.Dig => "Đào", EditTool.Place => "Đặt", _ => "Xới" })}</color></b> (Tab đổi) · Chuột trái: dùng công cụ · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
+            if (Tool == EditTool.Till)
+                text += "Xới: chuột trái lên đất/cỏ = đánh dấu · lên biển = bỏ đánh dấu · lên ô ruộng = chọn giống · K: kho\n";
             var cam = Camera.main;
             if (cam != null)
                 text += $"Góc nhìn: {FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y))} (0° = ngang mặt biển, + nhìn lên, - nhìn xuống)\n";
@@ -201,7 +228,7 @@ namespace Game.Client
             // Phóng chữ theo chiều cao màn hình (mốc 720p) — màn Retina chữ mặc định quá nhỏ.
             float scale = Mathf.Max(1f, Screen.height / 720f);
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-            GUI.Label(new Rect(10, 10, 1000, 115), text, new GUIStyle(GUI.skin.label) { richText = true });
+            GUI.Label(new Rect(10, 10, 1000, 140), text, new GUIStyle(GUI.skin.label) { richText = true });
         }
 
         LineRenderer CreateOutline()
