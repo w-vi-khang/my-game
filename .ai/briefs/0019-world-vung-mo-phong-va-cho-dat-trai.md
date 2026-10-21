@@ -1,6 +1,6 @@
 # Brief 0019 — World 7e (phần 1/2): vùng mô phỏng 64 × 64 (tìm đường cấp mảng theo vùng) + SimDemo tự tìm chỗ trong Map 1
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 12:20
@@ -496,10 +496,25 @@ Không có (chỉ lõi). Phần xem trại chạy trong Map 1 làm ở brief 002
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Bắt đầu: 2026-10-21 11:59
+- Base commit: a6acf32
+- Chạy bằng: claude-sonnet-5-5 · medium
 
 ## Kết quả test
+- Bước 1–7 đã viết (SimBounds, GridPathfinder, Simulation, regionSize + 2 JSON giống nhau [`cmp`], SimDemo.FindSite/DemoSite/Build, 2 file test), biên dịch không lỗi. **Chưa commit code** (để nguyên trong working tree cho Planner xem).
+- EditMode lọc `SimBoundsTests`, `GridPathfinderTests`, `SimDemoTests`, `ConfigTests`: 22/22 đạt (gồm 6/6 `SimBoundsTests`, test cũ không sửa).
+- `SimDemoMapsTests`: 0/5 — cả 5 ném `InvalidOperationException: Không có chỗ phẳng 9 × 7 cho trang trại demo trong map 0` từ `SimDemo.FindSite`. Chưa chạy EditMode/PlayMode cả bộ.
 
 ## Vướng mắc
+Thời điểm dừng: 2026-10-21 12:02. Điều kiện dừng "FindSite ném InvalidOperationException".
+
+**Dữ liệu** [run, test chẩn đoán tạm, đã xoá] — seed mặc định `new WorldMapParams()`, map 0: 18999 cột; khô (waterDepth 0, surface ≥ 12) 17854; mặt Grass/Dirt thuộc 17015 cột; checkpoint Map 1 ở (123, 211), surface 18. Cửa sổ 9 × 7 tốt nhất theo điều kiện "cùng độ cao": **49/63** cột (bỏ điều kiện độ cao thì có cửa sổ 63/63). Tức địa hình có đủ cỏ/đất khô nhưng không có mảng 63 cột bằng phẳng tuyệt đối (sinh theo noise, có bậc 1 ô).
+
+**Câu hỏi:** nới điều kiện "cùng một độ cao" thế nào?
+- (A) Cho phép chênh lệch: chọn cửa sổ mà các cột chênh tối đa 1 ô, rồi **san phẳng** (đào/đắp WorldData) cho khớp bố trí gốc. Đụng bộ sinh/editor, ngoài phạm vi hiện tại.
+- (B) Cho phép chênh ≤ 1 ô, bố trí dời theo độ cao **mode/thấp nhất**, ô ruộng/nhà ở y khác nhau từng cột — phải đổi bố trí gốc (SimDemo.Build dùng y cố định) → ngoài "Quyết định đã chốt".
+- (C) Cho `FindSite` tự san phẳng cửa sổ trước khi build (ghi `Cell.Make(Dirt/Air)` qua WorldData.Set) — đơn giản, tất định, nhưng sửa world sau Place; cần quyết về `Landmark.Surface` và minimap.
+**Đề xuất:** (C), san cửa sổ 9 × 7 về độ cao `surface` phổ biến nhất (hạ cột cao, đắp Dirt cột thấp) bên trong `FindSite` hoặc hàm riêng `SimDemo.Flatten(world, site)`, điều kiện tìm: chênh ≤ 1 ô so với mode. Planner chốt rồi cập nhật brief.
 
 ---
 <!-- PLANNER ghi khi review. -->
