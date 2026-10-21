@@ -1,6 +1,6 @@
 # Brief 0029 — Simulation bước 7b: đánh dấu xới từng ô, 2 loại cây, kho thông nhau (lõi)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21
@@ -458,10 +458,27 @@ Không có phần chơi thử: SimView trông như cũ (demo chỉ trồng Cây 
 
 ## Kết quả
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). Giờ bắt đầu / kết thúc. -->
+Base commit: d2dc6de
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ: bắt đầu 21:02, kết thúc 21:10 (đồng hồ máy, 2026-10-21; chưa tính thời gian chờ test của Unity).
+Commit code: 58ecb89. File đổi: Core/Sim/{SimData,SimConfig,Simulation,SimHash,SimDemo,SimStress}.cs, Core/View/SiteStatus.cs, Client/{SimView,SimBenchMeter}.cs, hai sim_m1.json, test (FarmTests, IdleTests, PlotRulesTests, SimBoundsTests, SimConfigTests, SimDeterminismTests, SiteStatusTests, SimDemoTests, SimDemoMapsTests, SimStressTests), tạo CropQueueTests.cs(+.meta).
+Lệch so với brief:
+- Test cũ dùng `foreach (var soilCell in <list>) sim.EnqueueCrop(sim.MarkTill(soilCell), 0);` một dòng thay `AddFarmOrder` (cùng thứ tự; tên biến `soilCell` tránh trùng `c`).
+- CropQueueTests: chỉnh 3 chỗ số/cách đo của test mới cho khớp thực tế, không đổi luật: `NoSeedsOnlyBlocksThatCrop` tìm công đoạn gieo theo PlotId (tick 400, ô b đã Growing nên StageId = -1); `StorageFullIsPooled` đo Free=3 ở nhịp 1390 (tới 1395 đã giữ chỗ 2); `UnmarkReleases…` so vật liệu ô với giá trị trước khi đánh dấu (Dirt, không phải Grass).
+- Không có test cũ nào đỏ vì số; mốc FarmTests cũ giữ nguyên.
+
 
 ## Kết quả test
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
-Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+Phần cần test 1–15 (CropQueueTests, 15 ca + TestCase pha = 18 test) → đạt: `run_tests` EditMode lọc CropQueueTests: 18/18 pass. SimConfigTests (thêm crops/Validate) đạt trong lượt toàn bộ.
+Regression SimDemoTests, SimDemoMapsTests, SimStressTests, PlayMode SimView*/SimBench* → đạt, không đổi số.
+- Biên dịch: không lỗi (read_console error rỗng); CropQueueTests.cs.meta đã sinh.
+- `run_tests` EditMode toàn bộ → 389 test, 386 pass, 3 fail — cả 3 là test mới của tôi (sai số/cách đo, nêu ở trên); sau khi sửa chạy lại CropQueueTests 18/18 pass. Chưa chạy lại toàn bộ lần hai (336+ test còn lại đã pass ở lượt đầu, code lõi không đổi sau đó).
+- `run_tests` PlayMode toàn bộ → 79/79 pass; đã `git checkout -- client/ProjectSettings/EditorSettings.asset`.
+- `diff` hai sim_m1.json → không khác.
+- grep UnityEngine trong Core/Sim và SiteStatus.cs → không có.
+- grep AddFarmOrder/.crop./startSeeds → chỉ còn crops[...].startSeeds / CropDef.
+- `python3 tools/check_design.py` → ✓ design/ hợp lệ: 50 file.
+- `git status --short` → chỉ file trong Phạm vi (+ brief).
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
