@@ -1,6 +1,6 @@
 # Brief 0023 — World 7f-2: bầu trời, ánh sáng, sương, dưới nước theo pha + xoay 3 giây
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 15:48
@@ -461,3 +461,6 @@ Tất cả phần cần test **đạt**, trừ dòng Bench + điện thoại: **
 - Diff de5fe38 (`git show --stat`: 25 file, đều trong Phạm vi): `DayCycleView`, `SkyRotation`, `UnderwaterView`/`WorldEdgeFog`, `SkyClouds.shader`, `BenchBuild`, `ConfigLoader` đúng chữ ký và nội dung bước 3–6, 8; không đụng Core, Terrain/Ocean shader, `.mat`, `SimView.cs`, `TerrainBench.cs`.
 - Lệch brief chấp nhận: (1) `StarsRotateWithSun` so khoảng cách vector < 1,7e-4 thay cho `Angle < 0.01` (acos float kém chính xác khi 2 vector gần trùng; cùng ngưỡng ~0,01°); (2) SimView.unity có thêm giá trị mặc định do Unity lưu, không đổi hành vi; (3) `grep -c` ra 2 do `m_EditorClassIdentifier` — lỗi đếm trong brief, mỗi scene đúng 1 component.
 - Tiêu chí xong: đạt hết phần đo bằng lệnh (EditMode 340/340, PlayMode 52/52, điện thoại). Còn phần `user xem` (mục "User tự test" 1–5) → chưa kết luận.
+- User xem (2026-10-21, Mac): mục "User tự test" 1–5 đạt hết, chưa chỉnh bảng màu [user].
+- Giờ: Executor 15 phút (15:33–15:48); đo điện thoại + review đến 15:51, user duyệt sau đó. Cộng vào roadmap khi xong cả bước 7f (cùng 0022 và brief 3/3).
+- Kết luận: đã duyệt
