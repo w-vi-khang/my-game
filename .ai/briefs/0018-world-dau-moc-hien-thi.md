@@ -1,9 +1,9 @@
 # Brief 0018 — World 7d (phần 2/2): hiển thị dấu mốc trong world và trên bản đồ
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 11:35
+> Cập nhật: 2026-10-21 11:55
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -498,3 +498,7 @@ Không có. (Chỉ còn đo điện thoại chờ mở khoá.)
 - User xem trên Mac: "ổn" [user 2026-10-21].
 - **Điện thoại (Planner chạy, máy đã mở khoá, 11:24)** [run]: `ArgumentNullException: Value cannot be null. Parameter name: source` tại `Material.CreateWithMaterial` ← `TerrainChunkView.MarkerBox` ← `BuildLandmarkMarkers` ← `Build`. Sau đó `MinimapView.Build` NullReferenceException mỗi khung. BENCH `avgFps=36,3 tris=0 loadedChunksMax=0 holeFrames=0 hash=a7719c8999939263` → không có world hiển thị, số FPS vô nghĩa. Nguyên nhân: `RenderPipelineAsset.defaultMaterial` null trong player. Lỗi do brief (Planner chép mẫu `SimView` mà mẫu này chỉ chạy trong Editor), không phải lỗi executor.
 - Kết luận: cần sửa
+- **Review lần 2 (sửa lần 1, `0323878..ec8e3e5`):** chỉ đổi `TerrainChunkView` (material lấy từ `Resources/Materials/Landmark.mat`, thiếu thì log lỗi, bỏ qua khối), test thêm kiểm shader, `Landmark.mat` (m_Shader guid `933532a4…` = URP Lit [run grep]). Không còn `defaultMaterial` trong code dấu mốc. `Bench.unity.meta` giữ guid cũ.
+- Test (theo executor): PlayMode 32/32, EditMode 311/311. Điện thoại: `LANDMARKVIEW 9 dấu mốc, đặt 26,5 ms`; `MINIMAP dựng … 9 dấu mốc`; BENCH `avgFps=52,0 holeFrames=0 tris=3889524 hash=a7719c8999939263`; không Exception → đạt Tiêu chí xong.
+- Giờ 7d phần 2 đã ghi vào roadmap; world-tech 7d đánh dấu Xong.
+- Kết luận: đã duyệt
