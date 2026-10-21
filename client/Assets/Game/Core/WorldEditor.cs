@@ -83,23 +83,34 @@ namespace Game.Core
             return EditResult.Ok;
         }
 
-        /// <summary>Đặt: vào ô rỗng hoặc ô nước (nước ô đó mất) kề mặt một khối đặc, tiêu 1 vật liệu từ kho.</summary>
-        public EditResult TryPlace(int x, int y, int z, BlockMaterial material)
+        /// <summary>Kiểm đặt (không sửa world, không trừ kho): cùng kết quả và thứ tự kiểm như TryPlace (brief 0027 — bản mờ).</summary>
+        public EditResult CheckPlace(int x, int y, int z, BlockMaterial material)
         {
             if (!World.Size.InBounds(x, y, z))
                 return EditResult.OutOfBounds;
             if (!IsPlaceable(material))
                 return EditResult.NotPlaceable;
-            ushort cell = World.Get(x, y, z);
-            var current = Cell.GetMaterial(cell);
+            var current = World.GetMaterial(x, y, z);
             if (current != BlockMaterial.Empty && current != BlockMaterial.Water)
                 return EditResult.NotEmpty;
             if (!HasSolidNeighbor(x, y, z))
                 return EditResult.NotAttached;
             if (IsOccupied != null && IsOccupied(x, y, z))
                 return EditResult.Occupied;
+            if (Inventory.Get(material) <= 0)
+                return EditResult.NoMaterial;
+            return EditResult.Ok;
+        }
+
+        /// <summary>Đặt: vào ô rỗng hoặc ô nước (nước ô đó mất) kề mặt một khối đặc, tiêu 1 vật liệu từ kho.</summary>
+        public EditResult TryPlace(int x, int y, int z, BlockMaterial material)
+        {
+            var check = CheckPlace(x, y, z, material);
+            if (check != EditResult.Ok)
+                return check;
             if (!Inventory.TryTake(material))
                 return EditResult.NoMaterial;
+            ushort cell = World.Get(x, y, z);
 
             World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(cell, material), 0), true));
             CellChanged?.Invoke(x, y, z);

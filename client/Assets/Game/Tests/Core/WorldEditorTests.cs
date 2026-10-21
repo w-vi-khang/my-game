@@ -122,6 +122,49 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void CheckPlaceMatchesRulesWithoutSideEffects()
+        {
+            var D = BlockMaterial.Dirt;
+            Assert.AreEqual(EditResult.OutOfBounds, editor.CheckPlace(-1, 1, 5, D));
+            Assert.AreEqual(EditResult.NotPlaceable, editor.CheckPlace(5, 1, 5, BlockMaterial.Water));
+            Assert.AreEqual(EditResult.NotEmpty, editor.CheckPlace(1, 1, 1, D));
+            Assert.AreEqual(EditResult.NotAttached, editor.CheckPlace(5, 5, 5, D));
+            editor.IsOccupied = (x, y, z) => x == 4 && y == 1 && z == 4;
+            Assert.AreEqual(EditResult.Occupied, editor.CheckPlace(4, 1, 4, D));
+            Assert.AreEqual(EditResult.NoMaterial, editor.CheckPlace(5, 1, 5, D));
+            inv.Add(D);
+            Assert.AreEqual(EditResult.Ok, editor.CheckPlace(5, 1, 5, D));
+            Assert.AreEqual(1, inv.Get(D));
+            Assert.AreEqual(BlockMaterial.Empty, world.GetMaterial(5, 1, 5));
+            Assert.AreEqual(EditResult.Ok, editor.CheckPlace(2, 1, 1, D));
+            Assert.AreEqual(BlockMaterial.Water, world.GetMaterial(2, 1, 1));
+            Assert.IsEmpty(changed);
+        }
+
+        [Test]
+        public void TryPlaceAgreesWithCheckPlace()
+        {
+            var D = BlockMaterial.Dirt;
+            void Same(int x, int y, int z, BlockMaterial m, EditResult expect)
+            {
+                var c = editor.CheckPlace(x, y, z, m);
+                Assert.AreEqual(expect, c);
+                Assert.AreEqual(c, editor.TryPlace(x, y, z, m));
+            }
+            Same(-1, 1, 5, D, EditResult.OutOfBounds);
+            Same(5, 1, 5, BlockMaterial.Water, EditResult.NotPlaceable);
+            Same(1, 1, 1, D, EditResult.NotEmpty);
+            Same(5, 5, 5, D, EditResult.NotAttached);
+            editor.IsOccupied = (x, y, z) => x == 4 && y == 1 && z == 4;
+            Same(4, 1, 4, D, EditResult.Occupied);
+            Same(5, 1, 5, D, EditResult.NoMaterial);
+            inv.Add(D);
+            Same(5, 1, 5, D, EditResult.Ok);
+            Assert.AreEqual(D, world.GetMaterial(5, 1, 5));
+            Assert.AreEqual(0, inv.Get(D));
+        }
+
+        [Test]
         public void PlaceOnOccupiedRejected()
         {
             inv.Add(BlockMaterial.Dirt, 1);
