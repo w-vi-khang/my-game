@@ -353,6 +353,9 @@ MonoBehaviour:
   borderColor: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.92156863}
   markerColor: {r: 0.92156863, g: 0.23529412, b: 0.19607843, a: 1}
   labelFontSize: 28
+  landmarkIconSize: 22
+  landmarkFontSize: 18
+  landmarkLabelZoom: 2
 --- !u!114 &1663237071
 MonoBehaviour:
   m_ObjectHideFlags: 0

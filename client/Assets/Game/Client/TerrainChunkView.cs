@@ -47,6 +47,7 @@ namespace Game.Client
         }
 
         const string ChunksName = "Chunks";
+        const string LandmarksName = "Dấu mốc";
 
         ChunkSlot[] slots;
         Transform chunksRoot;
@@ -62,6 +63,10 @@ namespace Game.Client
         public WorldEditor Editor { get; private set; }
         /// <summary>Bảng map của world v3; null với v2.</summary>
         public MapTable Maps { get; private set; }
+        /// <summary>Dấu mốc của world v3 (0023, brief 0017/0018): checkpoint theo map rồi công trình; null với v2.</summary>
+        public IReadOnlyList<Landmark> Landmarks { get; private set; }
+        /// <summary>Thời gian LandmarkPlacer.Place (ms).</summary>
+        public double LandmarkMs { get; private set; }
         public int GeneratorVersion { get; private set; }
         /// <summary>Thời gian sinh world (ms).</summary>
         public double GenerateMs { get; private set; }
@@ -116,14 +121,19 @@ namespace Game.Client
                 DestroyImmediate(oldRoot.gameObject);
             chunksRoot = new GameObject(ChunksName).transform;
             chunksRoot.SetParent(transform, false);
+            var oldLandmarks = transform.Find(LandmarksName);
+            if (oldLandmarks != null)
+                DestroyImmediate(oldLandmarks.gameObject);
 
             var gen = Stopwatch.StartNew();
             int waterLevel;
+            WorldMapParams mapParams = null;
             if (source == WorldSource.MapsV3)
             {
                 var p = ConfigLoader.LoadWorldMapParams();
                 World = WorldMapGenerator.Generate(p, out var maps);
                 Maps = maps;
+                mapParams = p;
                 GeneratorVersion = p.generatorVersion;
                 waterLevel = p.waterLevel;
             }
@@ -136,6 +146,15 @@ namespace Game.Client
                 waterLevel = p.waterLevel;
             }
             GenerateMs = gen.Elapsed.TotalMilliseconds;
+            Landmarks = null;
+            if (Maps != null)
+            {
+                var lm = Stopwatch.StartNew();
+                Landmarks = LandmarkPlacer.Place(World, Maps, mapParams);
+                LandmarkMs = lm.Elapsed.TotalMilliseconds;
+                BuildLandmarkMarkers();
+                Debug.Log($"LANDMARKVIEW {Landmarks.Count} dấu mốc, đặt {LandmarkMs:F1} ms");
+            }
             Inventory = new MaterialInventory();
             Editor = new WorldEditor(World, Inventory, BlockMesher.CellMargin, waterLevel);
             Editor.CellChanged += OnCellChanged;
@@ -346,6 +365,47 @@ namespace Game.Client
             return shader != null
                 ? new UnityEngine.Material(shader)
                 : new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
+        }
+
+        /// <summary>Khối đánh dấu trong world (brief 0018): con "Dấu mốc", mỗi dấu mốc một GameObject đáy ở mặt ô cao nhất; không collider.</summary>
+        void BuildLandmarkMarkers()
+        {
+            var root = new GameObject(LandmarksName).transform;
+            root.SetParent(transform, false);
+            var mats = new Dictionary<uint, UnityEngine.Material>();
+            foreach (var l in Landmarks)
+            {
+                var t = new GameObject(l.Name).transform;
+                t.SetParent(root, false);
+                t.localPosition = new Vector3(l.X + 0.5f, l.Surface + 1, l.Z + 0.5f);
+                var c = LandmarkStyle.ColorOf(l);
+                if (l.Kind == LandmarkKind.Checkpoint)
+                {
+                    MarkerBox(t, new Vector3(0f, 2f, 0f), new Vector3(0.5f, 4f, 0.5f), c, mats);
+                    MarkerBox(t, new Vector3(0f, 4.6f, 0f), new Vector3(1.2f, 1.2f, 1.2f), c, mats);
+                }
+                else
+                    MarkerBox(t, new Vector3(0f, 1.25f, 0f), new Vector3(3f, 2.5f, 3f), c, mats);
+            }
+        }
+
+        static void MarkerBox(Transform parent, Vector3 localPos, Vector3 scale, Color32 c, Dictionary<uint, UnityEngine.Material> mats)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = "Khối";
+            DestroyImmediate(go.GetComponent<Collider>()); // không chặn raycast đào/đặt; DestroyImmediate để Build() chạy được cả trong editor
+            var t = go.transform;
+            t.SetParent(parent, false);
+            t.localPosition = localPos;
+            t.localScale = scale;
+            uint key = (uint)(c.r << 16 | c.g << 8 | c.b);
+            if (!mats.TryGetValue(key, out var mat))
+            {
+                mat = new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial);
+                mat.SetColor("_BaseColor", c);
+                mats[key] = mat;
+            }
+            go.GetComponent<MeshRenderer>().sharedMaterial = mat;
         }
 
         void AcquireColumns(List<int> columns, List<int> build)

@@ -31,6 +31,10 @@ namespace Game.Client
         public Color borderColor = new Color32(30, 30, 30, 235);
         public Color markerColor = new Color32(235, 60, 50, 255);
         public int labelFontSize = 28;
+        public float landmarkIconSize = 22f;
+        public int landmarkFontSize = 18;
+        /// <summary>Tên dấu mốc chỉ hiện khi Zoom ≥ giá trị này (brief 0018).</summary>
+        public float landmarkLabelZoom = 2f;
 
         TerrainChunkView view;
         GameObject panel;
@@ -39,6 +43,8 @@ namespace Game.Client
         RawImage image;
         MinimapLinesGraphic lines;
         readonly List<Text> labels = new List<Text>();
+        readonly List<RectTransform> landmarkIcons = new List<RectTransform>();
+        readonly List<Text> landmarkLabels = new List<Text>();
         float[] labelWorld;
         bool mouseDragging;
         Vector2 lastMouse;
@@ -66,6 +72,13 @@ namespace Game.Client
         public string LabelText(int i) => labels[i].text;
         public bool LabelVisible(int i) => labels[i].enabled;
         public Vector2 LabelPanelPosition(int i) => labels[i].rectTransform.anchoredPosition;
+        public int LandmarkIconCount => landmarkIcons.Count;
+        public Vector2 LandmarkIconPosition(int i) => landmarkIcons[i].anchoredPosition;
+        public bool LandmarkIconIsDiamond(int i) => landmarkIcons[i].GetComponent<MinimapLandmarkGraphic>().diamond;
+        public Color LandmarkIconColor(int i) => landmarkIcons[i].GetComponent<MinimapLandmarkGraphic>().color;
+        public string LandmarkLabelText(int i) => landmarkLabels[i].text;
+        public bool LandmarkLabelVisible(int i) => landmarkLabels[i].enabled;
+        public Vector2 LandmarkLabelPosition(int i) => landmarkLabels[i].rectTransform.anchoredPosition;
         public Vector2 MarkerPanelPosition => marker != null ? marker.anchoredPosition : default;
         /// <summary>Góc z của dấu người chơi (độ, 0 = nhìn theo +z world, 270 = nhìn theo +x).</summary>
         public float MarkerAngle => marker != null ? marker.localEulerAngles.z : 0f;
@@ -269,6 +282,15 @@ namespace Game.Client
                     Viewport.WorldToPanel(lx, lz, out float px, out float py);
                     labels[m].rectTransform.anchoredPosition = new Vector2(px, py);
                 }
+                bool showNames = Viewport.Zoom >= landmarkLabelZoom;
+                for (int i = 0; i < landmarkIcons.Count; i++)
+                {
+                    var l = view.Landmarks[i];
+                    Viewport.WorldToPanel(l.X + 0.5f, l.Z + 0.5f, out float ix, out float iy);
+                    landmarkIcons[i].anchoredPosition = new Vector2(ix, iy);
+                    landmarkLabels[i].rectTransform.anchoredPosition = new Vector2(ix, iy - landmarkIconSize * 0.5f - 2f);
+                    landmarkLabels[i].enabled = showNames;
+                }
             }
 
             var cam = Camera.main;
@@ -345,6 +367,26 @@ namespace Game.Client
                 outline.effectDistance = new Vector2(2f, -2f);
                 labels.Add(t);
             }
+            var lms = view.Landmarks;
+            if (lms != null)
+                for (int i = 0; i < lms.Count; i++)
+                {
+                    var l = lms[i];
+                    var icon = Stretch("Dấu mốc " + i, frame, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+                    Place(icon, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(landmarkIconSize, landmarkIconSize));
+                    var g = icon.gameObject.AddComponent<MinimapLandmarkGraphic>();
+                    g.diamond = l.Kind == LandmarkKind.Checkpoint;
+                    g.color = LandmarkStyle.ColorOf(l);
+                    g.raycastTarget = false;
+                    var t = NewText("Tên dấu mốc " + i, frame, font, landmarkFontSize, TextAnchor.UpperCenter);
+                    Place(t.rectTransform, Vector2.zero, new Vector2(0.5f, 1f), Vector2.zero, new Vector2(300f, 30f));
+                    t.text = l.Name;
+                    var outline = t.gameObject.AddComponent<Outline>();
+                    outline.effectColor = new Color(0f, 0f, 0f, 0.85f);
+                    outline.effectDistance = new Vector2(1.5f, -1.5f);
+                    landmarkIcons.Add(icon);
+                    landmarkLabels.Add(t);
+                }
             marker = Stretch("Người chơi", frame, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
             Place(marker, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(26f, 26f));
             var mg = marker.gameObject.AddComponent<MinimapMarkerGraphic>();
@@ -364,7 +406,7 @@ namespace Game.Client
             SetOpen(false);
             sw.Stop();
             BuildMs = sw.Elapsed.TotalMilliseconds;
-            Debug.Log($"MINIMAP dựng: ảnh {s.X}x{s.Z}, {BorderCount} đường ranh giới, {labels.Count} tên, font={(font != null ? font.name : "null")}, khung {frame.rect.width:F0}x{frame.rect.height:F0}, {BuildMs:F1} ms");
+            Debug.Log($"MINIMAP dựng: ảnh {s.X}x{s.Z}, {BorderCount} đường ranh giới, {labels.Count} tên, {landmarkIcons.Count} dấu mốc, font={(font != null ? font.name : "null")}, khung {frame.rect.width:F0}x{frame.rect.height:F0}, {BuildMs:F1} ms");
         }
 
         /// <summary>RectTransform con giãn theo cha (anchor 0..1) với lề offsetMin/offsetMax.</summary>

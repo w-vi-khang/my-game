@@ -213,6 +213,46 @@ namespace Game.Client.Tests
             CollectionAssert.AreEqual(MinimapImage.Build(w), ToBytes(map.Texture.GetPixels32()), "texture = ảnh dựng lại từ world đã sửa");
         }
 
+        [UnityTest]
+        public IEnumerator LandmarkIconsAtLandmarkPositions()
+        {
+            map.SetOpen(true);
+            yield return null;
+            var lms = view.Landmarks;
+            Assert.AreEqual(lms.Count, map.LandmarkIconCount);
+            for (int i = 0; i < lms.Count; i++)
+            {
+                var l = lms[i];
+                map.Viewport.WorldToPanel(l.X + 0.5f, l.Z + 0.5f, out float px, out float py);
+                Assert.AreEqual(px, map.LandmarkIconPosition(i).x, 0.01f, "icon x " + i);
+                Assert.AreEqual(py, map.LandmarkIconPosition(i).y, 0.01f, "icon y " + i);
+                Assert.AreEqual(l.Kind == LandmarkKind.Checkpoint, map.LandmarkIconIsDiamond(i));
+                AssertColor((Color)LandmarkStyle.ColorOf(l), map.LandmarkIconColor(i));
+                Assert.AreEqual(l.Name, map.LandmarkLabelText(i));
+                Assert.IsFalse(map.LandmarkLabelVisible(i), "zoom 1 ẩn tên");
+            }
+            map.Viewport.ZoomAt(map.Viewport.PanelWidth * 0.5f, map.Viewport.PanelHeight * 0.5f, 3f);
+            yield return null;
+            Assert.GreaterOrEqual(map.Viewport.Zoom, 2f);
+            for (int i = 0; i < lms.Count; i++)
+            {
+                var l = lms[i];
+                Assert.IsTrue(map.LandmarkLabelVisible(i), "zoom ≥ 2 hiện tên " + i);
+                map.Viewport.WorldToPanel(l.X + 0.5f, l.Z + 0.5f, out float px, out float py);
+                Assert.AreEqual(px, map.LandmarkIconPosition(i).x, 0.01f);
+                Assert.AreEqual(py, map.LandmarkIconPosition(i).y, 0.01f);
+                Assert.AreEqual(py - 13f, map.LandmarkLabelPosition(i).y, 0.01f);
+            }
+            map.SetOpen(false);
+        }
+
+        static void AssertColor(Color e, Color a)
+        {
+            Assert.AreEqual(e.r, a.r, 1e-3f);
+            Assert.AreEqual(e.g, a.g, 1e-3f);
+            Assert.AreEqual(e.b, a.b, 1e-3f);
+        }
+
         static byte[] ToBytes(Color32[] px)
         {
             var b = new byte[px.Length * 4];
