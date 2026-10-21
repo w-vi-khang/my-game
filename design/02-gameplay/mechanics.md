@@ -60,7 +60,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - **Đào** (cuốc): ô thành rỗng, vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2).
 - **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ kho vật liệu; hết thì không đặt được. Đặt vào ô **rỗng hoặc ô nước** (nước ô đó mất), ô phải **kề mặt ít nhất một khối đặc** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)). Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
 - **Đào dưới chân sinh vật** (user, 2026-10-14, [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md)): được phép; sinh vật chạy ra ô bên cạnh đứng được, không có thì rơi thẳng xuống. Nước lan vào ô sinh vật đứng cũng vậy. Sinh vật không đi vào nước (bơi M2); mỗi loài có khung chiếm chỗ 3 chiều (M1 đều 1 × 1 × 1).
-- Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → **đặt lệnh trồng cây được**; sinh vật xới xong thì ô thành **ô ruộng** (vật liệu riêng) mới gieo được ([0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)). Đào ô ruộng → +1 đất.
+- Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → ~~đặt lệnh trồng cây được~~ **đánh dấu xới được** bằng công cụ Xới ([0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md)); sinh vật xới xong thì ô thành **ô ruộng** (vật liệu riêng) mới gieo được ([0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)). Đào ô ruộng → +1 đất.
 
 #### Sinh vật trở lại — luật M1
 - Loài đạt đủ yêu cầu mở khoá → **2 cá thể** xuất hiện ở rìa map, đi về phía người chơi và **tự vào đội làm việc** (chưa có thẻ bài — bắt bằng thẻ từ M2).
@@ -68,8 +68,8 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - Yêu cầu mở khoá (ví dụ để thử): L1 (xới, gieo): ≥ 20 ô cỏ + 1 cây · L2 (tưới, thu hoạch): ≥ 10 ô cỏ cạnh hồ · L3 (vận chuyển, thu hoạch): ≥ 15 ô đá lộ thiên + 1 kho đã đặt.
 
 #### Kho & lệnh trồng cây — luật M1
-- **Một kho**, người chơi đặt bằng công cụ trên ô phẳng, chiếm 1 ô; sức chứa 50 sản lượng.
-- **Một loại cây.** Kho bắt đầu có 10 hạt; mỗi lần thu hoạch được 1 nông sản + 1 hạt → vòng lặp tự duy trì.
+- **Một kho**, người chơi đặt bằng công cụ trên ô phẳng, chiếm 1 ô; sức chứa 50 sản lượng. → Thay bởi 0025 (cuối mục): nhiều kho thông nhau, M1 đặt kho bằng bố trí sẵn.
+- ~~**Một loại cây.**~~ Hai loại cây từ 0025. Kho bắt đầu có 10 hạt; mỗi lần thu hoạch được 1 nông sản + 1 hạt → vòng lặp tự duy trì.
 - Công đoạn: xới → gieo (trừ 1 hạt trong kho, chưa cần đi lấy) → tưới (chưa cần lấy nước) → cây lớn 120 giây → thu hoạch (nông sản nằm tại ô) → vận chuyển vào kho.
 - Chưa có L3 → nông sản nằm tại ruộng, đình trệ "thiếu năng lực vận chuyển" — người chơi thấy vì sao cần thêm loài.
 - Kho đầy → đình trệ "kho đầy".
@@ -86,6 +86,12 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
   - Sau khi huỷ vụ, **ô rời lệnh, hàng đợi vụ bị xoá**. Đào: ô thành rỗng, +1 đất. Đặt khối lên: ô ruộng bên dưới **trở lại ô đất**. Muốn trồng lại phải đặt lệnh lại.
   - Thứ tự chọn việc giữ như cũ: công đoạn cũ nhất trước (sinh vật làm được cả xới lẫn gieo sẽ xới hết các ô rồi mới gieo).
   - Nước tràn lên ô ruộng tính như đặt khối; ô chưa xới bị đào/che → rời lệnh, không trả gì (Planner đề xuất, user xác nhận 2026-10-21 khi duyệt brief 0026).
+- Đánh dấu xới, chọn giống, kho thông nhau (user, 2026-10-21, [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md), M1 simulation bước 7b + 7c, làm trước bước 8). **Thay lệnh trồng cây theo vùng ở trên:**
+  - **Công cụ Xới** (cùng cấp Đào/Đặt): người chơi đánh dấu **từng ô** đất/cỏ có ô trống phía trên → **biển canh tác** hiện ngay → sinh vật có năng lực xới tới xới → biển mất, ô thành ô ruộng. Xới không cần chọn giống trước. Bỏ lệnh vùng; "chọn thông minh" theo khuôn (2 × 2, 3 × 3, 1 × 3…) mở khoá sau này — [ideas](../ideas.md).
+  - **Bấm ô ruộng → chọn giống** → vụ vào cuối hàng đợi (2 chỗ). Ô vừa xới: vụ đầu bắt đầu từ gieo. Vụ kế trên ô đã thu hoạch: **xới lại** rồi gieo. Hết hàng đợi → ô ruộng đứng yên.
+  - **Hai loại cây** (tạm Cây A, Cây B — user đặt tên): khác thời gian lớn, hạt, sản lượng; số liệu bằng `game-balance`.
+  - **Kho:** nông sản chở về **kho gần nhất tới được**; **các kho thông nhau** (hàng tính chung, sức chứa cộng dồn); **nút Kho** xem vật phẩm. Người chơi tự đặt thêm kho để M2.
+  - Luật chi tiết do Planner đề xuất (trạng thái "đã xới", bỏ đánh dấu, xoá vụ trong hàng đợi, hạt theo loại): xem 0025.
 
 ### Lệnh làm việc
 **Quy tắc**

@@ -17,6 +17,8 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
     - Cuốc (đào): tô viền **khối đang có** dưới tâm nhắm (như hiện nay).
     - Khối (đặt): hiện **bản mờ** của khối sắp đặt tại **ô trống kề khối đã có** (ô đặt được), không tô viền khối đã có.
     - **Xong 2026-10-21** (brief 0027, user xem đạt): Tab đổi Đào ⇄ Đặt, chuột trái dùng công cụ, chuột phải bỏ trống (dành cho Huỷ); bản mờ trong suốt 50% màu vật liệu, đỏ khi kho hết, ẩn khi ô sai luật. Thuộc hạng mục "Điều khiển" M1 (ước lượng 0,5–1 trong 3–5). Cảm ứng chưa làm.
+  - **Công cụ Xới** (user, 2026-10-21, [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md), sim bước 7c): công cụ thứ ba cùng cấp Đào/Đặt. Nhắm mặt trên ô đất/cỏ có ô trống phía trên → đánh dấu từng ô, **biển canh tác** hiện ngay; dùng lên ô đang có biển → bỏ đánh dấu [ý tưởng — Planner]. Phím chuyển công cụ tính lại khi có 3 công cụ (chốt trong brief 7c).
+  - **Bấm ô ruộng** → bảng chọn giống (2 loại cây M1) + hàng đợi vụ (2 chỗ, xem/xoá vụ) (0025). PC trước; chạm theo phần cảm ứng của hạng mục Điều khiển.
 - **Chọn vùng bằng 2 điểm** (lệnh làm việc, vùng đào): nhắm góc 1 → hành động chính → nhắm góc 2 → hành động chính. Không cần kéo chuột/ngón tay → không tranh với vuốt xoay camera, tay cầm làm được y hệt.
 - Con trỏ chuột khoá ở giữa khi chơi; mở menu / giữ Alt thì hiện con trỏ.
 
@@ -120,6 +122,7 @@ flowchart TB
 | Tâm nhắm + tô viền ô đích | Ô / sinh vật đang nhắm; tên loại ô | Luôn (trừ khi mở bảng) | M1 |
 | Thanh công cụ | Công cụ đang cầm; khi nhập hồn đổi thành 4 ô phép + thời gian hồi | Luôn | M1 (công cụ), M2 (ô phép) |
 | Loài đang ghim | Tiến độ danh sách yêu cầu của loài; cập nhật ngay khi đào/đặt ([core loop](core-loop.md#vòng-lặp-30-giây)) | Khi có loài được ghim | M1 |
+| Nút Kho | Bấm → bảng kho: nông sản + hạt từng loại cây, sức chứa đã dùng / tổng của mọi kho (các kho thông nhau — [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md)) | Luôn | M1 (sim bước 7c) |
 | Đình trệ | Biểu tượng + số lượng; chạm → danh sách, đi tới; biểu tượng tại chỗ trên sinh vật | Khi có đình trệ | M1 |
 | Số sinh vật hoạt động | x / giới hạn sinh vật | Trong bảng Sinh vật; lên HUD khi gần chạm giới hạn | M2 |
 | Mana; máu khi chiến đấu / nhập hồn | Thanh mana dùng chung; máu của sinh vật đang nhập hồn | Khi chiến đấu, nhập hồn hoặc dùng phép | M2 |

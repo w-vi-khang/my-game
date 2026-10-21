@@ -63,6 +63,7 @@ Khám phá, thu thập → cải tạo địa hình → hoàn thành **danh sác
 |---|---|---|---|
 | Tên game | Hồi sinh thế giới phép thuật, sinh vật trở về; **đã chọn: Viventa** (user, 2026-10-13); còn tra trùng store/nhãn hiệu ([đặt tên](01-story/naming.md#tên-game)) | 1 | Tự tạo (≤ 12 ký tự) |
 | Tên tạm 3 loài cho prototype | M1 dùng L1, L2, L3 của Map 1 ([levels](02-gameplay/levels.md#map-1--đảo-vách-đá-biển), [0007](decisions/0007-m1-toi-gian.md)) — chưa cần tên chính thức | 3 | Tạm |
+| 2 loại cây trồng M1 | Hai giống cây cho ô ruộng (khác thời gian lớn, hạt, sản lượng) — tạm gọi Cây A, Cây B ([0025](decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md)); prototype chạy được bằng tên tạm | 2 | Tạm hoặc dịch |
 
 **M2 — vertical slice**
 | Mục | Là gì / ngữ cảnh để đặt tên | Số lượng | Loại |
