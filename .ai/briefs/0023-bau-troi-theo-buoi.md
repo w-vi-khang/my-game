@@ -454,3 +454,10 @@ Tất cả phần cần test **đạt**, trừ dòng Bench + điện thoại: **
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp `Model thực thi: Sonnet · medium`.
+- Phần cần test: đủ 13 dòng có kết quả; dòng Bench + điện thoại executor để `chờ user` → Planner chạy lại bước 10.2–10.3 (2026-10-21 15:50, `adb connect 192.168.1.6:5555` thành công, APK từ de5fe38): [run]
+  - 10 dòng `DAYCYCLE` (≥ 6), 2 dòng đầu: `DAYCYCLE select=Midnight arcMs=29388260 fromMs=57011740 toMs=0`, `DAYCYCLE select=Noon arcMs=43194984 fromMs=5016 toMs=43200000`.
+  - `BENCH`: avgFps 50,6 (≥ 30), p99Ms 33,29, holeFrames 0, tris 3889524, hash `a7719c8999939263 v3` trùng. 0 dòng `Exception`. `git status` sạch.
+- Diff de5fe38 (`git show --stat`: 25 file, đều trong Phạm vi): `DayCycleView`, `SkyRotation`, `UnderwaterView`/`WorldEdgeFog`, `SkyClouds.shader`, `BenchBuild`, `ConfigLoader` đúng chữ ký và nội dung bước 3–6, 8; không đụng Core, Terrain/Ocean shader, `.mat`, `SimView.cs`, `TerrainBench.cs`.
+- Lệch brief chấp nhận: (1) `StarsRotateWithSun` so khoảng cách vector < 1,7e-4 thay cho `Angle < 0.01` (acos float kém chính xác khi 2 vector gần trùng; cùng ngưỡng ~0,01°); (2) SimView.unity có thêm giá trị mặc định do Unity lưu, không đổi hành vi; (3) `grep -c` ra 2 do `m_EditorClassIdentifier` — lỗi đếm trong brief, mỗi scene đúng 1 component.
+- Tiêu chí xong: đạt hết phần đo bằng lệnh (EditMode 340/340, PlayMode 52/52, điện thoại). Còn phần `user xem` (mục "User tự test" 1–5) → chưa kết luận.
