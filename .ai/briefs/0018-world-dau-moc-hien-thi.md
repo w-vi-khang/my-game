@@ -1,9 +1,9 @@
 # Brief 0018 — World 7d (phần 2/2): hiển thị dấu mốc trong world và trên bản đồ
 
-> Trạng thái: chờ review
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 11:05
+> Cập nhật: 2026-10-21 11:35
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -358,6 +358,47 @@ Ngoài ra dùng `VertexHelper.AddVert/AddTriangle`, `Text`, `Outline`, đã có 
    1. Chạy `git status --short`: chỉ được còn file trong Phạm vi. Commit code với message `brief 0018: hiển thị dấu mốc trong world và trên bản đồ`.
    2. `date "+%Y-%m-%d %H:%M"` → ghi "Kết thúc" vào Kết quả, đặt trạng thái `chờ review`, commit brief với message `brief 0018: kết quả`.
 
+8. **Sửa sau review (lần 1) — material dấu mốc chạy được trên điện thoại.**
+   Lỗi [run, logcat Bench 2026-10-21 11:24]: trong bản build, `GraphicsSettings.currentRenderPipeline.defaultMaterial` trả về `null`. Vì vậy `new UnityEngine.Material(null)` trong `MarkerBox` ném `ArgumentNullException (source)`, `TerrainChunkView.Build()` dừng giữa chừng: không có chunk (`tris=0`), `MinimapView.Build` bị NullReferenceException mỗi khung. Test PlayMode chạy trong Editor nên không bắt được lỗi này.
+   Cách sửa: dùng material asset đặt trong `Resources/`. Asset trong `Resources/` luôn được đóng vào build kèm shader ([Resources.Load](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Resources.Load.html); [Shader.Find](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Shader.Find.html): shader không được tham chiếu thì không vào build).
+   1. **Tạo material asset:** dùng MCP `manage_material` tạo `Assets/Game/Client/Resources/Materials/Landmark.mat`, shader `Universal Render Pipeline/Lit`, `_BaseColor` trắng. Xong khi: có file `client/Assets/Game/Client/Resources/Materials/Landmark.mat` và `.meta`, cùng `Materials.meta` của thư mục. Kiểm `grep m_Shader` trong file `.mat`: phải trỏ tới shader URP Lit (guid `933532a4fcc9baf4fa0491de14d08ed7`; khác guid này thì ghi guid thật vào Kết quả, không dừng).
+   2. **`TerrainChunkView.cs`:**
+      - Thêm `const string LandmarkMaterialPath = "Materials/Landmark";` cạnh `LandmarksName`.
+      - Trong `BuildLandmarkMarkers()`, ngay đầu hàm, thêm:
+        ```csharp
+        var baseMat = Resources.Load<UnityEngine.Material>(LandmarkMaterialPath);
+        if (baseMat == null)
+        {
+            Debug.LogError($"LANDMARKVIEW thiếu Resources/{LandmarkMaterialPath}.mat — bỏ qua khối dấu mốc");
+            return;
+        }
+        ```
+        Rồi truyền `baseMat` vào `MarkerBox` (thêm tham số `UnityEngine.Material baseMat`).
+      - Trong `MarkerBox`, thay `new UnityEngine.Material(GraphicsSettings.currentRenderPipeline.defaultMaterial)` bằng `new UnityEngine.Material(baseMat)`.
+      - Không sửa chỗ khác.
+   3. **`LandmarkViewPlayTests.cs`**, test `MarkersMatchLandmarks`: thêm kiểm `Resources.Load<Material>("Materials/Landmark")` khác null, và `shader.name == "Universal Render Pipeline/Lit"`. Mọi `sharedMaterial` của khối có `shader` trùng shader của material đó.
+   4. **Chạy lại:**
+      - PlayMode lọc `LandmarkViewPlayTests` + `MinimapViewPlayTests` → 13/13.
+      - PlayMode cả bộ → 32/32. Dọn `EditorSettings.asset`.
+      - EditMode cả bộ → 311/311.
+   5. **Điện thoại** (máy đã mở khoá, kết nối qua `192.168.1.6:5555`):
+      - MCP `execute_menu_item` "Game/Build APK Bench" → `Succeeded`.
+      - Cài, xoá log, chạy app: `ADB -s 192.168.1.6:5555 install -r client/Builds/bench.apk`, rồi `logcat -c`, rồi `monkey -p com.viventa.bench -c android.intent.category.LAUNCHER 1`.
+      - Chờ 80 giây, chạy `logcat -d -s Unity | grep -E "BENCH|MINIMAP|LANDMARKVIEW|Exception"`. Phải có:
+        - `LANDMARKVIEW 9 dấu mốc`;
+        - `MINIMAP dựng … 9 dấu mốc`;
+        - `BENCH` với `tris` > 0, `avgFps` ≥ 30, `holeFrames=0`, `hash=a7719c8999939263`;
+        - **không** có dòng `Exception`.
+      - Ghi các dòng này vào Kết quả test. Máy khoá lại thì ghi "chờ user mở khoá".
+   6. **Dọn:**
+      - `git checkout -- client/ProjectSettings/UnityConnectSettings.asset` (nếu đổi).
+      - `Bench.unity.meta` đổi guid thì `git checkout -- client/Assets/Game/Client/Scenes/Bench.unity.meta`. Lần exec trước đã commit guid mới, Planner đã trả về guid cũ `56b66cc8…` trong commit review.
+   7. **Commit:**
+      - `git status --short`: chỉ còn 2 file `.cs` trên, file test, `Landmark.mat` + `.meta` + `Materials.meta`. `Bench.unity` nếu chỉ thêm 3 trường `landmark*` mặc định thì được commit.
+      - Commit code với message `brief 0018: sửa material dấu mốc trên điện thoại`.
+      - `date` → ghi "Kết thúc (sửa lần 1)", trạng thái `chờ review`, commit brief.
+   Phạm vi bổ sung cho bước này: `client/Assets/Game/Client/Resources/Materials/` (thư mục mới + `Landmark.mat`), `client/Assets/Game/Client/Scenes/Bench.unity` (chỉ phần Unity tự ghi khi build).
+
 ## Tiêu chí xong
 - Biên dịch không lỗi.
 - EditMode cả bộ đạt 311/311 (không thêm test EditMode).
@@ -441,3 +482,9 @@ Không có. (Chỉ còn đo điện thoại chờ mở khoá.)
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi. Mọi dòng "Phần cần test" có kết quả (điện thoại: chờ mở khoá).
+- Diff `2cadbeb..ef3b3c1`: `TerrainChunkView`, `MinimapView`, `LandmarkStyle`, `MinimapLandmarkGraphic`, 2 file test đúng bước 1–5 và quyết định 1–5.
+- Ngoài Phạm vi: `Bench.unity` (+3 trường `landmark*` mặc định, Unity tự ghi khi build — vô hại, giữ) và `Bench.unity.meta` đổi guid (không file nào tham chiếu [run grep]) → Planner trả guid cũ trong commit review này. Executor không ghi lệch này vào Kết quả.
+- User xem trên Mac: "ổn" [user 2026-10-21].
+- **Điện thoại (Planner chạy, máy đã mở khoá, 11:24)** [run]: `ArgumentNullException: Value cannot be null. Parameter name: source` tại `Material.CreateWithMaterial` ← `TerrainChunkView.MarkerBox` ← `BuildLandmarkMarkers` ← `Build`. Sau đó `MinimapView.Build` NullReferenceException mỗi khung. BENCH `avgFps=36,3 tris=0 loadedChunksMax=0 holeFrames=0 hash=a7719c8999939263` → không có world hiển thị, số FPS vô nghĩa. Nguyên nhân: `RenderPipelineAsset.defaultMaterial` null trong player. Lỗi do brief (Planner chép mẫu `SimView` mà mẫu này chỉ chạy trong Editor), không phải lỗi executor.
+- Kết luận: cần sửa
