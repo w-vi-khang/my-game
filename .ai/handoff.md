@@ -23,13 +23,10 @@ Viết task contract + brief cho **sim bước 7b** (lõi của [0025](../design
 - `python3 tools/check_design.py` [run]: hợp lệ, 50 file.
 
 ## Còn lại
-1. **Task contract** `.ai/tasks/m1-sim-buoc-7b-...md` → **brief 7b**.
-   - Đọc `Simulation.cs`: `AddFarmOrder` :786, `AddStorage` :101, `FarmPlot` / hàng đợi vụ, `TerrainPhase` (huỷ vụ 0020).
-   - Đọc thêm `SimDemo`, `SimStress`, `sim_m1.json`, các test dùng `AddFarmOrder` (`FarmTests`, `PlotRulesTests`, `IdleTests`, `SimBoundsTests`, `SimDeterminismTests`).
-   - Brief ghi rõ mốc nhịp `FarmTests` nào được đổi.
-2. **Luật Planner đề xuất trong 0025** (trạng thái "đã xới", bỏ đánh dấu, xoá vụ, hạt theo loại 10/loại, kho gần nhất theo đường) → user xác nhận khi duyệt brief.
-3. Số liệu 2 loại cây: số tạm trong brief, `game-balance` đặt sau.
-4. Sau 4–6 hạng mục M1 thì tính lại hệ số ([roadmap](../design/05-roadmap.md#kiểm-tra-phạm-vi)).
+1. ✅ Đã viết task contract `.ai/tasks/m1-sim-buoc-7b-danh-dau-xoi-giong-kho.md` + brief `.ai/briefs/0029-sim-danh-dau-xoi-giong-kho.md` (chờ làm, đã commit).
+2. ✅ User xác nhận luật 6–20 (2026-10-21) → Executor chạy `/ai-workflow-kit:exec 0029` (Sonnet · medium).
+3. Sau 0029: brief 7c (client: công cụ Xới + biển, bảng chọn giống/hàng đợi, nút Kho). Rồi bước 8.
+4. Số liệu 2 loại cây: `game-balance` đặt sau. Sau 4–6 hạng mục M1 thì tính lại hệ số ([roadmap](../design/05-roadmap.md#kiểm-tra-phạm-vi)).
 
 ## Quyết định quan trọng & lý do
 - **Điện thoại:** Xiaomi 24095PCADG, IP 192.168.1.6.
@@ -43,7 +40,6 @@ Viết task contract + brief cho **sim bước 7b** (lõi của [0025](../design
 
 ## Prompt tiếp tục
 ```text
-Tiếp tục công việc trong .ai/handoff.md — viết task contract + brief sim bước 7b (lõi của quyết định 0025: đánh dấu xới, 2 loại cây, kho thông nhau).
-Đọc handoff trước, tóm tắt 3 dòng rồi bắt đầu.
-Model đề xuất: Opus · medium (Planner: task contract, brief — AGENTS.md §10.2).
+/ai-workflow-kit:exec 0029
+Model đề xuất: Sonnet · medium (Executor — AGENTS.md §10.2).
 ```
