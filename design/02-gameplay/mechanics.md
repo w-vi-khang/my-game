@@ -156,6 +156,13 @@ Mô tả của user (2026-10-14, [0016](../decisions/0016-o-ruong-kho-nha-va-sin
   - đạt thêm các yêu cầu còn lại → mức đáp ứng tăng (xem [Nhu cầu sinh vật](#nhu-cầu-sinh-vật)).
 - Câu hỏi mở: yêu cầu nào thuộc phần mở khoá (cố định hay "đạt N trong M yêu cầu"); danh sách hiện đầy đủ ngay hay lộ dần.
 
+### Buổi trong ngày
+Chốt (user, 2026-10-21, [0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)); phục vụ P1; thành phần: client; **M1**, ước lượng 4–6 ngày-người [ý tưởng].
+- Một ngày world = 24 giờ thực; 4 mốc giữa đêm, bình minh, giữa trưa, hoàng hôn.
+- Người chơi chọn mốc bằng vòng 4 biểu tượng (kèm dòng "đang ở buổi …"). Chọn xong, bầu trời xoay tới mốc **theo chiều tiến** (không bao giờ ngược), buổi đổi thật rồi tiếp tục trôi.
+- **Không đổi** đồng hồ mô phỏng: lớn cây, xây dựng, nước lan, nhịp sim giữ nguyên.
+- Tương tác lần đầu: điều kiện môi trường sống có thể yêu cầu đang ở buổi X. Loài ngày/đêm, cây theo buổi → M2+ ([ý tưởng]).
+
 ### Nhu cầu sinh vật
 Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứng" là [ý tưởng].
 - **Mục đích:** khiến người chơi tiếp tục cải thiện môi trường sống cho sinh vật, thay vì triệu hồi rồi bỏ đó (P1).

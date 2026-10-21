@@ -145,3 +145,5 @@
 | Hàng đợi vụ | Danh sách vụ (loại cây) người chơi xếp cho một ô ruộng, gồm cả vụ đang làm; ô ruộng cấp 1 có 2 chỗ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhà (sinh vật) | Công trình hoặc nơi người chơi tự xây (tường bao, cửa, 2 nội thất) cho sinh vật làm việc; có nhà mới làm việc; nơi hiện lại khi bị kẹt | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bị kẹt (sinh vật) | Rảnh và không có đường về nhà liên tục quá ngưỡng (M1: 30 giây) → sinh vật hiện lại ở nhà ([0017](decisions/0017-dinh-tre-thong-bao-nha-mau-va-dem-ket.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Buổi trong ngày | Pha trong chu kỳ 24 giờ thực của world (0–1), tách khỏi đồng hồ mô phỏng; 4 mốc giữa đêm / bình minh / giữa trưa / hoàng hôn; người chơi chọn mốc thì buổi nhảy tới mốc rồi trôi tiếp ([0024](decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Buổi (điều kiện) | Một trong 4 khoảng của buổi trong ngày: Bình minh, Ban ngày, Hoàng hôn, Ban đêm; điều kiện môi trường sống có thể yêu cầu đang ở buổi nào | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
