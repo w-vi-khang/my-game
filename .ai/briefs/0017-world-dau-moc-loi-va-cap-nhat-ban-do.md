@@ -1,9 +1,9 @@
 # Brief 0017 — World 7d (phần 1/2): bản đồ cập nhật khi đào/đặt + lõi đặt dấu mốc (checkpoint, công trình đặc trưng)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-20 23:51
+> Cập nhật: 2026-10-21
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -836,3 +836,10 @@ Mở scene TerrainView trên Mac, bấm Play:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi.
+- Mọi dòng "Phần cần test" có kết quả; EditMode 311/311, PlayMode 28/28, `cmp` JSON đạt (theo executor, không đáng ngờ → không chạy lại).
+- Diff `5d4366d..fa0d8b9`: chỉ file trong Phạm vi. `LandmarkPlacer` đúng quyết định 2–7 (ứng viên 4 điều kiện, BFS biên, checkpoint so `long` lấy cái gặp trước, spacing tính cả checkpoint, tên `" k"` khi count > 1, hết chỗ ném lỗi, thứ tự kết quả). `UpdateColumn` + `MinimapView` (`SetPixel` khi màu đổi, `Apply(false)` một lần/khung, huỷ đăng ký trong `OnDestroy`) đúng quyết định 1.
+- `Validate` thêm ràng buộc `landmarkBorderMargin ≥ 2`, `count ≤ 8` — hợp lý, không trái brief.
+- User tự test trên Mac (đào hố → bản đồ đổi màu, lấp lại → về cũ): "ổn" [user 2026-10-21].
+- Giờ 7d phần 1 đã ghi vào roadmap.
+- Kết luận: đã duyệt
