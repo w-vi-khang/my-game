@@ -221,7 +221,7 @@ Mở `Assets/Game/Client/Scenes/SimView.unity`, bấm Play:
 - Biên dịch: 0 lỗi. `grep -c Physics.Raycast TerrainEditInput.cs` = 1 (trong `Pick`).
 - PlayMode lọc (EditOcclusion, Landmark, TerrainEdit, SimView, SimViewMaps, Minimap): 27/27 đạt, gồm `EditOcclusionPlayTests` 4/4 (nhà/kho chặn, ruộng+sinh vật không chặn, dấu mốc chặn, đất trống vẫn chọn).
 - EditMode cả bộ: 322/322. PlayMode cả bộ: 39/39. Đã `git checkout -- EditorSettings.asset`.
-- Cảm giác khi chơi: **chờ user** (mục "User tự test").
+- Cảm giác khi chơi: user xem trên Mac, phản hồi "ok ổn" [user 2026-10-21].
 
 ## Vướng mắc
 Không có.
