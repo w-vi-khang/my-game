@@ -1,9 +1,9 @@
 # Brief 0020 — World 7e (phần 2/2): scene SimView chạy trên world 3 map (nạp dần), trại demo tự đặt trong Map 1, camera ở trại
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 12:30
+> Cập nhật: 2026-10-21 12:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -305,3 +305,13 @@ Không có.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- **Review (12:40), mức đầy đủ + user xem:**
+  - `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi`.
+  - Mọi dòng "Phần cần test" đều có kết quả: 4/4 PlayMode lọc, 322/322 EditMode, 35/35 PlayMode; scene đã kiểm bằng grep + MCP.
+  - `git show --stat 3a06dbb`: chỉ có file trong Phạm vi.
+  - `SimView.cs` khớp bước 1 từng dòng; nhánh đảo v2 giữ nguyên. `SimView.unity` = TerrainView + đúng 1 khối SimView (`diff` với TerrainView chỉ 14 dòng thêm).
+  - Test mới đúng bước 3. Log "nạp quanh trại sau 0 khung" là hợp lý: camera ban đầu (192, 150) cách trại khoảng 74 ô, nằm trong bán kính nạp đầu 128 ô.
+  - User xem trên Mac (2026-10-21): ổn — trại, sinh vật làm việc, HUD, bản đồ. Phát hiện 1 lỗi **có từ trước** (nhà, kho, khối dấu mốc bị gỡ collider từ sim bước 6 / 0018): đào/đặt xuyên qua công trình.
+    - User chốt: nhà, kho, dấu mốc chặn tia đào/đặt; sinh vật, ô ruộng, mầm không chặn.
+    - Sửa ở brief 0021, không tính vào 0020.
+- Kết luận: đã duyệt
