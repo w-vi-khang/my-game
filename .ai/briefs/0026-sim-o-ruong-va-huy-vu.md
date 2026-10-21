@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 17:45
+> Cập nhật: 2026-10-21 18:05
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -448,3 +448,10 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+- Planner (Opus · medium), 2026-10-21. Đã đối chiếu:
+  - `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` [repo] brief:429.
+  - Diff `4730284`: code khớp từng bước 1–10 và Quyết định 1–17; không thêm `using UnityEngine` trong Core; chỉ sửa file trong Phạm vi [run] `git show --stat 4730284`.
+  - 3 test đã sửa: guard `if (stageId >= 0)` ở `DigCancelsCropInEachPhase` đúng vì pha lớn không có công đoạn mở; `HarvestedLoadStillReachesStorageAfterDig` kết thúc ở Seeds 10 đúng brief. Không nới assert nào so với "Phần cần test".
+  - Thiếu nhỏ: `FarmlandTopOwnColorSidesDirtNoLip` không assert `TopColor(Farmland)` ≠ màu lỗi. Không chặn: `TopColor` đã có nhánh Farmland.
+  - Planner chạy lại toàn bộ EditMode qua MCP: 364/364 đạt, 89,7 s [run]. PlayMode executor đã chạy 69/69, không chạy lại.
+  - Chờ user xem 5 điểm ở "User tự test" rồi mới kết luận.
