@@ -516,6 +516,12 @@ Thời điểm dừng: 2026-10-21 12:02. Điều kiện dừng "FindSite ném In
 - (C) Cho `FindSite` tự san phẳng cửa sổ trước khi build (ghi `Cell.Make(Dirt/Air)` qua WorldData.Set) — đơn giản, tất định, nhưng sửa world sau Place; cần quyết về `Landmark.Surface` và minimap.
 **Đề xuất:** (C), san cửa sổ 9 × 7 về độ cao `surface` phổ biến nhất (hạ cột cao, đắp Dirt cột thấp) bên trong `FindSite` hoặc hàm riêng `SimDemo.Flatten(world, site)`, điều kiện tìm: chênh ≤ 1 ô so với mode. Planner chốt rồi cập nhật brief.
 
+## Kiểm chứng
+Đang chờ Planner (brief `cần Opus`, code chưa commit nên chưa xong task).
+- `design`: chạy `python3 tools/check_design.py` (kết quả ở dưới phiên này) — chỉ 2 file `sim_m1.json` đổi trong `design/data/`.
+- `client_test`: không chạy `tools/unity_test.py` vì Unity Editor đang mở (AGENTS.local: dùng MCP). Kết quả MCP EditMode: 22/22 (lọc SimBounds/GridPathfinder/SimDemo/Config), `SimDemoMapsTests` 0/5 — xem Vướng mắc. Chưa chạy cả bộ.
+- Checklist: Game.Core không dùng UnityEngine — đạt (SimBounds/SimDemo/GridPathfinder/Simulation chỉ dùng System). Các mục còn lại chưa đối chiếu: chờ Planner chốt phương án rồi làm xong.
+
 ---
 <!-- PLANNER ghi khi review. -->
 
