@@ -1,6 +1,6 @@
 # Brief 0019 — World 7e (phần 1/2): vùng mô phỏng 64 × 64 (tìm đường cấp mảng theo vùng) + SimDemo tự tìm chỗ trong Map 1
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 12:30
@@ -538,13 +538,22 @@ Không có (chỉ lõi). Phần xem trại chạy trong Map 1 làm ở brief 002
 - Bắt đầu: 2026-10-21 11:59
 - Base commit: a6acf32
 - Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-21 12:09; commit code f96591f (gồm bước 9 theo Planner chốt)
+- File: SimBounds.cs (mới), GridPathfinder.cs, Simulation.cs, SimConfig.cs, SimDemo.cs, 2 sim_m1.json; SimBoundsTests.cs, SimDemoMapsTests.cs (mới) — kèm .meta
 
 ## Kết quả test
 - Bước 1–7 đã viết (SimBounds, GridPathfinder, Simulation, regionSize + 2 JSON giống nhau [`cmp`], SimDemo.FindSite/DemoSite/Build, 2 file test), biên dịch không lỗi. **Chưa commit code** (để nguyên trong working tree cho Planner xem).
 - EditMode lọc `SimBoundsTests`, `GridPathfinderTests`, `SimDemoTests`, `ConfigTests`: 22/22 đạt (gồm 6/6 `SimBoundsTests`, test cũ không sửa).
 - `SimDemoMapsTests`: 0/5 — cả 5 ném `InvalidOperationException: Không có chỗ phẳng 9 × 7 cho trang trại demo trong map 0` từ `SimDemo.FindSite`. Chưa chạy EditMode/PlayMode cả bộ.
 
-## Vướng mắc
+### Sau bước 9 (2026-10-21 12:09)
+- EditMode lọc SimBounds/SimDemoMaps/GridPathfinder/SimDemo/Config: 27/27 (SimDemoMapsTests 5/5).
+- EditMode cả bộ: 322/322. PlayMode cả bộ: 32/32 (đã dọn EditorSettings). `cmp` 2 sim_m1.json: giống nhau. Game.Core/Sim không dùng UnityEngine.
+- `SIMSITE dời (98, 200), mặt y 17–20, vùng x 99..162, z 186..249, cách checkpoint Map 1 10.6 ô, tìm 16.6 ms`
+- `SIMMEM 196608 ô ≈ 3.4 MB (cả world 121.5 MB)`
+- `SIMMAPS produce=12 stalls=0 overlaps=0 idleOnPlot=0 idleOutside=0`
+
+## Vướng mắc (đã được Planner giải quyết bằng bước 9)
 Thời điểm dừng: 2026-10-21 12:02. Điều kiện dừng "FindSite ném InvalidOperationException".
 
 **Dữ liệu** [run, test chẩn đoán tạm, đã xoá] — seed mặc định `new WorldMapParams()`, map 0: 18999 cột; khô (waterDepth 0, surface ≥ 12) 17854; mặt Grass/Dirt thuộc 17015 cột; checkpoint Map 1 ở (123, 211), surface 18. Cửa sổ 9 × 7 tốt nhất theo điều kiện "cùng độ cao": **49/63** cột (bỏ điều kiện độ cao thì có cửa sổ 63/63). Tức địa hình có đủ cỏ/đất khô nhưng không có mảng 63 cột bằng phẳng tuyệt đối (sinh theo noise, có bậc 1 ô).
