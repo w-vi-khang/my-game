@@ -1,7 +1,7 @@
 # Handoff
 
 > Trạng thái: đang dở
-> Cập nhật: 2026-10-21 16:55
+> Cập nhật: 2026-10-21 17:32
 
 <!-- AI ghi khi context lớn / trước khi /clear / khi user yêu cầu (/ai-workflow-kit:handoff).
 File này được commit (theo sang máy khác). Phiên sau dùng xong (đã tóm tắt, user xác nhận bước tiếp theo) -> XOÁ file;
@@ -9,49 +9,34 @@ nội dung cũ vẫn xem lại được bằng: git log -p -- .ai/handoff.md
 Chỉ ghi sự thật đã xác minh. -->
 
 ## Mục tiêu
-Task [world bước 7g](tasks/m1-world-buoc-7g-minimap-goc.md): thay nút "Bản đồ (M)" bằng ô minimap tròn luôn hiện ở góc trên-phải, bấm/chạm để mở bản đồ lớn. Một brief (0025), PlayMode + user xem, đo FPS điện thoại.
+Bước tiếp theo của M1: simulation bước 6a. Task contract [m1-sim-buoc-6a-luat-o-ruong.md](tasks/m1-sim-buoc-6a-luat-o-ruong.md) (user quyết 2026-10-19, [0020](../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md); làm sau 6b theo [0021](../design/decisions/0021-lam-6b-truoc-6a.md)) đang **chờ viết brief**.
 
 ## Đã làm (kèm kết quả kiểm chứng)
-- World 7f xong: brief 0024 đã duyệt (`9ce4510`), user xem mục 1–7 ổn [user]. EditMode 340/340, PlayMode 60/60 [run, brief 0024]. Điện thoại 35,0–37,3 FPS (máy nóng), hash `a7719c8999939263`.
-- 7g: user chốt 5 điểm (ghi trong task contract):
-  - góc trên-phải thay nút;
-  - cố định Bắc lên trên, có chữ N;
-  - hiện nền + người chơi + ranh giới + dấu mốc + tên map;
-  - nút thời điểm giữ riêng, dời xuống dưới;
-  - biểu tượng thời tiết để sau (đã ghi `design/ideas.md`).
-- Đã cập nhật:
-  - world-tech dòng 7g, Cộng 44–70;
-  - controls-ui (dòng bản đồ);
-  - roadmap M1 79–128,5, tổng 554,5–1.035,5.
-  - `check_design.py` hợp lệ [run].
+- World 7g xong. Brief 0025 đã duyệt; user xem 1–7 ổn [user 2026-10-21].
+  - Kết quả chạy [run]: EditMode 340/340, PlayMode 68/68.
+  - Điện thoại: avgFps 35,3 (thermal 2), holeFrames 0, hash `a7719c8999939263`.
+  - Ảnh `client/Builds/bench-0025.png` thấy ô tròn.
+- Giờ 7g đã ghi vào `design/05-roadmap.md` và `design/04-tech/world-tech.md`.
 
 ## Còn lại
-1. **Viết brief 0025 (7g)** bằng `/ai-workflow-kit:brief 7g`. Mục "Planner chốt khi viết brief" của task contract ghi sẵn cỡ ô, vùng hiện, chỗ đặt tên map, nút "Đóng (M)" trong bảng, dời `TimeDial`.
-   - Phải **tra docs uGUI 2.0** cho mặt nạ tròn: `Mask` dùng `TimeDialGraphic` hình `Disk` làm stencil có được không, `showMaskGraphic`. Nếu không chắc thì chạy thử bằng MCP `execute_code`.
-   - Tính lại vị trí `TimeDial` (hiện ở `TimeDial.cs`): nút (−16, −84) 72, dòng buổi (−100, −120), vòng (−180, −320) 300. Ô minimap mới cao khoảng 200 nên phải dời tất cả xuống.
-   - Ô nhỏ dùng chung texture `MinimapView.Texture`; `uvRect` theo vùng quanh camera. Ranh giới và dấu mốc vẽ lại theo vùng nhìn của ô nhỏ (mỗi ô một `MinimapViewport`?): Planner chốt.
-   - Test: các test cũ `MinimapViewPlayTests` dùng `ButtonScreenCenter` / `BlocksPointer`, phải sửa theo ô nhỏ (liệt kê rõ trong brief).
-2. Giao Executor (Sonnet · medium), review, user xem, ghi giờ.
-3. Sau 7g → sim 6a.
+1. Đọc task contract 6a + `design/04-tech/simulation-tech.md` dòng 6a (`:101`). Nếu còn điểm chưa chốt thì hỏi user, sau đó viết brief (số tiếp theo là 0026).
+2. Giao Executor, review, ghi giờ.
+3. Sau 6a: sim bước 7 (đo mobile 60 sinh vật giả, ≤ 5 ms/nhịp).
 
 ## Quyết định quan trọng & lý do
-- 7g nằm trong hạng mục minimap M1 của 0022; mục 5 của 0022 không nói "nút", nên không cần quyết định mới.
-- Bài học lặp lại:
-  - Bench điện thoại phải đọc `Exception` trong logcat.
+- Bài học điện thoại:
   - Máy hay rớt USB, dùng `adb connect 192.168.1.6:5555`.
-  - Chụp màn hình khi máy đang khoá sẽ ra ảnh đen.
-  - Máy nóng làm FPS giảm.
-- Clear phiên con bị auto-mode chặn → mở phiên con mới bằng `start_session`.
+  - Trước khi chụp, kiểm `isKeyguardShowing`: máy khoá thì ra ảnh đen và không có log BENCH.
+  - Máy nóng (thermal 2) làm FPS còn khoảng 35.
+- Phiên con: mở mới bằng `start_session` (clear phiên con bị chặn).
 
 ## File liên quan
-- `.ai/tasks/m1-world-buoc-7g-minimap-goc.md`, `design/decisions/0022-…md` mục 5
-- `client/Assets/Game/Client/MinimapView.cs`, `TimeDial.cs`, `TimeDialGraphic.cs`, `MinimapLinesGraphic.cs`, `MinimapLandmarkGraphic.cs`, `MinimapMarkerGraphic.cs`
-- `client/Assets/Game/Tests/Client/MinimapViewPlayTests.cs`, `TimeDialPlayTests.cs`
-- Mẫu brief UI: `.ai/briefs/0024-vong-chon-moc-va-nhan-buoi.md`
+- `.ai/tasks/m1-sim-buoc-6a-luat-o-ruong.md`, `design/decisions/0020-…md`, `0021-…md`
+- `design/04-tech/simulation-tech.md` (kế hoạch prototype, dòng 6a)
 
 ## Prompt tiếp tục
 ```text
-Tiếp tục công việc đang dở trong .ai/handoff.md — world 7f đã xong (0024 duyệt); bước tiếp theo là viết brief 0025 cho 7g (ô minimap tròn luôn hiện ở góc trên-phải, bấm để phóng to): /ai-workflow-kit:brief 7g
-Đọc handoff và các file liên quan trước, tóm tắt lại cho tôi trong 3 dòng rồi mới làm.
+Tiếp tục công việc trong .ai/handoff.md — world 7g đã xong (0025 duyệt); bước tiếp theo là sim 6a (ô ruộng chỉ có sau khi xới, đặt/đào thì huỷ vụ): /ai-workflow-kit:brief 6a
+Đọc handoff và task contract 6a trước, tóm tắt lại cho tôi trong 3 dòng rồi mới làm.
 Model đề xuất cho bước này: Opus · medium (viết brief, AGENTS.md §10.2).
 ```

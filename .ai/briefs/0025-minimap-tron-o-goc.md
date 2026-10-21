@@ -1,9 +1,9 @@
 # Brief 0025 — World 7g: ô minimap tròn luôn hiện ở góc trên-phải, bấm để mở bản đồ lớn
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 17:23
+> Cập nhật: 2026-10-21 17:30
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -424,3 +424,5 @@ Planner (Opus · medium), 2026-10-21 17:16–17:23:
   - nút thời điểm + "Đang ở buổi: Ban ngày" ngay dưới, vòng 4 mốc bên dưới nữa, không chồng ô.
 - Tài liệu: thêm dòng 7g vào bảng giờ `design/05-roadmap.md` (Executor 8 phút) và ghi giờ vào dòng 7g `design/04-tech/world-tech.md`. `check_design.py` hợp lệ.
 - Còn: user xem mục "User tự test" 1–7, chưa kết luận.
+- User xem 1–7 đều ổn [user 2026-10-21].
+- Kết luận: đã duyệt
