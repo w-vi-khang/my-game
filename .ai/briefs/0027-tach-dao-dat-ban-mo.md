@@ -1,6 +1,6 @@
 # Brief 0027 — Tách công cụ đào / đặt, bản mờ khi đặt
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 18:33
@@ -353,3 +353,5 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
   - `TerrainEditInput`: Tab → `ToggleTool`, chuột phải đã bỏ, `ShowAim` / `UseTool` / `CreateGhost` (không collider, không đổ bóng) đúng bước 2; shader `Game/GhostBlock` đúng bước 3. Chỉ file trong Phạm vi.
   - Test mới khớp "Phần cần test" (có `FindColumn`, tiền điều kiện `CheckPlace`); không sửa assert cũ. EditMode 366/366, PlayMode 76/76 theo executor — không chạy lại (kết quả đủ, không đáng ngờ).
   - Chờ user xem 6 điểm "User tự test" rồi mới kết luận.
+  - User xem SimView/TerrainView (2026-10-21): 6/6 điểm "User tự test" đạt [user].
+- Kết luận: đã duyệt
