@@ -1,9 +1,9 @@
 # Brief 0022 — World 7f-1: lõi buổi trong ngày (`TimeOfDay`, khung mốc, buổi, điều kiện buổi) + `time_m1.json`
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 14:51
+> Cập nhật: 2026-10-21 14:57
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -203,10 +203,23 @@ Không có, brief này chỉ làm lõi. Phần xem bầu trời làm ở 7f-2, v
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-<!-- Bắt đầu · Base commit · Chạy bằng: <model id> · <effort> · Kết thúc + commit code · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
+- Bắt đầu: 2026-10-21 14:52
+- Base commit: d9a60c4
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Kết thúc: 2026-10-21 14:57 · commit code 688d197
+- File đổi: design/data/time_m1.json; Core/DayCycle/{TimeConfig,PeriodCondition,TimeOfDay}.cs; Tests/Core/DayCycle/{TimeConfigTests,PeriodConditionTests,TimeOfDayTests}.cs (+.meta); SimDeterminismTests.cs (BuildFarm → internal).
+- Lệch brief: không.
 
 ## Kết quả test
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt + bằng chứng. Mỗi lệnh → kết quả thật. -->
+Tất cả phần cần test: **đạt** (test mới 17 = TimeConfigTests 3 + PeriodConditionTests 4 + TimeOfDayTests 10, đều pass; SimDeterminismTests cũ pass).
+Lệnh:
+1. json.tool → exit 0.
+2. refresh_unity (kết nối đóng do domain reload) → read_console error: 0 lỗi; test chạy được nên đã biên dịch.
+3. grep UnityEngine trong Core/DayCycle → không in gì.
+4. run_tests EditMode assembly Game.Core.Tests → 230/230 đạt.
+5. run_tests EditMode cả bộ → 339 total, 339 passed, 0 failed (322 + 17).
+6. check_design.py → ✓ design/ hợp lệ: 49 file.
+7. git status chỉ file trong Phạm vi; đã commit.
 
 ## Vướng mắc
 
