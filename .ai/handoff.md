@@ -1,7 +1,7 @@
 # Handoff
 
 > Trạng thái: đang dở
-> Cập nhật: 2026-10-21 18:45
+> Cập nhật: 2026-10-21 20:00
 
 <!-- AI ghi khi context lớn / trước khi /clear / khi user yêu cầu (/ai-workflow-kit:handoff).
 File này được commit (theo sang máy khác). Phiên sau dùng xong (đã tóm tắt, user xác nhận bước tiếp theo) -> XOÁ file;
@@ -9,39 +9,44 @@ nội dung cũ vẫn xem lại được bằng: git log -p -- .ai/handoff.md
 Chỉ ghi sự thật đã xác minh. -->
 
 ## Mục tiêu
-Làm M1 **sim bước 7** (user yêu cầu 2026-10-21). Theo [simulation-tech.md:103](../design/04-tech/simulation-tech.md):
-- Đo trên mobile với **60 sinh vật giả**, sinh bằng lệnh debug, có luật 6a và 6b.
-- Xong khi: **≤ 5 ms/nhịp**. Ngưỡng này user duyệt 2026-10-13, là số tạm.
-- Ước lượng 1 ngày-người.
+Chọn và làm bước M1 kế tiếp sau sim bước 7. Có hai việc đang chờ:
+1. **Quyết định [0025](../design/decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md)** (Đề xuất, user yêu cầu ghi 2026-10-21): người chơi có công cụ Xới đất (cùng cấp Đào/Đặt) tạo ô ruộng; bấm ô ruộng chọn giống cây; hàng đợi nhiều loại cây; hết hàng đợi thì ô dừng. Đụng nội dung đã Chốt ở 0016/0020 → phải hỏi user các lựa chọn trong 0025 trước:
+   - milestone (M1 sau bước 7 hay M2);
+   - người chơi xới ngay hay chỉ đánh dấu;
+   - vụ kế có xới lại không;
+   - kho nhận nông sản;
+   - số loại cây M1;
+   - có giữ lệnh trồng cây theo vùng không.
+2. **Sim bước 8** — môi trường sống: đếm yêu cầu theo sự kiện, 3 loài × 2–3 yêu cầu; ước lượng 3–6 ngày-người ([simulation-tech](../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1)).
 
 ## Đã làm (kèm kết quả kiểm chứng)
-- **Sim 6a** (brief 0026): đã duyệt 2026-10-21. EditMode 364/364 do Planner chạy lại; user xem đạt.
-- **Tách công cụ đào/đặt + bản mờ** (brief 0027, task `.ai/tasks/m1-dieu-khien-tach-dao-dat.md`): đã duyệt 2026-10-21. EditMode 366/366, PlayMode 76/76; user xem đạt 6/6. Commit cuối `79cb42f`.
-- Giờ thực tế của cả hai việc đã ghi vào `design/05-roadmap.md`.
+- **Sim bước 7** (brief 0028, task `.ai/tasks/m1-sim-buoc-7-do-mobile-60-sinh-vat.md`): **đã duyệt 2026-10-21**.
+  - Điện thoại Xiaomi: 2386 nhịp, p95 0,956 ms (≤ 5 ms), 31,9 FPS. Pha tốn nhất: rảnh 188,5 µs, đi 130,8 µs.
+  - EditMode 371/371, PlayMode 79/79.
+  - User xem scene `SimBench` đạt.
+  - Số đo đã ghi vào simulation-tech bước 7; giờ thực tế đã ghi vào roadmap.
+- Có sẵn để dùng lại:
+  - scene đo `Assets/Game/Client/Scenes/SimBench.unity`: đồng bằng 48 × 48 giữa Map 1, chỉ trong scene này;
+  - `SimStress` (Core), `SimBenchMeter`, menu "Game/Build APK SimBench".
 
 ## Còn lại
-1. `/ai-workflow-kit:task` cho sim bước 7. Hỏi user tối đa 2 câu nếu thiếu, ví dụ:
-   - 60 sinh vật giả đặt ở đâu: trại `SimDemo` trên world 3 map hay map phẳng riêng; có ô ruộng/lệnh hay chỉ lang thang;
-   - đo bằng gì: thời gian `Simulation.Tick()` trung bình / p99 ghi ra logcat, so với ngưỡng 5 ms.
-2. Viết task contract → brief → giao Executor (`--child`) → review → user xem trên điện thoại.
+1. Hỏi user chọn việc 1 hay 2 (tối đa 2 câu). Nếu chọn 0025 thì hỏi các lựa chọn trong file đó, ghi quyết định, rồi task contract → brief.
+2. Sau 4–6 hạng mục M1 thì tính lại hệ số ước lượng ([roadmap](../design/05-roadmap.md#kiểm-tra-phạm-vi)).
 
 ## Quyết định quan trọng & lý do
-- **Điện thoại** luôn cắm USB ở chế độ dev. AI tự cài APK và đọc logcat, không hỏi user (memory `phone-test-self-install`). Đã từng đo FPS: Mali-G615, Vulkan, khoảng 35 FPS ở SimView (brief 0025).
+- **Điện thoại:**
+  - USB thường không hiện trong adb.
+  - Kết nối không dây: dò cổng bằng `adb mdns services`. Không dùng `192.168.1.7:6060` — đó là **hộp Android TV (ADT_3)**, không phải điện thoại; lần đo nhầm trên đó cho 6 FPS.
+  - Điện thoại đúng: Xiaomi 24095PCADG, IP 192.168.1.6.
 - **Sau build APK:** `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`. **Sau PlayMode:** `git checkout -- client/ProjectSettings/EditorSettings.asset`.
-- **Đã có sẵn:**
-  - `Simulation.AttachEditor`;
-  - đếm thời gian tìm chỗ: `SimView` log `SIMVIEW trại … tìm chỗ … ms, mảng tìm đường … ô` (`client/Assets/Game/Client/SimView.cs`, ~:126);
-  - vùng mô phỏng 64 × 64 (`Simulation(cfg, world, site.Bounds)`).
-- **Bước 6a** đã tránh chạy A* mọi sinh vật sau mỗi lần xới (cờ `writingWorld`), một phần để bước 7 nhẹ hơn.
 
 ## File liên quan
-- `design/04-tech/simulation-tech.md` (bảng bước, dòng 103; dòng 79 nói về 54/60 sinh vật).
-- `client/Assets/Game/Core/Sim/{Simulation,SimDemo,SimData}.cs`, `client/Assets/Game/Client/SimView.cs`.
-- Brief đo điện thoại mẫu: `.ai/briefs/0025-minimap-tron-o-goc.md`, `.ai/briefs/0010-world-nap-dan-chunk.md`.
+- `design/decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md`, `design/04-tech/simulation-tech.md` (bảng bước), `design/02-gameplay/mechanics.md` (môi trường sống, kho & lệnh trồng cây).
+- `client/Assets/Game/Core/Sim/{Simulation,SimDemo,SimStress}.cs`, `client/Assets/Game/Client/SimView.cs`.
 
 ## Prompt tiếp tục
 ```text
-Tiếp tục công việc trong .ai/handoff.md — làm M1 sim bước 7 (đo mobile 60 sinh vật giả, ≤ 5 ms/nhịp): /ai-workflow-kit:task sim bước 7
-Đọc handoff trước, tóm tắt 3 dòng rồi mới làm.
-Model đề xuất: Opus · medium (Planner viết task contract + brief, AGENTS.md §10.2).
+Tiếp tục công việc trong .ai/handoff.md — chọn bước M1 kế: quyết định 0025 (người chơi xới đất + chọn giống + hàng đợi) hoặc sim bước 8 (môi trường sống).
+Đọc handoff trước, tóm tắt 3 dòng rồi hỏi user chọn việc nào.
+Model đề xuất: Opus · medium (Planner: hỏi quyết định, task contract, brief — AGENTS.md §10.2).
 ```

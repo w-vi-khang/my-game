@@ -1,9 +1,9 @@
 # Brief 0028 — Simulation bước 7: đo trên điện thoại với 60 sinh vật trên đồng bằng giữa Map 1
 
-> Trạng thái: chờ user xem
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 19:50
+> Cập nhật: 2026-10-21 20:00
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -468,7 +468,7 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 <!-- PLANNER ghi khi review. -->
 
 ## Review
-Planner (Opus · medium), 2026-10-21 19:45–19:50. Phần máy **đạt**; chờ user xem SimBench trên Mac (mục "User tự test").
+Planner (Opus · medium), 2026-10-21 19:45–19:50. Phần máy **đạt**; user xem SimBench trên Mac: đạt (2026-10-21).
 - Chạy bằng `claude-sonnet-5-5 · medium`, khớp `Model thực thi`.
 - Diff `64ecb06` [repo] đúng brief:
   - `SimStress`: làm phẳng đồng bằng theo quyết định 5 và 7, bố trí theo bảng quyết định 8, `WithoutPlain`;
@@ -486,3 +486,5 @@ Planner (Opus · medium), 2026-10-21 19:45–19:50. Phần máy **đạt**; ch�
   - Kho chỉ có 10 nông sản trong 240 giây: một vụ dài ~146 giây, và 5 kho × 10 hạt chưa đủ cho 60 ô. Đây là bố trí đo, không phải lỗi.
   - Pha rảnh (188,5 µs) và pha đi (130,8 µs) tốn nhất. Cần tối ưu thì bắt đầu từ hai pha này. Hiện chưa cần.
 - Đã ghi số vào `design/04-tech/simulation-tech.md` (bước 7) và thêm dòng giờ vào `design/05-roadmap.md`.
+- User xem SimBench (5 mục "User tự test"): đạt, 2026-10-21.
+- Kết luận: đã duyệt

@@ -1,7 +1,7 @@
 # Task: M1 simulation bước 7 — đo trên điện thoại với 60 sinh vật giả (≤ 5 ms/nhịp)
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2 — Executor làm theo brief; Planner Opus viết brief từ contract này)
-> Trạng thái: brief [0028](../briefs/0028-sim-do-mobile-60-sinh-vat.md) — điện thoại đạt (p95 0,956 ms), chờ user xem SimBench trên Mac. Ước lượng 1 ngày-người ([simulation-tech](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1) bước 7), nằm trong hạng mục "Lệnh làm việc / Tìm đường" của M1 ([roadmap](../../design/05-roadmap.md)). Dự kiến một brief.
+> Trạng thái: brief [0028](../briefs/0028-sim-do-mobile-60-sinh-vat.md) — đã duyệt 2026-10-21: điện thoại đạt (p95 0,956 ms), user xem SimBench đạt. Ước lượng 1 ngày-người ([simulation-tech](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1) bước 7), nằm trong hạng mục "Lệnh làm việc / Tìm đường" của M1 ([roadmap](../../design/05-roadmap.md)). Dự kiến một brief.
 
 ## Mục tiêu
 Làm bước 7 của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1): đo mô phỏng trên điện thoại khi số sinh vật hoạt động là tối đa, **60** (có nạp, [Hiệu năng](../../design/04-tech/simulation-tech.md#hiệu-năng)). Đo ở mức tải giống lúc chơi thật, có cả luật 6a và 6b.
