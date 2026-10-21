@@ -1,6 +1,6 @@
 # Brief 0018 — World 7d (phần 2/2): hiển thị dấu mốc trong world và trên bản đồ
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-21 11:35
@@ -462,7 +462,9 @@ Mở scene TerrainView trên Mac, bấm Play:
 - Bắt đầu: 2026-10-21 11:03
 - Base commit: 2cadbeb
 - Chạy bằng: claude-sonnet-5-5 · medium
-- Kết thúc: 2026-10-21 11:20
+- Bắt đầu (sửa lần 1): 2026-10-21 11:27, base 0323878
+- Kết thúc (sửa lần 1): 2026-10-21 11:45; commit ec8e3e5; thêm Resources/Materials/Landmark.mat (+.meta, Materials.meta); m_Shader guid 933532a4fcc9baf4fa0491de14d08ed7 (đúng URP Lit); Bench.unity.meta đã trả guid
+- Kết thúc (lần đầu): 2026-10-21 11:20
 - Commit code: ef3b3c1
 - File: LandmarkStyle.cs, MinimapLandmarkGraphic.cs (mới); TerrainChunkView.cs, MinimapView.cs, MinimapViewPlayTests.cs (sửa); LandmarkViewPlayTests.cs (mới) — kèm .meta
 - Build Bench: `Bench build: Succeeded, 845427275 byte, 00:02:33` → Builds/bench.apk
@@ -474,6 +476,14 @@ Mở scene TerrainView trên Mac, bấm Play:
 - PlayMode cả bộ: 32/32 đạt. Đã `git checkout -- EditorSettings.asset`.
 - Điện thoại: adb serial USB PFQCRWVWR46HU4GQ không có; dùng 192.168.1.6:5555 — cài `Success`, monkey khởi chạy. Máy khoá màn hình (keyguard, screen OFF, app bị APP_CMD_STOP) nên không có dòng LANDMARKVIEW/MINIMAP/BENCH → **chờ user mở khoá** (avgFps/holeFrames/hash chưa đo). Chạy lại: mở khoá máy rồi `monkey -p com.viventa.bench`, chờ 75 s, logcat grep BENCH|MINIMAP|LANDMARKVIEW.
 - Nhìn thật (mục "User tự test"): chờ user.
+
+### Sửa lần 1 (bước 8)
+- PlayMode lọc Landmark+Minimap: 13/13; PlayMode cả bộ: 32/32 (đã dọn EditorSettings); EditMode cả bộ: 311/311.
+- Build Bench: `Succeeded, 846014419 byte`. Điện thoại 192.168.1.6:5555, đã mở khoá [run 11:43]:
+  - `LANDMARKVIEW 9 dấu mốc, đặt 26,5 ms`
+  - `MINIMAP dựng: ảnh 384x384, 3 đường ranh giới, 3 tên, 9 dấu mốc, font=LegacyRuntime, khung 292x616, 121,9 ms`
+  - `BENCH … frames=2081 avgFps=52,0 p99Ms=33,29 … holeFrames=0 maxMissing=0 loadedChunksMax=801 … genMs=30 initialLoadMs=338 … pass30fps=True passNoHole=True | tris=3889524 … hash=a7719c8999939263 v3`
+  - Không có dòng Exception.
 
 ## Vướng mắc
 Không có. (Chỉ còn đo điện thoại chờ mở khoá.)
