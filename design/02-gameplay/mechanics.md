@@ -71,6 +71,13 @@ Chốt (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong
 - **Tự trồng trọt:** click ô có biển canh tác → nhân vật tự đi tới và xới (thời gian như sinh vật thuần thục gốc) · mở túi → chọn túi hạt → **chế độ gieo** → click ô ruộng đã xới → gieo (−1 hạt) · ngoài chế độ gieo, click ô ruộng mở bảng ô ruộng như cũ · cây lớn 100% → click thu hoạch → nông sản + hạt vào túi.
 - **Tưới:** người chơi không tưới tay; cần sinh vật biết tưới hoặc **phép Mưa** (có sẵn, 1 ô trong tầm, hồi 10 giây): ô ruộng chờ tưới → tưới xong; ô đất → cỏ.
 - **Kho ↔ túi:** đứng trong tầm kho → mở kho → chuyển đồ hai chiều.
+- **Chi tiết M1** (task contract sim 7f, user xác nhận 2026-10-22; brief 0040–0042):
+  - *Tự xới:* đứng xới **6 giây** sau khi tới ô kề (bằng thời gian xới của sinh vật tốc độ 1000‰). Bấm đi/nhảy, đổi công cụ, dùng công cụ khác, vào chế độ gieo → huỷ, không giữ tiến độ. Không có đường → `Không tới được ô này`. Sinh vật xới xong trước → người chơi dừng. Ô xới lại: nút `Tự xới` trong bảng ô ruộng. Bỏ đánh dấu = chuột phải lên biển.
+  - *Lệnh người chơi* vào mô phỏng giữa hai nhịp: công đoạn đang mở của ô xong ngay (người chơi làm); sinh vật đang làm công đoạn đó về rảnh; hạt kho đã giữ cho gieo trả lại kho; sinh vật không làm lại công đoạn người chơi đã làm.
+  - *Gieo:* ô đã xới đứng yên → vụ mới (hàng đợi giữ nguyên); ô đang chờ gieo cùng loại → gieo xong bằng hạt túi; ô chờ gieo khác loại / chưa xới / đã có cây → không gieo, báo lý do. Hết hạt → thoát chế độ gieo.
+  - *Phép Mưa:* ô không có tác dụng (không phải ô ruộng chờ tưới, không phải ô đất có ô trên trống) → không tính hồi.
+  - *Thu hoạch:* với mọi công cụ / chế độ; Cây A +1 nông sản +1 hạt, Cây B +3 +2 (`sim_m1.json`); không chở về kho.
+  - *Kho ↔ túi:* chỉ hạt và nông sản (khối không cất kho); mỗi click 1, Shift + click tất cả; túi → kho dừng khi kho chung đầy; có kho trong 8 ô mới chuyển được, ngoài tầm bảng kho chỉ xem.
 - Sinh vật vẫn làm như cũ (0025–0027).
 
 #### Sinh vật trở lại — luật M1

@@ -163,5 +163,7 @@
 | Túi hạt | Vật phẩm trong túi đồ giữ số hạt của một loại cây; chọn túi hạt để vào chế độ gieo | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Chế độ gieo | Trạng thái sau khi chọn túi hạt: click ô ruộng đã xới để gieo bằng tay | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phép Mưa | Phép của người chơi (M1 có sẵn, hồi 10 giây): mưa trên 1 ô — tưới ô ruộng, ô đất thành cỏ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nông sản | Sản lượng thu hoạch của một loại cây (M1: Cây A, Cây B), nằm trong túi đồ hoặc kho chung; M1 chưa có luật dùng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tự xới | Người chơi xới ô có biển canh tác: nhân vật tự đi tới ô kề rồi đứng xới (M1: 6 giây); huỷ khi đi, đổi công cụ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Điểm nhìn | Một tâm mà bộ nạp chunk nạp vùng quanh nó (nhân vật, camera quan sát đang xem); M1 tối đa 2, sau này 4–5 tính cả người chơi ([0029](decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Camera quan sát | Camera người chơi đặt ở một chỗ trong world để nhìn qua đó (toàn màn hình) mà không phải đi tới; M1 tối đa 1 ([0029](decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)) | [04-tech/world-tech.md](04-tech/world-tech.md) |
