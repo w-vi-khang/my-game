@@ -1,9 +1,9 @@
 # Brief 0045 — 0032 (B): client — file cài đặt, bảng Cài đặt, áp cài đặt, xuất file ngôn ngữ
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-22 20:50
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -161,13 +161,20 @@ Trên Mac, scene SimView (Play):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-Base commit:
-Chạy bằng:
-Bắt đầu: · Kết thúc: (theo `date`)
+Base commit: 8d6d96e
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: Thu Oct 22 20:21:57 +07 2026 · Kết thúc: Thu Oct 22 20:46:53 +07 2026 (~25 phút, gồm ~8 lần chạy PlayMode để dò lỗi cách ly)
+Commit: 68866d1. File: tạo `Client/GameSettings.cs`, `UiScale.cs`, `SettingsView.cs`, `Resources/Lang/vi.json` (+meta), `Tests/Client/SettingsTestRoot.cs`, `SettingsPlayTests.cs`; sửa `SimView.cs`, `TerrainEditInput.cs`, `FollowCamera.cs`, `DebugFlyCamera.cs` (đúng Phạm vi).
+Lưu ý: `Languages()` sắp **cả danh sách** (gồm "vi") theo Ordinal để khớp test `["en","vi"]` (QĐ ghi "vi" + các file, sắp Ordinal — mơ hồ, chọn theo test).
 
 ## Kết quả test
+- Cách ly (`Isolation_RootIsUnderTempPath`), Đọc/ghi, File hỏng/ngoài khoảng, Ngôn ngữ (2 test), Danh sách, Xuất, File gốc (13 khoá), UiScale, Áp vào cảnh, Phím (+ lưu khi đóng), Chặn con trỏ: **đạt** (SettingsPlayTests 10 + SettingsScenePlayTests 3 = 13 test mới).
+- PlayMode toàn bộ: **164/164 đạt** (150 cũ + 14 mới gồm cả test Isolation). EditMode: **488/488**. Console 0 lỗi (chỉ cảnh báo cũ).
+- Phần user tự test: **chờ user** (mục "User tự test"; điện thoại để Planner).
+- `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy.
 
 ## Vướng mắc
+Không dừng. Ghi nhận: `Apply_ReachesScene` đặt `Application.targetFrameRate = 30`; trong lần chạy PlayMode đầy đủ nó làm `TerrainEditPlayTests.TimingSingleChunkEdits` (cũ) fail ("Expected 1 but was 4/6") dù chạy riêng thì qua. Đã khoanh bằng cách bỏ test (150 cũ đạt) và Ignore từng test; sửa bằng cách `SettingsScenePlayTests` lưu/khôi phục `targetFrameRate` + `vSyncCount` trong TearDown. Không rõ vì sao `SimView.OnDestroy` (khôi phục `savedTargetFps`) không đủ — Planner có thể xem (có thể do thứ tự Awake/OnDestroy giữa test); không ảnh hưởng chơi thật.
 
 ---
 <!-- PLANNER ghi khi review. -->
