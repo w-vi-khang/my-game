@@ -42,5 +42,7 @@ Hiện trạng [run 2026-10-22, commit 259355e, regex `"(?:[^"\\]|\\.)*"` chứa
 5. Thêm danh sách từ tiếng Việt không dấu (vd `Kho`, `Tui`) để bắt chỗ như `SimView.cs:209` (user, 2026-10-22). Danh sách từ cụ thể + cách khớp (nguyên từ, phân biệt hoa thường) do Planner chốt trong brief B.
 
 ## Câu hỏi còn mở
-- (Planner, brief B) Test PlayMode nào đang so chữ hiển thị tiếng Việt bằng literal: đổi sang đọc khoá (`GameSettings.Text`) hay đưa vào danh sách miễn?
-- (Planner, brief B) Danh sách từ không dấu tối thiểu, tránh bắt nhầm từ tiếng Anh.
+_(đã chốt 2026-10-22, Planner, trong brief 0049)_
+- Test so chữ hiển thị tiếng Việt bằng literal: **giữ literal** (để test kiểm đúng chữ người chơi thấy), gắn ` // vi-text` cuối dòng. Dấu chỉ hợp lệ trong `Tests/**` và `Core/WorldMapParams.cs` (danh sách miễn); dấu sai chỗ hoặc thừa → test quét báo lỗi.
+- Từ không dấu: `kho tui nha ruong cay khoi hinh bien huong khong duoc cua gieo xoi tuoi hoach buoi binh minh hoang dem`, nguyên từ, không phân biệt hoa thường. Chạy thử trên HEAD 0c6a82c: chỉ bắt `EditOcclusionPlayTests.cs:53` và `SeaSkyTintPlayTests.cs:14` (đều là chữ tiếng Việt thật), không bắt nhầm literal tiếng Anh [run].
+- Brief A = 0048 (đã duyệt), brief B = 0049.
