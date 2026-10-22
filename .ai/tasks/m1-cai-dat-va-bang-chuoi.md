@@ -49,6 +49,7 @@ Thông tin chung:
   - **Core sinh chữ:** `SiteStatus` / `CreatureStatus` nhận bảng chuỗi (lớp `Strings` trong Core) thay vì chữ viết thẳng.
   - **Luật vào JSON:** khối `player` thêm `toolReach` 8, `handReach` 8, `starterCrop` 0, `starterSeeds` 4. Khoảng cách / bán kính đặt túi hạt đầu game giữ trong code (vị trí demo, không phải luật).
   - **Tách brief:** (A) Core: `Strings` + `PlayerSettings` + luật vào JSON — Sonnet · medium; (B) client: file cài đặt, bảng Cài đặt, áp cài đặt, xuất file ngôn ngữ — Sonnet · medium; (C) chuyển ~200–260 chữ hiện có sang khoá + test quét — Sonnet · medium; review đầy đủ A/B, C review đầy đủ + user xem.
+- Thử trên điện thoại (chép file vào `Android/data/<package>/files/lang`, chọn ngôn ngữ) dời từ brief 0045 sang sau brief C, gộp một lần build APK; Planner tự làm bằng adb: user, 2026-10-22.
 
 ## Câu hỏi còn mở
 _(không — câu hỏi 1–2 user chọn mặc định, 2026-10-22)_
