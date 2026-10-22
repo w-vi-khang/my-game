@@ -2,6 +2,7 @@
 
 > Trạng thái: Chốt
 > Ngày: 2026-10-22
+> Mục 4–5 được thay một phần bởi [0027](0027-o-tien-trinh-tam-dung-xoi-khong-tra-hat.md) (ô tiến trình, vụ rời ô đợi lúc gieo).
 > Thay đổi: [0025](0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md) mục "Chọn giống" và "Xoá vụ trong bảng hàng đợi" (hàng đợi 2 chỗ, mỗi chỗ 1 vụ).
 
 ## Bối cảnh

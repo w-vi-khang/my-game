@@ -32,3 +32,4 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0024](0024-buoi-trong-ngay-va-chon-thoi-diem.md) | Buổi trong ngày: chu kỳ 24 giờ thực, chọn 4 mốc (đổi buổi, không đổi đồng hồ mô phỏng), điều kiện môi trường sống theo buổi; thêm vào M1 | Chốt |
 | [0025](0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md) | M1 sim bước 7b + 7c (trước bước 8): công cụ Xới đánh dấu từng ô + biển canh tác, sinh vật xới thành ô ruộng; bấm ô ruộng chọn giống (2 loại cây), vụ kế xới lại; bỏ lệnh trồng cây theo vùng; các kho thông nhau, giao về kho gần nhất, nút Kho | Chốt |
 | [0026](0026-hang-doi-o-doi-theo-loai.md) | Hàng đợi vụ = ô đợi theo loại cây × số lượng (ô ruộng cấp 1: 2 ô × 3); nút +/− trên từng ô đợi; không gộp; M1 sim bước 7d | Chốt |
+| [0027](0027-o-tien-trinh-tam-dung-xoi-khong-tra-hat.md) | Ô tiến trình (vụ rời ô đợi lúc gieo), tạm dừng xới, huỷ/đào/che không trả hạt, bảng ô ruộng dạng ô vuông, N/M theo từng ô ruộng; M1 sim bước 7d | Chốt |
