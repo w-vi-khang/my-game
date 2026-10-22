@@ -1,6 +1,6 @@
 # Brief 0038 — Tầm với mọi thao tác 8 ô (0031)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: nhẹ + user xem
 > Model thực thi: Sonnet · low
 > Cập nhật: 2026-10-22 16:25
@@ -134,4 +134,6 @@ Review nhẹ (Planner Opus, 2026-10-22):
 - Mọi dòng "Phần cần test" có kết quả: EditMode 437/437, PlayMode 117/117; dọn EditorSettings xong; 7 file đúng "Phạm vi" (`git show --stat 37880e8`) [run].
 - Lệch grep `0030`: 2 dòng còn lại (`TerrainEditInput.cs:8`, `:82`) là số **brief** 0030, không phải quyết định tầm với — executor giữ nguyên là đúng; lỗi ở mẫu grep/bước 2 của brief (lẽ ra chỉ thay "(0030)" ở 3 chỗ tầm với).
 - Giờ thực tế: 5 phút (16:19–16:24) so với ≤ 0,1 ngày-người.
-- Chờ user xem 4 mục "User tự test" rồi kết luận.
+- User xem trên Mac 4 mục "User tự test": đạt [user 2026-10-22].
+
+Kết luận: **đã duyệt**.
