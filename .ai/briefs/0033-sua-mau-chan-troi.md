@@ -1,9 +1,9 @@
 # Brief 0033 — Sửa lệch màu sương ↔ bầu trời ở chân trời (gửi màu trời dạng linear)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 11:19
+> Cập nhật: 2026-10-22 11:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -169,3 +169,13 @@ Commit: 78ff704 — `Client/DayCycleView.cs`, `Tests/Client/DayCycleViewPlayTest
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` Sonnet · medium.
+- "Phần cần test": cả 6 dòng có kết quả trong "Kết quả test". Đặc biệt, test render không đạt khi bỏ `.linear` (trưa R 229 so với 199; đêm R 80 so với 20), tức là test bắt được lỗi.
+- Diff `78ff704` (4 file, đúng Phạm vi): `DayCycleView.Apply` gửi 6 màu `_Day*` dạng `.linear`, `fogColor` vẫn bằng `s.horizon`. Assert và 3 test mới đúng các bước 2–3. Đạt Tiêu chí xong và Quyết định đã chốt 1–3.
+- Đo lại trong SimView đang Play, hoàng hôn, camera của user (cao 26 m so với mặt biển, pitch 13°, sương 64–120, far 128) [run]: trời dưới chân trời và biển bị sương phủ kín cùng màu (244,168,117) và nối liền nhau, không còn ranh giới cứng. Mục tiêu của task đã đạt.
+- User xem 2026-10-22 (ảnh đêm và hoàng hôn): "màn sương vẫn cao quá, không hoà màu với bầu trời ở các buổi". Nguyên nhân [run]:
+  - Sương phủ kín từ 120 m, nên dải màu sương phẳng kéo từ chân trời xuống khoảng 12° (asin 26/120).
+  - Bên dưới dải đó, biển ở tầm 64–120 m có màu xám (110,98,96), không đổi theo buổi, nên trông như một bức tường sương đặt trên biển.
+  - Đây là vấn đề mới, nằm ngoài phạm vi task contract (Ocean.shader, khoảng sương). User chọn hướng "biển nhuộm màu trời theo buổi (fresnel tới `_DayHorizon`), sương chuyển mềm, giữ far clip 128". Làm thành task mới.
+- Kết luận: đã duyệt
+
