@@ -1,9 +1,9 @@
 # Brief 0033 — Sửa lệch màu sương ↔ bầu trời ở chân trời (gửi màu trời dạng linear)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 11:30
+> Cập nhật: 2026-10-22 11:19
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -149,8 +149,19 @@ Mở scene `client/Assets/Game/Client/Scenes/SimView.unity`, bấm Play trên Ma
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: fe941b6
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-22 11:13 · Kết thúc: 2026-10-22 11:19 (~0,1 giờ; ước lượng 0,25 ngày-người)
+Commit: 78ff704 — `Client/DayCycleView.cs`, `Tests/Client/DayCycleViewPlayTests.cs`, `Tests/Client/HorizonFogMatchPlayTests.cs` (+ `.meta`).
 
 ## Kết quả test
+- `DayCycleView` gửi màu linear · `DayCycleViewPlayTests.FollowsClockAtNoonAndMidnight` · đạt (PlayMode lớp: 7/7 cùng HorizonFogMatch).
+- Trời = khối bị sương phủ kín (trưa, đêm) · `HorizonFogMatchPlayTests.SkyBelowHorizon..._Noon/_Midnight` · đạt với code mới. Khi tạm bỏ `.linear` ở `_DayHorizon`: không đạt cả hai (trưa R 229 vs 199; đêm R 80 vs 20) → test bắt được lỗi; đã sửa lại `.linear`.
+- Mẫu điểm ảnh là khối · `CubeIsRenderedWhenFogOff` · đạt.
+- Phần cũ (DayCycleWater, TimeDial, ...) · đạt, nằm trong chạy toàn bộ.
+- EditMode toàn bộ: 400/400 đạt. PlayMode toàn bộ: 94/94 đạt (chưa kể số "trước + 3": không có số trước để đối chiếu).
+- `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy; `git status` chỉ còn file trong Phạm vi + brief.
+- User tự xem (chờ user): SimView ngày/đêm/bình minh–hoàng hôn như mục "User tự test".
 
 ## Vướng mắc
 
