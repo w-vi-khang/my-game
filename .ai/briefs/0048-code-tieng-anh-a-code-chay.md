@@ -169,6 +169,12 @@ Commit: 03fdb38 — 38 file: 35 file quét (Core/World/Client/Editor) + `Client/
 - Lệnh: `git checkout -- EditorSettings.asset` đã chạy; `git diff --stat` chỉ file trong Phạm vi. `tools/unity_test.py` không chạy (Editor đang mở).
 - Ghi chú: giữa PlayMode MCP mất kết nối vài chục giây (Editor vẫn sống), job vẫn hoàn tất, kết quả lấy lại được.
 
+## Kiểm chứng
+- EditMode (MCP `run_tests`, tương đương `unity_test.py EditMode`): 498/498 qua.
+- PlayMode (MCP): 167/167 qua. `unity_test.py` không chạy vì Editor đang mở project.
+- Console 0 lỗi biên dịch. File thay đổi do test (`InitTestScene*.unity`, `EditorSettings.asset`): đã dọn, `git status` sạch.
+- Checklist: Core không tham chiếu UnityEngine — đạt (chỉ đổi chữ literal trong Core). Chỉ làm hạng mục M1 (0007)/phạm vi brief — đạt. Giờ thực tế: ~10 phút, ghi ở Kết quả. Các mục thiết kế/pillar/glossary/nguồn/ước lượng: không áp dụng (không đổi design/).
+
 ## Vướng mắc
 
 ---
