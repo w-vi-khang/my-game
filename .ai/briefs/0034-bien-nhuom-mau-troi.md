@@ -1,6 +1,6 @@
 # Brief 0034 — Biển nhuộm màu trời theo buổi, sương chuyển mềm ở chân trời
 
-> Trạng thái: chờ review
+> Trạng thái: chờ review (chờ user xem)
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 12:10
@@ -399,3 +399,11 @@ Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi. 9/9 dòng "Phần cần test" có kết quả; dòng kiểm bằng mắt `chờ user`.
+- Diff 83aef27 (`git show`): Ocean.shader nhuộm mặt trên đúng QĐ 1 (`skyT = saturate(smoothstep(32,120,dist) + 0.5*fres)` × `_DayCycleOn` × `IS_FRONT_VFACE(face,1,0)`, trước `MixFog`; hằng trong shader, không thêm property); `SoftFogFactor` giống hệt ở hai shader, `fogVis` dùng hệ số đã nắn (QĐ 2, 3). Không đụng file ngoài Phạm vi (QĐ 4); `git status` sạch.
+- Test bắt được lỗi: ba test mốc không đạt trên base, đạt sau sửa; số đo trước/sau hợp lý (dev90 giảm ~11×, kinkSea ≈ 0; offNear40 lệch 0; nhìn gần lệch 0,0007; dưới nước 0). 400 EditMode + 100 PlayMode đạt — không chạy lại.
+- kinkTerrain 0,01062 vs ngưỡng 0,01115 — sát ngưỡng nhưng hợp lý: smoothstep chỉ làm độ dốc về 0 *tại* 120 m, còn độ cong trong cửa sổ 3 hàng (mỗi hàng ở xa ứng nhiều mét) vẫn cho chênh dốc; biển về ~0 vì đã nhuộm sát màu sương trước khi chạm 120 m. Không phải lỗi, nhưng test này có thể chập chờn nếu đổi máy/driver.
+- Nhỏ (không bắt sửa): comment trong test ghi "base e15b86a" và "BaselineFilled = true → test chỉ ghi log" — sai chữ (base thật a289840; true → assert). Ghi chú, để lần sau đụng file thì sửa.
+- Giờ: 9 phút / ước lượng 0,5 ngày — đã ghi roadmap.
+- Chờ user xem trong SimView (mục "User tự test" 1–4) rồi mới kết luận.
+
