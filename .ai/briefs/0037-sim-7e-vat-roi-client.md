@@ -556,3 +556,12 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+Review phiên con Opus (2026-10-22), phần đầy đủ:
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` Sonnet · medium.
+- Mọi dòng "Phần cần test" có kết quả: 10 dòng tự động đạt (EditMode 437/437, PlayMode 117/117, Console 0 lỗi); "User tự test" chờ user.
+- Phạm vi: `git show --stat 35ddfd4` chỉ 8 file + `.meta` trong danh sách được sửa; file cấm sửa (DropField, PlayerBag, WorldEditor, PlayerRules, Sim, TerrainChunkView, SimView, DemoPlain, scene, design/) không đổi [run].
+- Đối chiếu diff với Các bước 1–5: `DropPick` (slab, `t < bestT`, lọc tầm tay trước), `StarterBag` (ô ưu tiên → 24 cột xếp dx²+dz², dz, dx; `Standable` đúng QĐ 8), `DropView` đúng khung (lô 500, `enableInstancing`, không bóng, xoay 45°/s lệch `Id × 37°`, bay 0,2 s thu 50 %), `TerrainEditInput` (F, `PickDrop` bị collider đầu tiên che, `AimedDrop` thay công cụ, chữ đúng nguyên văn QĐ 12, `HudText` tách), `PlayerCharacter` (đặt một lần cho mỗi `WorldEditor`, `giveStarterBag`) — khớp QĐ 1–12.
+- Không `UnityEngine` trong `DropPick`/`StarterBag` (checklist Game.Core) — đạt.
+- Giờ thực tế executor: ~10 phút (15:44–15:54) so với ước lượng 1,5–2 ngày-người; Planner ghi roadmap + `simulation-tech` bước 7e (QĐ 13) khi kết luận.
+- Điểm cần mắt user (code không lỗi nhưng có thể xấu/khó dùng): chồng trong lỗ đào nằm ở ô vừa đào, mesh bo cạnh có thể che một phần → vừa ảnh hưởng hình (mục 3) vừa có thể làm tia trúng địa hình trước hộp chọn khi nhìn xiên (mục 4: click thành đào thay vì nhặt).
+- Chờ user xem 10 mục "User tự test" rồi mới kết luận.
