@@ -1,9 +1,9 @@
 # Brief 0034 — Biển nhuộm màu trời theo buổi, sương chuyển mềm ở chân trời
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 15:00
+> Cập nhật: 2026-10-22 12:10
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -357,8 +357,41 @@ Mở scene `client/Assets/Game/Client/Scenes/SimView.unity` và bấm Play trên
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: a289840
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-22 12:07 · Kết thúc: 2026-10-22 12:16 (chủ yếu chờ EditMode ~5 phút)
+Commit: 83aef27 — Ocean.shader, Terrain.shader, Tests/Client/SeaSkyTintPlayTests.cs (+.meta)
+Ghi chú: BaselineFilled = true với mốc đo ở dưới. TerrainFog sau sửa 0,01062 so ngưỡng 0,01115 (đạt sát ngưỡng).
 
 ## Kết quả test
+**Trước khi sửa** (base a289840; độ nhạy đạt: dev90 min 0,02406 ≥ 0,005; kink min 0,00167 ≥ 0,0005):
+- dev90: binh-minh 0.47318 · ngay 0.27425 · hoang-hon 0.47318 · dem 0.02406
+- kinkSea: binh-minh 0.03123 · ngay 0.01790 · hoang-hon 0.03123 · dem 0.00167
+- kinkTerrain 0.02230 · offNear40 0.03095 0.27051 0.46851
+- closeTop on = off (0.02802 0.25684 0.45972); underwater on = off (0.06821 0.44531 0.58105)
+- Chạy lại với mốc đã điền (chưa sửa shader): SeaAt90m, SeaFog, TerrainFog **không đạt** (bắt được lỗi); 3 test còn lại đạt.
+
+**Sau khi sửa:**
+- dev90: binh-minh 0.04099 · ngay 0.02397 · hoang-hon 0.04099 · dem 0.00210
+- kinkSea: 0.00011 · 0.00010 · 0.00011 · 0.00000
+- kinkTerrain 0.01062; offNear40 0.03095 0.27051 0.46851 (lệch 0 so trước)
+- closeTop on 0.02869 0.25739 0.46021 vs off 0.02802 0.25684 0.45972 (lệch 0,0007); underwater on = off
+
+| Phần | Kết quả |
+|---|---|
+| SeaAt90mBlendsTowardFogColor | đạt (≤ 0,5 × trước cả 4 buổi) |
+| SeaFogHasNoKinkAtFogEnd | đạt |
+| TerrainFogHasNoKinkAtFogEnd | đạt (0,01062 ≤ 0,01115) |
+| DayCycleOffNearSeaUnchanged | đạt |
+| CloseTopViewUnchangedByDayCycle | đạt |
+| UnderwaterViewUnchangedByDayCycle | đạt |
+| HorizonFogMatch + DayCycleView + DayCycleWater (PlayMode) | đạt 8/8 |
+| Toàn bộ EditMode | 400/400 đạt |
+| Toàn bộ PlayMode | 100/100 đạt (94 + 6) |
+| Console error | không có |
+| Kiểm bằng mắt (mục "User tự test") | chờ user |
+
+Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy; `git status` chỉ còn brief.
 
 ## Vướng mắc
 
