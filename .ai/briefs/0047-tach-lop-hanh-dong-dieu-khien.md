@@ -412,3 +412,6 @@ Giờ: bắt đầu 22:08, dừng ~22:25.
 - Nghi ngờ [chưa xác minh]: dưới test runner Editor không focus (`editor_is_focused:false`) nên Input System bỏ qua sự kiện của thiết bị ảo, hoặc cần `InputSystem.Update()` thêm sau khi bind lại. Test cũ `FlyCameraMoveKeyPlayTests` đọc thẳng `kb.wKey.isPressed` nên không bị ảnh hưởng.
 **Câu hỏi:** cách đúng để action đọc được thiết bị ảo trong PlayMode test? Phương án: (A) gọi thêm `InputSystem.Update()` sau `Enable()`/sau `AddDevice` rồi mới gửi state event; (B) tra docs `InputTestFixture` / `InputSystem.settings.backgroundBehavior` / `InputSettings.editorInputBehaviorInPlayMode` (Planner tra 1.19); (C) bỏ 2 test đọc giá trị, giữ `AssetMatchesDefaultTable` (EditMode) + test override chỉ kiểm `bindings[0].effectivePath` sau `ApplyBindingOverride` (không cần thiết bị). **Đề xuất: B rồi A; C là phương án lùi.**
 Trạng thái code: mọi thứ khác xong, EditMode 498/498, chưa commit code (chờ Planner).
+
+## Kiểm chứng
+Đang chờ Planner/user (brief `cần Opus` lần 2). Chạy qua MCP (Editor mở): EditMode 498/498 qua; PlayMode 166/168 (2 test mới fail: MoveIsDigitalWasd, SwapMouseButtonsByOverride — xem "Vướng mắc lần 2"). `tools/unity_test.py` không chạy vì Editor đang mở. Checklist chưa đối chiếu: chờ brief hoàn tất.
