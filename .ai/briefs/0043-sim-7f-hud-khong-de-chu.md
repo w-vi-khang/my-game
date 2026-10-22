@@ -1,9 +1,9 @@
 # Brief 0043 — Sim 7f: HUD trái không đè chữ trạng thái trại; bỏ dòng "đang đi tới" khi đã xới
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: nhẹ
 > Model thực thi: Sonnet · low
-> Cập nhật: 2026-10-22 19:15
+> Cập nhật: 2026-10-22 19:25
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -72,11 +72,19 @@ Sửa: chữ trạng thái của `SimView` bắt đầu ngay dưới HUD trái; 
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-Base commit:
-Chạy bằng:
-Bắt đầu: · Kết thúc: (theo `date`)
+Base commit: 6664c25
+Chạy bằng: claude-sonnet-5-5 · low
+Bắt đầu: 19:22 · Kết thúc: 19:27 (theo `date`)
+
+Commit: 2a1a7a7. File: PlayerFarmActions.cs, SimView.cs, TerrainEditInput.cs, PlayerBagSowPlayTests.cs.
 
 ## Kết quả test
+- StatusTop(0)=100, StatusTop(250)=254: đạt (`StatusTopBelowHud`).
+- Tới nơi xoá dòng đi tới: đạt (`ArrivedClearsWalkingLine`).
+- Test cũ: đạt, không đổi kỳ vọng.
+- PlayMode toàn bộ: 150/150 qua. EditMode: 472/472 qua. Console: 0 lỗi biên dịch.
+- Đã `git checkout` EditorSettings.asset.
+- User tự xem: chờ user (chữ trạng thái dưới HUD trái).
 
 ## Vướng mắc
 
