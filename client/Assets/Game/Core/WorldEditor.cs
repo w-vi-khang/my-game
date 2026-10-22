@@ -13,9 +13,9 @@ namespace Game.Core
         NotEmpty,
         /// <summary>Đặt: loại vật liệu không đặt được (rỗng, nước, đá đáy).</summary>
         NotPlaceable,
-        /// <summary>Đặt: kho hết vật liệu loại này.</summary>
+        /// <summary>Đặt: túi hết vật liệu loại này.</summary>
         NoMaterial,
-        /// <summary>Đặt: ô đang có người chơi, sinh vật, cây hoặc kho.</summary>
+        /// <summary>Đặt: ô đang có người chơi, sinh vật, cây hoặc kho, hoặc có vật rơi không còn chỗ đẩy lên.</summary>
         Occupied,
         /// <summary>Đặt: ô không kề mặt khối đặc nào (0012).</summary>
         NotAttached,
@@ -33,7 +33,10 @@ namespace Game.Core
     public sealed class WorldEditor
     {
         public readonly WorldData World;
-        public readonly MaterialInventory Inventory;
+        public readonly PlayerBag Bag;
+
+        /// <summary>Vật rơi trên world (0028, task contract 7e).</summary>
+        public readonly DropField Drops;
 
         /// <summary>Số ô quanh chunk mà bộ dựng mesh đọc (đệm). Sửa ô trong vùng này của chunk bên cạnh → chunk đó cũng bẩn.</summary>
         public readonly int MeshMargin;
@@ -57,20 +60,21 @@ namespace Game.Core
         /// <summary>Ô (x, y, z) vừa đổi — cho tìm đường, môi trường sống, hiển thị.</summary>
         public event Action<int, int, int> CellChanged;
 
-        public WorldEditor(WorldData world, MaterialInventory inventory, int meshMargin, int seaLevel = -1)
+        public WorldEditor(WorldData world, PlayerBag bag, int meshMargin, int seaLevel = -1)
         {
             SeaLevel = seaLevel;
             if (meshMargin < 0 || meshMargin >= WorldSize.ChunkSize)
                 throw new ArgumentOutOfRangeException(nameof(meshMargin), meshMargin, "Đệm phải trong 0..ChunkSize-1");
             World = world ?? throw new ArgumentNullException(nameof(world));
-            Inventory = inventory ?? throw new ArgumentNullException(nameof(inventory));
+            Bag = bag ?? throw new ArgumentNullException(nameof(bag));
+            Drops = new DropField(World);
             MeshMargin = meshMargin;
         }
 
         public static bool IsPlaceable(BlockMaterial m) =>
             m == BlockMaterial.Grass || m == BlockMaterial.Dirt || m == BlockMaterial.Stone || m == BlockMaterial.Sand;
 
-        /// <summary>Đào: ô thành rỗng, vật liệu +1 vào kho (ô ruộng → đất, 0020).</summary>
+        /// <summary>Đào: ô thành rỗng, rơi ra 1 vật rơi cùng vật liệu tại ô (ô ruộng → đất, 0020; vật rơi 0028); túi không đổi.</summary>
         public EditResult TryDig(int x, int y, int z)
         {
             if (!World.Size.InBounds(x, y, z))
@@ -81,7 +85,8 @@ namespace Game.Core
 
             var material = Cell.GetMaterial(cell);
             World.Set(x, y, z, Cell.SetModified(Cell.SetMaterial(cell, BlockMaterial.Empty), true));
-            Inventory.Add(material == BlockMaterial.Farmland ? BlockMaterial.Dirt : material);
+            Drops.Add(x, y, z, ItemId.Block(material == BlockMaterial.Farmland ? BlockMaterial.Dirt : material), 1);
+            Drops.OnCellCleared(x, y, z);
             CellChanged?.Invoke(x, y, z);
             if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
                 AddToFront(x, y, z);
@@ -104,22 +109,25 @@ namespace Game.Core
                 return EditResult.Occupied;
             if (IsPlayerAt != null && IsPlayerAt(x, y, z))
                 return EditResult.Occupied;
-            if (Inventory.Get(material) <= 0)
+            if (!Drops.CanPushUp(x, y, z))
+                return EditResult.Occupied;
+            if (Bag.Get(material) <= 0)
                 return EditResult.NoMaterial;
             return EditResult.Ok;
         }
 
-        /// <summary>Đặt: vào ô rỗng hoặc ô nước (nước ô đó mất) kề mặt một khối đặc, tiêu 1 vật liệu từ kho.</summary>
+        /// <summary>Đặt: vào ô rỗng hoặc ô nước (nước ô đó mất) kề mặt một khối đặc, tiêu 1 vật liệu từ túi; vật rơi trong ô bị đẩy lên (task contract 7e).</summary>
         public EditResult TryPlace(int x, int y, int z, BlockMaterial material)
         {
             var check = CheckPlace(x, y, z, material);
             if (check != EditResult.Ok)
                 return check;
-            if (!Inventory.TryTake(material))
+            if (!Bag.TryTake(material))
                 return EditResult.NoMaterial;
             ushort cell = World.Get(x, y, z);
 
             World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(cell, material), 0), true));
+            Drops.PushUp(x, y, z);
             CellChanged?.Invoke(x, y, z);
             RevertFarmlandBelow(x, y, z);
             return EditResult.Ok;
@@ -157,13 +165,16 @@ namespace Game.Core
         static readonly (int dx, int dy, int dz)[] Faces = { (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1) };
 
         /// <summary>Ô đặc = trong map và không rỗng/không nước. Dưới đáy map coi là đặc; ngoài map theo x/z là biển (không đặc).</summary>
-        bool IsSolid(int x, int y, int z)
+        bool IsSolid(int x, int y, int z) => IsSolidAt(World, x, y, z);
+
+        /// <summary>Như IsSolid nhưng tĩnh, dùng cho DropField.</summary>
+        public static bool IsSolidAt(WorldData world, int x, int y, int z)
         {
             if (y < 0)
                 return true;
-            if (!World.Size.InBounds(x, y, z))
+            if (!world.Size.InBounds(x, y, z))
                 return false;
-            var m = World.GetMaterial(x, y, z);
+            var m = world.GetMaterial(x, y, z);
             return m != BlockMaterial.Empty && m != BlockMaterial.Water;
         }
 

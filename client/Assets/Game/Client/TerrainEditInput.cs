@@ -13,7 +13,7 @@ namespace Game.Client
     /// Tab đổi công cụ Đào ⇄ Đặt (brief 0027), chuột trái dùng công cụ; phím 1–4 hoặc lăn chuột chọn đất/cỏ/đá/cát.
     /// Đào: khung trắng = ô sẽ đào. Đặt: bản mờ màu vật liệu ở ô sẽ đặt (đỏ = kho hết; sai luật → không có); nhãn góc trái = công cụ, kho vật liệu, lý do khi không đào/đặt được.
     /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021).
-    /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 4 ô, được dùng khi đang đi; Alt + lăn chọn loại.
+    /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 10 ô (0030), được dùng khi đang đi; Alt + lăn chọn loại.
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -133,7 +133,7 @@ namespace Game.Client
             ghostRenderer.enabled = false;
             if (!picked || view.Editor == null) return;
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InReach(Tool == EditTool.Place ? placeCell : digCell)) return; // ngoài tầm 4 ô: không khung, không bản mờ (0028)
+            if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell)) return; // ngoài tầm 10 ô: không khung, không bản mờ (0030)
             if (Tool == EditTool.Till)
             {
                 if (Farm == null || !Farm.CanTillAt(digCell)) return;
@@ -159,8 +159,8 @@ namespace Game.Client
         public EditResult UseTool(Vector3Int digCell, Vector3Int placeCell)
         {
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InReach(Tool == EditTool.Place ? placeCell : digCell))
-                return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0028)
+            if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell))
+                return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0030)
             if (Tool == EditTool.Till)
             {
                 LastTill = Farm != null ? Farm.UseTill(digCell) : TillResult.Invalid;
@@ -224,13 +224,13 @@ namespace Game.Client
             if (player == null)
                 return " · Chuột trái: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
             if (player.FlyMode)
-                return " · Chuột trái: dùng công cụ (trong 4 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
-            return " · Chuột trái: dùng công cụ (trong 4 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
+                return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
+            return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
         }
 
         void OnGUI()
         {
-            if (view.Inventory == null || MinimapView.IsAnyOpen)
+            if (view.Bag == null || MinimapView.IsAnyOpen)
                 return;
             var text = $"Công cụ: <b><color=yellow>{(Tool switch { EditTool.Dig => "Đào", EditTool.Place => "Đặt", _ => "Xới" })}</color></b> (Tab đổi){HelpText()}";
             if (Tool == EditTool.Till)
@@ -238,11 +238,11 @@ namespace Game.Client
             var cam = Camera.main;
             if (cam != null)
                 text += $"Góc nhìn: {FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y))} (0° = ngang mặt biển, + nhìn lên, - nhìn xuống)\n";
-            text += "Kho: ";
+            text += "Túi: ";
             for (int i = 0; i < Palette.Length; i++)
                 text += i == selected
-                    ? $"<b><color=yellow>[{i + 1} {PaletteNames[i]}: {view.Inventory.Get(Palette[i])}]</color></b>   "
-                    : $"{i + 1} {PaletteNames[i]}: {view.Inventory.Get(Palette[i])}   ";
+                    ? $"<b><color=yellow>[{i + 1} {PaletteNames[i]}: {view.Bag.Get(Palette[i])}]</color></b>   "
+                    : $"{i + 1} {PaletteNames[i]}: {view.Bag.Get(Palette[i])}   ";
             text += $"\n{lastResult}";
             if (view.LastRebuildFrame >= 0)
                 text += $"\nDựng lại {view.LastRebuildChunks} chunk: mesh {view.LastMeshMs:F1} ms, ghi {view.LastWriteMs:F1} ms, bake {view.LastBakeMs:F1} ms";

@@ -81,7 +81,8 @@ namespace Game.Client.Tests
 
             int frame = Time.frameCount;
             Assert.AreEqual(EditResult.Ok, view.Dig(cell));
-            Assert.AreEqual(1, view.Inventory.Get(material));
+            Assert.AreEqual(0, view.Bag.Get(material));
+            Assert.AreEqual(1, view.Editor.Drops.At(x, y, z).Count);
             yield return WaitRebuild(frame, frames);
             Assert.AreEqual(affected.Count, view.LastRebuildChunks);
             AssertMeshesMatchMesher(affected);
@@ -89,8 +90,9 @@ namespace Game.Client.Tests
             Assert.Less(y1, y0 - 0.5f, "collider chưa theo hố vừa đào");
 
             frame = Time.frameCount;
+            view.Bag.Add(material);
             Assert.AreEqual(EditResult.Ok, view.Place(cell, material));
-            Assert.AreEqual(0, view.Inventory.Get(material));
+            Assert.AreEqual(0, view.Bag.Get(material));
             yield return WaitRebuild(frame, frames);
             AssertMeshesMatchMesher(affected);
             Assert.AreEqual(y0, SurfaceRay(x, z), 1e-3f, "đặt lại → bề mặt như cũ");
@@ -173,7 +175,7 @@ namespace Game.Client.Tests
             yield return null;
             FindColumn(out int x, out int z, out int h);
             input.ToggleTool();
-            view.Inventory.Add(BlockMaterial.Dirt);
+            view.Bag.Add(BlockMaterial.Dirt);
             var place = new Vector3Int(x, h + 1, z);
             Assert.AreEqual(EditResult.Ok, view.Editor.CheckPlace(place.x, place.y, place.z, BlockMaterial.Dirt));
             input.ShowAim(true, new Vector3Int(x, h, z), place);
@@ -204,7 +206,7 @@ namespace Game.Client.Tests
             yield return null;
             FindColumn(out int x, out int z, out int h);
             input.ToggleTool();
-            view.Inventory.Add(BlockMaterial.Dirt);
+            view.Bag.Add(BlockMaterial.Dirt);
             var dig = new Vector3Int(x, h, z);
             input.ShowAim(true, dig, new Vector3Int(x, h + 3, z));
             Assert.IsFalse(input.GhostVisible);
@@ -237,12 +239,13 @@ namespace Game.Client.Tests
             var dig = new Vector3Int(x, h, z);
             var place = new Vector3Int(x, h + 1, z);
             var mat = view.World.GetMaterial(x, h, z);
-            int before = view.Inventory.Get(mat);
+            int before = view.Bag.Get(mat);
             Assert.AreEqual(EditResult.Ok, input.UseTool(dig, place));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(x, h, z));
-            Assert.AreEqual(before + 1, view.Inventory.Get(mat));
+            Assert.AreEqual(before, view.Bag.Get(mat));
+            Assert.AreEqual(1, view.Editor.Drops.At(x, h, z).Count);
             input.ToggleTool();
-            view.Inventory.Add(BlockMaterial.Dirt);
+            view.Bag.Add(BlockMaterial.Dirt);
             Assert.AreEqual(EditResult.Ok, input.UseTool(dig, dig));
             Assert.AreEqual(BlockMaterial.Dirt, view.World.GetMaterial(x, h, z));
         }
@@ -267,7 +270,7 @@ namespace Game.Client.Tests
             if (surface < 16)
             {
                 // Luật đặt (0012): khối phải kề khối đặc → dựng cột đỡ từ mặt đất (kể cả trong nước) lên y = 15 trước.
-                view.Inventory.Add(BlockMaterial.Dirt, 16 - surface);
+                view.Bag.Add(BlockMaterial.Dirt, 16 - surface);
                 for (int y = surface + 1; y < 16; y++)
                     Assert.AreEqual(EditResult.Ok, view.Place(new Vector3Int(16, y, 16), BlockMaterial.Dirt), $"cột đỡ y = {y}");
                 yield return null;

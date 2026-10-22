@@ -28,7 +28,7 @@ namespace Game.Core.Tests
                     foreach (var c in new[] { new CellPos(5, y, 9), new CellPos(7, y, 9), new CellPos(6, y, 8), new CellPos(6, y, 10) })
                         w.Set(c.X, c.Y, c.Z, Cell.Make(BlockMaterial.Stone));
             sim = new Simulation(cfg ?? TestWorlds.NoWander(), w);
-            editor = new WorldEditor(w, new MaterialInventory(), 1);
+            editor = new WorldEditor(w, new PlayerBag(), 1);
             sim.AttachEditor(editor);
             sim.AddCreature("L1", new CellPos(8, 2, 5));
             sim.AddCreature("L2", new CellPos(5, 2, 1));
@@ -513,7 +513,7 @@ namespace Game.Core.Tests
         {
             var world = TestWorlds.Flat(1);
             var s = new Simulation(TestWorlds.NoWander(), world);
-            ed = new WorldEditor(world, new MaterialInventory(), 1);
+            ed = new WorldEditor(world, new PlayerBag(), 1);
             s.AttachEditor(ed);
             s.AddCreature("L1", new CellPos(8, 2, 5));
             s.AddCreature("L2", new CellPos(5, 2, 1));

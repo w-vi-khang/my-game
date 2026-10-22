@@ -12,7 +12,7 @@ namespace Game.Core.Tests
         static readonly CellPos Kho = new CellPos(6, 2, 9);
 
         WorldData w;
-        MaterialInventory inv;
+        PlayerBag inv;
         WorldEditor editor;
         Simulation sim;
         int soilChanges;
@@ -26,7 +26,7 @@ namespace Game.Core.Tests
         {
             w = TestWorlds.Flat(1);
             sim = new Simulation(TestWorlds.NoWander(), w);
-            inv = new MaterialInventory();
+            inv = new PlayerBag();
             editor = new WorldEditor(w, inv, 1);
             soilChanges = 0;
             editor.CellChanged += (x, y, z) => { if (x == 5 && y == 1 && z == 5) soilChanges++; };
@@ -119,7 +119,10 @@ namespace Game.Core.Tests
                 Assert.AreNotEqual(CreatureState.Working, c.State);
             }
             Assert.AreEqual(after, store.Seeds[0]);
-            Assert.AreEqual(1, inv.Get(BlockMaterial.Dirt));
+            Assert.AreEqual(0, inv.Get(BlockMaterial.Dirt));
+            Assert.AreEqual(1, editor.Drops.At(5, 1, 5).Count);
+            Assert.AreEqual(ItemId.Block(BlockMaterial.Dirt), editor.Drops.At(5, 1, 5)[0].Item);
+            Assert.AreEqual(1, editor.Drops.At(5, 1, 5)[0].Count);
             Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(5, 1, 5));
             var ev = Cancels();
             Assert.AreEqual(1, ev.Count);
@@ -252,17 +255,17 @@ namespace Game.Core.Tests
         public void AttachEditorValidates()
         {
             Build();
-            var other = new WorldEditor(TestWorlds.Flat(1), new MaterialInventory(), 1);
+            var other = new WorldEditor(TestWorlds.Flat(1), new PlayerBag(), 1);
             Assert.Throws<System.ArgumentException>(() => sim.AttachEditor(other));
             Assert.Throws<System.InvalidOperationException>(() => sim.AttachEditor(editor));
             Assert.IsTrue(editor.IsOccupied(6, 2, 9));
         }
 
-        static (Simulation sim, WorldEditor ed, MaterialInventory inv) Pair()
+        static (Simulation sim, WorldEditor ed, PlayerBag inv) Pair()
         {
             var w = TestWorlds.Flat(1);
             var sim = new Simulation(TestWorlds.NoWander(), w);
-            var inv = new MaterialInventory();
+            var inv = new PlayerBag();
             var ed = new WorldEditor(w, inv, 1);
             sim.AttachEditor(ed);
             sim.AddCreature("L1", new CellPos(8, 2, 5));

@@ -50,7 +50,7 @@ namespace Game.Core.Tests
 
         static WorldEditor Editor(WorldData w)
         {
-            var inv = new MaterialInventory();
+            var inv = new PlayerBag();
             inv.Add(BlockMaterial.Stone, 100000);
             return new WorldEditor(w, inv, 1, S);
         }

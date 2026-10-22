@@ -19,10 +19,10 @@ namespace Game.Core.Tests
             return w;
         }
 
-        static Simulation Build(SimConfig cfg, WorldData w, out WorldEditor editor, out MaterialInventory inv)
+        static Simulation Build(SimConfig cfg, WorldData w, out WorldEditor editor, out PlayerBag inv)
         {
             var sim = new Simulation(cfg, w);
-            inv = new MaterialInventory();
+            inv = new PlayerBag();
             editor = new WorldEditor(w, inv, 1);
             editor.CellChanged += sim.OnCellChanged;
             editor.IsOccupied = sim.IsOccupied;
@@ -48,7 +48,7 @@ namespace Game.Core.Tests
         [Test]
         public void DigCutsPathThenPlaceRestores()
         {
-            var sim = Build(TestWorlds.NoWander(), Trench(true), out var editor, out _);
+            var sim = Build(TestWorlds.NoWander(), Trench(true), out var editor, out var inv);
             int c = sim.AddCreature("L1", new CellPos(1, 3, 3));
             int s = sim.AddStage(NewOrder(sim), WorkAbility.Till, new CellPos(9, 3, 3));
             TestWorlds.HomeAll(sim);
@@ -63,6 +63,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(-1, sim.State.Creatures[c].StageId);
             Assert.AreEqual(1, sim.State.Events.Count);
             AssertEvent(sim.State.Events[0], SimEventKind.StallStarted, 11, s, new CellPos(9, 3, 3), StallReason.NoPath);
+            inv.Add(BlockMaterial.Dirt);
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(5, 2, 3, BlockMaterial.Dirt));
             sim.Tick();
             Assert.AreEqual(StageStatus.Assigned, sim.State.Stages[s].Status);

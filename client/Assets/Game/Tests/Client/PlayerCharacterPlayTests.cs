@@ -90,7 +90,7 @@ namespace Game.Client.Tests
         IEnumerator Build(int x0, int x1, int y0, int y1, int z0, int z1)
         {
             int n = (x1 - x0 + 1) * (y1 - y0 + 1) * (z1 - z0 + 1);
-            view.Inventory.Add(BlockMaterial.Stone, n);
+            view.Bag.Add(BlockMaterial.Stone, n);
             for (int y = y0; y <= y1; y++)
                 for (int x = x0; x <= x1; x++)
                     for (int z = z0; z <= z1; z++)
@@ -255,21 +255,21 @@ namespace Game.Client.Tests
         {
             yield return Teleport(new Vector3(A.x + 0.5f, G + 1, A.z + 0.5f));
             var tei = go.GetComponent<TerrainEditInput>();
-            var far = C(A.x + 4, G, A.z);
+            var far = C(A.x + 10, G, A.z);
             var before = view.World.GetMaterial(far.x, far.y, far.z);
             Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(far, far));
             Assert.AreEqual(before, view.World.GetMaterial(far.x, far.y, far.z), "ô xa không đổi");
             tei.ShowAim(true, far, far);
             Assert.IsFalse(tei.OutlineVisible, "khung ngoài tầm");
-            var near = C(A.x + 3, G, A.z);
+            var near = C(A.x + 9, G, A.z);
             tei.ShowAim(true, near, near);
             Assert.IsTrue(tei.OutlineVisible, "khung trong tầm");
             Assert.AreEqual(EditResult.Ok, tei.UseTool(near, near));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(near.x, near.y, near.z));
 
             tei.ToggleTool();
-            view.Inventory.Add(BlockMaterial.Dirt, 1);
-            var pc = C(A.x + 5, G + 1, A.z);
+            view.Bag.Add(BlockMaterial.Dirt, 1);
+            var pc = C(A.x + 11, G + 1, A.z);
             Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(pc, pc));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(pc.x, pc.y, pc.z));
             tei.ShowAim(true, pc, pc);
@@ -280,7 +280,7 @@ namespace Game.Client.Tests
         public IEnumerator CannotPlaceIntoPlayerCells()
         {
             yield return Teleport(new Vector3(A.x + 0.5f, G + 1, A.z + 0.5f));
-            view.Inventory.Add(BlockMaterial.Dirt, 2);
+            view.Bag.Add(BlockMaterial.Dirt, 2);
             Assert.AreEqual(EditResult.Occupied, view.Place(C(A.x, G + 1, A.z), BlockMaterial.Dirt));
             Assert.IsTrue(player.OccupiesCell(A.x, G + 2, A.z));
             Assert.IsFalse(player.OccupiesCell(A.x, G + 3, A.z));
@@ -303,7 +303,7 @@ namespace Game.Client.Tests
                 yield return null;
             Assert.Less(Vector3.Distance(p0, player.transform.position), 0.05f, "nhân vật đứng yên khi bay");
             camGo.transform.position += Vector3.up * 20f;
-            Assert.IsTrue(player.InReach(C(A.x + 3, G, A.z)), "tầm theo nhân vật");
+            Assert.IsTrue(player.InToolReach(C(A.x + 3, G, A.z)), "tầm theo nhân vật");
             player.SetFlyMode(false);
             Assert.IsTrue(follow.enabled);
             var pivot = player.transform.position + Vector3.up * follow.pivotHeight;

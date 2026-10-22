@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using Game.Core;
 using NUnit.Framework;
@@ -7,7 +8,7 @@ namespace Game.Core.Tests
     public class WorldEditorTests
     {
         WorldData world;
-        MaterialInventory inv;
+        PlayerBag inv;
         WorldEditor editor;
         List<(int, int, int)> changed;
 
@@ -23,7 +24,7 @@ namespace Game.Core.Tests
             world.Set(1, 2, 1, Cell.Make(BlockMaterial.Grass));
             world.Set(2, 1, 1, Cell.Make(BlockMaterial.Water, 7));
             world.Set(3, 1, 1, Cell.SetStory(Cell.Make(BlockMaterial.Stone), true));
-            inv = new MaterialInventory();
+            inv = new PlayerBag();
             editor = new WorldEditor(world, inv, 2);
             changed = new List<(int, int, int)>();
             editor.CellChanged += (x, y, z) => changed.Add((x, y, z));
@@ -42,21 +43,28 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void InventoryStartsEmpty()
+        public void BagStartsEmpty()
         {
             foreach (BlockMaterial m in System.Enum.GetValues(typeof(BlockMaterial)))
                 Assert.AreEqual(0, inv.Get(m), m.ToString());
+            for (int c = 0; c < 4; c++)
+                Assert.AreEqual(0, inv.GetSeeds(c));
+            Assert.IsEmpty(editor.Drops.Stacks);
         }
 
         [Test]
-        public void DigEmptiesCellAndAddsSameMaterial()
+        public void DigEmptiesCellAndDropsSameMaterial()
         {
             Assert.AreEqual(EditResult.Ok, editor.TryDig(1, 2, 1));
             ushort c = world.Get(1, 2, 1);
             Assert.AreEqual(BlockMaterial.Empty, Cell.GetMaterial(c));
             Assert.IsTrue(Cell.IsModified(c));
-            Assert.AreEqual(1, inv.Get(BlockMaterial.Grass));
+            Assert.AreEqual(0, inv.Get(BlockMaterial.Grass));
             Assert.AreEqual(0, inv.Get(BlockMaterial.Dirt));
+            var drops = editor.Drops.At(1, 2, 1);
+            Assert.AreEqual(1, drops.Count);
+            Assert.AreEqual(ItemId.Block(BlockMaterial.Grass), drops[0].Item);
+            Assert.AreEqual(1, drops[0].Count);
             CollectionAssert.AreEqual(new[] { (1, 2, 1) }, changed);
         }
 
@@ -73,6 +81,7 @@ namespace Game.Core.Tests
             CollectionAssert.AreEqual(before, world.Cells);
             foreach (BlockMaterial m in System.Enum.GetValues(typeof(BlockMaterial)))
                 Assert.AreEqual(0, inv.Get(m));
+            Assert.IsEmpty(editor.Drops.Stacks);
             Assert.IsEmpty(changed);
         }
 
@@ -92,9 +101,13 @@ namespace Game.Core.Tests
         public void DigThenPlaceRoundTrip()
         {
             Assert.AreEqual(EditResult.Ok, editor.TryDig(1, 1, 1));
+            Assert.AreEqual(EditResult.NoMaterial, editor.TryPlace(1, 1, 1, BlockMaterial.Dirt));
+            Assert.AreEqual(1, editor.Drops.CollectInReach(1.5f, 0.5f, 1.5f, inv));
+            Assert.AreEqual(1, inv.Get(BlockMaterial.Dirt));
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(1, 1, 1, BlockMaterial.Dirt));
-            Assert.AreEqual(BlockMaterial.Dirt, world.GetMaterial(1, 1, 1));
             Assert.AreEqual(0, inv.Get(BlockMaterial.Dirt));
+            Assert.IsEmpty(editor.Drops.Stacks);
+            Assert.AreEqual(BlockMaterial.Dirt, world.GetMaterial(1, 1, 1));
         }
 
         [Test]
@@ -192,8 +205,12 @@ namespace Game.Core.Tests
             world.Set(5, 1, 5, Cell.Make(BlockMaterial.Farmland));
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 1, 5));
             Assert.AreEqual(BlockMaterial.Empty, world.GetMaterial(5, 1, 5));
-            Assert.AreEqual(1, inv.Get(BlockMaterial.Dirt));
-            Assert.AreEqual(0, inv.Get(BlockMaterial.Farmland));
+            Assert.AreEqual(0, inv.Get(BlockMaterial.Dirt));
+            var drops = editor.Drops.At(5, 1, 5);
+            Assert.AreEqual(1, drops.Count);
+            Assert.AreEqual(ItemId.Block(BlockMaterial.Dirt), drops[0].Item);
+            Assert.AreEqual(1, drops[0].Count);
+            Assert.IsFalse(editor.Drops.Stacks.Any(st => st.Item == ItemId.Block(BlockMaterial.Farmland)));
         }
 
         [Test]

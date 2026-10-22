@@ -34,7 +34,7 @@ namespace Game.World.Tests
         {
             var p = new WorldMapParams();
             var world = WorldMapGenerator.Generate(p, out _);
-            var editor = new WorldEditor(world, new MaterialInventory(), 1, p.waterLevel);
+            var editor = new WorldEditor(world, new PlayerBag(), 1, p.waterLevel);
             Assert.IsTrue(FindTierEdgeColumn(world, p.waterLevel, out int x, out int z, out int top), "không có cột ở mép tầng");
             var before = MinimapImage.Build(world);
             var img = (byte[])before.Clone();
@@ -49,6 +49,7 @@ namespace Game.World.Tests
             Assert.AreEqual(c, (uint)(img[i] << 16 | img[i + 1] << 8 | img[i + 2]));
             Assert.IsFalse(MinimapImage.UpdateColumn(world, img, x, z), "gọi lại không đổi gì");
 
+            editor.Bag.Add(material);
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(x, top, z, material));
             Assert.IsTrue(MinimapImage.UpdateColumn(world, img, x, z));
             CollectionAssert.AreEqual(before, img, "đặt lại → ảnh như cũ");
@@ -59,11 +60,11 @@ namespace Game.World.Tests
         {
             var p = new WorldMapParams();
             var world = WorldMapGenerator.Generate(p, out _);
-            var editor = new WorldEditor(world, new MaterialInventory(), 1, p.waterLevel);
+            var editor = new WorldEditor(world, new PlayerBag(), 1, p.waterLevel);
             Assert.IsTrue(FindTierEdgeColumn(world, p.waterLevel, out int x, out int z, out int top));
             var img = MinimapImage.Build(world);
             // Đặt thêm 1 ô lên cột ở mép tầng (top % 4 == 0 → top + 1 cùng tầng) → màu không đổi.
-            editor.Inventory.Add(BlockMaterial.Dirt);
+            editor.Bag.Add(BlockMaterial.Dirt);
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(x, top + 1, z, BlockMaterial.Dirt));
             Assert.IsFalse(MinimapImage.UpdateColumn(world, img, x, z), "cùng tầng → không đổi điểm ảnh");
             CollectionAssert.AreEqual(MinimapImage.Build(world), img);

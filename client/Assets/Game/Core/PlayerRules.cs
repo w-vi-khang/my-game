@@ -3,12 +3,15 @@ using System;
 namespace Game.Core
 {
     /// <summary>
-    /// Luật nhân vật người chơi M1 (world 7h, 0028): tầm với 4 ô từ tâm thân, ô bị thân chiếm, biên world, trong nước.
+    /// Luật nhân vật người chơi M1 (world 7h, 0028): tầm công cụ 10 ô / việc tay 4 ô (0030) từ tâm thân, ô bị thân chiếm, biên world, trong nước.
     /// Gốc nhân vật = chân (giữa đáy); thân cao BodyHeight, nửa rộng HalfWidth.
     /// </summary>
     public static class PlayerRules
     {
-        public const float Reach = 4f;
+        /// <summary>Tầm công cụ: đào, đặt, xới, click ô ruộng (0030).</summary>
+        public const float ToolReach = 10f;
+        /// <summary>Tầm việc tay: nhặt (sau này gieo, thu hoạch, phép Mưa — 0028).</summary>
+        public const float HandReach = 4f;
         /// <summary>Tâm thân cao hơn chân chừng này (nhân vật 2 ô).</summary>
         public const float BodyCenterHeight = 1f;
         public const float HalfWidth = 0.4f;
@@ -16,11 +19,16 @@ namespace Game.Core
         public const float WaterSpeedFactor = 0.5f;
         const float Shrink = 0.001f;
 
-        /// <summary>Tâm ô (x, y, z) cách tâm thân (chân + BodyCenterHeight) ≤ Reach (Euclid).</summary>
-        public static bool InReach(float feetX, float feetY, float feetZ, int x, int y, int z)
+        public static bool InToolReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
+            Within(ToolReach, feetX, feetY, feetZ, x, y, z);
+        public static bool InHandReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
+            Within(HandReach, feetX, feetY, feetZ, x, y, z);
+
+        /// <summary>Tâm ô (x, y, z) cách tâm thân (chân + BodyCenterHeight) ≤ reach (Euclid).</summary>
+        static bool Within(float reach, float feetX, float feetY, float feetZ, int x, int y, int z)
         {
             float dx = x + 0.5f - feetX, dy = y + 0.5f - (feetY + BodyCenterHeight), dz = z + 0.5f - feetZ;
-            return dx * dx + dy * dy + dz * dz <= Reach * Reach + 1e-4f;
+            return dx * dx + dy * dy + dz * dz <= reach * reach + 1e-4f;
         }
 
         /// <summary>Hộp thân (co Shrink mỗi phía) giao ô (x, y, z).</summary>

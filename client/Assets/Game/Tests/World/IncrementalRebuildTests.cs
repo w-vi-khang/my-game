@@ -25,7 +25,7 @@ namespace Game.World.Tests
         public void IncrementalRebuildMatchesFullRebuild()
         {
             var world = TerrainGenerator.Generate(new TerrainParams());
-            var inv = new MaterialInventory();
+            var inv = new PlayerBag();
             inv.Add(BlockMaterial.Dirt, 10000);
             var editor = new WorldEditor(world, inv, BlockMesher.CellMargin);
             var meshes = BlockMesher.BuildAll(world);
@@ -73,7 +73,7 @@ namespace Game.World.Tests
         {
             // Đệm 1 ô là cần thiết: đào ô x = 16 (cục bộ 0 của chunk x = 1) làm lộ mặt +x của ô x = 15 → đổi mesh chunk x = 0.
             var world = TerrainGenerator.Generate(new TerrainParams());
-            var editor = new WorldEditor(world, new MaterialInventory(), BlockMesher.CellMargin);
+            var editor = new WorldEditor(world, new PlayerBag(), BlockMesher.CellMargin);
             int tried = 0, changedCases = 0;
             for (int z = 1; z < 15; z += 2)
             {

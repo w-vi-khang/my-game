@@ -134,10 +134,10 @@ namespace Game.Client
             }
         }
 
-        public bool InReach(Vector3Int cell)
+        public bool InToolReach(Vector3Int cell)
         {
             var f = FeetLocal;
-            return PlayerRules.InReach(f.x, f.y, f.z, cell.x, cell.y, cell.z);
+            return PlayerRules.InToolReach(f.x, f.y, f.z, cell.x, cell.y, cell.z);
         }
 
         public bool OccupiesCell(int x, int y, int z)

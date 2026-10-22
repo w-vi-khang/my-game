@@ -41,7 +41,7 @@ namespace Game.Core.Tests
         {
             var w = TestWorlds.Flat(1);
             var sim = new Simulation(TestWorlds.NoWander(), w);
-            var inv = new MaterialInventory();
+            var inv = new PlayerBag();
             inv.Add(BlockMaterial.Dirt);
             var editor = new WorldEditor(w, inv, 1) { IsOccupied = sim.IsOccupied };
 

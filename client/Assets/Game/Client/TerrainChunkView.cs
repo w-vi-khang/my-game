@@ -60,7 +60,7 @@ namespace Game.Client
         UnityEngine.Material slotMat, slotWater;
 
         public WorldData World { get; private set; }
-        public MaterialInventory Inventory { get; private set; }
+        public PlayerBag Bag { get; private set; }
         public WorldEditor Editor { get; private set; }
         /// <summary>Bảng map của world v3; null với v2.</summary>
         public MapTable Maps { get; private set; }
@@ -161,8 +161,8 @@ namespace Game.Client
                 BuildLandmarkMarkers();
                 Debug.Log($"LANDMARKVIEW {Landmarks.Count} dấu mốc, đặt {LandmarkMs:F1} ms");
             }
-            Inventory = new MaterialInventory();
-            Editor = new WorldEditor(World, Inventory, BlockMesher.CellMargin, waterLevel);
+            Bag = new PlayerBag();
+            Editor = new WorldEditor(World, Bag, BlockMesher.CellMargin, waterLevel);
             Editor.CellChanged += OnCellChanged;
             dirty.Clear();
 
