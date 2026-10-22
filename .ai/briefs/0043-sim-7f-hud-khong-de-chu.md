@@ -1,6 +1,6 @@
 # Brief 0043 — Sim 7f: HUD trái không đè chữ trạng thái trại; bỏ dòng "đang đi tới" khi đã xới
 
-> Trạng thái: chờ review
+> Trạng thái: chờ review (review nhẹ đạt, chờ user xem)
 > Review: nhẹ
 > Model thực thi: Sonnet · low
 > Cập nhật: 2026-10-22 19:25
@@ -92,3 +92,11 @@ Commit: 2a1a7a7. File: PlayerFarmActions.cs, SimView.cs, TerrainEditInput.cs, Pl
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Review nhẹ (Planner, phiên Opus, 2026-10-22):
+- `Chạy bằng` (claude-sonnet-5-5 · low) khớp `Model thực thi` [repo].
+- Phạm vi: `git show --stat 2a1a7a7` — 4 file, đúng Phạm vi [run].
+- Đọc diff (ngắn): đúng quyết định 1–4 (`HudBottom` + `CalcHeight` + style lazy, `HudBottom = 0` ở nhánh return sớm; `StatusTop` thay mọi số 100; `StatusLine = ""` khi `Arrived`).
+- Test: 2 test mới đạt; PlayMode 150/150, EditMode 472/472 theo executor — không chạy lại.
+- Nhỏ, không chặn: `HudBottom` là static, giữ giá trị khung cuối khi `TerrainEditInput` bị huỷ (chỉ ảnh hưởng 1 khung / giữa test; chấp nhận M1).
+- Giờ thực tế: 5 phút (19:22–19:27) so với ước lượng ~0,1 ngày-người.
+- User xem: chờ user (gộp lượt xem 0041–0043).
