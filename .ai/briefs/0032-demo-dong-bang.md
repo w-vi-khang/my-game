@@ -1,9 +1,9 @@
 # Brief 0032 — Demo trên đồng bằng san phẳng (SimView + TerrainView), giãn bố trí trại
 
-> Trạng thái: chờ làm
+> Trạng thái: đang làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-22 10:20
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -259,6 +259,9 @@ Làm theo [task contract](../tasks/m1-demo-dong-bang.md): scene SimView và Terr
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 80396b6
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-22 10:19
 
 ## Kết quả test
 
