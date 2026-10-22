@@ -43,6 +43,7 @@ namespace Game.Client
                 throw new System.IO.FileNotFoundException($"Không thấy Resources/{SimM1Path}.json");
             var c = JsonUtility.FromJson<SimConfig>(asset.text);
             c.Validate();
+            PlayerRules.Configure(c.player);
             return c;
         }
 

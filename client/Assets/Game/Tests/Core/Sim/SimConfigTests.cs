@@ -29,7 +29,11 @@ namespace Game.Core.Tests
             Assert.AreEqual(2, cfg.crops.Length);
             Assert.AreEqual(1200, cfg.GrowTicks(0));
             Assert.AreEqual(1800, cfg.GrowTicks(1));
-            Assert.AreEqual(4, cfg.configVersion);
+            Assert.AreEqual(5, cfg.configVersion);
+            Assert.AreEqual(8f, cfg.player.toolReach);
+            Assert.AreEqual(8f, cfg.player.handReach);
+            Assert.AreEqual(0, cfg.player.starterCrop);
+            Assert.AreEqual(4, cfg.player.starterSeeds);
             Assert.AreEqual(6f, cfg.PlayerTillSeconds);
             Assert.AreEqual(10f, cfg.RainCooldownSeconds);
         }
@@ -39,6 +43,26 @@ namespace Game.Core.Tests
         {
             var fromFile = JsonUtility.FromJson<SimConfig>(File.ReadAllText(SourcePath));
             Assert.AreEqual(JsonUtility.ToJson(new SimConfig()), JsonUtility.ToJson(fromFile));
+        }
+
+        [Test]
+        public void ValidateRejectsBadPlayerRules()
+        {
+            void Bad(System.Action<SimConfig> mut, string why)
+            {
+                var c = new SimConfig();
+                mut(c);
+                Assert.Throws<ArgumentException>(c.Validate, why);
+            }
+            Bad(c => c.player.toolReach = 0, "toolReach 0");
+            Bad(c => c.player.toolReach = 33, "toolReach 33");
+            Bad(c => c.player.handReach = 0.5f, "handReach 0.5");
+            Bad(c => c.player.handReach = 33, "handReach 33");
+            Bad(c => c.player.starterCrop = 2, "starterCrop 2");
+            Bad(c => c.player.starterCrop = -1, "starterCrop -1");
+            Bad(c => c.player.starterSeeds = -1, "starterSeeds -1");
+            Bad(c => c.player.starterSeeds = 100, "starterSeeds 100");
+            Bad(c => c.player = null, "player null");
         }
 
         [Test]

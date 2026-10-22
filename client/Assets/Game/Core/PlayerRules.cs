@@ -1,4 +1,5 @@
 using System;
+using Game.Core.Sim;
 
 namespace Game.Core
 {
@@ -9,9 +10,21 @@ namespace Game.Core
     public static class PlayerRules
     {
         /// <summary>Tầm công cụ: đào, đặt, xới, click ô ruộng (0031: 8 ô).</summary>
-        public const float ToolReach = 8f;
+        /// (đọc từ sim_m1.json player.toolReach — Configure)
+        public static float ToolReach { get; private set; } = 8f;
         /// <summary>Tầm việc tay: nhặt (sau này gieo, thu hoạch, phép Mưa, mở kho — 0031: 8 ô).</summary>
-        public const float HandReach = 8f;
+        /// (đọc từ sim_m1.json player.handReach — Configure)
+        public static float HandReach { get; private set; } = 8f;
+
+        /// <summary>Đặt luật người chơi từ cấu hình (ConfigLoader gọi sau Validate). null → ArgumentNullException.</summary>
+        public static void Configure(PlayerConfig p)
+        {
+            if (p == null) throw new ArgumentNullException(nameof(p));
+            ToolReach = p.toolReach;
+            HandReach = p.handReach;
+            StarterBag.Crop = p.starterCrop;
+            StarterBag.Seeds = p.starterSeeds;
+        }
         /// <summary>Tâm thân cao hơn chân chừng này (nhân vật 2 ô).</summary>
         public const float BodyCenterHeight = 1f;
         public const float HalfWidth = 0.4f;

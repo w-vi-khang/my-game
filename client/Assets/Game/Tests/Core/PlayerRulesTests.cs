@@ -5,6 +5,20 @@ namespace Game.Core.Tests
 {
     public class PlayerRulesTests
     {
+        [TearDown]
+        public void TearDown() => PlayerRules.Configure(new Game.Core.Sim.PlayerConfig());
+
+        [Test]
+        public void Configure_ChangesReach()
+        {
+            PlayerRules.Configure(new Game.Core.Sim.PlayerConfig { toolReach = 10, handReach = 3 });
+            Assert.IsTrue(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 10, 0, 0));
+            Assert.IsFalse(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 11, 0, 0));
+            Assert.IsTrue(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 3, 0, 0));
+            Assert.IsFalse(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 4, 0, 0));
+            Assert.Throws<System.ArgumentNullException>(() => PlayerRules.Configure(null));
+        }
+
         [Test]
         public void InToolReach_BoundaryExactly8()
         {

@@ -80,6 +80,7 @@ namespace Game.Client
             gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
             if (terrain != null) terrain.streamTarget = transform;
             BuildVisual();
+            ConfigLoader.LoadSimConfig();
         }
 
         void OnDestroy()

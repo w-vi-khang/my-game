@@ -7,8 +7,8 @@ namespace Game.Core
     public static class StarterBag
     {
         /// <summary>Cây A = SimConfig.crops[0] (design/data/sim_m1.json).</summary>
-        public const int Crop = 0;
-        public const int Seeds = 4;
+        public static int Crop { get; internal set; } = 0;
+        public static int Seeds { get; internal set; } = 4;
         public const int Distance = 3;
         /// <summary>Nửa cạnh vùng dự phòng 5 × 5.</summary>
         public const int SearchRadius = 2;

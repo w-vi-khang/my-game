@@ -11,6 +11,18 @@ namespace Game.Core.Tests
         WorldEditor editor;
         const float FX = 10.5f, FY = 2f, FZ = 10.5f;
 
+        [TearDown]
+        public void TearDown() => PlayerRules.Configure(new Game.Core.Sim.PlayerConfig());
+
+        [Test]
+        public void PlaceUsesConfiguredCropAndSeeds()
+        {
+            PlayerRules.Configure(new Game.Core.Sim.PlayerConfig { starterCrop = 1, starterSeeds = 2 });
+            var s = StarterBag.Place(editor, FX, FY, FZ, 0, 1);
+            Assert.AreEqual(ItemId.SeedBag(1), s.Item);
+            Assert.AreEqual(2, s.Count);
+        }
+
         [SetUp]
         public void SetUp()
         {

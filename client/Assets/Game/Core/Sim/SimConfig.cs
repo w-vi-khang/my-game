@@ -128,6 +128,10 @@ namespace Game.Core.Sim
     public class PlayerConfig
     {
         public int rainCooldownMs = 10000;
+        public float toolReach = 8f;
+        public float handReach = 8f;
+        public int starterCrop = 0;
+        public int starterSeeds = 4;
     }
 
     /// <summary>
@@ -137,7 +141,7 @@ namespace Game.Core.Sim
     [Serializable]
     public class SimConfig
     {
-        public int configVersion = 4;
+        public int configVersion = 5;
         public uint simSeed = 20261014;
         public int ticksPerSecond = 10;
         /// <summary>Cạnh vùng mô phỏng (cột) quanh trang trại trên world nhiều map (world 7e, brief 0019).</summary>
@@ -312,6 +316,16 @@ namespace Game.Core.Sim
             }
             if (seedSum > storage.capacity)
                 throw new ArgumentException("Tổng crops[].startSeeds phải <= storage.capacity.");
+            if (player == null)
+                throw new ArgumentException("player không được thiếu.");
+            if (!(player.toolReach >= 1f && player.toolReach <= 32f))
+                throw new ArgumentException("player.toolReach phải trong [1, 32].");
+            if (!(player.handReach >= 1f && player.handReach <= 32f))
+                throw new ArgumentException("player.handReach phải trong [1, 32].");
+            if (player.starterCrop < 0 || player.starterCrop >= crops.Length)
+                throw new ArgumentException("player.starterCrop phải trong [0, số loại cây).");
+            if (player.starterSeeds < 0 || player.starterSeeds > 99)
+                throw new ArgumentException("player.starterSeeds phải trong [0, 99].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
                 throw new ArgumentException("farm.queueSlots phải trong [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)
