@@ -1,9 +1,9 @@
 # Brief 0040 — Sim 7f (lõi): lệnh trồng trọt của người chơi, phép Mưa, kho ↔ túi trong Game.Core
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 18:00
+> Cập nhật: 2026-10-22 17:35
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -357,10 +357,21 @@ Không (brief không đổi gì nhìn thấy được; user xem ở brief 0041, 
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: d373626
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ bắt đầu: 2026-10-22 17:22
+
+Giờ kết thúc: 2026-10-22 17:33 (≈ 11 phút đồng hồ, phần lớn chờ Unity chạy test; ước lượng ~2 ngày-người).
+Commit: 2f713c4 — file đổi: PlayerBag.cs, PlayerTimers.cs (mới), WorldEditor.cs (Grow/TryGrow), Sim/SimConfig.cs, Sim/SimData.cs, Sim/Simulation.cs, hai sim_m1.json (configVersion 4 + player); test: PlayerBagTests, PlayerTimersTests, Sim/PlayerFarmTests (mới), WorldEditorTests, SimConfigTests.
 
 ## Kết quả test
+- `diff` hai sim_m1.json: không in gì — đạt. `grep UnityEngine` ba file Core: không dòng — đạt.
+- EditMode toàn bộ (lần 1): 469/471 qua; 2 lỗi là lỗi test tôi viết (PlayerTillClearsPause: PauseTill đòi ô đã xới; SowRejections: Unmark không áp cho ô đã xới). Test cũ không đổi kết quả. Đã sửa 2 test (không sửa code); chạy lại riêng PlayerFarmTests: 26/26 qua. Chưa chạy lại toàn bộ EditMode sau lần sửa test (mất ~7 phút do Editor không focus).
+- PlayMode toàn bộ: 121/121 qua. Đã `git checkout -- client/ProjectSettings/EditorSettings.asset`.
+- Phần cần test: PlayerBag (nông sản, TryTake*), PlayerTimers, TryGrow (đạt/từ chối), SimConfig (v4, 6 s, 10 s, Validate), tự xới (không sinh vật / giành từ sinh vật / bỏ tạm dừng), gieo (Idle, giành từ sinh vật + trả hạt kho, từ chối), Mưa (tưới, giành, cỏ, biển vẫn còn, NoEffect hash không đổi), thu hoạch (túi, vụ kế, sai pha), chuỗi tay, kho ↔ túi, StorageInReach, đường, tất định 500 nhịp — đều có test và qua.
 
 ## Vướng mắc
+Không.
 
 ---
 <!-- PLANNER ghi khi review. -->
