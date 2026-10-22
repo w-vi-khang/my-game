@@ -417,7 +417,7 @@ with open(sys.argv[1], "w", encoding="utf-8", newline="\n") as f:
 ## Kết quả
 Base commit: 15deac2
 Chạy bằng: claude-sonnet-5-5 · medium
-Commit code: %s (35 file: 8 file client sửa, GameInput/DebugKeys/GameControls.inputactions/test mới, xoá template, EditorBuildSettings đổi guid).
+Commit code: %s (24 file: 8 file client sửa, GameInput/DebugKeys/GameControls.inputactions/test mới, xoá template, EditorBuildSettings đổi guid).
 Lệch so với brief: (1) `execute_code` bước 2 chạy với `safety_checks=false` (DeleteAsset bị chặn; Planner chấp nhận); (2) test PlayMode theo QĐ 9–10 (bỏ MoveIsDigitalWasd).
 Giờ thực tế (date của máy): bắt đầu 22:08, kết thúc 22:31 (~23 phút làm + chờ test; chưa tính các lần dừng chờ Planner). Ước lượng brief 2–3 ngày-người.
 Bắt đầu: 22:08 2026-10-22
