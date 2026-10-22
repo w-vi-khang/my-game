@@ -1,6 +1,6 @@
 # Brief 0044 — 0032 (A): lõi bảng chuỗi + dữ liệu cài đặt + tầm với / túi hạt đầu game vào JSON
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 19:47
@@ -160,3 +160,10 @@ Commit: 9ac115f. File: Core/Text/{StringFile,Strings}.cs, Core/PlayerSettings.cs
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Review đầy đủ (Planner, phiên Opus, 2026-10-22):
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` [repo].
+- Phạm vi: `git show --stat 9ac115f` — 22 file (gồm `.meta`), đúng Phạm vi [run].
+- Đọc diff, đối chiếu QĐ 1–8: `StringFile`/`Strings` đúng luật (lỗi file, fallback, `[khoá]`, Format InvariantCulture + rơi về gốc khi mẫu hỏng, `ToFile` sắp Ordinal, `MissingKeys` một cấp); `PlayerSettings` đúng bảng + NaN/∞ → mặc định + luật tên ngôn ngữ; `PlayerConfig` 4 trường + `Validate` (viết `!(x >= 1 && x <= 32)` nên NaN cũng bị chặn — tốt); `PlayerRules.Configure` + `StarterBag` thuộc tính; 2 file JSON giống hệt; client đúng 1 dòng mỗi file; TearDown đặt lại cấu hình mặc định.
+- Test: 16 test mới phủ đủ các dòng "Phần cần test"; EditMode 488/488, PlayMode 150/150 theo executor — không chạy lại (kết quả đủ, không đáng ngờ).
+- Nhỏ, không chặn: dòng `/// (đọc từ sim_m1.json …)` nằm ngoài thẻ `<summary>` của `ToolReach`/`HandReach` (không ảnh hưởng biên dịch); `PlayerRules`/`StarterBag` giữ trạng thái tĩnh — chấp nhận M1 (test đã TearDown).
+- Giờ thực tế: 11 phút (19:35–19:46) so với ước lượng ~1 ngày-người.
