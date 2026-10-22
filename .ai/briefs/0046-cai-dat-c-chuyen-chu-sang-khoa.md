@@ -1,9 +1,9 @@
 # Brief 0046 — 0032 (C): chuyển chữ hiển thị sang khoá + test quét
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 21:40
+> Cập nhật: 2026-10-22 21:20
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -122,10 +122,22 @@ Trên Mac, scene SimView (Play):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 003cfc1
+Chạy bằng: Sonnet · medium
+Bắt đầu: 2026-10-22 21:06 · dừng 21:20 (chờ Opus, QĐ 7)
+Đã làm xong QĐ 1–6 và test: Core + SimView/TerrainEditInput/PlayerFarmActions/MinimapView/TimeDial chuyển sang khoá; `vi.json` 163 khoá (nhóm: bag 7, creature 14, crop 1, edit 20, farm 30, hud 17, item 7, map 2, plot 15, settings 13, site 11, stock 16, time 10). Code đã commit WIP (`brief 0046: WIP`), CHƯA xong brief.
 
 ## Kết quả test
+- EditMode: 493 test, 492 qua, 1 hỏng = `HardcodedTextScanTests.NoVietnameseLiterals` (lần chạy trước khi sửa 2 chỗ sót ở `SimView.cs:584`, đã sửa sau đó; các chỗ còn lại ở Vướng mắc). Test khác (`AllUsedKeysExist`, `BaseFileValid`, `ReachInText`, `CropNameUsesTable`, SiteStatus/CreatureStatus cũ) qua.
+- PlayMode: 165/165 qua (164 cũ + `LanguageSwitch_UpdatesUgui`), 0 lỗi console. Đã `git checkout` EditorSettings.asset.
+- Phần user tự xem + `tt.json`: chưa làm (chờ brief xong).
 
 ## Vướng mắc
+QĐ 7: `NoVietnameseLiterals` bắt nhầm 7 dòng `new GameObject("<tên tiếng Việt>")` (tên GameObject, không phải chữ hiển thị — brief mục "Không phải chữ hiển thị" đã nói vậy) mà danh sách bỏ dòng ở QĐ 7 không có `GameObject(`:
+- `SimView.cs:255` "Biển ", `:624` "Sinh vật ", `:627` "Hướng"
+- `TerrainEditInput.cs:413` "Ô đang chọn", `:444` "Bản mờ"
+- `MinimapView.cs:414` "Bản đồ"; `TimeDial.cs:257` "Vòng thời điểm"
+Đề xuất: thêm `GameObject(` vào danh sách bỏ dòng (QĐ 7). Cách khác: đổi tên các GameObject sang tiếng Anh — không nên vì test/Editor có thể tìm theo tên. Sau khi Opus đồng ý: executor chỉ cần thêm 1 chuỗi vào `SkipLines` rồi chạy lại EditMode (đã kỳ vọng sạch), rồi làm bước user xem.
 
 ---
 <!-- PLANNER ghi khi review. -->
