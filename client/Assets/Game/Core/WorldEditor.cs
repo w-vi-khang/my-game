@@ -152,6 +152,25 @@ namespace Game.Core
             return true;
         }
 
+        /// <summary>Phép Mưa (0028): ô đất có ô trên rỗng (trong map) → cỏ, cờ đã sửa bật. Chỉ ghi dữ liệu, không phát sự kiện. true khi ô đổi.</summary>
+        public static bool Grow(WorldData world, int x, int y, int z)
+        {
+            if (!world.Size.InBounds(x, y, z) || !world.Size.InBounds(x, y + 1, z)) return false;
+            ushort cell = world.Get(x, y, z);
+            if (Cell.GetMaterial(cell) != BlockMaterial.Dirt) return false;
+            if (Cell.GetMaterial(world.Get(x, y + 1, z)) != BlockMaterial.Empty) return false;
+            world.Set(x, y, z, Cell.SetModified(Cell.SetMaterial(cell, BlockMaterial.Grass), true));
+            return true;
+        }
+
+        /// <summary>Như Grow qua editor: ô đổi thì phát CellChanged.</summary>
+        public bool TryGrow(int x, int y, int z)
+        {
+            if (!Grow(World, x, y, z)) return false;
+            CellChanged?.Invoke(x, y, z);
+            return true;
+        }
+
         /// <summary>Ô (x, y, z) vừa có khối hoặc nước: ô ruộng ngay bên dưới trở lại ô đất (0020).</summary>
         void RevertFarmlandBelow(int x, int y, int z)
         {

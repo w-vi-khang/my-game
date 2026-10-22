@@ -123,6 +123,13 @@ namespace Game.Core.Sim
         public int wanderMaxMs = 10000;
     }
 
+    /// <summary>Số của người chơi (0028, số tạm). rainCooldownMs = thời gian hồi phép Mưa.</summary>
+    [Serializable]
+    public class PlayerConfig
+    {
+        public int rainCooldownMs = 10000;
+    }
+
     /// <summary>
     /// Cấu hình mô phỏng M1. Nguồn chuẩn: design/data/sim_m1.json (đọc bằng JsonUtility — tên trường phải khớp JSON).
     /// Số là số tạm (user 2026-10-14), chỉnh khi chơi thử.
@@ -130,7 +137,7 @@ namespace Game.Core.Sim
     [Serializable]
     public class SimConfig
     {
-        public int configVersion = 3;
+        public int configVersion = 4;
         public uint simSeed = 20261014;
         public int ticksPerSecond = 10;
         /// <summary>Cạnh vùng mô phỏng (cột) quanh trang trại trên world nhiều map (world 7e, brief 0019).</summary>
@@ -166,6 +173,7 @@ namespace Game.Core.Sim
         public FarmConfig farm = new FarmConfig();
         public HouseConfig house = new HouseConfig();
         public CreatureConfig creature = new CreatureConfig();
+        public PlayerConfig player = new PlayerConfig();
 
         public static WorkAbility ParseAbility(string s)
         {
@@ -178,6 +186,10 @@ namespace Game.Core.Sim
         public int MsToTicks(int ms) => ms * ticksPerSecond / 1000;
 
         public int GrowTicks(int cropId) => MsToTicks(crops[cropId].growTimeMs);
+
+        /// <summary>Thời gian người chơi tự xới (0028: bằng công đoạn xới ở tốc độ gốc 1000‰) — giây.</summary>
+        public float PlayerTillSeconds => BaseTicks(WorkAbility.Till) / (float)ticksPerSecond;
+        public float RainCooldownSeconds => player.rainCooldownMs / 1000f;
 
         public int StuckTicks => MsToTicks(creature.stuckTimeMs);
 
@@ -320,6 +332,8 @@ namespace Game.Core.Sim
                 throw new ArgumentException("creature.wanderMinMs phải > 0 và chia hết cho " + msPerTick + ".");
             if (creature.wanderMaxMs < creature.wanderMinMs || creature.wanderMaxMs % msPerTick != 0)
                 throw new ArgumentException("creature.wanderMaxMs phải >= wanderMinMs và chia hết cho " + msPerTick + ".");
+            if (player == null || player.rainCooldownMs <= 0)
+                throw new ArgumentException("player.rainCooldownMs phải > 0.");
         }
     }
 }

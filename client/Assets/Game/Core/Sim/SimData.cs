@@ -64,6 +64,12 @@ namespace Game.Core.Sim
     /// <summary>Player: người chơi nhận việc qua tab nhiệm vụ — M2 (0014); M1 chỉ có trường.</summary>
     public enum AssigneeKind : byte { None = 0, Creature = 1, Player = 2 }
 
+    /// <summary>Kết quả người chơi gieo (7f).</summary>
+    public enum PlayerSowResult : byte { Ok = 0, NoPlot = 1, NotTilled = 2, HasCrop = 3, OtherCrop = 4, NoSeeds = 5 }
+
+    /// <summary>Kết quả phép Mưa (7f).</summary>
+    public enum RainResult : byte { NoEffect = 0, Watered = 1, Grassed = 2 }
+
     public sealed class Creature
     {
         public readonly int Id;

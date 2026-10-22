@@ -15,6 +15,7 @@ namespace Game.Core.Sim
         public WorldEditor Editor { get; private set; }
         readonly List<CellPos> tmpPath = new List<CellPos>();
         readonly List<CellPos> goals = new List<CellPos>();
+        readonly List<CellPos> playerGoals = new List<CellPos>();
         readonly List<CellPos> storeGoals = new List<CellPos>();
         readonly List<CellPos> storePath = new List<CellPos>();
         readonly List<CellPos> homePath = new List<CellPos>();
@@ -740,7 +741,7 @@ namespace Game.Core.Sim
             }
         }
 
-        void OnStageDone(WorkStage s)
+        void OnStageDone(WorkStage s, PlayerBag bag = null)
         {
             if (s.PlotId >= 0)
             {
@@ -772,13 +773,21 @@ namespace Game.Core.Sim
                     case WorkAbility.Harvest:
                         int crop = CropOf(p);
                         var cd = Config.crops[crop];
-                        int k = NearestStorage(p.Site);
-                        var haul = new WorkStage(State.Stages.Count, p.OrderId, WorkAbility.Haul, p.Site, true,
-                            State.Storages[k].Cell, Config.BaseTicks(WorkAbility.Haul), 0,
-                            Approach.AdjacentOrOn, Approach.Adjacent, -1, k,
-                            cd.producePerHarvest, cd.seedsPerHarvest, crop);
-                        State.Stages.Add(haul);
-                        State.Orders[p.OrderId].StageIds.Add(haul.Id);
+                        if (bag != null)
+                        {
+                            bag.AddProduce(crop, cd.producePerHarvest);
+                            bag.AddSeeds(crop, cd.seedsPerHarvest);
+                        }
+                        else
+                        {
+                            int k = NearestStorage(p.Site);
+                            var haul = new WorkStage(State.Stages.Count, p.OrderId, WorkAbility.Haul, p.Site, true,
+                                State.Storages[k].Cell, Config.BaseTicks(WorkAbility.Haul), 0,
+                                Approach.AdjacentOrOn, Approach.Adjacent, -1, k,
+                                cd.producePerHarvest, cd.seedsPerHarvest, crop);
+                            State.Stages.Add(haul);
+                            State.Orders[p.OrderId].StageIds.Add(haul.Id);
+                        }
                         p.SoilReady = false;
                         p.CurrentCrop = -1;
                         if (p.Slots.Count > 0)
@@ -947,6 +956,208 @@ namespace Game.Core.Sim
             if (p.Removed || !p.TillPaused) return false;
             p.TillPaused = false;
             return true;
+        }
+
+        /// <summary>Người chơi làm xong công đoạn s (0028, simulation-tech "Người chơi làm công đoạn"). bag != null chỉ dùng cho thu hoạch: hàng vào túi, không chở.</summary>
+        void CompleteByPlayer(WorkStage s, PlayerBag bag = null)
+        {
+            if (s.Status == StageStatus.Assigned) Unassign(s.AssigneeId);
+            s.WorkDone = s.WorkRequired;
+            s.Status = StageStatus.Done;
+            s.Stall = StallReason.None;
+            s.Carried = false;
+            s.AssigneeKind = AssigneeKind.Player;
+            s.AssigneeId = -1;
+            OnStageDone(s, bag);
+        }
+
+        bool ValidPlot(int plotId) => plotId >= 0 && plotId < State.Plots.Count && !State.Plots[plotId].Removed;
+
+        void CheckCropArg(int cropId)
+        {
+            if (cropId < 0 || cropId >= Config.crops.Length)
+                throw new ArgumentException("Loại cây không có trong cấu hình: " + cropId);
+        }
+
+        /// <summary>Người chơi tự xới được ô plotId không: ô còn, đang ở pha xới (lần đầu hoặc xới lại), có công đoạn.</summary>
+        public bool CanPlayerTill(int plotId)
+        {
+            if (!ValidPlot(plotId)) return false;
+            var p = State.Plots[plotId];
+            return p.Phase == PlotPhase.Till && p.StageId >= 0;
+        }
+
+        /// <summary>Người chơi xới xong (0028 mục 7): bỏ tạm dừng, hoàn thành công đoạn xới. false nếu !CanPlayerTill.</summary>
+        public bool PlayerTill(int plotId)
+        {
+            if (!CanPlayerTill(plotId)) return false;
+            var p = State.Plots[plotId];
+            p.TillPaused = false;
+            CompleteByPlayer(State.Stages[p.StageId]);
+            return true;
+        }
+
+        /// <summary>Kiểm người chơi gieo cây cropId vào ô plotId được không, không đổi gì.</summary>
+        public PlayerSowResult CheckPlayerSow(int plotId, int cropId, PlayerBag bag)
+        {
+            CheckCropArg(cropId);
+            if (bag == null) throw new ArgumentNullException(nameof(bag));
+            if (!ValidPlot(plotId)) return PlayerSowResult.NoPlot;
+            var p = State.Plots[plotId];
+            if (p.Phase == PlotPhase.Sow && p.CurrentCrop != cropId) return PlayerSowResult.OtherCrop;
+            if (p.Phase == PlotPhase.Water || p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest)
+                return PlayerSowResult.HasCrop;
+            if (p.Phase == PlotPhase.Till || (p.Phase == PlotPhase.Idle && !p.SoilReady))
+                return PlayerSowResult.NotTilled;
+            if (bag.GetSeeds(cropId) <= 0) return PlayerSowResult.NoSeeds;
+            return PlayerSowResult.Ok;
+        }
+
+        /// <summary>Gieo bằng hạt túi (0028 mục 8). Ok → trừ 1 hạt túi, vụ sang pha tưới.</summary>
+        public PlayerSowResult PlayerSow(int plotId, int cropId, PlayerBag bag)
+        {
+            var r = CheckPlayerSow(plotId, cropId, bag);
+            if (r != PlayerSowResult.Ok) return r;
+            var p = State.Plots[plotId];
+            bag.TryTakeSeeds(cropId, 1);
+            if (p.Phase == PlotPhase.Idle)
+            {
+                p.CurrentCrop = cropId;
+                p.Phase = PlotPhase.Sow;
+                AddPlotStage(p, WorkAbility.Sow);
+            }
+            CompleteByPlayer(State.Stages[p.StageId]);
+            return PlayerSowResult.Ok;
+        }
+
+        /// <summary>Cây chín (pha thu hoạch) và ô còn.</summary>
+        public bool CanPlayerHarvest(int plotId)
+        {
+            if (!ValidPlot(plotId)) return false;
+            var p = State.Plots[plotId];
+            return p.Phase == PlotPhase.Harvest && p.StageId >= 0;
+        }
+
+        /// <summary>Thu hoạch vào túi (0028 mục 10), không chở. false nếu !CanPlayerHarvest.</summary>
+        public bool PlayerHarvest(int plotId, PlayerBag bag)
+        {
+            if (bag == null) throw new ArgumentNullException(nameof(bag));
+            if (!CanPlayerHarvest(plotId)) return false;
+            CompleteByPlayer(State.Stages[State.Plots[plotId].StageId], bag);
+            return true;
+        }
+
+        /// <summary>Phép Mưa lên ô cell (0028 mục 9): ô ruộng chờ tưới → tưới xong; ô đất → cỏ; khác → NoEffect, không đổi gì.</summary>
+        public RainResult Rain(CellPos cell)
+        {
+            int id = PlotAt(cell);
+            if (id >= 0 && State.Plots[id].Phase == PlotPhase.Water && State.Plots[id].StageId >= 0)
+            {
+                CompleteByPlayer(State.Stages[State.Plots[id].StageId]);
+                return RainResult.Watered;
+            }
+            bool changed;
+            if (Editor != null)
+            {
+                writingWorld = true;
+                try { changed = Editor.TryGrow(cell.X, cell.Y, cell.Z); }
+                finally { writingWorld = false; }
+            }
+            else
+            {
+                changed = WorldEditor.Grow(World, cell.X, cell.Y, cell.Z);
+            }
+            return changed ? RainResult.Grassed : RainResult.NoEffect;
+        }
+
+        /// <summary>Có kho nào trong tầm việc tay của nhân vật (0031: 8 ô).</summary>
+        public bool StorageInReach(float feetX, float feetY, float feetZ)
+        {
+            var st = State.Storages;
+            for (int i = 0; i < st.Count; i++)
+                if (PlayerRules.InHandReach(feetX, feetY, feetZ, st[i].Cell.X, st[i].Cell.Y, st[i].Cell.Z)) return true;
+            return false;
+        }
+
+        /// <summary>Túi → kho chung: chuyển min(amount, số trong túi, Stock.Free) hạt (produce = false) hoặc nông sản; trả số đã chuyển.</summary>
+        public int StoreToStock(PlayerBag bag, int cropId, bool produce, int amount)
+        {
+            CheckCropArg(cropId);
+            if (bag == null) throw new ArgumentNullException(nameof(bag));
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng phải ≥ 0");
+            int n = Math.Min(amount, produce ? bag.GetProduce(cropId) : bag.GetSeeds(cropId));
+            n = Math.Min(n, Math.Max(0, State.Stock.Free));
+            if (n <= 0) return 0;
+            if (produce)
+            {
+                bag.TryTakeProduce(cropId, n);
+                State.Stock.Produce[cropId] += n;
+            }
+            else
+            {
+                bag.TryTakeSeeds(cropId, n);
+                State.Stock.Seeds[cropId] += n;
+            }
+            return n;
+        }
+
+        /// <summary>Kho chung → túi: chuyển min(amount, số trong kho); trả số đã chuyển.</summary>
+        public int TakeFromStock(PlayerBag bag, int cropId, bool produce, int amount)
+        {
+            CheckCropArg(cropId);
+            if (bag == null) throw new ArgumentNullException(nameof(bag));
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng phải ≥ 0");
+            int n = Math.Min(amount, produce ? State.Stock.Produce[cropId] : State.Stock.Seeds[cropId]);
+            if (n <= 0) return 0;
+            if (produce)
+            {
+                State.Stock.Produce[cropId] -= n;
+                bag.AddProduce(cropId, n);
+            }
+            else
+            {
+                State.Stock.Seeds[cropId] -= n;
+                bag.AddSeeds(cropId, n);
+            }
+            return n;
+        }
+
+        /// <summary>Đường cho nhân vật (khung 1 × 1 × 2, không tránh sinh vật) từ ô chân feet tới ô kề ô ruộng plotId — như sinh vật (AdjacentOrOn). result không gồm feet; đã đứng ở đích → true, result rỗng. Không tới được / ô không còn → false.</summary>
+        public bool FindPlayerPathToPlot(CellPos feet, int plotId, List<CellPos> result)
+        {
+            if (!ValidPlot(plotId)) return false;
+            var site = State.Plots[plotId].Site;
+            int skipped = PlayerAdjacentGoals(site, true);
+            if (pathfinder.FindPathToAny(feet, playerGoals, 1, 1, 2, result)) return true;
+            if (skipped > 0)
+            {
+                PlayerAdjacentGoals(site, false);
+                if (pathfinder.FindPathToAny(feet, playerGoals, 1, 1, 2, result)) return true;
+            }
+            if (feet == site)
+            {
+                result.Clear();
+                return true;
+            }
+            return pathfinder.FindPath(feet, site, 1, 1, 2, result);
+        }
+
+        int PlayerAdjacentGoals(CellPos site, bool skipPlots)
+        {
+            playerGoals.Clear();
+            int skipped = 0;
+            for (int d = 0; d < 4; d++)
+                for (int k = 0; k < 3; k++)
+                {
+                    var n = site.Offset(DisplaceX[d], DisplaceY[k], DisplaceZ[d]);
+                    if (pathfinder.CanStand(n, 1, 1, 2))
+                    {
+                        if (skipPlots && OnPlot(n, 1, 1, 2)) skipped++;
+                        else playerGoals.Add(n);
+                        break;
+                    }
+                }
+            return skipped;
         }
 
         void StartCrop(FarmPlot p)

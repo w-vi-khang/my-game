@@ -29,6 +29,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(2, cfg.crops.Length);
             Assert.AreEqual(1200, cfg.GrowTicks(0));
             Assert.AreEqual(1800, cfg.GrowTicks(1));
+            Assert.AreEqual(4, cfg.configVersion);
+            Assert.AreEqual(6f, cfg.PlayerTillSeconds);
+            Assert.AreEqual(10f, cfg.RainCooldownSeconds);
         }
 
         [Test]
@@ -76,6 +79,14 @@ namespace Game.Core.Tests
             c = new SimConfig();
             c.species[0].sizeX = 0;
             Assert.Throws<ArgumentException>(c.Validate, "sizeX = 0");
+
+            c = new SimConfig();
+            c.player.rainCooldownMs = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "rainCooldownMs = 0");
+
+            c = new SimConfig();
+            c.player = null;
+            Assert.Throws<ArgumentException>(c.Validate, "player = null");
 
             c = new SimConfig();
             c.crops[0].startSeeds = 41;

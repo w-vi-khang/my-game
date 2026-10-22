@@ -306,5 +306,35 @@ namespace Game.Core.Tests
             CollectionAssert.AreEqual(new[] { C(0, 0, 0) }, Affected(s, 0, 0, 0));
             CollectionAssert.AreEqual(new[] { C(3, 1, 3) }, Affected(s, 63, 31, 63));
         }
+
+        [Test]
+        public void TryGrowTurnsOpenDirtToGrass()
+        {
+            world.Set(6, 1, 6, Cell.Make(BlockMaterial.Dirt));
+            Assert.IsTrue(editor.TryGrow(6, 1, 6));
+            ushort c = world.Get(6, 1, 6);
+            Assert.AreEqual(BlockMaterial.Grass, Cell.GetMaterial(c));
+            Assert.IsTrue(Cell.IsModified(c));
+            CollectionAssert.AreEqual(new[] { (6, 1, 6) }, changed);
+        }
+
+        [Test]
+        public void TryGrowRejectsOthers()
+        {
+            world.Set(7, 1, 7, Cell.Make(BlockMaterial.Farmland));
+            world.Set(8, 1, 8, Cell.Make(BlockMaterial.Grass));
+            world.Set(9, 14, 9, Cell.Make(BlockMaterial.Dirt));
+            world.Set(9, 15, 9, Cell.Make(BlockMaterial.Dirt));
+            var before = (ushort[])world.Cells.Clone();
+            Assert.IsFalse(editor.TryGrow(8, 1, 8), "cỏ");
+            Assert.IsFalse(editor.TryGrow(7, 1, 7), "ô ruộng");
+            Assert.IsFalse(editor.TryGrow(3, 1, 1), "đá");
+            Assert.IsFalse(editor.TryGrow(1, 1, 1), "đất có khối bên trên");
+            Assert.IsFalse(editor.TryGrow(9, 15, 9), "ô trên ngoài map");
+            Assert.IsFalse(editor.TryGrow(-1, 1, 1), "ngoài map");
+            Assert.IsFalse(editor.TryGrow(40, 1, 1), "ngoài map");
+            CollectionAssert.AreEqual(before, world.Cells);
+            Assert.IsEmpty(changed);
+        }
     }
 }

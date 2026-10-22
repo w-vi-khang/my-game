@@ -1,5 +1,5 @@
 {
-    "configVersion": 3,
+    "configVersion": 4,
     "simSeed": 20261014,
     "ticksPerSecond": 10,
     "regionSize": 64,
@@ -29,5 +29,6 @@
     "storage": { "capacity": 50 },
     "farm": { "queueSlots": 2, "slotMaxCount": 3 },
     "house": { "capacity": 2, "sizeX": 2, "sizeZ": 2, "sizeY": 2 },
-    "creature": { "stuckTimeMs": 30000, "blockWaitMs": 1000, "phaseAfterMs": 5000, "homeRadius": 4, "wanderMinMs": 5000, "wanderMaxMs": 10000 }
+    "creature": { "stuckTimeMs": 30000, "blockWaitMs": 1000, "phaseAfterMs": 5000, "homeRadius": 4, "wanderMinMs": 5000, "wanderMaxMs": 10000 },
+    "player": { "rainCooldownMs": 10000 }
 }

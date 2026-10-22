@@ -3,16 +3,20 @@ using System;
 namespace Game.Core
 {
     /// <summary>
-    /// Túi đồ của người chơi (0028): khối theo vật liệu + hạt theo loại cây (chỉ số trong SimConfig.crops).
+    /// Túi đồ của người chơi (0028): khối theo vật liệu + hạt + nông sản theo loại cây (chỉ số trong SimConfig.crops).
     /// Khác kho của sinh vật, không có mức tối đa (0004).
     /// </summary>
     public sealed class PlayerBag
     {
         readonly int[] counts = new int[256];
         readonly int[] seeds = new int[256];
+        readonly int[] produce = new int[256];
 
         /// <summary>(loại cây, số hạt mới).</summary>
         public event Action<int, int> SeedsChanged;
+
+        /// <summary>(loại cây, số nông sản mới).</summary>
+        public event Action<int, int> ProduceChanged;
 
         public event Action<BlockMaterial, int> Changed;
 
@@ -49,6 +53,47 @@ namespace Game.Core
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng thêm phải ≥ 0");
             seeds[crop] += amount;
             SeedsChanged?.Invoke(crop, seeds[crop]);
+        }
+
+        public int GetProduce(int crop)
+        {
+            CheckCrop(crop);
+            return produce[crop];
+        }
+
+        public void AddProduce(int crop, int amount)
+        {
+            CheckCrop(crop);
+            if (amount < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng thêm phải ≥ 0");
+            produce[crop] += amount;
+            ProduceChanged?.Invoke(crop, produce[crop]);
+        }
+
+        /// <summary>Đủ thì trừ amount hạt, phát SeedsChanged, true; thiếu → false, không đổi. amount = 0 → true, không phát.</summary>
+        public bool TryTakeSeeds(int crop, int amount)
+        {
+            CheckCrop(crop);
+            if (amount < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng lấy phải ≥ 0");
+            if (seeds[crop] < amount) return false;
+            if (amount == 0) return true;
+            seeds[crop] -= amount;
+            SeedsChanged?.Invoke(crop, seeds[crop]);
+            return true;
+        }
+
+        /// <summary>Như TryTakeSeeds cho nông sản (phát ProduceChanged).</summary>
+        public bool TryTakeProduce(int crop, int amount)
+        {
+            CheckCrop(crop);
+            if (amount < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng lấy phải ≥ 0");
+            if (produce[crop] < amount) return false;
+            if (amount == 0) return true;
+            produce[crop] -= amount;
+            ProduceChanged?.Invoke(crop, produce[crop]);
+            return true;
         }
 
         /// <summary>Thêm vật phẩm: Block → Add(Material, amount); SeedBag → AddSeeds(Crop, amount).</summary>
