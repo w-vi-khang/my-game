@@ -36,25 +36,36 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void QueueLineStates()
+        public void SlotCountTextFormat()
+        {
+            var p = new FarmPlot(0, 0, new CellPos(0, 0, 0));
+            p.SlotMax = 3;
+            p.Slots.Add(new CropSlot(0, 2));
+            Assert.AreEqual("2/3", SiteStatus.SlotCountText(p, 0));
+            Assert.AreEqual("0/3", SiteStatus.SlotCountText(p, 1));
+        }
+
+        [Test]
+        public void ProgressTextStates()
         {
             var cfg = new SimConfig();
+            var st = new Simulation(cfg, TestWorlds.Flat(1)).State;
             var p = new FarmPlot(0, 0, new CellPos(0, 0, 0));
-            p.Queue.Add(0);
-            p.Queue.Add(1);
-            p.Tilled = true;
-            p.Phase = PlotPhase.Sow;
-            Assert.AreEqual("1. Cây A — đang làm", SiteStatus.QueueLine(p, cfg, 0));
-            Assert.AreEqual("2. Cây B — chờ", SiteStatus.QueueLine(p, cfg, 1));
-            p.Tilled = false;
+            p.StageId = -1;
             p.Phase = PlotPhase.Till;
-            Assert.AreEqual("1. Cây A — chờ", SiteStatus.QueueLine(p, cfg, 0));
-            p.Tilled = true;
+            Assert.AreEqual("Xới 0%", SiteStatus.ProgressText(p, st, cfg));
+            p.TillPaused = true;
+            Assert.AreEqual("Xới 0% · tạm dừng", SiteStatus.ProgressText(p, st, cfg));
+            p.TillPaused = false;
+            p.CurrentCrop = 0;
+            p.Phase = PlotPhase.Growing;
+            st.Tick = 0;
+            p.RipeTick = cfg.GrowTicks(0) / 2;
+            Assert.AreEqual("Cây A · lớn 50%", SiteStatus.ProgressText(p, st, cfg));
             p.Phase = PlotPhase.Idle;
-            Assert.AreEqual("1. Cây A — chờ", SiteStatus.QueueLine(p, cfg, 0));
-            p.Queue.Clear();
-            p.Queue.Add(1);
-            Assert.AreEqual("2. (trống)", SiteStatus.QueueLine(p, cfg, 1));
+            Assert.AreEqual("Trống", SiteStatus.ProgressText(p, st, cfg));
+            p.Removed = true;
+            Assert.AreEqual("Đã huỷ", SiteStatus.ProgressText(p, st, cfg));
         }
 
         [Test]

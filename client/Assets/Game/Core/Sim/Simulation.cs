@@ -374,42 +374,48 @@ namespace Game.Core.Sim
             return p.Tilled ? m == BlockMaterial.Farmland : m == BlockMaterial.Dirt || m == BlockMaterial.Grass;
         }
 
-        /// <summary>Loại cây của vụ đang làm (đầu hàng đợi).</summary>
-        int CropOf(FarmPlot p) => p.Queue[0];
+        /// <summary>Loại cây của vụ hiện tại (ô tiến trình, 0027).</summary>
+        int CropOf(FarmPlot p) => p.CurrentCrop;
 
-        /// <summary>Bỏ công đoạn đang mở của ô (0020/0025): trả hạt nếu đã trừ mà chưa thu, sinh vật đang làm về rảnh, công đoạn Cancelled. Trả số hạt đã trả.</summary>
-        int AbortActive(FarmPlot p, out int stageId, out int creatureId)
+        /// <summary>Mở công đoạn gieo: vụ rời ô đợi đầu sang ô tiến trình (0027). Gọi khi Slots.Count > 0.</summary>
+        void BeginSow(FarmPlot p)
         {
-            int seeds = p.Phase == PlotPhase.Water || p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest ? 1 : 0;
-            stageId = p.StageId;
-            creatureId = -1;
-            if (stageId >= 0)
-            {
-                var s = State.Stages[stageId];
-                if (s.Status == StageStatus.Assigned)
-                {
-                    if (s.Ability == WorkAbility.Sow) seeds = 1;
-                    creatureId = s.AssigneeId;
-                    ReleaseCreature(State.Creatures[creatureId]);
-                }
-                s.Status = StageStatus.Cancelled;
-                s.Stall = StallReason.None;
-                s.AssigneeKind = AssigneeKind.None;
-                s.AssigneeId = -1;
-            }
-            if (seeds > 0) State.Stock.Seeds[CropOf(p)] += seeds;
-            return seeds;
+            var head = p.Slots[0];
+            p.CurrentCrop = head.CropId;
+            if (--head.Count == 0) p.Slots.RemoveAt(0);
+            p.Phase = PlotPhase.Sow;
+            AddPlotStage(p, WorkAbility.Sow);
         }
 
-        /// <summary>Huỷ vụ (0020): trả hạt nếu đã trừ mà chưa thu, sinh vật đang làm về rảnh, ô rời lệnh, xoá hàng đợi. Vận chuyển hàng đã thu giữ nguyên.</summary>
+        /// <summary>Bỏ công đoạn đang mở của ô (0020/0027): sinh vật đang làm về rảnh, công đoạn Cancelled. Không trả hạt (0027).</summary>
+        void AbortActive(FarmPlot p, out int stageId, out int creatureId)
+        {
+            stageId = p.StageId;
+            creatureId = -1;
+            if (stageId < 0) return;
+            var s = State.Stages[stageId];
+            if (s.Status == StageStatus.Assigned)
+            {
+                creatureId = s.AssigneeId;
+                ReleaseCreature(State.Creatures[creatureId]);
+            }
+            s.Status = StageStatus.Cancelled;
+            s.Stall = StallReason.None;
+            s.AssigneeKind = AssigneeKind.None;
+            s.AssigneeId = -1;
+        }
+
+        /// <summary>Huỷ vụ (0020, 0027): không trả hạt, sinh vật đang làm về rảnh, ô rời lệnh, xoá hàng đợi. Vận chuyển hàng đã thu giữ nguyên.</summary>
         void CancelPlot(FarmPlot p)
         {
-            int seeds = AbortActive(p, out int stageId, out int creatureId);
+            AbortActive(p, out int stageId, out int creatureId);
             p.Removed = true;
-            p.Queue.Clear();
+            p.Slots.Clear();
+            p.CurrentCrop = -1;
+            p.TillPaused = false;
             p.Phase = PlotPhase.Idle;
             p.StageId = -1;
-            State.Events.Add(new SimEvent(State.Tick, SimEventKind.CropCancelled, stageId, creatureId, p.Soil, StallReason.None, seeds));
+            State.Events.Add(new SimEvent(State.Tick, SimEventKind.CropCancelled, stageId, creatureId, p.Soil, StallReason.None, 0));
         }
 
         public void Tick()
@@ -744,10 +750,9 @@ namespace Game.Core.Sim
                     case WorkAbility.Till:
                         if (!p.Tilled) { WriteFarmland(p.Soil); p.Tilled = true; }
                         p.SoilReady = true;
-                        if (p.Queue.Count > 0)
+                        if (p.Slots.Count > 0)
                         {
-                            p.Phase = PlotPhase.Sow;
-                            AddPlotStage(p, WorkAbility.Sow);
+                            BeginSow(p);
                         }
                         else
                         {
@@ -775,8 +780,8 @@ namespace Game.Core.Sim
                         State.Stages.Add(haul);
                         State.Orders[p.OrderId].StageIds.Add(haul.Id);
                         p.SoilReady = false;
-                        p.Queue.RemoveAt(0);
-                        if (p.Queue.Count > 0)
+                        p.CurrentCrop = -1;
+                        if (p.Slots.Count > 0)
                         {
                             StartCrop(p);
                         }
@@ -838,6 +843,8 @@ namespace Game.Core.Sim
             int orderId = AddOrder(new[] { soil });
             var p = new FarmPlot(State.Plots.Count, orderId, soil);
             State.Plots.Add(p);
+            p.SlotCount = Config.farm.queueSlots;
+            p.SlotMax = Config.farm.slotMaxCount;
             p.Phase = PlotPhase.Till;
             AddPlotStage(p, WorkAbility.Till);
             return p.Id;
@@ -850,43 +857,95 @@ namespace Game.Core.Sim
             if (p.Removed || p.Tilled) return false;
             AbortActive(p, out _, out _);
             p.Removed = true;
-            p.Queue.Clear();
+            p.Slots.Clear();
             p.Phase = PlotPhase.Idle;
             p.StageId = -1;
             return true;
         }
 
-        /// <summary>Xoá vụ thứ index trong hàng đợi (0025). index 0 khi ô đang làm = huỷ vụ đang làm; ô vẫn là ô ruộng. Không phát sự kiện.</summary>
-        public bool RemoveCrop(int plotId, int index)
-        {
-            var p = State.Plots[plotId];
-            if (p.Removed || index < 0 || index >= p.Queue.Count) return false;
-            if (index > 0 || p.Phase == PlotPhase.Idle || !p.Tilled)
-            {
-                p.Queue.RemoveAt(index);
-                return true;
-            }
-            var phase = p.Phase;
-            AbortActive(p, out _, out _);
-            p.Queue.RemoveAt(0);
-            p.StageId = -1;
-            if (phase == PlotPhase.Water || phase == PlotPhase.Growing || phase == PlotPhase.Harvest) p.SoilReady = false;
-            if (p.Queue.Count > 0) StartCrop(p);
-            else p.Phase = PlotPhase.Idle;
-            return true;
-        }
-
-        /// <summary>Thêm một vụ loại cropId vào hàng đợi của ô; false khi hàng đợi đầy, ô đã rời lệnh hoặc chưa có kho.</summary>
-        public bool EnqueueCrop(int plotId, int cropId)
+        /// <summary>Chọn hạt cropId được không (0026 mục 2): ô ruộng còn, có kho, ô đợi cuối cùng loại chưa đầy hoặc còn ô đợi trống.</summary>
+        public bool CanEnqueueCrop(int plotId, int cropId)
         {
             if (cropId < 0 || cropId >= Config.crops.Length)
                 throw new ArgumentException("Không có loại cây: " + cropId);
             var p = State.Plots[plotId];
-            if (p.Removed) return false;
-            if (p.Queue.Count >= Config.farm.plotQueueCapacity) return false;
-            if (State.Storages.Count == 0) return false;
-            p.Queue.Add(cropId);
+            if (p.Removed || State.Storages.Count == 0) return false;
+            int n = p.Slots.Count;
+            if (n > 0 && p.Slots[n - 1].CropId == cropId && p.Slots[n - 1].Count < p.SlotMax) return true;
+            return n < p.SlotCount;
+        }
+
+        /// <summary>Chọn hạt cropId (0026 mục 2): ô đợi cuối cùng loại chưa đầy → +1; ngược lại thêm ô đợi mới ×1. Không gộp ô cùng loại kề nhau. Ô đứng yên → bắt đầu vụ.</summary>
+        public bool EnqueueCrop(int plotId, int cropId)
+        {
+            if (!CanEnqueueCrop(plotId, cropId)) return false;
+            var p = State.Plots[plotId];
+            int n = p.Slots.Count;
+            if (n > 0 && p.Slots[n - 1].CropId == cropId && p.Slots[n - 1].Count < p.SlotMax) p.Slots[n - 1].Count++;
+            else p.Slots.Add(new CropSlot(cropId, 1));
             if (p.Phase == PlotPhase.Idle) StartCrop(p);
+            return true;
+        }
+
+        /// <summary>Nút + của ô đợi index (0026 mục 3).</summary>
+        public bool IncreaseSlot(int plotId, int index)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || index < 0 || index >= p.Slots.Count || p.Slots[index].Count >= p.SlotMax) return false;
+            p.Slots[index].Count++;
+            return true;
+        }
+
+        /// <summary>Nút − của ô đợi index: về 0 → xoá, các ô sau đôn lên. Không đụng vụ hiện tại (0027).</summary>
+        public bool DecreaseSlot(int plotId, int index)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || index < 0 || index >= p.Slots.Count) return false;
+            if (--p.Slots[index].Count == 0) p.Slots.RemoveAt(index);
+            return true;
+        }
+
+        /// <summary>Nút x của ô đợi index: xoá cả ô đợi, các ô sau đôn lên (0027).</summary>
+        public bool ClearSlot(int plotId, int index)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || index < 0 || index >= p.Slots.Count) return false;
+            p.Slots.RemoveAt(index);
+            return true;
+        }
+
+        /// <summary>Huỷ vụ trong ô tiến trình (0027): không trả hạt, ô vẫn là ô ruộng; còn ô đợi → vụ kế. Không phát sự kiện.</summary>
+        public bool CancelCurrent(int plotId)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || p.CurrentCrop < 0) return false;
+            var phase = p.Phase;
+            AbortActive(p, out _, out _);
+            p.CurrentCrop = -1;
+            p.StageId = -1;
+            if (phase == PlotPhase.Water || phase == PlotPhase.Growing || phase == PlotPhase.Harvest) p.SoilReady = false;
+            if (p.Slots.Count > 0) StartCrop(p);
+            else p.Phase = PlotPhase.Idle;
+            return true;
+        }
+
+        /// <summary>Tạm dừng xới lại (0027): chỉ ô ruộng đã xới đang ở pha xới. Sinh vật đang làm về rảnh qua Unassign (giữ tiến độ).</summary>
+        public bool PauseTill(int plotId)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || !p.Tilled || p.Phase != PlotPhase.Till || p.TillPaused) return false;
+            var s = State.Stages[p.StageId];
+            if (s.Status == StageStatus.Assigned) Unassign(s.AssigneeId);
+            p.TillPaused = true;
+            return true;
+        }
+
+        /// <summary>Tiếp tục xới (0027).</summary>
+        public bool ResumeTill(int plotId)
+        {
+            var p = State.Plots[plotId];
+            if (p.Removed || !p.TillPaused) return false;
+            p.TillPaused = false;
             return true;
         }
 
@@ -894,8 +953,7 @@ namespace Game.Core.Sim
         {
             if (p.SoilReady)
             {
-                p.Phase = PlotPhase.Sow;
-                AddPlotStage(p, WorkAbility.Sow);
+                BeginSow(p);
             }
             else
             {
@@ -1143,7 +1201,11 @@ namespace Game.Core.Sim
                 }
             }
             for (int i = 0; i < stages.Count; i++)
-                if (stages[i].Status == StageStatus.Open && stages[i].AssigneeKind == AssigneeKind.None) open.Add(stages[i]);
+            {
+                var g2 = stages[i];
+                if (g2.Status == StageStatus.Open && g2.AssigneeKind == AssigneeKind.None
+                    && !(g2.PlotId >= 0 && State.Plots[g2.PlotId].TillPaused)) open.Add(g2);
+            }
             if (open.Count == 0) return;
             open.Sort((a, b) =>
             {

@@ -99,8 +99,12 @@ namespace Game.Core.Tests
             Assert.Throws<ArgumentException>(c.Validate, "mỗi vụ không ra gì");
 
             c = new SimConfig();
-            c.farm.plotQueueCapacity = 0;
-            Assert.Throws<ArgumentException>(c.Validate, "hàng đợi 0");
+            c.farm.queueSlots = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "ô đợi 0");
+
+            c = new SimConfig();
+            c.farm.slotMaxCount = 0;
+            Assert.Throws<ArgumentException>(c.Validate, "tối đa 0");
 
             c = new SimConfig();
             c.house.capacity = 0;

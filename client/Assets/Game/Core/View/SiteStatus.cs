@@ -22,13 +22,40 @@ namespace Game.Core.View
             return sb.ToString();
         }
 
-        /// <summary>Dòng hàng đợi thứ index: "1. Cây A — đang làm" / "2. Cây B — chờ" / "2. (trống)". Vụ đầu "đang làm" khi ô đã xới và Phase khác Idle (cùng điều kiện huỷ vụ đang làm của RemoveCrop).</summary>
-        public static string QueueLine(FarmPlot p, SimConfig cfg, int index)
+        /// <summary>Số dưới ô đợi index: "2/3"; ô đợi trống "0/3" (0027).</summary>
+        public static string SlotCountText(FarmPlot p, int index) =>
+            (index < p.Slots.Count ? p.Slots[index].Count : 0) + "/" + p.SlotMax;
+
+        /// <summary>% ô tiến trình (0027): xới/gieo/tưới/thu theo tiến độ công đoạn, lớn theo GrowPercent; đứng yên / đã huỷ = 0.</summary>
+        public static int ProgressPercent(FarmPlot p, SimState s, SimConfig cfg)
         {
-            string head = (index + 1) + ". ";
-            if (index >= p.Queue.Count) return head + "(trống)";
-            bool active = index == 0 && p.Tilled && p.Phase != PlotPhase.Idle;
-            return head + CropName(cfg, p.Queue[index]) + (active ? " — đang làm" : " — chờ");
+            if (p.Removed) return 0;
+            switch (p.Phase)
+            {
+                case PlotPhase.Growing: return GrowPercent(p, s.Tick, cfg.GrowTicks(p.CurrentCrop));
+                case PlotPhase.Till:
+                case PlotPhase.Sow:
+                case PlotPhase.Water:
+                case PlotPhase.Harvest:
+                    return p.StageId >= 0 ? s.Stages[p.StageId].ProgressPermille / 10 : 0;
+                default: return 0;
+            }
+        }
+
+        /// <summary>Chữ ô tiến trình (0027): "Xới 60%", "Xới 60% · tạm dừng", "Cây A · gieo 0%", "Cây A · tưới 50%", "Cây A · lớn 40%", "Cây A · thu hoạch 20%", "Trống", "Đã huỷ".</summary>
+        public static string ProgressText(FarmPlot p, SimState s, SimConfig cfg)
+        {
+            if (p.Removed) return "Đã huỷ";
+            int pct = ProgressPercent(p, s, cfg);
+            switch (p.Phase)
+            {
+                case PlotPhase.Till: return "Xới " + pct + "%" + (p.TillPaused ? " · tạm dừng" : "");
+                case PlotPhase.Sow: return CropName(cfg, p.CurrentCrop) + " · gieo " + pct + "%";
+                case PlotPhase.Water: return CropName(cfg, p.CurrentCrop) + " · tưới " + pct + "%";
+                case PlotPhase.Growing: return CropName(cfg, p.CurrentCrop) + " · lớn " + pct + "%";
+                case PlotPhase.Harvest: return CropName(cfg, p.CurrentCrop) + " · thu hoạch " + pct + "%";
+                default: return "Trống";
+            }
         }
 
         /// <summary>% sinh trưởng làm tròn xuống, chặn 0..100. Chỉ có nghĩa khi Phase = Growing.</summary>

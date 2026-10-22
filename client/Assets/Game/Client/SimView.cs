@@ -308,17 +308,36 @@ namespace Game.Client
             return TillResult.Marked;
         }
 
-        /// <summary>Nút "+ Cây X" của bảng ô ruộng.</summary>
+        /// <summary>Ô hạt giống cropId (0026 mục 2).</summary>
         public bool ChooseCrop(int cropId) => OpenPlotId >= 0 && Sim.EnqueueCrop(OpenPlotId, cropId);
-        /// <summary>Nút "Xoá" ở dòng index của hàng đợi.</summary>
-        public bool RemoveQueued(int index) => OpenPlotId >= 0 && Sim.RemoveCrop(OpenPlotId, index);
-        public void ClosePlotPanel() => OpenPlotId = -1;
+        public bool CanChooseCrop(int cropId) => OpenPlotId >= 0 && Sim.CanEnqueueCrop(OpenPlotId, cropId);
+        /// <summary>Nút + / − / x của ô đợi index.</summary>
+        public bool IncreaseQueued(int index) => OpenPlotId >= 0 && Sim.IncreaseSlot(OpenPlotId, index);
+        public bool DecreaseQueued(int index) => OpenPlotId >= 0 && Sim.DecreaseSlot(OpenPlotId, index);
+        public bool ClearQueued(int index) => OpenPlotId >= 0 && Sim.ClearSlot(OpenPlotId, index);
+
+        /// <summary>Nút trên ô tiến trình (0027): xới lại → tạm dừng / tiếp tục; từ gieo trở đi → huỷ vụ (không trả hạt).</summary>
+        public bool ProgressAction()
+        {
+            if (OpenPlotId < 0) return false;
+            var p = Sim.State.Plots[OpenPlotId];
+            if (p.Tilled && p.Phase == PlotPhase.Till)
+                return p.TillPaused ? Sim.ResumeTill(OpenPlotId) : Sim.PauseTill(OpenPlotId);
+            return Sim.CancelCurrent(OpenPlotId);
+        }
+
+        /// <summary>Đóng bảng; ô đang tạm dừng xới → tiếp tục (0027 mục 2).</summary>
+        public void ClosePlotPanel()
+        {
+            if (OpenPlotId >= 0) Sim.ResumeTill(OpenPlotId);
+            OpenPlotId = -1;
+        }
         public void ToggleStock() => StockOpen = !StockOpen;
 
         static float GuiScale => Mathf.Max(1f, Screen.height / 720f);
         public static Rect StockButtonRect(float gw, float gh) => new Rect(10f, gh - 46f, 110f, 36f);
         public static Rect StockPanelRect(float gw, float gh, int crops) { float h = 32f + 24f * crops; return new Rect(10f, gh - 56f - h, 320f, h); }
-        public static Rect PlotPanelRect(float gw, float gh) => new Rect(gw * 0.5f - 170f, gh - 250f, 340f, 240f);
+        public static Rect PlotPanelRect(float gw, float gh) => new Rect(gw * 0.5f - 200f, gh - 310f, 400f, 300f);
 
         static SimView active;
 
@@ -349,24 +368,80 @@ namespace Game.Client
             GUI.Box(pr, "");
             var p = Sim.State.Plots[OpenPlotId];
             var cfg = Sim.Config;
-            float x = pr.x + 8f, w = pr.width - 16f, y = pr.y + 8f;
-            GUI.Label(new Rect(x, y, w, 26f), SiteStatus.PlotText(p, Sim.State.Tick, cfg.GrowTicks(p.Queue.Count > 0 ? p.Queue[0] : 0)), hudStyle);
+            float x = pr.x + 10f, y = pr.y + 8f;
+            GUI.Label(new Rect(x, y, pr.width - 20f, 24f), SiteStatus.PlotText(p, Sim.State.Tick, cfg.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
             y += 26f;
-            GUI.Label(new Rect(x, y, 90f, 26f), "Chọn giống:", hudStyle);
-            GUI.enabled = p.Queue.Count < cfg.farm.plotQueueCapacity;
+
+            // Hạt giống: ô vuông bo góc màu cây + chữ, icon hạt góc trên trái.
+            GUI.Label(new Rect(x, y, 200f, 22f), "Hạt giống", hudStyle);
+            y += 22f;
             for (int i = 0; i < cfg.crops.Length; i++)
-                if (GUI.Button(new Rect(x + 95f + i * 104f, y, 100f, 24f), "+ " + SiteStatus.CropName(cfg, i))) ChooseCrop(i);
-            GUI.enabled = true;
-            y += 26f;
-            GUI.Label(new Rect(x, y, w, 26f), "Hàng đợi (" + p.Queue.Count + "/" + cfg.farm.plotQueueCapacity + "):", hudStyle);
-            y += 26f;
-            for (int k = 0; k < cfg.farm.plotQueueCapacity; k++)
             {
-                GUI.Label(new Rect(x, y, w - 70f, 26f), SiteStatus.QueueLine(p, cfg, k), hudStyle);
-                if (k < p.Queue.Count && GUI.Button(new Rect(x + w - 60f, y, 60f, 24f), "Xoá")) { RemoveQueued(k); break; }
-                y += 26f;
+                var r = new Rect(x + i * 64f, y, 56f, 56f);
+                bool can = CanChooseCrop(i);
+                Tile(r, CropColor(i), cfg.crops[i].id, can ? 1f : 0.35f);
+                Tile(new Rect(r.x + 4f, r.y + 4f, 14f, 14f), SeedColor, "", can ? 1f : 0.35f, 7f);
+                GUI.enabled = can;
+                if (GUI.Button(r, GUIContent.none, GUIStyle.none)) ChooseCrop(i);
+                GUI.enabled = true;
             }
-            if (GUI.Button(new Rect(x, pr.yMax - 36f, 110f, 28f), "Đóng (Esc)")) ClosePlotPanel();
+            y += 64f;
+
+            // Ô tiến trình (trái) + các ô đợi (phải).
+            GUI.Label(new Rect(x, y, 90f, 22f), "Đang làm", hudStyle);
+            GUI.Label(new Rect(x + 100f, y, 200f, 22f), "Hàng đợi", hudStyle);
+            y += 22f;
+            var cr = new Rect(x, y, 72f, 72f);
+            bool busy = p.Phase != PlotPhase.Idle;
+            string cropText = p.CurrentCrop >= 0 ? cfg.crops[p.CurrentCrop].id : (busy ? "Xới" : "");
+            Tile(cr, p.CurrentCrop >= 0 ? CropColor(p.CurrentCrop) : EmptyColor, cropText, 1f);
+            if (busy)
+            {
+                if (p.TillPaused)
+                {
+                    if (GUI.Button(new Rect(cr.x + 4f, cr.y + 25f, 64f, 22f), "Tiếp tục")) ProgressAction();
+                }
+                else if (GUI.Button(new Rect(cr.xMax - 18f, cr.y, 18f, 18f), "x")) ProgressAction();
+            }
+            var bar = new Rect(cr.x, cr.yMax + 4f, 72f, 8f);
+            Tile(bar, EmptyColor, "", 1f, 3f);
+            int pct = SiteStatus.ProgressPercent(p, Sim.State, cfg);
+            if (pct > 0) Tile(new Rect(bar.x, bar.y, bar.width * pct / 100f, bar.height), BarColor, "", 1f, 3f);
+            GUI.Label(new Rect(cr.x - 4f, bar.yMax + 2f, 96f, 22f), SiteStatus.ProgressText(p, Sim.State, cfg), hudStyle);
+
+            for (int k = 0; k < p.SlotCount; k++)
+            {
+                var r = new Rect(x + 100f + k * 84f, y, 72f, 72f);
+                bool has = k < p.Slots.Count;
+                Tile(r, has ? CropColor(p.Slots[k].CropId) : EmptyColor, has ? cfg.crops[p.Slots[k].CropId].id : "", 1f);
+                float by = r.yMax + 4f;
+                GUI.enabled = has;
+                if (GUI.Button(new Rect(r.xMax - 18f, r.y, 18f, 18f), "x")) { ClearQueued(k); GUI.enabled = true; break; }
+                if (GUI.Button(new Rect(r.x, by, 20f, 20f), "−")) { DecreaseQueued(k); GUI.enabled = true; break; }
+                GUI.enabled = has && p.Slots[k].Count < p.SlotMax;
+                if (GUI.Button(new Rect(r.xMax - 20f, by, 20f, 20f), "+")) { IncreaseQueued(k); GUI.enabled = true; break; }
+                GUI.enabled = true;
+                GUI.Label(new Rect(r.x + 22f, by, 28f, 20f), SiteStatus.SlotCountText(p, k), labelStyle);
+            }
+            GUI.enabled = true;
+
+            if (GUI.Button(new Rect(pr.xMax - 120f, pr.yMax - 36f, 110f, 28f), "Đóng (Esc)")) ClosePlotPanel();
+        }
+
+        static readonly Color EmptyColor = new Color(0.25f, 0.25f, 0.25f, 0.9f);
+        static readonly Color SeedColor = new Color(0.55f, 0.40f, 0.20f);
+        static readonly Color BarColor = new Color(0.35f, 0.80f, 0.35f);
+
+        /// <summary>Màu tạm của loại cây (0027 mục 5 — art sau).</summary>
+        static Color CropColor(int cropId) =>
+            cropId == 0 ? new Color(0.35f, 0.70f, 0.30f) : cropId == 1 ? new Color(0.85f, 0.55f, 0.20f) : new Color(0.6f, 0.6f, 0.6f);
+
+        /// <summary>Ô màu bo góc + chữ giữa (hình tạm, OnGUI).</summary>
+        void Tile(Rect r, Color c, string text, float alpha, float radius = 8f)
+        {
+            c.a *= alpha;
+            GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, c, 0f, radius);
+            if (text.Length > 0) GUI.Label(r, text, labelStyle);
         }
 
         void UpdateSprouts()
@@ -375,7 +450,7 @@ namespace Game.Client
             for (int i = 0; i < ps.Count && i < sprouts.Count; i++)
             {
                 var p = ps[i];
-                int grow = Sim.Config.GrowTicks(p.Queue.Count > 0 ? p.Queue[0] : 0);
+                int grow = Sim.Config.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0);
                 bool show = p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest;
                 sprouts[i].gameObject.SetActive(show);
                 if (!show) continue;
@@ -434,7 +509,7 @@ namespace Game.Client
             GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.StorageText(Sim.State.Stock), hudStyle);
             if (Meter == null)
                 foreach (var p in Sim.State.Plots)
-                    GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks(p.Queue.Count > 0 ? p.Queue[0] : 0)), hudStyle);
+                    GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
             if (Meter != null && Meter.LastLine != null)
                 GUI.Label(new Rect(10, 100 + 24 * line++, 1400, 24), Meter.LastLine, hudStyle);
 

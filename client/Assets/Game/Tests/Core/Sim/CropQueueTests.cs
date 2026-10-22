@@ -129,10 +129,14 @@ namespace Game.Core.Tests
             var p = sim.State.Plots[id];
             Assert.IsFalse(p.SoilReady);
             Assert.AreEqual(PlotPhase.Till, p.Phase);
-            Assert.AreEqual(1, p.Queue.Count);
+            Assert.AreEqual(1, p.Slots.Count);
+            Assert.AreEqual(1, p.Slots[0].Count);
+            Assert.AreEqual(-1, p.CurrentCrop);
             RunTo(sim, 1455);
             Assert.IsTrue(p.SoilReady);
             Assert.AreEqual(PlotPhase.Sow, p.Phase);
+            Assert.AreEqual(0, p.Slots.Count);
+            Assert.AreEqual(0, p.CurrentCrop);
         }
 
         [Test]
@@ -209,14 +213,15 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void RemoveQueuedCropOnlyLeavesQueue()
+        public void ClearSlotOnlyLeavesQueue()
         {
             Layout(new[] { 0, 1 });
             RunTo(sim, 500);
             var p = sim.State.Plots[id];
             int seeds = sim.State.Stock.Seeds[0];
-            Assert.IsTrue(sim.RemoveCrop(id, 1));
-            Assert.AreEqual(new List<int> { 0 }, p.Queue);
+            Assert.IsTrue(sim.ClearSlot(id, 0));
+            Assert.AreEqual(0, p.Slots.Count);
+            Assert.AreEqual(0, p.CurrentCrop);
             Assert.AreEqual(PlotPhase.Growing, p.Phase);
             Assert.AreEqual(seeds, sim.State.Stock.Seeds[0]);
         }
@@ -225,15 +230,16 @@ namespace Game.Core.Tests
         [TestCase(140, PlotPhase.Water, false)]
         [TestCase(500, PlotPhase.Growing, false)]
         [TestCase(1370, PlotPhase.Harvest, false)]
-        public void RemoveActiveCropRefundsAndKeepsFarmland(int tick, PlotPhase expected, bool soilReady)
+        public void CancelCurrentNoRefundKeepsFarmland(int tick, PlotPhase expected, bool soilReady)
         {
             Layout(new[] { 0 });
             RunTo(sim, tick);
             var p = sim.State.Plots[id];
             Assert.AreEqual(expected, p.Phase);
-            Assert.IsTrue(sim.RemoveCrop(id, 0));
-            Assert.AreEqual(10, sim.State.Stock.Seeds[0]);
-            Assert.AreEqual(0, p.Queue.Count);
+            Assert.IsTrue(sim.CancelCurrent(id));
+            Assert.AreEqual(9, sim.State.Stock.Seeds[0]);
+            Assert.AreEqual(-1, p.CurrentCrop);
+            Assert.AreEqual(0, p.Slots.Count);
             Assert.AreEqual(PlotPhase.Idle, p.Phase);
             Assert.IsFalse(p.Removed);
             Assert.IsTrue(p.Tilled);
@@ -244,15 +250,16 @@ namespace Game.Core.Tests
             Assert.AreEqual(soilReady, p.SoilReady);
             Assert.IsTrue(sim.EnqueueCrop(id, 0));
             Assert.AreEqual(soilReady ? PlotPhase.Sow : PlotPhase.Till, p.Phase);
+            if (soilReady) Assert.AreEqual(0, p.CurrentCrop);
         }
 
         [Test]
-        public void RemoveCropOnMarkedPlotKeepsTill()
+        public void ClearSlotOnMarkedPlotKeepsTill()
         {
             Layout(new[] { 0 });
             RunTo(sim, 30);
-            Assert.IsTrue(sim.RemoveCrop(id, 0));
-            Assert.AreEqual(0, sim.State.Plots[id].Queue.Count);
+            Assert.IsTrue(sim.ClearSlot(id, 0));
+            Assert.AreEqual(0, sim.State.Plots[id].Slots.Count);
             Assert.AreEqual(StageStatus.Assigned, Stage(WorkAbility.Till).Status);
             RunTo(sim, 75);
             Assert.AreEqual(PlotPhase.Idle, sim.State.Plots[id].Phase);
@@ -318,8 +325,13 @@ namespace Game.Core.Tests
         {
             Layout(new int[0]);
             Assert.Throws<ArgumentException>(() => sim.EnqueueCrop(id, 2));
+            for (int i = 0; i < 5; i++) Assert.IsTrue(sim.EnqueueCrop(id, 0), "lần " + (i + 1));
+            var slots = sim.State.Plots[id].Slots;
+            Assert.AreEqual(2, slots.Count);
+            Assert.AreEqual(3, slots[0].Count);
+            Assert.AreEqual(2, slots[1].Count);
             Assert.IsTrue(sim.EnqueueCrop(id, 0));
-            Assert.IsTrue(sim.EnqueueCrop(id, 0));
+            Assert.AreEqual(3, slots[1].Count);
             Assert.IsFalse(sim.EnqueueCrop(id, 0));
 
             var bare = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(1));
@@ -330,6 +342,171 @@ namespace Game.Core.Tests
             Layout(new int[0]);
             Assert.IsTrue(sim.Unmark(id));
             Assert.IsFalse(sim.EnqueueCrop(id, 0));
+        }
+
+        static int[] SlotList(FarmPlot p)
+        {
+            var l = new List<int>();
+            foreach (var sl in p.Slots) { l.Add(sl.CropId); l.Add(sl.Count); }
+            return l.ToArray();
+        }
+
+        [Test]
+        public void EnqueueFillsSlotsByRule()
+        {
+            var cfg = TestWorlds.NoWander();
+            cfg.farm.queueSlots = 3;
+            Layout(new int[0], cfg);
+            for (int i = 0; i < 3; i++) Assert.IsTrue(sim.EnqueueCrop(id, 0));
+            for (int i = 0; i < 3; i++) Assert.IsTrue(sim.EnqueueCrop(id, 1));
+            for (int i = 0; i < 3; i++) Assert.IsTrue(sim.EnqueueCrop(id, 0));
+            var p = sim.State.Plots[id];
+            Assert.AreEqual(new[] { 0, 3, 1, 3, 0, 3 }, SlotList(p));
+            Assert.IsFalse(sim.EnqueueCrop(id, 0));
+            Assert.IsFalse(sim.EnqueueCrop(id, 1));
+            var sown = new List<int>();
+            var last = p.Phase;
+            for (int t = 0; t < 8000 && sown.Count < 4; t++)
+            {
+                sim.Tick();
+                if (p.Phase == PlotPhase.Sow && last != PlotPhase.Sow) sown.Add(p.CurrentCrop);
+                last = p.Phase;
+            }
+            Assert.AreEqual(new[] { 0, 0, 0, 1 }, sown.ToArray());
+        }
+
+        [Test]
+        public void TwoSlotsAThenB()
+        {
+            Layout(new int[0]);
+            for (int i = 0; i < 3; i++) Assert.IsTrue(sim.EnqueueCrop(id, 0));
+            for (int i = 0; i < 3; i++) Assert.IsTrue(sim.EnqueueCrop(id, 1));
+            Assert.AreEqual(new[] { 0, 3, 1, 3 }, SlotList(sim.State.Plots[id]));
+            Assert.IsFalse(sim.EnqueueCrop(id, 1));
+        }
+
+        [Test]
+        public void SlotPlusMinusClearShift()
+        {
+            var cfg = TestWorlds.NoWander();
+            cfg.farm.queueSlots = 3;
+            Layout(new int[0], cfg);
+            var p = sim.State.Plots[id];
+            for (int i = 0; i < 3; i++) sim.EnqueueCrop(id, 0);
+            for (int i = 0; i < 2; i++) sim.EnqueueCrop(id, 1);
+            sim.EnqueueCrop(id, 0);
+            Assert.AreEqual(new[] { 0, 3, 1, 2, 0, 1 }, SlotList(p));
+            Assert.IsTrue(sim.ClearSlot(id, 1));
+            Assert.AreEqual(new[] { 0, 3, 0, 1 }, SlotList(p));
+            Assert.IsTrue(sim.DecreaseSlot(id, 1));
+            Assert.AreEqual(new[] { 0, 3 }, SlotList(p));
+            Assert.IsFalse(sim.IncreaseSlot(id, 0));
+            for (int i = 0; i < 3; i++) Assert.IsTrue(sim.DecreaseSlot(id, 0));
+            Assert.AreEqual(0, p.Slots.Count);
+            Assert.IsFalse(sim.DecreaseSlot(id, 0));
+            Assert.IsFalse(sim.IncreaseSlot(id, 5));
+            Assert.IsFalse(sim.ClearSlot(id, -1));
+        }
+
+        [Test]
+        public void SowMovesCropToProgress()
+        {
+            Layout(new[] { 0, 0 });
+            var p = sim.State.Plots[id];
+            for (int t = 0; t < 400 && p.Phase != PlotPhase.Sow; t++)
+            {
+                Assert.AreEqual(-1, p.CurrentCrop);
+                Assert.AreEqual(2, p.Slots[0].Count);
+                sim.Tick();
+            }
+            Assert.AreEqual(PlotPhase.Sow, p.Phase);
+            Assert.AreEqual(0, p.CurrentCrop);
+            Assert.AreEqual(1, p.Slots[0].Count);
+        }
+
+        [Test]
+        public void PauseTillKeepsProgressAndBlocksAssign()
+        {
+            Layout(new[] { 0, 0 });
+            var p = sim.State.Plots[id];
+            Assert.IsFalse(sim.PauseTill(id));
+            RunTo(sim, 1395);
+            Assert.IsTrue(p.Tilled);
+            Assert.AreEqual(PlotPhase.Till, p.Phase);
+            RunTo(sim, 1405);
+            var st = sim.State.Stages[p.StageId];
+            Assert.AreEqual(StageStatus.Assigned, st.Status);
+            long done = st.WorkDone;
+            Assert.IsTrue(sim.PauseTill(id));
+            Assert.IsTrue(p.TillPaused);
+            Assert.AreNotEqual(StageStatus.Assigned, st.Status);
+            RunTo(sim, 1605);
+            Assert.AreNotEqual(StageStatus.Assigned, st.Status);
+            Assert.AreEqual(done, st.WorkDone);
+            Assert.IsFalse(sim.PauseTill(id));
+            Assert.IsTrue(sim.ResumeTill(id));
+            for (int t = 0; t < 1000 && p.Phase == PlotPhase.Till; t++) sim.Tick();
+            Assert.AreEqual(PlotPhase.Sow, p.Phase);
+        }
+
+        [Test]
+        public void PauseTillRejectedOutsideRetill()
+        {
+            Layout(new[] { 0 });
+            Assert.IsFalse(sim.PauseTill(id));
+            RunTo(sim, 90);
+            Assert.AreEqual(PlotPhase.Sow, sim.State.Plots[id].Phase);
+            Assert.IsFalse(sim.PauseTill(id));
+            Layout(new int[0]);
+            Assert.IsFalse(sim.PauseTill(id));
+        }
+
+        [Test]
+        public void CancelCurrentStartsNext()
+        {
+            Layout(new[] { 0, 1 });
+            RunTo(sim, 500);
+            var p = sim.State.Plots[id];
+            Assert.IsTrue(sim.CancelCurrent(id));
+            Assert.AreEqual(PlotPhase.Till, p.Phase);
+            Assert.IsFalse(p.SoilReady);
+            Assert.AreEqual(1, p.Slots[0].CropId);
+            Assert.AreEqual(9, sim.State.Stock.Seeds[0]);
+        }
+
+        [Test]
+        public void PerPlotSlotLimits()
+        {
+            Layout(new int[0]);
+            int id2 = sim.MarkTill(new CellPos(6, 1, 5));
+            var p1 = sim.State.Plots[id];
+            var p2 = sim.State.Plots[id2];
+            Assert.AreEqual(2, p1.SlotCount); Assert.AreEqual(3, p1.SlotMax);
+            Assert.AreEqual(2, p2.SlotCount); Assert.AreEqual(3, p2.SlotMax);
+            p1.SlotCount = 3;
+            Assert.IsTrue(sim.EnqueueCrop(id, 0));
+            Assert.IsTrue(sim.EnqueueCrop(id, 1));
+            Assert.IsTrue(sim.EnqueueCrop(id, 0));
+            Assert.IsTrue(sim.EnqueueCrop(id2, 0));
+            Assert.IsTrue(sim.EnqueueCrop(id2, 1));
+            Assert.IsFalse(sim.EnqueueCrop(id2, 0));
+        }
+
+        [Test]
+        public void KeepFarmingRefillsOnlyWhenEmpty()
+        {
+            Layout(new[] { 0 });
+            RunTo(sim, 500);
+            var p = sim.State.Plots[id];
+            Assert.AreEqual(0, p.CurrentCrop);
+            SimDemo.KeepFarming(sim);
+            Assert.AreEqual(0, p.Slots.Count);
+            RunTo(sim, 1395);
+            Assert.AreEqual(PlotPhase.Idle, p.Phase);
+            Assert.AreEqual(-1, p.CurrentCrop);
+            SimDemo.KeepFarming(sim);
+            Assert.AreEqual(1, p.Slots[0].Count);
+            Assert.AreEqual(PlotPhase.Till, p.Phase);
         }
 
         Simulation Scenario(out WorldEditor ed)
@@ -362,7 +539,9 @@ namespace Game.Core.Tests
                 {
                     var s = pair.Item1;
                     if (t == 50) s.Unmark(2);
-                    if (t == 600) s.RemoveCrop(0, 1);
+                    if (t == 600) s.ClearSlot(0, 0);
+                    if (t == 650) { s.EnqueueCrop(0, 1); s.IncreaseSlot(0, 0); s.DecreaseSlot(0, 0); }
+                    if (t == 660) s.CancelCurrent(1);
                     if (t == 700) pair.Item2.TryDig(6, 1, 5);
                     s.Tick();
                 }

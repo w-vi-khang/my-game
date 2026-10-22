@@ -98,7 +98,8 @@ namespace Game.Core.Tests
 
             RunTo(sim, 1395);
             Assert.AreEqual(PlotPhase.Idle, plot.Phase);
-            Assert.AreEqual(0, plot.Queue.Count);
+            Assert.AreEqual(0, plot.Slots.Count);
+            Assert.AreEqual(-1, plot.CurrentCrop);
             var haul = st.Stages[st.Stages.Count - 1];
             Assert.AreEqual(WorkAbility.Haul, haul.Ability);
             Assert.AreEqual(StageStatus.Assigned, haul.Status);
@@ -179,21 +180,22 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void QueueRepeatsAndCapsAtTwo()
+        public void QueueRepeatsInOneSlot()
         {
             var sim = Layout(TestWorlds.NoWander(), true);
             Assert.IsTrue(sim.EnqueueCrop(0, 0));
-            Assert.IsFalse(sim.EnqueueCrop(0, 0));
             var plot = sim.State.Plots[0];
-            Assert.AreEqual(2, plot.Queue.Count);
+            Assert.AreEqual(1, plot.Slots.Count);
+            Assert.AreEqual(2, plot.Slots[0].Count);
             RunTo(sim, 1395);
             Assert.AreEqual(PlotPhase.Till, plot.Phase);
-            Assert.AreEqual(1, plot.Queue.Count);
+            Assert.AreEqual(1, plot.Slots[0].Count);
             var l1 = sim.State.Creatures[0];
             Assert.AreEqual(CreatureState.Working, l1.State);
             Assert.AreEqual(new CellPos(6, 2, 5), l1.Cell);
             RunTo(sim, 1455);
             Assert.AreEqual(PlotPhase.Sow, plot.Phase);
+            Assert.AreEqual(0, plot.Slots.Count);
             Assert.AreEqual(8, sim.State.Stock.Seeds[0]);
         }
 

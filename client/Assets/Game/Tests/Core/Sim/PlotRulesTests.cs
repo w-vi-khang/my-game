@@ -78,7 +78,7 @@ namespace Game.Core.Tests
             Build();
             var plot = sim.State.Plots[0];
             sim.EnqueueCrop(0, 0);
-            Assert.AreEqual(2, plot.Queue.Count);
+            Assert.AreEqual(2, plot.Slots[0].Count);
             bool sawSow = false;
             while (sim.State.Tick < 1700)
             {
@@ -91,10 +91,10 @@ namespace Game.Core.Tests
         }
 
         [TestCase(40, 10, 10, 0)]
-        [TestCase(90, 9, 10, 0)]
-        [TestCase(140, 9, 10, 1)]
-        [TestCase(500, 9, 10, -1)]
-        [TestCase(1370, 9, 10, 1)]
+        [TestCase(90, 9, 9, 0)]
+        [TestCase(140, 9, 9, 1)]
+        [TestCase(500, 9, 9, -1)]
+        [TestCase(1370, 9, 9, 1)]
         public void DigCancelsCropInEachPhase(int tick, int before, int after, int released)
         {
             Build();
@@ -106,7 +106,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 1, 5));
             sim.Tick();
             Assert.IsTrue(plot.Removed);
-            Assert.AreEqual(0, plot.Queue.Count);
+            Assert.AreEqual(0, plot.Slots.Count);
+            Assert.AreEqual(-1, plot.CurrentCrop);
+            Assert.IsFalse(plot.TillPaused);
             Assert.AreEqual(PlotPhase.Idle, plot.Phase);
             Assert.AreEqual(-1, plot.StageId);
             if (stageId >= 0) Assert.AreEqual(StageStatus.Cancelled, sim.State.Stages[stageId].Status);
@@ -122,7 +124,7 @@ namespace Game.Core.Tests
             var ev = Cancels();
             Assert.AreEqual(1, ev.Count);
             Assert.AreEqual(Soil, ev[0].Cell);
-            Assert.AreEqual(after - before, ev[0].Seeds);
+            Assert.AreEqual(0, ev[0].Seeds);
             Assert.AreEqual(released, ev[0].CreatureId);
             Assert.AreEqual(tick + 1, ev[0].Tick);
             Assert.IsFalse(sim.OnPlot(Site, 1, 1, 1));
@@ -169,7 +171,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(5, 2, 5, BlockMaterial.Stone));
             Assert.AreEqual(BlockMaterial.Dirt, w.GetMaterial(5, 1, 5));
             sim.Tick();
-            Assert.AreEqual(10, store.Seeds[0]);
+            Assert.AreEqual(9, store.Seeds[0]);
             Assert.IsTrue(plot.Removed);
             Assert.AreEqual(1, Cancels().Count);
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 2, 5));
@@ -204,11 +206,11 @@ namespace Game.Core.Tests
             sim.OnCellChanged(5, 2, 5);
             sim.Tick();
             Assert.IsTrue(sim.State.Plots[0].Removed);
-            Assert.AreEqual(10, sim.State.Stock.Seeds[0]);
+            Assert.AreEqual(9, sim.State.Stock.Seeds[0]);
         }
 
         [Test]
-        public void RefundExceedsFullStorage()
+        public void DigDoesNotRefundSeed()
         {
             Build();
             var store = sim.State.Stock;
@@ -216,8 +218,7 @@ namespace Game.Core.Tests
             store.Produce[0] = 31;
             Assert.AreEqual(EditResult.Ok, editor.TryDig(5, 1, 5));
             sim.Tick();
-            Assert.AreEqual(10, store.Seeds[0]);
-            Assert.AreEqual(-1, store.Free);
+            Assert.AreEqual(9, store.Seeds[0]);
         }
 
         [Test]

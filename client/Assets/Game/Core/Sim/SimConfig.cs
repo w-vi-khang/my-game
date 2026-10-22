@@ -97,7 +97,10 @@ namespace Game.Core.Sim
     [Serializable]
     public class FarmConfig
     {
-        public int plotQueueCapacity = 2;
+        /// <summary>Số ô đợi gốc của ô ruộng cấp 1 (0026/0027; nâng cấp cộng sau — ideas).</summary>
+        public int queueSlots = 2;
+        /// <summary>Số vụ tối đa gốc của một ô đợi.</summary>
+        public int slotMaxCount = 3;
     }
 
     [Serializable]
@@ -127,7 +130,7 @@ namespace Game.Core.Sim
     [Serializable]
     public class SimConfig
     {
-        public int configVersion = 2;
+        public int configVersion = 3;
         public uint simSeed = 20261014;
         public int ticksPerSecond = 10;
         /// <summary>Cạnh vùng mô phỏng (cột) quanh trang trại trên world nhiều map (world 7e, brief 0019).</summary>
@@ -297,8 +300,10 @@ namespace Game.Core.Sim
             }
             if (seedSum > storage.capacity)
                 throw new ArgumentException("Tổng crops[].startSeeds phải <= storage.capacity.");
-            if (farm == null || farm.plotQueueCapacity < 1 || farm.plotQueueCapacity > 8)
-                throw new ArgumentException("farm.plotQueueCapacity phải trong [1, 8].");
+            if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
+                throw new ArgumentException("farm.queueSlots phải trong [1, 8].");
+            if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)
+                throw new ArgumentException("farm.slotMaxCount phải trong [1, 99].");
             if (house == null || house.capacity < 1 || house.capacity > 16)
                 throw new ArgumentException("house.capacity phải trong [1, 16].");
             if (house.sizeX < 1 || house.sizeX > 4 || house.sizeZ < 1 || house.sizeZ > 4 || house.sizeY < 1 || house.sizeY > 4)

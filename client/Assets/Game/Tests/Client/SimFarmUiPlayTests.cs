@@ -113,7 +113,7 @@ namespace Game.Client.Tests
             yield return null;
             Assert.IsFalse(sv.SignVisible(id));
             var p = sv.Sim.State.Plots[id];
-            Assert.AreEqual(0, p.Queue.Count);
+            Assert.AreEqual(0, p.Slots.Count);
             Assert.AreEqual(PlotPhase.Idle, p.Phase);
         }
 
@@ -152,19 +152,62 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator PlotPanelChooseAndRemove()
+        public IEnumerator PlotPanelSlots()
         {
             OpenPlot0();
-            var q = sv.Sim.State.Plots[0].Queue;
-            CollectionAssert.AreEqual(new[] { 0 }, q);
+            var p = sv.Sim.State.Plots[0];
+            Assert.AreEqual(0, p.Slots.Count);
+            Assert.AreEqual(0, p.CurrentCrop);
             Assert.IsTrue(sv.ChooseCrop(1));
-            CollectionAssert.AreEqual(new[] { 0, 1 }, q);
-            Assert.IsFalse(sv.ChooseCrop(0));
-            Assert.IsTrue(sv.RemoveQueued(1));
-            CollectionAssert.AreEqual(new[] { 0 }, q);
+            Assert.IsTrue(sv.ChooseCrop(1));
+            Assert.AreEqual(new[] { 1, 2 }, Flat(p));
+            Assert.IsTrue(sv.ChooseCrop(0));
+            Assert.AreEqual(new[] { 1, 2, 0, 1 }, Flat(p));
+            Assert.IsFalse(sv.CanChooseCrop(1));
+            Assert.IsFalse(sv.ChooseCrop(1));
+            Assert.IsTrue(sv.ChooseCrop(0));
+            Assert.AreEqual(new[] { 1, 2, 0, 2 }, Flat(p));
+            Assert.IsTrue(sv.IncreaseQueued(0));
+            Assert.AreEqual(3, p.Slots[0].Count);
+            Assert.IsFalse(sv.IncreaseQueued(0));
+            Assert.IsTrue(sv.DecreaseQueued(1));
+            Assert.IsTrue(sv.DecreaseQueued(1));
+            Assert.AreEqual(new[] { 1, 3 }, Flat(p));
+            Assert.IsTrue(sv.ClearQueued(0));
+            Assert.AreEqual(0, p.Slots.Count);
             sv.ClosePlotPanel();
             Assert.AreEqual(-1, sv.OpenPlotId);
             Assert.IsFalse(sv.ChooseCrop(1));
+            yield break;
+        }
+
+        static int[] Flat(FarmPlot p)
+        {
+            var l = new System.Collections.Generic.List<int>();
+            foreach (var sl in p.Slots) { l.Add(sl.CropId); l.Add(sl.Count); }
+            return l.ToArray();
+        }
+
+        [UnityTest]
+        public IEnumerator ProgressPauseResumeAndCloseResumes()
+        {
+            OpenPlot0();
+            var p = sv.Sim.State.Plots[0];
+            for (int i = 0; i < 3000 && p.Phase != PlotPhase.Water && p.Phase != PlotPhase.Growing; i++) sv.Sim.Tick();
+            Assert.IsTrue(p.Phase == PlotPhase.Water || p.Phase == PlotPhase.Growing);
+            Assert.IsTrue(sv.ProgressAction());
+            Assert.IsTrue(sv.ChooseCrop(0));
+            Assert.AreEqual(PlotPhase.Till, p.Phase);
+            Assert.IsTrue(sv.ProgressAction());
+            Assert.IsTrue(p.TillPaused);
+            for (int i = 0; i < 20; i++) sv.Sim.Tick();
+            Assert.AreNotEqual(StageStatus.Assigned, sv.Sim.State.Stages[p.StageId].Status);
+            Assert.IsTrue(sv.ProgressAction());
+            Assert.IsFalse(p.TillPaused);
+            Assert.IsTrue(sv.ProgressAction());
+            Assert.IsTrue(p.TillPaused);
+            sv.ClosePlotPanel();
+            Assert.IsFalse(p.TillPaused);
             yield break;
         }
 
@@ -183,12 +226,14 @@ namespace Game.Client.Tests
         public IEnumerator DemoDoesNotRefillQueue()
         {
             OpenPlot0();
-            Assert.IsTrue(sv.RemoveQueued(0));
-            Assert.AreEqual(0, sv.Sim.State.Plots[0].Queue.Count);
+            Assert.IsTrue(sv.ProgressAction());
+            Assert.AreEqual(0, sv.Sim.State.Plots[0].Slots.Count);
+            Assert.AreEqual(-1, sv.Sim.State.Plots[0].CurrentCrop);
             long t0 = sv.Sim.State.Tick;
             for (int i = 0; i < 300 && sv.Sim.State.Tick < t0 + 3; i++) yield return null;
             Assert.GreaterOrEqual(sv.Sim.State.Tick, t0 + 3);
-            Assert.AreEqual(0, sv.Sim.State.Plots[0].Queue.Count);
+            Assert.AreEqual(0, sv.Sim.State.Plots[0].Slots.Count);
+            Assert.AreEqual(-1, sv.Sim.State.Plots[0].CurrentCrop);
         }
 
         [UnityTest]

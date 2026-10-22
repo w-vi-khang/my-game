@@ -110,8 +110,12 @@ namespace Game.Core.Sim
                 h = MixInt(h, (int)p.Phase);
                 h = MixInt(h, p.StageId);
                 h = MixLong(h, p.RipeTick);
-                h = MixInt(h, p.Queue.Count);
-                for (int j = 0; j < p.Queue.Count; j++) h = MixInt(h, p.Queue[j]);
+                h = MixInt(h, p.Slots.Count);
+                for (int j = 0; j < p.Slots.Count; j++) { h = MixInt(h, p.Slots[j].CropId); h = MixInt(h, p.Slots[j].Count); }
+                h = MixInt(h, p.SlotCount);
+                h = MixInt(h, p.SlotMax);
+                h = MixInt(h, p.CurrentCrop);
+                h = MixInt(h, p.TillPaused ? 1 : 0);
                 h = MixInt(h, p.Tilled ? 1 : 0);
                 h = MixInt(h, p.Removed ? 1 : 0);
                 h = MixInt(h, p.SoilReady ? 1 : 0);

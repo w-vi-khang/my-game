@@ -192,12 +192,12 @@ namespace Game.Core.Sim
             return false;
         }
 
-        /// <summary>Ô ruộng nào hết vụ trong hàng đợi → thêm một vụ Cây A (trang trại demo chạy mãi); ô đã huỷ vụ thì bỏ qua. Gọi trước mỗi Tick().</summary>
+        /// <summary>Ô ruộng không còn ô đợi và không có vụ hiện tại → thêm một vụ Cây A (trang trại demo chạy mãi); ô đã huỷ vụ thì bỏ qua. Gọi trước mỗi Tick().</summary>
         public static void KeepFarming(Simulation sim)
         {
             var ps = sim.State.Plots;
             for (int i = 0; i < ps.Count; i++)
-                if (!ps[i].Removed && ps[i].Queue.Count == 0) sim.EnqueueCrop(ps[i].Id, 0);
+                if (!ps[i].Removed && ps[i].Slots.Count == 0 && ps[i].CurrentCrop < 0) sim.EnqueueCrop(ps[i].Id, 0);
         }
     }
 }

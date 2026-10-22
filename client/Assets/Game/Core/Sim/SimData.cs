@@ -216,11 +216,26 @@ namespace Game.Core.Sim
         public int Free => Capacity - SeedsTotal - ProduceTotal - Reserved;
     }
 
+    /// <summary>Ô đợi (0026): một loại cây + số vụ chờ (1..SlotMax của ô ruộng).</summary>
+    public sealed class CropSlot
+    {
+        public readonly int CropId;
+        public int Count;
+        public CropSlot(int cropId, int count) { CropId = cropId; Count = count; }
+    }
+
     public sealed class FarmPlot
     {
         public readonly int Id, OrderId;
         public readonly CellPos Soil, Site;
-        public readonly List<int> Queue = new List<int>();
+        /// <summary>Các ô đợi theo thứ tự trồng (0026). Vụ hiện tại không nằm ở đây (0027).</summary>
+        public readonly List<CropSlot> Slots = new List<CropSlot>();
+        /// <summary>Số ô đợi tối đa (N) và số vụ tối đa mỗi ô đợi (M) của riêng ô ruộng này — gán ở MarkTill từ farm; nâng cấp sau đổi riêng từng ô (0027).</summary>
+        public int SlotCount, SlotMax;
+        /// <summary>Ô tiến trình (0027): loại cây của vụ đang làm từ lúc mở gieo tới thu hoạch xong / huỷ; -1 = trống.</summary>
+        public int CurrentCrop = -1;
+        /// <summary>Xới lại đang tạm dừng (0027): công đoạn xới không được giao.</summary>
+        public bool TillPaused;
         public PlotPhase Phase;
         public int StageId = -1;
         public long RipeTick;
