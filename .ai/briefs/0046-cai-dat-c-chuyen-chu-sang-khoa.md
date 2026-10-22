@@ -161,3 +161,6 @@ Ghi chú: tên không dấu (vd `Kho `+id, `Chunks`) không bị test quét bắ
 
 ## Review
 - 2026-10-22 (Opus, trả lời Vướng mắc QĐ 7): không thêm `GameObject(` vào danh sách bỏ. Theo user: mọi thứ thuộc code dùng tiếng Anh → thêm QĐ 9, bỏ hẳn danh sách bỏ dòng (chỉ còn comment), thêm bước 5. Đã kiểm `Find("…")` theo tên tiếng Việt: chỉ `TerrainEditPlayTests.cs:230,259` thuộc 8 file; `LandmarkViewPlayTests` "Dấu mốc" thuộc `LandmarkView.cs` ngoài phạm vi. Không có công cụ trong `tools/` grep nội dung log tiếng Việt.
+- 2026-10-22 (Opus, review lượt 2): `Chạy bằng` Sonnet · medium khớp. Mọi dòng "Phần cần test" có kết quả (EditMode 493/493, PlayMode 165/165, console 0 lỗi); phần user xem chờ user. Diff `003cfc1..5be4128`: 16 file, đều trong Phạm vi. Đã đọc `SiteStatus` (tham số `Strings t` đầu tiên, QĐ 1), `RefreshText` + `Changed +=/-=` ở MinimapView/TimeDial (QĐ 5), `HardcodedTextScanTests` chỉ bỏ comment (QĐ 7/9), TimeDial dùng `m` (enum) cho tên object (QĐ 9). Bảng tên object cũ → mới đủ.
+  - Còn sót theo chỉ đạo user: `SimView.cs:209` `Box("Kho " + s.Id)`, tiếng Việt không dấu nên test quét không bắt; `PlayerBagSowPlayTests.cs:431` tìm `"Kho 0"` (ngoài Phạm vi). Chuyển sang task code tiếng Anh toàn client, không bắt sửa ở đây.
+  - `tt.json` (163 khoá, tiền tố `[T]`) đã đặt ở `~/Library/Application Support/DefaultCompany/Viventa/lang/`. Chờ user xem 3 bước.
