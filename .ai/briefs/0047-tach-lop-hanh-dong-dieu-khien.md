@@ -467,3 +467,8 @@ Trạng thái code: mọi thứ khác xong, EditMode 498/498, chưa commit code 
 - `read_console` lỗi: 0. Đã `git checkout -- client/ProjectSettings/EditorSettings.asset` sau PlayMode.
 - Hành vi WASD chéo không chuẩn hoá: kiểm bằng path `2DVector(mode=1)` ở AssetMatchesDefaultTable; cảm giác điều khiển: **chờ user** (mục "User tự test" 1–8).
 - Checklist: đối chiếu thuộc Planner khi review; giờ thực tế ghi ở trên.
+
+## Kiểm chứng (cuối)
+- client_test (EditMode, qua MCP): 498/498 qua. client_test_play (PlayMode, qua MCP): 167/167 qua. `tools/unity_test.py` không chạy vì Editor đang mở (brief dùng MCP).
+- design / asset_check: không chạy (file đổi ngoài phạm vi).
+- Checklist: Game.Core không đụng (đạt); chỉ làm hạng mục M1 0033 (đạt); giờ thực tế đã ghi ở mục Kết quả (đạt); các mục thiết kế/glossary/roadmap: không sửa `design/` (brief QĐ 8) — Planner cập nhật khi review (chưa đạt/chờ Planner). Cảm giác điều khiển: chờ user.
