@@ -1,9 +1,9 @@
 # Brief 0038 — Tầm với mọi thao tác 8 ô (0031)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: nhẹ + user xem
 > Model thực thi: Sonnet · low
-> Cập nhật: 2026-10-22 16:20
+> Cập nhật: 2026-10-22 16:25
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -106,10 +106,20 @@ Trên Mac, scene `TerrainView` hoặc `SimView`:
 
 ## Kết quả
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · ghi chú lệch so với brief (nếu có, kèm lý do). -->
+Base commit: 99ef590 · Chạy bằng: claude-sonnet-5-5 · low · commit code: 37880e8 · giờ 16:19 → 16:24 (~0,05 ngày-người, ước ≤ 0,1).
+File đổi: Core/PlayerRules.cs, Client/TerrainEditInput.cs, Tests/Core/{PlayerRulesTests,DropFieldTests,DropPickTests}.cs, Tests/Client/{PlayerCharacterPlayTests,DropPlayTests}.cs.
+Lệch brief: grep `0030` trong TerrainEditInput còn 2 dòng (`:8`, `:82`) — là "brief 0030" (công cụ cầm tay / bảng trại), không phải tầm với nên giữ nguyên; grep `4 ô|10 ô` rỗng.
 
 ## Kết quả test
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+- Biên tầm 8 ô (Core) → đạt (PlayerRulesTests 8 test, EditMode 437/437).
+- Thu trong 8 ô, chồng đơn, version/tất định, DropPick, StarterBag → đạt (nằm trong EditMode 437/437 passed).
+- Client đào/đặt 8 ô, F/click 8 ô, còn lại → đạt (PlayMode 117/117 passed).
+- `run_tests` EditMode → 437 passed, 0 failed. `run_tests` PlayMode → 117 passed, 0 failed.
+- `git checkout -- client/ProjectSettings/EditorSettings.asset` → xong, git status chỉ còn 7 file đã commit.
+- grep ToolReach/HandReach → hai dòng `8f`. grep `4 ô|10 ô|0030` → chỉ 2 dòng "brief 0030" (xem trên).
+- User tự test (4 mục trong brief) → chờ user.
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
