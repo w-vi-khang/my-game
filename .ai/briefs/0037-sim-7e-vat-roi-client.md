@@ -1,6 +1,6 @@
 # Brief 0037 — Sim 7e (client): hiển thị vật rơi, phím F (Thu), click nhặt, túi hạt đầu game, HUD túi hạt
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 15:54
@@ -565,3 +565,6 @@ Review phiên con Opus (2026-10-22), phần đầy đủ:
 - Giờ thực tế executor: ~10 phút (15:44–15:54) so với ước lượng 1,5–2 ngày-người; Planner ghi roadmap + `simulation-tech` bước 7e (QĐ 13) khi kết luận.
 - Điểm cần mắt user (code không lỗi nhưng có thể xấu/khó dùng): chồng trong lỗ đào nằm ở ô vừa đào, mesh bo cạnh có thể che một phần → vừa ảnh hưởng hình (mục 3) vừa có thể làm tia trúng địa hình trước hộp chọn khi nhìn xiên (mục 4: click thành đào thay vì nhặt).
 - Chờ user xem 10 mục "User tự test" rồi mới kết luận.
+- User xem trên Mac (2026-10-22): "đa số đều ổn"; yêu cầu tăng mọi khoảng cách thao tác lên 8 ô (cả đào/đặt) → quyết định [0031](../../design/decisions/0031-tam-voi-moi-thao-tac-8-o.md), làm ở brief 0038 (không phải lỗi của brief này).
+- Planner ghi giờ thực tế vào roadmap (dòng sim 7e) và trạng thái bước 7e trong `simulation-tech` (QĐ 13).
+- Kết luận: đã duyệt

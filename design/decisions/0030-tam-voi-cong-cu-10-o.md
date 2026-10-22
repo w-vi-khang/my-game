@@ -1,6 +1,6 @@
 # 0030 — Tầm với của công cụ đào/đặt/xới: 10 ô
 
-> Trạng thái: Chốt
+> Trạng thái: Bị thay thế bởi [0031](0031-tam-voi-moi-thao-tac-8-o.md) (user, 2026-10-22: mọi thao tác 8 ô)
 > Ngày: 2026-10-22
 
 ## Bối cảnh

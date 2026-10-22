@@ -157,7 +157,7 @@
 | Buổi (điều kiện) | Một trong 4 khoảng của buổi trong ngày: Bình minh, Ban ngày, Hoàng hôn, Ban đêm; điều kiện môi trường sống có thể yêu cầu đang ở buổi nào | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Khung mốc | Một phần tư ngày tính từ một mốc tới mốc kế tiếp (giữa trưa: [0,50; 0,75)); đang ở trong khung của mốc nào thì chọn lại mốc đó không làm gì (user, 2026-10-21). Khác "buổi (điều kiện)" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhân vật (người chơi) | Hình người chơi trong world (M1: khối ghép cao 2 ô, góc nhìn thứ ba); tầm với tính quanh nhân vật ([0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Tầm với | Khoảng cách quanh nhân vật mà người chơi tương tác được (M1: đào/đặt/xới 10 ô — 0030; nhặt, gieo, thu hoạch, phép Mưa 4 ô; mở kho ≤ 3 ô) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tầm với | Khoảng cách quanh nhân vật mà người chơi tương tác được (M1: mọi thao tác 8 ô — 0031) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Vật rơi | Bản mini của khối rơi ra khi đào (hoặc vật phẩm nằm trên mặt đất), nhặt vào túi đồ; cùng loại trong một ô gộp thành chồng ([0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Thu (hành động) | Hút mọi vật rơi trong tầm với vào túi đồ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Túi hạt | Vật phẩm trong túi đồ giữ số hạt của một loại cây; chọn túi hạt để vào chế độ gieo | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
