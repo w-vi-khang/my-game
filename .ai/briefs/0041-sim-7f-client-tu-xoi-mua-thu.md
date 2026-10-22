@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 18:15
+> Cập nhật: 2026-10-22 18:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -285,3 +285,12 @@ Ghi chú: test chọn ô thử theo khoảng cách Euclid 3,5–6,5 ô (không p
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Review đầy đủ (Planner, phiên Opus, 2026-10-22):
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` [repo].
+- Phạm vi: `git show --stat f4138f5` — 8 file, đúng danh sách Phạm vi; không đụng Core/scene/design [run].
+- Phần cần test: 12 test mới đủ các dòng (tự đi, huỷ, tự xới trọn, huỷ khi xới, Tab, không tới được, sinh vật xới trước, nút Tự xới, UseTill/UnmarkAt, Mưa, thu hoạch, HUD); PlayMode 133/133, EditMode 472/472 theo executor — không chạy lại (kết quả đủ, không đáng ngờ).
+- Đối chiếu Quyết định đã chốt 1–10 với diff: `PlayerCharacter` tự đi đúng luật quyết định 5 (huỷ khi phím/nhảy/bay, ngưỡng 0,15, bước không vượt đích, `autoJump` riêng, stall 3 giây); `PlayerFarmActions` đúng thứ tự kiểm và chữ HUD nguyên văn bước 2; `SimView.UseTill` trả `SelfTill`, `UnmarkAt`, `SelfTillOpenPlot`, nút `Tự xới`; `TerrainEditInput` R / thu hoạch trước `ShowAim`, chuột phải bỏ biển, `ToggleTool` + `UseTool` huỷ tự xới, HUD/HelpText nguyên văn.
+- Nhỏ, không chặn (gộp vào brief 0042): chuột phải bỏ biển đúng ô đang tự xới → HUD báo `Tự xới: ô đã được xới` (sai ý, nên là `Huỷ tự xới`); R không có tác dụng khi con trỏ đang ngắm vật rơi hoặc trên UI (chấp nhận ở M1).
+- Giờ thực tế: 10 phút (18:03–18:13) so với ước lượng ~2 ngày-người.
+- User xem: chờ user chạy 8 mục "User tự test" — chưa kết luận.
+
