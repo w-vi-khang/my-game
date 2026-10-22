@@ -386,3 +386,6 @@ Giờ: bắt đầu 22:08, dừng ~22:25.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+Đang chờ Planner/user (brief `cần Opus`). Đã chạy qua MCP: EditMode 498/498 qua; PlayMode 165/168 (3 test mới fail, xem Vướng mắc). Chưa chạy `tools/unity_test.py` vì Editor đang mở (brief cho dùng MCP). Checklist chưa đối chiếu: chờ hoàn tất brief.
