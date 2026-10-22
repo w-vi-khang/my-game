@@ -1,6 +1,6 @@
 # Brief 0048 — code tiếng Anh (A): code chạy Core / World / Client / Editor
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 23:06
@@ -181,3 +181,10 @@ Commit: 03fdb38 — 38 file: 35 file quét (Core/World/Client/Editor) + `Client/
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- 2026-10-22 (Opus, đầy đủ): `Chạy bằng` Sonnet · medium khớp. Mọi dòng "Phần cần test" có kết quả.
+- `git show --stat 03fdb38`: 38 file, 197+/197−, đúng Phạm vi. `git show -U0 | grep '^[-+]\s*//'` → 0 dòng comment đổi.
+- Đọc diff Editor, PlayerCharacter, TerrainChunkView, TerrainBench, WalkBench, DemoPlain, WorldData, SimStress, SimConfig: tên object khớp QĐ 4, 12 menu khớp QĐ 5, chữ bench tiếng Anh (QĐ 6), tiền tố log giữ, `×` → `x`, định dạng số giữ, câu sát nghĩa.
+- Chạy lại lệnh quét [run]: `TOTAL 6`, chỉ `WorldMapParams.cs:57-62` (QĐ 7). Không chạy lại test (kết quả đủ: 498/498 EditMode, 167/167 PlayMode).
+- Ghi chú executor đúng: tiêu chí grep `"Kho ` bắt cả `vi.json`; trong `.cs` không còn.
+- Giờ: Executor 10 phút → roadmap.
+- Kết luận: đã duyệt
