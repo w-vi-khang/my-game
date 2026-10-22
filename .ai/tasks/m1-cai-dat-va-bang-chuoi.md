@@ -1,7 +1,7 @@
 # Task: M1 — cài đặt người chơi + bảng chuỗi ngôn ngữ (0032)
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận câu hỏi 1–2 theo mặc định (2026-10-22). Brief: 0044 (A — lõi). Quyết định gốc: [0032](../../design/decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md) (Chốt). Trước: sim 7f (xong 2026-10-22). Sau: world 7i–7k ([0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)).
+> Trạng thái: user xác nhận câu hỏi 1–2 theo mặc định (2026-10-22). Brief: 0044 (A — lõi, đã duyệt), 0045 (B — client cài đặt). Quyết định gốc: [0032](../../design/decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md) (Chốt). Trước: sim 7f (xong 2026-10-22). Sau: world 7i–7k ([0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)).
 
 ## Mục tiêu
 1. **Cài đặt người chơi:** file `settings.json` lưu trên máy + bảng **Cài đặt** tối giản trong game; chỉ cảm giác / hiển thị (0032 mục 1).
