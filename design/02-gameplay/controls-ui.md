@@ -21,6 +21,8 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
   - **Bấm ô ruộng** → bảng chọn giống (2 loại cây M1) + hàng đợi vụ (2 chỗ, xem/xoá vụ) (0025). PC trước; chạm theo phần cảm ứng của hạng mục Điều khiển.
 - **Chọn vùng bằng 2 điểm** (lệnh làm việc, vùng đào): nhắm góc 1 → hành động chính → nhắm góc 2 → hành động chính. Không cần kéo chuột/ngón tay → không tranh với vuốt xoay camera, tay cầm làm được y hệt.
 - Con trỏ chuột khoá ở giữa khi chơi; mở menu / giữ Alt thì hiện con trỏ.
+- **Nhân vật + túi đồ + tự trồng trọt** (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), M1): di chuyển/nhảy theo bảng dưới bằng **nhân vật** (góc nhìn thứ ba; camera bay thành chế độ debug); Tương tác (F) nhặt / mở kho trong tầm với; **Thu** hút vật rơi trong tầm; click vật rơi để nhặt; túi đồ (M1, không còn M2) để chọn túi hạt → chế độ gieo; phép Mưa nhắm 1 ô. Phím cụ thể chốt trong task contract world 7h / sim 7e–7f.
+- **Camera quan sát** (user, 2026-10-22, [0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), M1 world 7j): công cụ đặt camera; nút xem qua camera toàn màn hình / quay lại.
 
 | Hành động | Bàn phím-chuột | Cảm ứng | Tay cầm (sau phát hành) | Milestone |
 |---|---|---|---|---|

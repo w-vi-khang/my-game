@@ -114,7 +114,7 @@
 | Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình; tối đa 54, có ưu đãi nạp 60 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Kho sinh vật | Nơi tạm cất sinh vật (dưới dạng thẻ bài); sinh vật trong kho không tính vào giới hạn sinh vật, không làm việc/chiến đấu. Khác "kho" chứa sản lượng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Vật phẩm phân bổ lại | Vật phẩm dùng để phân bổ lại điểm chỉ số (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Túi đồ | Nơi chứa vật phẩm của người chơi; tiền nạp tăng 10% sức chứa | [02-gameplay/economy.md](02-gameplay/economy.md) |
+| Túi đồ | Nơi chứa vật phẩm của người chơi, khác kho; không có mức tối đa ([0004](decisions/0004-tien-nap.md)); M1 có từ [0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md); tiền nạp tăng 10% sức chứa | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Hạng | Bậc xếp hạng PvP theo điểm xếp hạng; ghép trận theo hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Cấp độ trung bình | Trung bình cấp độ các sinh vật mang vào trận PvP; tiêu chí ghép trận thứ hai trong cùng hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Điểm chỉ số | Điểm nhận khi tăng cấp độ/bậc, người chơi phân bổ tự do; điểm làm việc và chiến đấu là hai quỹ riêng; phân bổ lại cần vật phẩm | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -156,3 +156,12 @@
 | Buổi trong ngày | Pha trong chu kỳ 24 giờ thực của world (0–1), tách khỏi đồng hồ mô phỏng; 4 mốc giữa đêm / bình minh / giữa trưa / hoàng hôn; người chơi chọn mốc thì buổi nhảy tới mốc rồi trôi tiếp ([0024](decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Buổi (điều kiện) | Một trong 4 khoảng của buổi trong ngày: Bình minh, Ban ngày, Hoàng hôn, Ban đêm; điều kiện môi trường sống có thể yêu cầu đang ở buổi nào | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Khung mốc | Một phần tư ngày tính từ một mốc tới mốc kế tiếp (giữa trưa: [0,50; 0,75)); đang ở trong khung của mốc nào thì chọn lại mốc đó không làm gì (user, 2026-10-21). Khác "buổi (điều kiện)" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nhân vật (người chơi) | Hình người chơi trong world (M1: khối ghép cao 2 ô, góc nhìn thứ ba); tầm với tính quanh nhân vật ([0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tầm với | Khoảng cách quanh nhân vật mà người chơi tương tác được (M1: 4 ô; mở kho ≤ 3 ô) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Vật rơi | Bản mini của khối rơi ra khi đào (hoặc vật phẩm nằm trên mặt đất), nhặt vào túi đồ; cùng loại trong một ô gộp thành chồng ([0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Thu (hành động) | Hút mọi vật rơi trong tầm với vào túi đồ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Túi hạt | Vật phẩm trong túi đồ giữ số hạt của một loại cây; chọn túi hạt để vào chế độ gieo | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chế độ gieo | Trạng thái sau khi chọn túi hạt: click ô ruộng đã xới để gieo bằng tay | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phép Mưa | Phép của người chơi (M1 có sẵn, hồi 10 giây): mưa trên 1 ô — tưới ô ruộng, ô đất thành cỏ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Điểm nhìn | Một tâm mà bộ nạp chunk nạp vùng quanh nó (nhân vật, camera quan sát đang xem); M1 tối đa 2, sau này 4–5 tính cả người chơi ([0029](decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)) | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Camera quan sát | Camera người chơi đặt ở một chỗ trong world để nhìn qua đó (toàn màn hình) mà không phải đi tới; M1 tối đa 1 ([0029](decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)) | [04-tech/world-tech.md](04-tech/world-tech.md) |

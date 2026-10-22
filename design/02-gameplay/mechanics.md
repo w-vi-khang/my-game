@@ -23,7 +23,7 @@
 | Nhu cầu sinh vật | Danh sách yêu cầu mỗi loài; mức đáp ứng cao → loài xuất hiện nhiều hơn, ít bệnh/mệt, làm việc tốt hơn, đôi khi tặng quà | P1, P2 | Client | Phải có | 8–15 | M2 |
 | Lệnh làm việc | Người chơi đặt lệnh, chia công đoạn, hệ thống phân sinh vật rảnh có năng lực làm việc phù hợp | P2 | Client | Phải có | 22–33: M1 8–12 (+1 của [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)), M2 14–21 | M1 (một lệnh trồng cây, ô ruộng có hàng đợi), M2 |
 | Nhà sinh vật | Mỗi sinh vật làm việc có nhà (công trình, hoặc nơi người chơi tự xây); có nhà mới làm việc; rảnh thì hoạt động quanh nhà; bị kẹt thì hiện lại ở nhà (user, 2026-10-14) | P2 | Client | Phải có | [ý tưởng] 6–10: M1 1, M2 5–9 | M1 (nhà mẫu đặt sẵn — [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)), M2 |
-| Người chơi làm công đoạn | Người chơi tự làm công đoạn của lệnh (vd cầm cuốc xới) khi thiếu loài có năng lực hoặc muốn làm nhanh (user, 2026-10-13) | P2 | Client | Phải có | 2–4 | M2 |
+| Người chơi làm công đoạn | Người chơi tự làm công đoạn của lệnh (vd cầm cuốc xới) khi thiếu loài có năng lực hoặc muốn làm nhanh (user, 2026-10-13); M1: tự xới, gieo, thu hoạch + phép Mưa để tưới ([0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | P2 | Client | Phải có | 2–4 (nằm trong 12–20 của 0028) | M1 (0028) |
 | Độ ưu tiên giữa các lệnh | Người chơi đặt thứ tự ưu tiên; ghép việc xét lệnh ưu tiên cao trước (user chốt, 2026-10-13) | P2 | Client | Nên có | [ý tưởng] 1–2 | M2 |
 | Tìm đường sinh vật | Đi trên địa hình người chơi thiết kế; không tới được → đình trệ + thông báo | P2 | Client | Phải có | 12–22: M1 6–9 (+1 của [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md), +1 sinh vật bị kẹt của [0016](../decisions/0016-o-ruong-kho-nha-va-sinh-vat-ket.md)), M2 6–13 | M1 (đi bộ, khung chiếm chỗ theo loài), M2 |
 | Kiểu di chuyển bay, bơi | Luật ô đi được cho loài bay (không cần đất dưới chân) và bơi (ô có nước); Map 1 có loài bay, bơi ([levels](levels.md)) | P1, P2 | Client | Phải có | [ý tưởng] 4–8 | M2 |
@@ -57,10 +57,21 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 #### Voxel world — luật M1
 - Vật liệu: **đất, cỏ, đá, cát**; nước có sẵn (biển quanh đảo + hồ). Hai lớp đáy là đá không đào được. Ô nước không đào được (không lấy nước vào kho).
 - **Biển tràn** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)): mực nước biển S = mực nước của world; đào một ô cao ≤ S kề mặt (6 hướng) ô nước hoặc biển ngoài map → nước lan qua mọi ô rỗng ≤ S thông với nó (khe chéo không thông) **theo nhịp** ([0013](../decisions/0013-nuoc-lan-theo-nhip.md)): rơi thẳng xuống ngay, lan ngang/dâng lên 1 ô mỗi nhịp (~8 nhịp/giây); đặt khối vào đường nước đang lan thì chặn được. Ô cao hơn S không ngập. Nước không tự rút — đặt khối/phá tường không làm khô vùng nào. Chảy dần (mực 0–7) là M2.
-- **Đào** (cuốc): ô thành rỗng, vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2).
-- **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ kho vật liệu; hết thì không đặt được. Đặt vào ô **rỗng hoặc ô nước** (nước ô đó mất), ô phải **kề mặt ít nhất một khối đặc** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)). Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
+- **Đào** (cuốc): ô thành rỗng, ~~vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2)~~ → **rơi ra vật rơi** (bản mini của khối), người chơi nhặt vào **túi đồ** (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md); xem [Nhân vật, túi đồ, tự trồng trọt — luật M1](#nhân-vật-túi-đồ-tự-trồng-trọt--luật-m1)).
+- **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ ~~kho vật liệu~~ túi đồ (0028); hết thì không đặt được. Đặt vào ô **rỗng hoặc ô nước** (nước ô đó mất), ô phải **kề mặt ít nhất một khối đặc** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)). Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
 - **Đào dưới chân sinh vật** (user, 2026-10-14, [0015](../decisions/0015-tim-duong-khung-va-dao-duoi-chan.md)): được phép; sinh vật chạy ra ô bên cạnh đứng được, không có thì rơi thẳng xuống. Nước lan vào ô sinh vật đứng cũng vậy. Sinh vật không đi vào nước (bơi M2); mỗi loài có khung chiếm chỗ 3 chiều (M1 đều 1 × 1 × 1).
 - Cỏ đặt trực tiếp (chưa có cỏ tự lan). Ô đất/cỏ trên cùng, phía trên trống → ~~đặt lệnh trồng cây được~~ **đánh dấu xới được** bằng công cụ Xới ([0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md)); sinh vật xới xong thì ô thành **ô ruộng** (vật liệu riêng) mới gieo được ([0020](../decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md)). Đào ô ruộng → +1 đất.
+
+#### Nhân vật, túi đồ, tự trồng trọt — luật M1
+Chốt (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)); P2, P1; client; M1 12–20 ngày-người. Số là [số tạm].
+- **Nhân vật đơn giản** (khối ghép, cao 2 ô), góc nhìn thứ ba; camera bay chỉ còn là chế độ debug.
+- **Tầm với:** nhặt, xới, gieo, thu hoạch, phép Mưa trong 4 ô quanh nhân vật; mở kho khi cách kho ≤ 3 ô.
+- **Vật rơi:** đào → bản mini của khối rơi tại chỗ, nằm yên, không tự mất; cùng loại trong một ô gộp thành chồng. Nhặt bằng **hành động Thu** (hút mọi vật rơi trong tầm) hoặc click từng vật.
+- **Túi đồ** khác kho, không có mức tối đa ([0004](../decisions/0004-tien-nap.md)). Đầu game có **túi hạt Cây A (4 hạt)** trên mặt đất gần chỗ xuất phát.
+- **Tự trồng trọt:** click ô có biển canh tác → nhân vật tự đi tới và xới (thời gian như sinh vật thuần thục gốc) · mở túi → chọn túi hạt → **chế độ gieo** → click ô ruộng đã xới → gieo (−1 hạt) · ngoài chế độ gieo, click ô ruộng mở bảng ô ruộng như cũ · cây lớn 100% → click thu hoạch → nông sản + hạt vào túi.
+- **Tưới:** người chơi không tưới tay; cần sinh vật biết tưới hoặc **phép Mưa** (có sẵn, 1 ô trong tầm, hồi 10 giây): ô ruộng chờ tưới → tưới xong; ô đất → cỏ.
+- **Kho ↔ túi:** đứng trong tầm kho → mở kho → chuyển đồ hai chiều.
+- Sinh vật vẫn làm như cũ (0025–0027).
 
 #### Sinh vật trở lại — luật M1
 - Loài đạt đủ yêu cầu mở khoá → **2 cá thể** xuất hiện ở rìa map, đi về phía người chơi và **tự vào đội làm việc** (chưa có thẻ bài — bắt bằng thẻ từ M2).
