@@ -1,6 +1,6 @@
 # Brief 0047 — Tách lớp hành động điều khiển khỏi phím (0033, M1)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 23:10
@@ -451,6 +451,8 @@ Giờ: bắt đầu 22:08, dừng ~22:25.
 - Roadmap: thêm dòng giờ thực tế (`design/05-roadmap.md`, mục giờ thực tế M1). Ước lượng 2–3 ngày-người, executor chạy ~23 phút.
 - Tồn đọng cho Planner (không thuộc brief): bảng phím trong `design/02-gameplay/controls-ui.md` lệch với code (tài liệu ghi 1–6 đổi công cụ, di chuột xoay camera; code dùng 1–4 chọn loại khối, Tab đổi công cụ, giữ chuột giữa để xoay). Sửa khi user xem đạt.
 - Tự động: đạt. **Chờ user xem** (mục "User tự test" 1–8).
+- User xem: đạt — "đã thử, mọi phím chạy như cũ, duyệt 0047" [user 2026-10-22]. Đã sửa bảng phím trong `controls-ui.md` cho khớp code.
+- Kết luận: đã duyệt
 
 ## Kiểm chứng
 Đang chờ Planner/user (brief `cần Opus`). Đã chạy qua MCP: EditMode 498/498 qua; PlayMode 165/168 (3 test mới fail, xem Vướng mắc). Chưa chạy `tools/unity_test.py` vì Editor đang mở (brief cho dùng MCP). Checklist chưa đối chiếu: chờ hoàn tất brief.

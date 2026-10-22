@@ -1,7 +1,7 @@
 # Task: M1 — tách lớp hành động điều khiển khỏi phím (0033)
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận câu hỏi mở (2026-10-22), chờ viết brief. Quyết định gốc: [0033](../../design/decisions/0033-tach-lop-hanh-dong-dieu-khien.md) (Chốt). Trước: 0032 xong (gồm thử điện thoại).
+> Trạng thái: Xong 2026-10-22 — brief [0047](../briefs/0047-tach-lop-hanh-dong-dieu-khien.md) đã duyệt (review đầy đủ + user xem đạt). Quyết định gốc: [0033](../../design/decisions/0033-tach-lop-hanh-dong-dieu-khien.md) (Chốt).
 
 ## Mục tiêu
 Mọi chỗ đọc chuột/bàn phím trong gameplay và UI người chơi đọc qua hành động (Input System 1.19 `InputAction`), không đọc thẳng `Keyboard.current.xKey` / `Mouse.current.xButton`. Phím mặc định y như hiện nay; chơi không đổi gì. Chuẩn bị cho bảng đổi phím M3 (luật đã chốt ở 0033 mục 2).
@@ -17,11 +17,11 @@ Mọi chỗ đọc chuột/bàn phím trong gameplay và UI người chơi đọ
 - Đổi phím mặc định hay hành vi.
 
 ## Tiêu chí chấp nhận (kiểm chứng được)
-- [ ] Không còn `Keyboard.current` / `Mouse.current` / `kb.<x>Key` / `mouse.<x>Button` trong các file client thuộc phạm vi (SimView, FollowCamera, TimeDial, MinimapView, SettingsView, TerrainEditInput, PlayerCharacter, PlayerFarmActions nếu có). Kiểm bằng: test EditMode quét mã nguồn (như `HardcodedTextScanTests`).
-- [ ] Mỗi hành động có đúng phím mặc định như bảng hiện nay trong [controls-ui](../../design/02-gameplay/controls-ui.md). Kiểm bằng: test EditMode đọc bảng hành động, so với bảng mặc định.
-- [ ] Không có hai hành động trùng phím trong cùng ngữ cảnh (trừ cặp được liệt kê là cố ý). Kiểm bằng: test EditMode.
-- [ ] Đổi phím lúc chạy có tác dụng (chuẩn bị M3): test PlayMode `ApplyBindingOverride` đổi chuột trái ↔ phải cho "dùng công cụ" / "đặt khối" → gửi phím ảo (`InputSystem.AddDevice<Mouse>`, `QueueStateEvent`, như `FlyCameraMoveKeyPlayTests`) → hành động đúng chạy.
-- [ ] Không vỡ gì: EditMode + PlayMode toàn bộ qua với kỳ vọng cũ, 0 lỗi console. User chơi thử trên Mac: mọi phím như trước.
+- [x] Không còn `Keyboard.current` / `Mouse.current` / `kb.<x>Key` / `mouse.<x>Button` trong các file client thuộc phạm vi (SimView, FollowCamera, TimeDial, MinimapView, SettingsView, TerrainEditInput, PlayerCharacter, PlayerFarmActions nếu có). Kiểm bằng: test EditMode quét mã nguồn (như `HardcodedTextScanTests`).
+- [x] Mỗi hành động có đúng phím mặc định như bảng hiện nay trong [controls-ui](../../design/02-gameplay/controls-ui.md). Kiểm bằng: test EditMode đọc bảng hành động, so với bảng mặc định.
+- [x] Không có hai hành động trùng phím trong cùng ngữ cảnh (trừ cặp được liệt kê là cố ý). Kiểm bằng: test EditMode.
+- [x] Đổi phím lúc chạy có tác dụng (chuẩn bị M3): test PlayMode `ApplyBindingOverride` đổi chuột trái ↔ phải cho "dùng công cụ" / "đặt khối" → gửi phím ảo (`InputSystem.AddDevice<Mouse>`, `QueueStateEvent`, như `FlyCameraMoveKeyPlayTests`) → hành động đúng chạy. — *Đã làm khác (brief 0047 QĐ 10):* phím ảo không tới được hành động khi Game View không focus, nên test kiểm `effectivePath` + control đã resolve sau override; phím thật do user thử.
+- [x] Không vỡ gì: EditMode + PlayMode toàn bộ qua với kỳ vọng cũ, 0 lỗi console. User chơi thử trên Mac: mọi phím như trước.
 
 ## Ràng buộc
 - Input System 1.19 (đã cài). API dùng: `InputActionAsset` / `InputActionMap` / `InputAction`, `ApplyBindingOverride`, `SaveBindingOverridesAsJson` (M3) — [docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html). Planner tra lại docs 1.19 và ghi link vào brief.
