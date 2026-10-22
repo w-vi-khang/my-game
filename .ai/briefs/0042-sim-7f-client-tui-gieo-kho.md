@@ -1,6 +1,6 @@
 # Brief 0042 — Sim 7f (client B): bảng túi, chế độ gieo, kho ↔ túi
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 19:20
@@ -269,3 +269,4 @@ Review đầy đủ (Planner, phiên Opus, 2026-10-22):
 - Nhỏ, không chặn: Esc khi đang gieo và bảng ô ruộng/túi mở thì đóng cả hai (đúng quyết định 8); `Covers` dựng lại dòng túi mỗi lần gọi khi bảng mở (chấp nhận ở M1).
 - Giờ thực tế: 9 phút (18:25–18:34) so với ước lượng ~2 ngày-người.
 - User xem: chờ user chạy 9 mục "User tự test" (+ 8 mục của 0041) — chưa kết luận.
+- User xem đạt [user 2026-10-22] → đã duyệt.

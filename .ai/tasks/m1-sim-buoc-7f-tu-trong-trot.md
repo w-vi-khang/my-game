@@ -1,7 +1,7 @@
 # Task: M1 sim bước 7f — người chơi tự trồng trọt + phép Mưa + kho ↔ túi
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận đề xuất 1–11 + xới 6 giây (2026-10-22). Brief: 0040 (lõi), 0041 (client A), 0042 (client B). Bước 3 của [0028](../../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md) mục 13; tầm với theo [0031](../../design/decisions/0031-tam-voi-moi-thao-tac-8-o.md). Trước: sim 7e (brief 0036–0038), world 7h (b) (brief 0039) — đã duyệt. Sau: world 7i–7k ([0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)).
+> Trạng thái: **xong 2026-10-22** (user xem đạt). User xác nhận đề xuất 1–11 + xới 6 giây (2026-10-22). Brief: 0040 (lõi), 0041 (client A), 0042 (client B), 0043 (sửa HUD) — đã duyệt. Bước 3 của [0028](../../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md) mục 13; tầm với theo [0031](../../design/decisions/0031-tam-voi-moi-thao-tac-8-o.md). Trước: sim 7e (brief 0036–0038), world 7h (b) (brief 0039) — đã duyệt. Sau: world 7i–7k ([0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)).
 
 ## Mục tiêu
 Người chơi tự làm được cả chuỗi trồng trọt, sinh vật vẫn làm như cũ (0028 mục 7–12):

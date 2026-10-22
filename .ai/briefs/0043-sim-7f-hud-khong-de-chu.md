@@ -1,6 +1,6 @@
 # Brief 0043 — Sim 7f: HUD trái không đè chữ trạng thái trại; bỏ dòng "đang đi tới" khi đã xới
 
-> Trạng thái: chờ review (review nhẹ đạt, chờ user xem)
+> Trạng thái: đã duyệt
 > Review: nhẹ
 > Model thực thi: Sonnet · low
 > Cập nhật: 2026-10-22 19:25
@@ -100,3 +100,4 @@ Review nhẹ (Planner, phiên Opus, 2026-10-22):
 - Nhỏ, không chặn: `HudBottom` là static, giữ giá trị khung cuối khi `TerrainEditInput` bị huỷ (chỉ ảnh hưởng 1 khung / giữa test; chấp nhận M1).
 - Giờ thực tế: 5 phút (19:22–19:27) so với ước lượng ~0,1 ngày-người.
 - User xem: chờ user (gộp lượt xem 0041–0043).
+- User xem đạt [user 2026-10-22] → đã duyệt.

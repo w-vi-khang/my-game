@@ -1,6 +1,6 @@
 # Brief 0041 — Sim 7f (client A): nhân vật tự đi tới xới, phép Mưa, click thu hoạch
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 18:40
@@ -293,4 +293,4 @@ Review đầy đủ (Planner, phiên Opus, 2026-10-22):
 - Nhỏ, không chặn (gộp vào brief 0042): chuột phải bỏ biển đúng ô đang tự xới → HUD báo `Tự xới: ô đã được xới` (sai ý, nên là `Huỷ tự xới`); R không có tác dụng khi con trỏ đang ngắm vật rơi hoặc trên UI (chấp nhận ở M1).
 - Giờ thực tế: 10 phút (18:03–18:13) so với ước lượng ~2 ngày-người.
 - User xem: chờ user chạy 8 mục "User tự test" — chưa kết luận.
-
+- User xem đạt [user 2026-10-22] → đã duyệt.
