@@ -1,9 +1,9 @@
 # Brief 0044 — 0032 (A): lõi bảng chuỗi + dữ liệu cài đặt + tầm với / túi hạt đầu game vào JSON
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-22 19:47
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -139,11 +139,20 @@ PlayMode (không thêm test): toàn bộ 150 qua — chứng minh tầm 8 ô và
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-Base commit:
-Chạy bằng:
-Bắt đầu: · Kết thúc: (theo `date`)
+Base commit: 316d6a4
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 19:35 · Kết thúc: 19:46 (theo `date`; ~11 phút, phần lớn là chờ EditMode 407 giây)
+Commit: 9ac115f. File: Core/Text/{StringFile,Strings}.cs, Core/PlayerSettings.cs (mới); Core/PlayerRules.cs, StarterBag.cs, Sim/SimConfig.cs; 2 file sim_m1.json (configVersion 5 + khối player); Client/ConfigLoader.cs, PlayerCharacter.cs (1 dòng mỗi file); test: StringsTests, PlayerSettingsTests (mới), PlayerRulesTests, StarterBagTests, SimConfigTests.
 
 ## Kết quả test
+- StringsTests (7 test: Get, Fallback+MissingKeys, Format InvariantCulture, Format hỏng, lỗi file, ToFile/JSON, JSON mẫu): đạt.
+- PlayerSettingsTests (6 test: mặc định, kẹp, NaN/Inf, ngôn ngữ, JSON thiếu trường, Clone): đạt.
+- SimConfigTests (configVersion 5, 4 trường player, `ValidateRejectsBadPlayerRules`, `ConfigMatchesCodeDefaults`): đạt. PlayerRulesTests (`Configure_ChangesReach` + TearDown), StarterBagTests (`PlaceUsesConfiguredCropAndSeeds` + TearDown), ConfigTests: đạt.
+- `refresh_unity` + `read_console`: 0 lỗi biên dịch / 0 lỗi console.
+- EditMode toàn bộ (MCP): 488/488 qua (472 + 16 mới). PlayMode toàn bộ (MCP): 150/150 qua, không đổi kỳ vọng.
+- `grep const` PlayerRules/StarterBag: không còn ToolReach/HandReach/Crop/Seeds.
+- `git checkout -- client/ProjectSettings/EditorSettings.asset`: đã chạy. `python3 tools/check_design.py`: ✓ hợp lệ.
+- Ghi chú: lần gọi PlayMode đầu MCP báo "No Unity Editor instances" (mất kết nối tạm), tôi chạy nhầm `unity_test.py` → thoát vì Editor đang mở, không ảnh hưởng; gọi lại MCP thì qua.
 
 ## Vướng mắc
 
