@@ -55,11 +55,21 @@ namespace Game.Client.Tests
             Near(DaySky.Evaluate(0.5f).horizon, RenderSettings.fogColor);
             Near(DaySky.Evaluate(0.5f).ambientSky, RenderSettings.ambientSkyColor);
             Assert.AreEqual(1f, Shader.GetGlobalFloat("_DayCycleOn"));
+            var noon = DaySky.Evaluate(0.5f);
+            Near(noon.horizon.linear, (Color)Shader.GetGlobalVector("_DayHorizon"));
+            Near(noon.zenith.linear, (Color)Shader.GetGlobalVector("_DayZenith"));
+            Near(noon.cloud.linear, (Color)Shader.GetGlobalVector("_DayCloud"));
+            Near(noon.cloudShade.linear, (Color)Shader.GetGlobalVector("_DayCloudShade"));
+            Near(noon.sunColor.linear, (Color)Shader.GetGlobalVector("_DaySunColor"));
+            Near(DaySky.MoonDiscColor.linear, (Color)Shader.GetGlobalVector("_DayMoonColor"));
+            Near(RenderSettings.fogColor.linear, (Color)Shader.GetGlobalVector("_DayHorizon"));
             now = 0;
             view.Apply();
             Assert.AreEqual(0.22f, light.intensity, 1e-4f);
             Assert.Less(light.transform.forward.y, 0f);
             Near(DaySky.Evaluate(0f).horizon, RenderSettings.fogColor);
+            Near(DaySky.Evaluate(0f).horizon.linear, (Color)Shader.GetGlobalVector("_DayHorizon"));
+            Near(RenderSettings.fogColor.linear, (Color)Shader.GetGlobalVector("_DayHorizon"));
             yield return null;
         }
 

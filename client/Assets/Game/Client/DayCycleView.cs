@@ -114,12 +114,13 @@ namespace Game.Client
             if (underwater == null || !underwater.IsUnderwater)
                 RenderSettings.fogColor = s.horizon;
             Shader.SetGlobalFloat(DayCycleOnId, 1f);
-            Shader.SetGlobalColor(ZenithId, s.zenith);
-            Shader.SetGlobalColor(HorizonId, s.horizon);
-            Shader.SetGlobalColor(CloudId, s.cloud);
-            Shader.SetGlobalColor(CloudShadeId, s.cloudShade);
-            Shader.SetGlobalColor(SunColorId, s.sunColor);
-            Shader.SetGlobalColor(MoonColorId, DaySky.MoonDiscColor);
+            // Shader.SetGlobalColor không đổi gamma → linear như RenderSettings.fogColor, nên gửi .linear để chân trời trùng màu sương (task m1-sua-mau-chan-troi).
+            Shader.SetGlobalColor(ZenithId, s.zenith.linear);
+            Shader.SetGlobalColor(HorizonId, s.horizon.linear);
+            Shader.SetGlobalColor(CloudId, s.cloud.linear);
+            Shader.SetGlobalColor(CloudShadeId, s.cloudShade.linear);
+            Shader.SetGlobalColor(SunColorId, s.sunColor.linear);
+            Shader.SetGlobalColor(MoonColorId, DaySky.MoonDiscColor.linear);
             Shader.SetGlobalVector(SunDirId, (Vector4)s.sunDir);
             Shader.SetGlobalFloat(StarsId, s.stars);
             Shader.SetGlobalMatrix(StarRotId, Matrix4x4.Rotate(Quaternion.Inverse(s.starRotation)));
