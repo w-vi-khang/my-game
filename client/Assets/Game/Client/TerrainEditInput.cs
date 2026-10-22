@@ -383,15 +383,26 @@ namespace Game.Client
             return text;
         }
 
+        GUIStyle hudStyle;
+
+        /// <summary>Đáy HUD trái (đơn vị GUI) ở khung vẽ gần nhất; 0 khi không vẽ — SimView đặt chữ trạng thái dưới mốc này (brief 0043).</summary>
+        public static float HudBottom { get; private set; }
+
         void OnGUI()
         {
             if (view.Bag == null || MinimapView.IsAnyOpen)
+            {
+                HudBottom = 0f;
                 return;
+            }
             var text = HudText();
             // Phóng chữ theo chiều cao màn hình (mốc 720p) — màn Retina chữ mặc định quá nhỏ.
             float scale = Mathf.Max(1f, Screen.height / 720f);
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-            GUI.Label(new Rect(10, 10, 1000, 200), text, new GUIStyle(GUI.skin.label) { richText = true });
+            hudStyle ??= new GUIStyle(GUI.skin.label) { richText = true };
+            float h = hudStyle.CalcHeight(new GUIContent(text), 1000f);
+            GUI.Label(new Rect(10, 10, 1000, h), text, hudStyle);
+            HudBottom = 10f + h;
         }
 
         LineRenderer CreateOutline()

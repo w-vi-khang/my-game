@@ -462,5 +462,31 @@ namespace Game.Client.Tests
             Assert.IsTrue(input.UnmarkAimed(cell2));
             Assert.AreEqual(line, farming.StatusLine);
         }
+
+        [Test]
+        public void StatusTopBelowHud()
+        {
+            Assert.AreEqual(100f, SimView.StatusTop(0f));
+            Assert.AreEqual(254f, SimView.StatusTop(250f));
+        }
+
+        [UnityTest]
+        public IEnumerator ArrivedClearsWalkingLine()
+        {
+            ToTill();
+            MarkReachable(out var cell, new List<CellPos>());
+            input.UseTool(cell, cell);
+            float t = 0f;
+            while (t < 10f && farming.TillState == SelfTillState.Walking)
+            {
+                yield return null;
+                t += Time.deltaTime;
+            }
+            Assert.AreEqual(SelfTillState.Tilling, farming.TillState);
+            Assert.AreEqual("", farming.StatusLine);
+            var lines = farming.HudLines();
+            StringAssert.Contains("Đang xới ô", lines);
+            StringAssert.DoesNotContain("đang đi tới", lines);
+        }
     }
 }

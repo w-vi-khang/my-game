@@ -195,6 +195,7 @@ namespace Game.Client
                     case AutoWalkState.Arrived:
                         TillTimer.Start();
                         TillState = SelfTillState.Tilling;
+                        StatusLine = "";
                         break;
                     case AutoWalkState.Cancelled:
                         CancelSelfTill();

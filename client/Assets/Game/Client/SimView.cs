@@ -646,6 +646,8 @@ namespace Game.Client
             return go;
         }
 
+        public static float StatusTop(float hudBottom) => Mathf.Max(100f, hudBottom + 4f);
+
         void OnGUI()
         {
             if (Sim == null)
@@ -657,15 +659,16 @@ namespace Game.Client
                 labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, richText = true };
                 hudStyle = new GUIStyle(GUI.skin.label) { richText = true };
             }
-            GUI.Label(new Rect(10, 100, 1000, 24),
+            float y0 = StatusTop(TerrainEditInput.HudBottom);
+            GUI.Label(new Rect(10, y0, 1000, 24),
                 $"F1: 30 FPS · F2: 60 FPS — mục tiêu {TargetFps} · đo {1f / smoothedDt:F1} FPS · nhịp {Sim.State.Tick}", hudStyle);
             int line = 1;
-            GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.StorageText(Sim.State.Stock), hudStyle);
+            GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.StorageText(Sim.State.Stock), hudStyle);
             if (Meter == null)
                 foreach (var p in Sim.State.Plots)
-                    GUI.Label(new Rect(10, 100 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
+                    GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
             if (Meter != null && Meter.LastLine != null)
-                GUI.Label(new Rect(10, 100 + 24 * line++, 1400, 24), Meter.LastLine, hudStyle);
+                GUI.Label(new Rect(10, y0 + 24 * line++, 1400, 24), Meter.LastLine, hudStyle);
 
             if (!MinimapView.IsAnyOpen)
                 DrawFarmGui(scale);
