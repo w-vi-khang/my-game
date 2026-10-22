@@ -38,3 +38,4 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0030](0030-tam-voi-cong-cu-10-o.md) | Tầm với đào/đặt/xới 10 ô (nhặt, gieo, thu hoạch, phép Mưa giữ 4 ô; mở kho ≤ 3 ô); code ở brief đầu sim 7e | Bị thay thế bởi 0031 |
 | [0031](0031-tam-voi-moi-thao-tac-8-o.md) | Tầm với mọi thao tác 8 ô (đào, đặt, xới, nhặt, gieo, thu hoạch, phép Mưa, mở kho); code ở brief 0038 | Chốt |
 | [0032](0032-cai-dat-nguoi-choi-va-bang-chuoi.md) | Cài đặt người chơi tự chỉnh (cảm giác/hiển thị, file + bảng tối giản), luật game chỉ dev chỉnh trong JSON, bảng chuỗi ngôn ngữ nạp file local từ M1 | Chốt |
+| [0033](0033-tach-lop-hanh-dong-dieu-khien.md) | Tách lớp hành động điều khiển khỏi phím ở M1 (Input System actions, phím mặc định giữ nguyên); bảng đổi phím M3: lưu trong settings.json, trùng phím cùng ngữ cảnh → hỏi đổi chỗ, chỉ chuột + bàn phím, Esc cố định | Chốt |

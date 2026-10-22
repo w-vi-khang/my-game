@@ -44,7 +44,7 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 | Chọn thời điểm (vòng 4 mốc: giữa trưa, hoàng hôn, giữa đêm, bình minh) | T hoặc bấm nút tròn góc trên-phải (dưới nút bản đồ); bấm mốc để chọn; Esc / T / bấm ra ngoài để đóng | Chạm nút tròn → chạm mốc; chạm ra ngoài để đóng | _(chưa có)_ | M1 ([0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md), brief 0024; cạnh nút có dòng "Đang ở buổi: …"; ẩn khi bản đồ mở) |
 | Menu, tạm dừng | Esc | Nút menu | Start | M1 |
 
-Phím cụ thể là đề xuất [ý tưởng]; cho người chơi **đổi phím** (M3) — Input System 1.19 có `PerformInteractiveRebinding()` để đổi lúc chạy, `SaveBindingOverridesAsJson` / `LoadBindingOverridesFromJson` để lưu ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)).
+Phím cụ thể là đề xuất [ý tưởng]; code đọc phím qua lớp hành động (Input System actions) từ M1 — [0033](../decisions/0033-tach-lop-hanh-dong-dieu-khien.md); cho người chơi **đổi phím** (M3; lưu trong `settings.json`, trùng phím cùng ngữ cảnh → hỏi đổi chỗ, chỉ chuột + bàn phím, Esc cố định — 0033) — Input System 1.19 có `PerformInteractiveRebinding()` để đổi lúc chạy, `SaveBindingOverridesAsJson` / `LoadBindingOverridesFromJson` để lưu ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)).
 
 **Nhắm phép và ném thẻ** [ý tưởng] — 3 kiểu, dùng chung cho mọi thiết bị:
 
