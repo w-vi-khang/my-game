@@ -9,36 +9,35 @@ nội dung cũ vẫn xem lại được bằng: git log -p -- .ai/handoff.md
 Chỉ ghi sự thật đã xác minh. -->
 
 ## Mục tiêu
-Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [0029](../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), [0030](../design/decisions/0030-tam-voi-cong-cu-10-o.md) (Chốt) theo thứ tự user chọn 2026-10-22:
-1. ~~world 7h (a) — nhân vật PC~~ xong (brief 0035 đã duyệt);
-2. **sim 7e — vật rơi + túi + nhặt + túi hạt** ← TIẾP THEO; brief đầu của 7e gộp luôn đổi tầm với 10 ô (0030);
-3. world 7h (b) — cảm ứng + đo FPS điện thoại;
+Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [0029](../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md) (Chốt) theo thứ tự user chọn 2026-10-22:
+1. ~~world 7h (a) — nhân vật PC~~ xong (brief 0035);
+2. ~~sim 7e — vật rơi + túi + nhặt + túi hạt~~ xong (brief 0036 lõi + 0037 client, đã duyệt); tầm với đổi thành 8 ô mọi thao tác ([0031](../design/decisions/0031-tam-voi-moi-thao-tac-8-o.md)) → brief 0038 **chờ user xem**;
+3. world 7h (b) — cảm ứng + đo FPS điện thoại ← TIẾP THEO sau khi 0038 duyệt;
 4. sim 7f — tự trồng trọt + phép Mưa + kho ↔ túi;
 5. world 7i–7k (nhiều điểm nhìn, camera quan sát, GPU culling);
 6. sim bước 8 — môi trường sống (user tạm hoãn).
 
 ## Đã làm (kèm kết quả kiểm chứng)
-- `d7d2e3d` task contract 7h user xác nhận 7 đề xuất. Lăn chuột = thu phóng, Alt + lăn = chọn loại (user).
-- `0b7cf38` brief 0035; executor `c7519f9` + `eaa4e5b`: EditMode 407/407, PlayMode 112/112 (theo brief); review đầy đủ `5cd63b8`; user xem 10 điểm ổn.
-- `0168082`: 0030 (đào/đặt/xới 10 ô; nhặt, gieo, thu hoạch, Mưa 4 ô; mở kho ≤ 3 ô) + mechanics, glossary, world-tech 7h, decisions/README, roadmap giờ 7h(a); brief 0035 **đã duyệt**. `python3 tools/check_design.py` [run]: hợp lệ, 55 file.
-- Code hiện có (brief 0035): `Core/PlayerRules.cs` (`Reach = 4f`, `InReach`, `Occupies`, `ClampToWorld`, `InWater`), `Client/PlayerCharacter.cs` (`Active`, `InReach(Vector3Int)`), `Client/FollowCamera.cs`; `TerrainEditInput` kiểm tầm ở `ShowAim` + `UseTool`; đào hiện vẫn cộng thẳng vào `MaterialInventory` (`WorldEditor.TryDig`).
+- Brief 0037 (`35ddfd4` code, `3d0ac0e` kết quả, `69cea00` review): `Client/DropView.cs` (RenderMeshInstanced), F = Thu, click nhặt (`Core/DropPick.cs`), túi hạt Cây A × 4 đầu game (`Core/StarterBag.cs`, `PlayerCharacter.StarterStack`), HUD `Túi hạt Cây A: N`. EditMode 437/437, PlayMode 117/117 (theo brief). User xem: "đa số đều ổn" → đã duyệt (`0b3a415`).
+- `0b3a415`: 0031 (mọi thao tác 8 ô, gồm mở kho — user nói "tất cả"; nếu user phản đối mở kho thì sửa 0031), 0030 → bị thay thế; mechanics, glossary, world-tech 7h, decisions/README; roadmap dòng sim 7e (giờ 18 + 10 phút); simulation-tech 7e Xong. `python3 tools/check_design.py` [run]: hợp lệ, 56 file.
+- Brief 0038 (`37880e8` code, `64668bb` kết quả, `25da3f3` review nhẹ): `ToolReach = HandReach = 8f`, chữ HUD "8 ô", test biên. EditMode 437/437, PlayMode 117/117 (theo brief).
 
 ## Còn lại
-1. Viết task contract sim 7e (`/ai-workflow-kit:task`): đọc 0028, `design/02-gameplay/mechanics.md` mục "Nhân vật, túi đồ, tự trồng trọt — luật M1", `design/04-tech/simulation-tech.md` bước 7e. Gộp đổi tầm 10 ô (0030: tách tầm công cụ 10 / tầm việc tay 4 trong `PlayerRules`, sửa test biên). Hỏi user xác nhận → brief (số kế: **0036**).
-2. Sau 7e: 7h (b) cảm ứng + điện thoại, rồi 7f, 7i–7k, sim 8.
-3. Còn treo (nhỏ): `SeaSkyTintPlayTests` comment sai chữ; test kink địa hình sát ngưỡng (0,0106 / 0,0111).
+1. Chờ user xem brief 0038 (4 mục "User tự test": khung/bản mờ tới ~8 ô, F/click 8 ô, chữ "8 ô", cảm giác). Đạt → ghi "Kết luận: đã duyệt" vào brief 0038, thêm giờ 0038 (5 phút, 16:19–16:24) vào dòng sim 7e trong `design/05-roadmap.md`.
+2. Sau đó: task contract world 7h (b) cảm ứng + đo FPS điện thoại (`/ai-workflow-kit:task`), rồi brief (số kế: **0039**).
+3. Còn treo (nhỏ): `SeaSkyTintPlayTests` comment sai chữ; test kink địa hình sát ngưỡng (0,0106 / 0,0111); `TerrainBench` chế độ đào mỗi khung (mặc định tắt) sẽ dồn vật rơi.
 
 ## Quyết định quan trọng & lý do
-- Phiên con: clear phiên con bị auto mode chặn → mở phiên con mới (`start_session`, `use_worktree: false`). Review sau exec giao Opus · medium (thẻ own_initiative).
+- Phiên con: clear phiên con bị auto mode chặn → mở phiên con mới (`start_session`, `use_worktree: false`). Review đầy đủ giao Opus · medium (thẻ own_initiative); review nhẹ làm luôn ở phiên Planner cho đỡ tốn.
 - Điện thoại: Xiaomi 24095PCADG, dò cổng `adb mdns services`; không dùng 192.168.1.7:6060 (TV).
 - Dọn sau PlayMode: `git checkout -- client/ProjectSettings/EditorSettings.asset`; sau build APK: `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`.
 
 ## File liên quan
-- `design/decisions/0028-*.md`, `0030-*.md`; `.ai/tasks/m1-world-7h-nhan-vat.md`; `.ai/briefs/0035-world-7h-nhan-vat-pc.md`.
-- `client/Assets/Game/Core/{PlayerRules,WorldEditor,MaterialInventory}.cs`, `client/Assets/Game/Client/{PlayerCharacter,TerrainEditInput,TerrainChunkView,SimView}.cs`.
+- `design/decisions/0028-*.md`, `0031-*.md`; `.ai/briefs/0037-sim-7e-vat-roi-client.md`, `.ai/briefs/0038-tam-voi-8-o.md`; `.ai/tasks/m1-world-7h-nhan-vat.md` (phần b).
+- `client/Assets/Game/Core/{PlayerRules,DropField,DropPick,StarterBag,PlayerBag}.cs`, `client/Assets/Game/Client/{PlayerCharacter,TerrainEditInput,DropView}.cs`.
 
 ## Prompt tiếp tục
 ```text
-Đọc .ai/handoff.md. Viết task contract sim 7e (vật rơi + túi + nhặt + túi hạt, gộp tầm với 10 ô theo 0030), hỏi user xác nhận, rồi /ai-workflow-kit:brief.
+Đọc .ai/handoff.md. Brief 0038 (tầm với 8 ô) đang chờ user xem: hỏi kết quả, đạt thì kết luận + ghi giờ roadmap; rồi viết task contract world 7h (b) cảm ứng + đo FPS điện thoại.
 Model đề xuất: Opus · high (Planner).
 ```
