@@ -1,6 +1,6 @@
 # Brief 0046 — 0032 (C): chuyển chữ hiển thị sang khoá + test quét
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 21:35
@@ -164,3 +164,5 @@ Ghi chú: tên không dấu (vd `Kho `+id, `Chunks`) không bị test quét bắ
 - 2026-10-22 (Opus, review lượt 2): `Chạy bằng` Sonnet · medium khớp. Mọi dòng "Phần cần test" có kết quả (EditMode 493/493, PlayMode 165/165, console 0 lỗi); phần user xem chờ user. Diff `003cfc1..5be4128`: 16 file, đều trong Phạm vi. Đã đọc `SiteStatus` (tham số `Strings t` đầu tiên, QĐ 1), `RefreshText` + `Changed +=/-=` ở MinimapView/TimeDial (QĐ 5), `HardcodedTextScanTests` chỉ bỏ comment (QĐ 7/9), TimeDial dùng `m` (enum) cho tên object (QĐ 9). Bảng tên object cũ → mới đủ.
   - Còn sót theo chỉ đạo user: `SimView.cs:209` `Box("Kho " + s.Id)`, tiếng Việt không dấu nên test quét không bắt; `PlayerBagSowPlayTests.cs:431` tìm `"Kho 0"` (ngoài Phạm vi). Chuyển sang task code tiếng Anh toàn client, không bắt sửa ở đây.
   - `tt.json` (163 khoá, tiền tố `[T]`) đã đặt ở `~/Library/Application Support/DefaultCompany/Viventa/lang/`. Chờ user xem 3 bước.
+- 2026-10-22 user xem đạt [user, qua phiên Planner]: bước 2 (chọn `tt`) mọi chữ có `[T]` trừ tên map và nút chọn ngôn ngữ (đúng kỳ vọng); một dòng chỉ có `[T]` là do khoá bắt đầu bằng `\n` (đúng). Bước 3 chọn lại `vi`, chữ về như cũ. Nhãn sinh vật vẽ đè lên bảng Cài đặt → đã chuyển sang task code tiếng Anh (phiên khác), không thuộc brief này. Giờ thực tế đã ghi roadmap. Thử điện thoại: Planner làm tiếp.
+- Kết luận: đã duyệt
