@@ -305,6 +305,7 @@ GameObject:
   - component: {fileID: 1663237067}
   - component: {fileID: 1663237069}
   - component: {fileID: 1663237070}
+  - component: {fileID: 1663237071}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -386,6 +387,18 @@ MonoBehaviour:
   landmarkIconSize: 22
   landmarkFontSize: 18
   landmarkLabelZoom: 2
+--- !u!114 &1663237071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663237066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e805a19f840f48d2bbb280cd55b1584, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.DemoPlain
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0

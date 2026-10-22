@@ -85,10 +85,10 @@ namespace Game.Client.Tests
         [UnityTest]
         public IEnumerator OpenGroundStillPicks()
         {
-            var site = sv.Site.Value;
-            int x = site.Dx + SimDemo.BaseX - 1, z = site.Dz + SimDemo.BaseZ - 1;
+            var plain = sv.Plain.Value;
+            int x = plain.X0 + plain.Size / 2, z = plain.Z0 + plain.Size / 2;
             Assert.IsTrue(input.Pick(Down(x + 0.5f, z + 0.5f, 80f), out var dig, out _));
-            Assert.AreEqual(new Vector3Int(x, site.Height(x, z), z), dig);
+            Assert.AreEqual(new Vector3Int(x, plain.Ground, z), dig);
             Assert.IsFalse(view.IsTerrainCollider(null));
             yield return null;
         }

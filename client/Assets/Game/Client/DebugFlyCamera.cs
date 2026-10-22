@@ -22,7 +22,10 @@ namespace Game.Client
 
         float yaw, pitch;
 
-        void Start()
+        void Start() => SyncAngles();
+
+        /// <summary>Đọc lại yaw/pitch từ transform — gọi sau khi camera bị đặt từ ngoài (task m1-demo-dong-bang), tránh giật góc ở lần kéo chuột đầu.</summary>
+        public void SyncAngles()
         {
             var e = transform.eulerAngles;
             yaw = e.y;

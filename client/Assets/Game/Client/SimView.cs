@@ -18,7 +18,7 @@ namespace Game.Client
     /// Đào/đặt (TerrainEditInput) báo cho mô phỏng qua WorldEditor.CellChanged; ô có sinh vật/nhà/kho không đặt được.
     /// Xới (brief 0030): biển canh tác, bảng ô ruộng chọn giống/hàng đợi, nút Kho (K); trại demo có 1 vụ Cây A ban đầu, sau đó người chơi tự chọn.
     /// Xới xong → ô ruộng (màu riêng, tấm 'Ruộng' ẩn); đào/đặt lên ô ruộng → huỷ vụ, bảng ghi 'đã huỷ' (sim 6a, 0020).
-    /// World 3 map (world 7e, brief 0020): Terrain dùng MapsV3 → SimDemo.FindSite chọn chỗ trong Map 1, mô phỏng trong vùng 64 × 64, camera đặt ở trại.
+    /// World 3 map (task m1-demo-dong-bang): san đồng bằng 48 × 48 giữa Map 1 (DemoPlain.Flatten), trại SimDemo bố trí giãn ở giữa, mô phỏng trong vùng 64 × 64, camera nhìn vào trại.
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class SimView : MonoBehaviour
@@ -28,6 +28,7 @@ namespace Game.Client
         /// <summary>Scene đo sim bước 7 (brief 0028): đồng bằng giữa Map 1 + 60 sinh vật, log SIMBENCH.</summary>
         public bool stressBench;
         public float benchSeconds = 240f;
+        /// <summary>Đồng bằng đã san (world nhiều map, cả demo lẫn bench); null khi chạy đảo v2.</summary>
         public StressPlain? Plain { get; private set; }
         public SimBenchMeter Meter { get; private set; }
 
@@ -62,8 +63,6 @@ namespace Game.Client
         GUIStyle labelStyle, hudStyle;
 
         public Simulation Sim { get; private set; }
-        /// <summary>Chỗ đặt trại trên world nhiều map (world 7e, brief 0020); null khi chạy đảo v2.</summary>
-        public DemoSite? Site { get; private set; }
         UnityEngine.Material boxBase;
         public int TargetFps { get; private set; }
         public int BodyCount => bodies.Count;
@@ -75,20 +74,18 @@ namespace Game.Client
             view = GetComponent<TerrainChunkView>();
             savedVSync = QualitySettings.vSyncCount;
             savedTargetFps = Application.targetFrameRate;
-            if (stressBench) view.afterGenerate = OnAfterGenerate;
+            view.afterGenerate = OnAfterGenerate;
         }
 
         public static Vector3 BenchCameraPos(StressPlain p) => new Vector3(p.X0 + p.Size * 0.5f, p.Ground + 34f, p.Z0 - 6f);
 
         IReadOnlyList<Landmark> OnAfterGenerate(WorldData world, MapTable maps, WorldMapParams p, IReadOnlyList<Landmark> lms)
         {
-            var plain = SimStress.FlattenPlain(world, maps, 0, p.bedrockLayers, p.dirtDepth, p.waterLevel, ConfigLoader.LoadSimConfig().regionSize);
+            var kept = DemoPlain.Flatten(world, maps, p, lms, out var plain);
             Plain = plain;
-            var cam = Camera.main;
-            if (cam != null)
-                cam.transform.SetPositionAndRotation(BenchCameraPos(plain), Quaternion.Euler(50f, 0f, 0f));
-            var kept = SimStress.WithoutPlain(lms, plain);
-            Debug.Log($"SIMBENCH {plain}, bỏ {lms.Count - kept.Count} dấu mốc trong đồng bằng");
+            if (stressBench) DemoPlain.PlaceCamera(BenchCameraPos(plain), 50f);
+            else DemoPlain.PlaceCamera(DemoPlain.CameraPos(plain), DemoPlain.Pitch);
+            Debug.Log($"{(stressBench ? "SIMBENCH" : "SIMVIEW")} {plain}, bỏ {lms.Count - kept.Count} dấu mốc trong đồng bằng");
             return kept;
         }
 
@@ -166,15 +163,17 @@ namespace Game.Client
             }
             else
             {
-                var sw = System.Diagnostics.Stopwatch.StartNew();
-                var site = SimDemo.FindSite(view.World, view.Maps, view.Landmarks, 0, ConfigLoader.LoadWorldMapParams().waterLevel, cfg.regionSize);
-                double ms = sw.Elapsed.TotalMilliseconds;
-                Site = site;
-                Sim = new Simulation(cfg, view.World, site.Bounds);
+                if (!Plain.HasValue)
+                {
+                    Debug.LogError("SIMVIEW thiếu đồng bằng (afterGenerate bị ghi đè?)");
+                    enabled = false;
+                    return;
+                }
+                var plain = Plain.Value;
+                Sim = new Simulation(cfg, view.World, plain.Bounds);
                 Sim.AttachEditor(view.Editor);
-                SimDemo.Build(Sim, site);
-                var camPos = PlaceCamera(site);
-                Debug.Log($"SIMVIEW trại {site}, camera ({camPos.x:F0}, {camPos.y:F0}, {camPos.z:F0}), tìm chỗ {ms:F1} ms, mảng tìm đường {Sim.PathfinderCellCount} ô");
+                SimDemo.Build(Sim, plain);
+                Debug.Log($"SIMVIEW trại giữa {plain}, mảng tìm đường {Sim.PathfinderCellCount} ô");
             }
             boxBase = Resources.Load<UnityEngine.Material>("Materials/Landmark");
             if (boxBase == null)
@@ -196,31 +195,6 @@ namespace Game.Client
             UpdateBodies();
             UpdatePlotSigns();
             SetFrameRate(60);
-        }
-
-        /// <summary>Camera nhìn vào trại (brief 0020): cột giữa cửa sổ, cao hơn mặt đất 12, lùi 26 theo −z, xoay Euler(25, 0, 0) như scene.</summary>
-        public static Vector3 CameraPosFor(DemoSite site)
-        {
-            int ccx = site.Dx + SimDemo.BaseX - 1 + 4, ccz = site.Dz + SimDemo.BaseZ - 1 + 3;
-            int h = site.Height(ccx, ccz);
-            return new Vector3(ccx + 0.5f, h + 12f, ccz + 0.5f - 26f);
-        }
-
-        /// <summary>Tâm cửa sổ 9 × 7 (toạ độ thế giới, trên mặt đất cột giữa).</summary>
-        public static Vector3 CampCenter(DemoSite site)
-        {
-            int ccx = site.Dx + SimDemo.BaseX - 1 + 4, ccz = site.Dz + SimDemo.BaseZ - 1 + 3;
-            return new Vector3(ccx + 0.5f, site.Height(ccx, ccz) + 1f, ccz + 0.5f);
-        }
-
-        Vector3 PlaceCamera(DemoSite site)
-        {
-            var pos = CameraPosFor(site);
-            var cam = Camera.main;
-            if (cam == null)
-                return pos;
-            cam.transform.SetPositionAndRotation(pos, Quaternion.Euler(25f, 0f, 0f));
-            return pos;
         }
 
         void SetFrameRate(int fps)

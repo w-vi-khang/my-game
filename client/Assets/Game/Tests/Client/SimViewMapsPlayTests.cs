@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 
 namespace Game.Client.Tests
 {
-    /// <summary>World 7e (brief 0020): SimView trên world 3 map — trại trong Map 1, vùng 64 × 64, camera ở trại.</summary>
+    /// <summary>Task m1-demo-dong-bang: SimView trên world 3 map — trại giữa đồng bằng san phẳng, vùng 64 × 64, camera nhìn vào trại.</summary>
     public class SimViewMapsPlayTests
     {
         GameObject camGo, go;
@@ -40,37 +40,43 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator SetsUpCampInMap1()
+        public IEnumerator SetsUpCampOnPlain()
         {
             Assert.IsNotNull(sv.Sim);
-            Assert.IsTrue(sv.Site.HasValue);
-            var site = sv.Site.Value;
-            var expect = SimDemo.FindSite(view.World, view.Maps, view.Landmarks, 0, ConfigLoader.LoadWorldMapParams().waterLevel, ConfigLoader.LoadSimConfig().regionSize);
-            Assert.AreEqual(expect.Dx, site.Dx);
-            Assert.AreEqual(expect.Dz, site.Dz);
-            Assert.AreEqual(expect.Bounds, site.Bounds);
-            Assert.AreEqual(site.Bounds, sv.Sim.Bounds);
+            Assert.IsTrue(sv.Plain.HasValue);
+            var plain = sv.Plain.Value;
+            Assert.AreEqual(plain.Bounds, sv.Sim.Bounds);
             Assert.AreEqual(64 * 64 * view.World.Size.Y, sv.Sim.PathfinderCellCount);
             Assert.AreEqual(3, sv.Sim.State.Creatures.Count);
             Assert.AreEqual(3, sv.BodyCount);
             Assert.AreEqual(4, sv.SproutCount);
-            Assert.AreEqual(site.Shift(SimDemo.HouseA), sv.Sim.State.Houses[0].Cell);
-            var k = site.Shift(SimDemo.StorageCell);
+            Assert.AreEqual(SimDemo.OnPlain(plain, SimDemo.PlainHouseA), sv.Sim.State.Houses[0].Cell);
+            var k = SimDemo.OnPlain(plain, SimDemo.PlainStorage);
             Assert.IsTrue(view.Editor.IsOccupied(k.X, k.Y, k.Z));
+            for (int z = plain.Z0; z < plain.Z0 + plain.Size; z++)
+                for (int x = plain.X0; x < plain.X0 + plain.Size; x++)
+                {
+                    MinimapImage.ColumnInfo(view.World, x, z, out int surf, out int depth);
+                    Assert.AreEqual(plain.Ground, surf, $"mặt ({x},{z})");
+                    Assert.AreEqual(0, depth, $"nước ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Grass, view.World.GetMaterial(x, surf, z), $"vật liệu ({x},{z})");
+                }
+            foreach (var l in view.Landmarks)
+                Assert.IsFalse(plain.Contains(l.X, l.Z), "dấu mốc " + l.Name + " trong đồng bằng");
             yield return null;
         }
 
         [UnityTest]
         public IEnumerator CameraLooksAtCamp()
         {
-            var site = sv.Site.Value;
-            var want = SimView.CameraPosFor(site);
+            var plain = sv.Plain.Value;
+            var want = DemoPlain.CameraPos(plain);
             var p = camGo.transform.position;
             Assert.AreEqual(want.x, p.x, 1e-4f);
             Assert.AreEqual(want.y, p.y, 1e-4f);
             Assert.AreEqual(want.z, p.z, 1e-4f);
-            Assert.AreEqual(25f, camGo.transform.rotation.eulerAngles.x, 1e-3f);
-            var vp = camGo.GetComponent<Camera>().WorldToViewportPoint(SimView.CampCenter(site));
+            Assert.AreEqual(DemoPlain.Pitch, camGo.transform.rotation.eulerAngles.x, 1e-3f);
+            var vp = camGo.GetComponent<Camera>().WorldToViewportPoint(DemoPlain.CampCenter(plain));
             Assert.Greater(vp.z, 0f);
             Assert.Greater(vp.x, 0f);
             Assert.Less(vp.x, 1f);
