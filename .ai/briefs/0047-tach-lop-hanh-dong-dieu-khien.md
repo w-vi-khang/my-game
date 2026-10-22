@@ -1,6 +1,6 @@
 # Brief 0047 — Tách lớp hành động điều khiển khỏi phím (0033, M1)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 22:40
@@ -403,3 +403,12 @@ Giờ: bắt đầu 22:08, dừng ~22:25.
 
 ## Kiểm chứng
 Đang chờ Planner/user (brief `cần Opus`). Đã chạy qua MCP: EditMode 498/498 qua; PlayMode 165/168 (3 test mới fail, xem Vướng mắc). Chưa chạy `tools/unity_test.py` vì Editor đang mở (brief cho dùng MCP). Checklist chưa đối chiếu: chờ hoàn tất brief.
+
+### Vướng mắc lần 2 (2026-10-22 ~22:55)
+Đã làm theo QĐ 9 (Enable/Disable bọc trong 3 test) và bước 12. Kết quả:
+- Bước 12 (Play thật): `True True` — đạt. `ProjectWideActionsAreGameControls` (PlayMode) giờ **qua**.
+- PlayMode toàn bộ: 166/168. Còn `MoveIsDigitalWasd` (Move đọc `(0,0)` thay vì `(1,1)`) và `SwapMouseButtonsByOverride` (`UseTool.IsPressed()` false sau `WithButton(Left)`, dòng đầu) fail **dù asset đã `Enable()`**.
+- Sửa lần 2: đảo thứ tự — `AddDevice` trước, `Enable()` sau. Chạy riêng 3 test: vẫn 1 qua / 2 fail y hệt.
+- Nghi ngờ [chưa xác minh]: dưới test runner Editor không focus (`editor_is_focused:false`) nên Input System bỏ qua sự kiện của thiết bị ảo, hoặc cần `InputSystem.Update()` thêm sau khi bind lại. Test cũ `FlyCameraMoveKeyPlayTests` đọc thẳng `kb.wKey.isPressed` nên không bị ảnh hưởng.
+**Câu hỏi:** cách đúng để action đọc được thiết bị ảo trong PlayMode test? Phương án: (A) gọi thêm `InputSystem.Update()` sau `Enable()`/sau `AddDevice` rồi mới gửi state event; (B) tra docs `InputTestFixture` / `InputSystem.settings.backgroundBehavior` / `InputSettings.editorInputBehaviorInPlayMode` (Planner tra 1.19); (C) bỏ 2 test đọc giá trị, giữ `AssetMatchesDefaultTable` (EditMode) + test override chỉ kiểm `bindings[0].effectivePath` sau `ApplyBindingOverride` (không cần thiết bị). **Đề xuất: B rồi A; C là phương án lùi.**
+Trạng thái code: mọi thứ khác xong, EditMode 498/498, chưa commit code (chờ Planner).
