@@ -1,9 +1,9 @@
 # Brief 0046 — 0032 (C): chuyển chữ hiển thị sang khoá + test quét
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 21:20
+> Cập nhật: 2026-10-22 21:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -29,7 +29,7 @@ Phần C của [task 0032](../tasks/m1-cai-dat-va-bang-chuoi.md): mọi chữ hi
   - `Client/PlayerFarmActions.cs`: `StatusLine` `:72-274`; `HudLines` `:281-298`.
   - `Client/MinimapView.cs`: `:424` `hint.text`, `:477` `closeText.text`. Tên map / tên dấu mốc (`view.Maps.Name`, `l.Name`) và `"N"` (`:563`) giữ nguyên, vì là dữ liệu / ký hiệu.
   - `Client/TimeDial.cs`: `:66-80` `PeriodName`/`LandmarkName`; `:234` `"Đang ở buổi: "`; `:297` `hint.text`. `:290` `label.text = LandmarkName(m)`.
-- Không phải chữ hiển thị (giữ nguyên): tên GameObject / mesh (`Box("Nhà "…)`, `Stretch(...)`, `NewText("…")`, `AddBlock(...)`, `.name = …`, `new Mesh { name = … }`), `Debug.Log*`, thông báo exception, comment.
+- Không phải chữ hiển thị: tên GameObject / mesh (`Box("Nhà "…)`, `new GameObject(…)`, `Stretch(...)`, `NewText("…")`, `AddBlock(...)`, `.name = …`, `new Mesh { name = … }`), `Debug.Log*`, thông báo exception, comment. Không đưa vào `vi.json`; trong 8 file ở QĐ 3 phải đổi sang tiếng Anh (QĐ 9), trừ comment.
 - Test cũ so khớp chữ: `Tests/Core/View/SiteStatusTests.cs`, `Tests/Core/View/CreatureStatusTests.cs` (gọi hàm Core, xem QĐ 1); PlayMode `DropPlayTests.cs:103,106,196`, `PlayerBagSowPlayTests.cs:204,392`, `MinimapCornerPlayTests.cs:171`, `TimeDialPlayTests.cs:63,97`, `SettingsPlayTests.cs:136` (`Count == 13`). Các test này phải qua với kỳ vọng giữ nguyên, trừ `SettingsPlayTests.cs:136` (QĐ 6).
 - Test EditMode đọc file trong repo: mẫu `Tests/Core/Sim/SimConfigTests.cs:12` (`Path.Combine(Application.dataPath, …)`, `JsonUtility.FromJson`).
 - API: chỉ dùng API đã có trong repo (`JsonUtility.FromJson`, `System.IO.File`, `System.Text.RegularExpressions.Regex` của .NET). Không cần API Unity mới.
@@ -56,14 +56,21 @@ Phần C của [task 0032](../tasks/m1-cai-dat-va-bang-chuoi.md): mọi chữ hi
    - `PeriodName` / `LandmarkName` vẫn là `public static string`, đọc `GameSettings.Text`.
 6. **Test file gốc cũ:** `SettingsPlayTests.cs:136` `Assert.AreEqual(13, GameSettings.BaseText.Count)` đổi thành `Assert.GreaterOrEqual(GameSettings.BaseText.Count, 13)`. Đây là dòng duy nhất được sửa trong test cũ, ngoài các lời gọi ở QĐ 1.
 7. **Test quét:** `Tests/Core/Text/HardcodedTextScanTests.cs` (EditMode, `Game.Core.Tests`, namespace `Game.Core.Tests`). Đọc từng file ở QĐ 3 bằng `File.ReadAllLines(Path.Combine(Application.dataPath, "Game", <đường dẫn>))`.
-   - **`NoVietnameseLiterals`:** bỏ các dòng (sau `Trim()`) bắt đầu bằng `//`. Bỏ các dòng chứa một trong: `Box(`, `Stretch(`, `NewText(`, `AddBlock(`, `.name =`, `name = `, `Debug.Log`, `throw `, `Exception(`. Với dòng còn lại, regex `"(?:[^"\\]|\\.)*"` tìm literal. Literal nào chứa ký tự trong `[À-ỹĐđ]` (dải Latin-1 Supplement → Latin Extended Additional, có dấu tiếng Việt) thì báo lỗi `<file>:<dòng>: <literal>`. Gom hết rồi `Assert.IsEmpty(list, string.Join("\n", list))`. Lưu ý: `×` (U+00D7) cũng nằm trong dải này, nên chữ có `×` phải chuyển vào khoá.
+   - **`NoVietnameseLiterals`:** chỉ bỏ các dòng (sau `Trim()`) bắt đầu bằng `//` (gồm `///`). **Không** có danh sách bỏ dòng nào khác (sửa 2026-10-22 theo QĐ 9: bỏ `SkipLines` cũ `Box(`, `Stretch(`, … ). Với mọi dòng, regex `"(?:[^"\\]|\\.)*"` tìm literal. Literal nào chứa ký tự trong `[À-ỹĐđ]` (dải Latin-1 Supplement → Latin Extended Additional, có dấu tiếng Việt) thì báo lỗi `<file>:<dòng>: <literal>`. Gom hết rồi `Assert.IsEmpty(list, string.Join("\n", list))`. Lưu ý: `×` (U+00D7) cũng nằm trong dải này, nên chữ có `×` phải chuyển vào khoá.
    - **`AllUsedKeysExist`:** regex `(?:\bT|\.Get|Format)\(\s*"([a-z0-9_]+\.[a-z0-9_]+)"` trên toàn bộ nội dung từng file. Mọi khoá bắt được phải có trong `ViText.Load()` (`Has`).
    - **`BaseFileValid`:** đọc `vi.json` → `new Strings(file)` không ném lỗi. `entries` sắp Ordinal. Mọi khoá khớp `^[a-z0-9_]+\.[a-z0-9_]+$`. `language == "Tiếng Việt"`.
    - Nếu `NoVietnameseLiterals` bắt nhầm một dòng không phải chữ hiển thị mà quy tắc trên không loại được → dừng, chuyển `cần Opus`. Không tự nới quy tắc.
 8. Không đổi hành vi, bố cục hay toạ độ UI. Không đổi chữ tiếng Việt. Tên map, tên dấu mốc, id cây (`A`, `B`), id loài (`L1`) là dữ liệu, giữ nguyên.
+9. **Mọi phần thuộc code dùng tiếng Anh** (user, 2026-10-22). Chỉ chữ hiển thị cho người chơi được là tiếng Việt, và chỉ nằm trong `vi.json`. Trong 8 file ở QĐ 3:
+   - Tên GameObject / mesh / `.name` (`new GameObject`, `Box`, `Stretch`, `NewText`, `AddBlock`, `new Mesh { name }`) → tiếng Anh, PascalCase có khoảng trắng như `"Chunks"` đã có, ví dụ `"Sign " + p.Id`, `"Creature " + c.Id + " " + c.SpeciesId`, `"Facing"`, `"Selection"`, `"Ghost"`, `"Rain"`, `"Map"`, `"Time Dial"`. Executor tự đặt, ghi bảng cũ → mới vào Kết quả.
+   - `TimeDial.cs:293`, `:300`: tên object dùng `m.ToString()` (tên enum), **không** dùng `LandmarkName(m)` (tên object không được đổi theo ngôn ngữ).
+   - `Debug.Log*`, thông báo exception → tiếng Anh. Giữ nguyên tiền tố đầu dòng (`SIMBENCH`, `SIMVIEW`, `PLAYER`, `MINIMAP`, `TIMEDIAL`) và các số / định dạng, vì log được đọc bằng grep/logcat.
+   - Comment giữ tiếng Việt (là tài liệu, không phải code chạy).
+   - Test tìm object theo tên cũ đổi theo tên mới: `Tests/Client/TerrainEditPlayTests.cs:230` (`"Bản mờ"`), `:259` (`"Ô đang chọn"`, kèm thông báo assert sang tiếng Anh). Đây là thay đổi kỳ vọng được phép, ngoài QĐ 6.
+   - File ngoài QĐ 3 (vd `LandmarkView.cs` `"Dấu mốc"`, log/thông báo test khác) **không** sửa trong brief này — Planner tạo task riêng.
 
 ## Phạm vi
-- Sửa: 8 file ở QĐ 3; `Client/Resources/Lang/vi.json`; `Tests/Core/View/SiteStatusTests.cs`, `CreatureStatusTests.cs` (chỉ thêm đối số); `Tests/Client/SettingsPlayTests.cs` (chỉ `:136`); mục Kết quả của brief này.
+- Sửa: 8 file ở QĐ 3; `Client/Resources/Lang/vi.json`; `Tests/Client/TerrainEditPlayTests.cs` (chỉ `:230`, `:259`, QĐ 9); `Tests/Core/View/SiteStatusTests.cs`, `CreatureStatusTests.cs` (chỉ thêm đối số); `Tests/Client/SettingsPlayTests.cs` (chỉ `:136`); mục Kết quả của brief này.
 - Tạo: `Tests/Core/View/ViText.cs`, `Tests/Core/Text/HardcodedTextScanTests.cs`, thư mục `Tests/Core/Text` (+ `.meta`).
 - Không được sửa: `Core/**` ngoài 2 file View, scene, `design/`, file khác, kỳ vọng của test khác.
 
@@ -72,11 +79,12 @@ Phần C của [task 0032](../tasks/m1-cai-dat-va-bang-chuoi.md): mọi chữ hi
 2. QĐ 2, 4: SimView, TerrainEditInput, PlayerFarmActions, rồi thêm khoá.
 3. QĐ 5: MinimapView, TimeDial (`RefreshText`).
 4. QĐ 6–7: test quét + sửa `SettingsPlayTests.cs:136`. Chạy `NoVietnameseLiterals` và sửa tới khi sạch.
-5. Ghi vào Kết quả: số khoá trong `vi.json`, danh sách nhóm khoá kèm số khoá mỗi nhóm.
+5. (Sửa 2026-10-22, sau Vướng mắc QĐ 7) QĐ 9: đổi tên GameObject / mesh, `Debug.Log*`, exception trong 8 file sang tiếng Anh; sửa `TerrainEditPlayTests.cs:230,259`; xoá danh sách bỏ dòng trong `HardcodedTextScanTests` (chỉ còn bỏ comment). Chạy lại EditMode + PlayMode toàn bộ.
+6. Ghi vào Kết quả: bảng tên object cũ → mới; số khoá trong `vi.json`, danh sách nhóm khoá kèm số khoá mỗi nhóm.
 
 ## Tiêu chí xong
 - EditMode toàn bộ qua (488 cũ không đổi kỳ vọng + mới), PlayMode 164/164 không đổi kỳ vọng, 0 lỗi console.
-- Kết quả grep `[À-ỹĐđ]` trong literal của 8 file chỉ còn các dòng thuộc loại được bỏ ở QĐ 7.
+- Kết quả grep `[À-ỹĐđ]` trong literal của 8 file: 0 dòng ngoài comment (QĐ 9).
 - `git diff --stat` chỉ có file trong Phạm vi.
 
 ## Test sau khi xong
@@ -143,3 +151,4 @@ QĐ 7: `NoVietnameseLiterals` bắt nhầm 7 dòng `new GameObject("<tên tiến
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- 2026-10-22 (Opus, trả lời Vướng mắc QĐ 7): không thêm `GameObject(` vào danh sách bỏ. Theo user: mọi thứ thuộc code dùng tiếng Anh → thêm QĐ 9, bỏ hẳn danh sách bỏ dòng (chỉ còn comment), thêm bước 5. Đã kiểm `Find("…")` theo tên tiếng Việt: chỉ `TerrainEditPlayTests.cs:230,259` thuộc 8 file; `LandmarkViewPlayTests` "Dấu mốc" thuộc `LandmarkView.cs` ngoài phạm vi. Không có công cụ trong `tools/` grep nội dung log tiếng Việt.
