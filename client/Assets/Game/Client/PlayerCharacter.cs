@@ -8,8 +8,10 @@ namespace Game.Client
 {
     /// <summary>
     /// Nhân vật người chơi trên PC (world 7h, brief 0035, 0028): khối ghép cao 2 ô, CharacterController, WASD đi theo hướng camera, Space nhảy,
-    /// F3 bật/tắt camera bay (debug). Đầu game đặt túi hạt Cây A × 4 gần chỗ xuất phát (brief 0037). Luật tầm với / ô chiếm / biên / nước ở Game.Core.PlayerRules. Gốc transform = chân.
+    /// F3 bật/tắt camera bay (debug), tự đi theo đường ô (sim 7f, brief 0041). Đầu game đặt túi hạt Cây A × 4 gần chỗ xuất phát (brief 0037). Luật tầm với / ô chiếm / biên / nước ở Game.Core.PlayerRules. Gốc transform = chân.
     /// </summary>
+    public enum AutoWalkState { None, Walking, Arrived, Cancelled, Failed }
+
     [RequireComponent(typeof(CharacterController))]
     public class PlayerCharacter : MonoBehaviour
     {
@@ -35,6 +37,28 @@ namespace Game.Client
         public CharacterController Controller { get; private set; }
         public Transform Visual { get; private set; }
         public Vector3 FeetLocal => terrain.transform.InverseTransformPoint(transform.position);
+
+        /// <summary>Trạng thái tự đi theo đường ô (sim 7f, brief 0041).</summary>
+        public AutoWalkState AutoWalk { get; private set; }
+        readonly List<Game.Core.Sim.CellPos> autoPath = new List<Game.Core.Sim.CellPos>();
+        int autoIndex;
+        float autoStall;
+
+        /// <summary>Bắt đầu tự đi qua các ô chân (toạ độ terrain, Game.Core.Sim.CellPos). Đường rỗng → Arrived ngay.</summary>
+        public void StartAutoWalk(IReadOnlyList<Game.Core.Sim.CellPos> path)
+        {
+            autoPath.Clear();
+            for (int i = 0; i < path.Count; i++) autoPath.Add(path[i]);
+            autoIndex = 0;
+            autoStall = 0f;
+            AutoWalk = autoPath.Count == 0 ? AutoWalkState.Arrived : AutoWalkState.Walking;
+        }
+
+        /// <summary>Đang Walking → None (người gọi tự huỷ).</summary>
+        public void StopAutoWalk()
+        {
+            if (AutoWalk == AutoWalkState.Walking) AutoWalk = AutoWalkState.None;
+        }
 
         float vy;
         Camera cam;
@@ -194,13 +218,39 @@ namespace Game.Client
             var f = FeetLocal;
             InWater = PlayerRules.InWater(terrain.World, f.x, f.y, f.z);
 
+            if (AutoWalk == AutoWalkState.Walking && (FlyMode || MoveInput.sqrMagnitude > 0.01f || JumpInput))
+                AutoWalk = AutoWalkState.Cancelled;
+            bool autoJump = false;
+            float step = walkSpeed * (InWater ? PlayerRules.WaterSpeedFactor : 1f) * Time.deltaTime;
             float yaw = follow != null ? follow.yaw : 0f;
             var dir = Quaternion.Euler(0f, yaw, 0f) * new Vector3(MoveInput.x, 0f, MoveInput.y);
             if (dir.sqrMagnitude > 1f) dir.Normalize();
-            var h = dir * (walkSpeed * (InWater ? PlayerRules.WaterSpeedFactor : 1f) * Time.deltaTime);
+            if (AutoWalk == AutoWalkState.Walking)
+            {
+                autoStall += Time.deltaTime;
+                var t = autoPath[autoIndex];
+                float dx = t.X + 0.5f - f.x, dz = t.Z + 0.5f - f.z;
+                if (Mathf.Sqrt(dx * dx + dz * dz) < 0.15f)
+                {
+                    autoIndex++;
+                    autoStall = 0f;
+                    if (autoIndex >= autoPath.Count) AutoWalk = AutoWalkState.Arrived;
+                    else t = autoPath[autoIndex];
+                }
+                if (AutoWalk == AutoWalkState.Walking)
+                {
+                    dx = t.X + 0.5f - f.x; dz = t.Z + 0.5f - f.z;
+                    float dist = Mathf.Sqrt(dx * dx + dz * dz);
+                    dir = dist > 1e-4f ? terrain.transform.TransformDirection(new Vector3(dx / dist, 0f, dz / dist)) : Vector3.zero;
+                    step = Mathf.Min(step, dist);
+                    autoJump = t.Y > Mathf.FloorToInt(f.y + 0.05f);
+                    if (autoStall > 3f) AutoWalk = AutoWalkState.Failed;
+                }
+            }
+            var h = dir * step;
 
             if (Controller.isGrounded && vy < 0f) vy = -2f;
-            if (Controller.isGrounded && JumpInput) vy = jumpSpeed;
+            if (Controller.isGrounded && (JumpInput || autoJump)) vy = jumpSpeed;
             vy = Mathf.Max(vy - gravity * Time.deltaTime, -maxFallSpeed);
 
             var lh = terrain.transform.InverseTransformVector(h);

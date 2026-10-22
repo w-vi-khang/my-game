@@ -8,7 +8,8 @@ using UnityEngine.Rendering;
 
 namespace Game.Client
 {
-    public enum TillResult { Invalid, Marked, Unmarked, OpenedPlot }
+    /// <summary>Kết quả chuột trái khi cầm Xới. SelfTill = ô có biển chưa xới → tự đi tới xới (brief 0041).</summary>
+    public enum TillResult { Invalid, Marked, Unmarked, OpenedPlot, SelfTill }
 
     /// <summary>
     /// Scene SimView (sim bước 6, user chọn 2026-10-16): mô phỏng M1 chạy trên map thật với bố trí SimDemo (2 nhà, 1 kho, 4 ô ruộng, L1–L3).
@@ -278,9 +279,7 @@ namespace Game.Client
             {
                 if (!Sim.State.Plots[id].Tilled)
                 {
-                    Sim.Unmark(id);
-                    UpdatePlotSigns();
-                    return TillResult.Unmarked;
+                    return TillResult.SelfTill;
                 }
                 OpenPlotId = id;
                 return TillResult.OpenedPlot;
@@ -290,6 +289,26 @@ namespace Game.Client
             EnsurePlotVisuals();
             UpdatePlotSigns();
             return TillResult.Marked;
+        }
+
+        /// <summary>Chuột phải khi cầm Xới (brief 0041): ô có biển chưa xới → bỏ đánh dấu. true khi đã bỏ.</summary>
+        public bool UnmarkAt(Vector3Int cell)
+        {
+            if (Sim == null) return false;
+            int id = Sim.PlotAt(ToCell(cell));
+            if (id < 0 || Sim.State.Plots[id].Tilled || !Sim.Unmark(id)) return false;
+            UpdatePlotSigns();
+            return true;
+        }
+
+        /// <summary>Nút "Tự xới" của bảng ô ruộng (ô xới lại): đóng bảng rồi tự đi tới xới. false nếu không tự xới được.</summary>
+        public bool SelfTillOpenPlot()
+        {
+            var farming = GetComponent<PlayerFarmActions>();
+            if (OpenPlotId < 0 || !Sim.CanPlayerTill(OpenPlotId) || farming == null) return false;
+            int id = OpenPlotId;
+            ClosePlotPanel();
+            return farming.BeginSelfTill(id);
         }
 
         /// <summary>Ô hạt giống cropId (0026 mục 2).</summary>
@@ -409,6 +428,9 @@ namespace Game.Client
             }
             GUI.enabled = true;
 
+            GUI.enabled = Sim.CanPlayerTill(OpenPlotId) && PlayerCharacter.Active != null;
+            if (GUI.Button(new Rect(pr.x + 10f, pr.yMax - 36f, 110f, 28f), "Tự xới")) SelfTillOpenPlot();
+            GUI.enabled = true;
             if (GUI.Button(new Rect(pr.xMax - 120f, pr.yMax - 36f, 110f, 28f), "Đóng (Esc)")) ClosePlotPanel();
         }
 

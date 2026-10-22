@@ -124,7 +124,8 @@ namespace Game.Client.Tests
             var ca = new CellPos(a.x, a.y, a.z);
             Assert.AreEqual(TillResult.Marked, sv.UseTill(a));
             int idA = sv.Sim.PlotAt(ca);
-            Assert.AreEqual(TillResult.Unmarked, sv.UseTill(a));
+            Assert.AreEqual(TillResult.SelfTill, sv.UseTill(a));
+            Assert.IsTrue(sv.UnmarkAt(a));
             Assert.IsFalse(sv.SignVisible(idA));
             Assert.IsTrue(sv.Sim.State.Plots[idA].Removed);
 
