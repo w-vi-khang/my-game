@@ -24,7 +24,7 @@ Theo [0031](../../design/decisions/0031-tam-voi-moi-thao-tac-8-o.md) (Chốt, us
 - `Client/TerrainEditInput.cs`: chữ/comment về tầm ở `:16`, `:17`, `:105`, `:155`, `:182`, `:222`, `:234`, `:241`, `:293`, `:294` (mọi chỗ có `4 ô`, `10 ô`, `(0030)` trong file này đều nói về tầm với).
 - Test dựa vào tầm cũ:
   - `Tests/Core/PlayerRulesTests.cs:8-36` (4 test biên 10 / 10,1 và 4 / 4,1);
-  - `Tests/Core/DropFieldTests.cs:138-154` `CollectInReachTakesOnlyWithin4`;
+  - `Tests/Core/DropFieldTests.cs:137-154` `CollectInReachTakesOnlyWithin4`;
   - `Tests/Core/DropPickTests.cs:38-39` `OutOfHandReachIgnored` (chân (5.5, 1, 10.5) cách chồng ≈ 5,02 → với 8 ô thành trong tầm);
   - `Tests/Client/PlayerCharacterPlayTests.cs:253-277` `ReachLimitsTools` (ô +10 ngoài, +9 trong, đặt +11 ngoài);
   - `Tests/Client/DropPlayTests.cs:110-145` `CollectNearbyTakesOnlyWithin4` và `ClickPicksOnlyInReachAndFarDoesNotBlockDig` (chồng xa ở +6 → với 8 ô thành trong tầm), và `DigDropsVisibleThenCollectAndPlace` (ngay sau).
@@ -52,7 +52,7 @@ Theo [0031](../../design/decisions/0031-tam-voi-moi-thao-tac-8-o.md) (Chốt, us
    - `InToolReach_BoundaryExactly8`: chân (0.5, −0.5, 0.5): ô (8,0,0) true; (9,0,0) false; (0,8,0) true; (0,0,−8) true.
    - `InToolReach_8Point1Outside`: chân (0.4, −0.5, 0.5), ô (8,0,0) → false.
    - `InHandReach_BoundaryExactly8`, `InHandReach_8Point1Outside`: như hai test trên, dùng `InHandReach`.
-4. **`Tests/Core/DropFieldTests.cs:138-154`:** đổi tên thành `CollectInReachTakesOnlyWithin8`; `Drops.Add(4, 1, 0, …Dirt, 2)` → `(8, 1, 0, …)`, `Drops.Add(5, 1, 0, …Stone, 1)` → `(9, 1, 0, …)`; dòng `Drops.Add(4, 1, 0, B(BlockMaterial.Dirt), 1);` (`:151`) → `(8, 1, 0, …)`. Các assert giữ nguyên (chân (0.5, 0.5, 0.5): (8,1,0) cách đúng 8 → trong; (9,1,0) cách 9 → ngoài; chân (0.4, …) cách 8,1 → ngoài).
+4. **`Tests/Core/DropFieldTests.cs:137-154`:** đổi tên thành `CollectInReachTakesOnlyWithin8`; `Drops.Add(4, 1, 0, …Dirt, 2)` → `(8, 1, 0, …)`, `Drops.Add(5, 1, 0, …Stone, 1)` → `(9, 1, 0, …)`; dòng `Drops.Add(4, 1, 0, B(BlockMaterial.Dirt), 1);` (`:152`) → `(8, 1, 0, …)`. Các assert giữ nguyên (chân (0.5, 0.5, 0.5): (8,1,0) cách đúng 8 → trong; (9,1,0) cách 9 → ngoài; chân (0.4, …) cách 8,1 → ngoài).
 5. **`Tests/Core/DropPickTests.cs:39`:** chân `(5.5f, 1f, 10.5f)` → `(5.5f, 1f, 14.5f)` (cách ≈ 9,01 → ngoài).
 6. **`Tests/Client/PlayerCharacterPlayTests.cs` `ReachLimitsTools`:** `far` = `C(A.x + 8, G, A.z)`; `near` = `C(A.x + 7, G, A.z)`; `pc` = `C(A.x + 9, G + 1, A.z)` (QĐ 3).
 7. **`Tests/Client/DropPlayTests.cs`:**
