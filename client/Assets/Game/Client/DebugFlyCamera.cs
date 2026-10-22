@@ -15,6 +15,7 @@ namespace Game.Client
         public float speed = 10f;
         public float fastMultiplier = 3f;
         public float lookSensitivity = 0.15f;
+        public bool invertY;
         /// <summary>World để chặn camera vào ô đặc (brief 0011); null → bay xuyên như cũ (SimView).</summary>
         public TerrainChunkView terrain;
         /// <summary>Nửa cạnh hộp va chạm của camera (ô). Phải lớn hơn khoảng cách từ camera tới góc mặt near clip (near 0,1 → ~0,17).</summary>
@@ -61,7 +62,7 @@ namespace Game.Client
             {
                 var d = mouse.delta.ReadValue();
                 yaw += d.x * lookSensitivity;
-                pitch = Mathf.Clamp(pitch - d.y * lookSensitivity, -89f, 89f);
+                pitch = Mathf.Clamp(pitch - d.y * lookSensitivity * (invertY ? -1f : 1f), -89f, 89f);
                 transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
             }
             if (kb == null)

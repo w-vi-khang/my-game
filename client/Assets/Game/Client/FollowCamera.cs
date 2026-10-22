@@ -15,6 +15,7 @@ namespace Game.Client
         public float pitch = 20f, minPitch = -20f, maxPitch = 70f;
         public float yaw;
         public float lookSensitivity = 0.15f;
+        public bool invertY;
         public float pivotHeight = 1.6f, castRadius = 0.2f;
 
         /// <summary>Khoảng cách thực sau khi chống xuyên khối.</summary>
@@ -36,7 +37,7 @@ namespace Game.Client
                 {
                     var d = mouse.delta.ReadValue();
                     yaw += d.x * lookSensitivity;
-                    pitch = Mathf.Clamp(pitch - d.y * lookSensitivity, minPitch, maxPitch);
+                    pitch = Mathf.Clamp(pitch - d.y * lookSensitivity * (invertY ? -1f : 1f), minPitch, maxPitch);
                 }
                 var kb = Keyboard.current;
                 var pos = mouse.position.ReadValue();

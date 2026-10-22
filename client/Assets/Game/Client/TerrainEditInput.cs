@@ -397,7 +397,7 @@ namespace Game.Client
             }
             var text = HudText();
             // Phóng chữ theo chiều cao màn hình (mốc 720p) — màn Retina chữ mặc định quá nhỏ.
-            float scale = Mathf.Max(1f, Screen.height / 720f);
+            float scale = UiScale.Gui;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
             hudStyle ??= new GUIStyle(GUI.skin.label) { richText = true };
             float h = hudStyle.CalcHeight(new GUIContent(text), 1000f);

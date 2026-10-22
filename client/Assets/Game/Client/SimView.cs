@@ -76,6 +76,7 @@ namespace Game.Client
             savedVSync = QualitySettings.vSyncCount;
             savedTargetFps = Application.targetFrameRate;
             view.afterGenerate = OnAfterGenerate;
+            if (GetComponent<SettingsView>() == null) gameObject.AddComponent<SettingsView>();
         }
 
         public static Vector3 BenchCameraPos(StressPlain p) => new Vector3(p.X0 + p.Size * 0.5f, p.Ground + 34f, p.Z0 - 6f);
@@ -211,10 +212,10 @@ namespace Game.Client
             EnsurePlotVisuals();
             UpdateBodies();
             UpdatePlotSigns();
-            SetFrameRate(60);
+            SetFrameRate(GameSettings.Current.targetFps);
         }
 
-        void SetFrameRate(int fps)
+        public void SetFrameRate(int fps)
         {
             TargetFps = fps;
             QualitySettings.vSyncCount = 0; // vSyncCount != 0 thì targetFrameRate bị bỏ qua
@@ -442,7 +443,7 @@ namespace Game.Client
             return n;
         }
 
-        static float GuiScale => Mathf.Max(1f, Screen.height / 720f);
+        static float GuiScale => UiScale.Gui;
         public static Rect StockButtonRect(float gw, float gh) => new Rect(10f, gh - 46f, 110f, 36f);
         public static Rect StockPanelRect(float gw, float gh, int crops) { float h = 64f + 50f * crops; return new Rect(10f, gh - 56f - h, 480f, h); }
         public static Rect PlotPanelRect(float gw, float gh) => new Rect(gw * 0.5f - 200f, gh - 310f, 400f, 300f);
@@ -450,7 +451,7 @@ namespace Game.Client
         static SimView active;
 
         /// <summary>Con trỏ (toạ độ màn hình, gốc dưới-trái) trên nút Kho / bảng kho / bảng ô ruộng → công cụ không dùng (brief 0030 mục 12).</summary>
-        public static bool BlocksPointer(Vector2 screen) => active != null && active.Sim != null && active.Covers(screen);
+        public static bool BlocksPointer(Vector2 screen) => SettingsView.BlocksPointer(screen) || (active != null && active.Sim != null && active.Covers(screen));
 
         public bool Covers(Vector2 screen)
         {
@@ -652,7 +653,7 @@ namespace Game.Client
         {
             if (Sim == null)
                 return;
-            float scale = Mathf.Max(1f, Screen.height / 720f);
+            float scale = UiScale.Gui;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
             if (labelStyle == null)
             {

@@ -1,0 +1,58 @@
+{
+  "formatVersion": 1,
+  "language": "Tiếng Việt",
+  "entries": [
+    {
+      "key": "settings.button",
+      "text": "Cài đặt (O)"
+    },
+    {
+      "key": "settings.camera_distance",
+      "text": "Khoảng cách camera: {0:F1}"
+    },
+    {
+      "key": "settings.close",
+      "text": "Đóng (Esc)"
+    },
+    {
+      "key": "settings.export",
+      "text": "Xuất file gốc"
+    },
+    {
+      "key": "settings.exported",
+      "text": "Đã xuất: {0}"
+    },
+    {
+      "key": "settings.fps",
+      "text": "FPS mục tiêu"
+    },
+    {
+      "key": "settings.invert_y",
+      "text": "Đảo trục dọc"
+    },
+    {
+      "key": "settings.lang_dir",
+      "text": "Thư mục ngôn ngữ: {0}"
+    },
+    {
+      "key": "settings.lang_error",
+      "text": "Không đọc được file ngôn ngữ {0} — dùng tiếng Việt"
+    },
+    {
+      "key": "settings.language",
+      "text": "Ngôn ngữ"
+    },
+    {
+      "key": "settings.look_sensitivity",
+      "text": "Tốc độ xoay chuột: {0:F2}"
+    },
+    {
+      "key": "settings.title",
+      "text": "Cài đặt"
+    },
+    {
+      "key": "settings.ui_scale",
+      "text": "Cỡ chữ: ×{0:F2}"
+    }
+  ]
+}
