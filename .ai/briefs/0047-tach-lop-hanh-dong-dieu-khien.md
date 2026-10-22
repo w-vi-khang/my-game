@@ -417,6 +417,9 @@ with open(sys.argv[1], "w", encoding="utf-8", newline="\n") as f:
 ## Kết quả
 Base commit: 15deac2
 Chạy bằng: claude-sonnet-5-5 · medium
+Commit code: %s (35 file: 8 file client sửa, GameInput/DebugKeys/GameControls.inputactions/test mới, xoá template, EditorBuildSettings đổi guid).
+Lệch so với brief: (1) `execute_code` bước 2 chạy với `safety_checks=false` (DeleteAsset bị chặn; Planner chấp nhận); (2) test PlayMode theo QĐ 9–10 (bỏ MoveIsDigitalWasd).
+Giờ thực tế (date của máy): bắt đầu 22:08, kết thúc 22:31 (~23 phút làm + chờ test; chưa tính các lần dừng chờ Planner). Ước lượng brief 2–3 ngày-người.
 Bắt đầu: 22:08 2026-10-22
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · bắt đầu/kết thúc (date) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
@@ -456,3 +459,11 @@ Trạng thái code: mọi thứ khác xong, EditMode 498/498, chưa commit code 
 
 ## Kiểm chứng
 Đang chờ Planner/user (brief `cần Opus` lần 2). Chạy qua MCP (Editor mở): EditMode 498/498 qua; PlayMode 166/168 (2 test mới fail: MoveIsDigitalWasd, SwapMouseButtonsByOverride — xem "Vướng mắc lần 2"). `tools/unity_test.py` không chạy vì Editor đang mở. Checklist chưa đối chiếu: chờ brief hoàn tất.
+
+### Kết quả test (lần chạy cuối, sau QĐ 10)
+- EditMode toàn bộ: 498/498 qua (5 test GameControlsTests mới qua: AssetMatchesDefaultTable, NoDuplicateBindingsWithinMap, GameInputCoversAllActions, NoDirectInputReadsInScope, ProjectWideActionsIsGameControls; HardcodedTextScanTests qua).
+- PlayMode toàn bộ: 167/167 qua (gồm ProjectWideActionsAreGameControls, SwapMouseButtonsByOverride; regression PlayerCharacter/FlyCamera/TerrainEdit/Minimap/TimeDial/Settings… qua).
+- Bước 12 (Play thật + execute_code): `True True` — đạt.
+- `read_console` lỗi: 0. Đã `git checkout -- client/ProjectSettings/EditorSettings.asset` sau PlayMode.
+- Hành vi WASD chéo không chuẩn hoá: kiểm bằng path `2DVector(mode=1)` ở AssetMatchesDefaultTable; cảm giác điều khiển: **chờ user** (mục "User tự test" 1–8).
+- Checklist: đối chiếu thuộc Planner khi review; giờ thực tế ghi ở trên.
