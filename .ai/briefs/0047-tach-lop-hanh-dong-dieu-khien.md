@@ -1,9 +1,9 @@
 # Brief 0047 — Tách lớp hành động điều khiển khỏi phím (0033, M1)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 22:08
+> Cập nhật: 2026-10-22 22:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -27,6 +27,7 @@ Làm [task contract](../tasks/m1-tach-hanh-dong-dieu-khien.md) (quyết định 
 - Composite `2DVector(mode=1)`: mode 1 = digital, nghĩa là bấm W+D ra đúng (1,1), không chuẩn hoá. Đây là đúng hành vi hiện tại ở `PlayerCharacter.cs:215` — [docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html).
 - Đổi phím lúc chạy (chỉ dùng trong test): `ApplyBindingOverride(this InputAction action, string newPath, string group = null, string path = null)`, `RemoveAllBindingOverrides(this InputAction action)` — [docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/api/UnityEngine.InputSystem.InputActionRebindingExtensions.html).
 - Thiết bị ảo trong test: `InputSystem.AddDevice<Mouse>()` / `<Keyboard>()`, `QueueStateEvent`, `InputSystem.Update()`, `RemoveDevice` (mẫu `Tests/Client/FlyCameraMoveKeyPlayTests.cs:13-27`). `MouseState.WithButton(MouseButton button, bool state = true)` — [docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/api/UnityEngine.InputSystem.LowLevel.MouseState.html). `new KeyboardState(params Key[])` (đã dùng trong repo).
+- `InputActionAsset.enabled` (`public bool enabled { get; }`, true khi có ít nhất một action đang bật), `Enable()` / `Disable()` (bật / tắt mọi map trong asset). Chỉ dùng trong test PlayMode (QĐ 9) — [docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/api/UnityEngine.InputSystem.InputActionAsset.html).
 - `Keyboard` indexer `public KeyControl this[Key key] { get; }` — [docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/api/UnityEngine.InputSystem.Keyboard.html).
 - Editor (Unity 6000.4, chạy qua MCP `execute_code`): `AssetDatabase.LoadAssetAtPath<T>` [docs](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/AssetDatabase.LoadAssetAtPath.html), `AssetDatabase.SaveAssets` [docs](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/AssetDatabase.SaveAssets.html), `AssetDatabase.DeleteAsset` [docs](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/AssetDatabase.DeleteAsset.html).
 
@@ -78,6 +79,14 @@ Làm [task contract](../tasks/m1-tach-hanh-dong-dieu-khien.md) (quyết định 
 6. **Test EditMode** đặt trong assembly mới `Tests/ClientEdit/Game.Client.EditTests.asmdef` (chỉ Editor, tham chiếu `Unity.InputSystem`, không tham chiếu `Game.Client`). **Test PlayMode** đặt trong `Tests/Client/GameControlsPlayTests.cs` (assembly có sẵn).
 7. Gán project-wide actions bằng `InputSystem.actions = ...` qua MCP `execute_code` trong Edit Mode (bước 2). Không sửa tay `EditorBuildSettings.asset`.
 8. Brief này không sửa tài liệu `design/` (Planner cập nhật khi review).
+9. **(Planner, 2026-10-22, trả lời Vướng mắc — phương án A.)** Khi chạy dưới PlayMode test runner, project-wide actions **không** tự bật (`enabled == false`). Khi vào Play thật thì có bật (executor đã thấy `enabled=True`). Vì vậy 3 test trong `GameControlsPlayTests` tự bật asset ở đầu test và trả lại trạng thái cũ ở `finally`, theo mẫu:
+   ```csharp
+   bool wasEnabled = InputSystem.actions.enabled;
+   if (!wasEnabled) InputSystem.actions.Enable();
+   try { /* nội dung test */ }
+   finally { /* RemoveAllBindingOverrides / RemoveDevice như cũ */ if (!wasEnabled) InputSystem.actions.Disable(); }
+   ```
+   Code game (`GameInput` và các file client) **không** gọi `Enable()`. Việc kiểm tra "asset tự bật khi chơi thật" chuyển sang bước 13 (kiểm bằng Play thật) và phần User tự test.
 
 ## Phạm vi
 - Được sửa/tạo:
@@ -229,10 +238,12 @@ Làm [task contract](../tasks/m1-tach-hanh-dong-dieu-khien.md) (quyết định 
     - `NoDirectInputReadsInScope`: 8 file `Client/SimView.cs`, `FollowCamera.cs`, `TimeDial.cs`, `MinimapView.cs`, `SettingsView.cs`, `TerrainEditInput.cs`, `PlayerCharacter.cs`, `PlayerFarmActions.cs`. Bỏ qua dòng mà `Trim()` bắt đầu bằng `//`. Regex cấm: `Keyboard\.current`, `Mouse\.current`, `\bInput\.Get`, `\bkb\.`, `\bmouse\.`. Báo `file:dòng`.
     - `ProjectWideActionsIsGameControls`: lấy guid từ `GameControls.inputactions.meta` (regex `guid: ([0-9a-f]{32})`). Dòng chứa `com.unity.input.settings.actions` trong `Path.Combine(Application.dataPath, "..", "ProjectSettings", "EditorBuildSettings.asset")` phải chứa guid đó. `File.Exists(Path.Combine(Application.dataPath, "InputSystem_Actions.inputactions"))` phải là false.
 11. **Test PlayMode** `Tests/Client/GameControlsPlayTests.cs`, namespace `Game.Client.Tests`, class `GameControlsPlayTests`, dùng `[Test]` như `FlyCameraMoveKeyPlayTests`:
-    - `ProjectWideActionsAreGameControls`: `InputSystem.actions.name == "GameControls"`, `GameInput.UseTool.enabled` và `GameInput.SettingsClose.enabled` đều true.
+    - `ProjectWideActionsAreGameControls`: `InputSystem.actions.name == "GameControls"`. Sau khi bật theo QĐ 9: `GameInput.UseTool.enabled` và `GameInput.SettingsClose.enabled` đều true (đọc được mọi map).
+    - Cả 3 test bọc theo mẫu ở QĐ 9.
     - `MoveIsDigitalWasd`: thêm `Keyboard` ảo; `KeyboardState(Key.W, Key.D)` + `Update` → `GameInput.Move.ReadValue<Vector2>() == new Vector2(1, 1)`; `KeyboardState(Key.W, Key.S)` → `(0, 0)`; `KeyboardState(Key.Space)` → `GameInput.Jump.IsPressed()`. `finally` gọi `RemoveDevice`.
     - `SwapMouseButtonsByOverride` (tiêu chí "đổi phím lúc chạy" của task): thêm `Mouse` ảo. (a) Mặc định: `new MouseState().WithButton(MouseButton.Left)` → `UseTool.IsPressed()` true, `Cancel.IsPressed()` false. (b) `GameInput.UseTool.ApplyBindingOverride("<Mouse>/rightButton"); GameInput.Cancel.ApplyBindingOverride("<Mouse>/leftButton");` rồi gửi lại trạng thái rỗng + `Update`. Gửi `WithButton(MouseButton.Right)` → `UseTool.IsPressed()` true, `Cancel.IsPressed()` false. Gửi `WithButton(MouseButton.Left)` → ngược lại. `finally`: `RemoveAllBindingOverrides()` cho cả hai, rồi `RemoveDevice`.
-12. Chạy test theo "Lệnh executor chạy", ghi Kết quả, `date` (kết thúc), commit (chỉ các file trong Phạm vi + brief), message `brief 0047: tách lớp hành động điều khiển`, trạng thái `chờ review`.
+12. **Kiểm asset tự bật khi chơi thật (thay cho kiểm `enabled` trong test):** `manage_editor play` → `execute_code` trả `Game.Client.GameInput.UseTool.enabled + " " + Game.Client.GameInput.SettingsClose.enabled` → phải là `True True` → `manage_editor stop`. Ghi kết quả vào Kết quả test.
+13. Chạy test theo "Lệnh executor chạy", ghi Kết quả, `date` (kết thúc), commit (chỉ các file trong Phạm vi + brief), message `brief 0047: tách lớp hành động điều khiển`, trạng thái `chờ review`.
 
 ## Tiêu chí xong
 - `GameControls.inputactions` là project-wide actions; template đã xoá; `EditorBuildSettings.asset` chỉ đổi guid.
@@ -247,6 +258,7 @@ Làm [task contract](../tasks/m1-tach-hanh-dong-dieu-khien.md) (quyết định 
 - Không trùng phím trong cùng map (bước 1) · `NoDuplicateBindingsWithinMap` · qua.
 - `GameInput` khớp asset, không tên sai (bước 3) · `GameInputCoversAllActions` · qua. Kèm `ProjectWideActionsAreGameControls` (PlayMode): mọi `Get` chạy được lúc chơi.
 - Project-wide actions + xoá template (bước 2) · `ProjectWideActionsIsGameControls` (EditMode) + `ProjectWideActionsAreGameControls` (PlayMode) · qua.
+- Asset tự bật khi chơi thật, không cần code gọi `Enable()` (QĐ 9) · bước 12: Play thật + `execute_code` · `True True`.
 - Hết đọc thẳng phím trong 7 file (bước 4–9) · `NoDirectInputReadsInScope` · qua.
 - Di chuyển WASD + nhảy giữ hành vi cũ, gồm đi chéo không chuẩn hoá (bước 8) · `MoveIsDigitalWasd` · qua. Regression: `PlayerCharacterPlayTests`, `WalkBenchPlayTests`, `DropPlayTests` qua.
 - Đổi chuột trái ↔ phải lúc chạy (chuẩn bị M3) · `SwapMouseButtonsByOverride` · qua.
@@ -376,6 +388,8 @@ Bắt đầu: 22:08 2026-10-22
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
 ## Vướng mắc
+> **Trả lời Planner (2026-10-22 22:40):** chọn **A**, xem QĐ 9 và bước 11–12. Đã thêm `[docs]` cho `InputActionAsset.Enable/Disable/enabled`. Giữ nguyên code đã làm trong working tree; chỉ sửa 3 test PlayMode, làm bước 12, chạy lại EditMode + PlayMode rồi làm tiếp từ bước 13. Việc gọi `execute_code` với `safety_checks=false` cho đúng lệnh `DeleteAsset` của bước 2 được chấp nhận; ghi việc này vào mục Kết quả (phần lệch so với brief).
+
 Đã xong bước 1–11 (code + test nằm trong working tree, CHƯA commit). Bước 2 đạt: `GameControls`, EditorBuildSettings chỉ đổi guid sang f620f721…, template đã xoá. Lưu ý: `execute_code` chặn `AssetDatabase.DeleteAsset` (safety_checks) → tôi gọi lại với `safety_checks=false` đúng lệnh brief.
 **Lỗi:** trong PlayMode test runner, `InputSystem.actions` = GameControls nhưng `GameInput.UseTool.enabled == false` (nên Move đọc 0, ProjectWideActionsAreGameControls fail ở dòng `enabled`). Ngược lại, vào Play thật (`manage_editor play` + `execute_code`): `enabled=True`. Vậy brief giả định "tự bật sẵn" đúng khi chơi thật nhưng không đúng dưới test runner (Input System có vẻ tắt/không bật project-wide actions trong lúc chạy test — [chưa xác minh] nguyên nhân).
 **Câu hỏi:** trong 3 test PlayMode mới, được gọi `InputSystem.actions.Enable()` ở đầu test (và `Disable()` ở finally nếu ban đầu tắt) không? `InputActionAsset.Enable/Disable` không có trong danh sách API của brief.
