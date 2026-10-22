@@ -37,3 +37,4 @@ Mỗi quyết định quan trọng là một file `NNNN-ten-ngan.md` theo [_temp
 | [0029](0029-nhieu-diem-nhin-camera-quan-sat.md) | Nạp chunk theo nhiều điểm nhìn (M1 tối đa 2, sau nâng 4–5 tính cả người chơi), camera quan sát tối giản (1, toàn màn hình), thử GPU occlusion culling; mô phỏng map khác để M2; M1 world 7i–7k | Chốt |
 | [0030](0030-tam-voi-cong-cu-10-o.md) | Tầm với đào/đặt/xới 10 ô (nhặt, gieo, thu hoạch, phép Mưa giữ 4 ô; mở kho ≤ 3 ô); code ở brief đầu sim 7e | Bị thay thế bởi 0031 |
 | [0031](0031-tam-voi-moi-thao-tac-8-o.md) | Tầm với mọi thao tác 8 ô (đào, đặt, xới, nhặt, gieo, thu hoạch, phép Mưa, mở kho); code ở brief 0038 | Chốt |
+| [0032](0032-cai-dat-nguoi-choi-va-bang-chuoi.md) | Cài đặt người chơi tự chỉnh (cảm giác/hiển thị, file + bảng tối giản), luật game chỉ dev chỉnh trong JSON, bảng chuỗi ngôn ngữ nạp file local từ M1 | Chốt |

@@ -78,6 +78,12 @@ Phím cụ thể là đề xuất [ý tưởng]; cho người chơi **đổi ph�
 
 Giả định: giao diện riêng của từng cơ chế (túi đồ, kho sinh vật, chuẩn bị chiến đấu...) đã tính trong ước lượng của cơ chế đó.
 
+### Cài đặt người chơi & ngôn ngữ
+Chốt (user, 2026-10-22, [0032](../decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md)); client; M1 4–7 ngày-người, sau sim 7f.
+- **Cài đặt:** file lưu trên máy + bảng Cài đặt tối giản; chỉ cảm giác / hiển thị. [ý tưởng] Khoảng cách camera (mặc định, gần nhất, xa nhất), độ cao / góc nhìn camera, tốc độ xoay chuột, đảo trục dọc, cỡ chữ UI, FPS mục tiêu, ngôn ngữ. Phím mở bảng: chốt trong task contract.
+- **Luật game** (tầm với, thời gian xới, hồi Mưa…) không có trong Cài đặt — dev chỉnh trong `design/data/*.json`.
+- **Ngôn ngữ:** mọi chữ hiển thị theo khoá trong file ngôn ngữ; có sẵn file gốc tiếng Việt; người chơi xuất file gốc, dịch, đặt vào thư mục ngôn ngữ của game rồi chọn trong Cài đặt; thiếu khoá → chữ gốc.
+
 ## Màn hình & luồng
 ```mermaid
 flowchart TB

@@ -10,6 +10,7 @@
 | A3 Nhập hồn làm trọng tâm (action RPG) | AI (brainstorm 2026-10-11) | P2 | để sau | Không chọn làm trọng tâm; nhập hồn vẫn là cơ chế phụ trong mechanics.md |
 | A4 Ký ức gieo từ hệ sinh thái: mỗi loài hồi sinh trả về một mảnh ký ức | AI (brainstorm 2026-10-11) | P1, P3 | để sau | Chưa chọn; có thể dùng để nối cốt truyện với môi trường sống khi viết plot.md |
 | B3 Camera góc nghiêng cố định cho PC + mobile | AI (brainstorm 2026-10-11) | — | loại | User chọn camera góc 3 xoay tự do (2026-10-13) — [controls-ui](02-gameplay/controls-ui.md) |
+| Upload bản dịch lên server để người chơi khác tải (cộng đồng dịch) | User (2026-10-22) | — | để sau | Cần backend; M1 chỉ nạp file local ([0032](decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md)) |
 | Hỗ trợ tay cầm (gamepad) | AI (2026-10-13) | — | để sau | Sau phát hành (user, 2026-10-13); cách nhắm theo tâm màn hình đã làm chung cho mọi thiết bị — [controls-ui](02-gameplay/controls-ui.md) |
 | Địa hình sinh ngẫu nhiên vô tận | User (mô tả ban đầu) | — | loại | Thay bằng map có ranh giới thêm theo mùa + sinh theo seed |
 | Co-op chung tiến trình cốt truyện | AI (brainstorm 2026-10-11) | — | loại | Co-op chỉ ở đảo sandbox hoặc phần truyện không ảnh hưởng tiến trình |
