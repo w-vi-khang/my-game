@@ -1,9 +1,9 @@
 # Brief 0048 — code tiếng Anh (A): code chạy Core / World / Client / Editor
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-22 23:06
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -152,8 +152,22 @@ Không.
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 6bee14a
+Chạy bằng: Sonnet · medium
+Bắt đầu: 2026-10-22 22:56 · Kết thúc: 2026-10-22 23:06 (~10 phút)
+Commit: 03fdb38 — 38 file: 35 file quét (Core/World/Client/Editor) + `Client/SimView.cs:205` + `LandmarkViewPlayTests.cs` (:45,91,109) + `PlayerBagSowPlayTests.cs:431`. Comment không đổi (đã khôi phục 3 comment bị replace nhầm; `git diff` 0 dòng comment).
+- Quét: 198 dòng/35 file → còn đúng 6 dòng `Core/WorldMapParams.cs:57-62`.
+- Tiền tố log: 24 tiền tố trước = sau (diff rỗng).
+- Tên object: Landmarks, Block, Visual, Body, Head, Nose, `"Storage " + s.Id` đúng QĐ 4. Menu: 12 `[MenuItem]` khớp QĐ 5 (+ 4 menu Build APK giữ nguyên).
+- Lưu ý: tiêu chí `grep '"Kho ' client/Assets/Game/Client` cần `--include=*.cs` — không có `.cs` nào còn; 6 dòng còn lại là chữ hiển thị trong `Resources/Lang/vi.json` (đúng chỗ).
 
 ## Kết quả test
+- Exception Core/World: EditMode 498/498 qua, 0 fail — đạt.
+- Tên object: PlayMode 167/167 qua (gồm LandmarkViewPlayTests, PlayerBagSowPlayTests, TerrainEditPlayTests, PlayerCharacterPlayTests) — đạt.
+- Log tiền tố: diff rỗng — đạt.
+- Biên dịch Editor/bench: `refresh_unity` (force compile) + `read_console` 0 lỗi — đạt.
+- Lệnh: `git checkout -- EditorSettings.asset` đã chạy; `git diff --stat` chỉ file trong Phạm vi. `tools/unity_test.py` không chạy (Editor đang mở).
+- Ghi chú: giữa PlayMode MCP mất kết nối vài chục giây (Editor vẫn sống), job vẫn hoàn tất, kết quả lấy lại được.
 
 ## Vướng mắc
 
