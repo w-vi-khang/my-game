@@ -501,7 +501,7 @@ Không. Brief 0037 có phần user xem (hiển thị vật rơi, F, click, túi 
 Base commit: 81b1158
 Chạy bằng: claude-sonnet-5-5 · medium
 Bắt đầu: 2026-10-22 15:07 · Kết thúc: 2026-10-22 15:25 (~18 phút thực, gồm ~6 phút chạy EditMode; ước lượng 1,5 ngày-người)
-Commit code: e6ddd5d (31 file: Core/PlayerRules, PlayerBag (đổi tên từ MaterialInventory, giữ .meta), DropField (mới), WorldEditor; Client/PlayerCharacter, TerrainBench, TerrainChunkView, TerrainEditInput; 12 file test cũ đổi tên; DropFieldTests mới; mechanics.md:69)
+Commit code: e6ddd5d (26 file: Core/PlayerRules, PlayerBag (đổi tên từ MaterialInventory, giữ .meta), DropField (mới), WorldEditor; Client/PlayerCharacter, TerrainBench, TerrainChunkView, TerrainEditInput; 12 file test cũ đổi tên; DropFieldTests mới; mechanics.md:69)
 Test cũ sửa ngoài danh sách brief (dựa vào "đào → cộng kho"): `SimulationTerrainTests.DigCutsPathThenPlaceRestores` (thêm `inv.Add(Dirt)` trước TryPlace, đổi `out _` → `out var inv`), `MinimapEditTests.DigAndPlaceChangeExactlyOnePixel` (thêm `editor.Bag.Add(material)` trước TryPlace). Không lệch brief khác.
 
 ## Kết quả test
