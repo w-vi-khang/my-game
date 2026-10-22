@@ -351,6 +351,9 @@ namespace Game.Client
         readonly List<BagRow> bagRows = new List<BagRow>();
         readonly List<Collider> storageColliders = new List<Collider>();
 
+        static string T(string k) => GameSettings.Text.Get(k);
+        static string Format(string k, params object[] a) => GameSettings.Text.Format(k, a);
+
         /// <summary>Các dòng bảng túi: khối (theo giá trị BlockMaterial tăng dần), túi hạt, nông sản (theo loại cây); bỏ dòng 0.</summary>
         public static void BagRows(PlayerBag bag, SimConfig cfg, List<BagRow> rows)
         {
@@ -358,17 +361,17 @@ namespace Game.Client
             for (int m = 1; m < 256; m++)
             {
                 int n = bag.Get((BlockMaterial)m);
-                if (n > 0) rows.Add(new BagRow { Label = $"{TerrainEditInput.ItemLabel(ItemId.Block((BlockMaterial)m))} × {n}", SeedCrop = -1 });
+                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_block", TerrainEditInput.ItemLabel(ItemId.Block((BlockMaterial)m)), n), SeedCrop = -1 });
             }
             for (int i = 0; i < cfg.crops.Length; i++)
             {
                 int n = bag.GetSeeds(i);
-                if (n > 0) rows.Add(new BagRow { Label = $"Túi hạt Cây {cfg.crops[i].id} × {n}", SeedCrop = i });
+                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_seeds", SiteStatus.CropName(GameSettings.Text, cfg, i), n), SeedCrop = i });
             }
             for (int i = 0; i < cfg.crops.Length; i++)
             {
                 int n = bag.GetProduce(i);
-                if (n > 0) rows.Add(new BagRow { Label = $"Nông sản Cây {cfg.crops[i].id} × {n}", SeedCrop = -1 });
+                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_produce", SiteStatus.CropName(GameSettings.Text, cfg, i), n), SeedCrop = -1 });
             }
         }
 
@@ -419,15 +422,15 @@ namespace Game.Client
         /// <summary>Nút chuyển: toBag = kho → túi, ngược lại túi → kho; all = Shift (tất cả), không thì 1. Trả số đã chuyển.</summary>
         public int TransferStock(int crop, bool produce, bool toBag, bool all)
         {
-            string kind = produce ? "nông sản" : "hạt";
-            string id = Sim.Config.crops[crop].id;
+            string kind = T(produce ? "stock.kind_produce" : "stock.kind_seeds");
+            string id = SiteStatus.CropName(GameSettings.Text, Sim.Config, crop);
             int amount = all ? int.MaxValue : 1;
-            if (!CanTransferStock) { StockMessage = "Lại gần kho (8 ô) để chuyển đồ"; return 0; }
+            if (!CanTransferStock) { StockMessage = Format("stock.too_far", PlayerRules.HandReach); return 0; }
             int n;
             if (toBag)
             {
                 n = Sim.TakeFromStock(view.Bag, crop, produce, amount);
-                if (n == 0) { StockMessage = $"Kho không có {kind} Cây {id}"; return 0; }
+                if (n == 0) { StockMessage = Format("stock.none", kind, id); return 0; }
             }
             else
             {
@@ -435,11 +438,11 @@ namespace Game.Client
                 if (n == 0)
                 {
                     int inBag = produce ? view.Bag.GetProduce(crop) : view.Bag.GetSeeds(crop);
-                    StockMessage = inBag == 0 ? $"Túi không có {kind} Cây {id}" : "Kho đầy";
+                    StockMessage = inBag == 0 ? Format("stock.bag_none", kind, id) : T("stock.full");
                     return 0;
                 }
             }
-            StockMessage = $"Đã chuyển {n} {kind} Cây {id} → {(toBag ? "túi" : "kho")}";
+            StockMessage = Format("stock.moved", n, kind, id, T(toBag ? "stock.dest_bag" : "stock.dest_stock"));
             return n;
         }
 
@@ -471,21 +474,21 @@ namespace Game.Client
         void DrawFarmGui(float scale)
         {
             float gw = Screen.width / scale, gh = Screen.height / scale;
-            if (GUI.Button(StockButtonRect(gw, gh), "Kho (K)")) ToggleStock();
+            if (GUI.Button(StockButtonRect(gw, gh), T("stock.button"))) ToggleStock();
             if (StockOpen)
             {
                 var r = StockPanelRect(gw, gh, Sim.Config.crops.Length);
                 GUI.Box(r, "");
-                GUI.Label(new Rect(r.x + 8f, r.y + 4f, r.width - 16f, 24f), SiteStatus.StockPanelText(Sim.State.Stock, Sim.Config).Split('\n')[0], hudStyle);
+                GUI.Label(new Rect(r.x + 8f, r.y + 4f, r.width - 16f, 24f), SiteStatus.StockPanelText(GameSettings.Text, Sim.State.Stock, Sim.Config).Split('\n')[0], hudStyle);
                 var stock = Sim.State.Stock;
                 bool shift = Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
                 for (int i = 0; i < Sim.Config.crops.Length; i++)
                 {
                     float y0 = r.y + 32f + 50f * i;
                     GUI.Label(new Rect(r.x + 8f, y0, r.width - 16f, 24f),
-                        $"{SiteStatus.CropName(Sim.Config, i)} · kho: nông sản {stock.Produce[i]} · hạt {stock.Seeds[i]} · túi: nông sản {view.Bag.GetProduce(i)} · hạt {view.Bag.GetSeeds(i)}", hudStyle);
+                        Format("stock.line", SiteStatus.CropName(GameSettings.Text, Sim.Config, i), stock.Produce[i], stock.Seeds[i], view.Bag.GetProduce(i), view.Bag.GetSeeds(i)), hudStyle);
                     GUI.enabled = CanTransferStock;
-                    string[] names = { "Hạt → túi", "Hạt → kho", "Nông sản → túi", "Nông sản → kho" };
+                    string[] names = { T("stock.seeds_to_bag"), T("stock.seeds_to_stock"), T("stock.produce_to_bag"), T("stock.produce_to_stock") };
                     for (int b = 0; b < 4; b++)
                     {
                         if (GUI.Button(new Rect(r.x + 8f + 114f * b, y0 + 24f, 110f, 22f), names[b]))
@@ -494,16 +497,16 @@ namespace Game.Client
                     GUI.enabled = true;
                 }
                 GUI.Label(new Rect(r.x + 8f, r.yMax - 28f, r.width - 16f, 24f),
-                    !CanTransferStock ? "Lại gần kho (8 ô) để chuyển đồ" : (StockMessage != "" ? StockMessage : "Mỗi click 1 · Shift + click: tất cả"), hudStyle);
+                    !CanTransferStock ? Format("stock.too_far", PlayerRules.HandReach) : (StockMessage != "" ? StockMessage : T("stock.hint")), hudStyle);
             }
-            if (GUI.Button(BagButtonRect(gw, gh), "Túi (B)")) ToggleBag();
+            if (GUI.Button(BagButtonRect(gw, gh), T("bag.button"))) ToggleBag();
             if (BagOpen)
             {
                 BagRows(view.Bag, Sim.Config, bagRows);
                 var br = BagPanelRect(gw, gh, bagRows.Count);
                 GUI.Box(br, "");
-                GUI.Label(new Rect(br.x + 8f, br.y + 4f, br.width - 16f, 24f), "Túi", hudStyle);
-                if (bagRows.Count == 0) GUI.Label(new Rect(br.x + 8f, br.y + 32f, br.width - 16f, 24f), "Túi trống", hudStyle);
+                GUI.Label(new Rect(br.x + 8f, br.y + 4f, br.width - 16f, 24f), T("bag.title"), hudStyle);
+                if (bagRows.Count == 0) GUI.Label(new Rect(br.x + 8f, br.y + 32f, br.width - 16f, 24f), T("bag.empty"), hudStyle);
                 for (int k = 0; k < bagRows.Count; k++)
                 {
                     var rr = new Rect(br.x + 8f, br.y + 32f + 26f * k, br.width - 16f, 24f);
@@ -513,7 +516,7 @@ namespace Game.Client
                     }
                     else GUI.Label(rr, bagRows[k].Label, hudStyle);
                 }
-                GUI.Label(new Rect(br.x + 8f, br.yMax - 26f, br.width - 16f, 24f), "Click túi hạt để gieo · B / Esc: đóng", hudStyle);
+                GUI.Label(new Rect(br.x + 8f, br.yMax - 26f, br.width - 16f, 24f), T("bag.hint"), hudStyle);
             }
             if (OpenPlotId < 0) return;
             var pr = PlotPanelRect(gw, gh);
@@ -521,11 +524,11 @@ namespace Game.Client
             var p = Sim.State.Plots[OpenPlotId];
             var cfg = Sim.Config;
             float x = pr.x + 10f, y = pr.y + 8f;
-            GUI.Label(new Rect(x, y, pr.width - 20f, 24f), SiteStatus.PlotText(p, Sim.State.Tick, cfg.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
+            GUI.Label(new Rect(x, y, pr.width - 20f, 24f), SiteStatus.PlotText(GameSettings.Text, p, Sim.State.Tick, cfg.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
             y += 26f;
 
             // Hạt giống: ô vuông bo góc màu cây + chữ, icon hạt góc trên trái.
-            GUI.Label(new Rect(x, y, 200f, 22f), "Hạt giống", hudStyle);
+            GUI.Label(new Rect(x, y, 200f, 22f), T("plot.seed_title"), hudStyle);
             y += 22f;
             for (int i = 0; i < cfg.crops.Length; i++)
             {
@@ -540,18 +543,18 @@ namespace Game.Client
             y += 64f;
 
             // Ô tiến trình (trái) + các ô đợi (phải).
-            GUI.Label(new Rect(x, y, 90f, 22f), "Đang làm", hudStyle);
-            GUI.Label(new Rect(x + 100f, y, 200f, 22f), "Hàng đợi", hudStyle);
+            GUI.Label(new Rect(x, y, 90f, 22f), T("plot.working"), hudStyle);
+            GUI.Label(new Rect(x + 100f, y, 200f, 22f), T("plot.queue"), hudStyle);
             y += 22f;
             var cr = new Rect(x, y, 72f, 72f);
             bool busy = p.Phase != PlotPhase.Idle;
-            string cropText = p.CurrentCrop >= 0 ? cfg.crops[p.CurrentCrop].id : (busy ? "Xới" : "");
+            string cropText = p.CurrentCrop >= 0 ? cfg.crops[p.CurrentCrop].id : (busy ? T("plot.till_tile") : "");
             Tile(cr, p.CurrentCrop >= 0 ? CropColor(p.CurrentCrop) : EmptyColor, cropText, 1f);
             if (busy)
             {
                 if (p.TillPaused)
                 {
-                    if (GUI.Button(new Rect(cr.x + 4f, cr.y + 25f, 64f, 22f), "Tiếp tục")) ProgressAction();
+                    if (GUI.Button(new Rect(cr.x + 4f, cr.y + 25f, 64f, 22f), T("plot.resume"))) ProgressAction();
                 }
                 else if (GUI.Button(new Rect(cr.xMax - 18f, cr.y, 18f, 18f), "x")) ProgressAction();
             }
@@ -559,7 +562,7 @@ namespace Game.Client
             Tile(bar, EmptyColor, "", 1f, 3f);
             int pct = SiteStatus.ProgressPercent(p, Sim.State, cfg);
             if (pct > 0) Tile(new Rect(bar.x, bar.y, bar.width * pct / 100f, bar.height), BarColor, "", 1f, 3f);
-            GUI.Label(new Rect(cr.x - 4f, bar.yMax + 2f, 96f, 22f), SiteStatus.ProgressText(p, Sim.State, cfg), hudStyle);
+            GUI.Label(new Rect(cr.x - 4f, bar.yMax + 2f, 96f, 22f), SiteStatus.ProgressText(GameSettings.Text, p, Sim.State, cfg), hudStyle);
 
             for (int k = 0; k < p.SlotCount; k++)
             {
@@ -578,9 +581,9 @@ namespace Game.Client
             GUI.enabled = true;
 
             GUI.enabled = Sim.CanPlayerTill(OpenPlotId) && PlayerCharacter.Active != null;
-            if (GUI.Button(new Rect(pr.x + 10f, pr.yMax - 36f, 110f, 28f), "Tự xới")) SelfTillOpenPlot();
+            if (GUI.Button(new Rect(pr.x + 10f, pr.yMax - 36f, 110f, 28f), T("plot.self_till"))) SelfTillOpenPlot();
             GUI.enabled = true;
-            if (GUI.Button(new Rect(pr.xMax - 120f, pr.yMax - 36f, 110f, 28f), "Đóng (Esc)")) ClosePlotPanel();
+            if (GUI.Button(new Rect(pr.xMax - 120f, pr.yMax - 36f, 110f, 28f), T("plot.close"))) ClosePlotPanel();
         }
 
         static readonly Color EmptyColor = new Color(0.25f, 0.25f, 0.25f, 0.9f);
@@ -662,12 +665,12 @@ namespace Game.Client
             }
             float y0 = StatusTop(TerrainEditInput.HudBottom);
             GUI.Label(new Rect(10, y0, 1000, 24),
-                $"F1: 30 FPS · F2: 60 FPS — mục tiêu {TargetFps} · đo {1f / smoothedDt:F1} FPS · nhịp {Sim.State.Tick}", hudStyle);
+                Format("hud.fps", TargetFps, 1f / smoothedDt, Sim.State.Tick), hudStyle);
             int line = 1;
-            GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.StorageText(Sim.State.Stock), hudStyle);
+            GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.StorageText(GameSettings.Text, Sim.State.Stock), hudStyle);
             if (Meter == null)
                 foreach (var p in Sim.State.Plots)
-                    GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.PlotText(p, Sim.State.Tick, Sim.Config.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
+                    GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.PlotText(GameSettings.Text, p, Sim.State.Tick, Sim.Config.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
             if (Meter != null && Meter.LastLine != null)
                 GUI.Label(new Rect(10, y0 + 24 * line++, 1400, 24), Meter.LastLine, hudStyle);
 
@@ -679,10 +682,10 @@ namespace Game.Client
                 return;
             var cs = Sim.State.Creatures;
             for (int i = 0; i < cs.Count && i < bodies.Count; i++)
-                DrawLabel(cam, bodies[i].position + Vector3.up * (cs[i].SizeY * 0.4f + 0.35f), CreatureStatus.Text(Sim.State, cs[i]), scale);
+                DrawLabel(cam, bodies[i].position + Vector3.up * (cs[i].SizeY * 0.4f + 0.35f), CreatureStatus.Text(GameSettings.Text, Sim.State, cs[i]), scale);
             foreach (var e in markers.Active)
                 DrawLabel(cam, transform.TransformPoint(new Vector3(e.Cell.X + 0.5f, e.Cell.Y + 1.3f, e.Cell.Z + 0.5f)),
-                    "<color=red><b>! " + CreatureStatus.ReasonText(e.Reason) + "</b></color>", scale);
+                    "<color=red><b>! " + CreatureStatus.ReasonText(GameSettings.Text, e.Reason) + "</b></color>", scale);
         }
 
         void DrawLabel(Camera cam, Vector3 world, string text, float scale)

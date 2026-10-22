@@ -29,7 +29,10 @@ namespace Game.Client
 
         static readonly BlockMaterial[] Palette =
             { BlockMaterial.Dirt, BlockMaterial.Grass, BlockMaterial.Stone, BlockMaterial.Sand };
-        static readonly string[] PaletteNames = { "đất", "cỏ", "đá", "cát" };
+        static readonly string[] PaletteKeys = { "item.dirt", "item.grass", "item.stone", "item.sand" };
+        static string PaletteName(int i) => T(PaletteKeys[i]);
+        static string T(string k) => GameSettings.Text.Get(k);
+        static string Format(string k, params object[] a) => GameSettings.Text.Format(k, a);
 
         TerrainChunkView view;
         LineRenderer outline;
@@ -132,7 +135,7 @@ namespace Game.Client
             if (Farm != null && mouse.leftButton.wasPressedThisFrame && Physics.Raycast(ray, out var sh, maxDistance))
             {
                 int sid = Farm.StorageIdOf(sh.collider);
-                if (sid >= 0) { lastResult = Farm.OpenStockAt(sid) ? "Mở kho" : "Kho ngoài tầm 8 ô"; ShowAim(false, default, default); return; }
+                if (sid >= 0) { lastResult = Farm.OpenStockAt(sid) ? T("edit.open_stock") : Format("edit.stock_far", PlayerRules.HandReach); ShowAim(false, default, default); return; }
             }
             if (!Pick(ray, out var digCell, out var placeCell))
             {
@@ -183,7 +186,7 @@ namespace Game.Client
             int id = Farm.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
             if (!Farm.UnmarkAt(cell)) return false;
             if (Farming.TillState != SelfTillState.None && Farming.TillPlotId == id) Farming.CancelSelfTill();
-            lastResult = $"Bỏ đánh dấu {cell}";
+            lastResult = Format("edit.unmark", cell);
             return true;
         }
 
@@ -247,10 +250,10 @@ namespace Game.Client
                 LastTill = Farm != null ? Farm.UseTill(digCell) : TillResult.Invalid;
                 lastResult = LastTill switch
                 {
-                    TillResult.Marked => $"Đánh dấu xới {digCell}",
+                    TillResult.Marked => Format("edit.mark", digCell),
                     TillResult.SelfTill => "",
-                    TillResult.OpenedPlot => $"Mở ruộng {Farm.OpenPlotId}",
-                    _ => $"Xới {digCell}: không được — chỉ mặt trên ô đất/cỏ, phía trên trống, trong vùng trại",
+                    TillResult.OpenedPlot => Format("edit.open_plot", Farm.OpenPlotId),
+                    _ => Format("edit.till_invalid", digCell),
                 };
                 if (LastTill == TillResult.SelfTill) Farming.BeginSelfTill(Farm.Sim.PlotAt(new Game.Core.Sim.CellPos(digCell.x, digCell.y, digCell.z)));
                 // Giữ chữ ký EditResult cho Đào/Đặt; kết quả Xới đọc ở LastTill.
@@ -261,11 +264,11 @@ namespace Game.Client
                 var m = view.World.Size.InBounds(digCell.x, digCell.y, digCell.z)
                     ? view.World.GetMaterial(digCell.x, digCell.y, digCell.z) : BlockMaterial.Empty;
                 var r = view.Dig(digCell);
-                lastResult = r == EditResult.Ok ? $"Đào {digCell}: rơi 1 {Name(m == BlockMaterial.Farmland ? BlockMaterial.Dirt : m)}" : $"Đào {digCell}: không được — {Explain(r)}";
+                lastResult = r == EditResult.Ok ? Format("edit.dig_ok", digCell, Name(m == BlockMaterial.Farmland ? BlockMaterial.Dirt : m)) : Format("edit.dig_fail", digCell, Explain(r));
                 return r;
             }
             var p = view.Place(placeCell, SelectedMaterial);
-            lastResult = p == EditResult.Ok ? $"Đặt {PaletteNames[selected]} {placeCell}" : $"Đặt {PaletteNames[selected]}: không được — {Explain(p)}";
+            lastResult = p == EditResult.Ok ? Format("edit.place_ok", PaletteName(selected), placeCell) : Format("edit.place_fail", PaletteName(selected), Explain(p));
             return p;
         }
 
@@ -301,7 +304,7 @@ namespace Game.Client
             if (player == null || view.Editor == null) return 0;
             var f = player.FeetLocal;
             int n = view.Editor.Drops.CollectInReach(f.x, f.y, f.z, view.Bag);
-            lastResult = n > 0 ? $"Thu: nhặt {n} chồng vật rơi" : "Thu: không có vật rơi trong 8 ô";
+            lastResult = n > 0 ? Format("edit.collect_ok", n) : Format("edit.collect_none", PlayerRules.HandReach);
             return n;
         }
 
@@ -313,7 +316,7 @@ namespace Game.Client
             var label = DropLabel(s);
             var f = player.FeetLocal;
             if (!view.Editor.Drops.TryCollect(s.Id, f.x, f.y, f.z, view.Bag)) return false;
-            lastResult = $"Nhặt {label}";
+            lastResult = Format("edit.pick", label);
             return true;
         }
 
@@ -321,29 +324,29 @@ namespace Game.Client
         public static string ItemLabel(ItemId item)
         {
             if (item.Kind == ItemKind.SeedBag)
-                return item.Crop == StarterBag.Crop ? "Túi hạt Cây A" : $"Túi hạt loại {item.Crop}";
+                return item.Crop == StarterBag.Crop ? T("item.seed_bag_a") : Format("item.seed_bag_n", item.Crop);
             var n = Name(item.Material);
             return char.ToUpper(n[0]) + n.Substring(1);
         }
 
         /// <summary>vd "Đất × 3".</summary>
-        public static string DropLabel(DropStack s) => $"{ItemLabel(s.Item)} × {s.Count}";
+        public static string DropLabel(DropStack s) => Format("item.drop_label", ItemLabel(s.Item), s.Count);
 
         static string Name(BlockMaterial m)
         {
             int i = System.Array.IndexOf(Palette, m);
-            return i >= 0 ? PaletteNames[i] : m.ToString();
+            return i >= 0 ? PaletteName(i) : m.ToString();
         }
 
         static string Explain(EditResult r) => r switch
         {
-            EditResult.NoMaterial => "túi hết loại này (nhặt vật rơi bằng F hoặc chuột trái, hoặc chọn loại khác bằng 1–4 / Alt + lăn chuột)",
-            EditResult.NotEmpty => "ô đã có khối",
-            EditResult.NotAttached => "phải kề một khối đặc",
-            EditResult.NotDiggable => "ô rỗng, nước, đá đáy hoặc khối cốt truyện",
-            EditResult.OutOfBounds => "ngoài map",
-            EditResult.Occupied => "ô đang bị chiếm, hoặc vật rơi trong ô không còn chỗ đẩy lên",
-            EditResult.NotPlaceable => "loại này không đặt được",
+            EditResult.NoMaterial => T("edit.explain_no_material"),
+            EditResult.NotEmpty => T("edit.explain_not_empty"),
+            EditResult.NotAttached => T("edit.explain_not_attached"),
+            EditResult.NotDiggable => T("edit.explain_not_diggable"),
+            EditResult.OutOfBounds => T("edit.explain_out_of_bounds"),
+            EditResult.Occupied => T("edit.explain_occupied"),
+            EditResult.NotPlaceable => T("edit.explain_not_placeable"),
             _ => r.ToString(),
         };
 
@@ -351,35 +354,35 @@ namespace Game.Client
         {
             var player = PlayerCharacter.Active;
             if (player == null)
-                return " · Chuột trái: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
+                return T("hud.help_idle");
             if (player.FlyMode)
-                return " · Chuột trái: dùng công cụ (trong 8 ô quanh nhân vật) · F: thu vật rơi (trong 8 ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
-            return " · Chuột trái: dùng công cụ (trong 8 ô quanh nhân vật) · F: thu vật rơi (trong 8 ô) · R: phép Mưa (trong 8 ô) · B: túi · chuột trái lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
+                return Format("hud.help_fly", PlayerRules.ToolReach, PlayerRules.HandReach);
+            return Format("hud.help_walk", PlayerRules.ToolReach, PlayerRules.HandReach);
         }
 
         /// <summary>Chữ HUD góc trái (tách khỏi OnGUI để test); "" nếu chưa có túi.</summary>
         public string HudText()
         {
             if (view.Bag == null) return "";
-            var text = $"Công cụ: <b><color=yellow>{(Tool switch { EditTool.Dig => "Đào", EditTool.Place => "Đặt", _ => "Xới" })}</color></b> (Tab đổi){HelpText()}";
+            var text = Format("hud.tool", T(Tool switch { EditTool.Dig => "hud.tool_dig", EditTool.Place => "hud.tool_place", _ => "hud.tool_till" })) + HelpText();
             if (Tool == EditTool.Till)
-                text += "Xới: chuột trái lên đất/cỏ = đánh dấu · lên biển = tự đi tới xới · chuột phải lên biển = bỏ đánh dấu · lên ô ruộng = chọn giống · K: kho\n";
+                text += T("hud.till_help");
             var cam = Camera.main;
             if (cam != null)
-                text += $"Góc nhìn: {FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y))} (0° = ngang mặt biển, + nhìn lên, - nhìn xuống)\n";
-            text += "Túi: ";
+                text += Format("hud.elevation", FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y)));
+            text += T("hud.bag");
             for (int i = 0; i < Palette.Length; i++)
                 text += i == selected
-                    ? $"<b><color=yellow>[{i + 1} {PaletteNames[i]}: {view.Bag.Get(Palette[i])}]</color></b>   "
-                    : $"{i + 1} {PaletteNames[i]}: {view.Bag.Get(Palette[i])}   ";
+                    ? Format("hud.bag_sel", i + 1, PaletteName(i), view.Bag.Get(Palette[i]))
+                    : Format("hud.bag_item", i + 1, PaletteName(i), view.Bag.Get(Palette[i]));
             int seeds = view.Bag.GetSeeds(StarterBag.Crop);
-            if (seeds > 0) text += $"\nTúi hạt Cây A: {seeds}";
-            if (AimedDrop != null) text += $"\nNhặt (chuột trái): {DropLabel(AimedDrop)}";
+            if (seeds > 0) text += Format("hud.seed_bag_a", seeds);
+            if (AimedDrop != null) text += Format("hud.aimed_drop", DropLabel(AimedDrop));
             if (Farming != null) text += "\n" + Farming.HudLines();
-            if (AimedHarvest >= 0) text += $"\nThu hoạch (chuột trái): Cây {Farm.Sim.Config.crops[Farm.Sim.State.Plots[AimedHarvest].CurrentCrop].id}";
+            if (AimedHarvest >= 0) text += Format("hud.aimed_harvest", Game.Core.View.SiteStatus.CropName(GameSettings.Text, Farm.Sim.Config, Farm.Sim.State.Plots[AimedHarvest].CurrentCrop));
             text += $"\n{lastResult}";
             if (view.LastRebuildFrame >= 0)
-                text += $"\nDựng lại {view.LastRebuildChunks} chunk: mesh {view.LastMeshMs:F1} ms, ghi {view.LastWriteMs:F1} ms, bake {view.LastBakeMs:F1} ms";
+                text += Format("hud.rebuild", view.LastRebuildChunks, view.LastMeshMs, view.LastWriteMs, view.LastBakeMs);
             return text;
         }
 

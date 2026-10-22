@@ -49,7 +49,7 @@ namespace Game.Client
         RawImage cornerImage;
         MinimapLinesGraphic cornerLines;
         Mask cornerMask;
-        Text cornerName, cornerNorth, closeText;
+        Text cornerName, cornerNorth, closeText, hintText;
         readonly List<RectTransform> cornerLandmarks = new List<RectTransform>();
         float cornerK;
         int cornerShownMap = -2;
@@ -120,8 +120,16 @@ namespace Game.Client
         void Awake() => view = GetComponent<TerrainChunkView>();
         void OnEnable() => active = this;
         void OnDisable() { if (active == this) active = null; }
+        /// <summary>Gán lại chữ cố định theo ngôn ngữ hiện tại (0032); gọi lúc dựng và khi đổi ngôn ngữ.</summary>
+        void RefreshText()
+        {
+            if (hintText != null) hintText.text = GameSettings.Text.Get("map.hint");
+            if (closeText != null) closeText.text = GameSettings.Text.Get("map.close");
+        }
+
         void OnDestroy()
         {
+            GameSettings.Changed -= RefreshText;
             if (IsReady && view != null && view.Editor != null)
                 view.Editor.CellChanged -= OnCellChanged;
             if (Texture != null)
@@ -419,9 +427,8 @@ namespace Game.Client
             var panelRt = Stretch("Bảng bản đồ", root, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
             panel = panelRt.gameObject;
             AddImage(panelRt, new Color(0f, 0f, 0f, 0.6f));
-            var hint = NewText("Hướng dẫn", panelRt, font, 22, TextAnchor.MiddleLeft);
-            Place(hint.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -16f), new Vector2(900f, 56f));
-            hint.text = "Lăn chuột / chụm 2 ngón: phóng to · kéo: di chuyển · M / Esc / nút Đóng: đóng";
+            hintText = NewText("Hướng dẫn", panelRt, font, 22, TextAnchor.MiddleLeft);
+            Place(hintText.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -16f), new Vector2(900f, 56f));
 
             frame = Stretch("Khung", panelRt, new Vector2(16f, 16f), new Vector2(-16f, -88f), Vector2.zero);
             frame.gameObject.AddComponent<RectMask2D>();
@@ -474,7 +481,6 @@ namespace Game.Client
             Place(button, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -16f), new Vector2(180f, 56f));
             AddImage(button, new Color(0.1f, 0.1f, 0.1f, 0.75f));
             closeText = NewText("Chữ", button, font, 24, TextAnchor.MiddleCenter);
-            closeText.text = "Đóng (M)";
             BuildCorner(root, font, borders);
 
             Canvas.ForceUpdateCanvases();
@@ -482,6 +488,8 @@ namespace Game.Client
             lines.Viewport = Viewport;
             IsReady = true;
             SetOpen(false);
+            RefreshText();
+            GameSettings.Changed += RefreshText;
             sw.Stop();
             BuildMs = sw.Elapsed.TotalMilliseconds;
             Debug.Log($"MINIMAP dựng: ảnh {s.X}x{s.Z}, {BorderCount} đường ranh giới, {labels.Count} tên, {landmarkIcons.Count} dấu mốc, ô nhỏ {CornerColumns:F0} cột {cornerK:F3} px/cột, font={(font != null ? font.name : "null")}, khung {frame.rect.width:F0}x{frame.rect.height:F0}, {BuildMs:F1} ms");

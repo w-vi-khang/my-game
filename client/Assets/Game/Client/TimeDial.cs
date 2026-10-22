@@ -53,7 +53,7 @@ namespace Game.Client
         CanvasGroup controls;
         RectTransform button, ring;
         TimeDialGraphic buttonIcon, centerIcon;
-        Text periodText;
+        Text periodText, hintText;
         readonly RectTransform[] items = new RectTransform[4];
         readonly TimeDialGraphic[] itemBgs = new TimeDialGraphic[4];
         readonly Text[] itemLabels = new Text[4];
@@ -62,21 +62,23 @@ namespace Game.Client
         readonly Dictionary<int, Vector2> touches = new Dictionary<int, Vector2>();
         readonly Dictionary<int, Vector2> lastTouches = new Dictionary<int, Vector2>();
 
+        static string T(string k) => GameSettings.Text.Get(k);
+
         public static string PeriodName(DayPeriod p) => p switch
         {
-            DayPeriod.Dawn => "Bình minh",
-            DayPeriod.Day => "Ban ngày",
-            DayPeriod.Dusk => "Hoàng hôn",
-            DayPeriod.Night => "Ban đêm",
+            DayPeriod.Dawn => T("time.period_dawn"),
+            DayPeriod.Day => T("time.period_day"),
+            DayPeriod.Dusk => T("time.period_dusk"),
+            DayPeriod.Night => T("time.period_night"),
             _ => p.ToString(),
         };
 
         public static string LandmarkName(TimeLandmark m) => m switch
         {
-            TimeLandmark.Midnight => "Giữa đêm",
-            TimeLandmark.Dawn => "Bình minh",
-            TimeLandmark.Noon => "Giữa trưa",
-            TimeLandmark.Dusk => "Hoàng hôn",
+            TimeLandmark.Midnight => T("time.landmark_midnight"),
+            TimeLandmark.Dawn => T("time.landmark_dawn"),
+            TimeLandmark.Noon => T("time.landmark_noon"),
+            TimeLandmark.Dusk => T("time.landmark_dusk"),
             _ => m.ToString(),
         };
 
@@ -99,8 +101,18 @@ namespace Game.Client
         void Awake() => day = GetComponent<DayCycleView>();
         void OnEnable() => active = this;
         void OnDisable() { if (active == this) active = null; }
+        /// <summary>Gán lại chữ theo ngôn ngữ hiện tại (0032); dòng buổi vẽ lại ở Refresh kế tiếp.</summary>
+        void RefreshText()
+        {
+            if (hintText != null) hintText.text = T("time.hint");
+            for (int i = 0; i < itemLabels.Length; i++)
+                if (itemLabels[i] != null) itemLabels[i].text = LandmarkName((TimeLandmark)i);
+            shownPeriod = -1;
+        }
+
         void OnDestroy()
         {
+            GameSettings.Changed -= RefreshText;
             if (canvasGo != null)
                 Destroy(canvasGo);
         }
@@ -231,7 +243,7 @@ namespace Game.Client
             int p = (int)day.Day.Period;
             if (p != shownPeriod)
             {
-                periodText.text = "Đang ở buổi: " + PeriodName((DayPeriod)p);
+                periodText.text = GameSettings.Text.Format("time.current", PeriodName((DayPeriod)p));
                 shownPeriod = p;
             }
             float a = day.IsRotating ? 0.4f : 1f;
@@ -287,15 +299,15 @@ namespace Game.Client
                 AddGraphic(icon, ShapeOf(m), ColorOf(m));
                 var label = NewText("Tên " + LandmarkName(m), item, font, 18, TextAnchor.UpperCenter);
                 Place(label.rectTransform, half, new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(140f, 24f));
-                label.text = LandmarkName(m);
                 AddOutline(label, new Vector2(1.5f, -1.5f));
                 itemLabels[i] = label;
             }
 
-            var hint = NewText("Gợi ý", ring, font, 18, TextAnchor.MiddleCenter);
-            Place(hint.rectTransform, half, half, new Vector2(0f, -180f), new Vector2(320f, 28f));
-            hint.text = "Chọn mốc · T / Esc: đóng";
-            AddOutline(hint, new Vector2(1.5f, -1.5f));
+            hintText = NewText("Gợi ý", ring, font, 18, TextAnchor.MiddleCenter);
+            Place(hintText.rectTransform, half, half, new Vector2(0f, -180f), new Vector2(320f, 28f));
+            AddOutline(hintText, new Vector2(1.5f, -1.5f));
+            RefreshText();
+            GameSettings.Changed += RefreshText;
 
             IsReady = true;
             SetOpen(startOpen);

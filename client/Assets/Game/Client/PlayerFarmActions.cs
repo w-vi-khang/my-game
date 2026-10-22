@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Game.Core;
 using Game.Core.Sim;
+using Game.Core.View;
 using UnityEngine;
 
 namespace Game.Client
@@ -55,6 +56,10 @@ namespace Game.Client
 
         static Vector3Int ToV(CellPos c) => new Vector3Int(c.X, c.Y, c.Z);
 
+        static string T(string k) => GameSettings.Text.Get(k);
+        static string Format(string k, params object[] a) => GameSettings.Text.Format(k, a);
+        string CropN(int crop) => SiteStatus.CropName(GameSettings.Text, Sim.Config, crop);
+
         Vector3Int PlotSoil() => ToV(Sim.State.Plots[TillPlotId].Soil);
 
         void ResetTill()
@@ -69,18 +74,18 @@ namespace Game.Client
             var sim = Sim;
             if (sim == null || !sim.CanPlayerTill(plotId))
             {
-                StatusLine = "Tự xới: ô này không cần xới";
+                StatusLine = T("farm.till_not_needed");
                 return false;
             }
             var player = PlayerCharacter.Active;
-            if (player == null) { StatusLine = "Tự xới: cần nhân vật"; return false; }
-            if (player.FlyMode) { StatusLine = "Tự xới: tắt camera bay (F3) trước"; return false; }
+            if (player == null) { StatusLine = T("farm.till_need_player"); return false; }
+            if (player.FlyMode) { StatusLine = T("farm.till_fly_off"); return false; }
             CancelSelfTill();
             var f = player.FeetLocal;
             var feet = new CellPos(Mathf.FloorToInt(f.x), Mathf.FloorToInt(f.y + 0.05f), Mathf.FloorToInt(f.z));
             if (!sim.FindPlayerPathToPlot(feet, plotId, path))
             {
-                StatusLine = "Không tới được ô này";
+                StatusLine = T("farm.unreachable");
                 return false;
             }
             TillPlotId = plotId;
@@ -94,7 +99,7 @@ namespace Game.Client
                 player.StartAutoWalk(path);
                 TillState = SelfTillState.Walking;
             }
-            StatusLine = $"Tự xới ô {PlotSoil()}: đang đi tới";
+            StatusLine = Format("farm.till_walking", PlotSoil());
             return true;
         }
 
@@ -103,7 +108,7 @@ namespace Game.Client
             if (TillState == SelfTillState.None) return;
             if (TillState == SelfTillState.Walking) PlayerCharacter.Active?.StopAutoWalk();
             ResetTill();
-            StatusLine = "Huỷ tự xới";
+            StatusLine = T("farm.till_cancel");
         }
 
         /// <summary>Vào chế độ gieo loại crop (túi còn hạt). Huỷ tự xới đang chạy. false nếu không có mô phỏng / túi hết hạt loại đó.</summary>
@@ -113,7 +118,7 @@ namespace Game.Client
             if (sim == null || view.Bag == null) return false;
             if (view.Bag.GetSeeds(crop) <= 0)
             {
-                StatusLine = $"Gieo: túi hết hạt Cây {sim.Config.crops[crop].id}";
+                StatusLine = Format("farm.sow_no_seeds", CropN(crop));
                 return false;
             }
             CancelSelfTill();
@@ -127,7 +132,7 @@ namespace Game.Client
         {
             if (SowCrop < 0) return;
             SowCrop = -1;
-            StatusLine = "Thoát chế độ gieo";
+            StatusLine = T("farm.sow_exit");
         }
 
         /// <summary>Chuột trái ở chế độ gieo: gieo 1 hạt túi vào ô ruộng có Soil = cell. true khi đã gieo.</summary>
@@ -135,11 +140,11 @@ namespace Game.Client
         {
             var sim = Sim;
             if (SowCrop < 0 || sim == null || view.Bag == null) return false;
-            var id = sim.Config.crops[SowCrop].id;
+            var cropName = CropN(SowCrop);
             var player = PlayerCharacter.Active;
             if (player != null && !player.InToolReach(cell))
             {
-                StatusLine = "Gieo: ngoài tầm 8 ô";
+                StatusLine = Format("farm.sow_far", PlayerRules.ToolReach);
                 return false;
             }
             int plotId = sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
@@ -147,21 +152,21 @@ namespace Game.Client
             switch (r)
             {
                 case PlayerSowResult.Ok:
-                    StatusLine = $"Gieo Cây {id} vào ô {cell}";
+                    StatusLine = Format("farm.sow_ok", cropName, cell);
                     if (view.Bag.GetSeeds(SowCrop) == 0)
                     {
                         SowCrop = -1;
-                        StatusLine += " · hết hạt, thoát chế độ gieo";
+                        StatusLine += T("farm.sow_last");
                     }
                     return true;
-                case PlayerSowResult.NoPlot: StatusLine = "Gieo: chỉ gieo vào ô ruộng đã xới"; break;
-                case PlayerSowResult.NotTilled: StatusLine = "Gieo: ô chưa xới xong"; break;
-                case PlayerSowResult.HasCrop: StatusLine = "Gieo: ô đã có cây"; break;
+                case PlayerSowResult.NoPlot: StatusLine = T("farm.sow_no_plot"); break;
+                case PlayerSowResult.NotTilled: StatusLine = T("farm.sow_not_tilled"); break;
+                case PlayerSowResult.HasCrop: StatusLine = T("farm.sow_has_crop"); break;
                 case PlayerSowResult.OtherCrop:
-                    StatusLine = $"Ô đang chờ gieo Cây {sim.Config.crops[sim.State.Plots[plotId].CurrentCrop].id}";
+                    StatusLine = Format("farm.sow_other", CropN(sim.State.Plots[plotId].CurrentCrop));
                     break;
                 case PlayerSowResult.NoSeeds:
-                    StatusLine = $"Gieo: túi hết hạt Cây {id}";
+                    StatusLine = Format("farm.sow_no_seeds", cropName);
                     SowCrop = -1;
                     break;
             }
@@ -184,7 +189,7 @@ namespace Game.Client
             {
                 if (TillState == SelfTillState.Walking) player?.StopAutoWalk();
                 ResetTill();
-                StatusLine = "Tự xới: ô đã được xới";
+                StatusLine = T("farm.till_done_by_other");
                 return;
             }
             if (TillState == SelfTillState.Walking)
@@ -202,7 +207,7 @@ namespace Game.Client
                         break;
                     case AutoWalkState.Failed:
                         ResetTill();
-                        StatusLine = "Không tới được ô này";
+                        StatusLine = T("farm.unreachable");
                         break;
                 }
                 return;
@@ -218,7 +223,7 @@ namespace Game.Client
                 var soil = PlotSoil();
                 sim.PlayerTill(TillPlotId);
                 ResetTill();
-                StatusLine = $"Xới xong ô {soil}";
+                StatusLine = Format("farm.till_done", soil);
             }
         }
 
@@ -227,12 +232,12 @@ namespace Game.Client
             var player = PlayerCharacter.Active;
             if (player != null && !player.InToolReach(cell))
             {
-                StatusLine = "Mưa: ngoài tầm 8 ô";
+                StatusLine = Format("farm.rain_far", PlayerRules.ToolReach);
                 return RainResult.NoEffect;
             }
             if (!RainCooldown.Ready)
             {
-                StatusLine = $"Mưa: còn {RainCooldown.RemainingWholeSeconds} giây";
+                StatusLine = Format("farm.rain_cooldown", RainCooldown.RemainingWholeSeconds);
                 return RainResult.NoEffect;
             }
             var sim = Sim;
@@ -241,10 +246,10 @@ namespace Game.Client
                 : (view.Editor != null && view.Editor.TryGrow(cell.x, cell.y, cell.z) ? RainResult.Grassed : RainResult.NoEffect);
             if (r == RainResult.NoEffect)
             {
-                StatusLine = "Mưa: không có tác dụng — chỉ ô ruộng chờ tưới hoặc ô đất phía trên trống";
+                StatusLine = T("farm.rain_no_effect");
                 return r;
             }
-            StatusLine = r == RainResult.Watered ? $"Mưa: tưới ô ruộng {cell}" : $"Mưa: ô đất {cell} thành cỏ";
+            StatusLine = r == RainResult.Watered ? Format("farm.rain_watered", cell) : Format("farm.rain_grassed", cell);
             RainCooldown.Start();
             RainBox.transform.localPosition = cell + new Vector3(0.5f, 1.5f, 0.5f);
             RainBox.SetActive(true);
@@ -271,31 +276,30 @@ namespace Game.Client
             int crop = sim.State.Plots[plotId].CurrentCrop;
             if (!sim.PlayerHarvest(plotId, view.Bag)) return false;
             var cd = sim.Config.crops[crop];
-            StatusLine = $"Thu hoạch Cây {cd.id}: +{cd.producePerHarvest} nông sản, +{cd.seedsPerHarvest} hạt";
+            StatusLine = Format("farm.harvest", CropN(crop), cd.producePerHarvest, cd.seedsPerHarvest);
             return true;
         }
 
         /// <summary>Các dòng HUD của trồng trọt (bước 5).</summary>
         public string HudLines()
         {
-            var text = RainCooldown.Ready ? "Mưa (R): sẵn sàng" : $"Mưa (R): {RainCooldown.RemainingWholeSeconds} giây";
+            var text = RainCooldown.Ready ? T("farm.rain_ready") : Format("farm.rain_hud_cooldown", RainCooldown.RemainingWholeSeconds);
             if (SowCrop >= 0 && Sim != null && view.Bag != null)
-                text += $"\nGieo Cây {Sim.Config.crops[SowCrop].id} (còn {view.Bag.GetSeeds(SowCrop)}) — chuột phải / Esc để thoát";
+                text += Format("farm.hud_sow", CropN(SowCrop), view.Bag.GetSeeds(SowCrop));
             if (TillState == SelfTillState.Tilling)
-                text += $"\nĐang xới ô {PlotSoil()}: {(int)TillTimer.Elapsed}/{(int)TillTimer.Duration} giây";
+                text += Format("farm.hud_tilling", PlotSoil(), (int)TillTimer.Elapsed, (int)TillTimer.Duration);
             else if (TillState == SelfTillState.Walking)
-                text += $"\nĐang đi tới ô {PlotSoil()}…";
+                text += Format("farm.hud_walking", PlotSoil());
             if (StatusLine != "") text += "\n" + StatusLine;
             var sim = Sim;
             if (sim != null && view.Bag != null)
             {
                 for (int i = 0; i < sim.Config.crops.Length; i++)
                 {
-                    var id = sim.Config.crops[i].id;
                     int n = view.Bag.GetProduce(i);
-                    if (n > 0) text += $"\nNông sản Cây {id}: {n}";
+                    if (n > 0) text += Format("farm.hud_produce", CropN(i), n);
                     int s = view.Bag.GetSeeds(i);
-                    if (i != StarterBag.Crop && s > 0) text += $"\nTúi hạt Cây {id}: {s}";
+                    if (i != StarterBag.Crop && s > 0) text += Format("farm.hud_seeds", CropN(i), s);
                 }
             }
             return text;

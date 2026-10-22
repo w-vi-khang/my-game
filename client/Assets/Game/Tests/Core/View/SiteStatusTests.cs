@@ -1,4 +1,5 @@
 using Game.Core.Sim;
+using Game.Core.Text;
 using Game.Core.View;
 using NUnit.Framework;
 
@@ -12,15 +13,24 @@ namespace Game.Core.Tests
             var s = new Stockpile(2) { Capacity = 50, Reserved = 3 };
             s.Seeds[0] = 10;
             s.Produce[0] = 4;
-            Assert.AreEqual("Kho · nông sản 4 · hạt 10 · 14/50", SiteStatus.StorageText(s));
+            Assert.AreEqual("Kho · nông sản 4 · hạt 10 · 14/50", SiteStatus.StorageText(ViText.Load(), s));
         }
 
         [Test]
         public void CropNameUsesConfigId()
         {
             var cfg = new SimConfig();
-            Assert.AreEqual("Cây A", SiteStatus.CropName(cfg, 0));
-            Assert.AreEqual("Cây B", SiteStatus.CropName(cfg, 1));
+            Assert.AreEqual("Cây A", SiteStatus.CropName(ViText.Load(), cfg, 0));
+            Assert.AreEqual("Cây B", SiteStatus.CropName(ViText.Load(), cfg, 1));
+        }
+
+        [Test]
+        public void CropNameUsesTable()
+        {
+            var t = new Strings(new StringFile { language = "x", entries = new[] { new StringEntry("crop.name", "Plant {0}") } }, ViText.Load());
+            var cfg = new SimConfig();
+            Assert.AreEqual("Plant A", SiteStatus.CropName(t, cfg, 0));
+            Assert.AreEqual("Kho · nông sản 0 · hạt 0 · 0/50", SiteStatus.StorageText(t, new Stockpile(2) { Capacity = 50 }));
         }
 
         [Test]
@@ -32,7 +42,7 @@ namespace Game.Core.Tests
             s.Seeds[1] = 10;
             s.Produce[1] = 3;
             Assert.AreEqual("Kho chung · đã dùng 26/100\nCây A · nông sản 4 · hạt 9\nCây B · nông sản 3 · hạt 10",
-                SiteStatus.StockPanelText(s, new SimConfig()));
+                SiteStatus.StockPanelText(ViText.Load(), s, new SimConfig()));
         }
 
         [Test]
@@ -53,19 +63,19 @@ namespace Game.Core.Tests
             var p = new FarmPlot(0, 0, new CellPos(0, 0, 0));
             p.StageId = -1;
             p.Phase = PlotPhase.Till;
-            Assert.AreEqual("Xới 0%", SiteStatus.ProgressText(p, st, cfg));
+            Assert.AreEqual("Xới 0%", SiteStatus.ProgressText(ViText.Load(), p, st, cfg));
             p.TillPaused = true;
-            Assert.AreEqual("Xới 0% · tạm dừng", SiteStatus.ProgressText(p, st, cfg));
+            Assert.AreEqual("Xới 0% · tạm dừng", SiteStatus.ProgressText(ViText.Load(), p, st, cfg));
             p.TillPaused = false;
             p.CurrentCrop = 0;
             p.Phase = PlotPhase.Growing;
             st.Tick = 0;
             p.RipeTick = cfg.GrowTicks(0) / 2;
-            Assert.AreEqual("Cây A · lớn 50%", SiteStatus.ProgressText(p, st, cfg));
+            Assert.AreEqual("Cây A · lớn 50%", SiteStatus.ProgressText(ViText.Load(), p, st, cfg));
             p.Phase = PlotPhase.Idle;
-            Assert.AreEqual("Trống", SiteStatus.ProgressText(p, st, cfg));
+            Assert.AreEqual("Trống", SiteStatus.ProgressText(ViText.Load(), p, st, cfg));
             p.Removed = true;
-            Assert.AreEqual("Đã huỷ", SiteStatus.ProgressText(p, st, cfg));
+            Assert.AreEqual("Đã huỷ", SiteStatus.ProgressText(ViText.Load(), p, st, cfg));
         }
 
         [Test]
@@ -74,21 +84,21 @@ namespace Game.Core.Tests
             var p = new FarmPlot(2, 0, new CellPos(5, 0, 5));
             const int growTicks = 1200;
             p.Phase = PlotPhase.Idle;
-            Assert.AreEqual("Ruộng 2 · trống", SiteStatus.PlotText(p, 100, growTicks));
+            Assert.AreEqual("Ruộng 2 · trống", SiteStatus.PlotText(ViText.Load(), p, 100, growTicks));
             p.Phase = PlotPhase.Till;
-            Assert.AreEqual("Ruộng 2 · xới", SiteStatus.PlotText(p, 100, growTicks));
+            Assert.AreEqual("Ruộng 2 · xới", SiteStatus.PlotText(ViText.Load(), p, 100, growTicks));
             p.Phase = PlotPhase.Sow;
-            Assert.AreEqual("Ruộng 2 · gieo", SiteStatus.PlotText(p, 100, growTicks));
+            Assert.AreEqual("Ruộng 2 · gieo", SiteStatus.PlotText(ViText.Load(), p, 100, growTicks));
             p.Phase = PlotPhase.Water;
-            Assert.AreEqual("Ruộng 2 · tưới", SiteStatus.PlotText(p, 100, growTicks));
+            Assert.AreEqual("Ruộng 2 · tưới", SiteStatus.PlotText(ViText.Load(), p, 100, growTicks));
             p.Phase = PlotPhase.Harvest;
-            Assert.AreEqual("Ruộng 2 · chín", SiteStatus.PlotText(p, 100, growTicks));
+            Assert.AreEqual("Ruộng 2 · chín", SiteStatus.PlotText(ViText.Load(), p, 100, growTicks));
             p.Phase = PlotPhase.Growing;
             p.RipeTick = 1300;
-            Assert.AreEqual("Ruộng 2 · lớn 0%", SiteStatus.PlotText(p, 100, growTicks));
-            Assert.AreEqual("Ruộng 2 · lớn 37%", SiteStatus.PlotText(p, 544, growTicks));
-            Assert.AreEqual("Ruộng 2 · lớn 99%", SiteStatus.PlotText(p, 1299, growTicks));
-            Assert.AreEqual("Ruộng 2 · lớn 100%", SiteStatus.PlotText(p, 1300, growTicks));
+            Assert.AreEqual("Ruộng 2 · lớn 0%", SiteStatus.PlotText(ViText.Load(), p, 100, growTicks));
+            Assert.AreEqual("Ruộng 2 · lớn 37%", SiteStatus.PlotText(ViText.Load(), p, 544, growTicks));
+            Assert.AreEqual("Ruộng 2 · lớn 99%", SiteStatus.PlotText(ViText.Load(), p, 1299, growTicks));
+            Assert.AreEqual("Ruộng 2 · lớn 100%", SiteStatus.PlotText(ViText.Load(), p, 1300, growTicks));
         }
 
         [Test]
@@ -99,7 +109,7 @@ namespace Game.Core.Tests
             foreach (PlotPhase ph in System.Enum.GetValues(typeof(PlotPhase)))
             {
                 p.Phase = ph;
-                Assert.AreEqual("Ruộng 2 · đã huỷ", SiteStatus.PlotText(p, 100, 1200));
+                Assert.AreEqual("Ruộng 2 · đã huỷ", SiteStatus.PlotText(ViText.Load(), p, 100, 1200));
             }
         }
 

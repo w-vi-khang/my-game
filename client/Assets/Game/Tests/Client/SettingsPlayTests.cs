@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using Game.Core;
+using Game.Core.DayCycle;
 using Game.Core.Text;
 using NUnit.Framework;
 using UnityEngine;
@@ -133,7 +134,7 @@ namespace Game.Client.Tests
         public void BaseFile_HasAllKeys()
         {
             foreach (var k in SettingsView.Keys) Assert.IsTrue(GameSettings.BaseText.Has(k), k);
-            Assert.AreEqual(13, GameSettings.BaseText.Count);
+            Assert.GreaterOrEqual(GameSettings.BaseText.Count, 13);
         }
 
         [Test]
@@ -237,6 +238,45 @@ namespace Game.Client.Tests
             sv.ToggleBag();
             settings.HandleKeys(false, true);
             Assert.IsFalse(settings.IsOpen);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator LanguageSwitch_UpdatesUgui()
+        {
+            var map = go.AddComponent<MinimapView>();
+            var lightGo = new GameObject("Light");
+            var light = lightGo.AddComponent<Light>();
+            light.type = LightType.Directional;
+            var day = camGo.AddComponent<DayCycleView>();
+            day.sun = light;
+            var dial = camGo.AddComponent<TimeDial>();
+            for (int i = 0; i < 600 && !(map.IsReady && dial.IsReady); i++) yield return null;
+            Assert.IsTrue(map.IsReady, "Bản đồ chưa dựng");
+            Assert.IsTrue(dial.IsReady, "Vòng chưa dựng");
+            Assert.AreEqual("Bình minh", dial.LandmarkLabel(TimeLandmark.Dawn));
+            Assert.AreEqual("Đóng (M)", map.CloseButtonText);
+
+            Directory.CreateDirectory(GameSettings.LangDir);
+            var file = new StringFile
+            {
+                language = "English",
+                entries = new[] { new StringEntry("time.landmark_dawn", "Dawn"), new StringEntry("map.close", "Close (M)") },
+            };
+            File.WriteAllText(Path.Combine(GameSettings.LangDir, "en.json"), JsonUtility.ToJson(file));
+            var s = GameSettings.Current.Clone();
+            s.language = "en";
+            GameSettings.Apply(s);
+            Assert.IsNull(GameSettings.LanguageError);
+            Assert.AreEqual("Dawn", TimeDial.LandmarkName(TimeLandmark.Dawn));
+            Assert.AreEqual("Close (M)", map.CloseButtonText);
+            Assert.AreEqual("Dawn", dial.LandmarkLabel(TimeLandmark.Dawn));
+
+            s = GameSettings.Current.Clone();
+            s.language = PlayerSettings.DefaultLanguage;
+            GameSettings.Apply(s);
+            Assert.AreEqual("Đóng (M)", map.CloseButtonText);
+            UnityEngine.Object.Destroy(lightGo);
             yield return null;
         }
 
