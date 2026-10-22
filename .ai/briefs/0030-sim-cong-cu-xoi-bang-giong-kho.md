@@ -1,9 +1,9 @@
 # Brief 0030 — Simulation bước 7c: công cụ Xới + biển canh tác, bảng chọn giống/hàng đợi, nút Kho (client)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-21 22:30
+> Cập nhật: 2026-10-22
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -366,3 +366,9 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` (Sonnet · medium).
+- Diff `bc0f01f` (6 file, đúng Phạm vi) khớp bước 1–6 và quyết định 1–12: Tab 3 công cụ chỉ khi có Sim; UseTill Unmark/OpenedPlot/MarkTill; biển tạo dần, hiện cùng khung; chặn con trỏ; K/Esc; bảng đóng khi Removed; `KeepFarming` chỉ khi `Meter != null`; `SiteStatus` không `UnityEngine`. Lệch nhỏ chấp nhận: `break` sau nút "Xoá" (không vẽ tiếp list vừa đổi).
+- Phần cần test: 3 ca EditMode + 9 ca PlayMode có trong code, executor báo đạt; EditMode 392/392, PlayMode 88/88 (không chạy lại — kết quả đủ, không đáng ngờ). `git status` sạch.
+- User xem 2026-10-22: mục 1–8 ổn, trừ luật hàng đợi (muốn ô đợi theo loại × số lượng). Đây là đổi luật 0025, không phải lỗi của brief → quyết định mới [0026](../../design/decisions/0026-hang-doi-o-doi-theo-loai.md), làm ở sim bước 7d.
+- Giờ: Executor 8 phút so với ước lượng 1,5–2,5 ngày-người; đã ghi vào roadmap.
+- Kết luận: đã duyệt

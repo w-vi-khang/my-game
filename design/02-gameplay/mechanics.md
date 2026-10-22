@@ -86,7 +86,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
   - Sau khi huỷ vụ, **ô rời lệnh, hàng đợi vụ bị xoá**. Đào: ô thành rỗng, +1 đất. Đặt khối lên: ô ruộng bên dưới **trở lại ô đất**. Muốn trồng lại phải đặt lệnh lại.
   - Thứ tự chọn việc giữ như cũ: công đoạn cũ nhất trước (sinh vật làm được cả xới lẫn gieo sẽ xới hết các ô rồi mới gieo).
   - Nước tràn lên ô ruộng tính như đặt khối; ô chưa xới bị đào/che → rời lệnh, không trả gì (Planner đề xuất, user xác nhận 2026-10-21 khi duyệt brief 0026).
-- Đánh dấu xới, chọn giống, kho thông nhau (user, 2026-10-21, [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md), M1 simulation bước 7b + 7c, làm trước bước 8). **Thay lệnh trồng cây theo vùng ở trên:**
+- Đánh dấu xới, chọn giống, kho thông nhau (user, 2026-10-21, [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md), M1 simulation bước 7b + 7c, làm trước bước 8; hàng đợi đổi thành ô đợi theo loại × số lượng ở [0026](../decisions/0026-hang-doi-o-doi-theo-loai.md), bước 7d). **Thay lệnh trồng cây theo vùng ở trên:**
   - **Công cụ Xới** (cùng cấp Đào/Đặt): người chơi đánh dấu **từng ô** đất/cỏ có ô trống phía trên → **biển canh tác** hiện ngay → sinh vật có năng lực xới tới xới → biển mất, ô thành ô ruộng. Xới không cần chọn giống trước. Bỏ lệnh vùng; "chọn thông minh" theo khuôn (2 × 2, 3 × 3, 1 × 3…) mở khoá sau này — [ideas](../ideas.md).
   - **Bấm ô ruộng → chọn giống** → vụ vào cuối hàng đợi (2 chỗ). Ô vừa xới: vụ đầu bắt đầu từ gieo. Vụ kế trên ô đã thu hoạch: **xới lại** rồi gieo. Hết hàng đợi → ô ruộng đứng yên.
   - **Hai loại cây** (tạm Cây A, Cây B — user đặt tên): khác thời gian lớn, hạt, sản lượng; số liệu bằng `game-balance`.
