@@ -1,9 +1,9 @@
 # Brief 0042 — Sim 7f (client B): bảng túi, chế độ gieo, kho ↔ túi
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 19:00
+> Cập nhật: 2026-10-22 18:35
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -242,11 +242,18 @@ Trên Mac, scene SimView (Play), nhân vật (không bay):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-Base commit:
-Chạy bằng:
-Bắt đầu: · Kết thúc: (theo `date`)
+Base commit: 84f1dbd
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-22 18:25 · Kết thúc: 2026-10-22 18:34 (theo `date`; ~0,15 giờ thực tế)
+Commit: c90128c — sửa `Client/PlayerFarmActions.cs`, `Client/SimView.cs`, `Client/TerrainEditInput.cs` (thêm `using Game.Core.Sim;` cho `CellPos`); mới `Tests/Client/PlayerBagSowPlayTests.cs` (+ .meta).
 
 ## Kết quả test
+- Biên dịch: `refresh_unity` + `read_console` 0 lỗi (sau 2 lần sửa: thiếu `using Game.Core.Sim`, test trùng hàm trợ giúp).
+- `PlayerBagSowPlayTests` PlayMode: **15/15 đạt** — BagRows, bảng túi chặn con trỏ, vào chế độ gieo, gieo ô đứng yên / ô chờ gieo cùng loại, từ chối (chờ Cây B, đã có cây, chưa xới, ngoài ô ruộng, ngoài tầm), hết hạt tự thoát, không dùng công cụ, thoát (Tab/ExitSowMode), HUD, kho trong tầm, kho đầy, kho ngoài tầm, click khối kho, UnmarkAimed.
+- PlayMode toàn bộ: **148/148 đạt** (run_tests MCP). EditMode toàn bộ: **472/472 đạt**. Console 0 lỗi.
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy.
+- Phần user tự test (9 mục) + 8 mục 0041: **chờ user**. Click chuột thật (chuột phải/Esc thoát, click khối kho) chỉ kiểm qua hàm, chưa qua chuột thật.
+- Test `StockTransferInReach` chuyển "kho → túi tất cả" kiểm kho về 0 (kho ban đầu có thể khác 0), hơi khác văn bản brief nhưng cùng ý.
 
 ## Vướng mắc
 
