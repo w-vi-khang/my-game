@@ -635,3 +635,17 @@ Lệch nhỏ so với brief (test-only, không đổi thông số): (1) test `In
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner (Opus · medium, phiên con), 2026-10-22 — mức `đầy đủ + user xem`.
+- `Chạy bằng: claude-sonnet-5-5 · medium` khớp `Model thực thi: Sonnet · medium`.
+- Mọi dòng "Phần cần test" có kết quả; lăn chuột = `chờ user` (đúng brief). EditMode 407/407, PlayMode 112/112 (12/12 `PlayerCharacterPlayTests`, test 7 chạy thật) — tin theo Kết quả, không chạy lại.
+- Diff c7519f9 (`git show --stat`: 18 file, đều trong Phạm vi; Bench/SimBench/HashCheck, `DebugFlyCamera`, `TerrainChunkView`, `Core/Sim/*` không đổi):
+  - `Core/PlayerRules.cs` đúng nguyên văn bước 1, không `using UnityEngine`. `WorldEditor`: `OutOfReach` cuối enum, móc `IsPlayerAt` riêng, kiểm sau `IsOccupied` (QĐ 11).
+  - `PlayerCharacter`: thông số QĐ 10, layer "Ignore Raycast" (QĐ 13), `Active` Awake/OnDestroy (QĐ 17), chờ chunk bằng raycast (QĐ 15), F3 xoá input kể cả `readKeyboard = false` (QĐ 9, 18), cắt biên trước `Move` (QĐ 12), nối lại `IsPlayerAt` khi rỗng; `Place` trước `Start` lưu yaw chờ.
+  - `FollowCamera`: kẹp góc/khoảng cách, lăn ×0,9/×1,1 bỏ qua khi Alt hoặc con trỏ trên UI, SphereCast 0,2 + `max(d − 0,1; 0,3)` (QĐ 13).
+  - `TerrainEditInput`: Alt + lăn (QĐ 8); tầm với ở cả `ShowAim` và `UseTool`, áp cả Xới (QĐ 3); luật "dừng bay mới đào" chỉ khi không có nhân vật hoặc F3 (QĐ 9); 3 dòng hướng dẫn đúng chữ.
+  - `MinimapView` 2 chỗ vị trí theo nhân vật, hướng theo camera (QĐ 16). `DemoPlain`/`SimView` đặt nhân vật + log `PLAYER xuất hiện` (QĐ 14); nhánh `stressBench` không có nhân vật (QĐ 7).
+  - Scene: `Main Camera` thêm `FollowCamera`; GameObject `Người chơi` có `PlayerCharacter` với `terrain` trỏ đúng `TerrainChunkView` (guid 55b9…) ở cả 2 scene.
+- Test bám brief. Hai lệch executor ghi đều hợp lý, không nới tiêu chí: `InWater` world 16³ (WorldSize bội 16); test 3 đứng yên 1 giây trước khi đo y bậc 2 ô. Thêm một lệch không ghi: test 12 bật `SetFlyMode(true)` trước khi dời camera — cần thiết vì `FollowCamera.LateUpdate` sẽ kéo camera về; vẫn kiểm đúng ý (dấu theo nhân vật, không theo camera).
+- Nhận xét nhỏ, không chặn: cả 2 scene xuất hiện cùng chỗ (123.5, 21.0, 203.5) vì checkpoint Map 1 bị san trong TerrainView — đúng QĐ 14 nhánh dự phòng.
+- Giờ: executor 14:20–14:33 (~0,2 giờ máy) so với ước lượng 2–3 ngày-người; Planner cộng vào roadmap khi duyệt (sau user xem).
+- **Chờ user xem** (mục "User tự test", 10 điểm) — chưa kết luận.
