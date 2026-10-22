@@ -25,6 +25,13 @@ namespace Game.Client
             Plain = plain;
             var pos = CameraPos(plain);
             PlaceCamera(pos, Pitch);
+            var player = PlayerCharacter.Active;
+            if (player != null)
+            {
+                var feet = PlayerCharacter.TerrainViewSpawn(world, kept, plain, out bool atCp);
+                player.Place(transform.TransformPoint(feet), 0f);
+                Debug.Log($"PLAYER xuất hiện {(atCp ? "cạnh checkpoint Map 1" : "giữa đồng bằng (checkpoint Map 1 đã bỏ khi san)")} ({feet.x:F1}, {feet.y:F1}, {feet.z:F1})");
+            }
             Debug.Log($"DEMOPLAIN {plain}, bỏ {lms.Count - kept.Count} dấu mốc, camera ({pos.x:F0}, {pos.y:F0}, {pos.z:F0})");
             return kept;
         }

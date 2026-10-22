@@ -30,6 +30,18 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void PlayerAtBlocksPlace()
+        {
+            editor.IsPlayerAt = (x, y, z) => x == 4 && y == 1 && z == 4;
+            inv.Add(BlockMaterial.Dirt, 1);
+            Assert.AreEqual(EditResult.Occupied, editor.CheckPlace(4, 1, 4, BlockMaterial.Dirt));
+            Assert.AreEqual(EditResult.Occupied, editor.TryPlace(4, 1, 4, BlockMaterial.Dirt));
+            Assert.AreEqual(1, inv.Get(BlockMaterial.Dirt));
+            Assert.IsEmpty(changed);
+            Assert.AreEqual(EditResult.Ok, editor.CheckPlace(5, 1, 4, BlockMaterial.Dirt));
+        }
+
+        [Test]
         public void InventoryStartsEmpty()
         {
             foreach (BlockMaterial m in System.Enum.GetValues(typeof(BlockMaterial)))

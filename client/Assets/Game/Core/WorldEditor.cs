@@ -19,6 +19,8 @@ namespace Game.Core
         Occupied,
         /// <summary>Đặt: ô không kề mặt khối đặc nào (0012).</summary>
         NotAttached,
+        /// <summary>Ô ngoài tầm với của nhân vật (world 7h) — client trả, editor không dùng.</summary>
+        OutOfReach,
     }
 
     /// <summary>
@@ -48,6 +50,9 @@ namespace Game.Core
 
         /// <summary>Móc kiểm tra ô bị chiếm (người chơi, sinh vật, cây, kho). M1 bước 4 chưa có vật thể → mặc định null.</summary>
         public Func<int, int, int, bool> IsOccupied;
+
+        /// <summary>Móc ô bị nhân vật người chơi chiếm (world 7h) — tách khỏi IsOccupied vì Simulation.AttachEditor ghi đè móc đó.</summary>
+        public Func<int, int, int, bool> IsPlayerAt;
 
         /// <summary>Ô (x, y, z) vừa đổi — cho tìm đường, môi trường sống, hiển thị.</summary>
         public event Action<int, int, int> CellChanged;
@@ -96,6 +101,8 @@ namespace Game.Core
             if (!HasSolidNeighbor(x, y, z))
                 return EditResult.NotAttached;
             if (IsOccupied != null && IsOccupied(x, y, z))
+                return EditResult.Occupied;
+            if (IsPlayerAt != null && IsPlayerAt(x, y, z))
                 return EditResult.Occupied;
             if (Inventory.Get(material) <= 0)
                 return EditResult.NoMaterial;

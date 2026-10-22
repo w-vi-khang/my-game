@@ -13,6 +13,7 @@ namespace Game.Client
     /// Tab đổi công cụ Đào ⇄ Đặt (brief 0027), chuột trái dùng công cụ; phím 1–4 hoặc lăn chuột chọn đất/cỏ/đá/cát.
     /// Đào: khung trắng = ô sẽ đào. Đặt: bản mờ màu vật liệu ở ô sẽ đặt (đỏ = kho hết; sai luật → không có); nhãn góc trái = công cụ, kho vật liệu, lý do khi không đào/đặt được.
     /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021).
+    /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 4 ô, được dùng khi đang đi; Alt + lăn chọn loại.
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -76,10 +77,13 @@ namespace Game.Client
             }
             if (mouse != null)
             {
-                // Lăn chuột cũng đổi loại (phòng khi phím số bị bộ gõ tiếng Việt chặn).
-                float wheel = mouse.scroll.ReadValue().y;
-                if (wheel > 0.01f) selected = (selected + Palette.Length - 1) % Palette.Length;
-                else if (wheel < -0.01f) selected = (selected + 1) % Palette.Length;
+                // Alt + lăn chuột đổi loại (lăn không Alt = thu phóng camera nhân vật, user 2026-10-22).
+                if (kb != null && kb.altKey.isPressed)
+                {
+                    float wheel = mouse.scroll.ReadValue().y;
+                    if (wheel > 0.01f) selected = (selected + Palette.Length - 1) % Palette.Length;
+                    else if (wheel < -0.01f) selected = (selected + 1) % Palette.Length;
+                }
             }
 
             var cam = Camera.main;
@@ -102,7 +106,9 @@ namespace Game.Client
             outline.widthMultiplier = outlinePixels * worldPerPixel;
             }
 
-            if (DebugFlyCamera.IsMoveKeyHeld(kb)) return; // Đang bay: chỉ đào/đặt khi dừng (user 2026-10-20).
+            var player = PlayerCharacter.Active;
+            // Camera bay (không có nhân vật, hoặc chế độ debug F3): chỉ đào/đặt khi dừng (user 2026-10-20). Có nhân vật: được dùng công cụ khi đang đi (0028).
+            if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
 
             if (mouse.leftButton.wasPressedThisFrame) UseTool(digCell, placeCell);
         }
@@ -126,6 +132,8 @@ namespace Game.Client
             outline.enabled = false;
             ghostRenderer.enabled = false;
             if (!picked || view.Editor == null) return;
+            var player = PlayerCharacter.Active;
+            if (player != null && !player.InReach(Tool == EditTool.Place ? placeCell : digCell)) return; // ngoài tầm 4 ô: không khung, không bản mờ (0028)
             if (Tool == EditTool.Till)
             {
                 if (Farm == null || !Farm.CanTillAt(digCell)) return;
@@ -150,6 +158,9 @@ namespace Game.Client
         /// <summary>Chuột trái: dùng công cụ đang cầm; ghi dòng kết quả ở HUD.</summary>
         public EditResult UseTool(Vector3Int digCell, Vector3Int placeCell)
         {
+            var player = PlayerCharacter.Active;
+            if (player != null && !player.InReach(Tool == EditTool.Place ? placeCell : digCell))
+                return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0028)
             if (Tool == EditTool.Till)
             {
                 LastTill = Farm != null ? Farm.UseTill(digCell) : TillResult.Invalid;
@@ -207,11 +218,21 @@ namespace Game.Client
             _ => r.ToString(),
         };
 
+        static string HelpText()
+        {
+            var player = PlayerCharacter.Active;
+            if (player == null)
+                return " · Chuột trái: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
+            if (player.FlyMode)
+                return " · Chuột trái: dùng công cụ (trong 4 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
+            return " · Chuột trái: dùng công cụ (trong 4 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
+        }
+
         void OnGUI()
         {
             if (view.Inventory == null || MinimapView.IsAnyOpen)
                 return;
-            var text = $"Công cụ: <b><color=yellow>{(Tool switch { EditTool.Dig => "Đào", EditTool.Place => "Đặt", _ => "Xới" })}</color></b> (Tab đổi) · Chuột trái: dùng công cụ · 1–4 / lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
+            var text = $"Công cụ: <b><color=yellow>{(Tool switch { EditTool.Dig => "Đào", EditTool.Place => "Đặt", _ => "Xới" })}</color></b> (Tab đổi){HelpText()}";
             if (Tool == EditTool.Till)
                 text += "Xới: chuột trái lên đất/cỏ = đánh dấu · lên biển = bỏ đánh dấu · lên ô ruộng = chọn giống · K: kho\n";
             var cam = Camera.main;

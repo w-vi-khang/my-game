@@ -84,7 +84,17 @@ namespace Game.Client
             var kept = DemoPlain.Flatten(world, maps, p, lms, out var plain);
             Plain = plain;
             if (stressBench) DemoPlain.PlaceCamera(BenchCameraPos(plain), 50f);
-            else DemoPlain.PlaceCamera(DemoPlain.CameraPos(plain), DemoPlain.Pitch);
+            else
+            {
+                DemoPlain.PlaceCamera(DemoPlain.CameraPos(plain), DemoPlain.Pitch);
+                var player = PlayerCharacter.Active;
+                if (player != null)
+                {
+                    var feet = PlayerCharacter.PlainSpawn(plain);
+                    player.Place(transform.TransformPoint(feet), 0f);
+                    Debug.Log($"PLAYER xuất hiện ở trại ({feet.x:F1}, {feet.y:F1}, {feet.z:F1})");
+                }
+            }
             Debug.Log($"{(stressBench ? "SIMBENCH" : "SIMVIEW")} {plain}, bỏ {lms.Count - kept.Count} dấu mốc trong đồng bằng");
             return kept;
         }

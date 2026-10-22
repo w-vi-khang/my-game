@@ -341,7 +341,8 @@ namespace Game.Client
             marker.gameObject.SetActive(cam != null);
             if (cam == null)
                 return;
-            var p = view.transform.InverseTransformPoint(cam.transform.position);
+            // World 7h (brief 0035): có nhân vật → vị trí là nhân vật, hướng vẫn là camera.
+            var p = view.transform.InverseTransformPoint(PlayerCharacter.Active != null ? PlayerCharacter.Active.transform.position : cam.transform.position);
             Viewport.WorldToPanel(p.x, p.z, out float mx, out float my);
             marker.anchoredPosition = new Vector2(mx, my);
             var f = view.transform.InverseTransformDirection(cam.transform.forward);
@@ -356,7 +357,8 @@ namespace Game.Client
             cornerMarker.gameObject.SetActive(cam != null);
             if (cam == null)
                 return;
-            var p = view.transform.InverseTransformPoint(cam.transform.position);
+            // World 7h (brief 0035): có nhân vật → vị trí là nhân vật, hướng vẫn là camera.
+            var p = view.transform.InverseTransformPoint(PlayerCharacter.Active != null ? PlayerCharacter.Active.transform.position : cam.transform.position);
             CornerViewport.WorldToPanel(p.x, p.z, out float px, out float py);
             var pos = new Vector2(-px, -py);
             if (cornerContent.anchoredPosition != pos)

@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 41987370}
   - component: {fileID: 41987371}
   - component: {fileID: 41987372}
+  - component: {fileID: 41987373}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -293,6 +294,109 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Client::Game.Client.TimeDial
   startOpen: 0
+--- !u!114 &41987373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41987364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89f7cf26e2a474fc2aebe9a7001a6ead, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.FollowCamera
+  target: {fileID: 0}
+  distance: 6
+  minDistance: 2.5
+  maxDistance: 14
+  pitch: 20
+  minPitch: -20
+  maxPitch: 70
+  yaw: 0
+  lookSensitivity: 0.15
+  pivotHeight: 1.6
+  castRadius: 0.2
+--- !u!1 &330232863
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 330232866}
+  - component: {fileID: 330232865}
+  - component: {fileID: 330232864}
+  m_Layer: 0
+  m_Name: "Ng\u01B0\u1EDDi ch\u01A1i"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &330232864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330232863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe031854c4af44cb78c8800bc718f103, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Client::Game.Client.PlayerCharacter
+  terrain: {fileID: 1663237067}
+  walkSpeed: 5
+  gravity: 25
+  jumpSpeed: 8
+  maxFallSpeed: 30
+  bobHeight: 0.06
+  bobFrequency: 12
+  readKeyboard: 1
+  MoveInput: {x: 0, y: 0}
+  JumpInput: 0
+--- !u!143 &330232865
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330232863}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &330232866
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330232863}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1663237066
 GameObject:
   m_ObjectHideFlags: 0
@@ -400,6 +504,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Client::Game.Client.SimView
   maxTicksPerFrame: 5
+  stressBench: 0
+  benchSeconds: 240
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0
@@ -642,3 +748,4 @@ SceneRoots:
   - {fileID: 1694623656}
   - {fileID: 1663237068}
   - {fileID: 2126523795}
+  - {fileID: 330232866}
