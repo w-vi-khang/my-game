@@ -1,7 +1,7 @@
 # Task: M1 world bước 7h — nhân vật người chơi đơn giản
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận 2026-10-22. Brief: 0035 (a). Bước đầu của [0028](../../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md). Sau bước này: sim 7e (vật rơi + túi), 7f (tự trồng trọt + phép Mưa), world 7i–7k ([0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)), rồi sim bước 8 (môi trường sống, tạm hoãn).
+> Trạng thái: user xác nhận 2026-10-22. Brief: 0035 (a). Phần (b) → task [m1-world-7h-b-do-fps-dien-thoai](m1-world-7h-b-do-fps-dien-thoai.md) (chỉ đo FPS); cảm ứng chuyển sang task Điều khiển cảm ứng sau (user 2026-10-22: "làm trên máy tính trước, các chi tiết các phần điều khiển khác sẽ tính sau"). Bước đầu của [0028](../../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md). Sau bước này: sim 7e (vật rơi + túi), 7f (tự trồng trọt + phép Mưa), world 7i–7k ([0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)), rồi sim bước 8 (môi trường sống, tạm hoãn).
 
 ## Mục tiêu
 Thay camera bay bằng một **nhân vật đơn giản** ở các scene chơi. Người chơi đi lại, nhảy, nhìn bằng góc nhìn thứ ba. Mọi tương tác với ô (đào, đặt, xới) chỉ làm được trong **tầm với** quanh nhân vật. Camera bay chỉ còn là chế độ debug.
@@ -54,8 +54,8 @@ Thay camera bay bằng một **nhân vật đơn giản** ở các scene chơi. 
   - TerrainView: xuất hiện ở checkpoint Map 1.
   - Không rơi xuyên đất lúc chunk chưa nạp (chờ chunk dưới chân có collider rồi mới bật trọng lực).
   - Kiểm bằng: test PlayMode.
-- [ ] **Cảm ứng cơ bản:** joystick ảo ở nửa trái màn hình để đi, kéo nửa phải để xoay, nút nhảy — kiểm bằng: user thử trên điện thoại (AI tự cài APK, đọc logcat).
-- [ ] **Hiệu năng:** điện thoại ≥ 30 FPS khi đi liên tục trong SimView, không thấy lỗ chunk trước mặt — kiểm bằng: đo trên điện thoại (Bench/log FPS).
+- [ ] ~~**Cảm ứng cơ bản:**~~ → task Điều khiển cảm ứng (user 2026-10-22). joystick ảo ở nửa trái màn hình để đi, kéo nửa phải để xoay, nút nhảy — kiểm bằng: user thử trên điện thoại (AI tự cài APK, đọc logcat).
+- [ ] **Hiệu năng** (→ task 7h b, nhân vật tự đi theo lộ trình cố định): điện thoại ≥ 30 FPS khi đi liên tục trong SimView, không thấy lỗ chunk trước mặt — kiểm bằng: đo trên điện thoại (Bench/log FPS).
 - [ ] **Test cũ đạt:** test cũ (EditMode + PlayMode) đạt, các test dùng camera bay chỉnh tối thiểu; `Game.Core` không tham chiếu UnityEngine — kiểm bằng: `run_tests` MCP.
 - [ ] **User xem trên Mac + điện thoại:** cảm giác đi, nhảy, xoay, tầm với — kiểm bằng: user xem (mức review `user xem`).
 
