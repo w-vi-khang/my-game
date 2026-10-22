@@ -1,9 +1,9 @@
 # Brief 0032 — Demo trên đồng bằng san phẳng (SimView + TerrainView), giãn bố trí trại
 
-> Trạng thái: đang làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 10:20
+> Cập nhật: 2026-10-22 10:25
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -261,9 +261,18 @@ Làm theo [task contract](../tasks/m1-demo-dong-bang.md): scene SimView và Terr
 ## Kết quả
 - Base commit: 80396b6
 - Chạy bằng: claude-sonnet-5-5 · medium
-- Bắt đầu: 2026-10-22 10:19
+- Bắt đầu: 2026-10-22 10:19 · Kết thúc: 2026-10-22 10:25 (~6 phút thực, gồm cả chạy test)
+- Commit: b33d44b
+- File đổi: Core/Sim/SimDemo.cs, Client/SimView.cs, Client/DebugFlyCamera.cs, Client/DemoPlain.cs (+meta, mới), Scenes/TerrainView.unity (+13 dòng: DemoPlain trên Terrain), Tests/World/SimDemoMapsTests.cs, Tests/Client/SimViewMapsPlayTests.cs, Tests/Client/EditOcclusionPlayTests.cs, Tests/Client/DemoPlainPlayTests.cs (+meta, mới). Không đổi scene SimView/SimBench.
+- Không điều chỉnh so với brief (OneRound… giữ 4000 nhịp, đạt).
 
 ## Kết quả test
+- Console Error sau biên dịch: 0.
+- EditMode (MCP): 400/400 đạt — gồm BuildPlacesPlainLayout, OneRoundFillsStorageOnPlain, KeepFarmingNoOverlapIdleNearHomeOnPlain, SimDemoTests, SimStressTests.
+- PlayMode (MCP): 91/91 đạt — gồm SimViewMapsPlayTests, EditOcclusionPlayTests, DemoPlainPlayTests, SimBenchPlayTests, LandmarkView/MinimapView/TerrainStreaming. Đã `git checkout -- client/ProjectSettings/EditorSettings.asset`.
+- grep DemoSite|FindSite|SiteSize|LandmarkClearance|CameraPosFor: rỗng. grep `using UnityEngine` trong Core: rỗng.
+- `git diff --stat` scene: chỉ TerrainView.unity.
+- Chờ user: xem SimView và TerrainView bằng mắt (mục "User tự test"); Editor hiện mở scene SimView.
 
 ## Vướng mắc
 
