@@ -1,9 +1,9 @@
 # Brief 0045 — 0032 (B): client — file cài đặt, bảng Cài đặt, áp cài đặt, xuất file ngôn ngữ
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 20:50
+> Cập nhật: 2026-10-22 21:10
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -180,3 +180,10 @@ Không dừng. Ghi nhận: `Apply_ReachesScene` đặt `Application.targetFrameR
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi. Mọi dòng "Phần cần test" có kết quả (13 test mới + Isolation); PlayMode 164/164, EditMode 488/488, 0 lỗi console [brief Kết quả].
+- `git show --stat 68866d1`: 17 file, đều trong Phạm vi; không đụng `Core/**`, scene, `design/`.
+- Diff đối chiếu QĐ 1–6: `GameSettings` (lazy Current/Text/BaseText, Load/LoadLanguage/Apply/Save/Languages/ExportBase/ResetForTests) đúng; `UiScale.Gui` thay đủ 3 chỗ; `invertY` ở 2 camera; `SettingsView` đúng thứ tự −50, ButtonRect/PanelRect, OtherPanelOpen, HandleKeys, SetOpen lưu khi Dirty, ApplyToScene, 10 dòng bảng; `SimView.BlocksPointer` gộp SettingsView; `SetFrameRate(GameSettings.Current.targetFps)`.
+- `Languages()` sắp cả danh sách gồm "vi" (Ordinal) — khớp test `["en","vi"]`, chấp nhận.
+- FPS rò giữa test (`TimingSingleChunkEdits`): executor sửa trong TearDown của test mới (lưu/khôi phục `targetFrameRate`/`vSyncCount`), không đổi code game — chấp nhận; chỉ ảnh hưởng test.
+- User xem: mục "User tự test" 1–7 đều ổn [user 2026-10-22].
+- Kết luận: đã duyệt
