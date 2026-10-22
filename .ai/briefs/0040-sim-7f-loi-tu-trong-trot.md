@@ -1,9 +1,9 @@
 # Brief 0040 — Sim 7f (lõi): lệnh trồng trọt của người chơi, phép Mưa, kho ↔ túi trong Game.Core
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 17:35
+> Cập nhật: 2026-10-22 17:46
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -377,3 +377,14 @@ Không.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner (Opus · medium, phiên con), 2026-10-22 17:36–17:46.
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` (Sonnet · medium).
+- Phạm vi: `git show --stat 2f713c4` chỉ có file trong danh sách được sửa (+ `.meta` Unity tạo); không đụng `Client/**` ngoài JSON, `SimHash.cs`, `GridPathfinder.cs`, task contract.
+- QĐ 8: `CompleteByPlayer` đúng thứ tự (Unassign nếu Assigned → Done/Player/Stall None/Carried false/AssigneeId -1 → `OnStageDone(s, bag)`), không đụng `ReportedStall` [repo `Core/Sim/Simulation.cs:962-972`].
+- QĐ 9: `OnStageDone(s, bag = null)`; nhánh Harvest `bag != null` → túi, không tạo công đoạn chở; phần `SoilReady`/`CurrentCrop`/vụ kế dùng chung; lời gọi ở `WorkPhase` (`:739`) không truyền bag; không có lời gọi khác.
+- QĐ 10: `PlayerTill` xoá `TillPaused` trước `CompleteByPlayer`. QĐ 11: gieo ô `Idle` tạo công đoạn gieo rồi hoàn thành bằng người chơi. QĐ 12: `Rain` ghi cỏ qua `Editor.TryGrow` trong `writingWorld = true … finally false`, Editor null → `WorldEditor.Grow`. QĐ 13–15: đồng hồ `float`, không vào mã băm; đường nhân vật khung 1×1×2 hai lượt như `AdjacentGoals`/`PlanTo`; `configVersion` 4.
+- Thứ tự `CheckPlayerSow`, luật `StoreToStock` (min túi/`Free`), `TakeFromStock`, `StorageInReach` đúng bước 6. `Grow` chỉ đất + ô trên rỗng + trong map.
+- 2 test executor sửa: `PlayerTillClearsPause` giờ đi qua thu hoạch → vụ kế (xới lại) → `PauseTill` → `PlayerTill` → `TillPaused == false` — đúng ý QĐ 10 (xới lại tạm dừng). `SowRejections` kiểm NotTilled, OtherCrop (túi/pha không đổi), HasCrop (Water, Growing), NoPlot 99, `cropId 5` → ArgumentException; ô đã huỷ tách sang `SowOnRemovedPlot` (Unmark trước khi xới) — đủ các dòng "Phần cần test".
+- Kết quả test đủ mọi dòng "Phần cần test". Planner chạy lại EditMode toàn bộ qua MCP: **472/472 qua** [run]. Executor ghi "471" lần 1 là đếm lệch: số `[Test]` trong `Tests/` tăng 377 → 412 (+35) so với `d373626`, 437 + 35 = 472. PlayMode 121/121 theo executor (không chạy lại; client không đổi).
+- Giờ: executor 11 phút so với ước lượng ~2 ngày-người; đã ghi dòng sim 7f (lõi) vào `design/05-roadmap.md`.
+- Kết luận: đã duyệt
