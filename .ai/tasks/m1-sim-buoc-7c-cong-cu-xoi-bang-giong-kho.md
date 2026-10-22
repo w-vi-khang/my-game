@@ -1,7 +1,7 @@
 # Task: M1 simulation bước 7c — công cụ Xới + biển canh tác, bảng chọn giống/hàng đợi, nút Kho (client)
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận 2026-10-21 (hai câu còn mở theo đề xuất mặc định). Sau bước 7b ([brief 0029](../briefs/0029-sim-danh-dau-xoi-giong-kho.md), đã duyệt); làm **trước bước 8**.
+> Trạng thái: **xong** 2026-10-22 (brief 0030 đã duyệt). Trước đó: user xác nhận 2026-10-21 (hai câu còn mở theo đề xuất mặc định). Sau bước 7b ([brief 0029](../briefs/0029-sim-danh-dau-xoi-giong-kho.md), đã duyệt); làm **trước bước 8**.
 
 ## Mục tiêu
 Bước 7c của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1), theo [0025](../../design/decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md) (Chốt). Ước lượng 3–5 ngày-người (roadmap M1).

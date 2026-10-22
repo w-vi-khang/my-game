@@ -1,7 +1,7 @@
 # Task: M1 — biển nhuộm màu trời theo buổi, sương chuyển mềm ở chân trời
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận 2026-10-22. Chưa có brief. Tiếp theo task [m1-sua-mau-chan-troi](m1-sua-mau-chan-troi.md) (brief 0033, đã duyệt 2026-10-22, commit `e15b86a`).
+> Trạng thái: **xong** 2026-10-22 (brief 0034 đã duyệt, user xem SimView ổn). Trước đó: user xác nhận 2026-10-22. Chưa có brief. Tiếp theo task [m1-sua-mau-chan-troi](m1-sua-mau-chan-troi.md) (brief 0033, đã duyệt 2026-10-22, commit `e15b86a`).
 
 ## Hiện tượng (user báo 2026-10-22, khi xem brief 0033)
 Scene SimView, camera trại demo nhìn ra biển: "màn sương cao quá, không hoà màu với bầu trời ở các buổi". Sau 0033, màu sương và trời dưới chân trời đã trùng nhau [run: 244,168,117 lúc hoàng hôn] — phần còn lệch nằm **dưới** dải sương.

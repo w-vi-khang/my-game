@@ -1,6 +1,6 @@
 # Task: M1 simulation bước 7b — đánh dấu xới từng ô, 2 loại cây, kho thông nhau (lõi)
 
-> Trạng thái: user quyết 2026-10-21 ([0025](../../design/decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md), Chốt) — brief [0029](../briefs/0029-sim-danh-dau-xoi-giong-kho.md) chờ làm; user xác nhận luật 6–20 ngày 2026-10-21. Làm **trước bước 8**; bước 7c (client) làm sau bước này.
+> Trạng thái: **xong** 2026-10-21 (brief 0029 đã duyệt). Trước đó: user quyết 2026-10-21 ([0025](../../design/decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md), Chốt) — brief [0029](../briefs/0029-sim-danh-dau-xoi-giong-kho.md) chờ làm; user xác nhận luật 6–20 ngày 2026-10-21. Làm **trước bước 8**; bước 7c (client) làm sau bước này.
 
 ## Mục tiêu
 Bước 7b của [kế hoạch prototype simulation](../../design/04-tech/simulation-tech.md#kế-hoạch-prototype-m1). Ước lượng 2,5–5 ngày-người (roadmap M1).
