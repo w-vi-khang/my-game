@@ -2,6 +2,7 @@
 // Gợn sóng bằng nhiễu theo toạ độ thế giới (pháp tuyến tính từ sai phân), màu sâu/nông theo góc nhìn, ánh mặt trời lấp lánh,
 // nhận bóng của địa hình, sương mù để tan vào chân trời.
 // Brief 0011: material Water.mat bật trong suốt (Blend SrcAlpha/OneMinusSrcAlpha, ZWrite Off, Cull Off) — mặc định vẫn đục như cũ.
+// Task m1-bien-nhuom-mau-troi (brief 0034): mặt trên nhuộm dần sang màu chân trời theo buổi; sương chuyển mềm (SoftFogFactor).
 Shader "Game/Ocean"
 {
     Properties
@@ -97,6 +98,26 @@ Shader "Game/Ocean"
                 return ValueNoise(p + t * float2(0.06, 0.03)) + 0.5 * ValueNoise(p * 2.3 - t * float2(0.05, 0.08));
             }
 
+            // Buổi trong ngày (brief 0023/0033): DayCycleView ghi biến global; _DayHorizon là màu chân trời dạng linear (= màu sương).
+            // _DayCycleOn = 0 (scene không có DayCycleView) → không nhuộm.
+            half _DayCycleOn;
+            half4 _DayHorizon;
+            // Biển nhuộm màu trời (task m1-bien-nhuom-mau-troi): theo khoảng cách (m) và theo góc nhìn xiên (fresnel).
+            static const float SkyTintStart = 32.0, SkyTintEnd = 120.0;
+            static const half SkyTintFresnel = 0.5;
+
+            // Sương chuyển mềm (task m1-bien-nhuom-mau-troi): hệ số sương tuyến tính nắn bằng smoothstep → độ dốc về 0 ở fogStart và fogEnd,
+            // không còn gãy ở mép sương. Giữ giống hệt hàm cùng tên trong Terrain.shader.
+            half SoftFogFactor(float dist)
+            {
+                half f = ComputeFogFactorZ0ToFar(dist);
+                #if defined(FOG_LINEAR_KEYWORD_DECLARED)
+                if (FOG_LINEAR)
+                    f = f * f * (3.0 - 2.0 * f);
+                #endif
+                return f;
+            }
+
             half4 frag(Varyings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 float2 uv = input.positionWS.xz * _RippleScale;
@@ -117,8 +138,12 @@ Shader "Game/Ocean"
                 half3 diffuse = baseCol * (light.color * ndl * shadow * 0.7 + SampleSH(nLit));
                 half spec = pow(saturate(dot(n, normalize(light.direction + v))), 160.0) * _Glint * shadow;
                 half3 c = diffuse + light.color * spec;
+                float dist = distance(input.positionWS, GetCameraPositionWS());
+                // Biển nhuộm màu trời: chỉ mặt trên; xa và nhìn xiên → về màu chân trời theo buổi, trước sương (task m1-bien-nhuom-mau-troi).
+                half skyT = saturate(smoothstep(SkyTintStart, SkyTintEnd, dist) + fres * SkyTintFresnel);
+                c = lerp(c, _DayHorizon.rgb, skyT * _DayCycleOn * IS_FRONT_VFACE(face, 1.0, 0.0));
                 // Sương theo khoảng cách thật (brief 0010 QĐ 11): far clip phẳng + màn hình rộng → mép nhìn xa hơn bán kính nạp.
-                half fogF = ComputeFogFactorZ0ToFar(distance(input.positionWS, GetCameraPositionWS()));
+                half fogF = SoftFogFactor(dist);
                 c = MixFog(c, fogF);
                 // Nước trong (brief 0011): nhìn xiên đục hơn (fresnel); xa đục dần theo sương → chỗ xa/sâu tan vào màu sương như trên cạn.
                 half fogVis = 1.0; // độ rõ: 1 gần, 0 xa — chỉ tính với sương tuyến tính (scene dùng sương tuyến tính)

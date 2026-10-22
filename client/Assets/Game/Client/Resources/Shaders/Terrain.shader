@@ -41,6 +41,18 @@ Shader "Game/Terrain"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Fog.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+            // Sương chuyển mềm (task m1-bien-nhuom-mau-troi): hệ số sương tuyến tính nắn bằng smoothstep → độ dốc về 0 ở fogStart và fogEnd,
+            // không còn gãy ở mép sương. Giữ giống hệt hàm cùng tên trong Ocean.shader.
+            half SoftFogFactor(float dist)
+            {
+                half f = ComputeFogFactorZ0ToFar(dist);
+                #if defined(FOG_LINEAR_KEYWORD_DECLARED)
+                if (FOG_LINEAR)
+                    f = f * f * (3.0 - 2.0 * f);
+                #endif
+                return f;
+            }
+
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -149,7 +161,7 @@ Shader "Game/Terrain"
                 half3 ambient = SampleSH(n) * _AmbientStrength;
                 half3 c = albedo * (direct + ambient);
                 // Sương theo khoảng cách thật (brief 0010 QĐ 11): far clip phẳng + màn hình rộng → mép nhìn xa hơn bán kính nạp.
-                c = MixFog(c, ComputeFogFactorZ0ToFar(distance(input.positionWS, GetCameraPositionWS())));
+                c = MixFog(c, SoftFogFactor(distance(input.positionWS, GetCameraPositionWS())));
                 return half4(c, 1);
             }
             ENDHLSL
