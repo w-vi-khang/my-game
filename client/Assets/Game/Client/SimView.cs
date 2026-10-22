@@ -94,10 +94,10 @@ namespace Game.Client
                 {
                     var feet = PlayerCharacter.PlainSpawn(plain);
                     player.Place(transform.TransformPoint(feet), 0f);
-                    Debug.Log($"PLAYER xuất hiện ở trại ({feet.x:F1}, {feet.y:F1}, {feet.z:F1})");
+                    Debug.Log($"PLAYER spawned at camp ({feet.x:F1}, {feet.y:F1}, {feet.z:F1})");
                 }
             }
-            Debug.Log($"{(stressBench ? "SIMBENCH" : "SIMVIEW")} {plain}, bỏ {lms.Count - kept.Count} dấu mốc trong đồng bằng");
+            Debug.Log($"{(stressBench ? "SIMBENCH" : "SIMVIEW")} {plain}, dropped {lms.Count - kept.Count} landmarks inside the plain");
             return kept;
         }
 
@@ -157,7 +157,7 @@ namespace Game.Client
             {
                 if (!Plain.HasValue)
                 {
-                    Debug.LogError("SIMBENCH cần TerrainChunkView source = MapsV3");
+                    Debug.LogError("SIMBENCH requires TerrainChunkView source = MapsV3");
                     enabled = false;
                     return;
                 }
@@ -167,7 +167,7 @@ namespace Game.Client
                 SimStress.Build(Sim, plain);
                 Sim.ProfilePhases = true;
                 Meter = new SimBenchMeter(benchSeconds);
-                Debug.Log($"SIMBENCH bố trí: {Sim.State.Creatures.Count} sinh vật, {Sim.State.Houses.Count} nhà, {Sim.State.Storages.Count} kho, {Sim.State.Plots.Count} ô ruộng, mảng tìm đường {Sim.PathfinderCellCount} ô");
+                Debug.Log($"SIMBENCH layout: {Sim.State.Creatures.Count} creatures, {Sim.State.Houses.Count} houses, {Sim.State.Storages.Count} storages, {Sim.State.Plots.Count} plots, pathfinder array {Sim.PathfinderCellCount} cells");
             }
             else if (view.Maps == null)
             {
@@ -179,7 +179,7 @@ namespace Game.Client
             {
                 if (!Plain.HasValue)
                 {
-                    Debug.LogError("SIMVIEW thiếu đồng bằng (afterGenerate bị ghi đè?)");
+                    Debug.LogError("SIMVIEW missing plain (afterGenerate overwritten?)");
                     enabled = false;
                     return;
                 }
@@ -187,11 +187,11 @@ namespace Game.Client
                 Sim = new Simulation(cfg, view.World, plain.Bounds);
                 Sim.AttachEditor(view.Editor);
                 SimDemo.Build(Sim, plain);
-                Debug.Log($"SIMVIEW trại giữa {plain}, mảng tìm đường {Sim.PathfinderCellCount} ô");
+                Debug.Log($"SIMVIEW camp in the middle of {plain}, pathfinder array {Sim.PathfinderCellCount} cells");
             }
             boxBase = Resources.Load<UnityEngine.Material>("Materials/Landmark");
             if (boxBase == null)
-                Debug.LogError("SIMVIEW thiếu Resources/Materials/Landmark.mat");
+                Debug.LogError("SIMVIEW missing Resources/Materials/Landmark.mat");
 
             clock = new SimClock(cfg.ticksPerSecond, maxTicksPerFrame);
             interp = new SimInterpolator();
@@ -201,7 +201,7 @@ namespace Game.Client
             root = new GameObject("Sim").transform;
             root.SetParent(transform, false);
             foreach (var h in Sim.State.Houses)
-                Box("Nhà " + h.Id, new Vector3(h.Cell.X + h.SizeX * 0.5f, h.Cell.Y + h.SizeY * 0.5f, h.Cell.Z + h.SizeZ * 0.5f),
+                Box("House " + h.Id, new Vector3(h.Cell.X + h.SizeX * 0.5f, h.Cell.Y + h.SizeY * 0.5f, h.Cell.Z + h.SizeZ * 0.5f),
                     new Vector3(h.SizeX * 0.98f, h.SizeY * 0.98f, h.SizeZ * 0.98f), HouseColor, root, solid: true);
             storageColliders.Clear();
             foreach (var s in Sim.State.Storages)
@@ -252,13 +252,13 @@ namespace Game.Client
             while (signs.Count < ps.Count)
             {
                 var p = ps[signs.Count];
-                var sign = new GameObject("Biển " + p.Id);
+                var sign = new GameObject("Sign " + p.Id);
                 sign.transform.SetParent(root, false);
                 sign.transform.localPosition = new Vector3(p.Soil.X + 0.5f, p.Soil.Y + 1f, p.Soil.Z + 0.5f);
-                Box("Cọc", new Vector3(0f, 0.35f, 0f), new Vector3(0.08f, 0.7f, 0.08f), PostColor, sign.transform);
-                Box("Tấm", new Vector3(0f, 0.65f, 0f), new Vector3(0.5f, 0.3f, 0.05f), SignColor, sign.transform);
+                Box("Post", new Vector3(0f, 0.35f, 0f), new Vector3(0.08f, 0.7f, 0.08f), PostColor, sign.transform);
+                Box("Board", new Vector3(0f, 0.65f, 0f), new Vector3(0.5f, 0.3f, 0.05f), SignColor, sign.transform);
                 signs.Add(sign);
-                var sprout = Box("Mầm " + p.Id, Vector3.zero, Vector3.one, SproutColor, root);
+                var sprout = Box("Sprout " + p.Id, Vector3.zero, Vector3.one, SproutColor, root);
                 sprout.SetActive(false);
                 sprouts.Add(sprout.transform);
             }
@@ -621,13 +621,13 @@ namespace Game.Client
 
         void CreateBody(Creature c)
         {
-            var body = new GameObject("Sinh vật " + c.Id + " " + c.SpeciesId).transform;
+            var body = new GameObject("Creature " + c.Id + " " + c.SpeciesId).transform;
             body.SetParent(root, false);
-            Box("Thân", Vector3.zero, new Vector3(c.SizeX * 0.8f, c.SizeY * 0.8f, c.SizeZ * 0.8f), SpeciesColor(c.SpeciesId), body);
-            var pivot = new GameObject("Hướng").transform;
+            Box("Body", Vector3.zero, new Vector3(c.SizeX * 0.8f, c.SizeY * 0.8f, c.SizeZ * 0.8f), SpeciesColor(c.SpeciesId), body);
+            var pivot = new GameObject("Facing").transform;
             pivot.SetParent(body, false);
-            Box("Mũi", new Vector3(0f, c.SizeY * 0.15f, Mathf.Max(c.SizeX, c.SizeZ) * 0.4f + 0.1f), new Vector3(0.25f, 0.25f, 0.3f), NoseColor, pivot);
-            var load = Box("Hàng", new Vector3(0f, c.SizeY * 0.4f + 0.15f, 0f), new Vector3(0.35f, 0.3f, 0.35f), LoadColor, body);
+            Box("Nose", new Vector3(0f, c.SizeY * 0.15f, Mathf.Max(c.SizeX, c.SizeZ) * 0.4f + 0.1f), new Vector3(0.25f, 0.25f, 0.3f), NoseColor, pivot);
+            var load = Box("Load", new Vector3(0f, c.SizeY * 0.4f + 0.15f, 0f), new Vector3(0.35f, 0.3f, 0.35f), LoadColor, body);
             load.SetActive(false);
             loads.Add(load);
             bodies.Add(body);

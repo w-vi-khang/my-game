@@ -254,7 +254,7 @@ namespace Game.Client
         void Build()
         {
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            canvasGo = new GameObject("Vòng thời điểm", typeof(RectTransform));
+            canvasGo = new GameObject("Time Dial", typeof(RectTransform));
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 9;
@@ -266,44 +266,44 @@ namespace Game.Client
             var root = (RectTransform)canvasGo.transform;
             var half = new Vector2(0.5f, 0.5f);
 
-            periodText = NewText("Dòng buổi", root, font, 22, TextAnchor.MiddleRight);
+            periodText = NewText("Period Line", root, font, 22, TextAnchor.MiddleRight);
             Place(periodText.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 0.5f), new Vector2(-100f, -268f), new Vector2(420f, 40f));
             AddOutline(periodText, new Vector2(2f, -2f));
 
-            var controlsRt = Stretch("Nút và vòng", root, Vector2.zero, Vector2.zero, half);
+            var controlsRt = Stretch("Controls", root, Vector2.zero, Vector2.zero, half);
             controls = controlsRt.gameObject.AddComponent<CanvasGroup>();
 
-            button = Stretch("Nút thời điểm", controlsRt, Vector2.zero, Vector2.zero, half);
+            button = Stretch("Time Button", controlsRt, Vector2.zero, Vector2.zero, half);
             Place(button, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -232f), new Vector2(72f, 72f));
             AddGraphic(button, TimeDialShape.Disk, ButtonBg);
-            var bi = Stretch("Biểu tượng", button, Vector2.zero, Vector2.zero, half);
+            var bi = Stretch("Icon", button, Vector2.zero, Vector2.zero, half);
             Place(bi, half, half, Vector2.zero, new Vector2(56f, 56f));
             buttonIcon = AddGraphic(bi, TimeDialShape.Disk, Color.white);
 
-            ring = Stretch("Vòng", controlsRt, Vector2.zero, Vector2.zero, half);
+            ring = Stretch("Ring", controlsRt, Vector2.zero, Vector2.zero, half);
             Place(ring, new Vector2(1f, 1f), half, new Vector2(-180f, -470f), new Vector2(300f, 300f));
             AddGraphic(ring, TimeDialShape.Disk, RingBg);
-            var ci = Stretch("Mốc hiện tại", ring, Vector2.zero, Vector2.zero, half);
+            var ci = Stretch("Current Landmark", ring, Vector2.zero, Vector2.zero, half);
             Place(ci, half, half, Vector2.zero, new Vector2(80f, 80f));
             centerIcon = AddGraphic(ci, TimeDialShape.Disk, Color.white);
 
             for (int i = 0; i < 4; i++)
             {
                 var m = (TimeLandmark)i;
-                var item = Stretch("Mốc " + LandmarkName(m), ring, Vector2.zero, Vector2.zero, half);
+                var item = Stretch("Landmark " + m, ring, Vector2.zero, Vector2.zero, half);
                 Place(item, half, half, Offsets[i], new Vector2(72f, 72f));
                 items[i] = item;
                 itemBgs[i] = AddGraphic(item, TimeDialShape.Disk, NormalBg);
-                var icon = Stretch("Biểu tượng", item, Vector2.zero, Vector2.zero, half);
+                var icon = Stretch("Icon", item, Vector2.zero, Vector2.zero, half);
                 Place(icon, half, half, Vector2.zero, new Vector2(56f, 56f));
                 AddGraphic(icon, ShapeOf(m), ColorOf(m));
-                var label = NewText("Tên " + LandmarkName(m), item, font, 18, TextAnchor.UpperCenter);
+                var label = NewText("Name " + m, item, font, 18, TextAnchor.UpperCenter);
                 Place(label.rectTransform, half, new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(140f, 24f));
                 AddOutline(label, new Vector2(1.5f, -1.5f));
                 itemLabels[i] = label;
             }
 
-            hintText = NewText("Gợi ý", ring, font, 18, TextAnchor.MiddleCenter);
+            hintText = NewText("Hint", ring, font, 18, TextAnchor.MiddleCenter);
             Place(hintText.rectTransform, half, half, new Vector2(0f, -180f), new Vector2(320f, 28f));
             AddOutline(hintText, new Vector2(1.5f, -1.5f));
             RefreshText();
@@ -312,7 +312,7 @@ namespace Game.Client
             IsReady = true;
             SetOpen(startOpen);
             Refresh();
-            Debug.Log($"TIMEDIAL dựng: 4 mốc, mở={IsOpen}, buổi={day.Day.Period}, font={(font != null ? font.name : "null")}");
+            Debug.Log($"TIMEDIAL built: 4 landmarks, open={IsOpen}, period={day.Day.Period}, font={(font != null ? font.name : "null")}");
         }
 
         static void AddOutline(Text t, Vector2 distance)

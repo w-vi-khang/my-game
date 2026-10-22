@@ -45,7 +45,7 @@ namespace Game.Client
             TillTimer = new WorkTimer(cfg.PlayerTillSeconds);
             RainCooldown = new Cooldown(cfg.RainCooldownSeconds);
             RainBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            RainBox.name = "Mưa";
+            RainBox.name = "Rain";
             Destroy(RainBox.GetComponent<Collider>());
             RainBox.transform.SetParent(transform, false);
             var mat = new UnityEngine.Material(Shader.Find("Game/GhostBlock"));

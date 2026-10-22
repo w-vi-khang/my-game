@@ -410,7 +410,7 @@ namespace Game.Client
 
         LineRenderer CreateOutline()
         {
-            var go = new GameObject("Ô đang chọn");
+            var go = new GameObject("Selection");
             go.transform.SetParent(transform, false);
             var lr = go.AddComponent<LineRenderer>();
             lr.useWorldSpace = false;
@@ -441,7 +441,7 @@ namespace Game.Client
 
         void CreateGhost()
         {
-            var go = new GameObject("Bản mờ");
+            var go = new GameObject("Ghost");
             go.transform.SetParent(transform, false);
             var verts = new Vector3[8];
             for (int i = 0; i < 8; i++)
@@ -455,7 +455,7 @@ namespace Game.Client
                 0, 4, 2, 2, 4, 6, // x = 0
                 1, 3, 5, 3, 7, 5, // x = 1
             };
-            var mesh = new Mesh { name = "Bản mờ" };
+            var mesh = new Mesh { name = "Ghost" };
             mesh.vertices = verts;
             mesh.triangles = tris;
             mesh.RecalculateBounds();

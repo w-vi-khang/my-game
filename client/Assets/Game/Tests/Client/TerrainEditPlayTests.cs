@@ -223,11 +223,11 @@ namespace Game.Client.Tests
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
             Assert.IsNull(input.Ghost.GetComponent<Collider>());
-            Assert.AreEqual("Bản mờ", input.Ghost.name);
+            Assert.AreEqual("Ghost", input.Ghost.name);
             Assert.IsNotNull(Shader.Find("Game/GhostBlock"));
             view.Build();
             yield return null;
-            Assert.IsNotNull(go.transform.Find("Bản mờ"));
+            Assert.IsNotNull(go.transform.Find("Ghost"));
         }
 
         [UnityTest]
@@ -256,7 +256,7 @@ namespace Game.Client.Tests
             var input = go.AddComponent<TerrainEditInput>();
             view.Build();
             yield return null;
-            Assert.IsNotNull(go.transform.Find("Ô đang chọn"), "khung chọn ô bị Build() huỷ");
+            Assert.IsNotNull(go.transform.Find("Selection"), "selection frame destroyed by Build()");
             Assert.IsTrue(input.isActiveAndEnabled);
         }
 

@@ -358,7 +358,7 @@ namespace Game.Client
                 marker.localEulerAngles = new Vector3(0f, 0f, -Mathf.Atan2(f.x, f.z) * Mathf.Rad2Deg);
         }
 
-        /// <summary>Ô nhỏ (brief 0025): người chơi ở tâm — dời "Nội dung" + đổi uvRect ảnh nền, xoay mũi tên, tên map ở cột dưới người chơi.</summary>
+        /// <summary>Ô nhỏ (brief 0025): người chơi ở tâm — dời "Content" + đổi uvRect ảnh nền, xoay mũi tên, tên map ở cột dưới người chơi.</summary>
         void RefreshCorner()
         {
             var cam = Camera.main;
@@ -411,7 +411,7 @@ namespace Game.Client
             labelWorld = MinimapOverlay.LabelPositions(view.Maps);
 
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            var canvasGo = new GameObject("Bản đồ", typeof(RectTransform));
+            var canvasGo = new GameObject("Map", typeof(RectTransform));
             canvasGo.transform.SetParent(transform, false);
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -424,25 +424,25 @@ namespace Game.Client
             var root = (RectTransform)canvasGo.transform;
 
             // Bảng phủ (ẩn khi đóng): nền tối + dòng hướng dẫn + khung bản đồ.
-            var panelRt = Stretch("Bảng bản đồ", root, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+            var panelRt = Stretch("Map Panel", root, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
             panel = panelRt.gameObject;
             AddImage(panelRt, new Color(0f, 0f, 0f, 0.6f));
-            hintText = NewText("Hướng dẫn", panelRt, font, 22, TextAnchor.MiddleLeft);
+            hintText = NewText("Hint", panelRt, font, 22, TextAnchor.MiddleLeft);
             Place(hintText.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -16f), new Vector2(900f, 56f));
 
             frame = Stretch("Khung", panelRt, new Vector2(16f, 16f), new Vector2(-16f, -88f), Vector2.zero);
             frame.gameObject.AddComponent<RectMask2D>();
-            image = Stretch("Ảnh nền", frame, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<RawImage>();
+            image = Stretch("Background Image", frame, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<RawImage>();
             image.texture = Texture;
             image.raycastTarget = false;
-            lines = Stretch("Ranh giới", frame, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<MinimapLinesGraphic>();
+            lines = Stretch("Borders", frame, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<MinimapLinesGraphic>();
             lines.Lines = borders;
             lines.Thickness = borderThickness;
             lines.color = borderColor;
             lines.raycastTarget = false;
             for (int m = 0; m < view.Maps.MapCount; m++)
             {
-                var t = NewText("Tên map " + m, frame, font, labelFontSize, TextAnchor.MiddleCenter);
+                var t = NewText("Map Name " + m, frame, font, labelFontSize, TextAnchor.MiddleCenter);
                 Place(t.rectTransform, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400f, 60f));
                 t.text = view.Maps.Name(m);
                 var outline = t.gameObject.AddComponent<Outline>();
@@ -455,13 +455,13 @@ namespace Game.Client
                 for (int i = 0; i < lms.Count; i++)
                 {
                     var l = lms[i];
-                    var icon = Stretch("Dấu mốc " + i, frame, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+                    var icon = Stretch("Landmark " + i, frame, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
                     Place(icon, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(landmarkIconSize, landmarkIconSize));
                     var g = icon.gameObject.AddComponent<MinimapLandmarkGraphic>();
                     g.diamond = l.Kind == LandmarkKind.Checkpoint;
                     g.color = LandmarkStyle.ColorOf(l);
                     g.raycastTarget = false;
-                    var t = NewText("Tên dấu mốc " + i, frame, font, landmarkFontSize, TextAnchor.UpperCenter);
+                    var t = NewText("Landmark Name " + i, frame, font, landmarkFontSize, TextAnchor.UpperCenter);
                     Place(t.rectTransform, Vector2.zero, new Vector2(0.5f, 1f), Vector2.zero, new Vector2(300f, 30f));
                     t.text = l.Name;
                     var outline = t.gameObject.AddComponent<Outline>();
@@ -470,17 +470,17 @@ namespace Game.Client
                     landmarkIcons.Add(icon);
                     landmarkLabels.Add(t);
                 }
-            marker = Stretch("Người chơi", frame, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+            marker = Stretch("Player", frame, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
             Place(marker, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(26f, 26f));
             var mg = marker.gameObject.AddComponent<MinimapMarkerGraphic>();
             mg.color = markerColor;
             mg.raycastTarget = false;
 
             // Nút Đóng trong bảng (brief 0025): chỗ nút cũ, chỉ hiện khi bản đồ mở.
-            button = Stretch("Nút đóng", panelRt, Vector2.zero, Vector2.zero, new Vector2(1f, 1f));
+            button = Stretch("Close Button", panelRt, Vector2.zero, Vector2.zero, new Vector2(1f, 1f));
             Place(button, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -16f), new Vector2(180f, 56f));
             AddImage(button, new Color(0.1f, 0.1f, 0.1f, 0.75f));
-            closeText = NewText("Chữ", button, font, 24, TextAnchor.MiddleCenter);
+            closeText = NewText("Text", button, font, 24, TextAnchor.MiddleCenter);
             BuildCorner(root, font, borders);
 
             Canvas.ForceUpdateCanvases();
@@ -492,7 +492,7 @@ namespace Game.Client
             GameSettings.Changed += RefreshText;
             sw.Stop();
             BuildMs = sw.Elapsed.TotalMilliseconds;
-            Debug.Log($"MINIMAP dựng: ảnh {s.X}x{s.Z}, {BorderCount} đường ranh giới, {labels.Count} tên, {landmarkIcons.Count} dấu mốc, ô nhỏ {CornerColumns:F0} cột {cornerK:F3} px/cột, font={(font != null ? font.name : "null")}, khung {frame.rect.width:F0}x{frame.rect.height:F0}, {BuildMs:F1} ms");
+            Debug.Log($"MINIMAP built: image {s.X}x{s.Z}, {BorderCount} border lines, {labels.Count} names, {landmarkIcons.Count} landmarks, corner {CornerColumns:F0} columns {cornerK:F3} px/column, font={(font != null ? font.name : "null")}, frame {frame.rect.width:F0}x{frame.rect.height:F0}, {BuildMs:F1} ms");
         }
 
         void BuildCorner(RectTransform root, Font font, List<float[]> borders)
@@ -503,14 +503,14 @@ namespace Game.Client
             float W = view.World.Size.X, H = view.World.Size.Z;
             CornerViewport = new MinimapViewport(W, H, W * cornerK, H * cornerK);
 
-            corner = Stretch("Ô bản đồ", root, Vector2.zero, Vector2.zero, half);
+            corner = Stretch("Corner", root, Vector2.zero, Vector2.zero, half);
             Place(corner, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-16f, -16f), new Vector2(CornerSize, CornerSize));
             var rim = corner.gameObject.AddComponent<TimeDialGraphic>();
             rim.shape = TimeDialShape.Disk;
             rim.color = CornerRimColor;
             rim.raycastTarget = false;
 
-            var maskRt = Stretch("Mặt nạ", corner, Vector2.zero, Vector2.zero, half);
+            var maskRt = Stretch("Mask", corner, Vector2.zero, Vector2.zero, half);
             Place(maskRt, half, half, Vector2.zero, new Vector2(d, d));
             var maskG = maskRt.gameObject.AddComponent<TimeDialGraphic>();
             maskG.shape = TimeDialShape.Disk;
@@ -519,14 +519,14 @@ namespace Game.Client
             cornerMask = maskRt.gameObject.AddComponent<Mask>();
             cornerMask.showMaskGraphic = true;
 
-            cornerImage = Stretch("Ảnh nền", maskRt, Vector2.zero, Vector2.zero, half).gameObject.AddComponent<RawImage>();
+            cornerImage = Stretch("Background Image", maskRt, Vector2.zero, Vector2.zero, half).gameObject.AddComponent<RawImage>();
             cornerImage.texture = Texture;
             cornerImage.raycastTarget = false;
 
-            cornerContent = Stretch("Nội dung", maskRt, Vector2.zero, Vector2.zero, half);
+            cornerContent = Stretch("Content", maskRt, Vector2.zero, Vector2.zero, half);
             Place(cornerContent, half, Vector2.zero, Vector2.zero, new Vector2(W * cornerK, H * cornerK));
 
-            cornerLines = Stretch("Ranh giới", cornerContent, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<MinimapLinesGraphic>();
+            cornerLines = Stretch("Borders", cornerContent, Vector2.zero, Vector2.zero, Vector2.zero).gameObject.AddComponent<MinimapLinesGraphic>();
             cornerLines.Lines = borders;
             cornerLines.Thickness = CornerLineThickness;
             cornerLines.color = borderColor;
@@ -538,7 +538,7 @@ namespace Game.Client
                 for (int i = 0; i < lms.Count; i++)
                 {
                     var l = lms[i];
-                    var icon = Stretch("Dấu mốc " + i, cornerContent, Vector2.zero, Vector2.zero, half);
+                    var icon = Stretch("Landmark " + i, cornerContent, Vector2.zero, Vector2.zero, half);
                     CornerViewport.WorldToPanel(l.X + 0.5f, l.Z + 0.5f, out float ix, out float iy);
                     Place(icon, Vector2.zero, half, new Vector2(ix, iy), new Vector2(CornerLandmarkSize, CornerLandmarkSize));
                     var g = icon.gameObject.AddComponent<MinimapLandmarkGraphic>();
@@ -548,20 +548,20 @@ namespace Game.Client
                     cornerLandmarks.Add(icon);
                 }
 
-            cornerMarker = Stretch("Người chơi", corner, Vector2.zero, Vector2.zero, half);
+            cornerMarker = Stretch("Player", corner, Vector2.zero, Vector2.zero, half);
             Place(cornerMarker, half, half, Vector2.zero, new Vector2(CornerMarkerSize, CornerMarkerSize));
             var mg = cornerMarker.gameObject.AddComponent<MinimapMarkerGraphic>();
             mg.color = markerColor;
             mg.raycastTarget = false;
 
-            cornerName = NewText("Tên map", corner, font, 16, TextAnchor.MiddleCenter);
+            cornerName = NewText("Map Name", corner, font, 16, TextAnchor.MiddleCenter);
             Place(cornerName.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 18f), new Vector2(160f, 22f));
             var outline = cornerName.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.85f);
             outline.effectDistance = new Vector2(1.5f, -1.5f);
             cornerName.enabled = false;
 
-            var nRt = Stretch("Nền N", corner, Vector2.zero, Vector2.zero, half);
+            var nRt = Stretch("North Background", corner, Vector2.zero, Vector2.zero, half);
             Place(nRt, new Vector2(0.5f, 1f), half, new Vector2(0f, -3f), new Vector2(28f, 28f));
             var nG = nRt.gameObject.AddComponent<TimeDialGraphic>();
             nG.shape = TimeDialShape.Disk;

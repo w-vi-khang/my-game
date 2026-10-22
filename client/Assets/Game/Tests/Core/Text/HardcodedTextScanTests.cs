@@ -18,11 +18,6 @@ namespace Game.Core.Tests
             "Client/MinimapView.cs", "Client/TimeDial.cs", "Client/SettingsView.cs",
         };
 
-        static readonly string[] SkipLines =
-        {
-            "Box(", "Stretch(", "NewText(", "AddBlock(", ".name =", "name = ", "Debug.Log", "throw ", "Exception(",
-        };
-
         static readonly Regex Literal = new Regex(@"""(?:[^""\\]|\\.)*""");
         static readonly Regex Vietnamese = new Regex("[À-ỹĐđ]");
         static readonly Regex KeyUse = new Regex(@"(?:\bT|\.Get|Format)\(\s*""([a-z0-9_]+\.[a-z0-9_]+)""");
@@ -40,10 +35,6 @@ namespace Game.Core.Tests
                 for (int i = 0; i < lines.Length; i++)
                 {
                     if (lines[i].Trim().StartsWith("//", StringComparison.Ordinal)) continue;
-                    bool skip = false;
-                    foreach (var k in SkipLines)
-                        if (lines[i].Contains(k)) { skip = true; break; }
-                    if (skip) continue;
                     foreach (Match m in Literal.Matches(lines[i]))
                         if (Vietnamese.IsMatch(m.Value)) bad.Add(f + ":" + (i + 1) + ": " + m.Value);
                 }
