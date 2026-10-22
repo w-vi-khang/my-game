@@ -10,34 +10,36 @@ Chỉ ghi sự thật đã xác minh. -->
 
 ## Mục tiêu
 Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [0029](../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md) (Chốt) theo thứ tự user chọn 2026-10-22:
-1. ~~world 7h (a) — nhân vật PC~~ xong (brief 0035);
-2. ~~sim 7e — vật rơi + túi + nhặt + túi hạt~~ xong (brief 0036, 0037, 0038 tầm với 8 ô — đã duyệt);
-3. ~~world 7h (b) — đo FPS điện thoại~~ xong (brief 0039 đã duyệt: 49,4 FPS, 0 lỗ); cảm ứng → task "Điều khiển cảm ứng" sau (user 2026-10-22: "làm trên máy tính trước…");
-4. sim 7f — tự trồng trọt + phép Mưa + kho ↔ túi ← TIẾP THEO;
-5. world 7i–7k (nhiều điểm nhìn, camera quan sát, GPU culling);
-6. sim bước 8 — môi trường sống (user tạm hoãn).
+1. ~~world 7h (a)~~, ~~sim 7e~~, ~~world 7h (b)~~ — xong (brief 0035–0039).
+2. **sim 7f — tự trồng trọt + phép Mưa + kho ↔ túi ← ĐANG LÀM** ([task contract](tasks/m1-sim-buoc-7f-tu-trong-trot.md), user xác nhận đề xuất 1–11 + xới 6 giây).
+3. world 7i–7k (nhiều điểm nhìn, camera quan sát, GPU culling).
+4. sim bước 8 — môi trường sống (user tạm hoãn).
 
 ## Đã làm (kèm kết quả kiểm chứng)
-- Brief 0037 (`35ddfd4` code, `3d0ac0e` kết quả, `69cea00` review): `Client/DropView.cs` (RenderMeshInstanced), F = Thu, click nhặt (`Core/DropPick.cs`), túi hạt Cây A × 4 đầu game (`Core/StarterBag.cs`, `PlayerCharacter.StarterStack`), HUD `Túi hạt Cây A: N`. EditMode 437/437, PlayMode 117/117 (theo brief). User xem: "đa số đều ổn" → đã duyệt (`0b3a415`).
-- `0b3a415`: 0031 (mọi thao tác 8 ô, gồm mở kho — user nói "tất cả"; nếu user phản đối mở kho thì sửa 0031), 0030 → bị thay thế; mechanics, glossary, world-tech 7h, decisions/README; roadmap dòng sim 7e (giờ 18 + 10 phút); simulation-tech 7e Xong. `python3 tools/check_design.py` [run]: hợp lệ, 56 file.
-- Brief 0038 (`37880e8` code, `64668bb` kết quả, `25da3f3` review nhẹ): `ToolReach = HandReach = 8f`, chữ HUD "8 ô", test biên. EditMode 437/437, PlayMode 117/117 (theo brief).
+- Task contract 7f + brief 0040 (`d373626`). Brief 0040 lõi Game.Core: code `2f713c4`, kết quả `67a8881`, review đầy đủ (phiên con Opus) `32f0656` — **đã duyệt**, EditMode 472/472 [run, phiên review], PlayMode 121/121 (theo executor). Giờ thực tế 11 phút, đã ghi roadmap.
+- Brief 0041 client A (`745a00e`): tự đi tới + xới 6 giây (`PlayerCharacter.AutoWalk`, `Client/PlayerFarmActions.cs`), chuột phải bỏ biển, `TillResult.SelfTill`, nút `Tự xới` trong bảng ô ruộng, phép Mưa (R), click thu hoạch, HUD. Review `đầy đủ + user xem`. **Đã giao** phiên con [exec-0041](#local_3005d061-3ea1-415c-98b1-696ff6e2f3b2) (Sonnet · medium) — chưa có kết quả lúc ghi.
 
 ## Còn lại
-1. Sim 7f: task contract (`/ai-workflow-kit:task`) theo 0028, rồi brief (số kế: **0040**).
-2. Task "Điều khiển cảm ứng" (joystick, kéo xoay, nút nhảy, chạm dùng công cụ, nút Thu) — làm sau, user chưa chọn lúc nào.
-3. Còn treo (nhỏ): `SeaSkyTintPlayTests` comment sai chữ; test kink địa hình sát ngưỡng (0,0106 / 0,0111); `TerrainBench` chế độ đào mỗi khung (mặc định tắt) sẽ dồn vật rơi.
+1. Chờ exec-0041 xong → review đầy đủ (thẻ own_initiative Opus · medium như 0040) → liệt kê cho user mục "User tự test" của brief 0041 (8 bước), chờ phản hồi.
+2. Brief **0042** client B: bảng túi (phím B; khối / túi hạt / nông sản, ẩn dòng 0), chế độ gieo (`Sim.CheckPlayerSow`/`PlayerSow`; HUD `Gieo Cây A (còn N) — chuột phải / Esc để thoát`; Tab cũng thoát; hết hạt tự thoát; con trỏ trên bảng không đào/đặt), bảng kho có nút chuyển (`Sim.StorageInReach`, `StoreToStock`, `TakeFromStock`; mỗi click 1, Shift + click tất cả; ngoài tầm dòng `Lại gần kho (8 ô) để chuyển đồ`; click khối kho trong 8 ô mở bảng). Review `user xem`.
+3. Sau 0042: cập nhật tài liệu — mechanics (luật tự trồng), controls-ui (B, R, chuột phải bỏ biển, chế độ gieo, click biển tự xới, click cây chín thu hoạch), glossary nếu có từ mới, simulation-tech 7f trạng thái, roadmap giờ; `python3 tools/check_design.py`.
+4. Task "Điều khiển cảm ứng" — làm sau, user chưa chọn lúc nào.
+5. Còn treo (nhỏ): `SeaSkyTintPlayTests` comment sai chữ; test kink địa hình sát ngưỡng (0,0106 / 0,0111); `TerrainBench` chế độ đào mỗi khung (mặc định tắt) sẽ dồn vật rơi.
 
 ## Quyết định quan trọng & lý do
-- Phiên con: clear phiên con bị auto mode chặn → mở phiên con mới (`start_session`, `use_worktree: false`). Review đầy đủ giao Opus · medium (thẻ own_initiative); review nhẹ làm luôn ở phiên Planner cho đỡ tốn.
-- Điện thoại: Xiaomi 24095PCADG; 2026-10-22 USB không thấy, user bật gỡ lỗi qua Wi‑Fi → `adb devices` hiện `adb-PFQCRWVWR46HU4GQ-…._adb-tls-connect._tcp` (dò bằng `adb mdns services`); không dùng 192.168.1.7:6060 (TV).
+- Lệnh người chơi = hàm `Simulation` gọi giữa hai nhịp, `CompleteByPlayer` đánh dấu công đoạn Done/Player (theo simulation-tech "Người chơi làm công đoạn", user 2026-10-13).
+- Thu hoạch người chơi: số theo `sim_m1.json` (Cây A 1+1, Cây B 3+2), không chở. Khối không cất kho (kho M1 chỉ hạt + nông sản).
+- Phiên con: mở mới bằng `start_session` (`use_worktree: false`); review đầy đủ giao Opus · medium qua thẻ own_initiative; review nhẹ làm ở phiên Planner.
 - Dọn sau PlayMode: `git checkout -- client/ProjectSettings/EditorSettings.asset`; sau build APK: `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`.
+- Điện thoại Xiaomi 24095PCADG, gỡ lỗi Wi‑Fi (`adb mdns services`); không dùng 192.168.1.7:6060 (TV).
 
 ## File liên quan
-- `design/decisions/0028-*.md`, `0031-*.md`; `.ai/briefs/0037-sim-7e-vat-roi-client.md`, `.ai/briefs/0038-tam-voi-8-o.md`; `.ai/tasks/m1-world-7h-nhan-vat.md` (phần b).
-- `client/Assets/Game/Core/{PlayerRules,DropField,DropPick,StarterBag,PlayerBag}.cs`, `client/Assets/Game/Client/{PlayerCharacter,TerrainEditInput,DropView}.cs`.
+- `.ai/tasks/m1-sim-buoc-7f-tu-trong-trot.md`; `.ai/briefs/0040-sim-7f-loi-tu-trong-trot.md`, `.ai/briefs/0041-sim-7f-client-tu-xoi-mua-thu.md`.
+- Core: `client/Assets/Game/Core/Sim/Simulation.cs:983-1150` (API người chơi), `Core/PlayerTimers.cs`, `Core/PlayerBag.cs`, `Core/Sim/SimConfig.cs:191-192`.
+- Client: `Client/{PlayerCharacter,TerrainEditInput,SimView,PlayerFarmActions}.cs`; test `Tests/Client/{PlayerFarmPlayTests,SimFarmUiPlayTests}.cs`.
 
 ## Prompt tiếp tục
 ```text
-Đọc .ai/handoff.md. 7h + 7e xong. Viết task contract sim 7f (tự trồng trọt + phép Mưa + kho ↔ túi, theo 0028) rồi brief 0040.
+Đọc .ai/handoff.md. Sim 7f: brief 0040 đã duyệt; brief 0041 đã giao exec-0041. Kiểm kết quả 0041 → review đầy đủ → liệt kê user xem; sau đó viết brief 0042 (bảng túi, chế độ gieo, kho ↔ túi).
 Model đề xuất: Opus · high (Planner).
 ```
