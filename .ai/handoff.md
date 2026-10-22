@@ -17,10 +17,10 @@ Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [00
 
 ## Đã làm (kèm kết quả kiểm chứng)
 - Task contract 7f + brief 0040 (`d373626`). Brief 0040 lõi Game.Core: code `2f713c4`, kết quả `67a8881`, review đầy đủ (phiên con Opus) `32f0656` — **đã duyệt**, EditMode 472/472 [run, phiên review], PlayMode 121/121 (theo executor). Giờ thực tế 11 phút, đã ghi roadmap.
-- Brief 0041 client A (`745a00e`): tự đi tới + xới 6 giây (`PlayerCharacter.AutoWalk`, `Client/PlayerFarmActions.cs`), chuột phải bỏ biển, `TillResult.SelfTill`, nút `Tự xới` trong bảng ô ruộng, phép Mưa (R), click thu hoạch, HUD. Review `đầy đủ + user xem`. **Đã giao** phiên con [exec-0041](#local_3005d061-3ea1-415c-98b1-696ff6e2f3b2) (Sonnet · medium) — chưa có kết quả lúc ghi.
+- Brief 0041 client A (`745a00e`): tự đi tới + xới 6 giây (`PlayerCharacter.AutoWalk`, `Client/PlayerFarmActions.cs`), chuột phải bỏ biển, `TillResult.SelfTill`, nút `Tự xới` trong bảng ô ruộng, phép Mưa (R), click thu hoạch, HUD. Review `đầy đủ + user xem`. Executor xong: code `f4138f5`, kết quả `43a2198`; theo executor PlayerFarmPlayTests 12/12, PlayMode 133/133, EditMode 472/472. Đã đặt thẻ review đầy đủ (Opus · medium, task_6ed6fa73) — chưa chạy lúc ghi.
 
 ## Còn lại
-1. Chờ exec-0041 xong → review đầy đủ (thẻ own_initiative Opus · medium như 0040) → liệt kê cho user mục "User tự test" của brief 0041 (8 bước), chờ phản hồi.
+1. Review đầy đủ 0041 (thẻ đã đặt) → liệt kê cho user mục "User tự test" của brief 0041 (8 bước), chờ phản hồi.
 2. Brief **0042** client B: bảng túi (phím B; khối / túi hạt / nông sản, ẩn dòng 0), chế độ gieo (`Sim.CheckPlayerSow`/`PlayerSow`; HUD `Gieo Cây A (còn N) — chuột phải / Esc để thoát`; Tab cũng thoát; hết hạt tự thoát; con trỏ trên bảng không đào/đặt), bảng kho có nút chuyển (`Sim.StorageInReach`, `StoreToStock`, `TakeFromStock`; mỗi click 1, Shift + click tất cả; ngoài tầm dòng `Lại gần kho (8 ô) để chuyển đồ`; click khối kho trong 8 ô mở bảng). Review `user xem`.
 3. Sau 0042: cập nhật tài liệu — mechanics (luật tự trồng), controls-ui (B, R, chuột phải bỏ biển, chế độ gieo, click biển tự xới, click cây chín thu hoạch), glossary nếu có từ mới, simulation-tech 7f trạng thái, roadmap giờ; `python3 tools/check_design.py`.
 4. Task "Điều khiển cảm ứng" — làm sau, user chưa chọn lúc nào.
@@ -40,6 +40,6 @@ Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [00
 
 ## Prompt tiếp tục
 ```text
-Đọc .ai/handoff.md. Sim 7f: brief 0040 đã duyệt; brief 0041 đã giao exec-0041. Kiểm kết quả 0041 → review đầy đủ → liệt kê user xem; sau đó viết brief 0042 (bảng túi, chế độ gieo, kho ↔ túi).
+Đọc .ai/handoff.md. Sim 7f: brief 0040 đã duyệt; brief 0041 executor xong (f4138f5, 43a2198). Review đầy đủ 0041 (git log xem đã có commit review chưa) → liệt kê user xem; sau đó viết brief 0042 (bảng túi, chế độ gieo, kho ↔ túi).
 Model đề xuất: Opus · high (Planner).
 ```
