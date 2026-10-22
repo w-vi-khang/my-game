@@ -1,7 +1,7 @@
 # Task: M1 — tách lớp hành động điều khiển khỏi phím (0033)
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: chờ user xác nhận câu hỏi mở. Quyết định gốc: [0033](../../design/decisions/0033-tach-lop-hanh-dong-dieu-khien.md) (Chốt). Trước: 0032 xong (gồm thử điện thoại).
+> Trạng thái: user xác nhận câu hỏi mở (2026-10-22), chờ viết brief. Quyết định gốc: [0033](../../design/decisions/0033-tach-lop-hanh-dong-dieu-khien.md) (Chốt). Trước: 0032 xong (gồm thử điện thoại).
 
 ## Mục tiêu
 Mọi chỗ đọc chuột/bàn phím trong gameplay và UI người chơi đọc qua hành động (Input System 1.19 `InputAction`), không đọc thẳng `Keyboard.current.xKey` / `Mouse.current.xButton`. Phím mặc định y như hiện nay; chơi không đổi gì. Chuẩn bị cho bảng đổi phím M3 (luật đã chốt ở 0033 mục 2).
@@ -30,8 +30,7 @@ Mọi chỗ đọc chuột/bàn phím trong gameplay và UI người chơi đọ
 
 ## Quyết định đã chốt (ai chốt, khi nào)
 - M1 chỉ tách hành động, bảng đổi phím M3; lưu trong `settings.json`; trùng phím cùng ngữ cảnh → hỏi đổi chỗ; chỉ chuột + bàn phím, trừ debug, Esc cố định: user, 2026-10-22 (0033).
+- Khai báo bằng asset mới `Assets/Game/Client/Input/GameControls.inputactions`, xoá asset template `Assets/InputSystem_Actions.inputactions` không dùng; làm ngay sau 0032, trước world 7i–7k; một brief Sonnet · medium, review đầy đủ + user xem: user, 2026-10-22.
 
 ## Câu hỏi còn mở
-1. **Bảng hành động khai báo ở đâu?** Đề xuất [ý tưởng]: một asset `Assets/Game/Client/Input/GameControls.inputactions` mới (sửa được trong Editor, M3 đổi phím dùng luôn), xoá asset template `Assets/InputSystem_Actions.inputactions` không dùng. Cách khác: khai báo bằng code C#.
-2. **Thứ tự:** làm ngay sau 0032 (trước world 7i–7k) hay sau 7i–7k? Đề xuất: ngay sau 0032, vì 7i–7k thêm camera quan sát (thêm phím mới).
-3. **Tách brief:** một brief (Sonnet · medium, review đầy đủ + user xem) — khoảng 50 chỗ đọc phím ở 8 file.
+_(không)_
