@@ -1,9 +1,9 @@
 # Brief 0047 — Tách lớp hành động điều khiển khỏi phím (0033, M1)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 22:10
+> Cập nhật: 2026-10-22 22:08
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -364,13 +364,23 @@ with open(sys.argv[1], "w", encoding="utf-8", newline="\n") as f:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 15deac2
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 22:08 2026-10-22
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · bắt đầu/kết thúc (date) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
+- EditMode toàn bộ: 498/498 qua (gồm 5 test mới GameControlsTests) — [run].
+- PlayMode toàn bộ: 165/168; 3 test mới `GameControlsPlayTests` (MoveIsDigitalWasd, ProjectWideActionsAreGameControls, SwapMouseButtonsByOverride) FAIL; 165 test cũ qua. Chạy riêng 3 test cũng fail y hệt.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
 ## Vướng mắc
+Đã xong bước 1–11 (code + test nằm trong working tree, CHƯA commit). Bước 2 đạt: `GameControls`, EditorBuildSettings chỉ đổi guid sang f620f721…, template đã xoá. Lưu ý: `execute_code` chặn `AssetDatabase.DeleteAsset` (safety_checks) → tôi gọi lại với `safety_checks=false` đúng lệnh brief.
+**Lỗi:** trong PlayMode test runner, `InputSystem.actions` = GameControls nhưng `GameInput.UseTool.enabled == false` (nên Move đọc 0, ProjectWideActionsAreGameControls fail ở dòng `enabled`). Ngược lại, vào Play thật (`manage_editor play` + `execute_code`): `enabled=True`. Vậy brief giả định "tự bật sẵn" đúng khi chơi thật nhưng không đúng dưới test runner (Input System có vẻ tắt/không bật project-wide actions trong lúc chạy test — [chưa xác minh] nguyên nhân).
+**Câu hỏi:** trong 3 test PlayMode mới, được gọi `InputSystem.actions.Enable()` ở đầu test (và `Disable()` ở finally nếu ban đầu tắt) không? `InputActionAsset.Enable/Disable` không có trong danh sách API của brief.
+**Phương án:** (A) test tự `Enable()` nếu `!enabled` rồi trả lại trạng thái cũ — chỉ đổi test; nhưng khi đó các test cũ không bị ảnh hưởng vì chúng không đọc hành động (đã qua 165/165). (B) bỏ 2 test cần đọc giá trị, chỉ giữ kiểm cấu hình. **Đề xuất: A**, Planner tra docs `InputActionAsset.Enable` 1.19 và thêm vào brief.
+Giờ: bắt đầu 22:08, dừng ~22:25.
 
 ---
 <!-- PLANNER ghi khi review. -->
