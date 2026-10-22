@@ -1,9 +1,9 @@
 # Brief 0037 — Sim 7e (client): hiển thị vật rơi, phím F (Thu), click nhặt, túi hạt đầu game, HUD túi hạt
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 15:40
+> Cập nhật: 2026-10-22 15:54
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -529,9 +529,22 @@ Trên Mac, Play scene `TerrainView` rồi scene `SimView` (cả hai có nhân v�
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 04bc014
+- Chạy bằng: claude-sonnet-5-5 · medium (OK: brief 0037 cần Sonnet · medium)
+- Bắt đầu: 2026-10-22 15:44 · kết thúc: 2026-10-22 15:54 (~10 phút thực tế)
+- Commit: 35ddfd4 — file: Core/DropPick.cs, Core/StarterBag.cs, Client/DropView.cs, Client/TerrainEditInput.cs, Client/PlayerCharacter.cs, Tests/Core/DropPickTests.cs, Tests/Core/StarterBagTests.cs, Tests/Client/DropPlayTests.cs (+ .meta)
+- Lệch brief: không. DropView chép nguyên khung brief.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
+- Chọn chồng bằng tia (DropPickTests 1–8) → đạt (EditMode 437/437).
+- Ô túi hạt (StarterBagTests 1–7) → đạt.
+- Túi hạt đầu game + HUD, F 4 ô + bay, click nhặt/chồng xa không chặn, đào→nhặt→đặt, instancing + nhãn (DropPlayTests 1–5) → đạt (chạy riêng 5/5; log `STARTERBAG … ở (123, 21, 206)`).
+- Phần cũ (PlayerCharacter, TerrainEdit, Sim*, còn lại) → đạt (PlayMode toàn bộ 117/117).
+- Phần user tự test (10 mục) → chờ user.
+- `run_tests EditMode` → 437 passed / 0 failed. `run_tests PlayMode` → 117 passed / 0 failed.
+- `git checkout -- EditorSettings.asset` → đã chạy; `read_console` Error → 0.
+- grep UnityEngine trong DropPick/StarterBag → không có; grep `kho hết` → không có; `git diff --stat fa72764` file cấm sửa → rỗng.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
