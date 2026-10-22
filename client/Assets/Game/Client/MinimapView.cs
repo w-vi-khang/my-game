@@ -160,13 +160,9 @@ namespace Game.Client
                 Texture.Apply(false);
                 pixelsDirty = false;
             }
-            var kb = Keyboard.current;
-            if (kb != null)
-            {
-                if (kb.mKey.wasPressedThisFrame) Toggle();
-                else if (IsOpen && kb.escapeKey.wasPressedThisFrame) SetOpen(false);
-            }
-            HandleMouse(Mouse.current);
+            if (GameInput.ToggleMap.WasPressedThisFrame()) Toggle();
+            else if (IsOpen && GameInput.MapClose.WasPressedThisFrame()) SetOpen(false);
+            HandleMouse();
             HandleTouches(Touchscreen.current);
             if (IsOpen)
                 Refresh();
@@ -251,28 +247,28 @@ namespace Game.Client
             Viewport.Pinch(pa0.x, pa0.y, pb0.x, pb0.y, pa1.x, pa1.y, pb1.x, pb1.y);
         }
 
-        void HandleMouse(Mouse mouse)
+        void HandleMouse()
         {
-            if (mouse == null)
+            if (!GameInput.HasPointer)
                 return;
-            var pos = mouse.position.ReadValue();
-            if (mouse.leftButton.wasPressedThisFrame && PressAt(pos))
+            var pos = GameInput.PointerPosition;
+            if (GameInput.MapPress.WasPressedThisFrame() && PressAt(pos))
                 return;
             if (!IsOpen)
                 return;
-            if (mouse.leftButton.wasPressedThisFrame && IsOverFrame(pos))
+            if (GameInput.MapPress.WasPressedThisFrame() && IsOverFrame(pos))
             {
                 mouseDragging = true;
                 lastMouse = pos;
             }
-            if (!mouse.leftButton.isPressed)
+            if (!GameInput.MapPress.IsPressed())
                 mouseDragging = false;
             if (mouseDragging && pos != lastMouse)
             {
                 PanScreen(lastMouse, pos);
                 lastMouse = pos;
             }
-            float wheel = mouse.scroll.ReadValue().y;
+            float wheel = GameInput.MapZoom.ReadValue<float>();
             if ((wheel > 0.01f || wheel < -0.01f) && IsOverFrame(pos))
                 ZoomAtScreen(pos, wheel > 0f ? zoomStep : 1f / zoomStep);
         }

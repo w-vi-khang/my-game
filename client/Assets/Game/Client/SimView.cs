@@ -117,16 +117,12 @@ namespace Game.Client
                 Setup();
             }
 
-            var kb = Keyboard.current;
-            if (kb != null)
-            {
-                if (kb.f1Key.wasPressedThisFrame) SetFrameRate(30);
-                if (kb.f2Key.wasPressedThisFrame) SetFrameRate(60);
-                if (kb.kKey.wasPressedThisFrame) ToggleStock();
-                if (kb.bKey.wasPressedThisFrame) ToggleBag();
-                if (BagOpen && kb.escapeKey.wasPressedThisFrame) BagOpen = false;
-                if (OpenPlotId >= 0 && kb.escapeKey.wasPressedThisFrame) ClosePlotPanel();
-            }
+            if (DebugKeys.WasPressed(Key.F1)) SetFrameRate(30);
+            if (DebugKeys.WasPressed(Key.F2)) SetFrameRate(60);
+            if (GameInput.ToggleStock.WasPressedThisFrame()) ToggleStock();
+            if (GameInput.ToggleBag.WasPressedThisFrame()) ToggleBag();
+            if (BagOpen && GameInput.PanelsClose.WasPressedThisFrame()) BagOpen = false;
+            if (OpenPlotId >= 0 && GameInput.PanelsClose.WasPressedThisFrame()) ClosePlotPanel();
             smoothedDt = smoothedDt * 0.9f + Time.unscaledDeltaTime * 0.1f;
 
             int n = clock.Advance(Time.deltaTime);
@@ -481,7 +477,7 @@ namespace Game.Client
                 GUI.Box(r, "");
                 GUI.Label(new Rect(r.x + 8f, r.y + 4f, r.width - 16f, 24f), SiteStatus.StockPanelText(GameSettings.Text, Sim.State.Stock, Sim.Config).Split('\n')[0], hudStyle);
                 var stock = Sim.State.Stock;
-                bool shift = Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
+                bool shift = GameInput.TransferAll.IsPressed();
                 for (int i = 0; i < Sim.Config.crops.Length; i++)
                 {
                     float y0 = r.y + 32f + 50f * i;

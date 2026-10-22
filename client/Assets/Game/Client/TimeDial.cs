@@ -139,21 +139,16 @@ namespace Game.Client
                 return;
             }
 
-            var kb = Keyboard.current;
-            if (kb != null)
+            if (GameInput.ToggleTimeDial.WasPressedThisFrame() && actedFrame != Time.frameCount)
             {
-                if (kb.tKey.wasPressedThisFrame && actedFrame != Time.frameCount)
-                {
-                    actedFrame = Time.frameCount;
-                    SetOpen(!IsOpen);
-                }
-                else if (IsOpen && kb.escapeKey.wasPressedThisFrame)
-                    SetOpen(false);
+                actedFrame = Time.frameCount;
+                SetOpen(!IsOpen);
             }
+            else if (IsOpen && GameInput.TimeDialClose.WasPressedThisFrame())
+                SetOpen(false);
 
-            var mouse = Mouse.current;
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
-                PointerDown(mouse.position.ReadValue());
+            if (GameInput.HasPointer && GameInput.TimeDialPress.WasPressedThisFrame())
+                PointerDown(GameInput.PointerPosition);
 
             var ts = Touchscreen.current;
             touches.Clear();

@@ -194,8 +194,7 @@ namespace Game.Client
                 else Debug.LogWarning("STARTERBAG không tìm được chỗ đặt túi hạt quanh chỗ xuất phát");
             }
 
-            var kb = Keyboard.current;
-            if (kb != null && kb.f3Key.wasPressedThisFrame) SetFlyMode(!FlyMode);
+            if (DebugKeys.WasPressed(Key.F3)) SetFlyMode(!FlyMode);
 
             if (!Ready)
             {
@@ -210,10 +209,10 @@ namespace Game.Client
                 MoveInput = Vector2.zero;
                 JumpInput = false;
             }
-            else if (readKeyboard && kb != null)
+            else if (readKeyboard)
             {
-                MoveInput = new Vector2((kb.dKey.isPressed ? 1f : 0f) - (kb.aKey.isPressed ? 1f : 0f), (kb.wKey.isPressed ? 1f : 0f) - (kb.sKey.isPressed ? 1f : 0f));
-                JumpInput = kb.spaceKey.isPressed;
+                MoveInput = GameInput.Move.ReadValue<Vector2>();
+                JumpInput = GameInput.Jump.IsPressed();
             }
 
             var f = FeetLocal;

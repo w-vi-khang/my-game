@@ -36,6 +36,9 @@ namespace Game.Client
         /// <summary>Đang giữ phím di chuyển W/A/S/D/Q/E (brief 0010 QĐ 11).</summary>
         public static bool IsMoveKeyHeld(Keyboard kb) => kb != null && (kb.wKey.isPressed || kb.aKey.isPressed || kb.sKey.isPressed || kb.dKey.isPressed || kb.qKey.isPressed || kb.eKey.isPressed);
 
+        /// <summary>Như IsMoveKeyHeld(kb) với bàn phím hiện tại (phím debug, đọc thẳng).</summary>
+        public static bool IsMoveKeyHeld() => IsMoveKeyHeld(Keyboard.current);
+
         /// <summary>Dời camera theo delta (toạ độ thế giới); có terrain → không vào ô đặc, trượt dọc vách (brief 0011).</summary>
         public void Fly(Vector3 delta)
         {

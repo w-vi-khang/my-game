@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Game.Core;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Game.Client
 {
@@ -83,9 +82,7 @@ namespace Game.Client
 
         void Update()
         {
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            HandleKeys(kb.oKey.wasPressedThisFrame, kb.escapeKey.wasPressedThisFrame);
+            HandleKeys(GameInput.ToggleSettings.WasPressedThisFrame(), GameInput.SettingsClose.WasPressedThisFrame());
         }
 
         public void ApplyToScene()

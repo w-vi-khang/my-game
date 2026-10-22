@@ -2,7 +2,6 @@ using Game.Core;
 using Game.Core.Sim;
 using UnityEngine;
 using Game.World;
-using UnityEngine.InputSystem;
 
 namespace Game.Client
 {
@@ -81,58 +80,55 @@ namespace Game.Client
         {
             AimedDrop = null;
             AimedHarvest = -1;
-            var kb = Keyboard.current;
-            if (kb != null)
-            {
-                if (kb.digit1Key.wasPressedThisFrame) selected = 0;
-                if (kb.digit2Key.wasPressedThisFrame) selected = 1;
-                if (kb.digit3Key.wasPressedThisFrame) selected = 2;
-                if (kb.digit4Key.wasPressedThisFrame) selected = 3;
-                if (kb.tabKey.wasPressedThisFrame) ToggleTool();
-                if (kb.escapeKey.wasPressedThisFrame && Farming.SowCrop >= 0) Farming.ExitSowMode();
-                if (kb.fKey.wasPressedThisFrame) CollectNearby();
-            }
+            if (GameInput.SelectBlock1.WasPressedThisFrame()) selected = 0;
+            if (GameInput.SelectBlock2.WasPressedThisFrame()) selected = 1;
+            if (GameInput.SelectBlock3.WasPressedThisFrame()) selected = 2;
+            if (GameInput.SelectBlock4.WasPressedThisFrame()) selected = 3;
+            if (GameInput.CycleTool.WasPressedThisFrame()) ToggleTool();
+            if (GameInput.Back.WasPressedThisFrame() && Farming.SowCrop >= 0) Farming.ExitSowMode();
+            if (GameInput.Collect.WasPressedThisFrame()) CollectNearby();
 
-            var mouse = Mouse.current;
-            if (mouse != null && Farming.SowCrop >= 0 && mouse.rightButton.wasPressedThisFrame)
+            bool hasPointer = GameInput.HasPointer;
+            var pointer = GameInput.PointerPosition;
+            if (hasPointer && Farming.SowCrop >= 0 && GameInput.Cancel.WasPressedThisFrame())
             {
                 Farming.ExitSowMode();
                 ShowAim(false, default, default);
                 return;
             }
             // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
-            if (mouse != null && (MinimapView.BlocksPointer(mouse.position.ReadValue()) || TimeDial.BlocksPointer(mouse.position.ReadValue()) || SimView.BlocksPointer(mouse.position.ReadValue())))
+            if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer)))
             {
                 ShowAim(false, default, default);
                 return;
             }
-            if (mouse != null)
+            if (hasPointer)
             {
                 // Alt + lăn chuột đổi loại (lăn không Alt = thu phóng camera nhân vật, user 2026-10-22).
-                if (kb != null && kb.altKey.isPressed)
+                if (GameInput.CycleBlockModifier.IsPressed())
                 {
-                    float wheel = mouse.scroll.ReadValue().y;
+                    float wheel = GameInput.Zoom.ReadValue<float>();
                     if (wheel > 0.01f) selected = (selected + Palette.Length - 1) % Palette.Length;
                     else if (wheel < -0.01f) selected = (selected + 1) % Palette.Length;
                 }
             }
 
             var cam = Camera.main;
-            if (mouse == null || cam == null || view.Editor == null)
+            if (!hasPointer || cam == null || view.Editor == null)
                 return;
 
-            var ray = cam.ScreenPointToRay(mouse.position.ReadValue());
+            var ray = cam.ScreenPointToRay(pointer);
             var player = PlayerCharacter.Active;
             // Vật rơi trong tầm việc tay 8 ô dưới con trỏ → chuột trái nhặt cả chồng, không đào/đặt/xới (task contract 7e); ngoài 8 ô không chặn tia.
             AimedDrop = PickDrop(ray);
             if (AimedDrop != null)
             {
                 ShowAim(false, default, default);
-                if (player.FlyMode && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
-                if (mouse.leftButton.wasPressedThisFrame) CollectDrop(AimedDrop);
+                if (player.FlyMode && DebugFlyCamera.IsMoveKeyHeld()) return;
+                if (GameInput.UseTool.WasPressedThisFrame()) CollectDrop(AimedDrop);
                 return;
             }
-            if (Farm != null && mouse.leftButton.wasPressedThisFrame && Physics.Raycast(ray, out var sh, maxDistance))
+            if (Farm != null && GameInput.UseTool.WasPressedThisFrame() && Physics.Raycast(ray, out var sh, maxDistance))
             {
                 int sid = Farm.StorageIdOf(sh.collider);
                 if (sid >= 0) { lastResult = Farm.OpenStockAt(sid) ? T("edit.open_stock") : Format("edit.stock_far", PlayerRules.HandReach); ShowAim(false, default, default); return; }
@@ -143,21 +139,21 @@ namespace Game.Client
                 return;
             }
 
-            if (kb != null && kb.rKey.wasPressedThisFrame) Farming.CastRain(digCell);
+            if (GameInput.CastRain.WasPressedThisFrame()) Farming.CastRain(digCell);
             AimedHarvest = Farming.RipePlotAt(digCell);
             if (AimedHarvest >= 0)
             {
                 ShowAim(false, default, default);
-                if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
-                if (mouse.leftButton.wasPressedThisFrame) Farming.Harvest(AimedHarvest);
+                if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
+                if (GameInput.UseTool.WasPressedThisFrame()) Farming.Harvest(AimedHarvest);
                 return;
             }
 
             if (Farming.SowCrop >= 0)
             {
                 ShowAim(false, default, default);
-                if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
-                if (mouse.leftButton.wasPressedThisFrame) UseTool(digCell, placeCell);
+                if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
+                if (GameInput.UseTool.WasPressedThisFrame()) UseTool(digCell, placeCell);
                 return;
             }
 
@@ -171,10 +167,10 @@ namespace Game.Client
             }
 
             // Camera bay (không có nhân vật, hoặc chế độ debug F3): chỉ đào/đặt khi dừng (user 2026-10-20). Có nhân vật: được dùng công cụ khi đang đi (0028).
-            if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
+            if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
 
-            if (mouse.leftButton.wasPressedThisFrame) UseTool(digCell, placeCell);
-            if (Tool == EditTool.Till && mouse.rightButton.wasPressedThisFrame) UnmarkAimed(digCell);
+            if (GameInput.UseTool.WasPressedThisFrame()) UseTool(digCell, placeCell);
+            if (Tool == EditTool.Till && GameInput.Cancel.WasPressedThisFrame()) UnmarkAimed(digCell);
         }
 
         /// <summary>Chuột phải khi cầm Xới: bỏ biển ô cell (trong 8 ô); ô đang tự xới → huỷ tự xới. true khi đã bỏ.</summary>

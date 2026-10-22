@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Game.Client
 {
@@ -30,21 +29,19 @@ namespace Game.Client
         void LateUpdate()
         {
             if (target == null) return;
-            var mouse = Mouse.current;
-            if (mouse != null)
+            if (GameInput.HasPointer)
             {
-                if (mouse.middleButton.isPressed && !MinimapView.IsAnyOpen)
+                if (GameInput.RotateCamera.IsPressed() && !MinimapView.IsAnyOpen)
                 {
-                    var d = mouse.delta.ReadValue();
+                    var d = GameInput.Look.ReadValue<Vector2>();
                     yaw += d.x * lookSensitivity;
                     pitch = Mathf.Clamp(pitch - d.y * lookSensitivity * (invertY ? -1f : 1f), minPitch, maxPitch);
                 }
-                var kb = Keyboard.current;
-                var pos = mouse.position.ReadValue();
-                bool alt = kb != null && kb.altKey.isPressed;
+                var pos = GameInput.PointerPosition;
+                bool alt = GameInput.CycleBlockModifier.IsPressed();
                 if (!alt && !MinimapView.BlocksPointer(pos) && !TimeDial.BlocksPointer(pos) && !SimView.BlocksPointer(pos))
                 {
-                    float wheel = mouse.scroll.ReadValue().y;
+                    float wheel = GameInput.Zoom.ReadValue<float>();
                     if (wheel > 0.01f) distance *= 0.9f;
                     else if (wheel < -0.01f) distance *= 1.1f;
                     distance = Mathf.Clamp(distance, minDistance, maxDistance);
