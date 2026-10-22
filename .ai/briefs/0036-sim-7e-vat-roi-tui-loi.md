@@ -1,9 +1,9 @@
 # Brief 0036 — Sim 7e (lõi): túi đồ + vật rơi + nhặt trong Game.Core, tầm với công cụ 10 ô / việc tay 4 ô
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-22 15:25
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -498,10 +498,19 @@ Không. Brief 0037 có phần user xem (hiển thị vật rơi, F, click, túi 
 
 ## Kết quả
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · ghi chú lệch so với brief (nếu có, kèm lý do). -->
+Base commit: 81b1158
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-22 15:07 · Kết thúc: 2026-10-22 15:25 (~18 phút thực, gồm ~6 phút chạy EditMode; ước lượng 1,5 ngày-người)
+Commit code: e6ddd5d (31 file: Core/PlayerRules, PlayerBag (đổi tên từ MaterialInventory, giữ .meta), DropField (mới), WorldEditor; Client/PlayerCharacter, TerrainBench, TerrainChunkView, TerrainEditInput; 12 file test cũ đổi tên; DropFieldTests mới; mechanics.md:69)
+Test cũ sửa ngoài danh sách brief (dựa vào "đào → cộng kho"): `SimulationTerrainTests.DigCutsPathThenPlaceRestores` (thêm `inv.Add(Dirt)` trước TryPlace, đổi `out _` → `out var inv`), `MinimapEditTests.DigAndPlaceChangeExactlyOnePixel` (thêm `editor.Bag.Add(material)` trước TryPlace). Không lệch brief khác.
 
 ## Kết quả test
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
-Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+Tất cả phần ở "Phần cần test" → **đạt** (EditMode 422/422 gồm 13 DropFieldTests, 4 PlayerRulesTests, WorldEditorTests, SeaFloodTests, Sim/**, IncrementalRebuildTests, MinimapEditTests; PlayMode 112/112 gồm ReachLimitsTools, TerrainEditPlayTests). Không phần nào chờ user.
+- `run_tests EditMode` → Passed 422/422, 0 fail (323 s). (Lần chạy đầu có 2 fail do test cũ nêu trên, đã sửa rồi chạy lại.)
+- `run_tests PlayMode` → Passed 112/112, 0 fail (39 s).
+- `git checkout -- client/ProjectSettings/EditorSettings.asset` → đã chạy, git status sạch file đó.
+- `python3 tools/check_design.py` → ✓ design/ hợp lệ: 55 file, 35 chỗ trống, 170 ý tưởng chưa chốt.
+- grep MaterialInventory / .Inventory / PlayerRules.Reach / InReach( (trừ InToolReach/InHandReach/CollectInReach) → rỗng; grep UnityEngine trong DropField.cs, PlayerBag.cs → rỗng.
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
