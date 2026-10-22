@@ -108,12 +108,14 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator CollectNearbyTakesOnlyWithin4()
+        public IEnumerator CollectNearbyTakesOnlyWithin8()
         {
             yield return Teleport(Local(A.x + 0.5f, G + 1, A.z + 0.5f));
+            input.CollectNearby();
+            yield return Run(Vector2.zero, false, 0.3f);
             int dirt0 = view.Bag.Get(BlockMaterial.Dirt), stone0 = view.Bag.Get(BlockMaterial.Stone);
             var near = view.Editor.Drops.Add(A.x + 2, G + 1, A.z, B(BlockMaterial.Dirt), 2);
-            var far = view.Editor.Drops.Add(A.x + 6, G + 1, A.z, B(BlockMaterial.Stone), 1);
+            var far = view.Editor.Drops.Add(A.x + 9, G + 1, A.z, B(BlockMaterial.Stone), 1);
             Assert.AreEqual(1, input.CollectNearby());
             Assert.AreEqual(dirt0 + 2, view.Bag.Get(BlockMaterial.Dirt));
             Assert.AreEqual(stone0, view.Bag.Get(BlockMaterial.Stone));
@@ -128,15 +130,17 @@ namespace Game.Client.Tests
         public IEnumerator ClickPicksOnlyInReachAndFarDoesNotBlockDig()
         {
             yield return Teleport(Local(A.x + 0.5f, G + 1, A.z + 0.5f));
+            input.CollectNearby();
+            yield return Run(Vector2.zero, false, 0.3f);
             int dirt0 = view.Bag.Get(BlockMaterial.Dirt);
             var near = view.Editor.Drops.Add(A.x + 2, G + 1, A.z, B(BlockMaterial.Dirt), 2);
-            var far = view.Editor.Drops.Add(A.x + 6, G + 1, A.z, B(BlockMaterial.Stone), 1);
+            var far = view.Editor.Drops.Add(A.x + 9, G + 1, A.z, B(BlockMaterial.Stone), 1);
             var rayNear = new Ray(view.transform.TransformPoint(Local(A.x + 2.5f, G + 6f, A.z + 0.5f)), Vector3.down);
             Assert.AreEqual(near.Id, input.PickDrop(rayNear)?.Id);
-            var rayFar = new Ray(view.transform.TransformPoint(Local(A.x + 6.5f, G + 6f, A.z + 0.5f)), Vector3.down);
+            var rayFar = new Ray(view.transform.TransformPoint(Local(A.x + 9.5f, G + 6f, A.z + 0.5f)), Vector3.down);
             Assert.IsNull(input.PickDrop(rayFar));
             Assert.IsTrue(input.Pick(rayFar, out var dig, out _));
-            Assert.AreEqual(C(A.x + 6, G, A.z), dig);
+            Assert.AreEqual(C(A.x + 9, G, A.z), dig);
             Assert.IsTrue(input.CollectDrop(near));
             Assert.AreEqual(dirt0 + 2, view.Bag.Get(BlockMaterial.Dirt));
             Assert.IsFalse(input.CollectDrop(far));
@@ -148,6 +152,8 @@ namespace Game.Client.Tests
         public IEnumerator DigDropsVisibleThenCollectAndPlace()
         {
             yield return Teleport(Local(A.x + 0.5f, G + 1, A.z + 0.5f));
+            input.CollectNearby();
+            yield return Run(Vector2.zero, false, 0.3f);
             var c = C(A.x + 2, G, A.z);
             var m = view.World.GetMaterial(c.x, c.y, c.z);
             int b0 = view.Bag.Get(m);

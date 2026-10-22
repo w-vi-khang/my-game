@@ -255,13 +255,13 @@ namespace Game.Client.Tests
         {
             yield return Teleport(new Vector3(A.x + 0.5f, G + 1, A.z + 0.5f));
             var tei = go.GetComponent<TerrainEditInput>();
-            var far = C(A.x + 10, G, A.z);
+            var far = C(A.x + 8, G, A.z);
             var before = view.World.GetMaterial(far.x, far.y, far.z);
             Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(far, far));
             Assert.AreEqual(before, view.World.GetMaterial(far.x, far.y, far.z), "ô xa không đổi");
             tei.ShowAim(true, far, far);
             Assert.IsFalse(tei.OutlineVisible, "khung ngoài tầm");
-            var near = C(A.x + 9, G, A.z);
+            var near = C(A.x + 7, G, A.z);
             tei.ShowAim(true, near, near);
             Assert.IsTrue(tei.OutlineVisible, "khung trong tầm");
             Assert.AreEqual(EditResult.Ok, tei.UseTool(near, near));
@@ -269,7 +269,7 @@ namespace Game.Client.Tests
 
             tei.ToggleTool();
             view.Bag.Add(BlockMaterial.Dirt, 1);
-            var pc = C(A.x + 11, G + 1, A.z);
+            var pc = C(A.x + 9, G + 1, A.z);
             Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(pc, pc));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(pc.x, pc.y, pc.z));
             tei.ShowAim(true, pc, pc);

@@ -135,10 +135,10 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void CollectInReachTakesOnlyWithin4()
+        public void CollectInReachTakesOnlyWithin8()
         {
-            Drops.Add(4, 1, 0, B(BlockMaterial.Dirt), 2);
-            Drops.Add(5, 1, 0, B(BlockMaterial.Stone), 1);
+            Drops.Add(8, 1, 0, B(BlockMaterial.Dirt), 2);
+            Drops.Add(9, 1, 0, B(BlockMaterial.Stone), 1);
             var got = new List<DropStack>();
             Drops.Collected += s => got.Add(s);
             Assert.AreEqual(1, Drops.CollectInReach(0.5f, 0.5f, 0.5f, bag));
@@ -149,7 +149,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(1, Drops.Stacks.Count);
             Assert.AreEqual(B(BlockMaterial.Stone), Drops.Stacks[0].Item);
 
-            Drops.Add(4, 1, 0, B(BlockMaterial.Dirt), 1);
+            Drops.Add(8, 1, 0, B(BlockMaterial.Dirt), 1);
             Assert.AreEqual(0, Drops.CollectInReach(0.4f, 0.5f, 0.5f, bag));
             Assert.AreEqual(2, bag.Get(BlockMaterial.Dirt));
         }

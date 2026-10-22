@@ -3,15 +3,15 @@ using System;
 namespace Game.Core
 {
     /// <summary>
-    /// Luật nhân vật người chơi M1 (world 7h, 0028): tầm công cụ 10 ô / việc tay 4 ô (0030) từ tâm thân, ô bị thân chiếm, biên world, trong nước.
+    /// Luật nhân vật người chơi M1 (world 7h, 0028): tầm với mọi thao tác 8 ô (0031) từ tâm thân, ô bị thân chiếm, biên world, trong nước.
     /// Gốc nhân vật = chân (giữa đáy); thân cao BodyHeight, nửa rộng HalfWidth.
     /// </summary>
     public static class PlayerRules
     {
-        /// <summary>Tầm công cụ: đào, đặt, xới, click ô ruộng (0030).</summary>
-        public const float ToolReach = 10f;
-        /// <summary>Tầm việc tay: nhặt (sau này gieo, thu hoạch, phép Mưa — 0028).</summary>
-        public const float HandReach = 4f;
+        /// <summary>Tầm công cụ: đào, đặt, xới, click ô ruộng (0031: 8 ô).</summary>
+        public const float ToolReach = 8f;
+        /// <summary>Tầm việc tay: nhặt (sau này gieo, thu hoạch, phép Mưa, mở kho — 0031: 8 ô).</summary>
+        public const float HandReach = 8f;
         /// <summary>Tâm thân cao hơn chân chừng này (nhân vật 2 ô).</summary>
         public const float BodyCenterHeight = 1f;
         public const float HalfWidth = 0.4f;

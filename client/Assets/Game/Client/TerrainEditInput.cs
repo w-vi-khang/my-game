@@ -13,8 +13,8 @@ namespace Game.Client
     /// Tab đổi công cụ Đào ⇄ Đặt (brief 0027), chuột trái dùng công cụ; phím 1–4 hoặc lăn chuột chọn đất/cỏ/đá/cát.
     /// Đào: khung trắng = ô sẽ đào. Đặt: bản mờ màu vật liệu ở ô sẽ đặt (đỏ = túi hết; sai luật → không có); nhãn góc trái = công cụ, túi đồ, lý do khi không đào/đặt được.
     /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021).
-    /// Sim 7e (brief 0037): F = Thu (nhặt mọi vật rơi trong 4 ô); tia chuột trúng vật rơi trong 4 ô → chuột trái nhặt cả chồng thay cho công cụ; vật rơi ngoài 4 ô không chặn tia.
-    /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 10 ô (0030), được dùng khi đang đi; Alt + lăn chọn loại.
+    /// Sim 7e (brief 0037): F = Thu (nhặt mọi vật rơi trong 8 ô); tia chuột trúng vật rơi trong 8 ô → chuột trái nhặt cả chồng thay cho công cụ; vật rơi ngoài 8 ô không chặn tia.
+    /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 8 ô (0031), được dùng khi đang đi; Alt + lăn chọn loại.
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -102,7 +102,7 @@ namespace Game.Client
 
             var ray = cam.ScreenPointToRay(mouse.position.ReadValue());
             var player = PlayerCharacter.Active;
-            // Vật rơi trong tầm việc tay 4 ô dưới con trỏ → chuột trái nhặt cả chồng, không đào/đặt/xới (task contract 7e); ngoài 4 ô không chặn tia.
+            // Vật rơi trong tầm việc tay 8 ô dưới con trỏ → chuột trái nhặt cả chồng, không đào/đặt/xới (task contract 7e); ngoài 8 ô không chặn tia.
             AimedDrop = PickDrop(ray);
             if (AimedDrop != null)
             {
@@ -152,7 +152,7 @@ namespace Game.Client
             ghostRenderer.enabled = false;
             if (!picked || view.Editor == null) return;
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell)) return; // ngoài tầm 10 ô: không khung, không bản mờ (0030)
+            if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell)) return; // ngoài tầm 8 ô: không khung, không bản mờ (0031)
             if (Tool == EditTool.Till)
             {
                 if (Farm == null || !Farm.CanTillAt(digCell)) return;
@@ -179,7 +179,7 @@ namespace Game.Client
         {
             var player = PlayerCharacter.Active;
             if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell))
-                return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0030)
+                return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0031)
             if (Tool == EditTool.Till)
             {
                 LastTill = Farm != null ? Farm.UseTill(digCell) : TillResult.Invalid;
@@ -219,7 +219,7 @@ namespace Game.Client
             return true;
         }
 
-        /// <summary>Chồng vật rơi gần nhất mà tia trúng, trong tầm việc tay 4 ô, không bị collider nào (địa hình, nhà, dấu mốc) che; không có nhân vật → null.</summary>
+        /// <summary>Chồng vật rơi gần nhất mà tia trúng, trong tầm việc tay 8 ô, không bị collider nào (địa hình, nhà, dấu mốc) che; không có nhân vật → null.</summary>
         public DropStack PickDrop(Ray ray)
         {
             var player = PlayerCharacter.Active;
@@ -231,14 +231,14 @@ namespace Game.Client
             return DropPick.Pick(view.Editor.Drops.Stacks, o.x, o.y, o.z, d.x, d.y, d.z, limit, f.x, f.y, f.z, out _);
         }
 
-        /// <summary>Phím F (Thu): nhặt mọi chồng trong 4 ô; ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>
+        /// <summary>Phím F (Thu): nhặt mọi chồng trong 8 ô; ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>
         public int CollectNearby()
         {
             var player = PlayerCharacter.Active;
             if (player == null || view.Editor == null) return 0;
             var f = player.FeetLocal;
             int n = view.Editor.Drops.CollectInReach(f.x, f.y, f.z, view.Bag);
-            lastResult = n > 0 ? $"Thu: nhặt {n} chồng vật rơi" : "Thu: không có vật rơi trong 4 ô";
+            lastResult = n > 0 ? $"Thu: nhặt {n} chồng vật rơi" : "Thu: không có vật rơi trong 8 ô";
             return n;
         }
 
@@ -290,8 +290,8 @@ namespace Game.Client
             if (player == null)
                 return " · Chuột trái: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
             if (player.FlyMode)
-                return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · F: thu vật rơi (trong 4 ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
-            return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · F: thu vật rơi (trong 4 ô) · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
+                return " · Chuột trái: dùng công cụ (trong 8 ô quanh nhân vật) · F: thu vật rơi (trong 8 ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
+            return " · Chuột trái: dùng công cụ (trong 8 ô quanh nhân vật) · F: thu vật rơi (trong 8 ô) · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
         }
 
         /// <summary>Chữ HUD góc trái (tách khỏi OnGUI để test); "" nếu chưa có túi.</summary>
