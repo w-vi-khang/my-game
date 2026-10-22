@@ -1,4 +1,5 @@
 using Game.Core;
+using Game.Core.Sim;
 using UnityEngine;
 using Game.World;
 using UnityEngine.InputSystem;
@@ -16,6 +17,7 @@ namespace Game.Client
     /// Sim 7e (brief 0037): F = Thu (nhặt mọi vật rơi trong 8 ô); tia chuột trúng vật rơi trong 8 ô → chuột trái nhặt cả chồng thay cho công cụ; vật rơi ngoài 8 ô không chặn tia.
     /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 8 ô (0031), được dùng khi đang đi; Alt + lăn chọn loại.
     /// Sim 7f (brief 0041): chuột trái lên biển = tự đi tới xới, chuột phải = bỏ đánh dấu; R = phép Mưa; chuột trái lên cây chín (mọi công cụ) = thu hoạch.
+    /// Sim 7f (brief 0042): chế độ gieo — chuột trái gieo, chuột phải / Esc / Tab thoát; click khối kho trong 8 ô mở bảng kho.
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -84,10 +86,17 @@ namespace Game.Client
                 if (kb.digit3Key.wasPressedThisFrame) selected = 2;
                 if (kb.digit4Key.wasPressedThisFrame) selected = 3;
                 if (kb.tabKey.wasPressedThisFrame) ToggleTool();
+                if (kb.escapeKey.wasPressedThisFrame && Farming.SowCrop >= 0) Farming.ExitSowMode();
                 if (kb.fKey.wasPressedThisFrame) CollectNearby();
             }
 
             var mouse = Mouse.current;
+            if (mouse != null && Farming.SowCrop >= 0 && mouse.rightButton.wasPressedThisFrame)
+            {
+                Farming.ExitSowMode();
+                ShowAim(false, default, default);
+                return;
+            }
             // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
             if (mouse != null && (MinimapView.BlocksPointer(mouse.position.ReadValue()) || TimeDial.BlocksPointer(mouse.position.ReadValue()) || SimView.BlocksPointer(mouse.position.ReadValue())))
             {
@@ -120,6 +129,11 @@ namespace Game.Client
                 if (mouse.leftButton.wasPressedThisFrame) CollectDrop(AimedDrop);
                 return;
             }
+            if (Farm != null && mouse.leftButton.wasPressedThisFrame && Physics.Raycast(ray, out var sh, maxDistance))
+            {
+                int sid = Farm.StorageIdOf(sh.collider);
+                if (sid >= 0) { lastResult = Farm.OpenStockAt(sid) ? "Mở kho" : "Kho ngoài tầm 8 ô"; ShowAim(false, default, default); return; }
+            }
             if (!Pick(ray, out var digCell, out var placeCell))
             {
                 ShowAim(false, default, default);
@@ -136,6 +150,14 @@ namespace Game.Client
                 return;
             }
 
+            if (Farming.SowCrop >= 0)
+            {
+                ShowAim(false, default, default);
+                if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
+                if (mouse.leftButton.wasPressedThisFrame) UseTool(digCell, placeCell);
+                return;
+            }
+
             ShowAim(true, digCell, placeCell);
             if (outline.enabled)
             {
@@ -149,14 +171,26 @@ namespace Game.Client
             if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
 
             if (mouse.leftButton.wasPressedThisFrame) UseTool(digCell, placeCell);
-            if (Tool == EditTool.Till && mouse.rightButton.wasPressedThisFrame && Farm != null
-                && (player == null || player.InToolReach(digCell)) && Farm.UnmarkAt(digCell))
-                lastResult = $"Bỏ đánh dấu {digCell}";
+            if (Tool == EditTool.Till && mouse.rightButton.wasPressedThisFrame) UnmarkAimed(digCell);
+        }
+
+        /// <summary>Chuột phải khi cầm Xới: bỏ biển ô cell (trong 8 ô); ô đang tự xới → huỷ tự xới. true khi đã bỏ.</summary>
+        public bool UnmarkAimed(Vector3Int cell)
+        {
+            if (Farm == null) return false;
+            var player = PlayerCharacter.Active;
+            if (player != null && !player.InToolReach(cell)) return false;
+            int id = Farm.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
+            if (!Farm.UnmarkAt(cell)) return false;
+            if (Farming.TillState != SelfTillState.None && Farming.TillPlotId == id) Farming.CancelSelfTill();
+            lastResult = $"Bỏ đánh dấu {cell}";
+            return true;
         }
 
         /// <summary>Tab: Đào → Đặt → Xới (khi có SimView) → Đào.</summary>
         public void ToggleTool()
         {
+            if (Farming != null && Farming.SowCrop >= 0) { Farming.ExitSowMode(); return; }
             Farming?.CancelSelfTill();
             Tool = Tool == EditTool.Dig ? EditTool.Place : Tool == EditTool.Place && TillAvailable ? EditTool.Till : EditTool.Dig;
         }
@@ -203,6 +237,7 @@ namespace Game.Client
         /// <summary>Chuột trái: dùng công cụ đang cầm; ghi dòng kết quả ở HUD.</summary>
         public EditResult UseTool(Vector3Int digCell, Vector3Int placeCell)
         {
+            if (Farming != null && Farming.SowCrop >= 0) { lastResult = ""; return Farming.SowAt(digCell) ? EditResult.Ok : EditResult.NotPlaceable; }
             var player = PlayerCharacter.Active;
             if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell))
                 return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0031)
@@ -319,7 +354,7 @@ namespace Game.Client
                 return " · Chuột trái: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
             if (player.FlyMode)
                 return " · Chuột trái: dùng công cụ (trong 8 ô quanh nhân vật) · F: thu vật rơi (trong 8 ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
-            return " · Chuột trái: dùng công cụ (trong 8 ô quanh nhân vật) · F: thu vật rơi (trong 8 ô) · R: phép Mưa (trong 8 ô) · chuột trái lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
+            return " · Chuột trái: dùng công cụ (trong 8 ô quanh nhân vật) · F: thu vật rơi (trong 8 ô) · R: phép Mưa (trong 8 ô) · B: túi · chuột trái lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
         }
 
         /// <summary>Chữ HUD góc trái (tách khỏi OnGUI để test); "" nếu chưa có túi.</summary>

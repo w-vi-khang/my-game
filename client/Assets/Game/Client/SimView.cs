@@ -122,6 +122,8 @@ namespace Game.Client
                 if (kb.f1Key.wasPressedThisFrame) SetFrameRate(30);
                 if (kb.f2Key.wasPressedThisFrame) SetFrameRate(60);
                 if (kb.kKey.wasPressedThisFrame) ToggleStock();
+                if (kb.bKey.wasPressedThisFrame) ToggleBag();
+                if (BagOpen && kb.escapeKey.wasPressedThisFrame) BagOpen = false;
                 if (OpenPlotId >= 0 && kb.escapeKey.wasPressedThisFrame) ClosePlotPanel();
             }
             smoothedDt = smoothedDt * 0.9f + Time.unscaledDeltaTime * 0.1f;
@@ -200,8 +202,12 @@ namespace Game.Client
             foreach (var h in Sim.State.Houses)
                 Box("Nhà " + h.Id, new Vector3(h.Cell.X + h.SizeX * 0.5f, h.Cell.Y + h.SizeY * 0.5f, h.Cell.Z + h.SizeZ * 0.5f),
                     new Vector3(h.SizeX * 0.98f, h.SizeY * 0.98f, h.SizeZ * 0.98f), HouseColor, root, solid: true);
+            storageColliders.Clear();
             foreach (var s in Sim.State.Storages)
-                Box("Kho " + s.Id, new Vector3(s.Cell.X + 0.5f, s.Cell.Y + 0.45f, s.Cell.Z + 0.5f), new Vector3(0.9f, 0.9f, 0.9f), StorageColor, root, solid: true);
+            {
+                var box = Box("Kho " + s.Id, new Vector3(s.Cell.X + 0.5f, s.Cell.Y + 0.45f, s.Cell.Z + 0.5f), new Vector3(0.9f, 0.9f, 0.9f), StorageColor, root, solid: true);
+                storageColliders.Add(box.GetComponent<Collider>());
+            }
             EnsurePlotVisuals();
             UpdateBodies();
             UpdatePlotSigns();
@@ -337,9 +343,108 @@ namespace Game.Client
         }
         public void ToggleStock() => StockOpen = !StockOpen;
 
+        /// <summary>Một dòng bảng túi (brief 0042). SeedCrop ≥ 0 = dòng túi hạt (click → chế độ gieo), -1 = chỉ xem.</summary>
+        public struct BagRow { public string Label; public int SeedCrop; }
+        public bool BagOpen { get; private set; }
+        public void ToggleBag() => BagOpen = !BagOpen;
+        readonly List<BagRow> bagRows = new List<BagRow>();
+        readonly List<Collider> storageColliders = new List<Collider>();
+
+        /// <summary>Các dòng bảng túi: khối (theo giá trị BlockMaterial tăng dần), túi hạt, nông sản (theo loại cây); bỏ dòng 0.</summary>
+        public static void BagRows(PlayerBag bag, SimConfig cfg, List<BagRow> rows)
+        {
+            rows.Clear();
+            for (int m = 1; m < 256; m++)
+            {
+                int n = bag.Get((BlockMaterial)m);
+                if (n > 0) rows.Add(new BagRow { Label = $"{TerrainEditInput.ItemLabel(ItemId.Block((BlockMaterial)m))} × {n}", SeedCrop = -1 });
+            }
+            for (int i = 0; i < cfg.crops.Length; i++)
+            {
+                int n = bag.GetSeeds(i);
+                if (n > 0) rows.Add(new BagRow { Label = $"Túi hạt Cây {cfg.crops[i].id} × {n}", SeedCrop = i });
+            }
+            for (int i = 0; i < cfg.crops.Length; i++)
+            {
+                int n = bag.GetProduce(i);
+                if (n > 0) rows.Add(new BagRow { Label = $"Nông sản Cây {cfg.crops[i].id} × {n}", SeedCrop = -1 });
+            }
+        }
+
+        /// <summary>Click túi hạt crop: vào chế độ gieo, đóng bảng túi. false nếu không vào được.</summary>
+        public bool ChooseSeedFromBag(int crop)
+        {
+            var farming = GetComponent<PlayerFarmActions>();
+            if (farming == null || !farming.EnterSowMode(crop)) return false;
+            BagOpen = false;
+            return true;
+        }
+
+        public static Rect BagButtonRect(float gw, float gh) => new Rect(gw - 120f, gh - 46f, 110f, 36f);
+        public static Rect BagPanelRect(float gw, float gh, int rows) { float h = 32f + 26f * Mathf.Max(rows, 1) + 24f; return new Rect(gw - 330f, gh - 56f - h, 320f, h); }
+
+        /// <summary>Chỉ số kho có collider c (hộp kho); -1 nếu không phải.</summary>
+        public int StorageIdOf(Collider c) => c == null ? -1 : storageColliders.IndexOf(c);
+
+        /// <summary>Click khối kho index (brief 0042): trong 8 ô (hoặc không có nhân vật) → mở bảng kho, true.</summary>
+        public bool OpenStockAt(int index)
+        {
+            var player = PlayerCharacter.Active;
+            if (player != null)
+            {
+                var f = player.FeetLocal;
+                var cell = Sim.State.Storages[index].Cell;
+                if (!PlayerRules.InHandReach(f.x, f.y, f.z, cell.X, cell.Y, cell.Z)) return false;
+            }
+            StockOpen = true;
+            return true;
+        }
+
+        /// <summary>Có kho trong 8 ô (không có nhân vật → true).</summary>
+        public bool CanTransferStock
+        {
+            get
+            {
+                var player = PlayerCharacter.Active;
+                if (player == null) return true;
+                var f = player.FeetLocal;
+                return Sim.StorageInReach(f.x, f.y, f.z);
+            }
+        }
+
+        /// <summary>Dòng kết quả chuyển gần nhất; "" lúc đầu.</summary>
+        public string StockMessage { get; private set; } = "";
+
+        /// <summary>Nút chuyển: toBag = kho → túi, ngược lại túi → kho; all = Shift (tất cả), không thì 1. Trả số đã chuyển.</summary>
+        public int TransferStock(int crop, bool produce, bool toBag, bool all)
+        {
+            string kind = produce ? "nông sản" : "hạt";
+            string id = Sim.Config.crops[crop].id;
+            int amount = all ? int.MaxValue : 1;
+            if (!CanTransferStock) { StockMessage = "Lại gần kho (8 ô) để chuyển đồ"; return 0; }
+            int n;
+            if (toBag)
+            {
+                n = Sim.TakeFromStock(view.Bag, crop, produce, amount);
+                if (n == 0) { StockMessage = $"Kho không có {kind} Cây {id}"; return 0; }
+            }
+            else
+            {
+                n = Sim.StoreToStock(view.Bag, crop, produce, amount);
+                if (n == 0)
+                {
+                    int inBag = produce ? view.Bag.GetProduce(crop) : view.Bag.GetSeeds(crop);
+                    StockMessage = inBag == 0 ? $"Túi không có {kind} Cây {id}" : "Kho đầy";
+                    return 0;
+                }
+            }
+            StockMessage = $"Đã chuyển {n} {kind} Cây {id} → {(toBag ? "túi" : "kho")}";
+            return n;
+        }
+
         static float GuiScale => Mathf.Max(1f, Screen.height / 720f);
         public static Rect StockButtonRect(float gw, float gh) => new Rect(10f, gh - 46f, 110f, 36f);
-        public static Rect StockPanelRect(float gw, float gh, int crops) { float h = 32f + 24f * crops; return new Rect(10f, gh - 56f - h, 320f, h); }
+        public static Rect StockPanelRect(float gw, float gh, int crops) { float h = 64f + 50f * crops; return new Rect(10f, gh - 56f - h, 480f, h); }
         public static Rect PlotPanelRect(float gw, float gh) => new Rect(gw * 0.5f - 200f, gh - 310f, 400f, 300f);
 
         static SimView active;
@@ -353,6 +458,12 @@ namespace Game.Client
             var g = new Vector2(screen.x / s, (Screen.height - screen.y) / s);
             if (StockButtonRect(gw, gh).Contains(g)) return true;
             if (StockOpen && StockPanelRect(gw, gh, Sim.Config.crops.Length).Contains(g)) return true;
+            if (BagButtonRect(gw, gh).Contains(g)) return true;
+            if (BagOpen)
+            {
+                BagRows(view.Bag, Sim.Config, bagRows);
+                if (BagPanelRect(gw, gh, bagRows.Count).Contains(g)) return true;
+            }
             return OpenPlotId >= 0 && PlotPanelRect(gw, gh).Contains(g);
         }
 
@@ -364,7 +475,44 @@ namespace Game.Client
             {
                 var r = StockPanelRect(gw, gh, Sim.Config.crops.Length);
                 GUI.Box(r, "");
-                GUI.Label(new Rect(r.x + 8f, r.y + 4f, r.width - 16f, r.height - 8f), SiteStatus.StockPanelText(Sim.State.Stock, Sim.Config), hudStyle);
+                GUI.Label(new Rect(r.x + 8f, r.y + 4f, r.width - 16f, 24f), SiteStatus.StockPanelText(Sim.State.Stock, Sim.Config).Split('\n')[0], hudStyle);
+                var stock = Sim.State.Stock;
+                bool shift = Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
+                for (int i = 0; i < Sim.Config.crops.Length; i++)
+                {
+                    float y0 = r.y + 32f + 50f * i;
+                    GUI.Label(new Rect(r.x + 8f, y0, r.width - 16f, 24f),
+                        $"{SiteStatus.CropName(Sim.Config, i)} · kho: nông sản {stock.Produce[i]} · hạt {stock.Seeds[i]} · túi: nông sản {view.Bag.GetProduce(i)} · hạt {view.Bag.GetSeeds(i)}", hudStyle);
+                    GUI.enabled = CanTransferStock;
+                    string[] names = { "Hạt → túi", "Hạt → kho", "Nông sản → túi", "Nông sản → kho" };
+                    for (int b = 0; b < 4; b++)
+                    {
+                        if (GUI.Button(new Rect(r.x + 8f + 114f * b, y0 + 24f, 110f, 22f), names[b]))
+                            TransferStock(i, b >= 2, b % 2 == 0, shift);
+                    }
+                    GUI.enabled = true;
+                }
+                GUI.Label(new Rect(r.x + 8f, r.yMax - 28f, r.width - 16f, 24f),
+                    !CanTransferStock ? "Lại gần kho (8 ô) để chuyển đồ" : (StockMessage != "" ? StockMessage : "Mỗi click 1 · Shift + click: tất cả"), hudStyle);
+            }
+            if (GUI.Button(BagButtonRect(gw, gh), "Túi (B)")) ToggleBag();
+            if (BagOpen)
+            {
+                BagRows(view.Bag, Sim.Config, bagRows);
+                var br = BagPanelRect(gw, gh, bagRows.Count);
+                GUI.Box(br, "");
+                GUI.Label(new Rect(br.x + 8f, br.y + 4f, br.width - 16f, 24f), "Túi", hudStyle);
+                if (bagRows.Count == 0) GUI.Label(new Rect(br.x + 8f, br.y + 32f, br.width - 16f, 24f), "Túi trống", hudStyle);
+                for (int k = 0; k < bagRows.Count; k++)
+                {
+                    var rr = new Rect(br.x + 8f, br.y + 32f + 26f * k, br.width - 16f, 24f);
+                    if (bagRows[k].SeedCrop >= 0)
+                    {
+                        if (GUI.Button(rr, bagRows[k].Label)) { ChooseSeedFromBag(bagRows[k].SeedCrop); break; }
+                    }
+                    else GUI.Label(rr, bagRows[k].Label, hudStyle);
+                }
+                GUI.Label(new Rect(br.x + 8f, br.yMax - 26f, br.width - 16f, 24f), "Click túi hạt để gieo · B / Esc: đóng", hudStyle);
             }
             if (OpenPlotId < 0) return;
             var pr = PlotPanelRect(gw, gh);

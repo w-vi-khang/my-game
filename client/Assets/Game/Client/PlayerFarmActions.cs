@@ -7,7 +7,7 @@ namespace Game.Client
 {
     public enum SelfTillState { None, Walking, Tilling }
 
-    /// <summary>Người chơi tự xới (đi tới + 6 giây), phép Mưa (R, hồi), thu hoạch vào túi — sim 7f, brief 0041. Luật ở Game.Core (Simulation, PlayerTimers).</summary>
+    /// <summary>Người chơi tự xới (đi tới + 6 giây), phép Mưa (R, hồi), thu hoạch vào túi, chế độ gieo từ túi hạt (brief 0042) — sim 7f, brief 0041. Luật ở Game.Core (Simulation, PlayerTimers).</summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class PlayerFarmActions : MonoBehaviour
     {
@@ -17,6 +17,8 @@ namespace Game.Client
         public Cooldown RainCooldown { get; private set; }
         /// <summary>Dòng trạng thái mới nhất (tự xới / Mưa / thu hoạch) cho HUD; "" lúc đầu.</summary>
         public string StatusLine { get; private set; } = "";
+        /// <summary>Loại cây đang gieo (chế độ gieo, brief 0042); -1 = không ở chế độ gieo.</summary>
+        public int SowCrop { get; private set; } = -1;
         /// <summary>Hộp Mưa (xanh nhạt, 0,5 giây).</summary>
         public GameObject RainBox { get; private set; }
 
@@ -102,6 +104,68 @@ namespace Game.Client
             if (TillState == SelfTillState.Walking) PlayerCharacter.Active?.StopAutoWalk();
             ResetTill();
             StatusLine = "Huỷ tự xới";
+        }
+
+        /// <summary>Vào chế độ gieo loại crop (túi còn hạt). Huỷ tự xới đang chạy. false nếu không có mô phỏng / túi hết hạt loại đó.</summary>
+        public bool EnterSowMode(int crop)
+        {
+            var sim = Sim;
+            if (sim == null || view.Bag == null) return false;
+            if (view.Bag.GetSeeds(crop) <= 0)
+            {
+                StatusLine = $"Gieo: túi hết hạt Cây {sim.Config.crops[crop].id}";
+                return false;
+            }
+            CancelSelfTill();
+            SowCrop = crop;
+            StatusLine = "";
+            return true;
+        }
+
+        /// <summary>Đang ở chế độ gieo → thoát, StatusLine "Thoát chế độ gieo".</summary>
+        public void ExitSowMode()
+        {
+            if (SowCrop < 0) return;
+            SowCrop = -1;
+            StatusLine = "Thoát chế độ gieo";
+        }
+
+        /// <summary>Chuột trái ở chế độ gieo: gieo 1 hạt túi vào ô ruộng có Soil = cell. true khi đã gieo.</summary>
+        public bool SowAt(Vector3Int cell)
+        {
+            var sim = Sim;
+            if (SowCrop < 0 || sim == null || view.Bag == null) return false;
+            var id = sim.Config.crops[SowCrop].id;
+            var player = PlayerCharacter.Active;
+            if (player != null && !player.InToolReach(cell))
+            {
+                StatusLine = "Gieo: ngoài tầm 8 ô";
+                return false;
+            }
+            int plotId = sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
+            var r = plotId < 0 ? PlayerSowResult.NoPlot : sim.PlayerSow(plotId, SowCrop, view.Bag);
+            switch (r)
+            {
+                case PlayerSowResult.Ok:
+                    StatusLine = $"Gieo Cây {id} vào ô {cell}";
+                    if (view.Bag.GetSeeds(SowCrop) == 0)
+                    {
+                        SowCrop = -1;
+                        StatusLine += " · hết hạt, thoát chế độ gieo";
+                    }
+                    return true;
+                case PlayerSowResult.NoPlot: StatusLine = "Gieo: chỉ gieo vào ô ruộng đã xới"; break;
+                case PlayerSowResult.NotTilled: StatusLine = "Gieo: ô chưa xới xong"; break;
+                case PlayerSowResult.HasCrop: StatusLine = "Gieo: ô đã có cây"; break;
+                case PlayerSowResult.OtherCrop:
+                    StatusLine = $"Ô đang chờ gieo Cây {sim.Config.crops[sim.State.Plots[plotId].CurrentCrop].id}";
+                    break;
+                case PlayerSowResult.NoSeeds:
+                    StatusLine = $"Gieo: túi hết hạt Cây {id}";
+                    SowCrop = -1;
+                    break;
+            }
+            return false;
         }
 
         void Update()
@@ -214,6 +278,8 @@ namespace Game.Client
         public string HudLines()
         {
             var text = RainCooldown.Ready ? "Mưa (R): sẵn sàng" : $"Mưa (R): {RainCooldown.RemainingWholeSeconds} giây";
+            if (SowCrop >= 0 && Sim != null && view.Bag != null)
+                text += $"\nGieo Cây {Sim.Config.crops[SowCrop].id} (còn {view.Bag.GetSeeds(SowCrop)}) — chuột phải / Esc để thoát";
             if (TillState == SelfTillState.Tilling)
                 text += $"\nĐang xới ô {PlotSoil()}: {(int)TillTimer.Elapsed}/{(int)TillTimer.Duration} giây";
             else if (TillState == SelfTillState.Walking)
