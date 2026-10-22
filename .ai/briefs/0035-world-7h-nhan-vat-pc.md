@@ -1,9 +1,9 @@
 # Brief 0035 — World bước 7h (a): nhân vật người chơi trên PC, camera theo sau lưng, tầm với 4 ô, camera bay thành chế độ debug
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-22 14:33
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -612,8 +612,22 @@ Trên Mac, mở scene **SimView** rồi **TerrainView**, bấm Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 0b7cf38
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-22 14:20 · Kết thúc: 14:33 (date) — thực tế ~0,2 giờ làm việc của executor (ước lượng brief 2–3 ngày-người).
+Commit: c7519f9.
+File đổi: Core/PlayerRules.cs (mới), Core/WorldEditor.cs, Client/PlayerCharacter.cs + FollowCamera.cs (mới), Client/TerrainEditInput.cs, MinimapView.cs, DemoPlain.cs, SimView.cs, scene SimView.unity + TerrainView.unity, Tests/Core/PlayerRulesTests.cs (mới), WorldEditorTests.cs, Tests/Client/PlayerCharacterPlayTests.cs (mới), cùng .meta.
+Lệch nhỏ so với brief (test-only, không đổi thông số): (1) test `InWater` dùng world 16×16×16 vì WorldSize bắt buộc bội số 16 (8×8×8 ném exception); (2) test 3 `JumpsOneBlockStepButNotTwo`: nhảy liên tục nên cuối Run có thể đang lơ lửng (đỉnh ≈ G+2,28) → thêm đứng yên 1 giây trước khi đo y bậc 2 ô. Số đo QĐ 10: lên được bậc 1 ô (y ≥ G+1,9), không lên bậc 2 ô (y < G+2 sau khi hạ xuống).
 
 ## Kết quả test
+- Tầm với, ô chiếm, biên, nước (lõi) + `PlayerAtBlocksPlace`: đạt — EditMode lọc PlayerRulesTests + WorldEditorTests 33/33.
+- EditMode toàn bộ: 407/407 đạt.
+- PlayMode `PlayerCharacterPlayTests` 12/12 đạt (test 7 chạy thật, không Inconclusive); PlayMode toàn bộ: 112/112 đạt (gồm regression TerrainEdit, SimFarmUi, SimView*, DemoPlain, Minimap*, FlyCamera*, WorldBounds, SimBench).
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy; đã xoá Assets/Screenshots do chụp ảnh tạo ra.
+- `grep -L UnityEngine Core/PlayerRules.cs` → in ra tên file (đạt).
+- Play SimView: log `PLAYER xuất hiện ở trại (123.5, 21.0, 203.5)`; Play TerrainView: `PLAYER xuất hiện giữa đồng bằng (checkpoint Map 1 đã bỏ khi san) (123.5, 21.0, 203.5)`; không lỗi console. Ảnh Game view mỗi scene: nhân vật đứng trên đất, camera sau lưng (đạt, xem bằng mắt qua ảnh).
+- `git status`: chỉ file trong Phạm vi; Bench/SimBench/HashCheck không đổi.
+- Lăn chuột thật, cảm giác điều khiển, F3, nước, Xới: chờ user (mục "User tự test").
 
 ## Vướng mắc
 
