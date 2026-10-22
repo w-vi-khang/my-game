@@ -20,11 +20,11 @@ Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [00
 - Brief 0041 client A (`745a00e`): tự đi tới + xới 6 giây (`PlayerCharacter.AutoWalk`, `Client/PlayerFarmActions.cs`), chuột phải bỏ biển, `TillResult.SelfTill`, nút `Tự xới` trong bảng ô ruộng, phép Mưa (R), click thu hoạch, HUD. Review `đầy đủ + user xem`. Executor xong: code `f4138f5`, kết quả `43a2198`; theo executor PlayerFarmPlayTests 12/12, PlayMode 133/133, EditMode 472/472. Đã đặt thẻ review đầy đủ (Opus · medium, task_6ed6fa73) — chưa chạy lúc ghi.
 
 ## Còn lại
-1. Review đầy đủ 0041 (thẻ đã đặt) → liệt kê cho user mục "User tự test" của brief 0041 (8 bước), chờ phản hồi.
-2. Brief **0042** client B: bảng túi (phím B; khối / túi hạt / nông sản, ẩn dòng 0), chế độ gieo (`Sim.CheckPlayerSow`/`PlayerSow`; HUD `Gieo Cây A (còn N) — chuột phải / Esc để thoát`; Tab cũng thoát; hết hạt tự thoát; con trỏ trên bảng không đào/đặt), bảng kho có nút chuyển (`Sim.StorageInReach`, `StoreToStock`, `TakeFromStock`; mỗi click 1, Shift + click tất cả; ngoài tầm dòng `Lại gần kho (8 ô) để chuyển đồ`; click khối kho trong 8 ô mở bảng). Review `user xem`.
-3. Sau 0042: cập nhật tài liệu — mechanics (luật tự trồng), controls-ui (B, R, chuột phải bỏ biển, chế độ gieo, click biển tự xới, click cây chín thu hoạch), glossary nếu có từ mới, simulation-tech 7f trạng thái, roadmap giờ; `python3 tools/check_design.py`.
+1. Brief **0043** (sửa HUD trái đè chữ trạng thái SimView + bỏ dòng "đang đi tới" khi đã xới; Sonnet · low, review nhẹ) — đã giao phiên child-sonnet-low (local_7b6e9939) 2026-10-22 → review nhẹ.
+2. **Dồn cho user xem** (chưa xem): 8 mục "User tự test" brief 0041 + 9 mục brief 0042 + 1 mục 0043. 0041/0042 đã review đầy đủ đạt (`29dcece`, `bee80be`), chỉ chờ user. Planner đã tự chạy qua MCP trong scene SimView (2026-10-22): tự đi + xới 6 giây, gieo từ túi, từ chối gieo lên cỏ, Tab thoát gieo, Mưa tưới, thu hoạch +1/+1, chuyển kho trong tầm / ngoài tầm, bảng túi + kho không đè minimap / vòng thời điểm — đều đúng. Chưa kiểm được bằng MCP: cảm giác tự đi, chuột phải / Esc thật, click khối kho bằng chuột, Shift + click.
+3. Sau khi user xem đạt: đặt 0041/0042/0043 `đã duyệt`, 7f xong (simulation-tech, roadmap). Tài liệu design 7f đã cập nhật (`a9ec042`).
 4. Task "Điều khiển cảm ứng" — làm sau, user chưa chọn lúc nào.
-5. Còn treo (nhỏ): `SeaSkyTintPlayTests` comment sai chữ; test kink địa hình sát ngưỡng (0,0106 / 0,0111); `TerrainBench` chế độ đào mỗi khung (mặc định tắt) sẽ dồn vật rơi.
+5. Còn treo (nhỏ): `SeaSkyTintPlayTests` comment sai chữ; test kink địa hình sát ngưỡng (0,0106 / 0,0111); `TerrainBench` chế độ đào mỗi khung (mặc định tắt) sẽ dồn vật rơi; R trùng phím Nhập hồn M2 (ghi [ý tưởng] ở controls-ui).
 
 ## Quyết định quan trọng & lý do
 - Lệnh người chơi = hàm `Simulation` gọi giữa hai nhịp, `CompleteByPlayer` đánh dấu công đoạn Done/Player (theo simulation-tech "Người chơi làm công đoạn", user 2026-10-13).
@@ -40,6 +40,6 @@ Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [00
 
 ## Prompt tiếp tục
 ```text
-Đọc .ai/handoff.md. Sim 7f: brief 0040 đã duyệt; brief 0041 executor xong (f4138f5, 43a2198). Review đầy đủ 0041 (git log xem đã có commit review chưa) → liệt kê user xem; sau đó viết brief 0042 (bảng túi, chế độ gieo, kho ↔ túi).
+Đọc .ai/handoff.md. Sim 7f: 0040 duyệt; 0041/0042 review đầy đủ đạt, chờ user xem; 0043 (sửa HUD) đã giao executor → review nhẹ, rồi đưa user danh sách xem gộp 0041–0043.
 Model đề xuất: Opus · high (Planner).
 ```
