@@ -1,9 +1,9 @@
 # Brief 0041 — Sim 7f (client A): nhân vật tự đi tới xới, phép Mưa, click thu hoạch
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 19:00
+> Cập nhật: 2026-10-22 18:15
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -267,8 +267,17 @@ Trên Mac, scene SimView (Play), nhân vật (không bay):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 745a00e
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-22 18:03 · Kết thúc: 2026-10-22 18:13 (theo `date`)
+Commit: `f4138f5`. File: `Client/PlayerCharacter.cs` (tự đi), `Client/PlayerFarmActions.cs` (+meta, mới), `Client/SimView.cs` (SelfTill, UnmarkAt, SelfTillOpenPlot, nút Tự xới), `Client/TerrainEditInput.cs` (R, chuột phải, thu hoạch, HUD), `Tests/Client/PlayerFarmPlayTests.cs` (+meta, mới), `Tests/Client/SimFarmUiPlayTests.cs` (chỉ `UnmarkAndDigHideSign`).
+Ghi chú: test chọn ô thử theo khoảng cách Euclid 3,5–6,5 ô (không phải 4–6 Chebyshev) vì ô chéo cách 6 Chebyshev ≈ 8,5 > tầm 8; HUD/bước theo brief nguyên văn.
 
 ## Kết quả test
+- PlayerFarmPlayTests: 12/12 đạt (AutoWalkArrives, AutoWalkCancelledByKey, SelfTillFull, CancelWhileTilling, TabCancelsWalking, Unreachable, CreatureTillsFirst, SelfTillButtonRetill, UseTillAndUnmarkAt, RainRules, HarvestIntoBag, HudInitial).
+- `run_tests` PlayMode toàn bộ: 133/133 đạt. EditMode toàn bộ: 472/472 đạt. Console: 0 lỗi.
+- `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy.
+- User tự test (8 mục, kể cả cảm giác tự đi): chờ user.
 
 ## Vướng mắc
 
