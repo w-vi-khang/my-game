@@ -1,6 +1,6 @@
 # Brief 0035 — World bước 7h (a): nhân vật người chơi trên PC, camera theo sau lưng, tầm với 4 ô, camera bay thành chế độ debug
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 14:33
@@ -649,3 +649,5 @@ Planner (Opus · medium, phiên con), 2026-10-22 — mức `đầy đủ + user 
 - Nhận xét nhỏ, không chặn: cả 2 scene xuất hiện cùng chỗ (123.5, 21.0, 203.5) vì checkpoint Map 1 bị san trong TerrainView — đúng QĐ 14 nhánh dự phòng.
 - Giờ: executor 14:20–14:33 (~0,2 giờ máy) so với ước lượng 2–3 ngày-người; Planner cộng vào roadmap khi duyệt (sau user xem).
 - **Chờ user xem** (mục "User tự test", 10 điểm) — chưa kết luận.
+- **User xem 2026-10-22:** 10 điểm "User tự test" ổn. Góp ý: tầm với ngắn → [0030](../../design/decisions/0030-tam-voi-cong-cu-10-o.md) (đào/đặt/xới 10 ô, code ở brief đầu sim 7e); thiếu túi + vật rơi → sim 7e (đúng kế hoạch 0028).
+- Kết luận: **đã duyệt** (Planner Opus · high, 2026-10-22). Giờ đã cộng vào roadmap.

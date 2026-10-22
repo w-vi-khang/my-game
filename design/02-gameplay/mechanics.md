@@ -65,7 +65,7 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 #### Nhân vật, túi đồ, tự trồng trọt — luật M1
 Chốt (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)); P2, P1; client; M1 12–20 ngày-người. Số là [số tạm].
 - **Nhân vật đơn giản** (khối ghép, cao 2 ô), góc nhìn thứ ba; camera bay chỉ còn là chế độ debug.
-- **Tầm với:** nhặt, xới, gieo, thu hoạch, phép Mưa trong 4 ô quanh nhân vật; mở kho khi cách kho ≤ 3 ô.
+- **Tầm với:** đào, đặt, xới (đánh dấu) trong **10 ô** quanh nhân vật ([0030](../decisions/0030-tam-voi-cong-cu-10-o.md), user 2026-10-22); nhặt, gieo, thu hoạch, phép Mưa trong 4 ô; mở kho khi cách kho ≤ 3 ô.
 - **Vật rơi:** đào → bản mini của khối rơi tại chỗ, nằm yên, không tự mất; cùng loại trong một ô gộp thành chồng. Nhặt bằng **hành động Thu** (hút mọi vật rơi trong tầm) hoặc click từng vật.
 - **Túi đồ** khác kho, không có mức tối đa ([0004](../decisions/0004-tien-nap.md)). Đầu game có **túi hạt Cây A (4 hạt)** trên mặt đất gần chỗ xuất phát.
 - **Tự trồng trọt:** click ô có biển canh tác → nhân vật tự đi tới và xới (thời gian như sinh vật thuần thục gốc) · mở túi → chọn túi hạt → **chế độ gieo** → click ô ruộng đã xới → gieo (−1 hạt) · ngoài chế độ gieo, click ô ruộng mở bảng ô ruộng như cũ · cây lớn 100% → click thu hoạch → nông sản + hạt vào túi.
