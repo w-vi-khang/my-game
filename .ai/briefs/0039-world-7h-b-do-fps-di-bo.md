@@ -438,7 +438,7 @@ Không có thao tác. Planner đọc số liệu điện thoại và báo user (
 - Chạy bằng: claude-sonnet-5-5 · medium (OK: brief 0039 cần Sonnet · medium)
 - Giờ bắt đầu: 2026-10-22 16:54 (+07)
 - Commit code: 0e4600b — file: Client/WalkBench.cs, Client/Editor/WalkBenchBuild.cs, Client/Scenes/WalkBench.unity, Tests/Client/WalkBenchPlayTests.cs (+ .meta). Không lệch brief (WalkBench.cs chép nguyên văn; WalkBenchBuild chép từ SimBenchBuild theo bước 2).
-- Giờ dừng: ~17:10 (+07), dừng ở bước 8.1 vì không có điện thoại.
+- Giờ dừng: 17:05 (+07), dừng ở bước 8.1 vì không có điện thoại.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). Giờ bắt đầu/kết thúc theo `date`. -->
 
 ## Kết quả test
