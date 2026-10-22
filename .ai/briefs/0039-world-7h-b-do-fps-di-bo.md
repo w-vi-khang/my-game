@@ -1,9 +1,9 @@
 # Brief 0039 — World 7h (b): đo FPS điện thoại khi nhân vật tự đi
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-22 16:54
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -434,13 +434,25 @@ Không có thao tác. Planner đọc số liệu điện thoại và báo user (
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: a1983ea
+- Chạy bằng: claude-sonnet-5-5 · medium (OK: brief 0039 cần Sonnet · medium)
+- Giờ bắt đầu: 2026-10-22 16:54 (+07)
+- Commit code: 0e4600b — file: Client/WalkBench.cs, Client/Editor/WalkBenchBuild.cs, Client/Scenes/WalkBench.unity, Tests/Client/WalkBenchPlayTests.cs (+ .meta). Không lệch brief (WalkBench.cs chép nguyên văn; WalkBenchBuild chép từ SimBenchBuild theo bước 2).
+- Giờ dừng: ~17:10 (+07), dừng ở bước 8.1 vì không có điện thoại.
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · ghi chú lệch so với brief (nếu có, kèm lý do). Giờ bắt đầu/kết thúc theo `date`. -->
 
 ## Kết quả test
+- Điểm dẫn / RouteIsDry / PickRadius / tự đi + log → đạt: `WalkBenchPlayTests` 4/4.
+- Build script + scene → đạt: scene sinh ra, SimView.unity không đổi; console `WalkBench build: Succeeded, 851276220 byte → Builds/walkbench.apk` (35 MB).
+- SimView không đổi → `git diff --stat 6db16aa` rỗng.
+- `read_console` Error sau bước 1/2 → rỗng. EditMode toàn bộ → 437/437. PlayMode toàn bộ → 121/121 (gồm SimView/PlayerCharacter/SimBench).
+- `git status --short client/ProjectSettings` → rỗng (đã checkout EditorSettings + UnityConnectSettings).
+- Điện thoại (bước 8) → CHƯA LÀM: không đạt điều kiện máy (xem Vướng mắc).
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
 ## Vướng mắc
+Chờ user cắm lại điện thoại. `adb devices` rỗng (kể cả sau kill-server/start-server); `adb mdns services` chỉ thấy 192.168.1.7:6060 (Android TV — bị cấm dùng); serial PFQCRWVWR46HU4GQ không tìm thấy. APK đã build sẵn ở client/Builds/walkbench.apk. Khi máy cắm lại: chạy tiếp bước 8 (cài, mở, đọc logcat) — không cần build lại.
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
 
 ---
