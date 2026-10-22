@@ -1,6 +1,6 @@
 # Brief 0031 — Simulation bước 7d: hàng đợi ô đợi (loại × số lượng), ô tiến trình, tạm dừng xới, bảng ô ruộng dạng ô vuông
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22
@@ -524,3 +524,10 @@ Commit: 1cfc7f8. File đổi: SimConfig, SimData, Simulation, SimHash, SimDemo, 
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng (Sonnet · medium) khớp Model thực thi; mọi dòng "Phần cần test" có kết quả.
+- Diff `1cfc7f8` (15 file) trong Phạm vi; lõi (`Simulation`, `SimData`, `SimHash`, `SimDemo`, `SimConfig`) + `SiteStatus` + `SimView` khớp bước 1–8. Trừ hạt ở `Assign`, `AbortActive` thả sinh vật bằng `ReleaseCreature` (không qua `Unassign`) → huỷ không trả hạt đúng 0027; vận chuyển có `PlotId = -1` nên tạm dừng xới không chặn chở hàng.
+- Vướng mắc 1 (EnqueueRules lần 6 true, lần 7 false): executor đúng theo 0026 mục 2, brief sai — chấp nhận. Vướng mắc 2 (chờ hết pha Till thay mốc cố định): chấp nhận.
+- EditMode 402/402, PlayMode 89/89 (executor, MCP) — không chạy lại.
+- User xem 2026-10-22 (sau brief 0032, trên đồng bằng): phần cần test đạt. Lỗi hiển thị chân trời bên trái / sao ban đêm không phủ tới chân trời — có sẵn từ trước, không thuộc 0031 → việc riêng.
+- Giờ: Executor ~8 phút (09:56–10:04) so với ước lượng 2–3 ngày-người; đã ghi roadmap.
+- Kết luận: đã duyệt

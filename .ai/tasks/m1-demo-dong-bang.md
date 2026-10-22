@@ -1,7 +1,7 @@
 # Task: M1 — demo đặt trên đồng bằng san phẳng (SimView + TerrainView), giãn bố trí trại
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận 2026-10-22 (bố trí + camera mục 4, bỏ `FindSite`/`DemoSite`). Brief [0032](../briefs/0032-demo-dong-bang.md). Chen trước khi user xem brief 0031 (user yêu cầu 2026-10-22).
+> Trạng thái: **xong** 2026-10-22 (brief 0032 đã duyệt). Trước đó: user xác nhận 2026-10-22 (bố trí + camera mục 4, bỏ `FindSite`/`DemoSite`). Brief [0032](../briefs/0032-demo-dong-bang.md). Chen trước khi user xem brief 0031 (user yêu cầu 2026-10-22).
 
 ## Mục tiêu
 Các scene demo (SimView, TerrainView) diễn ra trên một **đồng bằng phẳng, dễ quan sát** thay vì cửa sổ 9 × 7 "gần phẳng" giữa đồi núi; trại demo **giãn ra** để nhìn rõ nhà / kho / ruộng / sinh vật và còn đất trống quanh để thử Xới, đào, đặt.

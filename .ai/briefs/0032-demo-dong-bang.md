@@ -1,6 +1,6 @@
 # Brief 0032 — Demo trên đồng bằng san phẳng (SimView + TerrainView), giãn bố trí trại
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 10:25
@@ -280,3 +280,9 @@ Làm theo [task contract](../tasks/m1-demo-dong-bang.md): scene SimView và Terr
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng (claude-sonnet-5-5 · medium) khớp Model thực thi; mọi dòng "Phần cần test" có kết quả.
+- Diff `b33d44b` (11 file) trong Phạm vi; scene SimView/SimBench không đổi, TerrainView chỉ thêm `DemoPlain` trên `Terrain`. `SimDemo` (bố trí giãn, `OnPlain`, `Build` chung), `DemoPlain`, `SimView.OnAfterGenerate`/`Setup`, `DebugFlyCamera.SyncAngles` khớp bước 1–7.
+- EditMode 400/400 (−2 test FindSite), PlayMode 91/91 (+2 `DemoPlainPlayTests`), console 0 lỗi, grep rỗng (executor, MCP) — không chạy lại.
+- User xem 2026-10-22: SimView/TerrainView trên đồng bằng đạt. Lỗi chân trời bên trái (mặt phẳng nhạt phía trên mặt biển; ban đêm sao không phủ tới chân trời) — không do 0032 → việc riêng.
+- Giờ: Executor ~6 phút (10:19–10:25) so với ước lượng 0,5–1 ngày-người; đã ghi roadmap.
+- Kết luận: đã duyệt

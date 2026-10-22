@@ -1,7 +1,7 @@
 # Task: M1 simulation bước 7d — hàng đợi ô đợi (loại × số lượng), ô tiến trình, tạm dừng xới, bảng ô ruộng dạng ô vuông
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận 2026-10-22 (0027 Chốt, ước lượng 2–3, tên cấu hình). Sau bước 7c ([brief 0030](../briefs/0030-sim-cong-cu-xoi-bang-giong-kho.md), đã duyệt); làm **trước bước 8**.
+> Trạng thái: **xong** 2026-10-22 (brief 0031 đã duyệt). Trước đó: user xác nhận 2026-10-22 (0027 Chốt, ước lượng 2–3, tên cấu hình). Sau bước 7c ([brief 0030](../briefs/0030-sim-cong-cu-xoi-bang-giong-kho.md), đã duyệt); làm **trước bước 8**.
 
 ## Mục tiêu
 Đổi hàng đợi vụ của ô ruộng theo [0026](../../design/decisions/0026-hang-doi-o-doi-theo-loai.md) (Chốt) + [0027](../../design/decisions/0027-o-tien-trinh-tam-dung-xoi-khong-tra-hat.md) (Chốt 2026-10-22). Ước lượng 2–3 ngày-người (roadmap M1).
