@@ -442,6 +442,15 @@ Giờ: bắt đầu 22:08, dừng ~22:25.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` = Model thực thi `Sonnet · medium` — khớp.
+- Diff `6b7c427` (24 file): đúng Phạm vi. 7 file client chỉ đổi nguồn đọc phím, logic và thứ tự giữ nguyên; `DebugFlyCamera.cs` chỉ thêm overload; `GameInput.cs`, `DebugKeys.cs` khớp nguyên văn bước 3; `EditorBuildSettings.asset` chỉ đổi guid sang `f620f721…` (= guid trong `GameControls.inputactions.meta`); template đã xoá; `Game.Core` / `Game.World` / `design/` không đụng. Đối chiếu QĐ 1–10: đạt.
+- Test (executor chạy qua MCP, ghi ở "Kết quả test (lần chạy cuối, sau QĐ 10)"): EditMode 498/498 (493 + 5 mới), PlayMode 167/167 (165 + 2 mới), console 0 lỗi, bước 12 Play thật `True True`. Số liệu khớp số test trước brief (0046: 493 + 165), nên không chạy lại. Đã đọc `GameControlsTests.cs`: bảng 30 dòng khớp QĐ 1, regex quét đúng bước 10.
+- Mọi dòng ở "Phần cần test" đều có kết quả; dòng WASD chéo = `AssetMatchesDefaultTable` + chờ user.
+- Lệch được chấp nhận: `safety_checks=false` cho `DeleteAsset` ở bước 2; test PlayMode theo QĐ 9–10.
+- Ghi chú Planner: hai dấu giờ "22:40" / "23:10" trong các lần trả lời Vướng mắc ghi sai (giờ thật theo commit: `d412aff`…`02a8929` lúc 22:25–22:26).
+- Roadmap: thêm dòng giờ thực tế (`design/05-roadmap.md`, mục giờ thực tế M1). Ước lượng 2–3 ngày-người, executor chạy ~23 phút.
+- Tồn đọng cho Planner (không thuộc brief): bảng phím trong `design/02-gameplay/controls-ui.md` lệch với code (tài liệu ghi 1–6 đổi công cụ, di chuột xoay camera; code dùng 1–4 chọn loại khối, Tab đổi công cụ, giữ chuột giữa để xoay). Sửa khi user xem đạt.
+- Tự động: đạt. **Chờ user xem** (mục "User tự test" 1–8).
 
 ## Kiểm chứng
 Đang chờ Planner/user (brief `cần Opus`). Đã chạy qua MCP: EditMode 498/498 qua; PlayMode 165/168 (3 test mới fail, xem Vướng mắc). Chưa chạy `tools/unity_test.py` vì Editor đang mở (brief cho dùng MCP). Checklist chưa đối chiếu: chờ hoàn tất brief.
