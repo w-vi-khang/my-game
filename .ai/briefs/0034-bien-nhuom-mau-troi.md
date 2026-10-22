@@ -1,6 +1,6 @@
 # Brief 0034 — Biển nhuộm màu trời theo buổi, sương chuyển mềm ở chân trời
 
-> Trạng thái: chờ review (chờ user xem)
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 12:10
