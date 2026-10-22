@@ -1,7 +1,7 @@
 # Task: M1 world 7h (b) — đo FPS điện thoại khi nhân vật đi liên tục
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận 2026-10-22 ("Tiếp tục"). Phần (b) của [m1-world-7h-nhan-vat](m1-world-7h-nhan-vat.md), sau brief 0035 (a) và sim 7e (0036–0038). Brief dự kiến: 0039.
+> Trạng thái: user xác nhận 2026-10-22 ("Tiếp tục"). **Xong 2026-10-22** — brief 0039 đã duyệt. Phần (b) của [m1-world-7h-nhan-vat](m1-world-7h-nhan-vat.md), sau brief 0035 (a) và sim 7e (0036–0038). Brief dự kiến: 0039.
 
 ## Mục tiêu
 Đo trên điện thoại xem SimView có giữ được **≥ 30 FPS** khi nhân vật đi liên tục, và có lộ lỗ chunk trước mặt không. Đây là chỉ tiêu M1 ([roadmap](../../design/05-roadmap.md): ≥ 30 FPS trên một máy Android tầm trung).
@@ -21,23 +21,23 @@
 - Scene Bench, SimBench, HashCheck: giữ nguyên.
 
 ## Tiêu chí chấp nhận (kiểm chứng được)
-- [ ] **Chế độ đo đi bộ** trong SimView (một cờ, mặc định tắt):
+- [x] **Chế độ đo đi bộ** trong SimView (một cờ, mặc định tắt):
   - Nhân vật tự đi theo một lộ trình cố định, lặp lại được giữa các lần chạy. Lộ trình phải ra khỏi trại, đi qua vùng có chunk phải nạp mới, và có địa hình bậc 1 ô (tự nhảy).
   - Nếu kẹt (không tiến được trong vài giây) thì đổi hướng và đếm số lần kẹt.
   - Camera theo sau lưng như khi chơi.
   - Chạy khởi động 3 giây, rồi đo 40 giây.
   - Kiểm bằng: test PlayMode. Bật cờ và chạy rút ngắn trong Editor: nhân vật đi được quãng đường > 0 ô; có dòng log đủ các trường bên dưới; khi tắt cờ thì SimView chạy như cũ.
-- [ ] **Dòng log kết quả** (tên dòng do Planner đặt trong brief) gồm:
+- [x] **Dòng log kết quả** (tên dòng do Planner đặt trong brief) gồm:
   - avgFps, p50Ms, p99Ms, maxMs;
   - holeFrames và maxMissing, tính như `TerrainBench`;
   - quãng đường đã đi, số lần kẹt, số chunk đã nạp nhiều nhất;
   - bộ nhớ;
   - pass30fps, passNoHole.
   - Kiểm bằng: test PlayMode, như mục trên.
-- [ ] **Build APK** cho scene đo, chép từ SimView theo mẫu `SimBenchBuild`, có menu và `-executeMethod`. Kiểm bằng: build thành công qua MCP.
-- [ ] **Điện thoại Xiaomi 24095PCADG:** avgFps ≥ 30 và holeFrames = 0. Kiểm bằng: AI cài APK qua adb, đọc logcat, ghi số liệu cùng thermal/nhiệt độ máy vào brief và roadmap.
-- [ ] **Test cũ đạt**, `Game.Core` không tham chiếu UnityEngine. Kiểm bằng: `run_tests` MCP (EditMode + PlayMode).
-- [ ] **User xem:** chỉ đọc số liệu đo, không cần thử điều khiển trên điện thoại (cảm ứng chưa làm).
+- [x] **Build APK** cho scene đo, chép từ SimView theo mẫu `SimBenchBuild`, có menu và `-executeMethod`. Kiểm bằng: build thành công qua MCP.
+- [x] **Điện thoại Xiaomi 24095PCADG:** avgFps ≥ 30 và holeFrames = 0. Kiểm bằng: AI cài APK qua adb, đọc logcat, ghi số liệu cùng thermal/nhiệt độ máy vào brief và roadmap.
+- [x] **Test cũ đạt**, `Game.Core` không tham chiếu UnityEngine. Kiểm bằng: `run_tests` MCP (EditMode + PlayMode).
+- [x] **User xem:** chỉ đọc số liệu đo, không cần thử điều khiển trên điện thoại (cảm ứng chưa làm).
 
 ## Ràng buộc
 - Unity 6000.4.8f1, URP 17.4.0, Input System 1.19.0. API dùng trong brief phải tra docs 6000.4.

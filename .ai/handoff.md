@@ -11,9 +11,9 @@ Chỉ ghi sự thật đã xác minh. -->
 ## Mục tiêu
 Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [0029](../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md) (Chốt) theo thứ tự user chọn 2026-10-22:
 1. ~~world 7h (a) — nhân vật PC~~ xong (brief 0035);
-2. ~~sim 7e — vật rơi + túi + nhặt + túi hạt~~ xong (brief 0036 lõi + 0037 client, đã duyệt); tầm với đổi thành 8 ô mọi thao tác ([0031](../design/decisions/0031-tam-voi-moi-thao-tac-8-o.md)) → brief 0038 **chờ user xem**;
-3. world 7h (b) — cảm ứng + đo FPS điện thoại ← TIẾP THEO sau khi 0038 duyệt;
-4. sim 7f — tự trồng trọt + phép Mưa + kho ↔ túi;
+2. ~~sim 7e — vật rơi + túi + nhặt + túi hạt~~ xong (brief 0036, 0037, 0038 tầm với 8 ô — đã duyệt);
+3. ~~world 7h (b) — đo FPS điện thoại~~ xong (brief 0039 đã duyệt: 49,4 FPS, 0 lỗ); cảm ứng → task "Điều khiển cảm ứng" sau (user 2026-10-22: "làm trên máy tính trước…");
+4. sim 7f — tự trồng trọt + phép Mưa + kho ↔ túi ← TIẾP THEO;
 5. world 7i–7k (nhiều điểm nhìn, camera quan sát, GPU culling);
 6. sim bước 8 — môi trường sống (user tạm hoãn).
 
@@ -23,13 +23,13 @@ Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [00
 - Brief 0038 (`37880e8` code, `64668bb` kết quả, `25da3f3` review nhẹ): `ToolReach = HandReach = 8f`, chữ HUD "8 ô", test biên. EditMode 437/437, PlayMode 117/117 (theo brief).
 
 ## Còn lại
-1. Chờ user xem brief 0038 (4 mục "User tự test": khung/bản mờ tới ~8 ô, F/click 8 ô, chữ "8 ô", cảm giác). Đạt → ghi "Kết luận: đã duyệt" vào brief 0038, thêm giờ 0038 (5 phút, 16:19–16:24) vào dòng sim 7e trong `design/05-roadmap.md`.
-2. Sau đó: task contract world 7h (b) cảm ứng + đo FPS điện thoại (`/ai-workflow-kit:task`), rồi brief (số kế: **0039**).
+1. Sim 7f: task contract (`/ai-workflow-kit:task`) theo 0028, rồi brief (số kế: **0040**).
+2. Task "Điều khiển cảm ứng" (joystick, kéo xoay, nút nhảy, chạm dùng công cụ, nút Thu) — làm sau, user chưa chọn lúc nào.
 3. Còn treo (nhỏ): `SeaSkyTintPlayTests` comment sai chữ; test kink địa hình sát ngưỡng (0,0106 / 0,0111); `TerrainBench` chế độ đào mỗi khung (mặc định tắt) sẽ dồn vật rơi.
 
 ## Quyết định quan trọng & lý do
 - Phiên con: clear phiên con bị auto mode chặn → mở phiên con mới (`start_session`, `use_worktree: false`). Review đầy đủ giao Opus · medium (thẻ own_initiative); review nhẹ làm luôn ở phiên Planner cho đỡ tốn.
-- Điện thoại: Xiaomi 24095PCADG, dò cổng `adb mdns services`; không dùng 192.168.1.7:6060 (TV).
+- Điện thoại: Xiaomi 24095PCADG; 2026-10-22 USB không thấy, user bật gỡ lỗi qua Wi‑Fi → `adb devices` hiện `adb-PFQCRWVWR46HU4GQ-…._adb-tls-connect._tcp` (dò bằng `adb mdns services`); không dùng 192.168.1.7:6060 (TV).
 - Dọn sau PlayMode: `git checkout -- client/ProjectSettings/EditorSettings.asset`; sau build APK: `git checkout -- client/ProjectSettings/UnityConnectSettings.asset`.
 
 ## File liên quan
@@ -38,6 +38,6 @@ Làm [0028](../design/decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), [00
 
 ## Prompt tiếp tục
 ```text
-Đọc .ai/handoff.md. Brief 0038 (tầm với 8 ô) đang chờ user xem: hỏi kết quả, đạt thì kết luận + ghi giờ roadmap; rồi viết task contract world 7h (b) cảm ứng + đo FPS điện thoại.
+Đọc .ai/handoff.md. 7h + 7e xong. Viết task contract sim 7f (tự trồng trọt + phép Mưa + kho ↔ túi, theo 0028) rồi brief 0040.
 Model đề xuất: Opus · high (Planner).
 ```

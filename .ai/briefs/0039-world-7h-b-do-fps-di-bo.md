@@ -1,6 +1,6 @@
 # Brief 0039 — World 7h (b): đo FPS điện thoại khi nhân vật tự đi
 
-> Trạng thái: cần Opus
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 16:54
@@ -448,11 +448,15 @@ Không có thao tác. Planner đọc số liệu điện thoại và báo user (
 - `read_console` Error sau bước 1/2 → rỗng. EditMode toàn bộ → 437/437. PlayMode toàn bộ → 121/121 (gồm SimView/PlayerCharacter/SimBench).
 - `git status --short client/ProjectSettings` → rỗng (đã checkout EditorSettings + UnityConnectSettings).
 - Điện thoại (bước 8) → CHƯA LÀM: không đạt điều kiện máy (xem Vướng mắc).
+- Điện thoại (bước 8, Planner làm 17:06–17:09 sau khi user bật gỡ lỗi qua Wi‑Fi; máy `adb-PFQCRWVWR46HU4GQ-fN8sCo._adb-tls-connect._tcp`, model 24095PCADG) → đạt [run]:
+  - `WALKBENCH bắt đầu: tâm (123,5, 212,5), R=32, đất khô=True`
+  - `WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1975 avgFps=49,4 avgMs=20,24 p50Ms=16,65 p99Ms=41,59 maxMs=187,65 | distance=164,0 stuck=0 waterFrames=0 routeR=32 routeDry=True | holeFrames=0 maxMissing=0 loadedChunksMax=861 | sysMemMaxMB=1091,3 gcReservedMaxMB=171,3 | creatures=3 | pass30fps=True passNoHole=True`
+  - `Thermal Status: 2`; 0 `Exception`. Ảnh lúc 19 s (không commit): nhân vật xanh đi trên sườn đồi, hộp `WALKBENCH đang đo… 19 s · 90 ô · kẹt 0`.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
 ## Vướng mắc
-Chờ user cắm lại điện thoại. `adb devices` rỗng (kể cả sau kill-server/start-server); `adb mdns services` chỉ thấy 192.168.1.7:6060 (Android TV — bị cấm dùng); serial PFQCRWVWR46HU4GQ không tìm thấy. APK đã build sẵn ở client/Builds/walkbench.apk. Khi máy cắm lại: chạy tiếp bước 8 (cài, mở, đọc logcat) — không cần build lại.
+(Đã giải quyết: user bật gỡ lỗi qua Wi‑Fi; Planner làm bước 8.) Chờ user cắm lại điện thoại. `adb devices` rỗng (kể cả sau kill-server/start-server); `adb mdns services` chỉ thấy 192.168.1.7:6060 (Android TV — bị cấm dùng); serial PFQCRWVWR46HU4GQ không tìm thấy. APK đã build sẵn ở client/Builds/walkbench.apk. Khi máy cắm lại: chạy tiếp bước 8 (cài, mở, đọc logcat) — không cần build lại.
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
 
 ---
@@ -460,3 +464,12 @@ Chờ user cắm lại điện thoại. `adb devices` rỗng (kể cả sau kill
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+Review đầy đủ (Planner Opus, 2026-10-22 17:10):
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi`.
+- `Client/WalkBench.cs` trùng nguyên văn code trong bước 1 (so bằng script) [run]; `WalkBenchBuild.cs` chỉ khác `SimBenchBuild.cs` ở tên/hằng/menu/vòng gắn `WalkBench`/comment như bước 2 (`diff` sau khi thay tên) [run]; `WalkBenchPlayTests` đủ 4 test, assert đúng bước 4.
+- File ngoài phạm vi không đổi: `git diff --stat 6db16aa -- SimView.unity SimView.cs PlayerCharacter.cs FollowCamera.cs` rỗng; `git status` sạch [run].
+- Test theo Executor: WalkBench 4/4, EditMode 437/437, PlayMode 121/121.
+- Điện thoại đạt tiêu chí task: avgFps 49,4 ≥ 30, holeFrames 0, đi 164 ô, kẹt 0 (máy nóng, thermal 2). p99 41,6 ms, maxMs 187,7 (một khung giật — ghi nhận, không thuộc tiêu chí).
+- Giờ thực tế: Executor 11 phút (16:54–17:05) + Planner đo điện thoại ~3 phút, so với 0,5–1 ngày-người.
+
+Kết luận: **đã duyệt**.
