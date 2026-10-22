@@ -11,8 +11,9 @@ namespace Game.Client
     /// <summary>
     /// Đào/đặt bằng chuột trong scene TerrainView (world-tech bước 4, user duyệt 2026-10-13):
     /// Tab đổi công cụ Đào ⇄ Đặt (brief 0027), chuột trái dùng công cụ; phím 1–4 hoặc lăn chuột chọn đất/cỏ/đá/cát.
-    /// Đào: khung trắng = ô sẽ đào. Đặt: bản mờ màu vật liệu ở ô sẽ đặt (đỏ = kho hết; sai luật → không có); nhãn góc trái = công cụ, kho vật liệu, lý do khi không đào/đặt được.
+    /// Đào: khung trắng = ô sẽ đào. Đặt: bản mờ màu vật liệu ở ô sẽ đặt (đỏ = túi hết; sai luật → không có); nhãn góc trái = công cụ, túi đồ, lý do khi không đào/đặt được.
     /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021).
+    /// Sim 7e (brief 0037): F = Thu (nhặt mọi vật rơi trong 4 ô); tia chuột trúng vật rơi trong 4 ô → chuột trái nhặt cả chồng thay cho công cụ; vật rơi ngoài 4 ô không chặn tia.
     /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 10 ô (0030), được dùng khi đang đi; Alt + lăn chọn loại.
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
@@ -37,7 +38,7 @@ namespace Game.Client
         public bool TillAvailable => Farm != null;
         public TillResult LastTill { get; private set; }
 
-        /// <summary>Màu bản mờ khi kho hết loại đang chọn.</summary>
+        /// <summary>Màu bản mờ khi túi hết loại đang chọn.</summary>
         public static readonly Color MissingColor = new Color(1f, 0.2f, 0.2f, 0.5f);
         public EditTool Tool { get; private set; } = EditTool.Dig;
         public BlockMaterial SelectedMaterial => Palette[selected];
@@ -49,15 +50,23 @@ namespace Game.Client
         MeshRenderer ghostRenderer;
         UnityEngine.Material ghostMat;
 
+        /// <summary>Vẽ vật rơi (brief 0037); thêm trong Awake nếu chưa có.</summary>
+        public DropView DropView { get; private set; }
+        /// <summary>Chồng vật rơi đang ngắm (trong tầm việc tay); null nếu không có.</summary>
+        public DropStack AimedDrop { get; private set; }
+
         void Awake()
         {
             view = GetComponent<TerrainChunkView>();
             outline = CreateOutline();
             CreateGhost();
+            DropView = GetComponent<DropView>();
+            if (DropView == null) DropView = gameObject.AddComponent<DropView>();
         }
 
         void Update()
         {
+            AimedDrop = null;
             var kb = Keyboard.current;
             if (kb != null)
             {
@@ -66,6 +75,7 @@ namespace Game.Client
                 if (kb.digit3Key.wasPressedThisFrame) selected = 2;
                 if (kb.digit4Key.wasPressedThisFrame) selected = 3;
                 if (kb.tabKey.wasPressedThisFrame) ToggleTool();
+                if (kb.fKey.wasPressedThisFrame) CollectNearby();
             }
 
             var mouse = Mouse.current;
@@ -91,6 +101,16 @@ namespace Game.Client
                 return;
 
             var ray = cam.ScreenPointToRay(mouse.position.ReadValue());
+            var player = PlayerCharacter.Active;
+            // Vật rơi trong tầm việc tay 4 ô dưới con trỏ → chuột trái nhặt cả chồng, không đào/đặt/xới (task contract 7e); ngoài 4 ô không chặn tia.
+            AimedDrop = PickDrop(ray);
+            if (AimedDrop != null)
+            {
+                ShowAim(false, default, default);
+                if (player.FlyMode && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
+                if (mouse.leftButton.wasPressedThisFrame) CollectDrop(AimedDrop);
+                return;
+            }
             if (!Pick(ray, out var digCell, out var placeCell))
             {
                 ShowAim(false, default, default);
@@ -106,7 +126,6 @@ namespace Game.Client
             outline.widthMultiplier = outlinePixels * worldPerPixel;
             }
 
-            var player = PlayerCharacter.Active;
             // Camera bay (không có nhân vật, hoặc chế độ debug F3): chỉ đào/đặt khi dừng (user 2026-10-20). Có nhân vật: được dùng công cụ khi đang đi (0028).
             if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld(kb)) return;
 
@@ -179,7 +198,7 @@ namespace Game.Client
                 var m = view.World.Size.InBounds(digCell.x, digCell.y, digCell.z)
                     ? view.World.GetMaterial(digCell.x, digCell.y, digCell.z) : BlockMaterial.Empty;
                 var r = view.Dig(digCell);
-                lastResult = r == EditResult.Ok ? $"Đào {digCell}: +1 {Name(m)}" : $"Đào {digCell}: không được — {Explain(r)}";
+                lastResult = r == EditResult.Ok ? $"Đào {digCell}: rơi 1 {Name(m == BlockMaterial.Farmland ? BlockMaterial.Dirt : m)}" : $"Đào {digCell}: không được — {Explain(r)}";
                 return r;
             }
             var p = view.Place(placeCell, SelectedMaterial);
@@ -200,6 +219,53 @@ namespace Game.Client
             return true;
         }
 
+        /// <summary>Chồng vật rơi gần nhất mà tia trúng, trong tầm việc tay 4 ô, không bị collider nào (địa hình, nhà, dấu mốc) che; không có nhân vật → null.</summary>
+        public DropStack PickDrop(Ray ray)
+        {
+            var player = PlayerCharacter.Active;
+            if (player == null || view.Editor == null) return null;
+            float limit = Physics.Raycast(ray, out var hit, maxDistance) ? hit.distance : maxDistance;
+            var o = view.transform.InverseTransformPoint(ray.origin);
+            var d = view.transform.InverseTransformDirection(ray.direction);
+            var f = player.FeetLocal;
+            return DropPick.Pick(view.Editor.Drops.Stacks, o.x, o.y, o.z, d.x, d.y, d.z, limit, f.x, f.y, f.z, out _);
+        }
+
+        /// <summary>Phím F (Thu): nhặt mọi chồng trong 4 ô; ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>
+        public int CollectNearby()
+        {
+            var player = PlayerCharacter.Active;
+            if (player == null || view.Editor == null) return 0;
+            var f = player.FeetLocal;
+            int n = view.Editor.Drops.CollectInReach(f.x, f.y, f.z, view.Bag);
+            lastResult = n > 0 ? $"Thu: nhặt {n} chồng vật rơi" : "Thu: không có vật rơi trong 4 ô";
+            return n;
+        }
+
+        /// <summary>Click nhặt một chồng (phải trong tầm việc tay); ghi dòng kết quả khi được.</summary>
+        public bool CollectDrop(DropStack s)
+        {
+            var player = PlayerCharacter.Active;
+            if (player == null || view.Editor == null || s == null) return false;
+            var label = DropLabel(s);
+            var f = player.FeetLocal;
+            if (!view.Editor.Drops.TryCollect(s.Id, f.x, f.y, f.z, view.Bag)) return false;
+            lastResult = $"Nhặt {label}";
+            return true;
+        }
+
+        /// <summary>Tên vật phẩm: khối → Đất / Cỏ / Đá / Cát (khác: tên enum); túi hạt loại 0 → "Túi hạt Cây A", loại khác → "Túi hạt loại N".</summary>
+        public static string ItemLabel(ItemId item)
+        {
+            if (item.Kind == ItemKind.SeedBag)
+                return item.Crop == StarterBag.Crop ? "Túi hạt Cây A" : $"Túi hạt loại {item.Crop}";
+            var n = Name(item.Material);
+            return char.ToUpper(n[0]) + n.Substring(1);
+        }
+
+        /// <summary>vd "Đất × 3".</summary>
+        public static string DropLabel(DropStack s) => $"{ItemLabel(s.Item)} × {s.Count}";
+
         static string Name(BlockMaterial m)
         {
             int i = System.Array.IndexOf(Palette, m);
@@ -208,12 +274,12 @@ namespace Game.Client
 
         static string Explain(EditResult r) => r switch
         {
-            EditResult.NoMaterial => "kho hết loại này (đào loại đó trước, hoặc chọn loại khác bằng 1–4 / lăn chuột)",
+            EditResult.NoMaterial => "túi hết loại này (nhặt vật rơi bằng F hoặc chuột trái, hoặc chọn loại khác bằng 1–4 / Alt + lăn chuột)",
             EditResult.NotEmpty => "ô đã có khối",
             EditResult.NotAttached => "phải kề một khối đặc",
             EditResult.NotDiggable => "ô rỗng, nước, đá đáy hoặc khối cốt truyện",
             EditResult.OutOfBounds => "ngoài map",
-            EditResult.Occupied => "ô đang bị chiếm",
+            EditResult.Occupied => "ô đang bị chiếm, hoặc vật rơi trong ô không còn chỗ đẩy lên",
             EditResult.NotPlaceable => "loại này không đặt được",
             _ => r.ToString(),
         };
@@ -224,14 +290,14 @@ namespace Game.Client
             if (player == null)
                 return " · Chuột trái: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n";
             if (player.FlyMode)
-                return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
-            return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
+                return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · F: thu vật rơi (trong 4 ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n";
+            return " · Chuột trái: dùng công cụ (trong 10 ô quanh nhân vật) · F: thu vật rơi (trong 4 ô) · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n";
         }
 
-        void OnGUI()
+        /// <summary>Chữ HUD góc trái (tách khỏi OnGUI để test); "" nếu chưa có túi.</summary>
+        public string HudText()
         {
-            if (view.Bag == null || MinimapView.IsAnyOpen)
-                return;
+            if (view.Bag == null) return "";
             var text = $"Công cụ: <b><color=yellow>{(Tool switch { EditTool.Dig => "Đào", EditTool.Place => "Đặt", _ => "Xới" })}</color></b> (Tab đổi){HelpText()}";
             if (Tool == EditTool.Till)
                 text += "Xới: chuột trái lên đất/cỏ = đánh dấu · lên biển = bỏ đánh dấu · lên ô ruộng = chọn giống · K: kho\n";
@@ -243,13 +309,24 @@ namespace Game.Client
                 text += i == selected
                     ? $"<b><color=yellow>[{i + 1} {PaletteNames[i]}: {view.Bag.Get(Palette[i])}]</color></b>   "
                     : $"{i + 1} {PaletteNames[i]}: {view.Bag.Get(Palette[i])}   ";
+            int seeds = view.Bag.GetSeeds(StarterBag.Crop);
+            if (seeds > 0) text += $"\nTúi hạt Cây A: {seeds}";
+            if (AimedDrop != null) text += $"\nNhặt (chuột trái): {DropLabel(AimedDrop)}";
             text += $"\n{lastResult}";
             if (view.LastRebuildFrame >= 0)
                 text += $"\nDựng lại {view.LastRebuildChunks} chunk: mesh {view.LastMeshMs:F1} ms, ghi {view.LastWriteMs:F1} ms, bake {view.LastBakeMs:F1} ms";
+            return text;
+        }
+
+        void OnGUI()
+        {
+            if (view.Bag == null || MinimapView.IsAnyOpen)
+                return;
+            var text = HudText();
             // Phóng chữ theo chiều cao màn hình (mốc 720p) — màn Retina chữ mặc định quá nhỏ.
             float scale = Mathf.Max(1f, Screen.height / 720f);
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-            GUI.Label(new Rect(10, 10, 1000, 140), text, new GUIStyle(GUI.skin.label) { richText = true });
+            GUI.Label(new Rect(10, 10, 1000, 200), text, new GUIStyle(GUI.skin.label) { richText = true });
         }
 
         LineRenderer CreateOutline()

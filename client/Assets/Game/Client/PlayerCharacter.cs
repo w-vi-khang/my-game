@@ -8,7 +8,7 @@ namespace Game.Client
 {
     /// <summary>
     /// Nhân vật người chơi trên PC (world 7h, brief 0035, 0028): khối ghép cao 2 ô, CharacterController, WASD đi theo hướng camera, Space nhảy,
-    /// F3 bật/tắt camera bay (debug). Luật tầm với / ô chiếm / biên / nước ở Game.Core.PlayerRules. Gốc transform = chân.
+    /// F3 bật/tắt camera bay (debug). Đầu game đặt túi hạt Cây A × 4 gần chỗ xuất phát (brief 0037). Luật tầm với / ô chiếm / biên / nước ở Game.Core.PlayerRules. Gốc transform = chân.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     public class PlayerCharacter : MonoBehaviour
@@ -18,6 +18,14 @@ namespace Game.Client
         public bool readKeyboard = true;
         public Vector2 MoveInput;
         public bool JumpInput;
+        /// <summary>Đặt túi hạt Cây A × 4 gần chỗ xuất phát khi có Editor (sim 7e, brief 0037).</summary>
+        public bool giveStarterBag = true;
+        /// <summary>Chồng túi hạt đầu game đã đặt; null nếu chưa đặt hoặc không có chỗ.</summary>
+        public DropStack StarterStack { get; private set; }
+        Vector3 spawnFeetLocal;
+        float spawnYaw;
+        bool hasSpawn;
+        WorldEditor starterGivenFor;
 
         public static PlayerCharacter Active { get; private set; }
         public bool Ready { get; private set; }
@@ -119,6 +127,7 @@ namespace Game.Client
             Ready = false;
             if (follow != null) follow.SetAngles(yawDeg, 20f);
             else { pendingYaw = yawDeg; hasPendingYaw = true; }
+            if (terrain != null) { spawnFeetLocal = terrain.transform.InverseTransformPoint(feetWorld); spawnYaw = yawDeg; hasSpawn = true; }
         }
 
         public void SetFlyMode(bool on)
@@ -151,6 +160,14 @@ namespace Game.Client
             if (terrain == null || terrain.World == null) return;
             if (terrain.Editor != null && terrain.Editor.IsPlayerAt == null)
                 terrain.Editor.IsPlayerAt = OccupiesCell;
+            if (giveStarterBag && hasSpawn && terrain.Editor != null && starterGivenFor != terrain.Editor)
+            {
+                starterGivenFor = terrain.Editor;
+                float r = spawnYaw * Mathf.Deg2Rad;
+                StarterStack = StarterBag.Place(terrain.Editor, spawnFeetLocal.x, spawnFeetLocal.y, spawnFeetLocal.z, Mathf.RoundToInt(Mathf.Sin(r)), Mathf.RoundToInt(Mathf.Cos(r)));
+                if (StarterStack != null) Debug.Log($"STARTERBAG túi hạt Cây A × {StarterBag.Seeds} ở ({StarterStack.X}, {StarterStack.Y}, {StarterStack.Z})");
+                else Debug.LogWarning("STARTERBAG không tìm được chỗ đặt túi hạt quanh chỗ xuất phát");
+            }
 
             var kb = Keyboard.current;
             if (kb != null && kb.f3Key.wasPressedThisFrame) SetFlyMode(!FlyMode);
