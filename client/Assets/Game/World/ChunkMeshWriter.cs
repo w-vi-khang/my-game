@@ -21,10 +21,10 @@ namespace Game.World
         public static void WriteAll(IReadOnlyList<ChunkMesh> chunks, IReadOnlyList<Mesh> meshes)
         {
             if (chunks.Count != meshes.Count)
-                throw new ArgumentException($"{chunks.Count} chunk nhưng {meshes.Count} mesh");
+                throw new ArgumentException($"{chunks.Count} chunks but {meshes.Count} meshes");
             for (int k = 0; k < chunks.Count; k++)
                 if (chunks[k].Vertices.Length > MaxVertices16)
-                    throw new InvalidOperationException($"Chunk có {chunks[k].Vertices.Length} đỉnh > {MaxVertices16} (giới hạn chỉ số 16 bit)");
+                    throw new InvalidOperationException($"Chunk has {chunks[k].Vertices.Length} vertices > {MaxVertices16} (16-bit index limit)");
 
             var array = Mesh.AllocateWritableMeshData(chunks.Count);
             for (int k = 0; k < chunks.Count; k++)
@@ -62,10 +62,10 @@ namespace Game.World
         public static void WriteColliders(IReadOnlyList<ChunkMesh> chunks, IReadOnlyList<Mesh> meshes)
         {
             if (chunks.Count != meshes.Count)
-                throw new ArgumentException($"{chunks.Count} chunk nhưng {meshes.Count} mesh");
+                throw new ArgumentException($"{chunks.Count} chunks but {meshes.Count} meshes");
             for (int k = 0; k < chunks.Count; k++)
                 if (chunks[k].ColliderVertices.Length > MaxVertices16)
-                    throw new InvalidOperationException($"Collider chunk có {chunks[k].ColliderVertices.Length} đỉnh > {MaxVertices16}");
+                    throw new InvalidOperationException($"Chunk collider has {chunks[k].ColliderVertices.Length} vertices > {MaxVertices16}");
 
             var array = Mesh.AllocateWritableMeshData(chunks.Count);
             for (int k = 0; k < chunks.Count; k++)

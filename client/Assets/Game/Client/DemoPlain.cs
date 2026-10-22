@@ -30,9 +30,9 @@ namespace Game.Client
             {
                 var feet = PlayerCharacter.TerrainViewSpawn(world, kept, plain, out bool atCp);
                 player.Place(transform.TransformPoint(feet), 0f);
-                Debug.Log($"PLAYER xuất hiện {(atCp ? "cạnh checkpoint Map 1" : "giữa đồng bằng (checkpoint Map 1 đã bỏ khi san)")} ({feet.x:F1}, {feet.y:F1}, {feet.z:F1})");
+                Debug.Log($"PLAYER spawned {(atCp ? "next to Map 1 checkpoint" : "in the middle of the plain (Map 1 checkpoint removed when flattening)")} ({feet.x:F1}, {feet.y:F1}, {feet.z:F1})");
             }
-            Debug.Log($"DEMOPLAIN {plain}, bỏ {lms.Count - kept.Count} dấu mốc, camera ({pos.x:F0}, {pos.y:F0}, {pos.z:F0})");
+            Debug.Log($"DEMOPLAIN {plain}, removed {lms.Count - kept.Count} landmarks, camera ({pos.x:F0}, {pos.y:F0}, {pos.z:F0})");
             return kept;
         }
 

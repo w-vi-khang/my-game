@@ -46,7 +46,7 @@ namespace Game.Core.Sim
         public GridPathfinder(WorldData world, SimBounds bounds)
         {
             this.world = world ?? throw new ArgumentNullException(nameof(world));
-            if (!bounds.FitsIn(world.Size)) throw new ArgumentException("Vùng mô phỏng ngoài world: " + bounds);
+            if (!bounds.FitsIn(world.Size)) throw new ArgumentException("Simulation region outside the world: " + bounds);
             this.bounds = bounds;
             sizeY = world.Size.Y;
             int n = bounds.SizeX * bounds.SizeZ * sizeY;
@@ -79,7 +79,7 @@ namespace Game.Core.Sim
         /// <summary>Đánh dấu ô bị công trình chiếm (kho): ô đó không cho thân.</summary>
         public void SetBlocked(CellPos c, bool value)
         {
-            if (!InRegion(c.X, c.Y, c.Z)) throw new ArgumentException("Ô ngoài vùng mô phỏng: " + c);
+            if (!InRegion(c.X, c.Y, c.Z)) throw new ArgumentException("Cell outside the simulation region: " + c);
             blocked[Index(c.X, c.Y, c.Z)] = value;
         }
 

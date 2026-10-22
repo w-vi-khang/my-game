@@ -56,7 +56,7 @@ namespace Game.Core
         public static ushort SetWaterLevel(ushort cell, int level)
         {
             if (level < 0 || level > MaxWaterLevel)
-                throw new System.ArgumentOutOfRangeException(nameof(level), level, "Mực nước 0–7");
+                throw new System.ArgumentOutOfRangeException(nameof(level), level, "Water level 0–7");
             return (ushort)((cell & ~WaterMask) | (level << WaterShift));
         }
 
@@ -65,7 +65,7 @@ namespace Game.Core
         public static ushort SetReserved(ushort cell, int value)
         {
             if (value < 0 || value > 7)
-                throw new System.ArgumentOutOfRangeException(nameof(value), value, "Dự phòng 3 bit");
+                throw new System.ArgumentOutOfRangeException(nameof(value), value, "Reserved 3 bits");
             return (ushort)((cell & ~ReservedMask) | (value << ReservedShift));
         }
 

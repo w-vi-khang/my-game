@@ -56,12 +56,12 @@ namespace Game.Core.Sim
         {
             var sp = Config.FindSpecies(speciesId);
             if (!pathfinder.CanStand(cell, sp.sizeX, sp.sizeZ, sp.sizeY))
-                throw new ArgumentException("Sinh vật không đứng được tại " + cell);
+                throw new ArgumentException("Creature cannot stand at " + cell);
             for (int i = 0; i < State.Creatures.Count; i++)
             {
                 var o = State.Creatures[i];
                 if (FramesOverlap(o.Cell, o.SizeX, o.SizeZ, o.SizeY, cell, sp.sizeX, sp.sizeZ, sp.sizeY))
-                    throw new ArgumentException("Ô đã có sinh vật: " + cell);
+                    throw new ArgumentException("Cell already has a creature: " + cell);
             }
             var c = new Creature(State.Creatures.Count, speciesId,
                 SimConfig.ParseAbility(sp.ability1), SimConfig.ParseAbility(sp.ability2),
@@ -86,7 +86,7 @@ namespace Game.Core.Sim
         public int AddStage(int orderId, WorkAbility ability, CellPos target, int priority = 0)
         {
             if (ability == WorkAbility.Haul)
-                throw new ArgumentException("Vận chuyển dùng AddHaulStage.");
+                throw new ArgumentException("Use AddHaulStage for hauling.");
             var s = new WorkStage(State.Stages.Count, orderId, ability, target, false, default, Config.BaseTicks(ability), priority);
             State.Stages.Add(s);
             State.Orders[orderId].StageIds.Add(s.Id);
@@ -104,9 +104,9 @@ namespace Game.Core.Sim
         public int AddStorage(CellPos cell)
         {
             if (!pathfinder.CanStand(cell, 1, 1, 1))
-                throw new ArgumentException("Kho không đặt được tại " + cell);
+                throw new ArgumentException("Storage cannot be placed at " + cell);
             if (IsOccupied(cell.X, cell.Y, cell.Z))
-                throw new ArgumentException("Ô đã bị chiếm: " + cell);
+                throw new ArgumentException("Cell is already occupied: " + cell);
             pathfinder.SetBlocked(cell, true);
             homeDirty = true;
             var st = new Storage(State.Storages.Count, cell, Config.storage.capacity);
@@ -136,12 +136,12 @@ namespace Game.Core.Sim
         {
             var hc = Config.house;
             if (!pathfinder.CanStand(cell, hc.sizeX, hc.sizeZ, hc.sizeY))
-                throw new ArgumentException("Nhà không đặt được tại " + cell);
+                throw new ArgumentException("House cannot be placed at " + cell);
             for (int dx = 0; dx < hc.sizeX; dx++)
                 for (int dz = 0; dz < hc.sizeZ; dz++)
                     for (int dy = 0; dy < hc.sizeY; dy++)
                         if (IsOccupied(cell.X + dx, cell.Y + dy, cell.Z + dz))
-                            throw new ArgumentException("Ô đã bị chiếm: " + cell.Offset(dx, dy, dz));
+                            throw new ArgumentException("Cell is already occupied: " + cell.Offset(dx, dy, dz));
             for (int dx = 0; dx < hc.sizeX; dx++)
                 for (int dz = 0; dz < hc.sizeZ; dz++)
                     for (int dy = 0; dy < hc.sizeY; dy++)
@@ -155,13 +155,13 @@ namespace Game.Core.Sim
         public void AssignHome(int creatureId, int houseId)
         {
             if (creatureId < 0 || creatureId >= State.Creatures.Count)
-                throw new ArgumentException("Không có sinh vật: " + creatureId);
+                throw new ArgumentException("No such creature: " + creatureId);
             if (houseId < 0 || houseId >= State.Houses.Count)
-                throw new ArgumentException("Không có nhà: " + houseId);
+                throw new ArgumentException("No such house: " + houseId);
             var c = State.Creatures[creatureId];
             var h = State.Houses[houseId];
-            if (c.HomeId >= 0) throw new ArgumentException("Sinh vật đã có nhà: " + creatureId);
-            if (h.Residents.Count >= h.Capacity) throw new ArgumentException("Nhà đã đủ: " + houseId);
+            if (c.HomeId >= 0) throw new ArgumentException("Creature already has a house: " + creatureId);
+            if (h.Residents.Count >= h.Capacity) throw new ArgumentException("House is full: " + houseId);
             c.HomeId = houseId;
             h.Residents.Add(creatureId);
             homeDirty = true;
@@ -348,8 +348,8 @@ namespace Game.Core.Sim
         public void AttachEditor(WorldEditor editor)
         {
             if (editor == null) throw new ArgumentNullException(nameof(editor));
-            if (editor.World != World) throw new ArgumentException("Editor phải sửa cùng WorldData với mô phỏng.");
-            if (Editor != null) throw new InvalidOperationException("Mô phỏng đã nối editor.");
+            if (editor.World != World) throw new ArgumentException("Editor must edit the same WorldData as the simulation.");
+            if (Editor != null) throw new InvalidOperationException("Simulation is already attached to an editor.");
             Editor = editor;
             editor.IsOccupied = IsOccupied;
             editor.CellChanged += OnCellChanged;
@@ -876,7 +876,7 @@ namespace Game.Core.Sim
         public bool CanEnqueueCrop(int plotId, int cropId)
         {
             if (cropId < 0 || cropId >= Config.crops.Length)
-                throw new ArgumentException("Không có loại cây: " + cropId);
+                throw new ArgumentException("No such crop: " + cropId);
             var p = State.Plots[plotId];
             if (p.Removed || State.Storages.Count == 0) return false;
             int n = p.Slots.Count;
@@ -976,7 +976,7 @@ namespace Game.Core.Sim
         void CheckCropArg(int cropId)
         {
             if (cropId < 0 || cropId >= Config.crops.Length)
-                throw new ArgumentException("Loại cây không có trong cấu hình: " + cropId);
+                throw new ArgumentException("Crop not in config: " + cropId);
         }
 
         /// <summary>Người chơi tự xới được ô plotId không: ô còn, đang ở pha xới (lần đầu hoặc xới lại), có công đoạn.</summary>
@@ -1084,7 +1084,7 @@ namespace Game.Core.Sim
         {
             CheckCropArg(cropId);
             if (bag == null) throw new ArgumentNullException(nameof(bag));
-            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng phải ≥ 0");
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount must be ≥ 0");
             int n = Math.Min(amount, produce ? bag.GetProduce(cropId) : bag.GetSeeds(cropId));
             n = Math.Min(n, Math.Max(0, State.Stock.Free));
             if (n <= 0) return 0;
@@ -1106,7 +1106,7 @@ namespace Game.Core.Sim
         {
             CheckCropArg(cropId);
             if (bag == null) throw new ArgumentNullException(nameof(bag));
-            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng phải ≥ 0");
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount must be ≥ 0");
             int n = Math.Min(amount, produce ? State.Stock.Produce[cropId] : State.Stock.Seeds[cropId]);
             if (n <= 0) return 0;
             if (produce)

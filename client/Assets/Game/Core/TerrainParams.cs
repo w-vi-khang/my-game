@@ -48,17 +48,17 @@ namespace Game.Core
         {
             var _ = Size;
             if (bedrockLayers < 1 || bedrockLayers >= minSurface)
-                throw new ArgumentException("bedrockLayers phải ≥ 1 và < minSurface");
+                throw new ArgumentException("bedrockLayers must be ≥ 1 and < minSurface");
             if (minSurface > maxSurface || maxSurface >= sizeY)
-                throw new ArgumentException("Cần minSurface ≤ maxSurface < sizeY");
+                throw new ArgumentException("Requires minSurface ≤ maxSurface < sizeY");
             if (waterLevel < minSurface || waterLevel >= maxSurface)
-                throw new ArgumentException("waterLevel phải nằm trong [minSurface, maxSurface)");
+                throw new ArgumentException("waterLevel must be within [minSurface, maxSurface)");
             if (dirtDepth < 0 || sandBand < 0 || lakeRadius <= 0f || lakeDepth < 0f)
                 throw new ArgumentException("dirtDepth, sandBand, lakeDepth ≥ 0; lakeRadius > 0");
             if (generatorVersion < 1 || generatorVersion > 2)
-                throw new ArgumentException("generatorVersion chỉ hỗ trợ 1 hoặc 2");
+                throw new ArgumentException("generatorVersion supports only 1 or 2");
             if (generatorVersion >= 2 && (islandMargin < 0f || islandFalloff <= 0f || seaFloorDepth < 1 || waterLevel - seaFloorDepth < bedrockLayers))
-                throw new ArgumentException("Đảo: islandMargin ≥ 0, islandFalloff > 0, seaFloorDepth ≥ 1, đáy biển không thấp hơn lớp đá đáy");
+                throw new ArgumentException("Island: islandMargin ≥ 0, islandFalloff > 0, seaFloorDepth ≥ 1, sea floor must not be lower than the bedrock layer");
         }
     }
 }

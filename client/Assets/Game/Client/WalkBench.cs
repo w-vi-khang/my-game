@@ -40,7 +40,7 @@ namespace Game.Client
         Vector2 lastCheckPos, lastPos;
         int holeFrames, maxMissing, maxLoadedChunks, waterFrames;
         long maxSystemMem, maxGcMem;
-        string result = "Đang chuẩn bị…";
+        string result = "Preparing…";
 
         void Awake()
         {
@@ -111,7 +111,7 @@ namespace Game.Client
                 startTime = Time.realtimeSinceStartup;
                 nextStuckCheck = stuckCheckSeconds;
                 started = true;
-                Debug.Log($"WALKBENCH bắt đầu: tâm ({RouteCenter.x:F1}, {RouteCenter.y:F1}), R={RouteRadius}, đất khô={RouteDry}");
+                Debug.Log($"WALKBENCH started: center ({RouteCenter.x:F1}, {RouteCenter.y:F1}), R={RouteRadius}, dry land={RouteDry}");
             }
 
             float t = Time.realtimeSinceStartup - startTime;
@@ -154,9 +154,9 @@ namespace Game.Client
                 if (player.InWater) waterFrames++;
                 if (systemMem.Valid) maxSystemMem = System.Math.Max(maxSystemMem, systemMem.LastValue);
                 if (gcMem.Valid) maxGcMem = System.Math.Max(maxGcMem, gcMem.LastValue);
-                result = $"WALKBENCH đang đo… {warmupSeconds + measureSeconds - t:F0} s · {Distance:F0} ô · kẹt {StuckCount}";
+                result = $"WALKBENCH measuring… {warmupSeconds + measureSeconds - t:F0} s · {Distance:F0} cells · stuck {StuckCount}";
             }
-            else result = $"WALKBENCH khởi động… {warmupSeconds - t:F0} s";
+            else result = $"WALKBENCH warming up… {warmupSeconds - t:F0} s";
             lastPos = feet;
         }
 

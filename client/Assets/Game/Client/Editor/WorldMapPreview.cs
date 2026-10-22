@@ -15,7 +15,7 @@ namespace Game.Client.Editor
     {
         const string OutputPath = "Builds/world_maps_preview.png";
 
-        [MenuItem("Game/Ảnh xem trước world nhiều map")]
+        [MenuItem("Game/Multi-Map World Preview")]
         public static void Export()
         {
             var p = ConfigLoader.LoadWorldMapParams();

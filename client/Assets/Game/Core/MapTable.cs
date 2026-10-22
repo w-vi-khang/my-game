@@ -15,9 +15,9 @@ namespace Game.Core
         public MapTable(int sizeX, int sizeZ, byte[] ids, string[] names)
         {
             if (ids == null || ids.Length != sizeX * sizeZ)
-                throw new ArgumentException("ids phải có đúng sizeX * sizeZ phần tử");
+                throw new ArgumentException("ids must have exactly sizeX * sizeZ elements");
             if (names == null)
-                throw new ArgumentException("names không được null");
+                throw new ArgumentException("names must not be null");
             SizeX = sizeX;
             SizeZ = sizeZ;
             this.ids = ids;
@@ -33,7 +33,7 @@ namespace Game.Core
         public static int MergeFragments(byte[] ids, int sizeX, int sizeZ, int mapCount)
         {
             if (ids == null || ids.Length != sizeX * sizeZ || mapCount < 1 || mapCount > 255)
-                throw new ArgumentException("MergeFragments: tham số không hợp lệ");
+                throw new ArgumentException("MergeFragments: invalid arguments");
             int total = 0;
             for (int pass = 0; pass <= 16; pass++)
             {
@@ -106,7 +106,7 @@ namespace Game.Core
                 if (changed == 0) return total;
                 total += changed;
             }
-            throw new InvalidOperationException("MergeFragments không hội tụ");
+            throw new InvalidOperationException("MergeFragments did not converge");
         }
     }
 }

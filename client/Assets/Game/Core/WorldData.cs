@@ -12,7 +12,7 @@ namespace Game.Core
         public WorldSize(int x, int y, int z)
         {
             if (x <= 0 || y <= 0 || z <= 0 || x % ChunkSize != 0 || y % ChunkSize != 0 || z % ChunkSize != 0)
-                throw new ArgumentException($"Kích thước phải dương và chia hết cho {ChunkSize}: {x}×{y}×{z}");
+                throw new ArgumentException($"Size must be positive and divisible by {ChunkSize}: {x}x{y}x{z}");
             X = x;
             Y = y;
             Z = z;
@@ -48,7 +48,7 @@ namespace Game.Core
         public bool Equals(WorldSize other) => X == other.X && Y == other.Y && Z == other.Z;
         public override bool Equals(object obj) => obj is WorldSize other && Equals(other);
         public override int GetHashCode() => (X * 397 ^ Y) * 397 ^ Z;
-        public override string ToString() => $"{X}×{Y}×{Z}";
+        public override string ToString() => $"{X}x{Y}x{Z}";
     }
 
     /// <summary>Lưới gameplay — nguồn chuẩn của world (lưới dựng mesh suy ra từ đây, không lưu).</summary>
@@ -66,7 +66,7 @@ namespace Game.Core
         public WorldData(WorldSize size, ushort[] cells)
         {
             if (cells == null || cells.Length != size.CellCount)
-                throw new ArgumentException($"Cần {size.CellCount} ô, nhận {cells?.Length}");
+                throw new ArgumentException($"Expected {size.CellCount} cells, got {cells?.Length}");
             Size = size;
             this.cells = cells;
         }

@@ -20,7 +20,7 @@ namespace Game.Client
         {
             var asset = Resources.Load<TextAsset>(WorldM1Path);
             if (asset == null)
-                throw new System.IO.FileNotFoundException($"Không thấy Resources/{WorldM1Path}.json");
+                throw new System.IO.FileNotFoundException($"Resources/ not found: Resources/{WorldM1Path}.json");
             var p = JsonUtility.FromJson<TerrainParams>(asset.text);
             p.Validate();
             return p;
@@ -30,7 +30,7 @@ namespace Game.Client
         {
             var asset = Resources.Load<TextAsset>(WorldMapsM1Path);
             if (asset == null)
-                throw new System.IO.FileNotFoundException($"Không thấy Resources/{WorldMapsM1Path}.json");
+                throw new System.IO.FileNotFoundException($"Resources/ not found: Resources/{WorldMapsM1Path}.json");
             var p = JsonUtility.FromJson<WorldMapParams>(asset.text);
             p.Validate();
             return p;
@@ -40,7 +40,7 @@ namespace Game.Client
         {
             var asset = Resources.Load<TextAsset>(SimM1Path);
             if (asset == null)
-                throw new System.IO.FileNotFoundException($"Không thấy Resources/{SimM1Path}.json");
+                throw new System.IO.FileNotFoundException($"Resources/ not found: Resources/{SimM1Path}.json");
             var c = JsonUtility.FromJson<SimConfig>(asset.text);
             c.Validate();
             PlayerRules.Configure(c.player);
@@ -51,7 +51,7 @@ namespace Game.Client
         {
             var asset = Resources.Load<TextAsset>(TimeM1Path);
             if (asset == null)
-                throw new System.IO.FileNotFoundException($"Không thấy Resources/{TimeM1Path}.json");
+                throw new System.IO.FileNotFoundException($"Resources/ not found: Resources/{TimeM1Path}.json");
             var c = JsonUtility.FromJson<TimeConfig>(asset.text);
             c.Validate();
             return c;

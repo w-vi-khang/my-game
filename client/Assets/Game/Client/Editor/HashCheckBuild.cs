@@ -19,7 +19,7 @@ namespace Game.Client.Editor
         const string OutputPath = "Builds/hashcheck.apk";
         const string TempAppId = "com.viventa.hashcheck";
 
-        [MenuItem("Game/Tạo scene HashCheck")]
+        [MenuItem("Game/Create Scene HashCheck")]
         public static void EnsureScene()
         {
             if (File.Exists(ScenePath))
@@ -52,7 +52,7 @@ namespace Game.Client.Editor
                 });
                 Debug.Log($"HashCheck build: {report.summary.result}, {report.summary.totalSize} byte → {OutputPath}");
                 if (report.summary.result != BuildResult.Succeeded)
-                    throw new Exception($"Build thất bại: {report.summary.result}");
+                    throw new Exception($"Build failed: {report.summary.result}");
             }
             finally
             {

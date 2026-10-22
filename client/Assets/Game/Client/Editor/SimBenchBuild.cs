@@ -19,7 +19,7 @@ namespace Game.Client.Editor
         const string OutputPath = "Builds/simbench.apk";
         const string TempAppId = "com.viventa.simbench";
 
-        [MenuItem("Game/Tạo scene SimBench")]
+        [MenuItem("Game/Create Scene SimBench")]
         public static void EnsureScene()
         {
             // Luôn tạo lại từ SimView để SimBench dùng đúng ánh sáng/biển/trời hiện tại.
@@ -27,11 +27,11 @@ namespace Game.Client.Editor
             if (File.Exists(ScenePath))
                 AssetDatabase.DeleteAsset(ScenePath);
             if (!AssetDatabase.CopyAsset(SourceScene, ScenePath))
-                throw new Exception($"Không chép được {SourceScene} → {ScenePath}");
+                throw new Exception($"Could not copy {SourceScene} → {ScenePath}");
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var views = UnityEngine.Object.FindObjectsByType<SimView>(FindObjectsSortMode.None);
             if (views.Length == 0)
-                throw new Exception("Scene SimBench không có SimView");
+                throw new Exception("Scene SimBench has no SimView");
             foreach (var sv in views)
             {
                 sv.stressBench = true;
@@ -67,7 +67,7 @@ namespace Game.Client.Editor
                 });
                 Debug.Log($"SimBench build: {report.summary.result}, {report.summary.totalSize} byte, {report.summary.totalTime} → {OutputPath}");
                 if (report.summary.result != BuildResult.Succeeded)
-                    throw new Exception($"Build thất bại: {report.summary.result}");
+                    throw new Exception($"Build failed: {report.summary.result}");
             }
             finally
             {

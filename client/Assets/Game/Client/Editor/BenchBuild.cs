@@ -20,7 +20,7 @@ namespace Game.Client.Editor
         const string OutputPath = "Builds/bench.apk";
         const string TempAppId = "com.viventa.bench";
 
-        [MenuItem("Game/Tạo scene Bench")]
+        [MenuItem("Game/Create Scene Bench")]
         public static void EnsureScene()
         {
             // Luôn tạo lại từ TerrainView để Bench dùng đúng ánh sáng/biển/trời hiện tại.
@@ -28,11 +28,11 @@ namespace Game.Client.Editor
             if (File.Exists(ScenePath))
                 AssetDatabase.DeleteAsset(ScenePath);
             if (!AssetDatabase.CopyAsset(SourceScene, ScenePath))
-                throw new Exception($"Không chép được {SourceScene} → {ScenePath}");
+                throw new Exception($"Could not copy {SourceScene} → {ScenePath}");
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var view = UnityEngine.Object.FindFirstObjectByType<TerrainChunkView>();
             if (view == null)
-                throw new Exception("Scene Bench không có TerrainChunkView");
+                throw new Exception("Scene Bench has no TerrainChunkView");
             // Bench tự chạy: tắt điều khiển chuột/phím và camera bay.
             foreach (var input in UnityEngine.Object.FindObjectsByType<TerrainEditInput>(FindObjectsSortMode.None))
                 input.enabled = false;
@@ -74,7 +74,7 @@ namespace Game.Client.Editor
                 });
                 Debug.Log($"Bench build: {report.summary.result}, {report.summary.totalSize} byte, {report.summary.totalTime} → {OutputPath}");
                 if (report.summary.result != BuildResult.Succeeded)
-                    throw new Exception($"Build thất bại: {report.summary.result}");
+                    throw new Exception($"Build failed: {report.summary.result}");
             }
             finally
             {

@@ -64,7 +64,7 @@ namespace Game.Core
         {
             SeaLevel = seaLevel;
             if (meshMargin < 0 || meshMargin >= WorldSize.ChunkSize)
-                throw new ArgumentOutOfRangeException(nameof(meshMargin), meshMargin, "Đệm phải trong 0..ChunkSize-1");
+                throw new ArgumentOutOfRangeException(nameof(meshMargin), meshMargin, "Margin must be in 0..ChunkSize-1");
             World = world ?? throw new ArgumentNullException(nameof(world));
             Bag = bag ?? throw new ArgumentNullException(nameof(bag));
             Drops = new DropField(World);

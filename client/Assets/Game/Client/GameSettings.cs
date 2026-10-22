@@ -31,7 +31,7 @@ namespace Game.Client
                 if (baseText == null)
                 {
                     var asset = Resources.Load<TextAsset>("Lang/vi");
-                    if (asset == null) throw new FileNotFoundException("Không thấy Resources/Lang/vi.json");
+                    if (asset == null) throw new FileNotFoundException("Resources/Lang/vi.json not found");
                     baseText = new Strings(JsonUtility.FromJson<StringFile>(asset.text));
                 }
                 return baseText;
@@ -57,7 +57,7 @@ namespace Game.Client
             }
             catch (Exception e)
             {
-                Debug.LogWarning("SETTINGS không đọc được settings.json: " + e.Message);
+                Debug.LogWarning("SETTINGS could not read settings.json: " + e.Message);
                 s = new PlayerSettings();
             }
             s.Clamp();
@@ -86,7 +86,7 @@ namespace Game.Client
             {
                 text = BaseText;
                 LanguageError = id;
-                Debug.LogWarning("LANG không nạp được " + id + ": " + e.Message);
+                Debug.LogWarning("LANG could not load " + id + ": " + e.Message);
             }
         }
 
@@ -111,7 +111,7 @@ namespace Game.Client
             }
             catch (Exception e)
             {
-                Debug.LogWarning("SETTINGS không ghi được settings.json: " + e.Message);
+                Debug.LogWarning("SETTINGS could not write settings.json: " + e.Message);
             }
         }
 

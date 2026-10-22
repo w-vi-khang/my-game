@@ -25,9 +25,9 @@ namespace Game.Core.Text
             {
                 var e = entries[i];
                 if (e == null || string.IsNullOrEmpty(e.key))
-                    throw new ArgumentException("Khoá rỗng ở dòng " + i + ".");
+                    throw new ArgumentException("Empty key at line " + i + ".");
                 if (map.ContainsKey(e.key))
-                    throw new ArgumentException("Trùng khoá: " + e.key + ".");
+                    throw new ArgumentException("Duplicate key: " + e.key + ".");
                 map[e.key] = e.text ?? "";
             }
         }

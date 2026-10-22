@@ -10,7 +10,7 @@ namespace Game.Core.Sim
         public readonly SimBounds Bounds;
         public StressPlain(int x0, int z0, int size, int ground, SimBounds bounds) { X0 = x0; Z0 = z0; Size = size; Ground = ground; Bounds = bounds; }
         public bool Contains(int x, int z) => x >= X0 && x < X0 + Size && z >= Z0 && z < Z0 + Size;
-        public override string ToString() => $"đồng bằng ({X0}, {Z0}) {Size} × {Size}, mặt y {Ground}, vùng {Bounds}";
+        public override string ToString() => $"plain ({X0}, {Z0}) {Size} x {Size}, surface y {Ground}, region {Bounds}";
     }
 
     /// <summary>Bố trí đo sim bước 7 (brief 0028): đồng bằng 48 × 48 giữa một map, 30 nhà, 60 sinh vật (20 mỗi loài), 5 kho, 15 lệnh × 4 ô.</summary>
@@ -24,7 +24,7 @@ namespace Game.Core.Sim
             var s = world.Size;
             int sx = s.X, sz = s.Z;
             if (regionSize < PlainSize || regionSize > Math.Min(sx, sz))
-                throw new ArgumentException("regionSize phải trong [" + PlainSize + ", cạnh world nhỏ nhất]");
+                throw new ArgumentException("regionSize must be in [" + PlainSize + ", smallest world side]");
             long sumX = 0, sumZ = 0, n = 0;
             for (int z = 0; z < sz; z++)
                 for (int x = 0; x < sx; x++)
@@ -35,7 +35,7 @@ namespace Game.Core.Sim
                         n++;
                     }
             if (n == 0)
-                throw new InvalidOperationException("Map " + map + " không có cột nào");
+                throw new InvalidOperationException("Map " + map + " has no columns");
             int cx = (int)(sumX / n), cz = (int)(sumZ / n);
             int half = PlainSize / 2;
             int x0 = Math.Min(Math.Max(cx - half, 0), sx - PlainSize);
@@ -85,7 +85,7 @@ namespace Game.Core.Sim
         public static void Build(Simulation sim, StressPlain plain)
         {
             if (sim.State.Creatures.Count != 0)
-                throw new InvalidOperationException("Build chỉ gọi trên mô phỏng mới");
+                throw new InvalidOperationException("Build may only be called on a new simulation");
             int y = plain.Ground + 1;
             var houseCells = new CellPos[HouseCount];
             for (int h = 0; h < HouseCount; h++)

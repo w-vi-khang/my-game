@@ -22,7 +22,7 @@ namespace Game.Core
         public MinimapViewport(float worldWidth, float worldHeight, float panelWidth, float panelHeight)
         {
             if (!(worldWidth > 0f) || !(worldHeight > 0f))
-                throw new ArgumentException("Kích thước world phải dương");
+                throw new ArgumentException("World size must be positive");
             WorldWidth = worldWidth;
             WorldHeight = worldHeight;
             CenterX = worldWidth * 0.5f;
@@ -37,7 +37,7 @@ namespace Game.Core
         public void SetPanelSize(float width, float height)
         {
             if (!(width > 0f) || !(height > 0f))
-                throw new ArgumentException("Kích thước khung phải dương");
+                throw new ArgumentException("Frame size must be positive");
             PanelWidth = width;
             PanelHeight = height;
             Clamp();

@@ -42,7 +42,7 @@ namespace Game.Client.Tests
             Assert.IsNotNull(view.Landmarks);
             Assert.AreEqual(9, view.Landmarks.Count);
             var expect = LandmarkPlacer.Place(view.World, view.Maps, ConfigLoader.LoadWorldMapParams());
-            var root = go.transform.Find("Dấu mốc");
+            var root = go.transform.Find("Landmarks");
             Assert.IsNotNull(root);
             Assert.AreEqual(9, root.childCount);
             for (int i = 0; i < 9; i++)
@@ -88,7 +88,7 @@ namespace Game.Client.Tests
             int n = 0;
             Transform found = null;
             foreach (Transform c in go.transform)
-                if (c.name == "Dấu mốc")
+                if (c.name == "Landmarks")
                 {
                     n++;
                     found = c;
@@ -106,7 +106,7 @@ namespace Game.Client.Tests
             v.streaming = false;
             yield return null;
             Assert.IsNull(v.Landmarks);
-            Assert.IsNull(g.transform.Find("Dấu mốc"));
+            Assert.IsNull(g.transform.Find("Landmarks"));
             Object.Destroy(g);
         }
     }

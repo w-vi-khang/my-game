@@ -12,7 +12,7 @@ namespace Game.Core.Sim
 
         public SimBounds(int x0, int z0, int sizeX, int sizeZ)
         {
-            if (sizeX < 1 || sizeZ < 1) throw new ArgumentException("Vùng mô phỏng phải có kích thước ≥ 1");
+            if (sizeX < 1 || sizeZ < 1) throw new ArgumentException("Simulation region size must be ≥ 1");
             X0 = x0;
             Z0 = z0;
             SizeX = sizeX;

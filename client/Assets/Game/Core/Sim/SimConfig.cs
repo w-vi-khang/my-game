@@ -184,7 +184,7 @@ namespace Game.Core.Sim
             if (!string.IsNullOrEmpty(s) && char.IsLetter(s[0])
                 && Enum.TryParse(s, false, out WorkAbility a) && Enum.IsDefined(typeof(WorkAbility), a))
                 return a;
-            throw new ArgumentException("Năng lực không hợp lệ: " + s);
+            throw new ArgumentException("Invalid ability: " + s);
         }
 
         public int MsToTicks(int ms) => ms * ticksPerSecond / 1000;
@@ -209,14 +209,14 @@ namespace Game.Core.Sim
         {
             for (int i = 0; i < stageTimes.Length; i++)
                 if (ParseAbility(stageTimes[i].ability) == a) return MsToTicks(stageTimes[i].baseTimeMs);
-            throw new ArgumentException("Không có thời gian cho năng lực: " + a);
+            throw new ArgumentException("No time for ability: " + a);
         }
 
         public SpeciesWork FindSpecies(string id)
         {
             for (int i = 0; i < species.Length; i++)
                 if (string.Equals(species[i].id, id, StringComparison.Ordinal)) return species[i];
-            throw new ArgumentException("Không có loài: " + id);
+            throw new ArgumentException("No such species: " + id);
         }
 
         public int SpeedPerTick(SpeciesWork s) => s.moveSpeedMilliCellsPerSecond / ticksPerSecond;
@@ -236,118 +236,118 @@ namespace Game.Core.Sim
         public void Validate()
         {
             if (ticksPerSecond <= 0 || 1000 % ticksPerSecond != 0)
-                throw new ArgumentException("ticksPerSecond phải > 0 và là ước của 1000.");
+                throw new ArgumentException("ticksPerSecond must be > 0 and a divisor of 1000.");
             int msPerTick = 1000 / ticksPerSecond;
             if (regionSize < 16 || regionSize > 256)
-                throw new ArgumentException("regionSize phải trong [16, 256].");
+                throw new ArgumentException("regionSize must be in [16, 256].");
 
             int abilityCount = Enum.GetValues(typeof(WorkAbility)).Length;
             if (stageTimes == null || stageTimes.Length != abilityCount)
-                throw new ArgumentException("stageTimes phải có đúng " + abilityCount + " phần tử (mỗi năng lực một lần).");
+                throw new ArgumentException("stageTimes must have exactly " + abilityCount + " elements (one per ability).");
             var seen = new bool[abilityCount];
             for (int i = 0; i < stageTimes.Length; i++)
             {
                 var a = ParseAbility(stageTimes[i].ability);
-                if (seen[(int)a]) throw new ArgumentException("stageTimes trùng năng lực: " + a);
+                if (seen[(int)a]) throw new ArgumentException("stageTimes has duplicate ability: " + a);
                 seen[(int)a] = true;
                 if (stageTimes[i].baseTimeMs <= 0 || stageTimes[i].baseTimeMs % msPerTick != 0)
-                    throw new ArgumentException("baseTimeMs phải > 0 và chia hết cho " + msPerTick + " (" + a + ").");
+                    throw new ArgumentException("baseTimeMs must be > 0 and divisible by " + msPerTick + " (" + a + ").");
             }
 
             if (species == null || species.Length == 0)
-                throw new ArgumentException("species không được rỗng.");
+                throw new ArgumentException("species must not be empty.");
             for (int i = 0; i < species.Length; i++)
             {
                 var sp = species[i];
-                if (string.IsNullOrEmpty(sp.id)) throw new ArgumentException("Loài thiếu id.");
+                if (string.IsNullOrEmpty(sp.id)) throw new ArgumentException("Species missing id.");
                 for (int j = 0; j < i; j++)
                     if (string.Equals(species[j].id, sp.id, StringComparison.Ordinal))
-                        throw new ArgumentException("Trùng id loài: " + sp.id);
+                        throw new ArgumentException("Duplicate species id: " + sp.id);
                 var a1 = ParseAbility(sp.ability1);
                 var a2 = ParseAbility(sp.ability2);
-                if (a1 == a2) throw new ArgumentException("Loài " + sp.id + " có hai năng lực giống nhau.");
+                if (a1 == a2) throw new ArgumentException("Species " + sp.id + " has two identical abilities.");
                 if (sp.mastery1 < 1 || sp.mastery2 < 1)
-                    throw new ArgumentException("Loài " + sp.id + ": mastery phải >= 1.");
+                    throw new ArgumentException("Species " + sp.id + ": mastery must be >= 1.");
                 if (sp.moveSpeedMilliCellsPerSecond % ticksPerSecond != 0)
-                    throw new ArgumentException("Loài " + sp.id + ": tốc độ phải chia hết cho ticksPerSecond.");
+                    throw new ArgumentException("Species " + sp.id + ": speed must be divisible by ticksPerSecond.");
                 int spt = SpeedPerTick(sp);
                 if (spt < 1 || spt > 1000)
-                    throw new ArgumentException("Loài " + sp.id + ": tốc độ mỗi nhịp phải trong [1, 1000].");
+                    throw new ArgumentException("Species " + sp.id + ": speed per tick must be in [1, 1000].");
                 if (sp.sizeX < 1 || sp.sizeX > 4 || sp.sizeZ < 1 || sp.sizeZ > 4 || sp.sizeY < 1 || sp.sizeY > 4)
-                    throw new ArgumentException("Loài " + sp.id + ": khung phải trong [1, 4] mỗi chiều.");
+                    throw new ArgumentException("Species " + sp.id + ": frame must be in [1, 4] per dimension.");
             }
 
             if (masteryLevels == null || masteryLevels.Length == 0)
-                throw new ArgumentException("masteryLevels không được rỗng.");
+                throw new ArgumentException("masteryLevels must not be empty.");
             if (masteryLevels[0].minMastery > 1)
-                throw new ArgumentException("masteryLevels[0].minMastery phải <= 1.");
+                throw new ArgumentException("masteryLevels[0].minMastery must be <= 1.");
             for (int i = 0; i < masteryLevels.Length; i++)
             {
                 var m = masteryLevels[i];
                 if (m.speedPermille < 1 || m.speedPermille > 10000)
-                    throw new ArgumentException("masteryLevels[" + i + "].speedPermille phải trong [1, 10000].");
+                    throw new ArgumentException("masteryLevels[" + i + "].speedPermille must be in [1, 10000].");
                 if (i > 0 && m.minMastery <= masteryLevels[i - 1].minMastery)
-                    throw new ArgumentException("masteryLevels: minMastery phải tăng dần (dòng " + i + ").");
+                    throw new ArgumentException("masteryLevels: minMastery must be increasing (line " + i + ").");
                 if (i > 0 && m.speedPermille < masteryLevels[i - 1].speedPermille)
-                    throw new ArgumentException("masteryLevels: speedPermille không được giảm (dòng " + i + ").");
+                    throw new ArgumentException("masteryLevels: speedPermille must not decrease (line " + i + ").");
             }
 
             if (storage == null || storage.capacity < 1)
-                throw new ArgumentException("storage.capacity phải >= 1.");
+                throw new ArgumentException("storage.capacity must be >= 1.");
             if (crops == null || crops.Length < 1 || crops.Length > 8)
-                throw new ArgumentException("crops phải có 1–8 loại.");
+                throw new ArgumentException("crops must have 1–8 entries.");
             int seedSum = 0;
             for (int i = 0; i < crops.Length; i++)
             {
                 var c = crops[i];
                 if (c == null || string.IsNullOrEmpty(c.id))
-                    throw new ArgumentException("crops[" + i + "].id không được rỗng.");
+                    throw new ArgumentException("crops[" + i + "].id must not be empty.");
                 for (int j = 0; j < i; j++)
                     if (crops[j].id == c.id)
-                        throw new ArgumentException("crops[" + i + "].id trùng: " + c.id + ".");
+                        throw new ArgumentException("crops[" + i + "].id is duplicated: " + c.id + ".");
                 if (c.growTimeMs <= 0 || c.growTimeMs % msPerTick != 0)
-                    throw new ArgumentException("crops[" + i + "].growTimeMs phải > 0 và chia hết cho " + msPerTick + ".");
+                    throw new ArgumentException("crops[" + i + "].growTimeMs must be > 0 and divisible by " + msPerTick + ".");
                 if (c.seedsPerHarvest < 0 || c.producePerHarvest < 0 || c.startSeeds < 0)
-                    throw new ArgumentException("crops[" + i + "]: seedsPerHarvest, producePerHarvest, startSeeds phải >= 0.");
+                    throw new ArgumentException("crops[" + i + "]: seedsPerHarvest, producePerHarvest, startSeeds must be >= 0.");
                 int load = c.seedsPerHarvest + c.producePerHarvest;
                 if (load < 1 || load > storage.capacity)
-                    throw new ArgumentException("crops[" + i + "]: seedsPerHarvest + producePerHarvest phải trong [1, storage.capacity].");
+                    throw new ArgumentException("crops[" + i + "]: seedsPerHarvest + producePerHarvest must be in [1, storage.capacity].");
                 seedSum += c.startSeeds;
             }
             if (seedSum > storage.capacity)
-                throw new ArgumentException("Tổng crops[].startSeeds phải <= storage.capacity.");
+                throw new ArgumentException("Sum of crops[].startSeeds must be <= storage.capacity.");
             if (player == null)
-                throw new ArgumentException("player không được thiếu.");
+                throw new ArgumentException("player must not be missing.");
             if (!(player.toolReach >= 1f && player.toolReach <= 32f))
-                throw new ArgumentException("player.toolReach phải trong [1, 32].");
+                throw new ArgumentException("player.toolReach must be in [1, 32].");
             if (!(player.handReach >= 1f && player.handReach <= 32f))
-                throw new ArgumentException("player.handReach phải trong [1, 32].");
+                throw new ArgumentException("player.handReach must be in [1, 32].");
             if (player.starterCrop < 0 || player.starterCrop >= crops.Length)
-                throw new ArgumentException("player.starterCrop phải trong [0, số loại cây).");
+                throw new ArgumentException("player.starterCrop must be in [0, number of crops).");
             if (player.starterSeeds < 0 || player.starterSeeds > 99)
-                throw new ArgumentException("player.starterSeeds phải trong [0, 99].");
+                throw new ArgumentException("player.starterSeeds must be in [0, 99].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
-                throw new ArgumentException("farm.queueSlots phải trong [1, 8].");
+                throw new ArgumentException("farm.queueSlots must be in [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)
-                throw new ArgumentException("farm.slotMaxCount phải trong [1, 99].");
+                throw new ArgumentException("farm.slotMaxCount must be in [1, 99].");
             if (house == null || house.capacity < 1 || house.capacity > 16)
-                throw new ArgumentException("house.capacity phải trong [1, 16].");
+                throw new ArgumentException("house.capacity must be in [1, 16].");
             if (house.sizeX < 1 || house.sizeX > 4 || house.sizeZ < 1 || house.sizeZ > 4 || house.sizeY < 1 || house.sizeY > 4)
-                throw new ArgumentException("house: kích thước phải trong [1, 4] mỗi chiều.");
+                throw new ArgumentException("house: size must be in [1, 4] per dimension.");
             if (creature == null || creature.stuckTimeMs <= 0 || creature.stuckTimeMs % msPerTick != 0)
-                throw new ArgumentException("creature.stuckTimeMs phải > 0 và chia hết cho " + msPerTick + ".");
+                throw new ArgumentException("creature.stuckTimeMs must be > 0 and divisible by " + msPerTick + ".");
             if (creature.blockWaitMs <= 0 || creature.blockWaitMs % msPerTick != 0)
-                throw new ArgumentException("creature.blockWaitMs phải > 0 và chia hết cho " + msPerTick + ".");
+                throw new ArgumentException("creature.blockWaitMs must be > 0 and divisible by " + msPerTick + ".");
             if (creature.phaseAfterMs <= creature.blockWaitMs || creature.phaseAfterMs % msPerTick != 0)
-                throw new ArgumentException("creature.phaseAfterMs phải > blockWaitMs và chia hết cho " + msPerTick + ".");
+                throw new ArgumentException("creature.phaseAfterMs must be > blockWaitMs and divisible by " + msPerTick + ".");
             if (creature.homeRadius < 1 || creature.homeRadius > 64)
-                throw new ArgumentException("creature.homeRadius phải trong [1, 64].");
+                throw new ArgumentException("creature.homeRadius must be in [1, 64].");
             if (creature.wanderMinMs <= 0 || creature.wanderMinMs % msPerTick != 0)
-                throw new ArgumentException("creature.wanderMinMs phải > 0 và chia hết cho " + msPerTick + ".");
+                throw new ArgumentException("creature.wanderMinMs must be > 0 and divisible by " + msPerTick + ".");
             if (creature.wanderMaxMs < creature.wanderMinMs || creature.wanderMaxMs % msPerTick != 0)
-                throw new ArgumentException("creature.wanderMaxMs phải >= wanderMinMs và chia hết cho " + msPerTick + ".");
+                throw new ArgumentException("creature.wanderMaxMs must be >= wanderMinMs and divisible by " + msPerTick + ".");
             if (player == null || player.rainCooldownMs <= 0)
-                throw new ArgumentException("player.rainCooldownMs phải > 0.");
+                throw new ArgumentException("player.rainCooldownMs must be > 0.");
         }
     }
 }

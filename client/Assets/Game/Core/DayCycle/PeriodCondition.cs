@@ -16,17 +16,17 @@ namespace Game.Core.DayCycle
             if (!string.IsNullOrEmpty(s) && char.IsLetter(s[0])
                 && Enum.TryParse(s, false, out DayPeriod p) && Enum.IsDefined(typeof(DayPeriod), p))
                 return p;
-            throw new ArgumentException("Buổi không hợp lệ: " + s);
+            throw new ArgumentException("Invalid period: " + s);
         }
 
         public void Validate()
         {
-            if (periods == null || periods.Length == 0) throw new ArgumentException("periods không được rỗng.");
+            if (periods == null || periods.Length == 0) throw new ArgumentException("periods must not be empty.");
             var seen = new bool[4];
             foreach (var s in periods)
             {
                 var p = ParsePeriod(s);
-                if (seen[(int)p]) throw new ArgumentException("periods trùng buổi: " + p);
+                if (seen[(int)p]) throw new ArgumentException("periods has duplicate period: " + p);
                 seen[(int)p] = true;
             }
         }

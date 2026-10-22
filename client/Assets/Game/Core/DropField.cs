@@ -15,7 +15,7 @@ namespace Game.Core
         public static ItemId SeedBag(int crop)
         {
             if (crop < 0 || crop > 255)
-                throw new ArgumentOutOfRangeException(nameof(crop), crop, "Loại cây phải trong 0..255");
+                throw new ArgumentOutOfRangeException(nameof(crop), crop, "Crop must be in 0..255");
             return new ItemId(ItemKind.SeedBag, (byte)crop);
         }
         public BlockMaterial Material => (BlockMaterial)Value;
@@ -81,11 +81,11 @@ namespace Game.Core
         public DropStack Add(int x, int y, int z, ItemId item, int count)
         {
             if (!world.Size.InBounds(x, y, z))
-                throw new ArgumentOutOfRangeException(nameof(y), "Ô ngoài map");
+                throw new ArgumentOutOfRangeException(nameof(y), "Cell outside the map");
             if (count < 1)
-                throw new ArgumentOutOfRangeException(nameof(count), count, "Số lượng phải ≥ 1");
+                throw new ArgumentOutOfRangeException(nameof(count), count, "Count must be ≥ 1");
             if (WorldEditor.IsSolidAt(world, x, y, z))
-                throw new ArgumentException("Ô đã đặc");
+                throw new ArgumentException("Cell is already solid");
             y = Settle(x, y, z);
             var existing = FindSame(x, y, z, item);
             DropStack result;
@@ -135,7 +135,7 @@ namespace Game.Core
                 return;
             int ty = FindFreeAbove(x, y, z);
             if (ty < 0)
-                throw new InvalidOperationException("Không còn ô trống phía trên để đẩy vật rơi");
+                throw new InvalidOperationException("No free cell above to push the drop into");
             bool changed = false;
             foreach (var s in stacks.ToArray())
             {

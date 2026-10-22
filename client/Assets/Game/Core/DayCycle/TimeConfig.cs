@@ -37,7 +37,7 @@ namespace Game.Core.DayCycle
                 case TimeLandmark.Dawn: return dawnPermille * MsPerPermille;
                 case TimeLandmark.Noon: return noonPermille * MsPerPermille;
                 case TimeLandmark.Dusk: return duskPermille * MsPerPermille;
-                default: throw new ArgumentException("Mốc không hợp lệ: " + m);
+                default: throw new ArgumentException("Invalid landmark time: " + m);
             }
         }
 
@@ -65,11 +65,11 @@ namespace Game.Core.DayCycle
         {
             if (!(0 <= midnightPermille && midnightPermille < dawnPermille && dawnPermille < noonPermille
                   && noonPermille < duskPermille && duskPermille < 1000))
-                throw new ArgumentException("Mốc phải tăng dần trong [0, 1000).");
+                throw new ArgumentException("Landmark times must be increasing within [0, 1000).");
             if (!(0 <= dawnStartPermille && dawnStartPermille < dayStartPermille && dayStartPermille < duskStartPermille
                   && duskStartPermille < nightStartPermille && nightStartPermille < 1000))
-                throw new ArgumentException("Biên buổi phải tăng dần trong [0, 1000).");
-            if (rotateDurationMs <= 0) throw new ArgumentException("rotateDurationMs phải > 0.");
+                throw new ArgumentException("Period boundaries must be increasing within [0, 1000).");
+            if (rotateDurationMs <= 0) throw new ArgumentException("rotateDurationMs must be > 0.");
         }
     }
 }

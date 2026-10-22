@@ -18,7 +18,7 @@ namespace Game.Client.Editor
         const string WaterMatPath = "Assets/Game/Client/Materials/Water.mat";
         const string OutputPath = "Logs/terrain_view.png";
 
-        [MenuItem("Game/Tạo scene TerrainView")]
+        [MenuItem("Game/Create Scene TerrainView")]
         public static void EnsureScene()
         {
             if (File.Exists(ScenePath))
@@ -37,7 +37,7 @@ namespace Game.Client.Editor
         /// Bước 4: thêm camera bay (DebugFlyCamera) và đào/đặt bằng chuột (TerrainEditInput) vào scene TerrainView:
         /// Unity -batchmode -quit -projectPath client -executeMethod Game.Client.Editor.TerrainViewCapture.SetupEditing
         /// </summary>
-        [MenuItem("Game/Thêm đào-đặt vào TerrainView")]
+        [MenuItem("Game/Add Dig-Place to TerrainView")]
         public static void SetupEditing()
         {
             EnsureScene();
@@ -49,11 +49,11 @@ namespace Game.Client.Editor
             if (view.GetComponent<TerrainEditInput>() == null)
                 view.gameObject.AddComponent<TerrainEditInput>();
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("TERRAINVIEW đã thêm DebugFlyCamera + TerrainEditInput");
+            Debug.Log("TERRAINVIEW added DebugFlyCamera + TerrainEditInput");
         }
 
         /// <summary>Bước 7b (brief 0010): scene TerrainView dùng world v3 + nạp dần quanh camera, sương 64–120, far clip 128.</summary>
-        [MenuItem("Game/Chuyển TerrainView sang world v3")]
+        [MenuItem("Game/Convert TerrainView to World v3")]
         public static void SetupStreamingV3()
         {
             EnsureScene();
@@ -82,11 +82,11 @@ namespace Game.Client.Editor
             EditorUtility.SetDirty(cam);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("TERRAINVIEW đã chuyển sang world v3 + nạp dần");
+            Debug.Log("TERRAINVIEW converted to world v3 + streaming");
         }
 
         /// <summary>Bước 7b2 (brief 0011): mặt nước theo ô dùng Water.mat (trong suốt), camera bay va chạm + hiệu ứng dưới nước, near clip 0,1.</summary>
-        [MenuItem("Game/Nước trong + camera va chạm cho TerrainView")]
+        [MenuItem("Game/Clear Water + Camera Collision for TerrainView")]
         public static void SetupWaterAndCamera()
         {
             EnsureScene();
@@ -127,11 +127,11 @@ namespace Game.Client.Editor
             EditorUtility.SetDirty(under);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("TERRAINVIEW đã bật nước trong + camera va chạm + hiệu ứng dưới nước");
+            Debug.Log("TERRAINVIEW enabled clear water + camera collision + underwater effect");
         }
 
         /// <summary>Bước 7b3 (brief 0012): sương biên world trên camera của TerrainView.</summary>
-        [MenuItem("Game/Biên world cho TerrainView")]
+        [MenuItem("Game/World Border for TerrainView")]
         public static void SetupWorldEdge()
         {
             EnsureScene();
@@ -146,11 +146,11 @@ namespace Game.Client.Editor
             EditorUtility.SetDirty(edge);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("TERRAINVIEW đã thêm sương biên world");
+            Debug.Log("TERRAINVIEW added world border fog");
         }
 
         /// <summary>Bước 7c (brief 0016): bản đồ (MinimapView) trên TerrainChunkView của TerrainView.</summary>
-        [MenuItem("Game/Bản đồ cho TerrainView")]
+        [MenuItem("Game/Minimap for TerrainView")]
         public static void SetupMinimap()
         {
             EnsureScene();
@@ -160,10 +160,10 @@ namespace Game.Client.Editor
                 view.gameObject.AddComponent<MinimapView>();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("TERRAINVIEW đã thêm bản đồ");
+            Debug.Log("TERRAINVIEW added minimap");
         }
 
-        [MenuItem("Game/Chụp ảnh TerrainView")]
+        [MenuItem("Game/Capture TerrainView")]
         public static void Capture()
         {
             EnsureScene();
@@ -185,7 +185,7 @@ namespace Game.Client.Editor
             File.WriteAllBytes(OutputPath, tex.EncodeToPNG());
             cam.targetTexture = null;
             RenderTexture.active = null;
-            Debug.Log($"TERRAINVIEW ảnh → {Path.GetFullPath(OutputPath)}");
+            Debug.Log($"TERRAINVIEW image → {Path.GetFullPath(OutputPath)}");
         }
     }
 }

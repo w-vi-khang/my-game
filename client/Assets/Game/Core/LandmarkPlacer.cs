@@ -46,7 +46,7 @@ namespace Game.Core
         {
             var s = world.Size;
             if (maps.SizeX != s.X || maps.SizeZ != s.Z)
-                throw new ArgumentException("Bảng map khác kích thước world");
+                throw new ArgumentException("Map table size differs from world size");
             int sx = s.X, sz = s.Z;
             var surface = new int[sx * sz];
             var dry = new bool[sx * sz];
@@ -86,7 +86,7 @@ namespace Game.Core
                             n++;
                         }
                 if (n == 0 || candidates[m].Count == 0)
-                    throw new InvalidOperationException($"{maps.Name(m)}: không có chỗ đặt checkpoint");
+                    throw new InvalidOperationException($"{maps.Name(m)}: no place to put the checkpoint");
                 long cx2 = 2 * sumX + n, cz2 = 2 * sumZ + n;
                 int best = -1;
                 long bestD = long.MaxValue;
@@ -111,7 +111,7 @@ namespace Game.Core
             {
                 var type = p.landmarkTypes[t];
                 if (type.map >= maps.MapCount)
-                    throw new ArgumentException($"landmarkTypes[{t}].map ngoài bảng map");
+                    throw new ArgumentException($"landmarkTypes[{t}].map outside the map table");
                 for (int k = 0; k < type.count; k++)
                 {
                     pool.Clear();
@@ -132,7 +132,7 @@ namespace Game.Core
                             pool.Add(i);
                     }
                     if (pool.Count == 0)
-                        throw new InvalidOperationException($"{maps.Name(type.map)}: không còn chỗ đặt {type.name}");
+                        throw new InvalidOperationException($"{maps.Name(type.map)}: no place left to put {type.name}");
                     int pick = pool[rng.NextInt(pool.Count)];
                     string name = type.count > 1 ? $"{type.name} {k + 1}" : type.name;
                     result.Add(new Landmark(LandmarkKind.Structure, type.map, t, pick % sx, pick / sx, surface[pick], name));

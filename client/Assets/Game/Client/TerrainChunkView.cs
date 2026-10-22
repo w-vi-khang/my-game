@@ -47,7 +47,7 @@ namespace Game.Client
         }
 
         const string ChunksName = "Chunks";
-        const string LandmarksName = "Dấu mốc";
+        const string LandmarksName = "Landmarks";
         const string LandmarkMaterialPath = "Materials/Landmark";
 
         ChunkSlot[] slots;
@@ -159,7 +159,7 @@ namespace Game.Client
                 if (afterGenerate != null)
                     Landmarks = afterGenerate(World, Maps, mapParams, Landmarks);
                 BuildLandmarkMarkers();
-                Debug.Log($"LANDMARKVIEW {Landmarks.Count} dấu mốc, đặt {LandmarkMs:F1} ms");
+                Debug.Log($"LANDMARKVIEW {Landmarks.Count} landmarks, placed in {LandmarkMs:F1} ms");
             }
             Bag = new PlayerBag();
             Editor = new WorldEditor(World, Bag, BlockMesher.CellMargin, waterLevel);
@@ -182,7 +182,7 @@ namespace Game.Client
                 var center = StreamCenter();
                 if (center == null)
                 {
-                    Debug.LogError("TERRAINVIEW streaming: không có streamTarget và Camera.main");
+                    Debug.LogError("TERRAINVIEW streaming: no streamTarget and no Camera.main");
                     return;
                 }
                 var cell = CellAt(center.position);
@@ -196,7 +196,7 @@ namespace Game.Client
                 int streamTris = 0;
                 foreach (var c in build)
                     streamTris += slots[c].TriangleCount;
-                Debug.Log($"TERRAINVIEW nạp dần v{GeneratorVersion}: sinh world {GenerateMs:F0} ms, nạp đầu {LoadedColumnCount} cột / {LoadedChunkCount} chunk trong {InitialLoadMs:F0} ms, {streamTris} tam giác");
+                Debug.Log($"TERRAINVIEW streaming v{GeneratorVersion}: world generation {GenerateMs:F0} ms, initial load {LoadedColumnCount} columns / {LoadedChunkCount} chunks in {InitialLoadMs:F0} ms, {streamTris} triangles");
                 return;
             }
             plan = null;
@@ -218,8 +218,8 @@ namespace Game.Client
             foreach (var c in shown)
                 tris += slots[c].TriangleCount;
             InitialLoadMs = sw.Elapsed.TotalMilliseconds;
-            Debug.Log($"TERRAINVIEW {(allChunks ? "cả map" : "một cột")}: {shown.Count} chunk, {tris} tam giác, " +
-                      $"dựng mesh {LastMeshMs:F1} ms, ghi {LastWriteMs:F1} ms, bake {LastBakeMs:F1} ms (tổng {sw.ElapsedMilliseconds} ms)");
+            Debug.Log($"TERRAINVIEW {(allChunks ? "whole map" : "one column")}: {shown.Count} chunks, {tris} triangles, " +
+                      $"mesh build {LastMeshMs:F1} ms, write {LastWriteMs:F1} ms, bake {LastBakeMs:F1} ms (total {sw.ElapsedMilliseconds} ms)");
         }
 
         /// <summary>Collider thuộc chunk địa hình (không phải khối dấu mốc, công trình…) — brief 0021.</summary>
@@ -295,8 +295,8 @@ namespace Game.Client
             }
             Rebuild(build);
             if (hadDirty)
-                Debug.Log($"TERRAINVIEW sửa ô → {LastRebuildChunks} chunk: dựng mesh {LastMeshMs:F2} ms, ghi {LastWriteMs:F2} ms, " +
-                          $"bake {LastBakeMs:F2} ms, khung hình {LastRebuildFrame}");
+                Debug.Log($"TERRAINVIEW cell edit → {LastRebuildChunks} chunks: mesh build {LastMeshMs:F2} ms, write {LastWriteMs:F2} ms, " +
+                          $"bake {LastBakeMs:F2} ms, frame {LastRebuildFrame}");
             dirty.Clear();
         }
 
@@ -382,7 +382,7 @@ namespace Game.Client
             var baseMat = Resources.Load<UnityEngine.Material>(LandmarkMaterialPath);
             if (baseMat == null)
             {
-                Debug.LogError($"LANDMARKVIEW thiếu Resources/{LandmarkMaterialPath}.mat — bỏ qua khối dấu mốc");
+                Debug.LogError($"LANDMARKVIEW missing Resources/{LandmarkMaterialPath}.mat — skipping landmark blocks");
                 return;
             }
             var root = new GameObject(LandmarksName).transform;
@@ -407,7 +407,7 @@ namespace Game.Client
         static void MarkerBox(Transform parent, Vector3 localPos, Vector3 scale, Color32 c, Dictionary<uint, UnityEngine.Material> mats, UnityEngine.Material baseMat)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.name = "Khối";
+            go.name = "Block";
             // Giữ BoxCollider: dấu mốc che địa hình phía sau → chặn đào/đặt xuyên qua (brief 0021).
             var t = go.transform;
             t.SetParent(parent, false);

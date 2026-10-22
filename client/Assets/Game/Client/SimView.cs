@@ -202,7 +202,7 @@ namespace Game.Client
             storageColliders.Clear();
             foreach (var s in Sim.State.Storages)
             {
-                var box = Box("Kho " + s.Id, new Vector3(s.Cell.X + 0.5f, s.Cell.Y + 0.45f, s.Cell.Z + 0.5f), new Vector3(0.9f, 0.9f, 0.9f), StorageColor, root, solid: true);
+                var box = Box("Storage " + s.Id, new Vector3(s.Cell.X + 0.5f, s.Cell.Y + 0.45f, s.Cell.Z + 0.5f), new Vector3(0.9f, 0.9f, 0.9f), StorageColor, root, solid: true);
                 storageColliders.Add(box.GetComponent<Collider>());
             }
             EnsurePlotVisuals();

@@ -19,7 +19,7 @@ namespace Game.Client.Editor
         const string OutputPath = "Builds/walkbench.apk";
         const string TempAppId = "com.viventa.walkbench";
 
-        [MenuItem("Game/Tạo scene WalkBench")]
+        [MenuItem("Game/Create Scene WalkBench")]
         public static void EnsureScene()
         {
             // Luôn tạo lại từ SimView để WalkBench dùng đúng ánh sáng/biển/trời hiện tại.
@@ -27,11 +27,11 @@ namespace Game.Client.Editor
             if (File.Exists(ScenePath))
                 AssetDatabase.DeleteAsset(ScenePath);
             if (!AssetDatabase.CopyAsset(SourceScene, ScenePath))
-                throw new Exception($"Không chép được {SourceScene} → {ScenePath}");
+                throw new Exception($"Could not copy {SourceScene} → {ScenePath}");
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var views = UnityEngine.Object.FindObjectsByType<SimView>(FindObjectsSortMode.None);
             if (views.Length == 0)
-                throw new Exception("Scene WalkBench không có SimView");
+                throw new Exception("Scene WalkBench has no SimView");
             foreach (var sv in views)
             {
                 if (sv.GetComponent<WalkBench>() == null)
@@ -68,7 +68,7 @@ namespace Game.Client.Editor
                 });
                 Debug.Log($"WalkBench build: {report.summary.result}, {report.summary.totalSize} byte, {report.summary.totalTime} → {OutputPath}");
                 if (report.summary.result != BuildResult.Succeeded)
-                    throw new Exception($"Build thất bại: {report.summary.result}");
+                    throw new Exception($"Build failed: {report.summary.result}");
             }
             finally
             {

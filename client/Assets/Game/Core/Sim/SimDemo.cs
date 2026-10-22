@@ -57,7 +57,7 @@ namespace Game.Core.Sim
             for (int i = 0; i < soil.Length; i++)
             {
                 int id = sim.MarkTill(soil[i]);
-                if (id < 0) throw new InvalidOperationException("Không đánh dấu được ô ruộng demo " + soil[i]);
+                if (id < 0) throw new InvalidOperationException("Could not mark demo field cell " + soil[i]);
                 sim.EnqueueCrop(id, 0);
             }
             return storage;

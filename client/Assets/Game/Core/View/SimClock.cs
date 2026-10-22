@@ -15,9 +15,9 @@ namespace Game.Core.View
         public SimClock(int ticksPerSecond, int maxTicksPerFrame = 5)
         {
             if (ticksPerSecond <= 0 || 1000000 % ticksPerSecond != 0)
-                throw new ArgumentException("ticksPerSecond phải dương và chia hết 1000000: " + ticksPerSecond);
+                throw new ArgumentException("ticksPerSecond must be positive and divide 1000000: " + ticksPerSecond);
             if (maxTicksPerFrame < 1)
-                throw new ArgumentException("maxTicksPerFrame phải >= 1: " + maxTicksPerFrame);
+                throw new ArgumentException("maxTicksPerFrame must be >= 1: " + maxTicksPerFrame);
             TickMicros = 1000000 / ticksPerSecond;
             MaxTicksPerFrame = maxTicksPerFrame;
         }

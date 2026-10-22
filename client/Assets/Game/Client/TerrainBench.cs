@@ -41,7 +41,7 @@ namespace Game.Client
         double meshMs, writeMs, bakeMs;
         int rebuilds, rebuiltChunks, edits, lastRebuildFrame = -1;
         float startTime;
-        string worldHash = "", result = "Đang chuẩn bị…";
+        string worldHash = "", result = "Preparing…";
         bool done;
         Vector3Int pendingRestore;
         BlockMaterial pendingMaterial;
@@ -96,7 +96,7 @@ namespace Game.Client
             float t = Time.realtimeSinceStartup - startTime;
             if (t < warmupSeconds)
             {
-                result = $"Khởi động… {warmupSeconds - t:F0} s";
+                result = $"Warming up… {warmupSeconds - t:F0} s";
                 return;
             }
             if (t > warmupSeconds + measureSeconds)
@@ -123,7 +123,7 @@ namespace Game.Client
             if (systemMem.Valid) maxSystemMem = System.Math.Max(maxSystemMem, systemMem.LastValue);
             if (gcMem.Valid) maxGcMem = System.Math.Max(maxGcMem, gcMem.LastValue);
             if (editEachFrame) EditOnce();
-            result = $"Đang đo… {warmupSeconds + measureSeconds - t:F0} s · {frameMs.Count} khung · {edits} lần sửa";
+            result = $"Measuring… {warmupSeconds + measureSeconds - t:F0} s · {frameMs.Count} frames · {edits} edits";
         }
 
         /// <summary>Luân phiên: đào một ô bề mặt ngẫu nhiên, khung sau đặt lại đúng ô đó (địa hình giữ ổn định, chunk dựng lại mỗi khung).</summary>

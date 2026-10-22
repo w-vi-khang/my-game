@@ -8,7 +8,7 @@ namespace Game.Core
         public WorkTimer(float durationSeconds)
         {
             if (durationSeconds <= 0f)
-                throw new ArgumentOutOfRangeException(nameof(durationSeconds), durationSeconds, "Thời lượng phải > 0");
+                throw new ArgumentOutOfRangeException(nameof(durationSeconds), durationSeconds, "Duration must be > 0");
             Duration = durationSeconds;
         }
 
@@ -32,7 +32,7 @@ namespace Game.Core
         public bool Advance(float dt)
         {
             if (dt < 0f)
-                throw new ArgumentOutOfRangeException(nameof(dt), dt, "dt phải ≥ 0");
+                throw new ArgumentOutOfRangeException(nameof(dt), dt, "dt must be ≥ 0");
             if (!Running) return false;
             Elapsed += dt;
             if (Elapsed < Duration) return false;
@@ -48,7 +48,7 @@ namespace Game.Core
         public Cooldown(float durationSeconds)
         {
             if (durationSeconds <= 0f)
-                throw new ArgumentOutOfRangeException(nameof(durationSeconds), durationSeconds, "Thời lượng phải > 0");
+                throw new ArgumentOutOfRangeException(nameof(durationSeconds), durationSeconds, "Duration must be > 0");
             Duration = durationSeconds;
         }
 
@@ -61,7 +61,7 @@ namespace Game.Core
         public void Advance(float dt)
         {
             if (dt < 0f)
-                throw new ArgumentOutOfRangeException(nameof(dt), dt, "dt phải ≥ 0");
+                throw new ArgumentOutOfRangeException(nameof(dt), dt, "dt must be ≥ 0");
             Remaining = Math.Max(0f, Remaining - dt);
         }
 

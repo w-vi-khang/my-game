@@ -103,11 +103,11 @@ namespace Game.Client
 
         void BuildVisual()
         {
-            Visual = new GameObject("Hình").transform;
+            Visual = new GameObject("Visual").transform;
             Visual.SetParent(transform, false);
-            AddBlock("Thân", new Vector3(0f, 0.55f, 0f), new Vector3(0.8f, 1.1f, 0.6f), new Color(0.20f, 0.45f, 0.85f));
-            AddBlock("Đầu", new Vector3(0f, 1.48f, 0f), new Vector3(0.7f, 0.7f, 0.7f), new Color(0.95f, 0.80f, 0.62f));
-            AddBlock("Mũi", new Vector3(0f, 1.48f, 0.4f), new Vector3(0.15f, 0.15f, 0.15f), new Color(0.15f, 0.15f, 0.15f));
+            AddBlock("Body", new Vector3(0f, 0.55f, 0f), new Vector3(0.8f, 1.1f, 0.6f), new Color(0.20f, 0.45f, 0.85f));
+            AddBlock("Head", new Vector3(0f, 1.48f, 0f), new Vector3(0.7f, 0.7f, 0.7f), new Color(0.95f, 0.80f, 0.62f));
+            AddBlock("Nose", new Vector3(0f, 1.48f, 0.4f), new Vector3(0.15f, 0.15f, 0.15f), new Color(0.15f, 0.15f, 0.15f));
         }
 
         void AddBlock(string name, Vector3 center, Vector3 size, Color color)
@@ -190,8 +190,8 @@ namespace Game.Client
                 starterGivenFor = terrain.Editor;
                 float r = spawnYaw * Mathf.Deg2Rad;
                 StarterStack = StarterBag.Place(terrain.Editor, spawnFeetLocal.x, spawnFeetLocal.y, spawnFeetLocal.z, Mathf.RoundToInt(Mathf.Sin(r)), Mathf.RoundToInt(Mathf.Cos(r)));
-                if (StarterStack != null) Debug.Log($"STARTERBAG túi hạt Cây A × {StarterBag.Seeds} ở ({StarterStack.X}, {StarterStack.Y}, {StarterStack.Z})");
-                else Debug.LogWarning("STARTERBAG không tìm được chỗ đặt túi hạt quanh chỗ xuất phát");
+                if (StarterStack != null) Debug.Log($"STARTERBAG seed bag Crop A x {StarterBag.Seeds} at ({StarterStack.X}, {StarterStack.Y}, {StarterStack.Z})");
+                else Debug.LogWarning("STARTERBAG could not find a place for the seed bag near the spawn point");
             }
 
             if (DebugKeys.WasPressed(Key.F3)) SetFlyMode(!FlyMode);

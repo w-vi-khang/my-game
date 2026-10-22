@@ -71,33 +71,33 @@ namespace Game.Core
         public void Validate()
         {
             if (generatorVersion != 3)
-                throw new ArgumentException("generatorVersion của world nhiều map phải là 3");
+                throw new ArgumentException("generatorVersion of a multi-map world must be 3");
             var _ = Size;
             if (bedrockLayers < 1 || bedrockLayers >= minSurface)
-                throw new ArgumentException("bedrockLayers phải ≥ 1 và < minSurface");
+                throw new ArgumentException("bedrockLayers must be ≥ 1 and < minSurface");
             if (minSurface > maxSurface || maxSurface >= sizeY)
-                throw new ArgumentException("Cần minSurface ≤ maxSurface < sizeY");
+                throw new ArgumentException("Requires minSurface ≤ maxSurface < sizeY");
             if (waterLevel < minSurface || waterLevel >= maxSurface)
-                throw new ArgumentException("waterLevel phải nằm trong [minSurface, maxSurface)");
+                throw new ArgumentException("waterLevel must be within [minSurface, maxSurface)");
             if (dirtDepth < 0 || sandBand < 0 || lakeRadius <= 0f || lakeDepth < 0f)
                 throw new ArgumentException("dirtDepth, sandBand, lakeDepth ≥ 0; lakeRadius > 0");
             if (seaRing < 1 || seaFloorDepth < 1 || waterLevel - seaFloorDepth < bedrockLayers)
-                throw new ArgumentException("seaRing ≥ 1, seaFloorDepth ≥ 1, đáy biển không thấp hơn lớp đá đáy");
+                throw new ArgumentException("seaRing ≥ 1, seaFloorDepth ≥ 1, sea floor must not be lower than the bedrock layer");
             if (landRadius <= 0f || coastFalloff <= 0f || coastWarpAmplitude < 0f || coastWarpFrequency <= 0f
                 || borderWarpAmplitude < 0f || borderWarpFrequency <= 0f)
                 throw new ArgumentException("landRadius, coastFalloff, coastWarpFrequency, borderWarpFrequency > 0; coastWarpAmplitude, borderWarpAmplitude ≥ 0");
             if (mapCount < 2 || mapCount > 8 || mapNames == null || mapNames.Length != mapCount)
-                throw new ArgumentException("mapCount trong [2, 8] và mapNames phải có đúng mapCount tên");
+                throw new ArgumentException("mapCount in [2, 8] and mapNames must have exactly mapCount names");
             foreach (var n in mapNames)
                 if (string.IsNullOrEmpty(n))
-                    throw new ArgumentException("Tên map không được rỗng");
+                    throw new ArgumentException("Map name must not be empty");
             if (mapCenterRadius <= 0f || mapCenterRadius + lakeRadius >= landRadius - coastWarpAmplitude - coastFalloff)
-                throw new ArgumentException("Hồ phải nằm trọn trong đất liền: mapCenterRadius + lakeRadius < landRadius − coastWarpAmplitude − coastFalloff");
+                throw new ArgumentException("Lake must lie entirely within the land: mapCenterRadius + lakeRadius < landRadius − coastWarpAmplitude − coastFalloff");
             if (landmarkTypes == null || landmarkBorderMargin < 2 || landmarkSpacing < 1)
-                throw new ArgumentException("landmarkTypes khác null, landmarkBorderMargin ≥ 2, landmarkSpacing ≥ 1");
+                throw new ArgumentException("landmarkTypes non-null, landmarkBorderMargin ≥ 2, landmarkSpacing ≥ 1");
             foreach (var t in landmarkTypes)
                 if (t == null || t.map < 0 || t.map >= mapCount || string.IsNullOrEmpty(t.name) || t.count < 1 || t.count > 8)
-                    throw new ArgumentException("Mỗi landmarkTypes: map trong [0, mapCount), name khác rỗng, count trong [1, 8]");
+                    throw new ArgumentException("Each landmarkTypes: map in [0, mapCount), name non-empty, count in [1, 8]");
         }
     }
 

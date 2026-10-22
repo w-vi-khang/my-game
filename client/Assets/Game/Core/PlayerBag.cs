@@ -25,7 +25,7 @@ namespace Game.Core
         public void Add(BlockMaterial material, int amount = 1)
         {
             if (amount < 0)
-                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng thêm phải ≥ 0");
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to add must be ≥ 0");
             counts[(byte)material] += amount;
             Changed?.Invoke(material, counts[(byte)material]);
         }
@@ -50,7 +50,7 @@ namespace Game.Core
         {
             CheckCrop(crop);
             if (amount < 0)
-                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng thêm phải ≥ 0");
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to add must be ≥ 0");
             seeds[crop] += amount;
             SeedsChanged?.Invoke(crop, seeds[crop]);
         }
@@ -65,7 +65,7 @@ namespace Game.Core
         {
             CheckCrop(crop);
             if (amount < 0)
-                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng thêm phải ≥ 0");
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to add must be ≥ 0");
             produce[crop] += amount;
             ProduceChanged?.Invoke(crop, produce[crop]);
         }
@@ -75,7 +75,7 @@ namespace Game.Core
         {
             CheckCrop(crop);
             if (amount < 0)
-                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng lấy phải ≥ 0");
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to take must be ≥ 0");
             if (seeds[crop] < amount) return false;
             if (amount == 0) return true;
             seeds[crop] -= amount;
@@ -88,7 +88,7 @@ namespace Game.Core
         {
             CheckCrop(crop);
             if (amount < 0)
-                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Số lượng lấy phải ≥ 0");
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to take must be ≥ 0");
             if (produce[crop] < amount) return false;
             if (amount == 0) return true;
             produce[crop] -= amount;
@@ -108,7 +108,7 @@ namespace Game.Core
         static void CheckCrop(int crop)
         {
             if (crop < 0 || crop > 255)
-                throw new ArgumentOutOfRangeException(nameof(crop), crop, "Loại cây phải trong 0..255");
+                throw new ArgumentOutOfRangeException(nameof(crop), crop, "Crop must be in 0..255");
         }
     }
 }

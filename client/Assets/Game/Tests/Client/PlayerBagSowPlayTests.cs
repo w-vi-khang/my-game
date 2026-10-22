@@ -428,7 +428,7 @@ namespace Game.Client.Tests
             Collider storage = null, terrain = null;
             foreach (var c in go.GetComponentsInChildren<Collider>())
             {
-                if (c.name == "Kho 0") storage = c;
+                if (c.name == "Storage 0") storage = c;
                 else if (terrain == null && sv.StorageIdOf(c) < 0 && c.GetComponent<MeshCollider>() != null) terrain = c;
             }
             Assert.IsNotNull(storage);
