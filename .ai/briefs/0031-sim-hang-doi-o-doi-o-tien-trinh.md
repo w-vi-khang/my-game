@@ -1,6 +1,6 @@
 # Brief 0031 — Simulation bước 7d: hàng đợi ô đợi (loại × số lượng), ô tiến trình, tạm dừng xới, bảng ô ruộng dạng ô vuông
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22
@@ -506,9 +506,21 @@ Mở SimView, cầm Xới (Tab tới Xới), bấm ô ruộng của trại demo:
 
 ## Kết quả
 
+Base commit: 50b53ed
+Chạy bằng: Sonnet · medium
+Bắt đầu: 2026-10-22 09:56 · Kết thúc: 2026-10-22 10:04 (~8 phút thực tế, so với ước lượng 2–3 ngày-người)
+Commit: 1cfc7f8. File đổi: SimConfig, SimData, Simulation, SimHash, SimDemo, SiteStatus, SimView, hai sim_m1.json, và 6 file test (CropQueueTests, FarmTests, PlotRulesTests, SimConfigTests, SiteStatusTests, SimFarmUiPlayTests).
+
 ## Kết quả test
+- Cấu hình, ô đợi, +/−/x, N/M riêng ô, ô tiến trình, tạm dừng, huỷ không trả hạt, đào/che, mã băm, KeepFarming, chuỗi hiển thị: đạt (EditMode).
+- Bảng ô ruộng (PlotPanelSlots, ProgressPauseResumeAndCloseResumes, DemoDoesNotRefillQueue, PlotPanelClosesWhenDug, StockToggleAndPointerBlock) + regression client: đạt (PlayMode). Hình ảnh bảng: **chờ user** (mục "User tự test").
+- Lệnh: diff 2 sim_m1.json → rỗng · EditMode 402/402 đạt (2 test sai kỳ vọng sửa rồi chạy lại đạt) · PlayMode 89/89 đạt · console Error 0 · grep UnityEngine trong Core rỗng, grep RemoveCrop/plotQueueCapacity/QueueLine rỗng · check_design hợp lệ · đã M	.ai/briefs/0031-sim-hang-doi-o-doi-o-tien-trinh.md
+Your branch is ahead of 'origin/main' by 126 commits.
+  (use "git push" to publish your local commits) EditorSettings.asset.
 
 ## Vướng mắc
+- Brief bước 9  ghi "lần 6 false" sau [A3, A2], nhưng luật 0026 mục 2 (ô đợi cuối cùng loại < M → +1) cho lần 6 → [A3, A3] true, lần 7 mới false. Tôi sửa test theo luật (6 true, 7 false), không đổi code. Planner xác nhận. (UI test PlotPanelSlots khớp luật: B2 → +A1 → +A→A2.)
+- : thay  bằng vòng chờ hết pha Till rồi kiểm Sow (mốc cố định rơi vào Growing).
 
 ---
 <!-- PLANNER ghi khi review. -->
