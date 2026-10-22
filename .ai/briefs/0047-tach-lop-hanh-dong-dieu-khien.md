@@ -1,6 +1,6 @@
 # Brief 0047 — Tách lớp hành động điều khiển khỏi phím (0033, M1)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-22 23:10
