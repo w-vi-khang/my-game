@@ -1,9 +1,9 @@
 # Brief 0036 — Sim 7e (lõi): túi đồ + vật rơi + nhặt trong Game.Core, tầm với công cụ 10 ô / việc tay 4 ô
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 15:25
+> Cập nhật: 2026-10-22 15:45
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -520,3 +520,19 @@ Tất cả phần ở "Phần cần test" → **đạt** (EditMode 422/422 gồm
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+Review đầy đủ (Opus, 2026-10-22) — commit e6ddd5d, b2f462e, 143ae0f.
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi.
+- Phần cần test: mọi dòng có kết quả (EditMode 422/422, PlayMode 112/112, check_design ok, grep rỗng) [brief: Kết quả test]. Không chạy lại vì không có gì thiếu/đáng ngờ.
+- QĐ 1 (tầm): `PlayerRules.InToolReach`/`InHandReach` qua `Within`, cùng công thức + `1e-4f`; client `ShowAim`/`UseTool` dùng `InToolReach`; `ReachLimitsTools` đổi +10/+9/+11 đúng bước 6.
+- QĐ 2, 10 (đào): `WorldEditor.TryDig` đúng thứ tự `World.Set` → `Drops.Add` → `OnCellCleared` → `CellChanged` → nước biển; ô ruộng → `Block(Dirt)`; túi không đổi.
+- QĐ 3 (rơi): `Settle` hạ tới ô trên khối đặc (nước không đặc → chìm); `OnCellCleared` chuyển chồng ở y+1 theo thứ tự `Stacks`, gộp giữ id chồng có sẵn (test 1: id 2).
+- QĐ 4, 11 (đẩy lên): `CheckPlace` kiểm `CanPushUp` sau `IsPlayerAt`, trước `NoMaterial`; `TryPlace` gọi `PushUp` sau `World.Set`, trước `CellChanged`; `FindFreeAbove` vượt nhiều khối đặc; không còn ô → `Occupied` (test 6 gồm ô đỉnh).
+- QĐ 5 (nhặt): `CollectInReach` duyệt bản sao `Stacks`, `bag.Add` → `Collected` → gỡ; `TryCollect` sai id/ngoài tầm → false, không đổi `Version`.
+- QĐ 6, 8 (túi): `PlayerBag` đổi tên bằng git mv (`.meta` 100% rename, giữ GUID), thêm `seeds`/`SeedsChanged`/`GetSeeds`/`AddSeeds`/`Add(ItemId,int)`; không alias tên cũ.
+- QĐ 7, 9, 12, 13: `DropField.cs`/`PlayerBag.cs` chỉ `using System*`; `WorldEditor` tự tạo `Drops`; id tăng từ 1, không dùng lại; xới/ô ruộng/nước lan không gọi `DropField`. `Core/Sim/**` không đổi.
+- QĐ 14: HUD "Túi: ", "(trong 10 ô quanh nhân vật)".
+- Phạm vi: 26 file đều trong danh sách; 2 test sửa ngoài danh sách (`SimulationTerrainTests.DigCutsPathThenPlaceRestores`, `MinimapEditTests.DigAndPlaceChangeExactlyOnePixel`) đúng loại "đào → cộng kho" mà bước 6 cho phép, đã ghi tên. `mechanics.md` chỉ đổi dòng vật rơi, nguyên văn bước 8.
+- `DropFieldTests`: đủ 13 test, assert đúng id/thứ tự trong ô như bước 7.
+- Ghi chú nhỏ, không chặn: `DropField.Add` ngoài map ném `ArgumentOutOfRangeException(nameof(y))` dù có thể lệch x/z — chỉ là tên tham số. Grep ở Tiêu chí xong khớp cả `CollectInReach(` (tên do brief đặt) — lỗi mẫu grep của brief, không phải code.
+- Giờ thực tế: ~18 phút máy (15:07–15:25) so với ước lượng 1,5 ngày-người; cộng vào roadmap khi xong cả 7e (sau brief 0037).
+- Kết luận: đã duyệt
