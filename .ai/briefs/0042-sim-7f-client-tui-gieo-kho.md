@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22 18:35
+> Cập nhật: 2026-10-22 19:20
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -261,3 +261,11 @@ Commit: c90128c — sửa `Client/PlayerFarmActions.cs`, `Client/SimView.cs`, `C
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Review đầy đủ (Planner, phiên Opus, 2026-10-22):
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` [repo].
+- Phạm vi: `git show --stat c90128c` — 5 file, đúng Phạm vi; thêm `using Game.Core.Sim;` ở `TerrainEditInput` (cần cho `CellPos`, trong phạm vi file) [run].
+- Phần cần test: 15 test mới phủ đủ các dòng (BagRows, chặn con trỏ, vào/thoát chế độ gieo, gieo ô đứng yên / cùng loại, 5 trường hợp từ chối, hết hạt, không dùng công cụ, HUD, kho trong tầm / đầy / ngoài tầm, click khối kho, UnmarkAimed); PlayMode 148/148, EditMode 472/472 theo executor — không chạy lại. Lệch nhỏ chấp nhận: "kho → túi tất cả" kiểm kho về 0 thay vì "về như đầu" (kho đầu có thể ≠ 0), cùng ý.
+- Đối chiếu Quyết định đã chốt 1–10 với diff: `PlayerFarmActions` `EnterSowMode`/`ExitSowMode`/`SowAt` đúng thứ tự kiểm và chữ nguyên văn, HUD dòng gieo sau dòng Mưa; `SimView` `BagRows`, `ChooseSeedFromBag`, rect túi/kho, `Covers`, `StorageIdOf`, `OpenStockAt`, `CanTransferStock`, `TransferStock` + 4 nút + Shift; `TerrainEditInput` Esc / chuột phải / Tab thoát gieo, click khối kho trước `Pick`, nhánh gieo sau thu hoạch, `UseTool` chặn công cụ khi gieo, `UnmarkAimed` sửa lỗi review 0041, HelpText `B: túi`.
+- Nhỏ, không chặn: Esc khi đang gieo và bảng ô ruộng/túi mở thì đóng cả hai (đúng quyết định 8); `Covers` dựng lại dòng túi mỗi lần gọi khi bảng mở (chấp nhận ở M1).
+- Giờ thực tế: 9 phút (18:25–18:34) so với ước lượng ~2 ngày-người.
+- User xem: chờ user chạy 9 mục "User tự test" (+ 8 mục của 0041) — chưa kết luận.
