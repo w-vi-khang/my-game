@@ -1,9 +1,9 @@
 # Brief 0059 — 7l c2: cầm vật phẩm từ túi (khối / hạt / camera quan sát), bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F hiện vùng 2 ô + gió hút
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24
+> Cập nhật: 2026-10-24 01:40
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -536,12 +536,21 @@ Mở scene SimView trên Mac, Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 612bfb7
+Chạy bằng: Sonnet · medium (claude-sonnet-5-5)
+Bắt đầu: 2026-10-24 01:28
 <!-- Base commit · Chạy bằng: <model id> · <effort> · commit · file đã đổi · thời gian bắt đầu/kết thúc (giờ thực tế M1) · lệch so với brief. -->
 
 ## Kết quả test
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng. Mỗi lệnh → kết quả thật. -->
 
 ## Vướng mắc
+**Câu hỏi:** `Client/ObservationCamera.cs:151` (trong `Open`, khối `if (farming != null) { farming.CancelSelfTill(); farming.ExitSowMode(); }`) gọi `PlayerFarmActions.ExitSowMode()`, mà bước 5 bắt xoá hàm này. File `ObservationCamera.cs` nằm trong "Không được sửa" → không biên dịch được nếu làm đúng brief, và tiêu chí grep `ExitSowMode` cũng không đạt.
+**Phương án:**
+- A. Cho phép sửa `ObservationCamera.cs` đúng 1 dòng: xoá `farming.ExitSowMode();` (khối còn `farming.CancelSelfTill();`). Vẫn đúng ý 0034 (mở camera quan sát không cần thoát "chế độ gieo" vì không còn chế độ gieo).
+- B. Giữ `ExitSowMode()` làm hàm rỗng — mâu thuẫn tiêu chí grep, không nên.
+**Đề xuất:** A (Planner thêm `ObservationCamera.cs` vào Phạm vi, ghi "chỉ xoá dòng `farming.ExitSowMode();`").
+**Đã làm tới đâu (chưa commit, còn trong working tree):** bước 1, 2 (Core + JSON 2 bản giống hệt), 3 (`MoveMarkers.cs`), 4 (`DropView.cs`), 5 (`PlayerFarmActions.cs`). Chưa làm bước 6–12. Chưa chạy Unity.
 
 ---
 <!-- PLANNER ghi khi review. -->
