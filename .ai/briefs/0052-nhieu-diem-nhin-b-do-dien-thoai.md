@@ -277,7 +277,7 @@ Không có thao tác. Planner đọc số liệu điện thoại và báo user (
 ## Kết quả
 Base commit: a14e7f4
 Chạy bằng: claude-sonnet-5-5 · medium
-Giờ: bắt đầu 11:22, dừng 11:40 (2026-10-23) — bước 1–8 xong, bước 9 (điện thoại) chưa đo được.
+Giờ: bắt đầu 11:22, dừng 11:32 (2026-10-23) — bước 1–8 xong, bước 9 (điện thoại) chưa đo được.
 Đã làm: bước 1–8. Scene: `git diff --stat` = 4 insertions (`secondViewpoint: 0`); `grep "secondViewpoint: 1"` = 0, `: 0` = 1. `WalkBench.unity.meta` bị đổi guid do tạo lại scene → đã `git checkout` lại. Hai APK khác nhau (cmp differ): `client/Builds/walkbench.apk`, `walkbench-2vp.apk` (35.382.399 byte). Log build 2vp: `WalkBench build: Succeeded … → Builds/walkbench-2vp.apk`; lần build 1 điểm nhìn: APK mới 11:31 (dòng log không còn trong console khi đọc).
 Bước 9: CHƯA ĐO (xem Vướng mắc).
 
