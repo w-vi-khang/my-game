@@ -1,9 +1,9 @@
 # Brief 0049 — code tiếng Anh (B): test sang tiếng Anh + test quét toàn bộ
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-22
+> Cập nhật: 2026-10-23
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -128,8 +128,26 @@ Không.
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: b2dd852
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: Fri Oct 23 09:30 +07 2026 · Kết thúc: 09:43 (~13 phút đồng hồ)
+Commit: 0f45dfd — 57 file trong `client/Assets/Game` (Tests/** + `Core/WorldMapParams.cs:57-62` + `HardcodedTextScanTests.cs` viết lại).
+- Quét ban đầu: TOTAL 478 (472 dòng Tests + 6 WorldMapParams). Không chạy riêng bước "fail trước" (làm gộp bước 2–4 bằng script) → số lỗi bước 2 suy từ quét Python = 472; sau cùng còn 102 dòng, tất cả `// vi-text`.
+- Dòng `// vi-text` theo file: WorldMapParams 6; DropPlayTests 4; MinimapCornerPlayTests 1; PlayerBagSowPlayTests 21; PlayerFarmPlayTests 12; SettingsPlayTests 5; TimeDialPlayTests 7; HardcodedTextScanTests 3; StringsTests 10; CreatureStatusTests 13; SiteStatusTests 20 (tổng 102).
+- Tên đổi (QĐ 3): `binh-minh/ngay/hoang-hon/dem` → `dawn/day/dusk/night`; `"kho"` → `"storage"`; `"nhà "` → `"house "`; `"Đảo"` → `"Island"`; `"con khác"` → `"Other Child"`; ConfigTests 4 thông báo → "Client copy differs …". Không có `Find`/so `.name` theo tên cũ (grep).
+- Cách làm: dịch bằng bảng 331 literal duy nhất (áp theo regex literal, chỉ đổi literal); đánh dấu vi-text bằng script theo API hiển thị trong file QĐ 1 rồi soát tay. Dạng regex dấu trong scan test viết escape `\u00C0-\u1EF9\u0110\u0111`.
+- Lưu ý: literal ghép `"…{string.Join("` / `", landTiers)} · … {string.Join("` dịch giữ nguyên cấu trúc dấu nháy.
 
 ## Kết quả test
+- Scan bắt dấu toàn repo: đạt — thêm `"thử"` vào `Client/SettingsView.cs` → fail `SettingsView.cs:11: "thử"`.
+- Scan bắt không dấu: đạt — `"Kho "` trong `Core/WorldData.cs` → `unaccented Vietnamese: "Kho "`.
+- vi-text sai chỗ: đạt — `Client/SettingsView.cs:12: vi-text not allowed here`.
+- vi-text thừa: đạt — `Tests/Core/MinimapImageTests.cs:9: unused vi-text`. (Cả 4 thử trong một lần chạy; đã khôi phục file, `git status` sạch ngoài phạm vi.)
+- Scan sạch: đạt — HardcodedTextScanTests 4/4.
+- Hồi quy: EditMode 498/498 qua, PlayMode 167/167 qua (số test = trước khi làm), console 0 lỗi biên dịch. Gồm các test chữ hiển thị và tên đổi.
+- Tiền tố log test: đạt — output lệnh bước 3 trước = sau (diff rỗng).
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy.
+- Lệnh quét bước 2 sau cùng: mọi dòng còn lại có `// vi-text`, nằm trong Tests/ hoặc WorldMapParams.cs.
 
 ## Vướng mắc
 
