@@ -398,3 +398,9 @@ Mở scene SimView trên Mac, Play:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner (Opus 5.5), 2026-10-24, mức đầy đủ + user xem.
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi`.
+- Phần cần test: mọi dòng có kết quả (EditMode 530/530, PlayMode 230/230 qua MCP, 0 skipped → 3 test nước không Inconclusive; diff JSON / loc_check / check_design / grep Core đạt); thanh HUD + cảm giác số → User tự test.
+- Diff `08c9493` (16 file, đúng Phạm vi; `PlayerVitals.cs` / `PlayerVitalsTests.cs` không đổi): `Vitals` tạo từ `LoadSimConfig().player` (QĐ 2); kiểm mana ở `RightClickAt` + lúc làm, chỉ trừ khi Ok / Mưa có hiệu ứng (QĐ 3); `AddMoved` sau `Controller.Move`, bỏ qua FlyMode (QĐ 4); rơi đo từ đỉnh, đặt lại trong nước / FlyMode / Place (QĐ 5); `HeadUnderwater` chân + 1,5 qua `FlyCameraCollision.IsUnderwater` (QĐ 6); bộ đếm ms giữ phần lẻ (QĐ 7); hồi sinh ở chỗ Place đầu, `TerrainEditInput` huỷ đi tới + dòng báo (QĐ 8); `manaFlashMs` 600 + kiểm biên (QĐ 9); thanh HUD đúng toạ độ / màu, chữ dời xuống 44 (QĐ 10). 12 test bước 8 có đủ tên.
+- Giờ thực tế c3: 02:58–03:11 (≈ 0,2 giờ Executor, một vòng).
+- Chờ user test (User tự test mục 1–8) trước khi kết luận.
