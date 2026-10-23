@@ -1,9 +1,9 @@
 # Brief 0051 — nhiều điểm nhìn A: lõi ChunkStreamPlan + TerrainChunkView
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 11:00
+> Cập nhật: 2026-10-23 11:05
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -173,3 +173,11 @@ Sửa 1: đạt — `ChunkStreamPlanTests` 12/12 (có 2 assert bán kính sai), 
 - Thiếu nhỏ: "bán kính sai" trong Phần cần test chưa có test (code có kiểm tra). [repo] `ChunkStreamPlanTests.cs:192`
 - Giờ thực tế (10 phút) chưa cộng vào roadmap: ghi khi duyệt.
 - Kết luận: cần sửa (bước 9)
+
+### Review 2 — 2026-10-23 (Opus)
+- Commit sửa `955f25d` chỉ đổi 2 file test, code không đổi; working tree sạch. [run] `git show --stat 955f25d`
+- `SecondViewpointLoadsItsColumnsAndUnloadsWhenRemoved` nay lập `held` (cột có mesh, > 160 tới camera chính), `Assert.IsNotEmpty(held)`, chờ mọi cột `held` mất mesh, rồi `AssertLoadedWithinUnloadRadius()` → kiểm đúng việc gỡ khi bỏ điểm phụ. [repo] `client/Assets/Game/Tests/Client/TerrainStreamingPlayTests.cs:130-146`
+- `TooManyViewpointsThrows` thêm 2 trường hợp bán kính sai + `LoadedCount == 0`. [repo] `client/Assets/Game/Tests/Core/ChunkStreamPlanTests.cs:201-203`
+- Kết quả test sửa 1: 12/12, 6/6, EditMode 504/504, PlayMode 170/170 (executor báo; không chạy lại vì đủ và khớp). Chạy bằng vẫn Sonnet · medium.
+- Giờ thực tế (10 + 12 phút) đã cộng vào roadmap.
+- Kết luận: đã duyệt
