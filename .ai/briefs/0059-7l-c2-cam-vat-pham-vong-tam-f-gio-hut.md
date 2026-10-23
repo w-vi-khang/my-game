@@ -1,9 +1,9 @@
 # Brief 0059 — 7l c2: cầm vật phẩm từ túi (khối / hạt / camera quan sát), bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F hiện vùng 2 ô + gió hút
 
-> Trạng thái: đang làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 (Planner trả lời vướng mắc)
+> Cập nhật: 2026-10-24 (Executor: 2 test hỏng, cần Planner)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -544,18 +544,26 @@ Bắt đầu: 2026-10-24 01:28
 <!-- Base commit · Chạy bằng: <model id> · <effort> · commit · file đã đổi · thời gian bắt đầu/kết thúc (giờ thực tế M1) · lệch so với brief. -->
 
 ## Kết quả test
-Chưa kiểm được (client_test, client_test_play): Unity Editor đang mở project (pid 7345) nhưng cầu MCP không kết nối ('No Unity Editor instances found'), còn verify_run client_test exit 1 vì Editor đang giữ project. Code bước 1–12 đã viết xong, chưa biên dịch, chưa commit. Đã kiểm ngoài Unity: grep tên đã xoá = rỗng; 2 JSON cấu hình giống hệt; loc_check.py check loc/en.json OK; check_design.py OK; Game.Core không có UnityEngine; vi/en/context/.inputactions parse được. Cần user bật cầu MCP (hoặc tắt Unity) rồi chạy lại /ai-workflow-kit:exec 0059. Rủi ro: SowRejections (PlayerFarmTests) có thể hỏng vì QueueNotEmpty trước NotTilled (Layout enqueue ở pha Till) → nếu vậy `cần Opus`. Tiêu chí grep `FlySeconds` khớp nhầm `CollectFlySeconds` (đề xuất Planner sửa thành `DropView.FlySeconds`).
-Kiểm chứng: design exit 0 (62 file hợp lệ). Chưa kiểm được: client_test / client_test_play — brief dừng `cần Opus` giữa chừng (bước 6–12 chưa làm, `ObservationCamera.cs` còn gọi `ExitSowMode` đã xoá nên chưa biên dịch được); checklist thiết kế không đổi (không sửa `design/` ngoài JSON). Chạy lại khi brief xong.
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng. Mỗi lệnh → kết quả thật. -->
+Code bước 1–12 xong trong working tree (CHƯA commit code; chờ Planner quyết). Unity MCP kết nối được lần này.
+- Biên dịch: refresh_unity + read_console → 0 lỗi.
+- EditMode toàn bộ: **528/529** đạt; hỏng `Game.Core.Tests.PlayerFarmTests.SowRejections` (PlayerFarmTests.cs:169: Expected NotTilled, was QueueNotEmpty).
+- PlayMode toàn bộ: **218/219** đạt; hỏng `Game.Client.Tests.DropPlayTests.CollectNearbyTakesOnlyWithin2` (DropPlayTests.cs:127: Expected 0, was 1).
+- Các test mới/đổi của brief (ControlModePlayTests, PlayerBagSowPlayTests, TerrainEditPlayTests, ObservationCameraPlayTests, SowRejectsWhenQueueNotEmpty, GameControlsTests, SimConfigTests, PlayerMotionTests): đều đạt.
+- Đã chạy ngoài Unity trước đó: grep tên đã xoá rỗng; 2 JSON giống hệt; loc_check OK; check_design OK; Game.Core không UnityEngine.
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã làm.
+- Chưa chạy `verify_run --all` (Editor đang mở).
+- User tự test: chưa (chờ).
 
 ## Vướng mắc
-**Câu hỏi:** `Client/ObservationCamera.cs:151` (trong `Open`, khối `if (farming != null) { farming.CancelSelfTill(); farming.ExitSowMode(); }`) gọi `PlayerFarmActions.ExitSowMode()`, mà bước 5 bắt xoá hàm này. File `ObservationCamera.cs` nằm trong "Không được sửa" → không biên dịch được nếu làm đúng brief, và tiêu chí grep `ExitSowMode` cũng không đạt.
-**Phương án:**
-- A. Cho phép sửa `ObservationCamera.cs` đúng 1 dòng: xoá `farming.ExitSowMode();` (khối còn `farming.CancelSelfTill();`). Vẫn đúng ý 0034 (mở camera quan sát không cần thoát "chế độ gieo" vì không còn chế độ gieo).
-- B. Giữ `ExitSowMode()` làm hàm rỗng — mâu thuẫn tiêu chí grep, không nên.
-**Đề xuất:** A (Planner thêm `ObservationCamera.cs` vào Phạm vi, ghi "chỉ xoá dòng `farming.ExitSowMode();`").
-**Planner trả lời (2026-10-24):** chọn A — đã thêm quyết định 15, Phạm vi, bước 5. Làm tiếp từ bước 5 (dòng `ObservationCamera.cs`) rồi bước 6–12; giữ phần đã làm trong working tree.
-**Đã làm tới đâu (chưa commit, còn trong working tree):** bước 1, 2 (Core + JSON 2 bản giống hệt), 3 (`MoveMarkers.cs`), 4 (`DropView.cs`), 5 (`PlayerFarmActions.cs`). Chưa làm bước 6–12. Chưa chạy Unity.
+**(Vòng 2, 2026-10-24)** Hai test hỏng, cả hai do luật brief nhưng ngoài quy tắc sửa:
+1. `PlayerFarmTests.SowRejections` (:162–182): `Layout(false, crops: new[]{1})` enqueue sẵn 1 vụ vào `Slots` ở pha Till → theo thứ tự quyết định 3 (`QueueNotEmpty` trước `NotTilled`) dòng 169 trả `QueueNotEmpty`. Brief ghi "giữ" nên không cho sửa.
+   - Phương án A: đổi test — bỏ `crops:` cho phần NotTilled (Layout rỗng), và phần `OtherCrop` (cần vụ hiện tại khác loại) dựng bằng `EnqueueCrop` 1 lần (Slots trống vì vụ lấy ra ngay). Cần xem lại các assert sau.
+   - Phương án B: đổi thứ tự kiểm (`NotTilled` trước `QueueNotEmpty`) — hợp lý: ô chưa xới thì nói "chưa xới" trước; vẫn đúng quyết định 3 về ý nghĩa nhưng đổi thứ tự đã chốt.
+   - Đề xuất: B (ít sửa test nhất, thông báo cho người chơi tự nhiên hơn) nhưng là quyết định của Planner.
+2. `DropPlayTests.CollectNearbyTakesOnlyWithin2` (:126): chờ `Run(..., 0.3f)` đúng bằng `CollectFlySeconds` = 0,3 → còn 1 chồng đang bay (đua thời gian). `DropPlayTests.cs` ngoài Phạm vi.
+   - Đề xuất: cho sửa `DropPlayTests.cs` — đổi thời gian chờ thành `PlayerMotion.CollectFlySeconds + 0.2f` (như bước 11 đã làm cho test mới). Có thể các test khác trong file cùng dạng nhưng hiện chỉ test này hỏng.
+**Planner trả lời:**
+
 
 ---
 <!-- PLANNER ghi khi review. -->
