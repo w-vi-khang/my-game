@@ -1,6 +1,6 @@
 # 0031 — Tầm với của mọi thao tác: 8 ô
 
-> Trạng thái: Chốt
+> Trạng thái: Bị thay thế bởi [0034](0034-dieu-khien-pc-click-di-chuyen.md) (user, 2026-10-23: tầm thao tác 10 ô / tầm thực hiện 2 ô)
 > Ngày: 2026-10-22
 
 ## Bối cảnh

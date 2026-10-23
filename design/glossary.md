@@ -16,7 +16,7 @@
 | Nguyên tố | Thuộc tính của loài, đơn hoặc đôi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nội tại | Đặc điểm cố hữu của loài, tác dụng cả khi làm việc lẫn chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhập hồn | Người chơi nhập vào sinh vật, dùng bộ kỹ năng của sinh vật đó | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Mana | Nguồn năng lượng chung của người chơi, dùng cả khi nhập hồn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Mana | Nguồn năng lượng chung của người chơi, dùng cả khi nhập hồn; thanh năng lượng của nhân vật — M1: đào/đặt/phép Mưa tốn mana, hồi khi di chuyển (0034) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Môi trường sống | Thế giới được cải tạo theo danh sách yêu cầu của loài để loài trở lại | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Danh sách yêu cầu của loài | Danh sách yêu cầu mỗi loài (user gọi là "list nhiệm vụ theo loài", "bảng nhiệm vụ loài"); quyết định cả cấp độ sinh vật ngoài tự nhiên: đạt phần mở khoá → loài trở lại; đạt thêm → mức đáp ứng tăng. Khác "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Rút thưởng gói | Rút phần thưởng ngẫu nhiên từ gói trong cửa hàng (gói sinh vật, gói sách phép, gói trang bị...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -114,7 +114,7 @@
 | Giới hạn sinh vật | Số sinh vật hoạt động (làm việc + chiến đấu) tối đa; tăng theo cấp độ người chơi và công trình; tối đa 54, có ưu đãi nạp 60 | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Kho sinh vật | Nơi tạm cất sinh vật (dưới dạng thẻ bài); sinh vật trong kho không tính vào giới hạn sinh vật, không làm việc/chiến đấu. Khác "kho" chứa sản lượng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Vật phẩm phân bổ lại | Vật phẩm dùng để phân bổ lại điểm chỉ số (tên là ý tưởng) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Túi đồ | Nơi chứa vật phẩm của người chơi, khác kho; không có mức tối đa ([0004](decisions/0004-tien-nap.md)); M1 có từ [0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md); tiền nạp tăng 10% sức chứa | [02-gameplay/economy.md](02-gameplay/economy.md) |
+| Túi đồ | Nơi chứa vật phẩm của người chơi, khác kho; ~~không có mức tối đa (0004)~~ có giới hạn ô, ban đầu 10 ô + túi phụ 2 ô, 999/ô ([0034](decisions/0034-dieu-khien-pc-click-di-chuyen.md)); M1 có từ [0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md); tiền nạp tăng 10% số ô — ngoại lệ của mức tối đa (0034) | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Hạng | Bậc xếp hạng PvP theo điểm xếp hạng; ghép trận theo hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Cấp độ trung bình | Trung bình cấp độ các sinh vật mang vào trận PvP; tiêu chí ghép trận thứ hai trong cùng hạng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Điểm chỉ số | Điểm nhận khi tăng cấp độ/bậc, người chơi phân bổ tự do; điểm làm việc và chiến đấu là hai quỹ riêng; phân bổ lại cần vật phẩm | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -157,9 +157,17 @@
 | Buổi (điều kiện) | Một trong 4 khoảng của buổi trong ngày: Bình minh, Ban ngày, Hoàng hôn, Ban đêm; điều kiện môi trường sống có thể yêu cầu đang ở buổi nào | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Khung mốc | Một phần tư ngày tính từ một mốc tới mốc kế tiếp (giữa trưa: [0,50; 0,75)); đang ở trong khung của mốc nào thì chọn lại mốc đó không làm gì (user, 2026-10-21). Khác "buổi (điều kiện)" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhân vật (người chơi) | Hình người chơi trong world (M1: khối ghép cao 2 ô, góc nhìn thứ ba); tầm với tính quanh nhân vật ([0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Tầm với | Khoảng cách quanh nhân vật mà người chơi tương tác được (M1: mọi thao tác 8 ô — 0031) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tầm với | ~~Khoảng cách quanh nhân vật mà người chơi tương tác được (M1: mọi thao tác 8 ô — 0031)~~ → thay bằng **tầm thao tác** + **tầm thực hiện** ([0034](decisions/0034-dieu-khien-pc-click-di-chuyen.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tầm thao tác | Khoảng cách quanh nhân vật mà chuột phải click được để chọn đích (M1: 10 ô — 0034); click trái để đi không giới hạn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tầm thực hiện | Khoảng cách nhân vật phải tới gần đích mới làm hành động; nhân vật tự đi tới (M1: 2 ô — 0034; tầm đào nâng cấp được sau) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Chế độ (hành động) | Trạng thái quyết định chuột phải làm gì trên PC: Mặc định (D), Đào (Q), Xới (E), Tưới (R); bấm lại để tắt (0034) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Cầm (vật phẩm) | Chọn một vật phẩm trong túi / túi phụ để dùng bằng chuột phải (khối, hạt, camera quan sát) (0034) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Túi phụ | Phần của túi đồ nằm giữa-dưới màn hình để dùng nhanh vật phẩm (M1: 2 ô, phím 1–0, P ẩn/hiện) (0034) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Menu phép | Menu chứa các chức năng dạng phép của người chơi (M1: đổi buổi, phép Mưa) (0034) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Lướt | Nhân vật lao nhanh một đoạn ngắn theo hướng đang đi (Shift) (0034) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Máu (nhân vật) | Sức sống của nhân vật người chơi; mất khi rơi cao hoặc nước ngập đầu (M1, 0034) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Vật rơi | Bản mini của khối rơi ra khi đào (hoặc vật phẩm nằm trên mặt đất), nhặt vào túi đồ; cùng loại trong một ô gộp thành chồng ([0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Thu (hành động) | Hút mọi vật rơi trong tầm với vào túi đồ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Thu (hành động) | Hút mọi vật rơi trong 2 ô vào túi đồ (phím F, 0034) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Túi hạt | Vật phẩm trong túi đồ giữ số hạt của một loại cây; chọn túi hạt để vào chế độ gieo | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Chế độ gieo | Trạng thái sau khi chọn túi hạt: click ô ruộng đã xới để gieo bằng tay | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phép Mưa | Phép của người chơi (M1 có sẵn, hồi 10 giây): mưa trên 1 ô — tưới ô ruộng, ô đất thành cỏ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |

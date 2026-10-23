@@ -3,6 +3,7 @@
 > Trạng thái: Chốt
 > Ngày chốt: 2026-10-13 (user)
 > Ngày: 2026-10-12
+> Thay đổi bởi [0034](0034-dieu-khien-pc-click-di-chuyen.md) (user, 2026-10-23): túi đồ **có giới hạn ô** (ban đầu 10 + túi phụ 2) — ý "túi đồ không cần mức tối đa" ở Hệ quả không còn đúng; ưu đãi "túi đồ +10%" thành **ngoại lệ thứ hai** như giới hạn sinh vật (user, 2026-10-23, 0034 Hệ quả).
 
 ## Bối cảnh
 - Game F2P, hai loại tiền: tiền trong game và tiền nạp ([vision](../00-vision.md)).

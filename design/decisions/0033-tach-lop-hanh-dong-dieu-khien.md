@@ -2,6 +2,7 @@
 
 > Trạng thái: Chốt
 > Ngày: 2026-10-22
+> Thay đổi bởi [0034](0034-dieu-khien-pc-click-di-chuyen.md) (user, 2026-10-23): bảng đổi phím (mục 2) chuyển từ M3 về M1; luật mục 2 giữ nguyên.
 
 ## Bối cảnh
 User (2026-10-22, khi duyệt brief 0046): tách thao tác của người dùng (phím, chuột) khỏi hành động trong game; người chơi gán chức năng cho phím khác, đổi chuột trái/phải cho nhau, miễn là không gây mâu thuẫn khi chơi. Đổi phím đang xếp ở M3 ([controls-ui](../02-gameplay/controls-ui.md), 5–10 ngày-người). Code client hiện đọc phím trực tiếp (`kb.wKey`, `mouse.leftButton`…) ở 8 file, khoảng 50 chỗ [repo, grep 2026-10-22]. Asset `Assets/InputSystem_Actions.inputactions` của template có sẵn nhưng không được dùng [repo].

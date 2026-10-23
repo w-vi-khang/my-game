@@ -56,4 +56,5 @@
 | Phép Mưa làm dung nham nguội thành ô đá | User (2026-10-22, [0028](decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md)) | P1 | để sau | World M1 chưa có dung nham; làm khi world có dung nham. Chưa ước lượng/milestone |
 | Học phép (người chơi học được phép Mưa thay vì có sẵn) | User (2026-10-22, 0028) | P2 | để sau | M1 phép Mưa có sẵn; học phép nối với [progression](02-gameplay/progression.md), đề xuất M2. Chưa ước lượng |
 | Xem nhiều camera quan sát cùng lúc (khung nhỏ trong màn hình); mô phỏng sinh vật ở map có camera quan sát | User (2026-10-22, [0029](decisions/0029-nhieu-diem-nhin-camera-quan-sat.md)) | P3 | để sau | M1 chỉ 1 camera, xem toàn màn hình, chỉ thấy địa hình. Mô phỏng map khác cần tìm đường toàn world (M2 roadmap). Chưa ước lượng phần khung nhỏ |
-
+| Nâng cấp tầm đào (tầm thực hiện của Đào > 2 ô) theo tiến trình | User (2026-10-23, [0034](decisions/0034-dieu-khien-pc-click-di-chuyen.md)) | P1 | để sau | M1 tầm thực hiện 2 ô cho mọi hành động. Chưa ước lượng/milestone; nối với [progression](02-gameplay/progression.md) |
+| Nâng cấp số ô túi / túi phụ (mở thêm trang) | User (2026-10-23, 0034) | P2 | để sau | M1: túi 10 ô, túi phụ 2 ô, đã có phân trang. Cách mở thêm chưa quyết; ưu đãi nạp "túi đồ +10%" là ngoại lệ của mức tối đa (0034). Chưa ước lượng/milestone |

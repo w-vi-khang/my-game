@@ -1,18 +1,17 @@
 # Handoff — 2026-10-23
 
 ## Đang làm
-Task `m1-world-7j-camera-quan-sat` (camera quan sát tối giản), brief [0053](briefs/0053-camera-quan-sat.md).
+Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)) — làm lại điều khiển PC theo [0034](../design/decisions/0034-dieu-khien-pc-click-di-chuyen.md) (Chốt, user 2026-10-23). Task 7j (camera quan sát, brief 0053) gộp vào 7l c, không duyệt riêng.
 
 ## Trạng thái
-- Brief 0053: code + test xong (executor Sonnet · medium, commit 175e9bf; EditMode 504/504, PlayMode 180/180, design exit 0).
-- Review code đạt (commit 9445597): roadmap + world-tech 7j đã ghi giờ (12 phút so với 1–2 ngày-người), controls-ui 30 → 31 hành động.
-- Brief vẫn `chờ review`: **chờ user thử trên PC** (danh sách cụ thể ở cuối mục Review của brief).
-- `verify_run client_test`/`client_test_play` chưa ghi nhận (Editor đang mở qua MCP; test đã chạy bằng `run_tests` MCP).
+- Thiết kế xong: 0034 + controls-ui, mechanics, glossary, world-tech (7l a–f), architecture, roadmap (M1 121,5–197; M3 65,5–117,5), ideas, ghi chú 0004/0031/0033, `.ai/project.json` (ràng buộc balance). `check_design.py` exit 0. Chưa commit.
+- Task contract: **chờ user xác nhận**.
+- Câu hỏi mở đã trả lời (user 2026-10-23): túi +10% = ngoại lệ thứ hai của 0004; bỏ đánh dấu xới = nút trong bảng khi click trái lên biển.
+- File `client/Assets/Game/Tests/Client/TerrainEditPlayTests.cs` đang sửa dở từ trước (không thuộc task này).
 
 ## Bước tiếp
-1. User thử trên PC theo mục Review của brief 0053, báo kết quả.
-2. Planner: đạt → ghi `Kết luận: đã duyệt` vào Review của brief, trạng thái `đã duyệt`, world-tech 7j "xong", commit. Có lỗi → thêm bước sửa vào brief, trạng thái `chờ làm`, giao exec lại (`/ai-workflow-kit:exec 0053`).
-3. Sau đó: bước M1 tiếp theo (7k — GPU occlusion culling, theo world-tech) → task contract mới.
+1. User xác nhận task contract (và các số tạm / đề xuất Planner trong 0034 nếu muốn sửa).
+2. Planner viết brief 7l a (luật lõi Game.Core) → `/ai-workflow-kit:exec`.
 
 ## Model đề xuất
-Opus · medium cho việc kết luận review (Planner).
+Opus · medium cho brief 7l a.

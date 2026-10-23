@@ -6,12 +6,12 @@
 Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), không gắn pillar riêng. Onboarding gắn P3 (tinh linh dẫn dắt trong khung truyện) và P1 (bài học đầu tiên là hồi sinh một loài). Mọi đề xuất của AI (2026-10-13) đánh dấu `[ý tưởng]`.
 
 **Đã quyết (user, 2026-10-13):**
-- **Camera góc 3, xoay tự do** quanh nhân vật (bỏ ý tưởng B3 "góc nghiêng cố định" — [ideas](../ideas.md)).
+- **Camera góc 3, xoay tự do** quanh nhân vật (bỏ ý tưởng B3 "góc nghiêng cố định" — [ideas](../ideas.md)). **PC từ 2026-10-23** ([0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md)): góc mặc định nhìn chéo từ trên cao như LoL, bám nhân vật, vẫn xoay được bằng chuột giữa, Space về mặc định; X = góc nhìn thứ nhất.
 - **Tay cầm để sau phát hành.** User lo tay cầm khó nhắm phép định hướng → cách nhắm dưới đây làm chung cho chuột, cảm ứng và tay cầm, để thêm tay cầm sau không phải làm lại.
 
 ## Điều khiển
 **Nguyên tắc** [ý tưởng]
-- **Nhắm theo tâm màn hình** cho mọi thiết bị: ô / sinh vật nằm dưới **tâm nhắm** là đích; ô đích được tô viền. Xoay camera = nhắm → chuột, vuốt màn hình và cần phải tay cầm cùng một cơ chế.
+- **Nhắm theo tâm màn hình** cho cảm ứng + tay cầm (PC dùng con trỏ tự do từ [0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md), user 2026-10-23): ô / sinh vật nằm dưới **tâm nhắm** là đích; ô đích được tô viền. Xoay camera = nhắm → chuột, vuốt màn hình và cần phải tay cầm cùng một cơ chế.
 - **Hành động theo công cụ đang cầm:** **thanh công cụ** chứa cuốc (đào), khối (đặt), lệnh làm việc, thẻ bài, phép của pháp sư. Một nút **hành động chính** dùng công cụ đang cầm → mobile ít nút.
   - **Nhắm theo công cụ** (user, 2026-10-21, sau khi xem SimView brief 0026): đào và đặt là **hai công cụ riêng**, có phím chuyển giữa đào và đặt.
     - Cuốc (đào): tô viền **khối đang có** dưới tâm nhắm (như hiện nay).
@@ -20,35 +20,49 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
   - **Công cụ Xới** (user, 2026-10-21, [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md), sim bước 7c): công cụ thứ ba cùng cấp Đào/Đặt. Nhắm mặt trên ô đất/cỏ có ô trống phía trên → đánh dấu từng ô, **biển canh tác** hiện ngay; dùng lên ô đang có biển → bỏ đánh dấu [ý tưởng — Planner]. Phím chuyển công cụ tính lại khi có 3 công cụ (chốt trong brief 7c).
   - **Bấm ô ruộng** → bảng chọn giống (2 loại cây M1) + hàng đợi vụ (2 chỗ, xem/xoá vụ) (0025). PC trước; chạm theo phần cảm ứng của hạng mục Điều khiển.
 - **Chọn vùng bằng 2 điểm** (lệnh làm việc, vùng đào): nhắm góc 1 → hành động chính → nhắm góc 2 → hành động chính. Không cần kéo chuột/ngón tay → không tranh với vuốt xoay camera, tay cầm làm được y hệt.
-- Con trỏ chuột khoá ở giữa khi chơi; mở menu / giữ Alt thì hiện con trỏ.
+- ~~Con trỏ chuột khoá ở giữa khi chơi; mở menu / giữ Alt thì hiện con trỏ.~~ PC: con trỏ luôn tự do ([0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md)).
 - **Nhân vật + túi đồ + tự trồng trọt** (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md), M1): di chuyển/nhảy theo bảng dưới bằng **nhân vật** (góc nhìn thứ ba; camera bay thành chế độ debug); Tương tác (F) nhặt / mở kho trong tầm với; **Thu** hút vật rơi trong tầm; click vật rơi để nhặt; túi đồ (M1, không còn M2) để chọn túi hạt → chế độ gieo; phép Mưa nhắm 1 ô. Phím cụ thể chốt trong task contract world 7h / sim 7e–7f. **PC M1 đã làm** (sim 7e–7f, brief 0037–0042): F = Thu; chuột trái lên vật rơi = nhặt, lên cây chín = thu hoạch (mọi công cụ); cầm Xới: chuột trái lên biển = tự đi tới xới, chuột phải lên biển = bỏ đánh dấu; **R** = phép Mưa lên ô đang nhắm; **B** (hoặc nút `Túi (B)`) = bảng túi, click túi hạt → chế độ gieo (chuột trái gieo; chuột phải / Esc / Tab thoát); **K** (hoặc nút `Kho (K)`, hoặc click khối kho trong 8 ô) = bảng kho, nút chuyển hạt / nông sản (Shift = tất cả). [ý tưởng] R đang trùng phím Nhập hồn (M2) ở bảng dưới — chọn lại khi làm M2.
 - **Camera quan sát** (user, 2026-10-22, [0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), M1 world 7j): công cụ đặt camera; nút xem qua camera toàn màn hình / quay lại.
 
+**PC — click di chuyển, chế độ hành động, túi ô vuông** (user, 2026-10-23, [0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md), M1 world 7l a–f; **thay các dòng PC ở trên** cho tới khi 7l xong — chi tiết, số tạm và thứ tự ưu tiên chuột phải ở 0034):
+- Chỉ PC. Cảm ứng + tay cầm giữ joystick và nhắm theo tâm màn hình.
+- **Chuột trái** = đi tới chỗ click (tầm vô hạn; đích quy về cùng độ cao chân nhân vật, đi thẳng tới khi tới hoặc kẹt; click chỗ khác = đổi hướng) + dấu click tức thời tại đúng điểm click + vòng mờ có mũi tên hướng đi dưới chân. Click trái ô ruộng = đi tới 2 ô rồi hiện bảng ô ruộng; click trái ô trong túi/kho = bảng thông tin ở lề trái.
+- **Chuột phải** = thao tác chọn: hành động của chế độ, dùng vật đang cầm, hoặc hành động riêng của chỗ click (thu hoạch, mở kho, nhặt). **Tầm thao tác 10 ô** (chỗ click được), **tầm thực hiện 2 ô** (tự đi tới rồi làm); con trỏ ngoài tầm khi có chế độ/vật cầm → vòng tầm thao tác hiện mờ.
+- **Chế độ** Q Đào / E Xới / R Tưới (phép Mưa) / D Mặc định; bấm lại để tắt. Khối dưới con trỏ phủ lớp đỏ nhạt (không còn hộp viền trắng). Đặt khối, gieo hạt, camera quan sát = **cầm vật phẩm** từ túi (chuột phải ô túi) hoặc túi phụ (1–0).
+- **Máu + mana** góc trên-trái: đào/đặt/Mưa tốn mana, hồi khi di chuyển; mất máu khi rơi cao hoặc nước ngập đầu.
+- **Túi** 10 ô (phân trang, 999/ô), **túi phụ** 2 ô giữa-dưới (P ẩn/hiện, phân trang riêng), kho ô vuông; mở cùng lúc, chuyển bằng kéo thả hoặc chọn ô → Tab đổi đích (ưu tiên túi > túi phụ > kho) → 1 / 2 / 3 = toàn bộ / nửa / một phần ba.
+- **Mọi phím đổi được** trong Cài đặt → Điều khiển (từ M3 về M1, luật 0033 mục 2).
+
 | Hành động | Bàn phím-chuột | Cảm ứng | Tay cầm (sau phát hành) | Milestone |
 |---|---|---|---|---|
-| Di chuyển | WASD | Joystick ảo nửa trái (hiện tại chỗ chạm) | Cần trái | M1 |
-| Xoay camera / nhắm | Giữ chuột giữa + di chuột (PC M1 đã làm) | Vuốt nửa phải màn hình | Cần phải | M1 |
-| Thu phóng camera | Lăn chuột (Alt + lăn = đổi loại khối) | Chụm 2 ngón | Nhấn cần phải (đổi gần/xa) | M1 |
-| Nhảy | Space | Nút nhảy | A | M1 |
-| Hành động chính (dùng công cụ đang cầm) | Chuột trái | Nút hành động chính | RT | M1 |
-| Huỷ / bỏ điểm đang chọn | Chuột phải | Nút huỷ (hiện khi đang chọn) | B | M1 |
-| Đổi công cụ | Tab (Đào → Đặt → Xới → Camera); phím 1–4 chọn loại khối (PC M1 đã làm) | Chạm ô trên thanh công cụ | LB / RB | M1 |
-| Tương tác (nhặt, mở kho, nói chuyện NPC) | F (PC M1: Thu vật rơi trong tầm; mở kho = click khối kho) | Nút ngữ cảnh (hiện khi có thứ để tương tác) | X | M1 |
-| Phép Mưa (nhắm 1 ô) | R | _(chưa có)_ | _(chưa có)_ | M1 |
-| Camera quan sát | Tab chọn công cụ Camera + chuột trái: đặt camera quan sát tại vị trí và hướng đang nhìn (M1 tối đa 1, đặt lại thì thay chỗ cũ). V hoặc nút "Xem camera (V)" ở hàng nút dưới bên phải (chỉ hiện khi đã đặt): hiện "Đang tải…" tới khi vùng quanh camera nạp đủ rồi xem toàn màn hình, góc nhìn cố định, nhân vật đứng yên, không dùng công cụ. V / nút "Quay về (V)" / Esc: quay về | _(chưa có)_ | _(chưa có)_ | M1 ([0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), world 7j) |
-| Bảng kho | K (hoặc click khối kho trong 8 ô); giữ Shift khi bấm nút chuyển = chuyển tất cả | _(chưa có)_ | _(chưa có)_ | M1 |
-| Cài đặt | O; Esc khi không có bảng nào mở | _(chưa có)_ | _(chưa có)_ | M1 ([0032](../decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md)) |
-| Chạy nhanh | Shift | Đẩy joystick hết cỡ | Nhấn cần trái | M2 |
-| Ném thẻ bài | Chuột trái (khi cầm thẻ) | Nút hành động chính | RT | M2 |
-| Khoá mục tiêu | Chuột giữa | Chạm thẳng vào sinh vật | Nhấn cần phải giữ lâu | M2 |
-| Nhập hồn / thoát | R (nhắm sinh vật của mình) | Nút nhập hồn (hiện khi nhắm trúng) | Y | M2 |
-| Đánh thường (khi nhập hồn) | Chuột trái | Nút hành động chính | RT | M2 |
-| Phép 1–4 (khi nhập hồn) | Phím 1–4 (thanh công cụ đổi thành ô phép) | 4 nút quanh nút hành động chính | LB, RB, LT, X (khi nhập hồn X không dùng để tương tác; Y giữ cho nhập hồn / thoát) | M2 |
-| Túi đồ / sinh vật / bản đồ | B (M1, sim 7f) / C / M | Nút menu → chọn | Select | M2 (bản đồ: M1 — [0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md); phóng to bằng cuộn chuột / chụm 2 ngón; ô minimap tròn luôn hiện góc trên-phải, bấm/chạm để mở bản đồ lớn — world 7g, user 2026-10-21) |
-| Chọn thời điểm (vòng 4 mốc: giữa trưa, hoàng hôn, giữa đêm, bình minh) | T hoặc bấm nút tròn góc trên-phải (dưới nút bản đồ); bấm mốc để chọn; Esc / T / bấm ra ngoài để đóng | Chạm nút tròn → chạm mốc; chạm ra ngoài để đóng | _(chưa có)_ | M1 ([0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md), brief 0024; cạnh nút có dòng "Đang ở buổi: …"; ẩn khi bản đồ mở) |
-| Menu, tạm dừng | Esc (PC M1: đóng bảng đang mở / thoát chế độ gieo / thoát xem camera quan sát; không có bảng nào mở → mở Cài đặt) | Nút menu | Start | M1 |
+| Di chuyển | Chuột trái lên world (0034; trước: WASD) | Joystick ảo nửa trái (hiện tại chỗ chạm) | Cần trái | M1 |
+| Xoay camera | Giữ chuột giữa + di chuột | Vuốt nửa phải màn hình | Cần phải | M1 |
+| Camera về mặc định (sau lưng, trên đầu, theo hướng nhân vật) | Space | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
+| Góc nhìn thứ nhất / thứ ba | X | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
+| Thu phóng camera | Lăn chuột | Chụm 2 ngón | Nhấn cần phải (đổi gần/xa) | M1 |
+| Nhảy | A (trước: Space) | Nút nhảy | A | M1 |
+| Lướt | Shift [số tạm 4 ô, hồi 3 giây] | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
+| Thao tác chọn (chế độ / vật cầm / hành động của chỗ click) | Chuột phải | Nút hành động chính | RT | M1 |
+| Chế độ Mặc định / Đào / Xới / Tưới | D / Q / E / R (bấm lại = tắt) | Chạm ô trên thanh công cụ | LB / RB | M1 (0034; trước: Tab đổi công cụ, 1–4 chọn khối) |
+| Dùng ô túi phụ (cầm vật) | 1–0 | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
+| Thu (hút vật rơi trong 2 ô) | F | Nút ngữ cảnh | X | M1 |
+| Túi đồ (+ túi phụ) | B | Nút menu → chọn | Select | M1 |
+| Ẩn/hiện túi phụ | P | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
+| Chuyển đồ (túi / túi phụ / kho đang mở) | Kéo thả; hoặc click chọn ô → Tab đổi đích → 1 / 2 / 3 | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
+| Bảng kho | Chuột phải khối kho (đi tới 2 ô) (trước: K) | _(chưa có)_ | _(chưa có)_ | M1 |
+| Menu phép (đổi buổi, phép Mưa) | G [Planner] (thay T) | _(chưa có)_ | _(chưa có)_ | M1 (0034, [0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)) |
+| Xem camera quan sát / quay về | V (đặt camera: cầm vật phẩm "Camera quan sát" + chuột phải) | _(chưa có)_ | _(chưa có)_ | M1 ([0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), world 7j → 7l) |
+| Bản đồ | M; bấm ô minimap góc trên-phải | Chạm ô minimap | Select | M1 ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)) |
+| Cài đặt (gồm Hướng dẫn, Điều khiển = đổi phím) | O; Esc khi không có bảng nào mở | _(chưa có)_ | _(chưa có)_ | M1 ([0032](../decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md), 0034) |
+| Menu, tạm dừng / huỷ | Esc (đóng bảng đang mở / thoát cầm vật, chế độ / thoát xem camera quan sát; không còn gì → Cài đặt) | Nút menu | Start | M1 |
+| Ném thẻ bài | Chuột phải (khi cầm thẻ) [ý tưởng, theo 0034] | Nút hành động chính | RT | M2 |
+| Khoá mục tiêu | _(chọn lại — chuột giữa đã dùng xoay camera)_ | Chạm thẳng vào sinh vật | Nhấn cần phải giữ lâu | M2 |
+| Nhập hồn / thoát | _(chọn lại — R đã dùng)_ | Nút nhập hồn (hiện khi nhắm trúng) | Y | M2 |
+| Đánh thường (khi nhập hồn) | _(chọn lại khi làm M2)_ | Nút hành động chính | RT | M2 |
+| Phép 1–4 (khi nhập hồn) | _(chọn lại khi làm M2 — 1–0 đã dùng cho túi phụ)_ | 4 nút quanh nút hành động chính | LB, RB, LT, X (khi nhập hồn X không dùng để tương tác; Y giữ cho nhập hồn / thoát) | M2 |
+| Sinh vật | C | Nút menu → chọn | Select | M2 |
 
-Phím của các hàng M1 ở cột bàn phím-chuột là phím mặc định đang có trong code (khớp asset `GameControls.inputactions`, brief 0047, 2026-10-22: 30 hành động trong 6 ngữ cảnh; brief 0053, 2026-10-23: thêm `V` xem camera quan sát → 31 Player / Pointer / Panels / Map / TimeDial / Settings; phím debug F1–F3 không thuộc bảng). Phím M2 trở đi vẫn là đề xuất [ý tưởng]; code đọc phím qua lớp hành động (Input System actions) từ M1 — [0033](../decisions/0033-tach-lop-hanh-dong-dieu-khien.md); cho người chơi **đổi phím** (M3; lưu trong `settings.json`, trùng phím cùng ngữ cảnh → hỏi đổi chỗ, chỉ chuột + bàn phím, Esc cố định — 0033) — Input System 1.19 có `PerformInteractiveRebinding()` để đổi lúc chạy, `SaveBindingOverridesAsJson` / `LoadBindingOverridesFromJson` để lưu ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)).
+Phím cột bàn phím-chuột là **mặc định theo 0034** (code hiện tại vẫn là bảng cũ tới khi xong world 7l; asset `GameControls.inputactions`, brief 0047/0053). Code đọc phím qua lớp hành động ([0033](../decisions/0033-tach-lop-hanh-dong-dieu-khien.md)). **Đổi phím ở M1** (0034; trước là M3): lưu trong `settings.json`, trùng phím cùng ngữ cảnh → hỏi đổi chỗ, chỉ chuột + bàn phím, Esc cố định — Input System 1.19 có `PerformInteractiveRebinding()` để đổi lúc chạy, `SaveBindingOverridesAsJson` / `LoadBindingOverridesFromJson` để lưu ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)). Phím M2 vẫn là đề xuất [ý tưởng].
 
 **Nhắm phép và ném thẻ** [ý tưởng] — 3 kiểu, dùng chung cho mọi thiết bị:
 
@@ -77,7 +91,8 @@ Phím của các hàng M1 ở cột bàn phím-chuột là phím mặc định �
 |---|---|---|---|
 | M1 | Di chuyển, camera góc 3 + tránh địa hình, tâm nhắm + tô viền ô, thanh công cụ, đào/đặt, chọn vùng 2 điểm, joystick ảo + vuốt camera | 5–10 | M1 |
 | M2 | Khoá mục tiêu, ném thẻ, nhập hồn, 3 kiểu nhắm phép, nút cảm ứng theo ngữ cảnh, HUD đầy đủ | 5–10 | M2 |
-| M3 | Đổi phím, tuỳ chỉnh bố cục nút cảm ứng, rà lại toàn bộ UI trên màn hình nhỏ | 5–10 | M3 |
+| M1 (0034) | Click di chuyển + camera kiểu LoL, chế độ Q/E/R/D + cầm vật phẩm, máu/mana, túi/túi phụ/kho ô vuông, HUD gọn + menu phép, **đổi phím** (world 7l a–f) | 14–20 | M1 |
+| M3 | ~~Đổi phím~~ (về M1 — 0034), tuỳ chỉnh bố cục nút cảm ứng, rà lại toàn bộ UI trên màn hình nhỏ | 3,5–7,5 | M3 |
 | Sau phát hành | Tay cầm: bảng nút + điều hướng menu bằng tay cầm | 5–10 | Sau M4 |
 
 Giả định: giao diện riêng của từng cơ chế (túi đồ, kho sinh vật, chuẩn bị chiến đấu...) đã tính trong ước lượng của cơ chế đó.
@@ -131,13 +146,19 @@ flowchart TB
 
 | Thành phần | Nội dung | Khi nào hiện | Milestone |
 |---|---|---|---|
-| Tâm nhắm + tô viền ô đích | Ô / sinh vật đang nhắm; tên loại ô | Luôn (trừ khi mở bảng) | M1 |
+| Tâm nhắm + tô viền ô đích | Ô / sinh vật đang nhắm; tên loại ô. **PC (0034):** bỏ tâm nhắm + hộp viền; trong chế độ, khối dưới con trỏ phủ lớp đỏ nhạt; bản mờ khi cầm khối | Cảm ứng: luôn (trừ khi mở bảng). PC: khi có chế độ / vật cầm | M1 |
+| Dấu click + vòng dưới chân + vòng tầm thao tác | Dấu tức thời tại điểm click; vòng mờ có mũi tên hướng đi dưới chân; vòng bán kính 10 hiện mờ khi con trỏ ra ngoài tầm lúc có chế độ / vật cầm | Theo 0034 | M1 (PC) |
+| Avatar + máu + mana | Góc trên-trái (góc không có minimap) | Luôn | M1 (0034) |
+| Thông số (FPS…) | Trên cùng màn hình | Luôn (bản dev) | M1 (0034) |
+| Túi phụ | Giữa-dưới, 2 ô ban đầu, P ẩn/hiện; luôn hiện khi mở túi | Luôn (trừ khi ẩn) | M1 (0034) |
+| Icon ô ruộng | Phía trên mỗi ô ruộng: icon nông sản / giai đoạn + vòng tiến trình; chi tiết = click trái ô ruộng | Luôn (trong world) | M1 (0034) |
+| Icon trạng thái sinh vật | Icon nhỏ trên đầu sinh vật thay cho nhãn chữ | Luôn (trong world) | M1 (0034) |
 | Thanh công cụ | Công cụ đang cầm; khi nhập hồn đổi thành 4 ô phép + thời gian hồi | Luôn | M1 (công cụ), M2 (ô phép) |
-| Loài đang ghim | Tiến độ danh sách yêu cầu của loài; cập nhật ngay khi đào/đặt ([core loop](core-loop.md#vòng-lặp-30-giây)) | Khi có loài được ghim | M1 |
-| Nút Kho | Bấm → bảng kho: nông sản + hạt từng loại cây, sức chứa đã dùng / tổng của mọi kho (các kho thông nhau — [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md)) | Luôn | M1 (sim bước 7c) |
-| Đình trệ | Biểu tượng + số lượng; chạm → danh sách, đi tới; biểu tượng tại chỗ trên sinh vật | Khi có đình trệ | M1 |
+| Loài đang ghim (**PC M1: bỏ khỏi HUD** — 0034) | Tiến độ danh sách yêu cầu của loài; cập nhật ngay khi đào/đặt ([core loop](core-loop.md#vòng-lặp-30-giây)) | Khi có loài được ghim | M1 |
+| ~~Nút Kho~~ (bỏ — mở kho bằng chuột phải khối kho, 0034) | Bấm → bảng kho: nông sản + hạt từng loại cây, sức chứa đã dùng / tổng của mọi kho (các kho thông nhau — [0025](../decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md)) | Luôn | M1 (sim bước 7c) |
+| Đình trệ (**PC M1: bỏ khỏi HUD**, trạng thái hiện bằng icon trên đầu sinh vật — 0034) | Biểu tượng + số lượng; chạm → danh sách, đi tới; biểu tượng tại chỗ trên sinh vật | Khi có đình trệ | M1 |
 | Số sinh vật hoạt động | x / giới hạn sinh vật | Trong bảng Sinh vật; lên HUD khi gần chạm giới hạn | M2 |
-| Mana; máu khi chiến đấu / nhập hồn | Thanh mana dùng chung; máu của sinh vật đang nhập hồn | Khi chiến đấu, nhập hồn hoặc dùng phép | M2 |
+| Mana; máu khi chiến đấu / nhập hồn | Thanh mana dùng chung; máu của sinh vật đang nhập hồn. Máu + mana của nhân vật đã lên M1 (0034, dòng Avatar) | Khi chiến đấu, nhập hồn hoặc dùng phép | M2 |
 | La bàn | Hướng khối cốt truyện gần nhất (tinh linh mức 1), đình trệ, đánh dấu của người chơi | Luôn, thu gọn | M2 |
 | Lời tinh linh | Bong bóng thoại ngắn cạnh tinh linh — thay cho cửa sổ hướng dẫn | Theo sự kiện | M2 |
 | Nút cảm ứng | Joystick, hành động chính, nhảy, nút ngữ cảnh (tương tác, nhập hồn, huỷ) | Chỉ trên mobile | M1 |
@@ -172,7 +193,7 @@ flowchart LR
 - Mỗi lời hướng dẫn chỉ hiện một lần; xem lại ở mục "Hỏi tinh linh" trong menu [ý tưởng].
 - Người chơi bỏ qua bước nào cũng không bị kẹt: bước sau mở khi đạt điều kiện, không bắt buộc đúng thứ tự trừ bước 1–3 (P3).
 - **Ước lượng:** chuỗi 8 bước + dạy đúng lúc ~4–8 ngày-người [ý tưởng], M2 — **hạng mục riêng** "Onboarding" trong [roadmap](../05-roadmap.md) (user, 2026-10-13), tách khỏi "Tinh linh hỗ trợ 5–10".
-- M1 không làm onboarding: prototype chỉ cần một dòng chữ hướng dẫn phím.
+- M1 không làm onboarding: hướng dẫn phím nằm trong Cài đặt → Hướng dẫn, không hiện trên màn hình ([0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md)).
 
 Câu hỏi mở:
 - Nút cảm ứng phép: 4 nút quanh nút chính có đủ chỗ trên màn hình điện thoại nhỏ không — thử ở M2.

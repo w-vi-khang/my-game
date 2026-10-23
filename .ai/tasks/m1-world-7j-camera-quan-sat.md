@@ -1,7 +1,7 @@
 # Task: M1 world 7j — camera quan sát tối giản
 
 > Model thực thi: Sonnet · medium  (AGENTS.md §10.2)
-> Trạng thái: user xác nhận 2026-10-23. Bước 2 của [0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md) (Chốt), dòng 7j trong [world-tech](../../design/04-tech/world-tech.md#kế-hoạch-prototype-m1). Ước lượng 1–2 ngày-người. Dự kiến 1–2 brief.
+> Trạng thái: **gộp vào [7l](m1-world-7l-dieu-khien-pc.md)** (user 2026-10-23, [0034](../../design/decisions/0034-dieu-khien-pc-click-di-chuyen.md)) — code brief 0053 giữ, cách đặt camera đổi thành vật phẩm trong túi ở 7l c. Trước đó: user xác nhận 2026-10-23. Bước 2 của [0029](../../design/decisions/0029-nhieu-diem-nhin-camera-quan-sat.md) (Chốt), dòng 7j trong [world-tech](../../design/04-tech/world-tech.md#kế-hoạch-prototype-m1). Ước lượng 1–2 ngày-người. Dự kiến 1–2 brief.
 
 ## Mục tiêu
 Người chơi đặt được **một camera quan sát** ở một chỗ trong world, rồi nhìn qua nó toàn màn hình mà không phải đi tới. Ví dụ: đặt ở Map 2, đi về Map 1, bấm xem để thấy Map 2.

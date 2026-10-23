@@ -135,7 +135,7 @@ flowchart TB
 
 | Hệ thống | Trách nhiệm | Chi tiết | Milestone |
 |---|---|---|---|
-| Input, điều khiển & camera | Bảng hành động chung cho chuột-phím và cảm ứng; tâm nhắm, khoá mục tiêu, chọn vùng 2 điểm; camera góc 3 tránh địa hình | [controls-ui](../02-gameplay/controls-ui.md) | M1 (cơ bản; đọc phím qua lớp hành động — [0033](../decisions/0033-tach-lop-hanh-dong-dieu-khien.md)), M2 (chiến đấu), M3 (đổi phím) |
+| Input, điều khiển & camera | Bảng hành động chung cho chuột-phím và cảm ứng; tâm nhắm, khoá mục tiêu, chọn vùng 2 điểm; camera góc 3 tránh địa hình | [controls-ui](../02-gameplay/controls-ui.md) | M1 (cơ bản; đọc phím qua lớp hành động — [0033](../decisions/0033-tach-lop-hanh-dong-dieu-khien.md)), M1 click di chuyển PC + đổi phím ([0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md)), M2 (chiến đấu) |
 | Bộ sinh world | Bố cục vùng theo seed + ràng buộc, preset vùng, hang, dán khối cốt truyện, kiểm đường đi | [world-tech](world-tech.md#sinh-world-theo-seed), [levels](../02-gameplay/levels.md) | M1 (map nhỏ cố định), M2 (đầy đủ) |
 | Voxel, mesh, nước | Dữ liệu chunk, đào/đặt nguyên ô, dựng mesh khối bo cạnh ([0011](../decisions/0011-dia-hinh-khoi-bo-canh.md)), nước chảy | [world-tech](world-tech.md) | M1 (voxel, mesh), M2 (nước) |
 | Mô phỏng nông trại | Nhịp cố định, ghép việc, A\*, đình trệ, độ bền làm việc, người chơi làm công đoạn, tua nhanh nhảy sự kiện | [simulation-tech](simulation-tech.md) | M1 tối giản: nhịp, A\* đi bộ, một lệnh trồng cây, đình trệ ([0007](../decisions/0007-m1-toi-gian.md)); M2: phần còn lại |
