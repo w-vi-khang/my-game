@@ -1,9 +1,9 @@
 # Brief 0053 — camera quan sát tối giản (world 7j)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 12:16
+> Cập nhật: 2026-10-23 12:32
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -474,8 +474,19 @@ Trên PC, scene `SimView` (hoặc `TerrainView`), bấm Play trong Editor:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: af271c6
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 12:19 · Kết thúc: 12:31 (~12 phút thực tế)
+Commit: 175e9bf
+File đổi: Client/ObservationCamera.cs (mới), TerrainEditInput.cs, PlayerCharacter.cs, SettingsView.cs, GameInput.cs, GameControls.inputactions, vi.json, GameControlsTests.cs, TerrainEditPlayTests.cs, SimFarmUiPlayTests.cs, ObservationCameraPlayTests.cs (mới), design/02-gameplay/controls-ui.md
+Ghi chú: 2 dòng `// vi-text` thừa trên chuỗi "Xem camera (V)" (không dấu) bị HardcodedTextScanTests bắt → đã bỏ marker ở 2 dòng đó.
 
 ## Kết quả test
+- Bước 1 phím V · GameControlsTests (31 hành động) → đạt. Bước 2 chuỗi · HardcodedTextScanTests → đạt; JSON hợp lệ, key tăng dần `True`.
+- Đặt camera / vòng Tab / xem + quay về / V không camera / huỷ khi tải / Esc / khoá / hết điểm nhìn · ObservationCameraPlayTests 8/8 → đạt.
+- TerrainEditPlayTests, SimFarmUiPlayTests.TabCyclesFourToolsWithSim, SettingsPlayTests, các regression khác → đạt (nằm trong PlayMode toàn bộ).
+- `verify_run design` exit 0. EditMode toàn bộ 504/504. PlayMode toàn bộ 180/180. Dọn: checkout EditorSettings.asset; `git status` chỉ còn file Phạm vi + `.meta` mới + brief.
+- User tự test (mục "User tự test") → chờ user.
 
 ## Vướng mắc
 
