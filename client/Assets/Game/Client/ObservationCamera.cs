@@ -24,6 +24,8 @@ namespace Game.Client
         Vector3 savedPosition;
         Quaternion savedRotation;
         int exitFrame = -1;
+        Renderer[] markerRenderers;
+        const float MarkerHideDistance = 1.5f;
         GUIStyle loadingStyle;
 
         public ObservationState State { get; private set; }
@@ -33,6 +35,8 @@ namespace Game.Client
         public bool HasCamera => Point != null;
         public bool Engaged => State != ObservationState.Off;
         public bool MarkerVisible => Marker != null && Marker.activeSelf;
+        /// <summary>Marker is active and its renderers are on (hidden while Camera.main is within MarkerHideDistance).</summary>
+        public bool MarkerRendered => MarkerVisible && markerRenderers[0].enabled;
         public bool ButtonVisible => HasCamera;
         public bool LoadingVisible => State == ObservationState.Loading;
         public string ButtonText => State == ObservationState.Off ? T("observe.button_view") : T("observe.button_back");
@@ -62,6 +66,14 @@ namespace Game.Client
         {
             HandleKeys(GameInput.ToggleObservation.WasPressedThisFrame(), GameInput.Back.WasPressedThisFrame());
             if (State == ObservationState.Loading && view.MissingColumnsWithin(Point, view.loadRadius) == 0) ShowView();
+        }
+
+        void LateUpdate()
+        {
+            if (!MarkerVisible) return;
+            var cam = Camera.main;
+            bool show = cam == null || (cam.transform.position - Point.position).sqrMagnitude > MarkerHideDistance * MarkerHideDistance;
+            foreach (var r in markerRenderers) r.enabled = show;
         }
 
         /// <summary>V toggles; Esc only exits. Split from Update for tests.</summary>
@@ -187,6 +199,7 @@ namespace Game.Client
             Marker.transform.SetParent(Point, false);
             AddBlock("Body", Vector3.zero, new Vector3(0.5f, 0.4f, 0.6f), new Color(1f, 0.55f, 0.1f));
             AddBlock("Lens", new Vector3(0f, 0f, 0.35f), new Vector3(0.2f, 0.2f, 0.2f), new Color(0.1f, 0.1f, 0.1f));
+            markerRenderers = Marker.GetComponentsInChildren<Renderer>(true);
         }
 
         void AddBlock(string name, Vector3 center, Vector3 size, Color color)

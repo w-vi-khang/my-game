@@ -273,5 +273,22 @@ namespace Game.Client.Tests
             }
             yield break;
         }
+
+        [UnityTest]
+        public IEnumerator MarkerHiddenWhileCameraClose()
+        {
+            follow.enabled = false;
+            camGo.transform.SetPositionAndRotation(new Vector3(150.25f, 45.5f, 140.75f), Quaternion.Euler(30f, 45f, 0f));
+            Assert.IsTrue(tei.PlaceObservationCamera());
+            yield return null;
+            Assert.IsTrue(obs.MarkerVisible);
+            Assert.IsFalse(obs.MarkerRendered, "marker must not cover the view right after placing");
+            camGo.transform.position = obs.Point.position + new Vector3(0f, 0f, -3f);
+            yield return null;
+            Assert.IsTrue(obs.MarkerRendered);
+            camGo.transform.position = obs.Point.position + new Vector3(1f, 0f, 0f);
+            yield return null;
+            Assert.IsFalse(obs.MarkerRendered);
+        }
     }
 }
