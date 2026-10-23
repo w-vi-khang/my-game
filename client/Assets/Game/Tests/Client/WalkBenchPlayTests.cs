@@ -5,7 +5,7 @@ using UnityEngine.TestTools;
 
 namespace Game.Client.Tests
 {
-    /// <summary>World 7h b (brief 0039): WalkBench — điểm dẫn, kiểm vòng đất khô, chọn bán kính, tự đi + ghi dòng WALKBENCH.</summary>
+    /// <summary>World 7h b (brief 0039) + 7i (brief 0052): WalkBench — carrot, dry-route check, radius pick, auto walk + WALKBENCH line, second viewpoint at Map 2.</summary>
     public class WalkBenchPlayTests
     {
         GameObject camGo, go, playerGo;
@@ -37,6 +37,7 @@ namespace Game.Client.Tests
             player.terrain = view;
             player.readKeyboard = false;
             playerGo.SetActive(true);
+            wb.secondViewpoint = TestContext.CurrentContext.Test.Name == nameof(SecondViewpointWalkLogsSummary);
             go.SetActive(true);
             yield return null;
             yield return null;
@@ -92,9 +93,41 @@ namespace Game.Client.Tests
                 yield return null;
             Assert.IsTrue(wb.Done);
             Assert.Greater(wb.Distance, 5f, $"stuck={wb.StuckCount}");
-            foreach (var key in new[] { "WALKBENCH ", "avgFps=", "p50Ms=", "p99Ms=", "maxMs=", "distance=", "stuck=", "routeR=", "holeFrames=", "maxMissing=", "loadedChunksMax=", "sysMemMaxMB=", "pass30fps=", "passNoHole=" })
+            foreach (var key in new[] { "WALKBENCH ", "viewpoints=1", "secondHoleFrames=0", "loadedColumnsMax=", "avgFps=", "p50Ms=", "p99Ms=", "maxMs=", "distance=", "stuck=", "routeR=", "holeFrames=", "maxMissing=", "loadedChunksMax=", "sysMemMaxMB=", "pass30fps=", "passNoHole=" })
                 StringAssert.Contains(key, wb.Summary);
             Assert.AreEqual(Vector2.zero, player.MoveInput);
+            Assert.IsNull(wb.SecondViewpoint);
+        }
+
+        [UnityTest]
+        public IEnumerator MapCentroidLiesInMap2()
+        {
+            for (int i = 0; i < 300 && view.Maps == null; i++)
+                yield return null;
+            Assert.IsNotNull(view.Maps);
+            var c = WalkBench.MapCentroid(view.Maps, WalkBench.SecondMap);
+            Assert.AreEqual(c, WalkBench.MapCentroid(view.Maps, WalkBench.SecondMap));
+            Assert.AreEqual(WalkBench.SecondMap, (int)view.Maps.Get(Mathf.FloorToInt(c.x), Mathf.FloorToInt(c.y)));
+            Assert.Throws<System.ArgumentException>(() => WalkBench.MapCentroid(view.Maps, 7));
+        }
+
+        [UnityTest]
+        public IEnumerator SecondViewpointWalkLogsSummary()
+        {
+            float t0 = Time.realtimeSinceStartup;
+            while (!wb.Done && Time.realtimeSinceStartup - t0 < 60f)
+                yield return null;
+            Assert.IsTrue(wb.Done);
+            Assert.IsNotNull(wb.SecondViewpoint);
+            Assert.AreEqual(2, view.ViewpointCount);
+            foreach (var key in new[] { "viewpoints=2", "secondCenter=(", "secondHoleFrames=", "loadedColumnsMax=", "passNoHole=" })
+                StringAssert.Contains(key, wb.Summary);
+            var cell = view.CellAt(wb.SecondViewpoint.position);
+            Assert.AreEqual(Mathf.FloorToInt(wb.SecondCenter.x), cell.x);
+            Assert.AreEqual(Mathf.FloorToInt(wb.SecondCenter.y), cell.z);
+            for (int i = 0; i < 300 && view.MissingColumnsWithin(wb.SecondViewpoint, 128) != 0; i++)
+                yield return null;
+            Assert.AreEqual(0, view.MissingColumnsWithin(wb.SecondViewpoint, 128));
         }
     }
 }

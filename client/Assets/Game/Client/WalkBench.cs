@@ -28,6 +28,12 @@ namespace Game.Client
         public int RouteRadius { get; private set; }
         public bool RouteDry { get; private set; }
         public Vector2 RouteCenter { get; private set; }
+        /// <summary>Adds a fixed second streaming viewpoint at the Map 2 centroid (task 7i, brief 0052). Read once when the walk starts.</summary>
+        public bool secondViewpoint;
+        /// <summary>Map id of the second viewpoint (Map 2).</summary>
+        public const int SecondMap = 1;
+        public Transform SecondViewpoint { get; private set; }
+        public Vector2 SecondCenter { get; private set; }
 
         TerrainChunkView view;
         SimView sv;
@@ -38,7 +44,7 @@ namespace Game.Client
         bool started;
         float startTime, nextStuckCheck, detourUntil;
         Vector2 lastCheckPos, lastPos;
-        int holeFrames, maxMissing, maxLoadedChunks, waterFrames;
+        int holeFrames, maxMissing, maxLoadedChunks, waterFrames, secondHoleFrames, maxLoadedColumns;
         long maxSystemMem, maxGcMem;
         string result = "Preparing…";
 
@@ -92,6 +98,17 @@ namespace Game.Client
             return true;
         }
 
+        /// <summary>Mean of (x + 0.5, z + 0.5) over every column whose map id is map; throws ArgumentException when the map has no column.</summary>
+        public static Vector2 MapCentroid(MapTable maps, int map)
+        {
+            long sx = 0, sz = 0, n = 0;
+            for (int z = 0; z < maps.SizeZ; z++)
+                for (int x = 0; x < maps.SizeX; x++)
+                    if (maps.Get(x, z) == map) { sx += x; sz += z; n++; }
+            if (n == 0) throw new System.ArgumentException($"map {map} has no column", nameof(map));
+            return new Vector2((float)((double)sx / n + 0.5), (float)((double)sz / n + 0.5));
+        }
+
         void Update()
         {
             if (Done) return;
@@ -106,6 +123,24 @@ namespace Game.Client
                 RouteCenter = new Vector2(c.x, c.z);
                 RouteRadius = PickRadius(view.World, RouteCenter, out bool dry);
                 RouteDry = dry;
+                if (secondViewpoint)
+                {
+                    if (view.Maps == null)
+                    {
+                        Debug.LogError("WALKBENCH secondViewpoint needs a multi-map world (source MapsV3); running with one viewpoint");
+                        secondViewpoint = false;
+                    }
+                    else
+                    {
+                        SecondCenter = MapCentroid(view.Maps, SecondMap);
+                        var vp = new GameObject("SecondViewpoint").transform;
+                        vp.SetParent(view.transform, false);
+                        vp.localPosition = new Vector3(SecondCenter.x, view.World.Size.Y, SecondCenter.y);
+                        view.AddViewpoint(vp, view.loadRadius, view.unloadRadius);
+                        SecondViewpoint = vp;
+                        Debug.Log($"WALKBENCH second viewpoint: map {SecondMap + 1} centroid ({SecondCenter.x:F1}, {SecondCenter.y:F1})");
+                    }
+                }
                 var f0 = player.FeetLocal;
                 lastPos = lastCheckPos = new Vector2(f0.x, f0.z);
                 startTime = Time.realtimeSinceStartup;
@@ -151,6 +186,8 @@ namespace Game.Client
                 if (missing > 0) holeFrames++;
                 maxMissing = Mathf.Max(maxMissing, missing);
                 maxLoadedChunks = Mathf.Max(maxLoadedChunks, view.LoadedChunkCount);
+                maxLoadedColumns = Mathf.Max(maxLoadedColumns, view.LoadedColumnCount);
+                if (SecondViewpoint != null && view.MissingColumnsWithin(SecondViewpoint, HoleRadius) > 0) secondHoleFrames++;
                 if (player.InWater) waterFrames++;
                 if (systemMem.Valid) maxSystemMem = System.Math.Max(maxSystemMem, systemMem.LastValue);
                 if (gcMem.Valid) maxGcMem = System.Math.Max(maxGcMem, gcMem.LastValue);
@@ -176,9 +213,10 @@ namespace Game.Client
             sb.Append($"WALKBENCH device={SystemInfo.deviceModel} | gpu={SystemInfo.graphicsDeviceName} ({SystemInfo.graphicsDeviceType}) | screen={Screen.width}x{Screen.height} | ");
             sb.Append($"frames={frameMs.Count} avgFps={avgFps:F1} avgMs={avgMs:F2} p50Ms={SimBenchMeter.Percentile(sorted, 0.5):F2} p99Ms={SimBenchMeter.Percentile(sorted, 0.99):F2} maxMs={max:F2} | ");
             sb.Append($"distance={Distance:F1} stuck={StuckCount} waterFrames={waterFrames} routeR={RouteRadius} routeDry={RouteDry} | ");
-            sb.Append($"holeFrames={holeFrames} maxMissing={maxMissing} loadedChunksMax={maxLoadedChunks} | ");
+            sb.Append($"viewpoints={view.ViewpointCount} secondCenter={(SecondViewpoint != null ? $"({SecondCenter.x:F1};{SecondCenter.y:F1})" : "none")} | ");
+            sb.Append($"holeFrames={holeFrames} secondHoleFrames={secondHoleFrames} maxMissing={maxMissing} loadedColumnsMax={maxLoadedColumns} loadedChunksMax={maxLoadedChunks} | ");
             sb.Append($"sysMemMaxMB={maxSystemMem / 1048576.0:F1} gcReservedMaxMB={maxGcMem / 1048576.0:F1} | creatures={(sv.Sim != null ? sv.Sim.State.Creatures.Count : 0)} | ");
-            sb.Append($"pass30fps={avgFps >= 30.0} passNoHole={holeFrames == 0}");
+            sb.Append($"pass30fps={avgFps >= 30.0} passNoHole={holeFrames == 0 && secondHoleFrames == 0}");
             Summary = sb.ToString();
             result = Summary.Replace(" | ", "\n");
             Debug.Log(Summary);

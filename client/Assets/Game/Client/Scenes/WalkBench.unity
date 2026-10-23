@@ -232,6 +232,7 @@ MonoBehaviour:
   speed: 10
   fastMultiplier: 3
   lookSensitivity: 0.15
+  invertY: 0
   terrain: {fileID: 1663237067}
   collisionRadius: 0.25
 --- !u!114 &41987369
@@ -315,6 +316,7 @@ MonoBehaviour:
   maxPitch: 70
   yaw: 0
   lookSensitivity: 0.15
+  invertY: 0
   pivotHeight: 1.6
   castRadius: 0.2
 --- !u!1 &330232863
@@ -444,6 +446,7 @@ MonoBehaviour:
   loadRadius: 128
   unloadRadius: 160
   maxColumnsPerFrame: 2
+  maxViewpoints: 2
 --- !u!4 &1663237068
 Transform:
   m_ObjectHideFlags: 0
@@ -526,6 +529,7 @@ MonoBehaviour:
   stuckCheckSeconds: 2
   stuckMinDistance: 1
   detourSeconds: 1.5
+  secondViewpoint: 0
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0
