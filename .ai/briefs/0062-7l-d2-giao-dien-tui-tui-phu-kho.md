@@ -1,6 +1,6 @@
 # Brief 0062 — 7l d2: giao diện túi / túi phụ / kho ô vuông (B, P, kho bằng chuột phải, hình + số, trang, bảng thông tin, chuột phải ô → cầm, 1–0)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -284,8 +284,25 @@ Gom vào danh sách chơi thử cuối của task (user 2026-10-24). Mục cần
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: b9775f7
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-24 04:04
+- Kết thúc: 2026-10-24 04:23 (một vòng, ≈ 0,5 giờ thực tế; phần lớn là đợi biên dịch + EditMode ~7 phút + PlayMode 2 lần).
+- Commit: 14ac2e7 (`brief 0062: 7l d2 slot grid UI ...`).
+- File đã đổi: Client/InventoryView.cs (+meta, mới), SimView.cs, TerrainEditInput.cs, SettingsView.cs, PlayerCharacter.cs, FollowCamera.cs, GameInput.cs, Input/GameControls.inputactions; Lang/vi.json, loc/en.json, loc/context.json; design/02-gameplay/controls-ui.md (chỉ chú thích dòng PC M1); Tests: InventoryPlayTests (+meta, mới), GameControlsTests, PlayerBagSowPlayTests, ControlModePlayTests, SimFarmUiPlayTests, SettingsPlayTests, **DropPlayTests** (xem dưới).
+- Test cũ sửa / xoá (bước 10): xoá `PlayerBagSowPlayTests.BagRowsList`, `BagPanelBlocksPointer`, `StockTransferInReach`, `StockFull`, `StockOutOfReach`; sửa `PlayerBagSowPlayTests.HoldSeedRules`, `ClickStorageBlock`; `ControlModePlayTests.ModeKeysAndHoldItem`, `BagPanelHoldsAndCloses`; `SimFarmUiPlayTests.StockToggleAndPointerBlock` → `PlotPanelBlocksPointer`; `SettingsPlayTests.Keys_OpenClose_AndSave` (SetUp đã có `TerrainEditInput` nên `InventoryView` tự có, không cần AddComponent); `GameControlsTests` (39 action, `InventoryView.cs` vào danh sách). **Ngoài danh sách nhưng thuộc quy tắc cuối bước 10 ("dòng túi tạm trong HudText"):** `DropPlayTests.StarterBagNearSpawnAndHud` — dòng assert `HudText` chứa `Túi hạt Cây A: 4` hỏng vì HUD không còn dòng túi tạm → đổi thành kiểm `input.Inventory.SlotAt(Bag, 1).Count == 4`.
+- Chuỗi: không khoá nào bị xoá còn chỗ dùng khác (đã grep từng khoá trước khi xoá); đã xoá `bag.*` (trừ `bag.full`), `hold.none`, `hud.bag*`, `hud.seed_bag_a`, toàn bộ `stock.*`; thêm 13 khoá `inv.*`.
+- **[đề xuất Planner]** (chép vào danh sách xem cuối): mở kho → mở luôn túi; P ẩn/hiện túi phụ, mở túi thì luôn hiện; kho tự đóng khi xa > 10 ô; click ô túi phụ khi túi đóng cũng chọn được để xem thông tin.
+- Lưu ý cho Planner (ngoài phạm vi, không sửa): chuỗi hướng dẫn HUD (`hud.help*`) vẫn còn câu "B: túi (bấm vật phẩm để cầm)" và "1–4 / Alt + lăn chuột: chọn loại khối" — đã lỗi thời sau brief này; thuộc 7l e (bỏ chữ hướng dẫn) hay cần sửa sớm hơn thì Planner quyết. `ScreenOf` trong `PlayerBagSowPlayTests` giờ không dùng (để nguyên).
+- Lệch so với brief: không có lệch về hành vi. Chi tiết tự chọn trong khung brief: nút trang túi / kho nằm ở hàng tiêu đề (phải) theo Quyết định 3; panel kho / túi có nền `(0,0,0,0.35)` để chặn con trỏ cả khoảng giữa các ô (brief không ghi màu nền panel — số tạm).
 
 ## Kết quả test
+- Lệnh 1: parse JSON (inputactions, vi.json, en.json, context.json) OK; `loc_check.py check loc/en.json` exit 0 (163/163); `grep UnityEngine Core` rỗng; 2 `grep` Tiêu chí xong rỗng (SelectBlock/ToggleStock/…; bag.empty/stock./hud.bag); `git diff -- Core` rỗng; `check_design.py` exit 0.
+- Lệnh 2 (MCP): biên dịch 0 lỗi console. EditMode **542/542 qua**. PlayMode lần 1: 232/233 — `DropPlayTests.StarterBagNearSpawnAndHud` (xem Kết quả, đã sửa); PlayMode lần 2 (toàn bộ, sau sửa): **233/233 qua**. Console 0 lỗi sau chạy.
+- Lệnh 3: đã `git checkout -- client/ProjectSettings/EditorSettings.asset`; không commit `InitTestScene*`.
+- Lệnh 4 `verify_run --all`: design exit 0, asset_check exit 0; client_test / client_test_play exit 1 vì Editor mở → **Chưa kiểm được** bằng dòng lệnh; kết quả MCP thay thế.
+- Phím mới / bỏ phím cũ → **đạt** (`GameControlsTests` 39 action, `NoDirectInputReadsInScope` có `InventoryView.cs`). Túi + túi phụ, P → **đạt** (`BagAndHotbarToggle`). Ô hình + số, trang → **đạt** (`SlotsShowIconAndCount`). Bảng thông tin → **đạt** (`InfoPanelCounts`). Chuột phải ô → cầm → **đạt** (`RightClickSlotHoldsAndCloses`, `BagPanelHoldsAndCloses`, `HoldSeedRules`). Phím 1–0 → **đạt** (`HotbarKeysHold`). Kho → **đạt** (`StockOpensWithBagAndAutoCloses`, `ClickStorageBlock`). Chặn con trỏ → **đạt** (`PointerBlockAndConsumedClick`, `PlotPanelBlocksPointer`). Esc / Cài đặt → **đạt** (`EscAndSettings`, toàn bộ `SettingsPlayTests`). Chuỗi → **đạt** (`HardcodedTextScanTests`, `loc_check`, `SettingsPlayTests.LanguageSwitch_UpdatesUgui` trong 233 test). Regression điều khiển + toàn bộ EditMode / PlayMode → **đạt**.
+- Click trái thật bằng chuột lên ô (đường `Update` → `LeftClickAt`), bố cục / màu / cỡ, nút trang `<` `>` với bagPageSize = 5, kéo con trỏ trên màn thật → **chờ user — gộp cuối** (9 mục "User tự test"; test tự động chỉ gọi `LeftClickAt` / `RightClickAt` trực tiếp, chưa mô phỏng chuột thật).
 
 ## Vướng mắc
 
