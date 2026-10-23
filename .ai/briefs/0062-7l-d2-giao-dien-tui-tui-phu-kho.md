@@ -1,6 +1,6 @@
 # Brief 0062 — 7l d2: giao diện túi / túi phụ / kho ô vuông (B, P, kho bằng chuột phải, hình + số, trang, bảng thông tin, chuột phải ô → cầm, 1–0)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -310,3 +310,19 @@ Gom vào danh sách chơi thử cuối của task (user 2026-10-24). Mục cần
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+**Kết luận: code ok, chờ user xem gộp cuối** (user 2026-10-24: "user xem" gộp cuối task; không chờ user) → **đã duyệt**.
+
+Đối chiếu (review đầy đủ, diff `14ac2e7`):
+- `InventoryView` đúng Quyết định 1–10: uGUI dựng bằng code, không EventSystem; `Update` đọc B / P / Esc / 1–0 (chỉ khi túi + kho đóng) / click trái / chuột phải qua `GameInput` (`Client/InventoryView.cs:306–324`); `OpenStock` mở kèm túi, `SetBagOpen(false)` đóng kho + bỏ chọn; `AutoCloseStock` theo `TargetReach` (`:327–341`); `Covers` gồm `consumedFrame` (`:352–363`); `HoldFromSlot` cầm → đóng túi, nông sản → `inv.not_holdable`; chọn kho lưu `ItemId`.
+- Nối vào client đúng: `BlocksPointer` thêm ở `TerrainEditInput`, `PlayerCharacter`, `FollowCamera` (bỏ Alt); lướt chặn khi `AnyOpen`; `SettingsView.OtherPanelOpen` dùng `InventoryView.AnyOpen`; `SimView.OpenStockAt` → `InventoryView.OpenStock`; bảng túi / kho IMGUI, K, 1–4, Alt-lăn, Shift-tất cả đã bỏ.
+- Test: 8 test mới đúng tên; test cũ sửa / xoá đúng danh sách bước 10. `DropPlayTests.StarterBagNearSpawnAndHud` sửa ngoài danh sách nhưng đúng quy tắc cuối bước 10 (dòng túi tạm trong HudText) và giữ ý nghĩa (kiểm 4 hạt trong ô túi) — chấp nhận. EditMode 542/542, PlayMode 233/233, console 0 lỗi [kết quả executor qua MCP]; Planner không chạy lại.
+- Chi tiết tự chọn: nền panel `(0, 0, 0, 0.35)` để chặn con trỏ giữa các ô — chấp nhận, thêm vào danh sách xem cuối.
+
+Ghi chú cho bước sau (không sửa ở brief này):
+- Chữ hướng dẫn HUD `hud.help*` còn nói "B: túi (bấm vật phẩm để cầm)" và "1–4 / Alt + lăn chuột" — lỗi thời; **7l e** bỏ chữ hướng dẫn khỏi HUD và chuyển vào Cài đặt → Hướng dẫn: brief 7l e phải viết lại nội dung theo phím mới (B, P, 1–0, kéo thả, Tab, 1/2/3).
+- Đường click chuột thật (`Update` → `LeftClickAt`) chỉ kiểm khi chơi thử; 0063 thêm `PointerDown/Move/Up` có test.
+- Lướt bị chặn cả khi chỉ đang chọn ô túi phụ (túi đóng) vì `AnyOpen` gồm `HasSelection` — đúng chữ brief, đưa vào danh sách xem cuối.
+
+Giờ thực tế: Executor 04:04–04:23 = **19 phút** (1 vòng).
+
+Danh sách user xem gộp cuối (từ brief này): 9 mục "User tự test" + đề xuất Planner ở mục Kết quả (mở kho mở luôn túi; P; kho tự đóng > 10 ô; chọn ô túi phụ khi túi đóng) + nền panel 0,35 + lướt bị chặn khi đang chọn ô.
