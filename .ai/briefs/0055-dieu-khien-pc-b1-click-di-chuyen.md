@@ -1,6 +1,6 @@
 # Brief 0055 — điều khiển PC B1: click trái để đi, dấu click, vòng chân, nhảy A, lướt Shift (bỏ WASD)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -340,10 +340,21 @@ Không riêng cho brief này — user xem cảm giác di chuyển + camera một
 ---
 
 ## Kết quả
+Base commit: d38e0db
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 17:41 (giờ máy)
 
 ## Kết quả test
+Bước 1–9 đã code xong, **chưa commit** (file nằm trong working tree). Biên dịch 0 lỗi.
+- EditMode toàn bộ: 531/531 qua (527 + 4 PlayerMotionTests) → #1–#7, #17 (EditMode) đạt.
+- PlayMode `ClickMovePlayTests`: 8/8 qua → #8–#15 đạt.
+- PlayMode toàn bộ (189 test): 186 qua, 3 fail lần chạy đầu; 2 fail do test mới của tôi (đã sửa, 8/8 qua). Còn 1 fail: `PlayerBagSowPlayTests.SowHud` (xem Vướng mắc). Chưa chạy lại PlayMode toàn bộ sau khi sửa.
+- `grep GameInput.Cancel|GameInput.Move\b` rỗng; `cmp` hai sim_m1.json giống; `json.tool vi.json` ok; đã `git checkout EditorSettings.asset`.
 
 ## Vướng mắc
+Test cũ ngoài Phạm vi bị hỏng bởi chuỗi bước 8 → dừng theo điều kiện "test cũ ngoài danh sách bị hỏng".
+- `client/Assets/Game/Tests/Client/PlayerBagSowPlayTests.cs:361`: `StringAssert.Contains("Gieo Cây A (còn 3) — chuột phải / Esc để thoát", farming.HudLines())`, trong khi bước 8 đặt `farm.hud_sow` = `\nGieo {0} (còn {1}) — Esc / Tab để thoát`.
+- Đề xuất: cho phép sửa đúng dòng 361 thành `"Gieo Cây A (còn 3) — Esc / Tab để thoát"` (1 dòng, không đổi logic), rồi tôi chạy lại PlayMode toàn bộ và commit. Không còn việc nào khác bị chặn.
 
 ---
 
