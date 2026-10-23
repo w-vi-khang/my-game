@@ -211,7 +211,12 @@ Cảm giác (tốc độ lướt, góc 55°, 14 ô, dấu click, vòng chân) ch
 - `python3 -m json.tool vi.json` exit 0.
 - Chờ user: mục "User tự test" (cảm giác, hình ảnh).
 
-## Vướng mắc
+## Kiểm chứng
+- client_test (qua verify_run): exit 0 — EditMode 532/532.
+- client_test_play (qua verify_run): exit 0 — PlayMode 196/196.
+- design / asset_check: không chạy (file đổi ngoài phạm vi).
+- Checklist: Game.Core (PlayerSettings.cs) không tham chiếu UnityEngine/UnityEditor — đạt (dùng `System` thôi). Chỉ làm hạng mục M1 (0007), quyết định 0034 — đạt. Giờ thực tế ghi ở mục Kết quả (~13 phút) — đạt. Các mục design (pillar, glossary, nguồn, ước lượng...) không đổi file design/ → không áp dụng; chưa đối chiếu thuật ngữ mới (không thêm thuật ngữ).
+
 
 ---
 
