@@ -1,9 +1,9 @@
 # Brief 0051 — nhiều điểm nhìn A: lõi ChunkStreamPlan + TerrainChunkView
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23
+> Cập nhật: 2026-10-23 10:38
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -133,11 +133,20 @@ Không (kiểm trên điện thoại ở brief B).
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-<!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · ghi chú lệch so với brief (nếu có, kèm lý do). -->
+Base commit: f8d4802
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ bắt đầu: 10:27 · kết thúc: 10:37 (~10 phút)
+Commit: b3125ad
+File đổi: ChunkStreamPlan.cs, TerrainChunkView.cs, ChunkStreamPlanTests.cs, TerrainStreamingPlayTests.cs
+Lệch brief: test PlayMode bước 7 thêm điều kiện 'cũng xa camera chính' khi kiểm cột đã gỡ (an toàn hơn, cùng ý); không đổi hành vi.
+Ghi chú: MCP bridge mất kết nối tạm lúc biên dịch/vào Play; kết quả đọc lại từ TestResults.xml/get_test_job.
+
 
 ## Kết quả test
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
-Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
+- Lõi nhiều điểm nhìn, thứ tự nạp, tất định, hàm một tâm (regression): đạt — `ChunkStreamPlanTests` 12/12 (6 cũ + 6 mới).
+- Client API/đăng ký/gỡ/tối đa: đạt — `TerrainStreamingPlayTests` 6/6.
+- Regression streaming khác + chữ Việt (`HardcodedTextScanTests`): đạt — EditMode 504/504, PlayMode 170/170.
+- Lệnh: run_tests EditMode lọc lớp → 12/12; PlayMode lọc lớp → 6/6; EditMode toàn bộ → 504/504; PlayMode toàn bộ → 170/170; dọn EditorSettings.asset → `git status` chỉ còn 4 file + brief.
 
 ## Vướng mắc
 <!-- Khi trạng thái = cần Opus: câu hỏi cụ thể + các phương án (kèm đề xuất). -->
