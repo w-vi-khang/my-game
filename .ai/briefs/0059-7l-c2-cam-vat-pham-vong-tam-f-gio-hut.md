@@ -1,9 +1,9 @@
 # Brief 0059 — 7l c2: cầm vật phẩm từ túi (khối / hạt / camera quan sát), bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F hiện vùng 2 ô + gió hút
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 01:40
+> Cập nhật: 2026-10-24 (Planner trả lời vướng mắc)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -142,6 +142,7 @@ Hiệu ứng gió dùng `LineRenderer`, không dùng `ParticleSystem` (0036 mụ
 12. **Input:** xoá action `Player/CycleTool` + binding Tab. Tổng hành động 36 → **35**. Tab được dùng lại ở 7l d (đổi đích chuyển đồ), không làm ở đây.
 13. Không làm: mana (c3), túi ô vuông / túi phụ / phím 1–0 (7l d), luật sinh vật chỉ làm công đoạn được giao (sim 7g), nút Tiếp tục.
 14. Chuỗi người chơi đọc + bản tiếng Anh + ngữ cảnh: chép nguyên văn ở bước 10.
+15. **`ObservationCamera.cs`** (Planner trả lời vướng mắc 2026-10-24, phương án A): chỉ xoá dòng `farming.ExitSowMode();` trong `Open` (khối `if (farming != null)` còn `farming.CancelSelfTill();`). Không sửa gì khác trong file này.
 
 ## Phạm vi
 - Được sửa:
@@ -151,11 +152,11 @@ Hiệu ứng gió dùng `LineRenderer`, không dùng `ParticleSystem` (0036 mụ
     - `Core/Sim/SimConfig.cs` (chỉ 3 field + 3 kiểm biên);
     - `Core/PlayerMotion.cs`.
   - JSON: `design/data/sim_m1.json`, `client/Assets/Game/Client/Resources/Config/sim_m1.json` (chỉ thêm 3 key).
-  - Client: `Client/TerrainEditInput.cs`, `Client/PlayerFarmActions.cs`, `Client/SimView.cs` (chỉ phần túi), `Client/MoveMarkers.cs`, `Client/DropView.cs`, `Client/SettingsView.cs` (chỉ `OtherPanelOpen`), `Client/GameInput.cs`, `Client/Input/GameControls.inputactions`.
+  - Client: `Client/TerrainEditInput.cs`, `Client/PlayerFarmActions.cs`, `Client/SimView.cs` (chỉ phần túi), `Client/MoveMarkers.cs`, `Client/DropView.cs`, `Client/SettingsView.cs` (chỉ `OtherPanelOpen`), `Client/GameInput.cs`, `Client/Input/GameControls.inputactions`, `Client/ObservationCamera.cs` (chỉ xoá dòng `farming.ExitSowMode();`, quyết định 15).
   - Chuỗi: `Client/Resources/Lang/vi.json`, `loc/en.json`, `loc/context.json`.
   - Test: các file ở bước 11–12.
   - File brief này (mục Kết quả / Kết quả test / Vướng mắc).
-- Không được sửa: `Core/ControlState.cs`, `Core/PlayerBag.cs`, `Client/WalkToAct.cs`, `ObservationCamera.cs`, `PlayerCharacter.cs`, `design/` ngoài `design/data/sim_m1.json`, task contract, mọi file khác. Không sửa `GameControlsTests.cs` ngoài `Expected()` và hai số đếm.
+- Không được sửa: `Core/ControlState.cs`, `Core/PlayerBag.cs`, `Client/WalkToAct.cs`, `ObservationCamera.cs` (ngoài dòng ở quyết định 15), `PlayerCharacter.cs`, `design/` ngoài `design/data/sim_m1.json`, task contract, mọi file khác. Không sửa `GameControlsTests.cs` ngoài `Expected()` và hai số đếm.
 
 ## Các bước
 1. **Core — gieo tay chỉ khi hàng đợi trống:**
@@ -244,6 +245,7 @@ Hiệu ứng gió dùng `LineRenderer`, không dùng `ParticleSystem` (0036 mụ
 4. **DropView.cs:** xoá `public const float FlySeconds = 0.2f;`; `:101` dùng `PlayerMotion.CollectFlySeconds`; summary `:10` "0,2 giây" → "PlayerMotion.CollectFlySeconds (0036 mục 6)".
 5. **PlayerFarmActions.cs — bỏ chế độ gieo:**
    - Xoá `SowCrop` (+ summary), `EnterSowMode`, `ExitSowMode`, 2 dòng HUD gieo `:289–290`.
+   - Cùng lúc: `ObservationCamera.cs:151` xoá dòng `farming.ExitSowMode();` (quyết định 15).
    - `SowAt` đổi chữ ký + summary:
      ```csharp
      /// <summary>Gieo 1 hạt túi loại crop vào ô ruộng có Soil = cell (cầm túi hạt, 0034 mục 4). Ghi StatusLine (lý do khi không gieo được). true khi đã gieo.</summary>
@@ -551,6 +553,7 @@ Kiểm chứng: design exit 0 (62 file hợp lệ). Chưa kiểm được: clien
 - A. Cho phép sửa `ObservationCamera.cs` đúng 1 dòng: xoá `farming.ExitSowMode();` (khối còn `farming.CancelSelfTill();`). Vẫn đúng ý 0034 (mở camera quan sát không cần thoát "chế độ gieo" vì không còn chế độ gieo).
 - B. Giữ `ExitSowMode()` làm hàm rỗng — mâu thuẫn tiêu chí grep, không nên.
 **Đề xuất:** A (Planner thêm `ObservationCamera.cs` vào Phạm vi, ghi "chỉ xoá dòng `farming.ExitSowMode();`").
+**Planner trả lời (2026-10-24):** chọn A — đã thêm quyết định 15, Phạm vi, bước 5. Làm tiếp từ bước 5 (dòng `ObservationCamera.cs`) rồi bước 6–12; giữ phần đã làm trong working tree.
 **Đã làm tới đâu (chưa commit, còn trong working tree):** bước 1, 2 (Core + JSON 2 bản giống hệt), 3 (`MoveMarkers.cs`), 4 (`DropView.cs`), 5 (`PlayerFarmActions.cs`). Chưa làm bước 6–12. Chưa chạy Unity.
 
 ---
