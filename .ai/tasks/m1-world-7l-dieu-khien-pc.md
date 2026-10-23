@@ -34,7 +34,7 @@ Mỗi bước đạt đúng cột "Xong khi" của dòng 7l a–f trong world-te
 - [ ] `Game.Core` không tham chiếu UnityEngine.
 - [ ] Test cũ còn đúng ý nghĩa: test nào dùng WASD / Tab / phím cũ thì sửa theo phím mới, ghi danh sách trong brief. EditMode + PlayMode qua hết, 0 lỗi console.
 - [ ] Điện thoại ≥ 30 FPS sau 7l e (icon ô ruộng + sinh vật).
-- [ ] User xem trên Mac sau mỗi bước có "user xem".
+- [ ] User xem trên Mac sau mỗi bước có "user xem" (từ 7l d: gộp một lần ở cuối — user 2026-10-24).
 
 ## Ràng buộc
 - Unity 6000.4.8f1, Input System 1.19, URP 17.4.
@@ -71,6 +71,9 @@ Mỗi bước đạt đúng cột "Xong khi" của dòng 7l a–f trong world-te
 - c1 (brief 0058): Đặt khối + camera quan sát giữ tạm bằng Tab vòng Không → cầm khối → cầm camera → Không; Đào/Xới bỏ khỏi Tab (thành Q/E); c2 xoá Tab tạm (user, 2026-10-23).
 - Sau chơi thử c1 (user, 2026-10-24, [0036](../../design/decisions/0036-sinh-vat-chi-lam-cong-doan-duoc-giao.md) mục 5–6): c2 thêm vòng tầm chỉ hiện khi chuột phải ngoài tầm (mờ dần) và F hiện vùng 2 ô + gió hút vật rơi về nhân vật. Luật "sinh vật chỉ làm công đoạn được giao" (0036 mục 1–4) là sim 7g, task riêng sau 7l c — ngoài phạm vi task này.
 - Trước 7l d, cầm vật phẩm tạm qua bảng túi cũ (B → bấm vật phẩm); khối tạm chọn loại bằng phím 1–4 như hiện nay; 7l d thay bằng túi ô vuông (user, 2026-10-23).
+- **Làm hết mục 7 một lượt, chơi thử gộp cuối** (user, 2026-10-24, nguyên văn: "Hãy hoàn thành mục 7 một lượt"; chọn phạm vi 7l d, e, f + sim 7g; chọn "Gộp cuối cùng"): phần "user xem" của mọi bước còn lại gom thành **một danh sách chơi thử ở cuối**. Mỗi brief vẫn ghi mức review "đầy đủ + user xem", nhưng mục "User tự test" chỉ liệt kê điều cần xem để Planner chép vào danh sách cuối; review từng brief kết luận "code ok, chờ user xem gộp cuối", không chờ user.
+- 7l d chia 3 brief, làm tuần tự (Planner, 2026-10-24): **d1** [0061](../briefs/0061-7l-d1-tui-o-vuong-loi.md) `PlayerBag` thành túi ô vuông thật (túi 10 + túi phụ 2, 999/ô, túi đầy → vật nằm lại, camera quan sát chiếm 1 ô); **d2** [0062](../briefs/0062-7l-d2-giao-dien-tui-tui-phu-kho.md) giao diện uGUI túi / túi phụ / kho (B, P, kho mở kèm túi + tự đóng > 10 ô, hình + số, trang, bảng thông tin, chuột phải ô → cầm, 1–0; bỏ bảng IMGUI cũ, K, 1–4, Alt-lăn; dọn `bag.empty` + chuỗi cũ); **d3** [0063](../briefs/0063-7l-d3-chuyen-do-keo-tha-tab-123.md) kéo thả cả chồng + chọn ô → Tab → 1/2/3.
+- Đề xuất Planner trong 7l d (user xem ở lần chơi thử cuối, đổi được): thêm vào túi phụ cộng dồn trước, đồ mới vào túi trước; lấy theo loại từ túi trước, túi phụ sau; thu hoạch khi túi đầy → vật rơi trên ô ruộng; mở kho tự mở túi; kéo thả + bắt con trỏ tự làm (không EventSystem — để mọi phím qua `GameControls`, 0033); ngưỡng kéo 8 px; bố cục / cỡ ô / màu giữ chỗ.
 
 ## Câu hỏi còn mở
 _(không)_ — Xới: bỏ đánh dấu bằng nút "Bỏ đánh dấu" trong bảng khi click trái lên biển (user đồng ý 2026-10-23).
