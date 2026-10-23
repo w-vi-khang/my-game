@@ -1,73 +1,129 @@
 using System;
+using Game.Core.Sim;
 
 namespace Game.Core
 {
     /// <summary>
-    /// Túi đồ của người chơi (0028): khối theo vật liệu + hạt + nông sản theo loại cây (chỉ số trong SimConfig.crops).
-    /// Khác kho của sinh vật, không có mức tối đa (0004).
+    /// Túi đồ của người chơi (0028, 0034 mục 6): túi Main + túi phụ Hotbar, ô vuông, StackMax mỗi ô.
+    /// Thêm: lấp chồng cùng loại ở túi phụ → ở túi → ô trống túi → ô trống túi phụ. Lấy theo loại: túi trước, túi phụ sau (brief 0061).
+    /// Event phát tổng mới (túi + túi phụ) khi số đổi; sửa thẳng Main / Hotbar thì không phát.
     /// </summary>
-    public sealed class PlayerBag
+    public sealed class PlayerBag : IItemStore
     {
-        readonly int[] counts = new int[256];
-        readonly int[] seeds = new int[256];
-        readonly int[] produce = new int[256];
+        public static int DefaultBagSlots { get; private set; } = 10;
+        public static int DefaultHotbarSlots { get; private set; } = 2;
+        public static int DefaultBagPageSize { get; private set; } = 10;
+        public static int DefaultHotbarPageSize { get; private set; } = 10;
+        public static int DefaultStackMax { get; private set; } = 999;
 
-        /// <summary>(loại cây, số hạt mới).</summary>
+        /// <summary>Lưu kích thước túi từ cấu hình (PlayerRules.Configure gọi). null → ArgumentNullException.</summary>
+        public static void Configure(PlayerConfig p)
+        {
+            if (p == null) throw new ArgumentNullException(nameof(p));
+            DefaultBagSlots = p.bagSlots;
+            DefaultHotbarSlots = p.hotbarSlots;
+            DefaultBagPageSize = p.bagPageSize;
+            DefaultHotbarPageSize = p.hotbarPageSize;
+            DefaultStackMax = p.stackMax;
+        }
+
+        public PlayerBag() : this(DefaultBagSlots, DefaultHotbarSlots, DefaultBagPageSize, DefaultHotbarPageSize, DefaultStackMax) { }
+
+        public PlayerBag(int bagSlots, int hotbarSlots, int bagPageSize, int hotbarPageSize, int stackMax)
+        {
+            Main = new SlotInventory(bagSlots, bagPageSize, stackMax);
+            Hotbar = new SlotInventory(hotbarSlots, hotbarPageSize, stackMax);
+        }
+
+        /// <summary>Túi (0034 mục 6).</summary>
+        public SlotInventory Main { get; }
+
+        /// <summary>Túi phụ (giữa-dưới màn hình, phím 1–0).</summary>
+        public SlotInventory Hotbar { get; }
+
+        /// <summary>(loại cây, tổng hạt mới).</summary>
         public event Action<int, int> SeedsChanged;
 
-        /// <summary>(loại cây, số nông sản mới).</summary>
+        /// <summary>(loại cây, tổng nông sản mới).</summary>
         public event Action<int, int> ProduceChanged;
 
         public event Action<BlockMaterial, int> Changed;
 
-        public int Get(BlockMaterial material) => counts[(byte)material];
+        public int Count(ItemId item) => Main.Count(item) + Hotbar.Count(item);
 
-        public void Add(BlockMaterial material, int amount = 1)
+        public int CanAdd(ItemId item, int amount) => (int)Math.Min((long)Main.CanAdd(item, amount) + Hotbar.CanAdd(item, amount), amount);
+
+        /// <summary>Thêm min(amount, chỗ trống); trả số đã thêm. Tool nhận được (camera quan sát).</summary>
+        public int Add(ItemId item, int amount)
+        {
+            int left = amount; // amount < 0 → SlotInventory ném ArgumentOutOfRangeException
+            left -= Hotbar.TopUp(item, left);
+            left -= Main.TopUp(item, left);
+            left -= Main.Add(item, left); // lúc này chỉ còn ô trống
+            left -= Hotbar.Add(item, left);
+            int n = amount - left;
+            if (n > 0) Raise(item);
+            return n;
+        }
+
+        public int Remove(ItemId item, int amount)
+        {
+            int n = Main.Remove(item, amount);
+            n += Hotbar.Remove(item, amount - n);
+            if (n > 0) Raise(item);
+            return n;
+        }
+
+        void Raise(ItemId item)
+        {
+            switch (item.Kind)
+            {
+                case ItemKind.Block: Changed?.Invoke(item.Material, Count(item)); break;
+                case ItemKind.SeedBag: SeedsChanged?.Invoke(item.Crop, Count(item)); break;
+                case ItemKind.Produce: ProduceChanged?.Invoke(item.Crop, Count(item)); break;
+            }
+        }
+
+        public int Get(BlockMaterial material) => Count(ItemId.Block(material));
+
+        public int Add(BlockMaterial material, int amount = 1)
         {
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to add must be ≥ 0");
-            counts[(byte)material] += amount;
-            Changed?.Invoke(material, counts[(byte)material]);
+            return Add(ItemId.Block(material), amount);
         }
 
         /// <summary>Lấy 1 đơn vị; false nếu hết.</summary>
-        public bool TryTake(BlockMaterial material)
-        {
-            if (counts[(byte)material] <= 0)
-                return false;
-            counts[(byte)material]--;
-            Changed?.Invoke(material, counts[(byte)material]);
-            return true;
-        }
+        public bool TryTake(BlockMaterial material) => Remove(ItemId.Block(material), 1) == 1;
 
         public int GetSeeds(int crop)
         {
             CheckCrop(crop);
-            return seeds[crop];
+            return Count(ItemId.SeedBag(crop));
         }
 
-        public void AddSeeds(int crop, int amount)
+        /// <summary>Trả số hạt đã thêm (túi đầy → ít hơn amount).</summary>
+        public int AddSeeds(int crop, int amount)
         {
             CheckCrop(crop);
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to add must be ≥ 0");
-            seeds[crop] += amount;
-            SeedsChanged?.Invoke(crop, seeds[crop]);
+            return Add(ItemId.SeedBag(crop), amount);
         }
 
         public int GetProduce(int crop)
         {
             CheckCrop(crop);
-            return produce[crop];
+            return Count(ItemId.Produce(crop));
         }
 
-        public void AddProduce(int crop, int amount)
+        /// <summary>Trả số nông sản đã thêm (túi đầy → ít hơn amount).</summary>
+        public int AddProduce(int crop, int amount)
         {
             CheckCrop(crop);
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to add must be ≥ 0");
-            produce[crop] += amount;
-            ProduceChanged?.Invoke(crop, produce[crop]);
+            return Add(ItemId.Produce(crop), amount);
         }
 
         /// <summary>Đủ thì trừ amount hạt, phát SeedsChanged, true; thiếu → false, không đổi. amount = 0 → true, không phát.</summary>
@@ -76,10 +132,10 @@ namespace Game.Core
             CheckCrop(crop);
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to take must be ≥ 0");
-            if (seeds[crop] < amount) return false;
+            var item = ItemId.SeedBag(crop);
+            if (Count(item) < amount) return false;
             if (amount == 0) return true;
-            seeds[crop] -= amount;
-            SeedsChanged?.Invoke(crop, seeds[crop]);
+            Remove(item, amount);
             return true;
         }
 
@@ -89,23 +145,11 @@ namespace Game.Core
             CheckCrop(crop);
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount to take must be ≥ 0");
-            if (produce[crop] < amount) return false;
+            var item = ItemId.Produce(crop);
+            if (Count(item) < amount) return false;
             if (amount == 0) return true;
-            produce[crop] -= amount;
-            ProduceChanged?.Invoke(crop, produce[crop]);
+            Remove(item, amount);
             return true;
-        }
-
-        /// <summary>Thêm vật phẩm: Block → Add(Material, amount); SeedBag → AddSeeds(Crop, amount); Produce → AddProduce; Tool → NotSupportedException.</summary>
-        public void Add(ItemId item, int amount)
-        {
-            switch (item.Kind)
-            {
-                case ItemKind.Block: Add(item.Material, amount); break;
-                case ItemKind.SeedBag: AddSeeds(item.Crop, amount); break;
-                case ItemKind.Produce: AddProduce(item.Crop, amount); break;
-                default: throw new NotSupportedException("Tool items are not stored in PlayerBag (bag slots come in 7l d).");
-            }
         }
 
         static void CheckCrop(int crop)

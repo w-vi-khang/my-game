@@ -11,6 +11,10 @@
       "text": "Túi trống"
     },
     {
+      "key": "bag.full",
+      "text": "Túi đầy"
+    },
+    {
       "key": "bag.hint",
       "text": "Bấm vật phẩm để cầm · B / Esc: đóng"
     },

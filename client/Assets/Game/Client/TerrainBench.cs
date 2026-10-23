@@ -91,7 +91,7 @@ namespace Game.Client
             {
                 worldHash = WorldHash.ToHex(WorldHash.Compute(view.World));
                 foreach (BlockMaterial m in new[] { BlockMaterial.Grass, BlockMaterial.Dirt, BlockMaterial.Stone, BlockMaterial.Sand })
-                    view.Bag.Add(m, 100000);
+                    view.Bag.Add(m, view.Bag.Main.StackMax);
             }
             float t = Time.realtimeSinceStartup - startTime;
             if (t < warmupSeconds)

@@ -11,6 +11,10 @@
       "text": "The bag is empty"
     },
     {
+      "key": "bag.full",
+      "text": "Bag full"
+    },
+    {
       "key": "bag.hint",
       "text": "Click an item to hold it · B / Esc: close"
     },

@@ -14,7 +14,7 @@ namespace Game.Core
         public static float DigReach { get; private set; } = 2f;     // tầm đào (nâng cấp sau)
         public static float CollectReach { get; private set; } = 2f; // Thu (F)
 
-        /// <summary>Đặt luật người chơi từ cấu hình (ConfigLoader gọi sau Validate). null → ArgumentNullException.</summary>
+        /// <summary>Đặt luật người chơi từ cấu hình; kích thước túi (PlayerBag.Configure) (ConfigLoader gọi sau Validate). null → ArgumentNullException.</summary>
         public static void Configure(PlayerConfig p)
         {
             if (p == null) throw new ArgumentNullException(nameof(p));
@@ -24,6 +24,7 @@ namespace Game.Core
             CollectReach = p.collectReach;
             StarterBag.Crop = p.starterCrop;
             StarterBag.Seeds = p.starterSeeds;
+            PlayerBag.Configure(p);
         }
         /// <summary>Tâm thân cao hơn chân chừng này (nhân vật 2 ô).</summary>
         public const float BodyCenterHeight = 1f;

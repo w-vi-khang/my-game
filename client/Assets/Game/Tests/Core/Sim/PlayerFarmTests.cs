@@ -315,6 +315,40 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void HarvestOverflowDropsOnPlot()
+        {
+            Layout(false);
+            ToHarvest(0);
+            var small = new PlayerBag(1, 1, 10, 10, 999);
+            small.Add(BlockMaterial.Stone, 1);
+            small.Add(BlockMaterial.Sand, 1);
+            Assert.IsTrue(sim.PlayerHarvest(id, small));
+            Assert.AreEqual(0, small.GetProduce(0));
+            var cd = sim.Config.crops[0];
+            var drops = sim.Editor.Drops.At(Soil.X, Soil.Y + 1, Soil.Z);
+            int produce = 0, seeds = 0;
+            foreach (var d in drops)
+            {
+                if (d.Item == ItemId.Produce(0)) produce += d.Count;
+                if (d.Item == ItemId.SeedBag(0)) seeds += d.Count;
+            }
+            Assert.AreEqual(cd.producePerHarvest, produce);
+            Assert.AreEqual(cd.seedsPerHarvest, seeds);
+        }
+
+        [Test]
+        public void TakeFromStockLimitedByBag()
+        {
+            Layout(false);
+            int s0 = sim.State.Stock.Seeds[0];
+            var small = new PlayerBag(1, 1, 10, 10, 5);
+            small.Add(BlockMaterial.Stone, 1);
+            Assert.AreEqual(5, sim.TakeFromStock(small, 0, false, 999));
+            Assert.AreEqual(5, small.GetSeeds(0));
+            Assert.AreEqual(s0 - 5, sim.State.Stock.Seeds[0]);
+        }
+
+        [Test]
         public void HarvestWithQueueStartsNextCrop()
         {
             Layout(false);

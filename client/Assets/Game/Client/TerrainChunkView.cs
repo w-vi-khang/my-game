@@ -223,6 +223,7 @@ namespace Game.Client
                 Debug.Log($"LANDMARKVIEW {Landmarks.Count} landmarks, placed in {LandmarkMs:F1} ms");
             }
             Bag = new PlayerBag();
+            Bag.Add(ItemId.Tool(ToolItem.ObservationCamera), 1); // camera quan sát là vật phẩm trong túi (0034 mục 4, brief 0061)
             Editor = new WorldEditor(World, Bag, BlockMesher.CellMargin, waterLevel);
             Editor.CellChanged += OnCellChanged;
             dirty.Clear();

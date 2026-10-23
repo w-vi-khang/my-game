@@ -155,6 +155,41 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void CollectStopsWhenBagFull()
+        {
+            bag = new PlayerBag(1, 1, 10, 10, 999);
+            editor = new WorldEditor(world, bag, 2);
+            bag.Add(BlockMaterial.Stone, 1);
+            bag.Add(BlockMaterial.Sand, 1);
+            var s = Drops.Add(1, 1, 0, B(BlockMaterial.Dirt), 2);
+            int collected = 0;
+            Drops.Collected += _ => collected++;
+            Assert.AreEqual(0, Drops.CollectInReach(0.5f, 0.5f, 0.5f, bag));
+            Assert.AreEqual(2, Drops.At(1, 1, 0)[0].Count);
+            Assert.AreEqual(1, Drops.LastBlocked);
+            Assert.AreEqual(0, collected);
+            Assert.IsFalse(Drops.TryCollect(s.Id, 0.5f, 0.5f, 0.5f, bag));
+            Assert.AreEqual(1, Drops.LastBlocked);
+        }
+
+        [Test]
+        public void CollectPartialStack()
+        {
+            bag = new PlayerBag(1, 1, 10, 10, 5);
+            editor = new WorldEditor(world, bag, 2);
+            bag.Add(BlockMaterial.Dirt, 3);
+            bag.Hotbar.AddToSlot(0, B(BlockMaterial.Sand), 1);
+            Drops.Add(1, 1, 0, B(BlockMaterial.Dirt), 4);
+            int collected = 0;
+            Drops.Collected += _ => collected++;
+            Assert.AreEqual(1, Drops.CollectInReach(0.5f, 0.5f, 0.5f, bag));
+            Assert.AreEqual(5, bag.Get(BlockMaterial.Dirt));
+            Assert.AreEqual(2, Drops.At(1, 1, 0)[0].Count);
+            Assert.AreEqual(1, Drops.LastBlocked);
+            Assert.AreEqual(1, collected);
+        }
+
+        [Test]
         public void TryCollectSingleStack()
         {
             var dirt = Drops.Add(2, 1, 0, B(BlockMaterial.Dirt), 1);

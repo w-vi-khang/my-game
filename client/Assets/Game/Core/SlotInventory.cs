@@ -110,6 +110,17 @@ namespace Game.Core
             return amount - left;
         }
 
+        /// <summary>Chỉ lấp các ô đang có cùng loại (không mở ô trống), theo chỉ số tăng; trả số đã thêm.</summary>
+        public int TopUp(ItemId item, int amount)
+        {
+            CheckAmount(amount);
+            int left = amount;
+            for (int i = 0; i < Capacity && left > 0; i++)
+                if (counts[i] > 0 && items[i] == item)
+                    left -= Put(i, item, left);
+            return amount - left;
+        }
+
         public int Remove(ItemId item, int amount)
         {
             CheckAmount(amount);

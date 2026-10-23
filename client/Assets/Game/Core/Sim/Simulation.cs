@@ -775,8 +775,8 @@ namespace Game.Core.Sim
                         var cd = Config.crops[crop];
                         if (bag != null)
                         {
-                            bag.AddProduce(crop, cd.producePerHarvest);
-                            bag.AddSeeds(crop, cd.seedsPerHarvest);
+                            DropOverflow(p.Soil, ItemId.Produce(crop), cd.producePerHarvest - bag.AddProduce(crop, cd.producePerHarvest));
+                            DropOverflow(p.Soil, ItemId.SeedBag(crop), cd.seedsPerHarvest - bag.AddSeeds(crop, cd.seedsPerHarvest));
                         }
                         else
                         {
@@ -958,6 +958,15 @@ namespace Game.Core.Sim
             return true;
         }
 
+        /// <summary>Túi đầy khi người chơi thu hoạch (0034 mục 6): n > 0 → vật rơi ở ô ngay trên ô đất ruộng; không có Editor / ô đó đặc / ngoài world → bỏ.</summary>
+        void DropOverflow(CellPos soil, ItemId item, int n)
+        {
+            if (n <= 0 || Editor == null) return;
+            int y = soil.Y + 1;
+            if (!World.Size.InBounds(soil.X, y, soil.Z) || WorldEditor.IsSolidAt(World, soil.X, y, soil.Z)) return;
+            Editor.Drops.Add(soil.X, y, soil.Z, item, n);
+        }
+
         /// <summary>Người chơi làm xong công đoạn s (0028, simulation-tech "Người chơi làm công đoạn"). bag != null chỉ dùng cho thu hoạch: hàng vào túi, không chở.</summary>
         void CompleteByPlayer(WorkStage s, PlayerBag bag = null)
         {
@@ -1102,13 +1111,15 @@ namespace Game.Core.Sim
             return n;
         }
 
-        /// <summary>Kho chung → túi: chuyển min(amount, số trong kho); trả số đã chuyển.</summary>
+        /// <summary>Kho chung → túi: chuyển min(amount, số trong kho); không vượt chỗ trống của túi; trả số đã chuyển.</summary>
         public int TakeFromStock(PlayerBag bag, int cropId, bool produce, int amount)
         {
             CheckCropArg(cropId);
             if (bag == null) throw new ArgumentNullException(nameof(bag));
             if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount must be ≥ 0");
             int n = Math.Min(amount, produce ? State.Stock.Produce[cropId] : State.Stock.Seeds[cropId]);
+            if (n <= 0) return 0;
+            n = Math.Min(n, bag.CanAdd(produce ? ItemId.Produce(cropId) : ItemId.SeedBag(cropId), n)); // túi giới hạn ô (0034 mục 6)
             if (n <= 0) return 0;
             if (produce)
             {

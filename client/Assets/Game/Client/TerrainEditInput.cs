@@ -190,7 +190,7 @@ namespace Game.Client
         {
             switch (item.Kind)
             {
-                case ItemKind.Tool: return item.ToolKind == ToolItem.ObservationCamera;
+                case ItemKind.Tool: return item.ToolKind == ToolItem.ObservationCamera && view.Bag != null && view.Bag.Count(item) > 0;
                 case ItemKind.Block: return view.Bag != null && view.Bag.Get(item.Material) > 0;
                 case ItemKind.SeedBag: return Farm != null && view.Bag != null && view.Bag.GetSeeds(item.Crop) > 0;
                 default: return false;
@@ -464,7 +464,9 @@ namespace Game.Client
             player.Markers.ShowCollect();
             var f = player.FeetLocal;
             int n = view.Editor.Drops.CollectInReach(f.x, f.y, f.z, view.Bag);
-            lastResult = n > 0 ? Format("edit.collect_ok", n) : Format("edit.collect_none", PlayerRules.CollectReach);
+            bool full = view.Editor.Drops.LastBlocked > 0;
+            lastResult = n > 0 ? Format("edit.collect_ok", n) + (full ? " · " + T("bag.full") : "")
+                : full ? T("bag.full") : Format("edit.collect_none", PlayerRules.CollectReach);
             return n;
         }
 
@@ -475,8 +477,12 @@ namespace Game.Client
             if (player == null || view.Editor == null || s == null) return false;
             var label = DropLabel(s);
             var f = player.FeetLocal;
-            if (!view.Editor.Drops.TryCollect(s.Id, f.x, f.y, f.z, view.Bag)) return false;
-            lastResult = Format("edit.pick", label);
+            if (!view.Editor.Drops.TryCollect(s.Id, f.x, f.y, f.z, view.Bag))
+            {
+                if (view.Editor.Drops.LastBlocked > 0) lastResult = T("bag.full");
+                return false;
+            }
+            lastResult = Format("edit.pick", label) + (view.Editor.Drops.LastBlocked > 0 ? " · " + T("bag.full") : "");
             return true;
         }
 

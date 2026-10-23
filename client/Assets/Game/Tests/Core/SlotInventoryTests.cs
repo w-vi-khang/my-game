@@ -109,5 +109,20 @@ namespace Game.Core.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => inv.Get(-1));
             Assert.Throws<ArgumentOutOfRangeException>(() => inv.Add(A, -1));
         }
+
+        [Test]
+        public void TopUpOnlyExistingStacks()
+        {
+            var dirt = ItemId.Block(BlockMaterial.Dirt);
+            var stone = ItemId.Block(BlockMaterial.Stone);
+            var inv = new SlotInventory(3, 10, 5);
+            inv.AddToSlot(1, dirt, 3);
+            Assert.AreEqual(2, inv.TopUp(dirt, 4));
+            Assert.AreEqual(5, inv.Get(1).Count);
+            Assert.AreEqual(0, inv.Get(0).Count);
+            Assert.AreEqual(0, inv.Get(2).Count);
+            Assert.AreEqual(0, inv.TopUp(stone, 3));
+            Assert.Throws<ArgumentOutOfRangeException>(() => inv.TopUp(dirt, -1));
+        }
     }
 }

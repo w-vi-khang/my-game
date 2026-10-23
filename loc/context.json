@@ -1,6 +1,7 @@
 {
   "bag.button": "On-screen button that opens the player's inventory bag. Noun 'bag' (inventory), not a shopping bag. '(B)' is the keyboard shortcut: keep the letter B.",
   "bag.empty": "Shown inside the bag panel when it holds no items: 'The bag is empty'.",
+  "bag.full": "Result line when the player's bag (10 slots + 2 quick-bar slots, 999 per slot) has no room: the item stays on the ground as a drop. 'Túi' = inventory bag.",
   "bag.hint": "Footer hint in the bag panel. Clicking an item row (block, seed bag, observation camera) makes the character hold it. 'B / Esc' are keyboard keys (keep them); 'đóng' = close the panel.",
   "bag.row_block": "One row in the bag panel for a block item. {0} = block material name (e.g. 'Dirt'), {1} = quantity. '×' means quantity, keep it.",
   "bag.row_produce": "One row in the bag panel. 'Nông sản' = harvested produce (the crop's yield), not farming in general. {0} = crop display name from crop.name (e.g. 'Cây A' = 'Crop A'), {1} = quantity.",

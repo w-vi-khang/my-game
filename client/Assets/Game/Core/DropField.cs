@@ -86,6 +86,9 @@ namespace Game.Core
         /// <summary>Phát cho mỗi chồng được nhặt, sau khi cộng vào túi, trước khi gỡ khỏi Stacks.</summary>
         public event Action<DropStack> Collected;
 
+        /// <summary>Số chồng còn lại vì túi đầy ở lần CollectInReach / TryCollect gần nhất (0034 mục 6).</summary>
+        public int LastBlocked { get; private set; }
+
         public IReadOnlyList<DropStack> At(int x, int y, int z) =>
             byCell.TryGetValue((x, y, z), out var list) ? list : (IReadOnlyList<DropStack>)Array.Empty<DropStack>();
 
@@ -167,40 +170,53 @@ namespace Game.Core
                 Version++;
         }
 
+        /// <summary>Túi đầy: lấy được bao nhiêu lấy bấy nhiêu, phần còn lại nằm lại (LastBlocked). Trả số chồng lấy được ≥ 1.</summary>
         public int CollectInReach(float feetX, float feetY, float feetZ, PlayerBag bag)
         {
             if (bag == null)
                 throw new ArgumentNullException(nameof(bag));
+            LastBlocked = 0;
             int n = 0;
             foreach (var s in stacks.ToArray())
             {
                 if (!PlayerRules.InCollectReach(feetX, feetY, feetZ, s.X, s.Y, s.Z))
                     continue;
-                Take(s, bag);
-                n++;
+                int before = s.Count;
+                int got = Take(s, bag);
+                if (got > 0) n++;
+                if (got < before) LastBlocked++;
             }
             if (n > 0)
                 Version++;
             return n;
         }
 
+        /// <summary>Túi đầy: lấy được bao nhiêu lấy bấy nhiêu, phần còn lại nằm lại (LastBlocked).</summary>
         public bool TryCollect(int stackId, float feetX, float feetY, float feetZ, PlayerBag bag)
         {
             if (bag == null)
                 throw new ArgumentNullException(nameof(bag));
+            LastBlocked = 0;
             var s = Find(stackId);
             if (s == null || !PlayerRules.InTargetReach(feetX, feetY, feetZ, s.X, s.Y, s.Z))
                 return false;
-            Take(s, bag);
+            int before = s.Count;
+            int got = Take(s, bag);
+            if (got < before) LastBlocked = 1;
+            if (got == 0)
+                return false;
             Version++;
             return true;
         }
 
-        void Take(DropStack s, PlayerBag bag)
+        int Take(DropStack s, PlayerBag bag)
         {
-            bag.Add(s.Item, s.Count);
+            int n = bag.Add(s.Item, s.Count);
+            if (n <= 0) return 0;
             Collected?.Invoke(s);
-            Remove(s);
+            if (n >= s.Count) Remove(s);
+            else s.Count -= n;
+            return n;
         }
 
         /// <summary>Hạ ô (x, y) xuống tới ô ngay trên khối đặc.</summary>
