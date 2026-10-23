@@ -29,6 +29,8 @@ namespace Game.Core
         public const float BodyCenterHeight = 1f;
         public const float HalfWidth = 0.4f;
         public const float BodyHeight = 1.8f;
+        /// <summary>Điểm đầu (ngang mắt) cao hơn chân chừng này — dùng cho ngập đầu (0034 mục 5).</summary>
+        public const float HeadHeight = 1.5f;
         public const float WaterSpeedFactor = 0.5f;
         const float Shrink = 0.001f;
 
@@ -67,5 +69,9 @@ namespace Game.Core
             int x = (int)Math.Floor(feetX), y = (int)Math.Floor(feetY + 0.5f), z = (int)Math.Floor(feetZ);
             return world.Size.InBounds(x, y, z) && world.GetMaterial(x, y, z) == BlockMaterial.Water;
         }
+
+        /// <summary>Đầu ngập nước (0034 mục 5): điểm chân + HeadHeight dưới mặt nước. surfaceDrop = BlockMesher.WaterSurfaceDrop (client truyền vào).</summary>
+        public static bool HeadUnderwater(WorldData world, float feetX, float feetY, float feetZ, float surfaceDrop) =>
+            FlyCameraCollision.IsUnderwater(world, feetX, feetY + HeadHeight, feetZ, surfaceDrop);
     }
 }

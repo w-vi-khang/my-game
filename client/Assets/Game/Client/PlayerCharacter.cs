@@ -8,7 +8,7 @@ namespace Game.Client
 {
     /// <summary>
     /// Nhân vật người chơi trên PC (world 7h, brief 0035, 0028): khối ghép cao 2 ô, CharacterController, chuột trái đi tới chỗ click (0034, 7l b), A nhảy, Shift lướt (MoveInput/JumpInput vẫn gán được từ code: test, WalkBench),
-    /// F3 bật/tắt camera bay (debug), tự đi theo đường ô (sim 7f, brief 0041). Đầu game đặt túi hạt Cây A × 4 gần chỗ xuất phát (brief 0037). Luật tầm với / ô chiếm / biên / nước ở Game.Core.PlayerRules. Gốc transform = chân.
+    /// F3 bật/tắt camera bay (debug), tự đi theo đường ô (sim 7f, brief 0041). Máu + mana (0034 mục 5, brief 0060): Vitals; tốn mana ở TerrainEditInput / PlayerFarmActions; rơi cao, ngập đầu, hồi sinh ở chỗ Place lần đầu. Đầu game đặt túi hạt Cây A × 4 gần chỗ xuất phát (brief 0037). Luật tầm với / ô chiếm / biên / nước ở Game.Core.PlayerRules. Gốc transform = chân.
     /// </summary>
     public enum AutoWalkState { None, Walking, Arrived, Cancelled, Failed }
 
@@ -35,6 +35,18 @@ namespace Game.Client
         public bool Ready { get; private set; }
         public bool FlyMode { get; private set; }
         public bool InWater { get; private set; }
+        /// <summary>Máu + mana (0034 mục 5, brief 0060).</summary>
+        public PlayerVitals Vitals { get; private set; }
+        /// <summary>Đầu ngập nước ở frame vừa rồi.</summary>
+        public bool HeadUnderwater { get; private set; }
+        /// <summary>Số lần hồi sinh (máu về 0); TerrainEditInput theo dõi để huỷ việc đang làm.</summary>
+        public int Respawns { get; private set; }
+        /// <summary>Chỗ xuất phát = chỗ Place lần đầu (toạ độ terrain); hồi sinh về đây.</summary>
+        public Vector3 RespawnFeetLocal => respawnFeetLocal;
+        public bool ManaFlashing => manaFlashLeft > 0f;
+        Vector3 respawnFeetLocal;
+        float respawnYaw, manaFlashLeft, airPeakY, vitalsMsAcc;
+        bool hasRespawn, airborne;
         public float VerticalSpeed => vy;
         public CharacterController Controller { get; private set; }
         public Transform Visual { get; private set; }
@@ -168,7 +180,7 @@ namespace Game.Client
             gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
             if (terrain != null) terrain.streamTarget = transform;
             BuildVisual();
-            ConfigLoader.LoadSimConfig();
+            Vitals = new PlayerVitals(ConfigLoader.LoadSimConfig().player);
             stuck = new StuckTimer(PlayerMotion.StuckSeconds);
             Dash = new DashState(PlayerMotion.DashCells, PlayerMotion.DashSeconds, PlayerMotion.DashCooldownSeconds);
             Markers = gameObject.AddComponent<MoveMarkers>();
@@ -233,6 +245,9 @@ namespace Game.Client
             return PlainSpawn(plain);
         }
 
+        /// <summary>Thiếu mana: thanh mana nháy (0034 mục 5).</summary>
+        public void FlashMana() => manaFlashLeft = PlayerMotion.ManaFlashSeconds;
+
         public void Place(Vector3 feetWorld, float yawDeg)
         {
             Controller.enabled = false;
@@ -247,6 +262,47 @@ namespace Game.Client
             if (follow != null) follow.SetAngles(yawDeg, follow.defaultPitch);
             else { pendingYaw = yawDeg; hasPendingYaw = true; }
             if (terrain != null) { spawnFeetLocal = terrain.transform.InverseTransformPoint(feetWorld); spawnYaw = yawDeg; hasSpawn = true; }
+            if (terrain != null && !hasRespawn) { respawnFeetLocal = terrain.transform.InverseTransformPoint(feetWorld); respawnYaw = yawDeg; hasRespawn = true; }
+            airborne = false;
+            if (terrain != null) airPeakY = terrain.transform.InverseTransformPoint(feetWorld).y;
+        }
+
+        /// <summary>Mana hồi theo quãng đi, rơi cao, ngập đầu, hồi sinh (0034 mục 5, brief 0060).</summary>
+        void UpdateVitals(Vector3 movedWorld)
+        {
+            var fa = FeetLocal;
+            if (!FlyMode)
+            {
+                var ml = terrain.transform.InverseTransformVector(movedWorld);
+                float cells = Mathf.Sqrt(ml.x * ml.x + ml.z * ml.z);
+                if (cells > 0f) Vitals.AddMoved(cells);
+            }
+            if (FlyMode || PlayerRules.InWater(terrain.World, fa.x, fa.y, fa.z)) { airborne = false; airPeakY = fa.y; }
+            else if (!Controller.isGrounded) { if (!airborne) { airborne = true; airPeakY = Mathf.Max(airPeakY, fa.y); } else airPeakY = Mathf.Max(airPeakY, fa.y); }
+            else
+            {
+                if (airborne) Vitals.Land(Mathf.Max(0f, airPeakY - fa.y));
+                airborne = false;
+                airPeakY = fa.y;
+            }
+            HeadUnderwater = PlayerRules.HeadUnderwater(terrain.World, fa.x, fa.y, fa.z, Game.World.BlockMesher.WaterSurfaceDrop);
+            if (!FlyMode)
+            {
+                vitalsMsAcc += Time.deltaTime * 1000f;
+                int ms = (int)vitalsMsAcc;
+                vitalsMsAcc -= ms;
+                if (ms > 0) Vitals.Tick(ms, HeadUnderwater);
+            }
+            if (Vitals.IsDead) RespawnAtStart();
+        }
+
+        /// <summary>Máu về 0 (0034 mục 5): về chỗ xuất phát, đầy máu + mana, không mất đồ.</summary>
+        void RespawnAtStart()
+        {
+            StopAutoWalk();
+            if (hasRespawn) Place(terrain.transform.TransformPoint(respawnFeetLocal), respawnYaw);
+            Vitals.Respawn();
+            Respawns++;
         }
 
         public void SetFlyMode(bool on)
@@ -303,6 +359,7 @@ namespace Game.Client
         void Update()
         {
             if (terrain == null || terrain.World == null) return;
+            if (manaFlashLeft > 0f) manaFlashLeft -= Time.deltaTime;
             if (terrain.Editor != null && terrain.Editor.IsPlayerAt == null)
                 terrain.Editor.IsPlayerAt = OccupiesCell;
             if (giveStarterBag && hasSpawn && terrain.Editor != null && starterGivenFor != terrain.Editor)
@@ -413,6 +470,7 @@ namespace Game.Client
             float movedH = Mathf.Sqrt(moved.x * moved.x + moved.z * moved.z);
             float wantH = Mathf.Sqrt(h.x * h.x + h.z * h.z);
             if (Dashing && movedH < wantH * 0.5f) Dash.Stop();
+            UpdateVitals(moved);
             if (ClickMove == ClickMoveState.Walking && !Dashing)
             {
                 if (stuck.Update(Time.deltaTime, wantH > 1e-5f && movedH >= wantH * 0.25f)) ClickMove = ClickMoveState.Blocked;

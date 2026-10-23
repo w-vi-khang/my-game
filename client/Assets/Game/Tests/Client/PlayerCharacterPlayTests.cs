@@ -104,6 +104,82 @@ namespace Game.Client.Tests
 
         Vector3 Feet => player.FeetLocal;
 
+        IEnumerator Land(int frames = 240)
+        {
+            for (int i = 0; i < frames && !player.Controller.isGrounded; i++)
+                yield return null;
+            yield return null;
+            yield return null;
+        }
+
+        bool WaterColumn(out int wx, out int ws, out int d)
+        {
+            wx = -1; ws = 0; d = 0;
+            for (int x = 1; x < 60 && wx < 0; x++)
+            {
+                MinimapImage.ColumnInfo(view.World, x, A.z, out int s, out int dd);
+                if (dd >= 4) { wx = x; ws = s; d = dd; }
+            }
+            return wx >= 0;
+        }
+
+        [UnityTest]
+        public IEnumerator FallOverFourCellsHurts()
+        {
+            player.Vitals.Respawn();
+            yield return Teleport(new Vector3(A.x + 0.5f, G + 1 + 4.5f, A.z + 0.5f));
+            yield return Land();
+            Assert.AreEqual(100, player.Vitals.Hp);
+            yield return Teleport(new Vector3(A.x + 0.5f, G + 1 + 6.5f, A.z + 0.5f));
+            yield return Land();
+            Assert.AreEqual(80, player.Vitals.Hp);
+        }
+
+        [UnityTest]
+        public IEnumerator FallIntoWaterNoDamage()
+        {
+            if (!WaterColumn(out int wx, out int ws, out int d)) Assert.Inconclusive("No water column deeper than ≥ 4 at z = A.z");
+            player.Vitals.Respawn();
+            yield return Teleport(new Vector3(wx + 0.5f, ws + d + 1 + 6.5f, A.z + 0.5f));
+            yield return Land();
+            Assert.AreEqual(100, player.Vitals.Hp);
+        }
+
+        [UnityTest]
+        public IEnumerator HeadUnderwaterDrowns()
+        {
+            if (!WaterColumn(out int wx, out int ws, out int d)) Assert.Inconclusive("No water column deeper than ≥ 4 at z = A.z");
+            player.Vitals.Respawn();
+            yield return Teleport(new Vector3(wx + 0.5f, ws + 1, A.z + 0.5f));
+            yield return Land();
+            Assert.IsTrue(player.HeadUnderwater);
+            int hp0 = player.Vitals.Hp;
+            yield return Run(Vector2.zero, false, 2.2f);
+            Assert.That(hp0 - player.Vitals.Hp, Is.InRange(10, 15));
+            yield return Teleport(new Vector3(A.x + 0.5f, G + 1, A.z + 0.5f));
+            Assert.IsFalse(player.HeadUnderwater);
+            int hp1 = player.Vitals.Hp;
+            yield return Run(Vector2.zero, false, 1f);
+            Assert.AreEqual(hp1, player.Vitals.Hp);
+        }
+
+        [UnityTest]
+        public IEnumerator DeathRespawnsAtStartFull()
+        {
+            player.Vitals.Respawn();
+            view.Bag.Add(BlockMaterial.Stone, 3);
+            var start = player.RespawnFeetLocal;
+            yield return Teleport(new Vector3(A.x + 0.5f, G + 1 + 16.5f, A.z + 0.5f));
+            float t = 0f;
+            while (t < 5f && player.Respawns < 1) { yield return null; t += Time.deltaTime; }
+            Assert.AreEqual(1, player.Respawns);
+            Assert.AreEqual(player.Vitals.HpMax, player.Vitals.Hp);
+            Assert.AreEqual(player.Vitals.ManaMax, player.Vitals.Mana);
+            var f = Feet;
+            Assert.Less(Mathf.Sqrt((f.x - start.x) * (f.x - start.x) + (f.z - start.z) * (f.z - start.z)), 0.6f);
+            Assert.GreaterOrEqual(view.Bag.Get(BlockMaterial.Stone), 3);
+        }
+
         [UnityTest]
         public IEnumerator SpawnsAndStandsOnGround()
         {

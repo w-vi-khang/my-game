@@ -209,6 +209,12 @@ namespace Game.Client
                 StatusLine = Format("farm.rain_cooldown", RainCooldown.RemainingWholeSeconds);
                 return RainResult.NoEffect;
             }
+            if (player != null && !player.Vitals.CanSpend(ManaAction.Rain))
+            {
+                player.FlashMana();
+                StatusLine = Format("vitals.no_mana", player.Vitals.Cost(ManaAction.Rain), player.Vitals.Mana);
+                return RainResult.NoEffect;
+            }
             var sim = Sim;
             var r = sim != null
                 ? sim.Rain(new CellPos(cell.x, cell.y, cell.z))
@@ -219,6 +225,7 @@ namespace Game.Client
                 return r;
             }
             StatusLine = r == RainResult.Watered ? Format("farm.rain_watered", cell) : Format("farm.rain_grassed", cell);
+            if (player != null) player.Vitals.TrySpend(ManaAction.Rain);
             RainCooldown.Start();
             RainBox.transform.localPosition = cell + new Vector3(0.5f, 1.5f, 0.5f);
             RainBox.SetActive(true);

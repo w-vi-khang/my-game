@@ -23,7 +23,7 @@ namespace Game.Core.Tests
         [Test]
         public void ConfigureConvertsMs()
         {
-            PlayerMotion.Configure(new PlayerConfig { dashMs = 200, dashCooldownMs = 4000, stuckMs = 500, clickMarkMs = 700, reachRingFadeMs = 1200, collectShowMs = 600, collectFlyMs = 400, dashCells = 5f, cameraPitch = 40f, cameraDistance = 10f, firstPersonPitch = 0f, observationHeight = 3f });
+            PlayerMotion.Configure(new PlayerConfig { dashMs = 200, dashCooldownMs = 4000, stuckMs = 500, clickMarkMs = 700, reachRingFadeMs = 1200, collectShowMs = 600, collectFlyMs = 400, manaFlashMs = 800, dashCells = 5f, cameraPitch = 40f, cameraDistance = 10f, firstPersonPitch = 0f, observationHeight = 3f });
             Assert.AreEqual(0.2f, PlayerMotion.DashSeconds, 1e-5f);
             Assert.AreEqual(4f, PlayerMotion.DashCooldownSeconds, 1e-5f);
             Assert.AreEqual(0.5f, PlayerMotion.StuckSeconds, 1e-5f);
@@ -31,6 +31,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(1.2f, PlayerMotion.ReachRingFadeSeconds, 1e-5f);
             Assert.AreEqual(0.6f, PlayerMotion.CollectShowSeconds, 1e-5f);
             Assert.AreEqual(0.4f, PlayerMotion.CollectFlySeconds, 1e-5f);
+            Assert.AreEqual(0.8f, PlayerMotion.ManaFlashSeconds, 1e-5f);
             Assert.AreEqual(5f, PlayerMotion.DashCells);
             Assert.AreEqual(40f, PlayerMotion.CameraPitch);
             Assert.AreEqual(10f, PlayerMotion.CameraDistance);

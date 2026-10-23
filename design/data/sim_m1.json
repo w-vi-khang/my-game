@@ -36,6 +36,6 @@
         "manaMax": 100, "manaDig": 5, "manaPlace": 3, "manaRain": 15, "manaRegenPerCell": 2,
         "hpMax": 100, "fallSafeCells": 4, "fallDamagePerCell": 10, "drownDamagePerSecond": 5, "hpRegenPerSecond": 1, "hpRegenDelayMs": 5000,
         "bagSlots": 10, "hotbarSlots": 2, "bagPageSize": 10, "hotbarPageSize": 10, "stackMax": 999,
-        "dashCells": 4, "dashMs": 150, "dashCooldownMs": 3000, "stuckMs": 300, "clickMarkMs": 500, "reachRingFadeMs": 1000, "collectShowMs": 500, "collectFlyMs": 300, "cameraPitch": 10, "cameraDistance": 9, "firstPersonPitch": 15, "observationHeight": 2
+        "dashCells": 4, "dashMs": 150, "dashCooldownMs": 3000, "stuckMs": 300, "clickMarkMs": 500, "reachRingFadeMs": 1000, "collectShowMs": 500, "collectFlyMs": 300, "manaFlashMs": 600, "cameraPitch": 10, "cameraDistance": 9, "firstPersonPitch": 15, "observationHeight": 2
     }
 }

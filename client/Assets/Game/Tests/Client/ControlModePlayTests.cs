@@ -281,6 +281,104 @@ namespace Game.Client.Tests
             Assert.IsFalse(farming.RainCooldown.Ready);
         }
 
+        void Drain() { while (player.Vitals.TrySpend(ManaAction.Dig)) { } }
+
+        [UnityTest]
+        public IEnumerator DigSpendsMana()
+        {
+            var cell = Ahead(1);
+            input.ToggleMode(ControlMode.Dig);
+            Assert.AreEqual(RightClickAction.Dig, input.RightClickAt(true, cell, cell + Vector3Int.up));
+            yield return WaitWalk();
+            Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(cell.x, cell.y, cell.z));
+            Assert.AreEqual(95, player.Vitals.Mana);
+        }
+
+        [UnityTest]
+        public IEnumerator NoManaBlocksDigAndFlashes()
+        {
+            Drain();
+            var cell = Ahead(6);
+            var before = view.World.GetMaterial(cell.x, cell.y, cell.z);
+            input.ToggleMode(ControlMode.Dig);
+            Assert.AreEqual(RightClickAction.None, input.RightClickAt(true, cell, cell + Vector3Int.up));
+            Assert.AreNotEqual(WalkToActState.Walking, input.Walk.State);
+            Assert.AreEqual(ClickMoveState.None, player.ClickMove);
+            Assert.AreEqual(before, view.World.GetMaterial(cell.x, cell.y, cell.z));
+            Assert.IsTrue(player.ManaFlashing);
+            StringAssert.Contains("Không đủ mana: cần 5, còn 0", input.HudText()); // vi-text
+            yield return Wait(PlayerMotion.ManaFlashSeconds + 0.2f);
+            Assert.IsFalse(player.ManaFlashing);
+        }
+
+        [UnityTest]
+        public IEnumerator PlaceSpendsMana()
+        {
+            SetBag(BlockMaterial.Dirt, 2);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
+            var cell = Ahead(2);
+            var place = cell + Vector3Int.up;
+            Assert.AreEqual(RightClickAction.PlaceBlock, input.RightClickAt(true, cell, place));
+            yield return WaitWalk();
+            Assert.AreEqual(BlockMaterial.Dirt, view.World.GetMaterial(place.x, place.y, place.z));
+            Assert.AreEqual(97, player.Vitals.Mana);
+        }
+
+        [UnityTest]
+        public IEnumerator RainSpendsMana()
+        {
+            var cell = Ahead(1);
+            view.World.Set(cell.x, cell.y, cell.z, Cell.Make(BlockMaterial.Dirt));
+            input.ToggleMode(ControlMode.Rain);
+            Assert.AreEqual(RightClickAction.Rain, input.RightClickAt(true, cell, cell + Vector3Int.up));
+            yield return WaitWalk();
+            Assert.IsFalse(farming.RainCooldown.Ready);
+            Assert.AreEqual(85, player.Vitals.Mana);
+        }
+
+        [UnityTest]
+        public IEnumerator RainBlockedWithoutMana()
+        {
+            var cell = Ahead(1);
+            view.World.Set(cell.x, cell.y, cell.z, Cell.Make(BlockMaterial.Dirt));
+            Drain();
+            Assert.AreEqual(RainResult.NoEffect, farming.CastRain(cell));
+            Assert.IsTrue(farming.RainCooldown.Ready);
+            StringAssert.Contains("Không đủ mana: cần 15, còn 0", farming.StatusLine); // vi-text
+            Assert.AreEqual(BlockMaterial.Dirt, view.World.GetMaterial(cell.x, cell.y, cell.z));
+            Assert.IsTrue(player.ManaFlashing);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator WalkingRegensMana()
+        {
+            Drain();
+            player.MoveTo(new Vector3(spot.x + 6.5f, 0f, spot.z + 0.5f));
+            float t = 0f;
+            while (t < 5f && player.ClickMove == ClickMoveState.Walking) { yield return null; t += Time.deltaTime; }
+            Assert.AreNotEqual(ClickMoveState.Walking, player.ClickMove);
+            Assert.That(player.Vitals.Mana, Is.InRange(10, 12));
+        }
+
+        [UnityTest]
+        public IEnumerator RespawnShowsLineAndCancelsWalk()
+        {
+            var cell = Ahead(6);
+            input.ToggleMode(ControlMode.Dig);
+            input.RightClickAt(true, cell, cell + Vector3Int.up);
+            Assert.AreEqual(WalkToActState.Walking, input.Walk.State);
+            player.Place(view.transform.TransformPoint(new Vector3(spot.x + 0.5f, spot.y + 1f + 16.5f, spot.z + 0.5f)), 0f);
+            float t = 0f;
+            while (t < 5f && player.Respawns < 1) { yield return null; t += Time.deltaTime; }
+            Assert.AreEqual(1, player.Respawns);
+            yield return null;
+            Assert.AreNotEqual(WalkToActState.Walking, input.Walk.State);
+            StringAssert.Contains("tỉnh lại ở chỗ xuất phát", input.HudText()); // vi-text
+            Assert.AreEqual(player.Vitals.HpMax, player.Vitals.Hp);
+            Assert.AreEqual(player.Vitals.ManaMax, player.Vitals.Mana);
+        }
+
         [UnityTest]
         public IEnumerator HeldBlockPlacesAfterWalkingAndExitsWhenEmpty()
         {

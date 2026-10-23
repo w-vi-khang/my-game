@@ -17,6 +17,8 @@ namespace Game.Core
         public static float CollectShowSeconds { get; private set; } = 0.5f;
         /// <summary>Vật rơi bay về nhân vật chừng này giây (0036 mục 6, số tạm).</summary>
         public static float CollectFlySeconds { get; private set; } = 0.3f;
+        /// <summary>Thanh mana nháy chừng này giây khi không đủ mana (0034 mục 5, số tạm).</summary>
+        public static float ManaFlashSeconds { get; private set; } = 0.6f;
         public static float CameraPitch { get; private set; } = 10f;
         public static float CameraDistance { get; private set; } = 9f;
         public static float FirstPersonPitch { get; private set; } = 15f;
@@ -39,6 +41,7 @@ namespace Game.Core
             ReachRingFadeSeconds = p.reachRingFadeMs / 1000f;
             CollectShowSeconds = p.collectShowMs / 1000f;
             CollectFlySeconds = p.collectFlyMs / 1000f;
+            ManaFlashSeconds = p.manaFlashMs / 1000f;
             CameraPitch = p.cameraPitch;
             CameraDistance = p.cameraDistance;
             FirstPersonPitch = p.firstPersonPitch;

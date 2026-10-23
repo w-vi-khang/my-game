@@ -67,6 +67,20 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void HeadUnderwater()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            for (int x = 0; x < 16; x++)
+                for (int z = 0; z < 16; z++)
+                    w.Set(x, 0, z, Cell.Make(BlockMaterial.Stone));
+            for (int y = 1; y <= 3; y++) w.Set(2, y, 2, Cell.Make(BlockMaterial.Water, 7));
+            w.Set(8, 1, 8, Cell.Make(BlockMaterial.Water, 7));
+            Assert.IsTrue(PlayerRules.HeadUnderwater(w, 2.5f, 1f, 2.5f, 0.1f)); // đầu ở y = 2,5, trong cột nước 3 ô
+            Assert.IsFalse(PlayerRules.HeadUnderwater(w, 8.5f, 1f, 8.5f, 0.1f)); // chỉ 1 ô nước, đầu ở y = 2,5 trên mặt nước
+            Assert.IsFalse(PlayerRules.HeadUnderwater(w, 2.5f, 2.5f, 2.5f, 0.1f)); // đầu ở y = 4,0 ngoài nước
+        }
+
+        [Test]
         public void NewReaches_Boundary()
         {
             Assert.IsTrue(PlayerRules.InTargetReach(0.5f, -0.5f, 0.5f, 10, 0, 0));

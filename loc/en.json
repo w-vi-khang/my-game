@@ -693,6 +693,22 @@
     {
       "key": "time.period_night",
       "text": "Night"
+    },
+    {
+      "key": "vitals.hp",
+      "text": "HP {0}/{1}"
+    },
+    {
+      "key": "vitals.mana",
+      "text": "Mana {0}/{1}"
+    },
+    {
+      "key": "vitals.no_mana",
+      "text": "Not enough mana: need {0}, have {1}"
+    },
+    {
+      "key": "vitals.respawned",
+      "text": "You passed out and woke up at the starting point (full HP + mana, nothing lost)"
     }
   ]
 }

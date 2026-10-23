@@ -171,5 +171,9 @@
   "time.period_dawn": "Name of a part of the day, inserted into time.current: dawn (early morning period).",
   "time.period_day": "Name of a part of the day, inserted into time.current: daytime.",
   "time.period_dusk": "Name of a part of the day, inserted into time.current: dusk (evening period).",
-  "time.period_night": "Name of a part of the day, inserted into time.current: night."
+  "time.period_night": "Name of a part of the day, inserted into time.current: night.",
+  "vitals.hp": "Label next to the health bar in the top-left HUD. {0} = current health, {1} = max health. 'Máu' = the player character's health.",
+  "vitals.mana": "Label next to the mana (energy) bar in the top-left HUD. {0} = current mana, {1} = max mana. Mana is spent on digging, placing blocks and the Rain spell; it refills while walking.",
+  "vitals.no_mana": "Result line when the player tries to dig, place a block or cast Rain without enough mana; nothing happens and the mana bar flashes. {0} = mana the action costs, {1} = mana left.",
+  "vitals.respawned": "Result line after the character's health reaches 0 (long fall or drowning): the character reappears at the starting point with full health and mana and keeps all items."
 }

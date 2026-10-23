@@ -60,6 +60,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(1000, cfg.player.reachRingFadeMs);
             Assert.AreEqual(500, cfg.player.collectShowMs);
             Assert.AreEqual(300, cfg.player.collectFlyMs);
+            Assert.AreEqual(600, cfg.player.manaFlashMs);
             Assert.AreEqual(10f, cfg.player.cameraPitch);
             Assert.AreEqual(9f, cfg.player.cameraDistance);
             Assert.AreEqual(15f, cfg.player.firstPersonPitch);
@@ -103,6 +104,7 @@ namespace Game.Core.Tests
             Bad(c => c.player.reachRingFadeMs = 6000, "reachRingFadeMs 6000");
             Bad(c => c.player.collectShowMs = 6000, "collectShowMs 6000");
             Bad(c => c.player.collectFlyMs = 6000, "collectFlyMs 6000");
+            Bad(c => c.player.manaFlashMs = 6000, "manaFlashMs 6000");
             Bad(c => c.player.cameraPitch = 90f, "cameraPitch 90");
             Bad(c => c.player.cameraDistance = 2f, "cameraDistance 2");
             Bad(c => c.player.firstPersonPitch = -40f, "firstPersonPitch -40");

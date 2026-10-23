@@ -29,6 +29,8 @@ namespace Game.Client
         Transform highlight;
         int selected;
         string lastResult = "";
+        PlayerCharacter seenPlayer;
+        int seenRespawns;
         SimView simView;
         /// <summary>SimView cùng GameObject đã dựng Sim; null → không có công cụ Xới (scene TerrainView). Tìm lại mỗi lần vì SimView có thể thêm sau Awake.</summary>
         SimView Farm { get { if (simView == null) simView = GetComponent<SimView>(); return simView != null && simView.Sim != null ? simView : null; } }
@@ -84,6 +86,14 @@ namespace Game.Client
             AimedDrop = null;
             AimedHarvest = -1;
             var player = PlayerCharacter.Active;
+            if (player != seenPlayer) { seenPlayer = player; seenRespawns = player != null ? player.Respawns : 0; }
+            else if (player != null && player.Respawns != seenRespawns)
+            {
+                seenRespawns = player.Respawns;
+                Walk.Cancel(player, false);
+                Farming.CancelSelfTill();
+                lastResult = T("vitals.respawned");
+            }
             if (Observation.Engaged) { Walk.Cancel(player, false); HideAim(); return; } // xem camera quan sát: không công cụ (brief 0053)
             if (Walk.Tick(player)) lastResult = T("farm.unreachable");
             DropHeldIfEmpty();
@@ -272,6 +282,7 @@ namespace Game.Client
             if (a == RightClickAction.None && hasCell && Control.HasHeld && Control.Held.Kind == ItemKind.SeedBag)
                 Farming.SowAt(digCell, Control.Held.Crop); // chỉ để báo lý do (quyết định 6)
             if (a == RightClickAction.None || a == RightClickAction.OutOfReach) return a;
+            if (ManaOf(a, out var cost) && !HasMana(cost)) return RightClickAction.None; // thiếu mana: không đi, không làm
             if (Farming.TillState != SelfTillState.None) Farming.CancelSelfTill();
             var held = Control.HasHeld ? Control.Held : default;
             if (a == RightClickAction.Till && IsUntilledPlot(digCell))
@@ -285,6 +296,28 @@ namespace Game.Client
                 : storageId >= 0 && a == RightClickAction.OpenStorage ? StorageCell(storageId) : digCell;
             Walk.Begin(player, cell, a == RightClickAction.Dig, () => Execute(a, digCell, placeCell, drop, storageId, held));
             return a;
+        }
+
+        /// <summary>Đủ mana cho việc m (không có nhân vật → luôn đủ). Thiếu → thanh nháy + dòng "Không đủ mana" (0034 mục 5).</summary>
+        bool HasMana(ManaAction m)
+        {
+            var p = PlayerCharacter.Active;
+            if (p == null || p.Vitals.CanSpend(m)) return true;
+            p.FlashMana();
+            lastResult = Format("vitals.no_mana", p.Vitals.Cost(m), p.Vitals.Mana);
+            return false;
+        }
+
+        static void SpendMana(ManaAction m)
+        {
+            var p = PlayerCharacter.Active;
+            if (p != null) p.Vitals.TrySpend(m);
+        }
+
+        static bool ManaOf(RightClickAction a, out ManaAction m)
+        {
+            m = a == RightClickAction.Dig ? ManaAction.Dig : a == RightClickAction.PlaceBlock ? ManaAction.Place : ManaAction.Rain;
+            return a == RightClickAction.Dig || a == RightClickAction.PlaceBlock || a == RightClickAction.Rain;
         }
 
         void Execute(RightClickAction a, Vector3Int digCell, Vector3Int placeCell, DropStack drop, int storageId, ItemId held)
@@ -304,7 +337,9 @@ namespace Game.Client
                 case RightClickAction.PickDrop: CollectDrop(drop); break;
                 case RightClickAction.PlaceBlock:
                     var material = held.Material;
+                    if (!HasMana(ManaAction.Place)) break;
                     var p = view.Place(placeCell, material);
+                    if (p == EditResult.Ok) SpendMana(ManaAction.Place);
                     lastResult = p == EditResult.Ok ? Format("edit.place_ok", Name(material), placeCell) : Format("edit.place_fail", Name(material), Explain(p));
                     break;
                 case RightClickAction.UseHeld:
@@ -317,9 +352,11 @@ namespace Game.Client
 
         void DoDig(Vector3Int digCell)
         {
+            if (!HasMana(ManaAction.Dig)) return;
             var m = view.World.Size.InBounds(digCell.x, digCell.y, digCell.z)
                 ? view.World.GetMaterial(digCell.x, digCell.y, digCell.z) : BlockMaterial.Empty;
             var r = view.Dig(digCell);
+            if (r == EditResult.Ok) SpendMana(ManaAction.Dig);
             lastResult = r == EditResult.Ok ? Format("edit.dig_ok", digCell, Name(m == BlockMaterial.Farmland ? BlockMaterial.Dirt : m)) : Format("edit.dig_fail", digCell, Explain(r));
         }
 
@@ -530,9 +567,28 @@ namespace Game.Client
             float scale = UiScale.Gui;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
             hudStyle ??= new GUIStyle(GUI.skin.label) { richText = true };
+            var pc = PlayerCharacter.Active;
+            float top = 10f;
+            if (pc != null)
+            {
+                var v = pc.Vitals;
+                Bar(10f, v.Hp, v.HpMax, new Color(0.85f, 0.2f, 0.2f, 1f), false);
+                Bar(26f, v.Mana, v.ManaMax, new Color(0.25f, 0.5f, 1f, 1f), pc.ManaFlashing);
+                GUI.Label(new Rect(176f, 8f, 200f, 16f), Format("vitals.hp", v.Hp, v.HpMax), hudStyle);
+                GUI.Label(new Rect(176f, 24f, 200f, 16f), Format("vitals.mana", v.Mana, v.ManaMax), hudStyle);
+                top = 44f;
+            }
             float h = hudStyle.CalcHeight(new GUIContent(text), 1000f);
-            GUI.Label(new Rect(10, 10, 1000, h), text, hudStyle);
-            HudBottom = 10f + h;
+            GUI.Label(new Rect(10f, top, 1000f, h), text, hudStyle);
+            HudBottom = top + h;
+        }
+
+        static void Bar(float y, int value, int max, Color fill, bool flash)
+        {
+            var bg = flash && Mathf.FloorToInt(Time.time * 10f) % 2 == 0 ? new Color(1f, 1f, 1f, 0.8f) : new Color(0f, 0f, 0f, 0.5f);
+            GUI.DrawTexture(new Rect(10f, y, 160f, 12f), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, bg, 0f, 3f);
+            float w = max > 0 ? 160f * Mathf.Clamp01((float)value / max) : 0f;
+            if (w > 0f) GUI.DrawTexture(new Rect(10f, y, w, 12f), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, fill, 0f, 3f);
         }
 
         static Mesh CubeMesh()
