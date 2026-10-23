@@ -1,9 +1,9 @@
 # Brief 0057 — bản sửa 7l b: số camera 10°/9 ô + độ nhạy 0,3; camera quan sát đặt trên ô; xoay camera quan sát khi xem
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 19:55
+> Cập nhật: 2026-10-23 20:02
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -157,10 +157,22 @@ Không (user: lần chơi thử tiếp theo gộp sau 7l e). Planner tự kiểm
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 333abca · Chạy bằng: Sonnet 5.5 · medium
+- Giờ: bắt đầu 19:48, kết thúc 20:02 (đồng hồ máy; thực tế dài hơn do test ~10 phút — EditMode chạy 2 lần vì lần đầu dùng DLL cũ).
+- Commit: 999cdfa — 16 file trong Phạm vi (không gồm TerrainEditPlayTests.cs).
+- Lệch nhỏ: trong UseTool đặt tên biến `cp` thay `p` (trùng biến `player`/`p` ở phạm vi bao); `MarkerHiddenWhileCameraClose` đổi thứ tự bước (xa → gần → xa) nhưng cùng ý.
+- Chưa kiểm được: verify_run client_test/client_test_play — Editor đang mở (đã chạy bằng MCP).
 
 ## Kết quả test
+1. Số mặc định (SimConfigTests, ConfigTests) · đạt (EditMode 532/532).
+2. PlayerMotion.ObservationHeight · đạt. 3. PlayerSettings v3 · đạt.
+4. Camera 10°/9 ô (CameraPcPlayTests) · đạt. 5. SettingsPlayTests 0.4 · đạt.
+6–9. PlaceOnCellUsesCameraAnglesAndReplaces, CameraToolCycleAndClickPlaces, ViewRightAfterPlacingMovesCamera, LookRotatesWhileViewingAndIsKept, ExitDuringLoadingCancels · đạt (PlayMode 198/198).
+10–11. Regression · đạt.
+Lệnh: check_design.py → ✓ hợp lệ; diff 2 JSON → rỗng; grep PlaceObservationCamera() / 0.15f → rỗng; EditorSettings.asset đã checkout; git status chỉ còn TerrainEditPlayTests.cs (dở, không stage).
 
 ## Vướng mắc
+Không.
 
 ---
 <!-- PLANNER ghi khi review. -->
