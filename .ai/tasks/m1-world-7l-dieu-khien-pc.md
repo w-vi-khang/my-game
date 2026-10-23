@@ -62,9 +62,11 @@ Mỗi bước đạt đúng cột "Xong khi" của dòng 7l a–f trong world-te
   - hồi máu, hồi sinh khi máu về 0;
   - kho tự đóng khi xa > 10 ô;
   - xới: chuột phải lên biển = tự đi tới xới;
-  - camera 55° / 14 ô;
+  - camera 55° / 14 ô → 10° / 9 ô sau chơi thử 7l b ([0035](../../design/decisions/0035-camera-quan-sat-dat-tren-o-xoay-khi-xem.md), brief 0057);
   - làm tròn lên khi chia chồng.
 - Brief 0053 (camera quan sát) không duyệt riêng, gộp vào 7l c: user, 2026-10-23.
+- Bản sửa 7l b (brief 0057, 0035): camera quan sát đặt trên ô + xoay khi xem làm sớm; 7l c chỉ còn đổi thành vật phẩm trong túi + tự đi tới 2 ô.
+- Ghi chú cho brief 7l c (từ review 0055/0056): nối máu/mana vào client (AddMoved, rơi, ngập — chưa bước nào nhận); nút "Bỏ đánh dấu" (phím Cancel đã bỏ ở 0055); công cụ đang tạm ở chuột phải; giữ chuột trái vào tường không chuyển Blocked.
 
 ## Câu hỏi còn mở
 _(không)_ — Xới: bỏ đánh dấu bằng nút "Bỏ đánh dấu" trong bảng khi click trái lên biển (user đồng ý 2026-10-23).

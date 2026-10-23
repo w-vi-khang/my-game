@@ -1,6 +1,7 @@
 # 0034 — Điều khiển PC kiểu click di chuyển, chế độ hành động, túi ô vuông, máu/mana, đổi phím M1
 
 > Trạng thái: Chốt
+> Ghi chú: mục 2 (số camera) và mục 4 (camera quan sát) được bổ sung bởi [0035](0035-camera-quan-sat-dat-tren-o-xoay-khi-xem.md) (user 2026-10-23).
 > Ngày: 2026-10-23
 > Thay đổi: [0031](0031-tam-voi-moi-thao-tac-8-o.md) (tầm 8 ô → tầm thao tác 10 / tầm thực hiện 2) · [0033](0033-tach-lop-hanh-dong-dieu-khien.md) mục 2 (bảng đổi phím M3 → M1, luật giữ nguyên) · [0028](0028-nhan-vat-tui-vat-roi-tu-trong-trot.md) (phím, gieo, túi) · [0004](0004-tien-nap.md) (túi đồ không có mức tối đa → có giới hạn ô) · nguyên tắc "nhắm theo tâm màn hình" của [controls-ui](../02-gameplay/controls-ui.md) (chỉ còn cho cảm ứng + tay cầm) · camera "góc 3 xoay tự do" (user 2026-10-13) trên PC.
 
