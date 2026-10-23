@@ -1,6 +1,6 @@
 # Brief 0056 — điều khiển PC B2: camera kiểu LoL, Space về mặc định, X góc nhìn thứ nhất, Cài đặt góc/khoảng cách
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -229,3 +229,9 @@ Cảm giác (tốc độ lướt, góc 55°, 14 ô, dấu click, vòng chân) ch
 - Ghi nhận nhỏ, không chặn: không có.
 - Giờ thực tế: 18:04–18:17 (~13 phút); 7l b tổng 0055 + 0056 ≈ 30 phút — cộng vào roadmap khi duyệt.
 - Mức `user xem`: chờ user chơi thử 9 mục "User tự test" (gộp 0055 + 0056) trên Mac rồi mới kết luận.
+- User xem 2026-10-23 (ảnh SimView, ban đêm), phản hồi:
+  - Đổi số: khoảng cách camera mặc định 9, góc cúi 10°, độ nhạy xoay chuột mặc định 0,3 → brief sửa 0057.
+  - Xoay camera quan sát khi đang xem: chuột giữa, giữ hướng mới cho lần xem sau (user chọn) → 0057.
+  - Đặt camera quan sát rồi bấm xem "không thấy gì" → lỗi, cần điều tra (0057).
+  - Đúng kế hoạch, không sửa ở đây: chế độ mặc định không đào + camera quan sát thành vật phẩm + vòng tầm thao tác (7l c); chữ hướng dẫn vào Cài đặt (7l e). User: "sửa hết rồi mới nhờ tôi chơi thử" → lần user xem tiếp theo sau 7l e.
+- Kết luận: đã duyệt (code đúng brief; phản hồi cảm giác + lỗi xem camera chuyển sang brief 0057).
