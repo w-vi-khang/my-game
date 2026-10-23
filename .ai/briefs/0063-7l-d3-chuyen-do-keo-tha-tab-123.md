@@ -204,7 +204,7 @@ Gom vào danh sách chơi thử cuối của task (user 2026-10-24). Mục cần
 - Base commit: 748f81e
 - Chạy bằng: claude-sonnet-5-5 · medium
 - Bắt đầu: 2026-10-24 04:25
-- Kết thúc: 2026-10-24 05:00 (một vòng; ≈ 0,5 giờ thực tế, phần lớn đợi EditMode ~10 phút + PlayMode).
+- Kết thúc: 2026-10-24 04:43 (một vòng; ≈ 0,5 giờ thực tế, phần lớn đợi EditMode ~10 phút + PlayMode).
 - Commit: f2c75a7 (`brief 0063: 7l d3 item transfer ...`).
 - File đã đổi: Core/ItemTransfer.cs (`ToSlot`); Client/InventoryView.cs, GameInput.cs, Input/GameControls.inputactions; Lang/vi.json, loc/en.json, loc/context.json (sửa `inv.bag_hint`, thêm 8 khoá); Tests: ItemTransferTests, InventoryPlayTests, GameControlsTests (43 action).
 - Lệch so với brief: không về hành vi. Chi tiết tự chọn: khung nền đích (`Frame`) bao quanh lưới ô với padding 6, thả "nền" dùng cả panel của nơi đó (khung hẹp hơn) cho dễ trúng; `CoversPanelFrame` dùng khung hẹp theo đúng tên. Kéo thả túi ↔ túi phụ (cả "nền") không ghi dòng khi thành công; ghi `inv.move_none` khi đích đầy. Khi nguồn kéo hết đồ / đổi loại giữa lúc nhấn và nhả → bỏ qua (không chuyển). Lỗi tự sửa 1 lần trong lúc làm: `PointerUp` xoá nguồn kéo trước `DropAt` — đã sửa, test qua.
