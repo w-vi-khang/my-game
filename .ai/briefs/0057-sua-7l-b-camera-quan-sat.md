@@ -1,9 +1,9 @@
 # Brief 0057 — bản sửa 7l b: số camera 10°/9 ô + độ nhạy 0,3; camera quan sát đặt trên ô; xoay camera quan sát khi xem
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 20:02
+> Cập nhật: 2026-10-23 20:20
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -178,3 +178,11 @@ Không.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng: Sonnet 5.5 · medium = Model thực thi · đạt. 11/11 dòng Phần cần test có kết quả.
+- Diff 999cdfa (16 file, đều trong Phạm vi; `TerrainEditPlayTests.cs` không commit): số 10/9/0.3 ở JSON 2 bản, PlayerConfig, PlayerMotion, FollowCamera, DebugFlyCamera, PlayerSettings · đạt; `formatVersion` 3, nhánh `< 3` thay `< 2`, đặt lại 0/0/0.3 · đạt; `observationHeight` 2, biên [1, 10] · đạt.
+- `PlaceObservationCamera(cell)`: vị trí `TransformPoint(cell + (0.5, 1 + ObservationHeight, 0.5))`, hướng theo `Camera.main`, kiểm tầm; `UseTool` trả `OutOfReach` trước khi đặt, không đổi HUD · đúng Quyết định đã chốt. Nhánh Update dùng `Pick` → `digCell`.
+- `ApplyLook`: chỉ khi Viewing, công thức như FollowCamera, kẹp [−80, 85], ghi vào `Point` + camera đang hiện; `Place` tách yaw/pitch; `Exit` không đụng · đạt. FollowCamera bị tắt khi xem → không xoay đôi.
+- Lệch nhỏ chấp nhận: biến `cp`; `MarkerHiddenWhileCameraClose` đổi thứ tự (assert "không che ngay sau khi đặt" không còn nghĩa vì camera quan sát không còn ở chỗ camera chính).
+- Test: EditMode 532/532, PlayMode 198/198 (MCP) — không chạy lại (đủ, khớp số dự kiến). `check_design.py` ✓ sau khi Planner ghi giờ.
+- Giờ: Executor 14 phút; ghi vào roadmap dòng 7l b + world-tech 7l b (tổng 7l b Executor 44 phút).
+- Kết luận: đã duyệt
