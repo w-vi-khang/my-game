@@ -1,9 +1,9 @@
 # Brief 0058 — 7l c1: chế độ D/Q/E/R, chuột phải tự đi tới 2 ô rồi làm, lớp đỏ + vòng tầm, F Thu 2 ô, click trái ô ruộng → bảng (Bỏ đánh dấu)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 22:00
+> Cập nhật: 2026-10-23 20:56
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -664,9 +664,24 @@ Mở scene SimView trên Mac, Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: fdb5c0f
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-23 20:32 · kết thúc: 2026-10-23 20:55 (~23 phút thực tế, gồm ~10 phút chờ test Unity)
+Commit: a5515ac (34 file: Core tầm, WalkToAct.cs mới, TerrainEditInput viết lại điều khiển, MoveMarkers vòng tầm, SimView OpenPlotPanel/UnmarkOpenPlot + nút, PlayerFarmActions, PlayerCharacter, GameInput + .inputactions, vi.json, 2 JSON, test).
+2 dòng chờ trong `TerrainEditPlayTests.cs` (`waterStepsPerSecond = 0f`) đã commit chung.
+Lệch so với brief:
+- `PlayerFarmPlayTests.SelfTillFull/CancelWhileTilling/CreatureTillsFirst/…` chỉ đổi cách gọi (`RightClickAt`), giữ ý nghĩa.
+- Test sửa thêm ngoài danh sách: `TerrainEditPlayTests.EditInputSurvivesBuild` (tìm `Highlight` thay `Selection`), `SimFarmUiPlayTests.ShowAimTillOutline` → `ShowAimTillHighlight`, `TerrainEditPlayTests.UseToolDigsOrPlacesByTool` → `RightClickDigsOrPlacesByModeAndHeld`, `SimFarmUiPlayTests.UnmarkAndDigHideSign` giữ nguyên (qua).
+- Chuỗi tiếng Việt trong test mới dùng tiếng Anh (HardcodedTextScanTests).
+- Scene `.unity` còn field tuần tự hoá thừa `outlinePixels` (Unity bỏ qua; không sửa vì ngoài phạm vi).
 <!-- Base commit · Chạy bằng: <model id> · <effort> · commit · file đã đổi · thời gian bắt đầu/kết thúc (giờ thực tế M1) · lệch so với brief. -->
 
 ## Kết quả test
+- EditMode (MCP, toàn bộ): 528/528 đạt. PlayMode (MCP, toàn bộ): 213/213 đạt (gồm 16 test mới `ControlModePlayTests`). `read_console` lỗi: 0.
+- Phần cần test: phím chế độ + Tab → đạt (`ModeKeysToggleAndTabCycle`); bảng phím → đạt (`GameControlsTests`, 36); đi tới rồi đào → đạt (`DigWalksToTwoCellsThenDigs`); ngoài 10 ô + vòng tầm → đạt (`OutOfTargetReachDoesNothingAndShowsRing`); lớp đỏ → đạt (`HighlightInRangeDefaultNone`, `DigModeShowsRedHighlightOnly`); kẹt → đạt (`BlockedWalkIsUnreachable`); huỷ bằng phím → đạt (`ModeKeyCancelsWalkAndStops`); Xới/Tưới/Đặt/Camera/Gieo sau khi đi → đạt (5 test tương ứng); F Thu 2 ô → đạt (`CollectTakesOnlyWithin2`, `DropFieldTests.CollectInReachTakesOnlyWithin2`); chuột phải vật rơi → đạt; click trái ô ruộng + Bỏ đánh dấu → đạt (2 test); Đào lên ô chín → đạt (`DigModeOnRipePlotDigsIt`); gỡ tầm cũ + JSON → đạt (EditMode); chuỗi → đạt (`HudInitial`, `HardcodedTextScanTests`); regression camera quan sát / tự xới / gieo / kho / vật rơi → đạt (PlayMode toàn bộ).
+- Lệnh: grep tiêu chí → không kết quả (trừ `Farming.CastRain` là hàm, không phải key input); `diff` 2 JSON → giống; vi.json parse được; `Game.Core` không có `UnityEngine`; `check_design.py` exit 0; `verify_run design asset_check` exit 0 (client_test/client_test_play chạy qua MCP vì Editor đang mở).
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy, sạch.
+- Chờ user xem: toàn bộ mục "User tự test" (hình ảnh lớp đỏ / vòng tầm, cảm giác đi tới, HUD).
 
 ## Vướng mắc
 
