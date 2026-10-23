@@ -221,3 +221,11 @@ Cảm giác (tốc độ lướt, góc 55°, 14 ô, dấu click, vòng chân) ch
 ---
 
 ## Review
+- Chạy bằng `Sonnet · medium` khớp Model thực thi.
+- Phần cần test #1–#12 đều có kết quả (EditMode 532/532, PlayMode 196/196, chạy bằng `tools/unity_test.py` vì Editor tắt; `read_console` không kiểm được nhưng biên dịch sạch vì test chạy). Test 4–10: lần đầu `FirstPersonAtEyes` fail do test viết sai `DeltaAngle`, sửa test không sửa code — đã đọc test (`CameraPcPlayTests.cs:134–157`), kiểm đúng (15, 90, 0) như bảng.
+- `git show --stat f268ce9`: 12 file, đều trong Phạm vi; `TerrainEditPlayTests.cs` không trong commit (thay đổi dở của phiên khác).
+- Quyết định đã chốt — đối chiếu diff: mặc định 55°/14 lấy từ `PlayerMotion` ở `FollowCamera.Start` khi Cài đặt chưa gọi `ApplyDefaults`; `ApplyDefaults` chỉ đổi pitch/distance đang dùng khi mặc định thật sự đổi (đổi độ nhạy không reset zoom); kẹp 2,5–24, pitch −20…85, Cài đặt 10–85; Space = thoát góc thứ nhất + yaw theo `FacingYaw` + mặc định; X lưu/trả yaw-pitch, ẩn thân qua `Renderer.enabled`; góc thứ nhất mắt 1,5 + 0,25 trước, pitch 15, chuột giữa/lăn bị bỏ qua; F3 thoát góc thứ nhất trước khi tắt follow; `OnDisable` hiện thân, `OnEnable` ẩn lại; Space/X bỏ qua khi bản đồ/Cài đặt mở; `PlayerSettings` v1 → v2 xoá khoảng cách cũ, 0 = theo game, nút "Camera về mặc định"; vi.json đúng thứ tự ABC + `hud.help_walk` nguyên văn.
+- `Game.Core/PlayerSettings.cs` chỉ dùng `System` (No Engine References đạt).
+- Ghi nhận nhỏ, không chặn: không có.
+- Giờ thực tế: 18:04–18:17 (~13 phút); 7l b tổng 0055 + 0056 ≈ 30 phút — cộng vào roadmap khi duyệt.
+- Mức `user xem`: chờ user chơi thử 9 mục "User tự test" (gộp 0055 + 0056) trên Mac rồi mới kết luận.
