@@ -1,6 +1,6 @@
 # Brief 0060 — 7l c3: nối máu / mana vào client (tốn mana khi đào / đặt / Mưa, hồi khi đi, rơi cao, ngập đầu, hồi sinh, thanh trên-trái)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -376,9 +376,21 @@ Mở scene SimView trên Mac, Play:
 
 ## Kết quả
 <!-- Base commit · Chạy bằng: <model id> · <effort> · commit · file đã đổi · thời gian bắt đầu/kết thúc mọi vòng (giờ thực tế M1) · lệch so với brief. -->
+- Base commit: a298d56
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-24 02:58 · kết thúc: 03:11 (một vòng, ≈ 0,2 giờ; phần lớn là đợi biên dịch + test)
+- Commit: 08c9493 (`brief 0060: 7l c3 wire HP/mana into client ...`)
+- File đã đổi: Core/PlayerRules.cs, Core/PlayerMotion.cs, Core/Sim/SimConfig.cs; design/data/sim_m1.json + Resources/Config/sim_m1.json; Client/PlayerCharacter.cs, TerrainEditInput.cs, PlayerFarmActions.cs; Lang/vi.json, loc/en.json, loc/context.json; Tests: PlayerRulesTests, SimConfigTests, PlayerMotionTests, ControlModePlayTests, PlayerCharacterPlayTests.
+- Lệch so với brief: không. Không có test cũ hỏng → không áp dụng quy tắc bước 9. `PlayerVitals.cs` / `PlayerVitalsTests.cs` không đổi. Đã chạy `git checkout -- client/ProjectSettings/EditorSettings.asset` sau PlayMode.
+
 
 ## Kết quả test
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng. Mỗi lệnh ở "Lệnh executor chạy" → kết quả thật. -->
+- Lệnh 1: 2 bản sim_m1.json `diff` rỗng; parse JSON (5 file) OK; `loc_check.py check loc/en.json` exit 0 (177 chuỗi nguồn, 177 dịch); `grep UnityEngine Core` rỗng; `check_design.py` exit 0.
+- Lệnh 2 (MCP): biên dịch 0 lỗi console; EditMode **530/530 qua**; PlayMode **230/230 qua** (0 skipped, nên 4 test nước/rơi không Inconclusive); console 0 lỗi sau chạy.
+- Lệnh 4 `verify_run --all`: client_test / client_test_play exit 1 vì Editor đang mở → **Chưa kiểm được** bằng dòng lệnh; kết quả MCP ở trên thay thế. Các lệnh khác trong `--all` không báo lỗi trong phần đuôi output đã xem.
+- Phần cần test: tất cả mục dùng test (đầu ngập, tham số nháy, đào/đặt/Mưa tốn mana, thiếu mana chặn + nháy, hồi mana khi đi, rơi cao, rơi xuống nước, ngập đầu, hồi sinh, PlayerVitalsTests, regression điều khiển + di chuyển, toàn bộ EditMode) → **đạt** (nằm trong 530 + 230 test qua; test mới theo đúng tên ở bước 8).
+- Thanh HUD hiển thị đúng chỗ, cảm giác số → **chờ user** (mục "User tự test" 1–8).
+
 
 ## Vướng mắc
 
