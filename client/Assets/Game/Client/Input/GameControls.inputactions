@@ -202,6 +202,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CameraReset",
+                    "type": "Button",
+                    "id": "c8ad514d-4bb8-45a1-b582-5fcdc2bdb7bd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleFirstPerson",
+                    "type": "Button",
+                    "id": "ed6914d4-d0f8-4f20-9e1a-8a2e75b1d059",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -444,6 +462,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleObservation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c62f3d74-e812-4d1f-8084-82ebf3faadbe",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraReset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3792660e-d0f1-4e01-9262-7f1aefe1683e",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleFirstPerson",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

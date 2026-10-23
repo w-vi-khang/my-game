@@ -38,6 +38,17 @@ namespace Game.Client
         public float VerticalSpeed => vy;
         public CharacterController Controller { get; private set; }
         public Transform Visual { get; private set; }
+        /// <summary>Hướng mặt nhân vật (độ, quanh trục Y).</summary>
+        public float FacingYaw => Visual.eulerAngles.y;
+        public bool BodyVisible { get; private set; } = true;
+
+        /// <summary>Ẩn/hiện thân (góc nhìn thứ nhất, brief 0056).</summary>
+        public void SetBodyVisible(bool on)
+        {
+            BodyVisible = on;
+            if (Visual == null) return;
+            foreach (var r in Visual.GetComponentsInChildren<Renderer>(true)) r.enabled = on;
+        }
         public Vector3 FeetLocal => terrain.transform.InverseTransformPoint(transform.position);
 
         /// <summary>Trạng thái tự đi theo đường ô (sim 7f, brief 0041).</summary>
@@ -176,7 +187,7 @@ namespace Game.Client
             if (follow != null)
             {
                 follow.target = this;
-                if (hasPendingYaw) follow.SetAngles(pendingYaw, 20f);
+                if (hasPendingYaw) follow.SetAngles(pendingYaw, follow.defaultPitch);
             }
             SetFlyMode(false);
         }
@@ -233,7 +244,7 @@ namespace Game.Client
             Dash?.Stop();
             stuck?.Reset();
             Ready = false;
-            if (follow != null) follow.SetAngles(yawDeg, 20f);
+            if (follow != null) follow.SetAngles(yawDeg, follow.defaultPitch);
             else { pendingYaw = yawDeg; hasPendingYaw = true; }
             if (terrain != null) { spawnFeetLocal = terrain.transform.InverseTransformPoint(feetWorld); spawnYaw = yawDeg; hasSpawn = true; }
         }
@@ -247,6 +258,7 @@ namespace Game.Client
             if (on) fly.SyncAngles();
             if (follow != null)
             {
+                if (on && follow.FirstPerson) follow.SetFirstPerson(false);
                 follow.enabled = !on;
                 if (!on) follow.SnapNow();
             }

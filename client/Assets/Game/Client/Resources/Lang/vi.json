@@ -336,7 +336,7 @@
     },
     {
       "key": "hud.help_walk",
-      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · A: nhảy · Shift: lướt · Chuột phải: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · R: phép Mưa (trong {0:0.#} ô) · B: túi · chuột phải lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n"
+      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · A: nhảy · Shift: lướt · Chuột phải: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · R: phép Mưa (trong {0:0.#} ô) · B: túi · chuột phải lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · giữ chuột giữa: xoay · lăn chuột: gần/xa · Space: camera về sau lưng · X: góc nhìn thứ nhất · F3: camera bay\n"
     },
     {
       "key": "hud.rebuild",
@@ -483,8 +483,16 @@
       "text": "Cài đặt (O)"
     },
     {
+      "key": "settings.camera_default",
+      "text": "Camera về mặc định"
+    },
+    {
       "key": "settings.camera_distance",
       "text": "Khoảng cách camera: {0:F1}"
+    },
+    {
+      "key": "settings.camera_pitch",
+      "text": "Góc cúi camera: {0:F0}°"
     },
     {
       "key": "settings.close",

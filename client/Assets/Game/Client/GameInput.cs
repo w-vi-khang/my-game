@@ -28,6 +28,8 @@ namespace Game.Client
         public static InputAction Zoom => Get("Player/Zoom");
         public static InputAction CycleBlockModifier => Get("Player/CycleBlockModifier");
         public static InputAction ToggleObservation => Get("Player/ToggleObservation");
+        public static InputAction CameraReset => Get("Player/CameraReset");
+        public static InputAction ToggleFirstPerson => Get("Player/ToggleFirstPerson");
         public static InputAction Point => Get("Pointer/Point");
         public static InputAction PanelsClose => Get("Panels/Close");
         public static InputAction TransferAll => Get("Panels/TransferAll");

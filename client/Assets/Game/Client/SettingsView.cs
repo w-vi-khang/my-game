@@ -10,7 +10,7 @@ namespace Game.Client
     {
         public static readonly string[] Keys =
         {
-            "settings.button", "settings.title", "settings.camera_distance", "settings.look_sensitivity", "settings.invert_y",
+            "settings.button", "settings.title", "settings.camera_distance", "settings.camera_pitch", "settings.camera_default", "settings.look_sensitivity", "settings.invert_y",
             "settings.ui_scale", "settings.fps", "settings.language", "settings.lang_error", "settings.export",
             "settings.exported", "settings.lang_dir", "settings.close",
         };
@@ -28,7 +28,7 @@ namespace Game.Client
         public SimView Sim => sim;
 
         public static Rect ButtonRect(float gw, float gh) => new Rect(gw - 240f, gh - 46f, 110f, 36f);
-        public static Rect PanelRect(float gw, float gh) => new Rect(gw * 0.5f - 230f, gh * 0.5f - 210f, 460f, 420f);
+        public static Rect PanelRect(float gw, float gh) => new Rect(gw * 0.5f - 230f, gh * 0.5f - 240f, 460f, 480f);
 
         public static bool BlocksPointer(Vector2 screen) => active != null && active.Covers(screen);
 
@@ -97,7 +97,8 @@ namespace Game.Client
                 var follow = cam.GetComponent<FollowCamera>();
                 if (follow != null)
                 {
-                    follow.distance = Mathf.Clamp(s.cameraDistance, follow.minDistance, follow.maxDistance);
+                    follow.ApplyDefaults(s.cameraPitch > 0f ? s.cameraPitch : PlayerMotion.CameraPitch,
+                                         s.cameraDistance > 0f ? s.cameraDistance : PlayerMotion.CameraDistance);
                     follow.lookSensitivity = s.lookSensitivity;
                     follow.invertY = s.invertY;
                 }
@@ -134,9 +135,19 @@ namespace Game.Client
             var s = GameSettings.Current.Clone();
             bool changed = false;
 
-            GUI.Label(new Rect(x, y, w * 0.55f, row), Format("settings.camera_distance", s.cameraDistance), labelStyle);
-            float v = GUI.HorizontalSlider(new Rect(x + w * 0.58f, y + 8f, w * 0.42f, row), s.cameraDistance, PlayerSettings.CameraDistanceMin, PlayerSettings.CameraDistanceMax);
-            if (v != s.cameraDistance) { s.cameraDistance = v; changed = true; }
+            float effD = s.cameraDistance > 0f ? s.cameraDistance : PlayerMotion.CameraDistance;
+            GUI.Label(new Rect(x, y, w * 0.55f, row), Format("settings.camera_distance", effD), labelStyle);
+            float v = GUI.HorizontalSlider(new Rect(x + w * 0.58f, y + 8f, w * 0.42f, row), effD, PlayerSettings.CameraDistanceMin, PlayerSettings.CameraDistanceMax);
+            if (v != effD) { s.cameraDistance = v; changed = true; }
+            y += row;
+
+            float effP = s.cameraPitch > 0f ? s.cameraPitch : PlayerMotion.CameraPitch;
+            GUI.Label(new Rect(x, y, w * 0.55f, row), Format("settings.camera_pitch", effP), labelStyle);
+            v = GUI.HorizontalSlider(new Rect(x + w * 0.58f, y + 8f, w * 0.42f, row), effP, PlayerSettings.CameraPitchMin, PlayerSettings.CameraPitchMax);
+            if (v != effP) { s.cameraPitch = v; changed = true; }
+            y += row;
+
+            if (GUI.Button(new Rect(x, y, 200f, row - 4f), T("settings.camera_default"))) { s.cameraDistance = 0f; s.cameraPitch = 0f; changed = true; }
             y += row;
 
             GUI.Label(new Rect(x, y, w * 0.55f, row), Format("settings.look_sensitivity", s.lookSensitivity), labelStyle);

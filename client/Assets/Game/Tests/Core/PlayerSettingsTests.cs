@@ -9,8 +9,9 @@ namespace Game.Core.Tests
         public void DefaultsUnchangedByClamp()
         {
             var s = new PlayerSettings();
-            Assert.AreEqual(1, s.formatVersion);
-            Assert.AreEqual(6f, s.cameraDistance);
+            Assert.AreEqual(2, s.formatVersion);
+            Assert.AreEqual(0f, s.cameraDistance);
+            Assert.AreEqual(0f, s.cameraPitch);
             Assert.AreEqual(0.15f, s.lookSensitivity);
             Assert.IsFalse(s.invertY);
             Assert.AreEqual(1f, s.uiScale);
@@ -24,15 +25,17 @@ namespace Game.Core.Tests
         [Test]
         public void ClampRanges()
         {
-            var s = new PlayerSettings { cameraDistance = 1, lookSensitivity = 0, uiScale = 0.1f, targetFps = 45 };
+            var s = new PlayerSettings { cameraDistance = 1, cameraPitch = 5, lookSensitivity = 0, uiScale = 0.1f, targetFps = 45 };
             s.Clamp();
             Assert.AreEqual(2.5f, s.cameraDistance);
+            Assert.AreEqual(10f, s.cameraPitch);
             Assert.AreEqual(0.05f, s.lookSensitivity);
             Assert.AreEqual(0.75f, s.uiScale);
             Assert.AreEqual(60, s.targetFps);
-            s = new PlayerSettings { cameraDistance = 99, lookSensitivity = 1, uiScale = 5, targetFps = 30 };
+            s = new PlayerSettings { cameraDistance = 99, cameraPitch = 99, lookSensitivity = 1, uiScale = 5, targetFps = 30 };
             s.Clamp();
-            Assert.AreEqual(14f, s.cameraDistance);
+            Assert.AreEqual(24f, s.cameraDistance);
+            Assert.AreEqual(85f, s.cameraPitch);
             Assert.AreEqual(0.5f, s.lookSensitivity);
             Assert.AreEqual(2f, s.uiScale);
             Assert.AreEqual(30, s.targetFps);
@@ -43,9 +46,10 @@ namespace Game.Core.Tests
         {
             foreach (var bad in new[] { float.NaN, float.PositiveInfinity })
             {
-                var s = new PlayerSettings { cameraDistance = bad, lookSensitivity = bad, uiScale = bad };
+                var s = new PlayerSettings { cameraDistance = bad, cameraPitch = bad, lookSensitivity = bad, uiScale = bad };
                 s.Clamp();
-                Assert.AreEqual(6f, s.cameraDistance);
+                Assert.AreEqual(0f, s.cameraDistance);
+                Assert.AreEqual(0f, s.cameraPitch);
                 Assert.AreEqual(0.15f, s.lookSensitivity);
                 Assert.AreEqual(1f, s.uiScale);
             }
@@ -73,7 +77,7 @@ namespace Game.Core.Tests
         {
             var s = JsonUtility.FromJson<PlayerSettings>("{\"uiScale\":1.5}");
             Assert.AreEqual(1.5f, s.uiScale);
-            Assert.AreEqual(6f, s.cameraDistance);
+            Assert.AreEqual(0f, s.cameraDistance);
             Assert.AreEqual(60, s.targetFps);
             Assert.AreEqual("vi", s.language);
         }
@@ -83,10 +87,30 @@ namespace Game.Core.Tests
         {
             var a = new PlayerSettings();
             var b = a.Clone();
-            b.cameraDistance = 10; b.invertY = true; b.language = "en";
-            Assert.AreEqual(6f, a.cameraDistance);
+            b.cameraDistance = 10; b.cameraPitch = 40; b.invertY = true; b.language = "en";
+            Assert.AreEqual(0f, a.cameraDistance);
+            Assert.AreEqual(0f, a.cameraPitch);
+            Assert.AreEqual(40f, b.cameraPitch);
             Assert.IsFalse(a.invertY);
             Assert.AreEqual("vi", a.language);
+        }
+
+        [Test]
+        public void MigratesV1AndOptionalCamera()
+        {
+            var s = JsonUtility.FromJson<PlayerSettings>("{\"formatVersion\":1,\"cameraDistance\":6}");
+            s.Clamp();
+            Assert.AreEqual(2, s.formatVersion);
+            Assert.AreEqual(0f, s.cameraDistance);
+            Assert.AreEqual(0f, s.cameraPitch);
+            s = JsonUtility.FromJson<PlayerSettings>("{\"formatVersion\":2,\"cameraDistance\":10,\"cameraPitch\":40}");
+            s.Clamp();
+            Assert.AreEqual(10f, s.cameraDistance);
+            Assert.AreEqual(40f, s.cameraPitch);
+            s = new PlayerSettings { cameraDistance = -3, cameraPitch = -3 };
+            s.Clamp();
+            Assert.AreEqual(0f, s.cameraDistance);
+            Assert.AreEqual(0f, s.cameraPitch);
         }
     }
 }

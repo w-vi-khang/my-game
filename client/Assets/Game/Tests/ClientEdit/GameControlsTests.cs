@@ -43,6 +43,8 @@ namespace Game.Client.EditTests
             ["Player/Zoom"] = E(InputActionType.Value, "Axis", "<Mouse>/scroll/y"),
             ["Player/CycleBlockModifier"] = B("<Keyboard>/alt"),
             ["Player/ToggleObservation"] = B("<Keyboard>/v"),
+            ["Player/CameraReset"] = B("<Keyboard>/space"),
+            ["Player/ToggleFirstPerson"] = B("<Keyboard>/x"),
             ["Pointer/Point"] = E(InputActionType.Value, "Vector2", "<Mouse>/position"),
             ["Panels/Close"] = B("<Keyboard>/escape"),
             ["Panels/TransferAll"] = B("<Keyboard>/shift"),
@@ -59,7 +61,7 @@ namespace Game.Client.EditTests
         {
             var asset = Load();
             var exp = Expected();
-            Assert.AreEqual(31, exp.Count);
+            Assert.AreEqual(33, exp.Count);
             var actual = new HashSet<string>(asset.actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
             CollectionAssert.AreEquivalent(exp.Keys, actual);
             foreach (var kv in exp)
@@ -88,7 +90,7 @@ namespace Game.Client.EditTests
             var text = File.ReadAllText(Path_("Client", "GameInput.cs"));
             var found = new HashSet<string>(Regex.Matches(text, "Get\\(\"([A-Za-z]+/[A-Za-z0-9]+)\"\\)").Cast<Match>().Select(m => m.Groups[1].Value));
             var actual = new HashSet<string>(Load().actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
-            Assert.AreEqual(31, actual.Count);
+            Assert.AreEqual(33, actual.Count);
             CollectionAssert.AreEquivalent(actual, found);
         }
 
