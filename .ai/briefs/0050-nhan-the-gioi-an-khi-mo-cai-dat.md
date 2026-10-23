@@ -1,9 +1,9 @@
 # Brief 0050 — ẩn nhãn thế giới khi bảng Cài đặt mở
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: nhẹ + user xem
 > Model thực thi: Sonnet · low
-> Cập nhật: 2026-10-23 10:05
+> Cập nhật: 2026-10-23 10:12
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -125,9 +125,18 @@ Mở scene `client/Assets/Game/Client/Scenes/SimView.unity`, bấm Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 4011526 · Chạy bằng: claude-sonnet-5-5 · low (OK: brief 0050 cần Sonnet · low — phiên: claude-sonnet-5-5 · low) · commit code: 8f8f00e · file đổi: SettingsView.cs, SimView.cs, SettingsPlayTests.cs · giờ 10:05 → 10:11 (đồng hồ `date`). Không lệch brief.
+
 <!-- Base commit (trước khi làm) · Chạy bằng: <model id> · <effort> (dòng OK của brief_check.py) · commit của brief · file đã đổi · giờ bắt đầu/kết thúc · ghi chú lệch so với brief (nếu có, kèm lý do). -->
 
 ## Kết quả test
+- Bước 1–2 → đạt: `WorldLabels_HiddenWhileSettingsOpen` qua.
+- Mở/đóng/lưu Cài đặt → đạt: `SettingsScenePlayTests` 5/5 qua.
+- Không chữ Việt trong code mới → đạt: `HardcodedTextScanTests` nằm trong EditMode 498/498.
+- Regression → đạt.
+- User tự test (nhãn ẩn/hiện khi mở/đóng Cài đặt) → chờ user.
+Lệnh: `read_console` lỗi → 0 mục; `run_tests` PlayMode lớp SettingsScenePlayTests → 5/5 (lọc bằng group_names); EditMode → 498/498; PlayMode → 168/168; dọn EditorSettings.asset + `git status --short` → chỉ 3 file Phạm vi (+ brief).
+
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng (tên test, dòng output).
 Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, dòng tổng kết>. -->
 
