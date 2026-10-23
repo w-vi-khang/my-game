@@ -1,9 +1,9 @@
 # Brief 0050 — ẩn nhãn thế giới khi bảng Cài đặt mở
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: nhẹ + user xem
 > Model thực thi: Sonnet · low
-> Cập nhật: 2026-10-23 10:12
+> Cập nhật: 2026-10-23
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc).
@@ -148,4 +148,5 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
-2026-10-23 — review nhẹ: đạt phần tự động, **chờ user xem**. Đối chiếu: diff `8f8f00e` đúng 3 file Phạm vi, khớp nguyên văn các bước 1–3; Kết quả test đủ mọi dòng (EditMode 498/498, PlayMode 168/168 = trước + 1); model `claude-sonnet-5-5 · low` khớp brief. Giờ thực tế đã ghi roadmap. Còn: user xem 3 mục "User tự test" → đặt `đã duyệt`.
+2026-10-23 — review nhẹ: đạt phần tự động, **chờ user xem**. Đối chiếu: diff `8f8f00e` đúng 3 file Phạm vi, khớp nguyên văn các bước 1–3; Kết quả test đủ mọi dòng (EditMode 498/498, PlayMode 168/168 = trước + 1); model `claude-sonnet-5-5 · low` khớp brief. Giờ thực tế đã ghi roadmap. User xem 3 mục "User tự test" (2026-10-23): đạt [user].
+- Kết luận: đã duyệt
