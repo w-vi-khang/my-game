@@ -1,9 +1,9 @@
 # Brief 0051 — nhiều điểm nhìn A: lõi ChunkStreamPlan + TerrainChunkView
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 10:48
+> Cập nhật: 2026-10-23 11:00
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -143,10 +143,12 @@ Giờ bắt đầu: 10:27 · kết thúc: 10:37 (~10 phút)
 Commit: b3125ad
 File đổi: ChunkStreamPlan.cs, TerrainChunkView.cs, ChunkStreamPlanTests.cs, TerrainStreamingPlayTests.cs
 Lệch brief: test PlayMode bước 7 thêm điều kiện 'cũng xa camera chính' khi kiểm cột đã gỡ (an toàn hơn, cùng ý); không đổi hành vi.
+Sửa 1: 10:47–10:59 (~12 phút), commit 955f25d; sửa 2 file test (bước 9), code không đổi. Lần đầu MCP `run_tests` báo 'recovered run in progress' vài lần, chạy lại lọc theo tên đầy đủ `Game.Core.Tests.ChunkStreamPlanTests` thì ổn.
 Ghi chú: MCP bridge mất kết nối tạm lúc biên dịch/vào Play; kết quả đọc lại từ TestResults.xml/get_test_job.
 
 
 ## Kết quả test
+Sửa 1: đạt — `ChunkStreamPlanTests` 12/12 (có 2 assert bán kính sai), `TerrainStreamingPlayTests` 6/6 (kiểm `held` không rỗng, cột held đều gỡ, `AssertLoadedWithinUnloadRadius`), EditMode 504/504, PlayMode 170/170; dọn EditorSettings.asset, `git status` chỉ còn 2 file test + brief.
 - Lõi nhiều điểm nhìn, thứ tự nạp, tất định, hàm một tâm (regression): đạt — `ChunkStreamPlanTests` 12/12 (6 cũ + 6 mới).
 - Client API/đăng ký/gỡ/tối đa: đạt — `TerrainStreamingPlayTests` 6/6.
 - Regression streaming khác + chữ Việt (`HardcodedTextScanTests`): đạt — EditMode 504/504, PlayMode 170/170.
