@@ -1,6 +1,6 @@
 # Brief 0059 — 7l c2: cầm vật phẩm từ túi (khối / hạt / camera quan sát), bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F hiện vùng 2 ô + gió hút
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24 (Planner trả lời vướng mắc vòng 2: giữ thứ tự kiểm, sửa test; cho sửa DropPlayTests.cs)
@@ -596,7 +596,8 @@ Planner (Opus 5.5), 2026-10-24, mức đầy đủ + user xem.
 - Diff `88424f8` (29 file, đúng Phạm vi): `CheckPlayerSow` thêm `QueueNotEmpty` đúng thứ tự quyết định 3 (`Simulation.cs:1010`); `HoldItem`/`CanHold`/`DropHeldIfEmpty` đúng quyết định 1, 4, 8 (gọi đầu `Update` + sau PlaceBlock/UseHeld); bản mờ đỏ `!= EditResult.Ok` + `InvalidColor` (quyết định 5); cầm hạt + `SowAt` báo lý do khi `None` (quyết định 6); chế độ gieo cũ xoá hết, `OtherPanelOpen` dùng `Control.HasHeld` (quyết định 7); `FlashReachRing` chỉ khi `OutOfReach`, `ShowAim/HideAim` không đụng vòng (quyết định 9); `ShowCollect` gọi kể cả 0 chồng, công thức vệt gió đúng quyết định 10; 3 key JSON + kiểm biên [50, 5000] (quyết định 11); Tab/`CycleTool` xoá (quyết định 12).
 - Nhỏ, không chặn: khoá `bag.empty` (vi/en/context) giờ không dùng (bảng túi luôn có dòng camera) — dọn ở 7l d khi làm túi ô vuông.
 - Giờ thực tế: brief chỉ ghi vòng 3 (01:28–02:41, ~1,2 giờ); các vòng trước không ghi giờ → Planner chưa cộng được đủ.
-- Chờ user test (User tự test mục 1–8) trước khi kết luận.
+- User tự test mục 1–8: tất cả đạt [user 2026-10-24]; thời gian 1 s / 0,5 s / 0,3 s giữ nguyên (số tạm, chưa chốt).
+- Kết luận: đã duyệt
 
 ## Kiểm chứng
 - Chưa kiểm được `verify_run client_test client_test_play`: Unity Editor đang mở project (exit 1, "another Unity instance is running", đã chạy 2026-10-24). Thay bằng MCP trên cùng Editor sau sửa `PlayerFarmTests.cs`: EditMode 529/529, PlayMode 219/219.
