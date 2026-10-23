@@ -3,7 +3,7 @@
 ## Đang làm
 Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)).
 - **7l c1** (brief 0058) đã duyệt 2026-10-24.
-- **7l c2** (brief 0059: cầm vật phẩm từ túi, bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F vùng + gió) **đã duyệt** 2026-10-24 (review đầy đủ + user xem đạt, commit `431bca3`). Giờ thực tế: brief chỉ ghi vòng 3 (~1,2 giờ); các vòng trước thiếu giờ → chưa cộng vào world-tech dòng 7l c. Khoá `bag.empty` không còn dùng → dọn ở 7l d.
+- **7l c2** (brief 0059: cầm vật phẩm từ túi, bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F vùng + gió) **đã duyệt** 2026-10-24 (review đầy đủ + user xem đạt, commit `431bca3`). Giờ thực tế: brief chỉ ghi vòng 3 (~1,2 giờ); các vòng trước thiếu giờ (đã ghi "≥ 73 phút" ở world-tech + roadmap). Khoá `bag.empty` không còn dùng → dọn ở 7l d.
 - **7l c3** (brief [0060](briefs/0060-7l-c3-mau-mana-client.md): máu / mana nối vào client) **đã duyệt** 2026-10-24 (review đầy đủ + user xem đạt). **7l c xong**; giờ thực tế ghi ở world-tech dòng 7l c + roadmap.
   - Số tạm chưa chốt: `manaFlashMs` 600; đề xuất Planner: rơi xuống nước không mất máu, điểm đầu = chân + 1,5.
 - File lạ chưa track: `client/Assets/InitTestScene*.unity(.meta)` — scene tạm của Unity Test Runner; xoá khi Editor không chạy test.
