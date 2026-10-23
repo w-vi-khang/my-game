@@ -13,7 +13,7 @@
 | Sinh vật | Sinh vật phép thuật người chơi sưu tầm; làm việc và chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Loài | Một dạng sinh vật; mỗi loài có nội tại, tộc, nguyên tố, yêu cầu môi trường sống riêng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tộc | Nhóm gồm nhiều loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Nguyên tố | Thuộc tính của loài, đơn hoặc đôi | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Nguyên tố | Thuộc tính của loài, đơn hoặc đôi; 12 nguyên tố: Kim, Mộc, Thuỷ, Hoả, Thổ, Phong, Hàn, Lôi, Độc, Quang, Ám, Hỗn mang ([0037](decisions/0037-phong-cach-sinh-vat-do-hiem-nguyen-to-bac.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nội tại | Đặc điểm cố hữu của loài, tác dụng cả khi làm việc lẫn chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhập hồn | Người chơi nhập vào sinh vật, dùng bộ kỹ năng của sinh vật đó | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Mana | Nguồn năng lượng chung của người chơi, dùng cả khi nhập hồn; thanh năng lượng của nhân vật — M1: đào/đặt/phép Mưa tốn mana, hồi khi di chuyển (0034) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
@@ -73,10 +73,10 @@
 | Phép | Phép thuật; gồm phép của pháp sư và phép sinh vật — hai bộ sưu tầm riêng | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Phép của pháp sư | Phép phục vụ khám phá, phát triển, tấn công đơn giản | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Nhóm phép | Phạm vi được mang phép: phổ biến, tộc, nguyên tố, loài | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Độ hiếm | Mức hiếm của phép, mô tả tỉ lệ xuất hiện | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Độ hiếm | Mức hiếm của phép, mô tả tỉ lệ xuất hiện; loài cũng có độ hiếm dạng tag ([0037](decisions/0037-phong-cach-sinh-vat-do-hiem-nguyen-to-bac.md)) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Cấp độ | Mức phát triển của một sinh vật; phép có yêu cầu cấp độ | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Cấp độ người chơi | Mức phát triển của người chơi; điều kiện mở PvP (chi tiết chưa có) | [02-gameplay/progression.md](02-gameplay/progression.md) |
-| Bậc | Mức tiến hoá của sinh vật; phép có yêu cầu bậc | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bậc | Mức tiến hoá của sinh vật; mỗi loài có 1 (không tiến hoá), 2 hoặc 3 bậc; loài 1 bậc tính tương đương bậc 2 hoặc 3; phép có yêu cầu bậc | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tiến hoá | Tăng bậc sinh vật, mở rộng phạm vi phép mang được | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Chuẩn bị chiến đấu | Màn người chơi gán phép cho sinh vật trước khi chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tâm nhắm | Điểm giữa màn hình; ô / sinh vật dưới tâm nhắm là đích của hành động, cho mọi thiết bị | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |

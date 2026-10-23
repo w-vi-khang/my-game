@@ -16,7 +16,7 @@
 | Biến thể | Dạng khác của loài: cá thể đặc biệt về màu sắc, hình thái; tách riêng với vượt trội | P1, P2 | Client + Backend (sinh khi nhận sinh vật) | Nên có | 3–5 + phần art mỗi biến thể | M3 [ý tưởng] |
 | Sinh map theo seed | Phần không thuộc cốt truyện sinh theo seed của từng người chơi; bố cục vùng theo ràng buộc ([levels](levels.md)) | P1 (vùng môi trường sống cho từng loài), P3 | Client (+ công cụ sắp đặt?) | Phải có | 15–25 | M2 |
 | Khối cốt truyện | Khối cốt truyện + đường đi tới nó không phá/đặt được cho tới khi phá đảo map | P3 | Client | Phải có | 2–4 | M2 |
-| Sinh vật & loài | Nội tại, tộc, nguyên tố (đơn/đôi), cấp độ, bậc; 3 ô phép (bậc 1) / 4 ô phép (bậc 2+) | P2, P4 | Client | Phải có | 5–10: M1 2–4, M2 3–6 | M1 (3 loài), M2 |
+| Sinh vật & loài | Nội tại, tộc, nguyên tố (đơn/đôi), độ hiếm (tag), cấp độ, bậc (1–3 tuỳ loài); 3 ô phép (bậc 1) / 4 ô phép (bậc 2+; loài 1 bậc có 4 ô từ đầu) | P2, P4 | Client | Phải có | 5–10: M1 2–4, M2 3–6 | M1 (3 loài), M2 |
 | Chỉ số làm việc | 2 năng lực làm việc mỗi loài; tốc độ di chuyển, sức khoẻ, độ thuần thục 1–2; phân bố loài + phân bố ngẫu nhiên + điểm chỉ số (quỹ riêng, phân bổ lại bằng vật phẩm); vượt trội làm việc | P2 | Client (+ Backend từ M2: sinh và lưu chỉ số) | Phải có | 5–8: M1 1–2, M2 4–6 | M1 (thuần thục + tốc độ), M2 |
 | Chỉ số chiến đấu | Máu, giáp, kháng phép, tốc độ đánh, sát thương... + chỉ số đặc trưng loài; phân bố loài + phân bố ngẫu nhiên + điểm chỉ số (quỹ riêng, phân bổ lại bằng vật phẩm); hệ số quy đổi, trần; vượt trội bị bỏ trong PvP | P2, P4 | Client + Backend (sinh chỉ số) + Game server (PvP) | Phải có | 6–10 | M2 |
 | Môi trường sống | Cải tạo thế giới đạt yêu cầu → mở khoá loài | P1 | Client | Phải có | 10–20: M1 3–6, M2 7–14 | M1 (một vùng), M2 |
@@ -33,6 +33,7 @@
 | Phép của pháp sư | Phép khám phá, phát triển, tấn công đơn giản (quả cầu lửa, đi trên mặt nước...) | P1, P3 | Client | Phải có | 10–20 + 1–2/phép | M2 |
 | Sưu tầm phép (phép sinh vật) | Mở khoá phép theo nhóm phép, độ hiếm; gán phép vào ô phép ở màn chuẩn bị chiến đấu | P2, P4 | Client | Phải có | 15–25 + 0,5–2/phép | M2 |
 | Nhận sinh vật | Bắt, ấp nở, rút thưởng (chỉ ra loài đã hồi sinh); sinh vật mới mở khoá phép nó mang theo | P1, P2 | Client + Backend (rút thưởng) | Phải có | 10–20 | M2 |
+| Đặt tên sinh vật | Người chơi đặt tên cho từng cá thể; các cá thể cùng loài của một người chơi không được trùng tên | P2 | Client + Backend (lưu tên, kiểm trùng) | Nên có | 1–2 [ý tưởng] | M2 |
 | Thẻ bài & bắt sinh vật | Mỗi cá thể gắn một thẻ bài, thẻ cất trong kho sinh vật; ném thẻ để bắt (ném hụt: tỉ lệ nhỏ mất thẻ; bắt không thành: mất thẻ); tỉ lệ bắt theo chênh lệch cấp độ, bậc sinh vật, bậc thẻ; 4 bậc thẻ khác nhau tỉ lệ bắt và tỉ lệ vượt trội; bậc 4 chắc chắn bắt, chắc chắn vượt trội, có hiệu ứng | P1, P2 | Client + Backend (kết quả bắt, sinh chỉ số cá thể) | Phải có | 8–14 + art hiệu ứng mỗi loại thẻ | M2 [ý tưởng] |
 | Giới hạn sinh vật & kho sinh vật | Giới hạn số sinh vật hoạt động (làm việc + chiến đấu) theo cấp độ người chơi và công trình; dư thì thả hoặc cất vào kho sinh vật | P2 | Client + Backend (sở hữu sinh vật) | Phải có | 3–6 | M2 |
 | Trang bị | Trang bị cho sinh vật, nhiều bậc trang bị; ghép trang bị cùng loại cùng bậc lên bậc cao hơn; rèn ở lò rèn (nguyên liệu + sinh vật phù hợp); cộng chỉ số chiến đấu, tính trong PvP | P2, P4 | Client + Backend (sở hữu, ghép, kết quả rèn) | Phải có | 13–23 | M3 [ý tưởng] |
@@ -208,8 +209,10 @@ Mô tả của user (2026-10-12). Tên "nhu cầu sinh vật", "mức đáp ứn
 - Mỗi loài có đặc điểm khác nhau, có tính sưu tầm. Loài được đặc trưng bởi **nội tại**; phép thì nhiều loài có thể dùng giống nhau.
 - **Nội tại:** đặc điểm cố hữu của loài, tác dụng cả khi làm việc (phát triển) lẫn khi chiến đấu.
 - **Ô phép:** sinh vật bậc 1 có 3 ô phép; từ bậc 2 có 4 ô. Ô thứ 4 là **ô đặc biệt**: chỉ ô này chứa được phép yêu cầu ô đặc biệt, và vẫn chứa được phép thường. Phép trong ô thay thế được.
-- **Tộc:** một tộc gồm nhiều loài. **Nguyên tố:** đơn hoặc đôi.
-- **Cấp độ, bậc:** phép có yêu cầu cấp độ và bậc. **Tiến hoá** tăng bậc, mở rộng phạm vi phép mang được.
+- **Tộc:** một tộc gồm nhiều loài. **Nguyên tố:** đơn hoặc đôi. Danh sách trước mắt có 12 nguyên tố: Kim, Mộc, Thuỷ, Hoả, Thổ, Phong, Hàn, Lôi, Độc, Quang, Ám, Hỗn mang; đặc điểm từng nguyên tố: _(chưa có)_ (user, 2026-10-24 — [0037](../decisions/0037-phong-cach-sinh-vat-do-hiem-nguyen-to-bac.md)).
+- **Cấp độ, bậc:** phép có yêu cầu cấp độ và bậc. **Tiến hoá** tăng bậc, mở rộng phạm vi phép mang được. Mỗi loài có **1 bậc (không tiến hoá), 2 hoặc 3 bậc** (user, 2026-10-24). **Loài chỉ có 1 bậc**: bậc đó tính tương đương bậc 2 hoặc 3 (ghi trong dữ liệu của loài) → có ô phép thứ 4 (ô đặc biệt) ngay từ đầu. Tiến hoá: sinh vật to hơn, thêm chi tiết, đổi hình, có thể đổi nhóm kích thước; số đo từng bậc (mét, 1 ô = 1 m) ghi trong spec của loài.
+- **Độ hiếm của loài:** chỉ là tag, tạm thời không ảnh hưởng tỉ lệ xuất hiện, bắt hay rút thưởng (user, 2026-10-24). Các mức: _(chưa có)_.
+- **Tên sinh vật:** người chơi đặt tên cho từng cá thể; các cá thể cùng loài (của một người chơi) không được trùng tên (user, 2026-10-24). Câu hỏi mở: tên có hiện trên đầu sinh vật không; có lọc từ ngữ xấu khi tên hiện cho người khác (PvP) không; độ dài tối đa.
 
 ### Nhận sinh vật
 - Nguồn: bắt (bằng thẻ bài — xem [Thẻ bài & bắt sinh vật](#thẻ-bài--bắt-sinh-vật)), ấp nở, rút thưởng...

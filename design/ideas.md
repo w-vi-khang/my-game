@@ -18,6 +18,7 @@
 | P4 cũ "Thế giới của riêng mình" (world riêng theo seed, mode nhiều người tách tiến trình) | AI (2026-10-11) | — | loại | User đổi P4 thành chiến đấu; world riêng theo seed vẫn giữ trong mechanics (P3) |
 | PvP bất đồng bộ (đấu với đội hình đã lưu, không cần game server) | AI (2026-10-11) | P4 | để sau | User chọn PvP thời gian thực; có thể dùng làm phương án dự phòng khi ít người chơi |
 | Ba mức xuất hiện → ghé thăm → định cư (kiểu Viva Piñata) | AI (2026-10-11) | P1 | loại | User thay bằng danh sách yêu cầu của loài (2026-10-12) |
+| Nhóm sinh vật Boss / Thần thú | Mood board AI (ảnh ChatGPT, user gửi 2026-10-24) | P2 | loại | User bỏ; mỗi loài chỉ 1–3 bậc — [0037](decisions/0037-phong-cach-sinh-vat-do-hiem-nguyen-to-bac.md) |
 | I1 Chuẩn hoá hoàn toàn chỉ số PvP về chỉ số chuẩn của loài | AI (2026-10-11) | P4 | loại | User chọn giữ phân bố ngẫu nhiên và điểm cấp độ/bậc trong PvP, chỉ bỏ vượt trội (2026-10-12) |
 | Chuẩn hoá cấp độ/bậc về ngưỡng PvP (đồng bộ cấp độ) | AI (2026-10-11) | P4 | loại | User: điểm cấp độ/bậc vẫn tính vì ai rồi cũng đạt được (2026-10-12) |
 | I3 Trần chỉ số cá thể đạt được bằng chơi/tiền (kiểu Hyper Training) | AI (2026-10-11) | P4 | loại | Mua bằng tiền nạp được mức vượt người không nạp → vi phạm nguyên tắc chặn ở mức tối đa |
