@@ -1,0 +1,698 @@
+{
+  "formatVersion": 1,
+  "language": "English",
+  "entries": [
+    {
+      "key": "bag.button",
+      "text": "Bag (B)"
+    },
+    {
+      "key": "bag.empty",
+      "text": "The bag is empty"
+    },
+    {
+      "key": "bag.hint",
+      "text": "Click a seed bag to sow · B / Esc: close"
+    },
+    {
+      "key": "bag.row_block",
+      "text": "{0} × {1}"
+    },
+    {
+      "key": "bag.row_produce",
+      "text": "Produce {0} × {1}"
+    },
+    {
+      "key": "bag.row_seeds",
+      "text": "Seed bag {0} × {1}"
+    },
+    {
+      "key": "bag.title",
+      "text": "Bag"
+    },
+    {
+      "key": "creature.ability_harvest",
+      "text": "harvest"
+    },
+    {
+      "key": "creature.ability_haul",
+      "text": "haul"
+    },
+    {
+      "key": "creature.ability_sow",
+      "text": "sow"
+    },
+    {
+      "key": "creature.ability_till",
+      "text": "till"
+    },
+    {
+      "key": "creature.ability_water",
+      "text": "water"
+    },
+    {
+      "key": "creature.head",
+      "text": "{0} · "
+    },
+    {
+      "key": "creature.idle",
+      "text": "idle"
+    },
+    {
+      "key": "creature.moving",
+      "text": "walking"
+    },
+    {
+      "key": "creature.moving_to",
+      "text": "walking → {0}"
+    },
+    {
+      "key": "creature.reason_no_ability",
+      "text": "lacks ability"
+    },
+    {
+      "key": "creature.reason_no_path",
+      "text": "no path"
+    },
+    {
+      "key": "creature.reason_no_seeds",
+      "text": "out of seeds"
+    },
+    {
+      "key": "creature.reason_storage_full",
+      "text": "storage full"
+    },
+    {
+      "key": "creature.working",
+      "text": "{0} {1}%"
+    },
+    {
+      "key": "crop.name",
+      "text": "Crop {0}"
+    },
+    {
+      "key": "edit.camera_placed",
+      "text": "Observation camera placed at {0}"
+    },
+    {
+      "key": "edit.collect_none",
+      "text": "Collect: no dropped items within {0:0.#} cells"
+    },
+    {
+      "key": "edit.collect_ok",
+      "text": "Collect: picked up {0} stacks of dropped items"
+    },
+    {
+      "key": "edit.dig_fail",
+      "text": "Dig {0}: failed — {1}"
+    },
+    {
+      "key": "edit.dig_ok",
+      "text": "Dig {0}: dropped 1 {1}"
+    },
+    {
+      "key": "edit.explain_no_material",
+      "text": "none of this type left in the bag (pick up dropped items with F or right-click, or choose another type with 1–4 / Alt + mouse wheel)"
+    },
+    {
+      "key": "edit.explain_not_attached",
+      "text": "must be next to a solid block"
+    },
+    {
+      "key": "edit.explain_not_diggable",
+      "text": "empty cell, water, bedrock or story block"
+    },
+    {
+      "key": "edit.explain_not_empty",
+      "text": "cell already has a block"
+    },
+    {
+      "key": "edit.explain_not_placeable",
+      "text": "this type can't be placed"
+    },
+    {
+      "key": "edit.explain_occupied",
+      "text": "cell is occupied, or dropped items in it have no room to be pushed up"
+    },
+    {
+      "key": "edit.explain_out_of_bounds",
+      "text": "outside the map"
+    },
+    {
+      "key": "edit.mark",
+      "text": "Marked for tilling {0}"
+    },
+    {
+      "key": "edit.open_plot",
+      "text": "Opened plot {0}"
+    },
+    {
+      "key": "edit.open_stock",
+      "text": "Opened storage"
+    },
+    {
+      "key": "edit.pick",
+      "text": "Picked up {0}"
+    },
+    {
+      "key": "edit.place_fail",
+      "text": "Place {0}: failed — {1}"
+    },
+    {
+      "key": "edit.place_ok",
+      "text": "Placed {0} {1}"
+    },
+    {
+      "key": "edit.stock_far",
+      "text": "Storage out of reach ({0:0.#} cells)"
+    },
+    {
+      "key": "edit.till_invalid",
+      "text": "Till {0}: failed — only the top of a dirt/grass cell, with empty space above, inside the farm area"
+    },
+    {
+      "key": "farm.harvest",
+      "text": "Harvested {0}: +{1} produce, +{2} seeds"
+    },
+    {
+      "key": "farm.hud_produce",
+      "text": "\nProduce {0}: {1}"
+    },
+    {
+      "key": "farm.hud_seeds",
+      "text": "\nSeed bag {0}: {1}"
+    },
+    {
+      "key": "farm.hud_sow",
+      "text": "\nSowing {0} ({1} left) — Esc / Tab to exit"
+    },
+    {
+      "key": "farm.hud_tilling",
+      "text": "\nTilling cell {0}: {1}/{2} s"
+    },
+    {
+      "key": "farm.hud_walking",
+      "text": "\nWalking to cell {0}…"
+    },
+    {
+      "key": "farm.rain_cooldown",
+      "text": "Rain: {0} s left"
+    },
+    {
+      "key": "farm.rain_far",
+      "text": "Rain: out of reach ({0:0.#} cells)"
+    },
+    {
+      "key": "farm.rain_grassed",
+      "text": "Rain: dirt cell {0} turned to grass"
+    },
+    {
+      "key": "farm.rain_hud_cooldown",
+      "text": "Rain (R): {0} s"
+    },
+    {
+      "key": "farm.rain_no_effect",
+      "text": "Rain: no effect — only on a plot waiting for water, or a dirt cell with empty space above"
+    },
+    {
+      "key": "farm.rain_ready",
+      "text": "Rain (R): ready"
+    },
+    {
+      "key": "farm.rain_watered",
+      "text": "Rain: watered plot cell {0}"
+    },
+    {
+      "key": "farm.sow_exit",
+      "text": "Left sowing mode"
+    },
+    {
+      "key": "farm.sow_far",
+      "text": "Sow: out of reach ({0:0.#} cells)"
+    },
+    {
+      "key": "farm.sow_has_crop",
+      "text": "Sow: cell already has a crop"
+    },
+    {
+      "key": "farm.sow_last",
+      "text": " · out of seeds, left sowing mode"
+    },
+    {
+      "key": "farm.sow_no_plot",
+      "text": "Sow: only into a tilled plot"
+    },
+    {
+      "key": "farm.sow_no_seeds",
+      "text": "Sow: no {0} seeds in the bag"
+    },
+    {
+      "key": "farm.sow_not_tilled",
+      "text": "Sow: cell isn't fully tilled yet"
+    },
+    {
+      "key": "farm.sow_ok",
+      "text": "Sowed {0} in cell {1}"
+    },
+    {
+      "key": "farm.sow_other",
+      "text": "Cell is waiting for {0} to be sown"
+    },
+    {
+      "key": "farm.till_cancel",
+      "text": "Self-till cancelled"
+    },
+    {
+      "key": "farm.till_done",
+      "text": "Finished tilling cell {0}"
+    },
+    {
+      "key": "farm.till_done_by_other",
+      "text": "Self-till: cell already tilled"
+    },
+    {
+      "key": "farm.till_fly_off",
+      "text": "Self-till: turn off fly camera (F3) first"
+    },
+    {
+      "key": "farm.till_need_player",
+      "text": "Self-till: needs a character"
+    },
+    {
+      "key": "farm.till_not_needed",
+      "text": "Self-till: this cell doesn't need tilling"
+    },
+    {
+      "key": "farm.till_walking",
+      "text": "Self-till cell {0}: walking there"
+    },
+    {
+      "key": "farm.unreachable",
+      "text": "Can't reach this cell"
+    },
+    {
+      "key": "hud.aimed_drop",
+      "text": "\nPick up (right-click): {0}"
+    },
+    {
+      "key": "hud.aimed_harvest",
+      "text": "\nHarvest (right-click): {0}"
+    },
+    {
+      "key": "hud.bag",
+      "text": "Bag: "
+    },
+    {
+      "key": "hud.bag_item",
+      "text": "{0} {1}: {2}   "
+    },
+    {
+      "key": "hud.bag_sel",
+      "text": "<b><color=yellow>[{0} {1}: {2}]</color></b>   "
+    },
+    {
+      "key": "hud.camera_help",
+      "text": "Camera: right-click a block = place the observation camera 2 cells above it, facing your current view (placing again moves it) · V or the View camera button: view / return · while viewing: hold middle mouse to rotate\n"
+    },
+    {
+      "key": "hud.elevation",
+      "text": "View angle: {0} (0° = level with the sea, + looking up, - looking down)\n"
+    },
+    {
+      "key": "hud.fps",
+      "text": "F1: 30 FPS · F2: 60 FPS — target {0} · measured {1:F1} FPS · tick {2}"
+    },
+    {
+      "key": "hud.held",
+      "text": " · Holding: <b><color=yellow>{0}</color></b> (Tab switch · Esc drop)"
+    },
+    {
+      "key": "hud.held_camera",
+      "text": "Observation camera"
+    },
+    {
+      "key": "hud.help_fly",
+      "text": " · Right-click: mode action (within {0:0.#} cells of the character, instant, no walking) · F: collect dropped items (within {1:0.#} cells) · 1–4 / Alt + mouse wheel: choose block type · Fly camera: WASD, Q/E, hold middle mouse (mode keys off while flying) · stop flying to dig/place · F3: back to character\n"
+    },
+    {
+      "key": "hud.help_idle",
+      "text": " · No character: mode keys off · Tab: temporarily hold a block / observation camera · 1–4 / Alt + mouse wheel: choose block type · WASD, Q/E, hold middle mouse: camera · stop flying to dig/place\n"
+    },
+    {
+      "key": "hud.help_walk",
+      "text": " · Left-click: walk to the clicked spot (hold to follow the cursor) · left-click a plot: show its panel · A: jump · Shift: dash · Right-click: mode action / harvest / open storage / pick up (target within {0:0.#} cells, walks to {1:0.#} cells then acts) · F: collect dropped items (within {2:0.#} cells) · Tab: temporarily hold a block / observation camera · B: bag · 1–4 / Alt + mouse wheel: choose block type · hold middle mouse: rotate · mouse wheel: zoom · Space: camera behind character · X: first-person view · F3: fly camera\n"
+    },
+    {
+      "key": "hud.mode",
+      "text": "Mode: <b><color=yellow>{0}</color></b> (D default · Q dig · E till · R water)"
+    },
+    {
+      "key": "hud.mode_default",
+      "text": "Default"
+    },
+    {
+      "key": "hud.mode_dig",
+      "text": "Dig"
+    },
+    {
+      "key": "hud.mode_rain",
+      "text": "Water (Rain)"
+    },
+    {
+      "key": "hud.mode_till",
+      "text": "Till"
+    },
+    {
+      "key": "hud.rebuild",
+      "text": "\nRebuilt {0} chunks: mesh {1:F1} ms, write {2:F1} ms, bake {3:F1} ms"
+    },
+    {
+      "key": "hud.seed_bag_a",
+      "text": "\nSeed bag Crop A: {0}"
+    },
+    {
+      "key": "hud.till_help",
+      "text": "Till: right-click dirt/grass = mark · a marker sign = walk there and till · a plot = choose seeds · left-click a plot: panel (Unmark button) · K: storage\n"
+    },
+    {
+      "key": "item.dirt",
+      "text": "dirt"
+    },
+    {
+      "key": "item.drop_label",
+      "text": "{0} × {1}"
+    },
+    {
+      "key": "item.grass",
+      "text": "grass"
+    },
+    {
+      "key": "item.sand",
+      "text": "sand"
+    },
+    {
+      "key": "item.seed_bag_a",
+      "text": "Seed bag Crop A"
+    },
+    {
+      "key": "item.seed_bag_n",
+      "text": "Seed bag type {0}"
+    },
+    {
+      "key": "item.stone",
+      "text": "stone"
+    },
+    {
+      "key": "map.close",
+      "text": "Close (M)"
+    },
+    {
+      "key": "map.hint",
+      "text": "Mouse wheel / pinch: zoom · drag: pan · M / Esc / Close button: close"
+    },
+    {
+      "key": "observe.button_back",
+      "text": "Return (V)"
+    },
+    {
+      "key": "observe.button_view",
+      "text": "View camera (V)"
+    },
+    {
+      "key": "observe.loading",
+      "text": "Loading…"
+    },
+    {
+      "key": "plot.close",
+      "text": "Close (Esc)"
+    },
+    {
+      "key": "plot.empty",
+      "text": "empty"
+    },
+    {
+      "key": "plot.grow",
+      "text": "growing {0}%"
+    },
+    {
+      "key": "plot.head",
+      "text": "Plot {0} · "
+    },
+    {
+      "key": "plot.queue",
+      "text": "Queue"
+    },
+    {
+      "key": "plot.removed",
+      "text": "removed"
+    },
+    {
+      "key": "plot.resume",
+      "text": "Resume"
+    },
+    {
+      "key": "plot.ripe",
+      "text": "ripe"
+    },
+    {
+      "key": "plot.seed_title",
+      "text": "Seeds"
+    },
+    {
+      "key": "plot.self_till",
+      "text": "Self-till"
+    },
+    {
+      "key": "plot.sow",
+      "text": "sow"
+    },
+    {
+      "key": "plot.till",
+      "text": "till"
+    },
+    {
+      "key": "plot.till_tile",
+      "text": "Till"
+    },
+    {
+      "key": "plot.unmark",
+      "text": "Unmark"
+    },
+    {
+      "key": "plot.water",
+      "text": "water"
+    },
+    {
+      "key": "plot.working",
+      "text": "In progress"
+    },
+    {
+      "key": "settings.button",
+      "text": "Settings (O)"
+    },
+    {
+      "key": "settings.camera_default",
+      "text": "Reset camera"
+    },
+    {
+      "key": "settings.camera_distance",
+      "text": "Camera distance: {0:F1}"
+    },
+    {
+      "key": "settings.camera_pitch",
+      "text": "Camera pitch: {0:F0}°"
+    },
+    {
+      "key": "settings.close",
+      "text": "Close (Esc)"
+    },
+    {
+      "key": "settings.export",
+      "text": "Export base file"
+    },
+    {
+      "key": "settings.exported",
+      "text": "Exported: {0}"
+    },
+    {
+      "key": "settings.fps",
+      "text": "Target FPS"
+    },
+    {
+      "key": "settings.invert_y",
+      "text": "Invert vertical axis"
+    },
+    {
+      "key": "settings.lang_dir",
+      "text": "Language folder: {0}"
+    },
+    {
+      "key": "settings.lang_error",
+      "text": "Couldn't read language file {0} — using Vietnamese"
+    },
+    {
+      "key": "settings.language",
+      "text": "Language"
+    },
+    {
+      "key": "settings.look_sensitivity",
+      "text": "Mouse look speed: {0:F2}"
+    },
+    {
+      "key": "settings.title",
+      "text": "Settings"
+    },
+    {
+      "key": "settings.ui_scale",
+      "text": "Text size: ×{0:F2}"
+    },
+    {
+      "key": "site.progress_empty",
+      "text": "Empty"
+    },
+    {
+      "key": "site.progress_grow",
+      "text": "{0} · growing {1}%"
+    },
+    {
+      "key": "site.progress_harvest",
+      "text": "{0} · harvesting {1}%"
+    },
+    {
+      "key": "site.progress_removed",
+      "text": "Removed"
+    },
+    {
+      "key": "site.progress_sow",
+      "text": "{0} · sowing {1}%"
+    },
+    {
+      "key": "site.progress_till",
+      "text": "Tilling {0}%"
+    },
+    {
+      "key": "site.progress_till_paused",
+      "text": "Tilling {0}% · paused"
+    },
+    {
+      "key": "site.progress_water",
+      "text": "{0} · watering {1}%"
+    },
+    {
+      "key": "site.stock_head",
+      "text": "Shared storage · used {0}/{1}"
+    },
+    {
+      "key": "site.stock_line",
+      "text": "{0} · produce {1} · seeds {2}"
+    },
+    {
+      "key": "site.storage",
+      "text": "Storage · produce {0} · seeds {1} · {2}/{3}"
+    },
+    {
+      "key": "stock.bag_none",
+      "text": "No {0} {1} in the bag"
+    },
+    {
+      "key": "stock.button",
+      "text": "Storage (K)"
+    },
+    {
+      "key": "stock.dest_bag",
+      "text": "bag"
+    },
+    {
+      "key": "stock.dest_stock",
+      "text": "storage"
+    },
+    {
+      "key": "stock.full",
+      "text": "Storage full"
+    },
+    {
+      "key": "stock.hint",
+      "text": "Each click moves 1 · Shift + click: all"
+    },
+    {
+      "key": "stock.kind_produce",
+      "text": "produce"
+    },
+    {
+      "key": "stock.kind_seeds",
+      "text": "seeds"
+    },
+    {
+      "key": "stock.line",
+      "text": "{0} · storage: produce {1} · seeds {2} · bag: produce {3} · seeds {4}"
+    },
+    {
+      "key": "stock.moved",
+      "text": "Moved {0} {1} {2} → {3}"
+    },
+    {
+      "key": "stock.none",
+      "text": "No {0} {1} in storage"
+    },
+    {
+      "key": "stock.produce_to_bag",
+      "text": "Produce → bag"
+    },
+    {
+      "key": "stock.produce_to_stock",
+      "text": "Produce → storage"
+    },
+    {
+      "key": "stock.seeds_to_bag",
+      "text": "Seeds → bag"
+    },
+    {
+      "key": "stock.seeds_to_stock",
+      "text": "Seeds → storage"
+    },
+    {
+      "key": "stock.too_far",
+      "text": "Move closer to the storage ({0:0.#} cells) to transfer items"
+    },
+    {
+      "key": "time.current",
+      "text": "Time of day: {0}"
+    },
+    {
+      "key": "time.hint",
+      "text": "Pick a time · T / Esc: close"
+    },
+    {
+      "key": "time.landmark_dawn",
+      "text": "Dawn"
+    },
+    {
+      "key": "time.landmark_dusk",
+      "text": "Dusk"
+    },
+    {
+      "key": "time.landmark_midnight",
+      "text": "Midnight"
+    },
+    {
+      "key": "time.landmark_noon",
+      "text": "Noon"
+    },
+    {
+      "key": "time.period_dawn",
+      "text": "Dawn"
+    },
+    {
+      "key": "time.period_day",
+      "text": "Day"
+    },
+    {
+      "key": "time.period_dusk",
+      "text": "Dusk"
+    },
+    {
+      "key": "time.period_night",
+      "text": "Night"
+    }
+  ]
+}

@@ -171,10 +171,6 @@
       "text": "Xới {0}: không được — chỉ mặt trên ô đất/cỏ, phía trên trống, trong vùng trại"
     },
     {
-      "key": "edit.unmark",
-      "text": "Bỏ đánh dấu {0}"
-    },
-    {
       "key": "farm.harvest",
       "text": "Thu hoạch {0}: +{1} nông sản, +{2} hạt"
     },

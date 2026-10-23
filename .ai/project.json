@@ -149,8 +149,18 @@
       "flux-non-commercial-license"
     ]
   },
+  "translation": {
+    "_comment": "Skill translation của kit (>= 0.18.0). Nguồn = file chuỗi gốc tiếng Việt của client (0032). Ngữ cảnh viết tiếng Anh trong loc/context.json. keep: tên phím / FPS giữ nguyên văn (user 2026-10-23). Bản tiếng Anh loc/en.json là bản chuẩn để dịch tiếp (user 2026-10-23).",
+    "source": "client/Assets/Game/Client/Resources/Lang/vi.json",
+    "context": "loc/context.json",
+    "keep": ["Esc", "Tab", "Shift", "Alt", "Space", "WASD", "F1", "F2", "F3", "FPS", "1–4", "A", "B", "D", "E", "F", "K", "M", "O", "Q", "R", "T", "V", "X"],
+    "ambiguous": ["đi", "rảnh", "kho", "túi", "hạt", "mưa", "chín", "lớn", "đặt", "thu", "đá", "cây", "trống", "biển", "đất", "mở", "bỏ", "đào", "xới", "tưới"],
+    "context_max_words": 3,
+    "context_language": "en"
+  },
   "context_warn_tokens": 150000,
   "context_handoff_tokens": 250000,
   "context_window_tokens": 1000000,
-  "_context": "Cảnh báo context theo token thật (kit ≥ 0.5.0). context_window_tokens = cửa sổ của model đang dùng (1M); cảnh báo mạnh khi ≥ 85%. context_handoff_tokens (kit ≥ 0.8.0): vượt ngưỡng thì xong bước là handoff + /clear kể cả cùng task."
+  "_context": "Cảnh báo context theo token thật (kit ≥ 0.5.0). context_window_tokens = cửa sổ của model đang dùng (1M); cảnh báo mạnh khi ≥ 85%. context_handoff_tokens (kit ≥ 0.8.0): vượt ngưỡng thì xong bước là handoff + /clear kể cả cùng task.",
+  "child_sessions": {"auto_chain": true}
 }
