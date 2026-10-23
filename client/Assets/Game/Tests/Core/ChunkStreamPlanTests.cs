@@ -198,6 +198,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(0, plan.LoadedCount);
             Assert.Throws<ArgumentException>(() => plan.Update(new StreamViewpoint[0], 0, load, unload));
             Assert.Throws<ArgumentOutOfRangeException>(() => new ChunkStreamPlan(24, 24, 128, 160, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => plan.Update(new[] { new StreamViewpoint(192, 192, 128, 100) }, 0, load, unload));
+            Assert.Throws<ArgumentOutOfRangeException>(() => plan.Update(new[] { new StreamViewpoint(192, 192, -1, 160) }, 0, load, unload));
+            Assert.AreEqual(0, plan.LoadedCount);
         }
     }
 }

@@ -127,22 +127,23 @@ namespace Game.Client.Tests
                 Assert.AreEqual(2, view.ViewpointCount);
                 Assert.AreEqual(view.LoadedColumnCount * 3, view.LoadedChunkCount);
 
-                var cell = view.CellAt(t.position);
+                var pc = view.CellAt(camGo.transform.position);
+                var held = new System.Collections.Generic.List<int>();
+                for (int col = 0; col < 576; col++)
+                    if (view.ChunkMesh(col) != null && ChunkStreamPlan.DistanceSq(pc.x, pc.z, col % 24, col / 24) > 160L * 160)
+                        held.Add(col);
+                Assert.IsNotEmpty(held);
                 Assert.IsTrue(view.RemoveViewpoint(t));
                 bool clear = false;
                 for (int i = 0; i < 300 && !clear; i++)
                 {
                     yield return null;
                     clear = true;
-                    for (int col = 0; col < 576 && clear; col++)
-                    {
-                        long dSecond = ChunkStreamPlan.DistanceSq(cell.x, cell.z, col % 24, col / 24);
-                        var pc = view.CellAt(camGo.transform.position);
-                        long dPrimary = ChunkStreamPlan.DistanceSq(pc.x, pc.z, col % 24, col / 24);
-                        if (dSecond > 160L * 160 && dPrimary > 160L * 160 && view.ChunkMesh(col) != null) clear = false;
-                    }
+                    foreach (int col in held)
+                        if (view.ChunkMesh(col) != null) { clear = false; break; }
                 }
                 Assert.IsTrue(clear, "Columns of the removed viewpoint still loaded after 300 frames");
+                AssertLoadedWithinUnloadRadius();
                 Assert.AreEqual(1, view.ViewpointCount);
                 Assert.AreEqual(0, view.MissingColumnsWithin(128));
             }
