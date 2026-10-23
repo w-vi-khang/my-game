@@ -188,58 +188,16 @@ namespace Game.Client.Tests
         static Vector2 ScreenOf(Rect r, float s) => new Vector2(r.center.x * s, Screen.height - r.center.y * s);
 
         [Test]
-        public void BagRowsList()
-        {
-            var cfg = sv.Sim.Config;
-            var rows = new List<SimView.BagRow>();
-            SimView.BagRows(view.Bag, cfg, rows);
-            Assert.AreEqual(1, rows.Count); // chỉ dòng camera quan sát
-            view.Bag.Add(BlockMaterial.Dirt, 3);
-            view.Bag.AddSeeds(0, 4);
-            view.Bag.AddProduce(1, 2);
-            SimView.BagRows(view.Bag, cfg, rows);
-            Assert.AreEqual(4, rows.Count);
-            Assert.AreEqual("Đất × 3", rows[0].Label); // vi-text
-            Assert.AreEqual(ItemId.Block(BlockMaterial.Dirt), rows[0].Item);
-            Assert.IsTrue(rows[0].Holdable);
-            Assert.AreEqual("Túi hạt Cây A × 4", rows[1].Label); // vi-text
-            Assert.AreEqual(ItemId.SeedBag(0), rows[1].Item);
-            Assert.IsTrue(rows[1].Holdable);
-            Assert.AreEqual("Nông sản Cây B × 2", rows[2].Label); // vi-text
-            Assert.IsFalse(rows[2].Holdable);
-            Assert.AreEqual("Camera quan sát × 1", rows[3].Label); // vi-text
-            Assert.AreEqual(ItemId.Tool(ToolItem.ObservationCamera), rows[3].Item);
-            Assert.IsTrue(rows[3].Holdable);
-        }
-
-        [Test]
-        public void BagPanelBlocksPointer()
-        {
-            float s = Mathf.Max(1f, Screen.height / 720f), gw = Screen.width / s, gh = Screen.height / s;
-            var bagRows = new List<SimView.BagRow>();
-            SimView.BagRows(view.Bag, sv.Sim.Config, bagRows);
-            int rows = bagRows.Count;
-            var panel = ScreenOf(SimView.BagPanelRect(gw, gh, rows), s);
-            var button = ScreenOf(SimView.BagButtonRect(gw, gh), s);
-            sv.ToggleBag();
-            Assert.IsTrue(sv.BagOpen);
-            Assert.IsTrue(sv.Covers(panel));
-            sv.ToggleBag();
-            Assert.IsFalse(sv.BagOpen);
-            Assert.IsFalse(sv.Covers(panel));
-            Assert.IsTrue(sv.Covers(button));
-        }
-
-        [Test]
         public void HoldSeedRules()
         {
             view.Bag.AddSeeds(0, 2);
-            sv.ToggleBag();
-            Assert.IsTrue(sv.HoldFromBag(ItemId.SeedBag(0)));
+            var inv = input.Inventory;
+            inv.ToggleBag();
+            Assert.IsTrue(inv.HoldFromSlot(ItemContainer.Bag, 1)); // ô 0 = camera quan sát, ô 1 = túi hạt
             Assert.AreEqual(ItemId.SeedBag(0), input.Control.Held);
-            Assert.IsFalse(sv.BagOpen);
+            Assert.IsFalse(inv.BagOpen);
             StringAssert.Contains("Cầm: <b><color=yellow>Túi hạt Cây A</color></b>", input.HudText()); // vi-text
-            Assert.IsFalse(sv.HoldFromBag(ItemId.SeedBag(1))); // hết hạt loại 1
+            Assert.IsFalse(input.HoldItem(ItemId.SeedBag(1))); // hết hạt loại 1
             Assert.AreEqual(ItemId.SeedBag(0), input.Control.Held);
 
             input.Control.ClearToDefault();
@@ -365,67 +323,6 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator StockTransferInReach()
-        {
-            yield return GoNearStorage();
-            Assert.IsTrue(sv.CanTransferStock);
-            var stock = sv.Sim.State.Stock;
-            int s0 = stock.Seeds[0];
-            view.Bag.AddSeeds(0, 3);
-            Assert.AreEqual(1, sv.TransferStock(0, false, false, false));
-            Assert.AreEqual(2, view.Bag.GetSeeds(0));
-            Assert.AreEqual(s0 + 1, stock.Seeds[0]);
-            Assert.AreEqual("Đã chuyển 1 hạt Cây A → kho", sv.StockMessage); // vi-text
-            Assert.AreEqual(2, sv.TransferStock(0, false, false, true));
-            Assert.AreEqual(0, view.Bag.GetSeeds(0));
-            Assert.AreEqual(s0 + 3, stock.Seeds[0]);
-            Assert.AreEqual(s0 + 3, sv.TransferStock(0, false, true, true));
-            Assert.AreEqual(s0 + 3, view.Bag.GetSeeds(0));
-            Assert.AreEqual(0, stock.Seeds[0]);
-            view.Bag.TryTakeSeeds(0, view.Bag.GetSeeds(0));
-
-            int p0 = stock.Produce[0];
-            view.Bag.AddProduce(0, 2);
-            Assert.AreEqual(2, sv.TransferStock(0, true, false, true));
-            Assert.AreEqual(p0 + 2, stock.Produce[0]);
-
-            Assert.AreEqual(0, sv.TransferStock(1, true, true, false));
-            Assert.AreEqual("Kho không có nông sản Cây B", sv.StockMessage); // vi-text
-            Assert.AreEqual(0, sv.TransferStock(1, false, false, false));
-            Assert.AreEqual("Túi không có hạt Cây B", sv.StockMessage); // vi-text
-        }
-
-        [UnityTest]
-        public IEnumerator StockFull()
-        {
-            yield return GoNearStorage();
-            var stock = sv.Sim.State.Stock;
-            int cap = stock.Capacity;
-            try
-            {
-                stock.Capacity = stock.SeedsTotal + stock.ProduceTotal + stock.Reserved + 1;
-                view.Bag.AddSeeds(0, 3);
-                Assert.AreEqual(1, sv.TransferStock(0, false, false, true));
-                Assert.AreEqual(0, sv.TransferStock(0, false, false, true));
-                Assert.AreEqual("Kho đầy", sv.StockMessage); // vi-text
-            }
-            finally { stock.Capacity = cap; }
-        }
-
-        [UnityTest]
-        public IEnumerator StockOutOfReach()
-        {
-            yield return GoFarFromStorage();
-            Assert.IsFalse(sv.CanTransferStock);
-            view.Bag.AddSeeds(0, 3);
-            int s0 = sv.Sim.State.Stock.Seeds[0];
-            Assert.AreEqual(0, sv.TransferStock(0, false, false, true));
-            Assert.AreEqual("Lại gần kho (10 ô) để chuyển đồ", sv.StockMessage); // vi-text
-            Assert.AreEqual(3, view.Bag.GetSeeds(0));
-            Assert.AreEqual(s0, sv.Sim.State.Stock.Seeds[0]);
-        }
-
-        [UnityTest]
         public IEnumerator ClickStorageBlock()
         {
             Collider storage = null, terrain = null;
@@ -438,13 +335,13 @@ namespace Game.Client.Tests
             Assert.AreEqual(0, sv.StorageIdOf(storage));
             if (terrain != null) Assert.AreEqual(-1, sv.StorageIdOf(terrain));
             yield return GoNearStorage();
-            if (sv.StockOpen) sv.ToggleStock();
+            input.Inventory.CloseAll();
             Assert.IsTrue(sv.OpenStockAt(0));
-            Assert.IsTrue(sv.StockOpen);
-            sv.ToggleStock();
+            Assert.IsTrue(input.Inventory.StockOpen);
+            input.Inventory.CloseAll();
             yield return GoFarFromStorage();
             Assert.IsFalse(sv.OpenStockAt(0));
-            Assert.IsFalse(sv.StockOpen);
+            Assert.IsFalse(input.Inventory.StockOpen);
         }
 
         [Test]

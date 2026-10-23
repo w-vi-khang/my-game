@@ -235,17 +235,10 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator StockToggleAndPointerBlock()
+        public IEnumerator PlotPanelBlocksPointer()
         {
-            Assert.IsFalse(sv.StockOpen);
-            sv.ToggleStock();
-            Assert.IsTrue(sv.StockOpen);
-            sv.ToggleStock();
-            Assert.IsFalse(sv.StockOpen);
-
             float s = Mathf.Max(1, Screen.height / 720f);
             float gw = Screen.width / s, gh = Screen.height / s;
-            Assert.IsTrue(SimView.BlocksPointer(ToScreen(SimView.StockButtonRect(gw, gh))));
             Assert.IsFalse(SimView.BlocksPointer(new Vector2(Screen.width / 2, Screen.height / 2)));
             OpenPlot0();
             Assert.IsTrue(SimView.BlocksPointer(ToScreen(SimView.PlotPanelRect(gw, gh))));

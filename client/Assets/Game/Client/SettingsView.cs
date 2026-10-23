@@ -62,7 +62,7 @@ namespace Game.Client
         public bool OtherPanelOpen()
         {
             if (ObservationCamera.BlocksBack) return true;
-            if (sim != null && (sim.BagOpen || sim.StockOpen || sim.OpenPlotId >= 0)) return true;
+            if (InventoryView.AnyOpen || (sim != null && sim.OpenPlotId >= 0)) return true;
             if (MinimapView.IsAnyOpen || TimeDial.IsAnyOpen) return true;
             return editInput != null && editInput.Control.HasHeld;
         }

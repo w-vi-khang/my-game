@@ -104,7 +104,7 @@ namespace Game.Client.Tests
             yield return Teleport(Local(player.StarterStack.X + 0.5f, player.StarterStack.Y, player.StarterStack.Z - 0.5f));
             Assert.GreaterOrEqual(input.CollectNearby(), 1);
             Assert.AreEqual(4, view.Bag.GetSeeds(0));
-            StringAssert.Contains("Túi hạt Cây A: 4", input.HudText()); // vi-text
+            Assert.AreEqual(4, input.Inventory.SlotAt(ItemContainer.Bag, 1).Count); // túi hạt vào ô 1 (ô 0 = camera quan sát); HUD không còn dòng túi tạm
             yield return null;
         }
 

@@ -6,7 +6,7 @@ using Game.World;
 namespace Game.Client
 {
     /// <summary>
-    /// Điều khiển PC trong scene (0033, 0034): phím 1–4 / Alt + lăn chọn loại khối.
+    /// Điều khiển PC trong scene (0033, 0034): túi ô vuông ở InventoryView (brief 0062).
     /// World 7l c1 (brief 0058): chế độ D/Q/E/R (ControlState), chuột phải theo RightClick.Resolve trong 10 ô rồi tự đi tới 2 ô (WalkToAct), lớp đỏ, F Thu 2 ô, click trái ô ruộng → bảng.
     /// World 7l c2 (brief 0059): cầm vật phẩm từ bảng túi (khối / túi hạt / camera quan sát, HoldItem), bản mờ đỏ khi sai chỗ, hết → thôi cầm; vòng tầm chỉ khi chuột phải ngoài tầm; F hiện vùng + gió.
     /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021). Vật rơi / kho dưới con trỏ là đích của chuột phải (nhặt / mở kho).
@@ -27,7 +27,6 @@ namespace Game.Client
         TerrainChunkView view;
         MeshRenderer highlightRenderer;
         Transform highlight;
-        int selected;
         string lastResult = "";
         PlayerCharacter seenPlayer;
         int seenRespawns;
@@ -48,7 +47,6 @@ namespace Game.Client
         public bool HighlightVisible => highlightRenderer.enabled;
         public Vector3Int HighlightCell { get; private set; }
         public bool ReachRingVisible { get { var p = PlayerCharacter.Active; return p != null && p.Markers.ReachRingVisible; } }
-        public BlockMaterial SelectedMaterial => Palette[selected];
         public GameObject Ghost { get; private set; }
         public bool GhostVisible => ghostRenderer.enabled;
         public Vector3Int GhostCell => Vector3Int.RoundToInt(Ghost.transform.localPosition);
@@ -63,6 +61,8 @@ namespace Game.Client
 
         /// <summary>Tự xới / Mưa / thu hoạch (brief 0041); thêm trong Awake nếu chưa có.</summary>
         public PlayerFarmActions Farming { get; private set; }
+        /// <summary>Túi / túi phụ / kho ô vuông (brief 0062); thêm trong Awake nếu chưa có.</summary>
+        public InventoryView Inventory { get; private set; }
         /// <summary>Observation camera (brief 0053); added in Awake if missing.</summary>
         public ObservationCamera Observation { get; private set; }
         /// <summary>Id ô ruộng chín đang ngắm (trong tầm); -1 nếu không.</summary>
@@ -77,6 +77,8 @@ namespace Game.Client
             if (DropView == null) DropView = gameObject.AddComponent<DropView>();
             Farming = GetComponent<PlayerFarmActions>();
             if (Farming == null) Farming = gameObject.AddComponent<PlayerFarmActions>();
+            Inventory = GetComponent<InventoryView>();
+            if (Inventory == null) Inventory = gameObject.AddComponent<InventoryView>();
             Observation = GetComponent<ObservationCamera>();
             if (Observation == null) Observation = gameObject.AddComponent<ObservationCamera>();
         }
@@ -97,10 +99,6 @@ namespace Game.Client
             if (Observation.Engaged) { Walk.Cancel(player, false); HideAim(); return; } // xem camera quan sát: không công cụ (brief 0053)
             if (Walk.Tick(player)) lastResult = T("farm.unreachable");
             DropHeldIfEmpty();
-            if (GameInput.SelectBlock1.WasPressedThisFrame()) SelectMaterial(0);
-            if (GameInput.SelectBlock2.WasPressedThisFrame()) SelectMaterial(1);
-            if (GameInput.SelectBlock3.WasPressedThisFrame()) SelectMaterial(2);
-            if (GameInput.SelectBlock4.WasPressedThisFrame()) SelectMaterial(3);
             if (player != null && !player.FlyMode)
             {
                 if (GameInput.ModeDefault.WasPressedThisFrame()) ToggleMode(ControlMode.Default);
@@ -114,22 +112,11 @@ namespace Game.Client
             bool hasPointer = GameInput.HasPointer;
             var pointer = GameInput.PointerPosition;
             // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
-            if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer) || ObservationCamera.BlocksPointer(pointer)))
+            if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer) || InventoryView.BlocksPointer(pointer) || ObservationCamera.BlocksPointer(pointer)))
             {
                 HideAim();
                 return;
             }
-            if (hasPointer)
-            {
-                // Alt + lăn chuột đổi loại (lăn không Alt = thu phóng camera nhân vật, user 2026-10-22).
-                if (GameInput.CycleBlockModifier.IsPressed())
-                {
-                    float wheel = GameInput.Zoom.ReadValue<float>();
-                    if (wheel > 0.01f) SelectMaterial((selected + Palette.Length - 1) % Palette.Length);
-                    else if (wheel < -0.01f) SelectMaterial((selected + 1) % Palette.Length);
-                }
-            }
-
             var cam = Camera.main;
             if (!hasPointer || cam == null || view.Editor == null)
                 return;
@@ -174,14 +161,13 @@ namespace Game.Client
             Control.ToggleMode(m);
         }
 
-        /// <summary>Cầm vật phẩm (0034 mục 4): khối / túi hạt (túi còn ≥ 1; hạt cần có Sim) hoặc camera quan sát. Huỷ tự xới + đi tới (dừng nhân vật). Khối thuộc bảng 1–4 → đổi loại đang chọn theo. false (không đổi gì) khi đang xem camera quan sát, không có túi, hết, hoặc nông sản.</summary>
+        /// <summary>Cầm vật phẩm (0034 mục 4): khối / túi hạt (túi còn ≥ 1; hạt cần có Sim) hoặc camera quan sát. Huỷ tự xới + đi tới (dừng nhân vật). false (không đổi gì) khi đang xem camera quan sát, không có túi, hết, hoặc nông sản.</summary>
         public bool HoldItem(ItemId item)
         {
             if (Observation != null && Observation.Engaged) return false;
             if (!CanHold(item)) return false;
             Farming.CancelSelfTill();
             Walk.Cancel(PlayerCharacter.Active, true);
-            if (item.Kind == ItemKind.Block) { int i = System.Array.IndexOf(Palette, item.Material); if (i >= 0) selected = i; }
             Control.Hold(item);
             return true;
         }
@@ -208,16 +194,8 @@ namespace Game.Client
             lastResult += Format("hold.empty", label);
         }
 
-        /// <summary>Phím 1–4 / Alt + lăn: chọn loại i; đang cầm khối → cầm loại mới (túi hết loại đó → không đổi, dòng "Túi không còn…"). Không cầm → chỉ đổi loại đang chọn.</summary>
-        public void SelectMaterial(int i)
-        {
-            if (Control.HasHeld && Control.Held.Kind == ItemKind.Block)
-            {
-                if (!HoldItem(ItemId.Block(Palette[i]))) lastResult = Format("hold.none", Name(Palette[i]));
-                return;
-            }
-            selected = i;
-        }
+        /// <summary>Ghi dòng kết quả HUD (InventoryView báo không cầm được).</summary>
+        public void SetResult(string text) => lastResult = text;
 
         Vector3Int StorageCell(int sid)
         {
@@ -540,13 +518,6 @@ namespace Game.Client
             var cam = Camera.main;
             if (cam != null)
                 text += Format("hud.elevation", FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y)));
-            text += T("hud.bag");
-            for (int i = 0; i < Palette.Length; i++)
-                text += i == selected
-                    ? Format("hud.bag_sel", i + 1, PaletteName(i), view.Bag.Get(Palette[i]))
-                    : Format("hud.bag_item", i + 1, PaletteName(i), view.Bag.Get(Palette[i]));
-            int seeds = view.Bag.GetSeeds(StarterBag.Crop);
-            if (seeds > 0) text += Format("hud.seed_bag_a", seeds);
             if (AimedDrop != null) text += Format("hud.aimed_drop", DropLabel(AimedDrop));
             if (Farming != null) text += "\n" + Farming.HudLines();
             if (AimedHarvest >= 0) text += Format("hud.aimed_harvest", Game.Core.View.SiteStatus.CropName(GameSettings.Text, Farm.Sim.Config, Farm.Sim.State.Plots[AimedHarvest].CurrentCrop));

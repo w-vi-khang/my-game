@@ -152,12 +152,6 @@ namespace Game.Client.Tests
             SetBag(BlockMaterial.Sand, 0);
             Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             Assert.AreEqual(BlockMaterial.Dirt, input.Control.Held.Material);
-            Assert.AreEqual(BlockMaterial.Dirt, input.SelectedMaterial);
-            input.SelectMaterial(2);
-            Assert.AreEqual(BlockMaterial.Stone, input.Control.Held.Material);
-            input.SelectMaterial(3); // Cát, túi 0
-            Assert.AreEqual(BlockMaterial.Stone, input.Control.Held.Material);
-            StringAssert.Contains("Túi không còn cát", input.HudText()); // vi-text
             Assert.IsTrue(input.HoldItem(ItemId.Tool(ToolItem.ObservationCamera)));
             Assert.AreEqual(ItemKind.Tool, input.Control.Held.Kind);
             Assert.IsFalse(input.HoldItem(ItemId.Produce(0)));
@@ -589,18 +583,16 @@ namespace Game.Client.Tests
         [UnityTest]
         public IEnumerator BagPanelHoldsAndCloses()
         {
-            sv.ToggleBag();
-            Assert.IsTrue(sv.BagOpen);
-            var rows = new System.Collections.Generic.List<SimView.BagRow>();
-            SimView.BagRows(view.Bag, sv.Sim.Config, rows);
-            var last = rows[rows.Count - 1];
-            Assert.AreEqual(ItemId.Tool(ToolItem.ObservationCamera), last.Item);
-            Assert.IsTrue(last.Holdable);
-            Assert.AreEqual("Camera quan sát × 1", last.Label); // vi-text
-            Assert.IsTrue(sv.HoldFromBag(ItemId.Tool(ToolItem.ObservationCamera)));
-            Assert.IsFalse(sv.BagOpen);
+            var inv = input.Inventory;
+            inv.ToggleBag();
+            Assert.IsTrue(inv.BagOpen);
+            Assert.AreEqual(ItemId.Tool(ToolItem.ObservationCamera), inv.SlotAt(ItemContainer.Bag, 0).Item);
+            Assert.IsTrue(inv.HoldFromSlot(ItemContainer.Bag, 0));
+            Assert.IsFalse(inv.BagOpen);
             Assert.AreEqual(ItemKind.Tool, input.Control.Held.Kind);
-            Assert.IsFalse(sv.HoldFromBag(ItemId.Produce(0)));
+            view.Bag.AddProduce(0, 1);
+            inv.ToggleBag();
+            Assert.IsFalse(inv.HoldFromSlot(ItemContainer.Bag, 1));
             yield break;
         }
     }

@@ -243,7 +243,7 @@ namespace Game.Client.Tests
             Assert.IsFalse(settings.IsOpen);
             Assert.IsFalse(GameSettings.Dirty);
             Assert.IsTrue(File.Exists(GameSettings.SettingsPath));
-            sv.ToggleBag();
+            go.GetComponent<InventoryView>().ToggleBag();
             settings.HandleKeys(false, true);
             Assert.IsFalse(settings.IsOpen);
             yield return null;

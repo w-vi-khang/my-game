@@ -3,36 +3,8 @@
   "language": "Tiếng Việt",
   "entries": [
     {
-      "key": "bag.button",
-      "text": "Túi (B)"
-    },
-    {
-      "key": "bag.empty",
-      "text": "Túi trống"
-    },
-    {
       "key": "bag.full",
       "text": "Túi đầy"
-    },
-    {
-      "key": "bag.hint",
-      "text": "Bấm vật phẩm để cầm · B / Esc: đóng"
-    },
-    {
-      "key": "bag.row_block",
-      "text": "{0} × {1}"
-    },
-    {
-      "key": "bag.row_produce",
-      "text": "Nông sản {0} × {1}"
-    },
-    {
-      "key": "bag.row_seeds",
-      "text": "Túi hạt {0} × {1}"
-    },
-    {
-      "key": "bag.title",
-      "text": "Túi"
     },
     {
       "key": "creature.ability_harvest",
@@ -291,28 +263,12 @@
       "text": " · hết {0}, thôi cầm"
     },
     {
-      "key": "hold.none",
-      "text": "Túi không còn {0}"
-    },
-    {
       "key": "hud.aimed_drop",
       "text": "\nNhặt (chuột phải): {0}"
     },
     {
       "key": "hud.aimed_harvest",
       "text": "\nThu hoạch (chuột phải): {0}"
-    },
-    {
-      "key": "hud.bag",
-      "text": "Túi: "
-    },
-    {
-      "key": "hud.bag_item",
-      "text": "{0} {1}: {2}   "
-    },
-    {
-      "key": "hud.bag_sel",
-      "text": "<b><color=yellow>[{0} {1}: {2}]</color></b>   "
     },
     {
       "key": "hud.camera_help",
@@ -371,12 +327,60 @@
       "text": "\nDựng lại {0} chunk: mesh {1:F1} ms, ghi {2:F1} ms, bake {3:F1} ms"
     },
     {
-      "key": "hud.seed_bag_a",
-      "text": "\nTúi hạt Cây A: {0}"
-    },
-    {
       "key": "hud.till_help",
       "text": "Xới: chuột phải lên đất/cỏ = đánh dấu · lên biển = tự đi tới xới · lên ô ruộng = chọn giống · click trái ô ruộng: bảng (nút Bỏ đánh dấu) · K: kho\n"
+    },
+    {
+      "key": "inv.bag_hint",
+      "text": "Chuột phải ô: cầm · Click trái: xem · B / Esc: đóng"
+    },
+    {
+      "key": "inv.bag_title",
+      "text": "Túi (B)"
+    },
+    {
+      "key": "inv.info_bag",
+      "text": "Trong túi (gồm túi phụ): {0}"
+    },
+    {
+      "key": "inv.info_no_stock",
+      "text": "Trong kho: —"
+    },
+    {
+      "key": "inv.info_stock",
+      "text": "Trong kho: {0}"
+    },
+    {
+      "key": "inv.not_holdable",
+      "text": "Không cầm được {0}"
+    },
+    {
+      "key": "inv.page",
+      "text": "{0}/{1}"
+    },
+    {
+      "key": "inv.produce",
+      "text": "Nông sản {0}"
+    },
+    {
+      "key": "inv.seeds",
+      "text": "Túi hạt {0}"
+    },
+    {
+      "key": "inv.source_block",
+      "text": "Cách có: đào khối này (chế độ Đào, Q)"
+    },
+    {
+      "key": "inv.source_camera",
+      "text": "Cách có: có sẵn từ đầu, không mất khi dùng"
+    },
+    {
+      "key": "inv.source_produce",
+      "text": "Cách có: thu hoạch cây chín"
+    },
+    {
+      "key": "inv.source_seeds",
+      "text": "Cách có: thu hoạch cây chín, túi hạt đầu game, lấy từ kho"
     },
     {
       "key": "item.dirt",
@@ -593,70 +597,6 @@
     {
       "key": "site.storage",
       "text": "Kho · nông sản {0} · hạt {1} · {2}/{3}"
-    },
-    {
-      "key": "stock.bag_none",
-      "text": "Túi không có {0} {1}"
-    },
-    {
-      "key": "stock.button",
-      "text": "Kho (K)"
-    },
-    {
-      "key": "stock.dest_bag",
-      "text": "túi"
-    },
-    {
-      "key": "stock.dest_stock",
-      "text": "kho"
-    },
-    {
-      "key": "stock.full",
-      "text": "Kho đầy"
-    },
-    {
-      "key": "stock.hint",
-      "text": "Mỗi click 1 · Shift + click: tất cả"
-    },
-    {
-      "key": "stock.kind_produce",
-      "text": "nông sản"
-    },
-    {
-      "key": "stock.kind_seeds",
-      "text": "hạt"
-    },
-    {
-      "key": "stock.line",
-      "text": "{0} · kho: nông sản {1} · hạt {2} · túi: nông sản {3} · hạt {4}"
-    },
-    {
-      "key": "stock.moved",
-      "text": "Đã chuyển {0} {1} {2} → {3}"
-    },
-    {
-      "key": "stock.none",
-      "text": "Kho không có {0} {1}"
-    },
-    {
-      "key": "stock.produce_to_bag",
-      "text": "Nông sản → túi"
-    },
-    {
-      "key": "stock.produce_to_stock",
-      "text": "Nông sản → kho"
-    },
-    {
-      "key": "stock.seeds_to_bag",
-      "text": "Hạt → túi"
-    },
-    {
-      "key": "stock.seeds_to_stock",
-      "text": "Hạt → kho"
-    },
-    {
-      "key": "stock.too_far",
-      "text": "Lại gần kho ({0:0.#} ô) để chuyển đồ"
     },
     {
       "key": "time.current",

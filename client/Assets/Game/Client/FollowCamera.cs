@@ -97,8 +97,7 @@ namespace Game.Client
                 if (GameInput.RotateCamera.IsPressed() && !MinimapView.IsAnyOpen)
                     ApplyLook(GameInput.Look.ReadValue<Vector2>());
                 var pos = GameInput.PointerPosition;
-                bool alt = GameInput.CycleBlockModifier.IsPressed();
-                if (!alt && !MinimapView.BlocksPointer(pos) && !TimeDial.BlocksPointer(pos) && !SimView.BlocksPointer(pos))
+                if (!MinimapView.BlocksPointer(pos) && !TimeDial.BlocksPointer(pos) && !SimView.BlocksPointer(pos) && !InventoryView.BlocksPointer(pos))
                     ApplyZoom(GameInput.Zoom.ReadValue<float>());
             }
             if (!MinimapView.IsAnyOpen && !SettingsView.IsAnyOpen)

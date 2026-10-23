@@ -51,42 +51,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SelectBlock1",
-                    "type": "Button",
-                    "id": "ff2fa2d6-88b7-5346-8d8c-65367d3cf253",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SelectBlock2",
-                    "type": "Button",
-                    "id": "2b8765f4-a33f-54a4-b8c9-dbc28ca8a252",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SelectBlock3",
-                    "type": "Button",
-                    "id": "3f865c49-c40f-5d76-a78a-17739f36f9f8",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SelectBlock4",
-                    "type": "Button",
-                    "id": "60ba1ceb-c7ee-5e38-8b04-c80b2630c0f9",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Collect",
                     "type": "Button",
                     "id": "1abbff11-d117-5ac8-bc5f-a6cf1e9041df",
@@ -135,15 +99,6 @@
                     "name": "ToggleBag",
                     "type": "Button",
                     "id": "8c1a9b76-b91d-54f2-aa5c-52bd923f6e97",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "ToggleStock",
-                    "type": "Button",
-                    "id": "347b8d9e-29cd-547e-8588-42afab443844",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -204,15 +159,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "CycleBlockModifier",
-                    "type": "Button",
-                    "id": "e1b1f14e-a502-5fcb-9df5-7fcd19b7037a",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "ToggleObservation",
                     "type": "Button",
                     "id": "6174c9ee-85ce-4f04-8e40-3245f27df1b9",
@@ -234,6 +180,105 @@
                     "name": "ToggleFirstPerson",
                     "type": "Button",
                     "id": "ed6914d4-d0f8-4f20-9e1a-8a2e75b1d059",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar1",
+                    "type": "Button",
+                    "id": "a2857500-3b79-417d-b485-4517fe3fc791",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar2",
+                    "type": "Button",
+                    "id": "e7679940-0932-4f42-95be-2a5b1c53fed9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar3",
+                    "type": "Button",
+                    "id": "a889cca1-3a6f-4e10-b4ca-cb3061d5ac7d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar4",
+                    "type": "Button",
+                    "id": "cde82988-29c4-4b28-bf1c-3ccd633fabba",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar5",
+                    "type": "Button",
+                    "id": "87f087d4-ea2e-461b-b6e8-e9bc353c5044",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar6",
+                    "type": "Button",
+                    "id": "43fc0f9f-05d3-4090-982d-bfaf39d1d654",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar7",
+                    "type": "Button",
+                    "id": "172b9a77-2621-4270-bf72-0123771fcdf3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar8",
+                    "type": "Button",
+                    "id": "5d31f629-3c58-4301-b462-0dce5bed57dc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar9",
+                    "type": "Button",
+                    "id": "258e585e-f788-43aa-9625-39ceb28446d2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hotbar10",
+                    "type": "Button",
+                    "id": "5a05bf57-e443-4c2c-a58e-ca17f1c43caa",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleHotbar",
+                    "type": "Button",
+                    "id": "254ffd58-a10f-4524-b95e-fcebc3151321",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -293,50 +338,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Back",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "40145c57-f5be-5c72-a487-5dab98307c2d",
-                    "path": "<Keyboard>/1",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectBlock1",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "f1582d74-9568-510f-90f4-e19ee3037127",
-                    "path": "<Keyboard>/2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectBlock2",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "88cffb5b-acdc-5276-bbfa-1b873d8f7e6d",
-                    "path": "<Keyboard>/3",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectBlock3",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4c53c42a-1220-5cc2-8783-01a6385d15ef",
-                    "path": "<Keyboard>/4",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectBlock4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -408,17 +409,6 @@
                 },
                 {
                     "name": "",
-                    "id": "af6891ca-e97d-5071-9c75-40d4d02195e4",
-                    "path": "<Keyboard>/k",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ToggleStock",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "203baa27-22cd-5e19-b45c-116864af6cf2",
                     "path": "<Keyboard>/m",
                     "interactions": "",
@@ -485,17 +475,6 @@
                 },
                 {
                     "name": "",
-                    "id": "2a37ae24-8139-512f-85fd-e9a9b30729b0",
-                    "path": "<Keyboard>/alt",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "CycleBlockModifier",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "0f2f1116-fea3-45f9-bfd4-d30834bc8192",
                     "path": "<Keyboard>/v",
                     "interactions": "",
@@ -524,6 +503,127 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleFirstPerson",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b801a301-93a6-4965-8386-952d5957251e",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b28cb30e-357c-4fbd-8072-4d9cf41781e4",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e25cb286-4a30-496a-9ee5-3ca80c4d5533",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ef7bfa1c-f441-4bf6-82c3-09acfee0601e",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4adf0121-eb0e-41da-9880-b822575966e0",
+                    "path": "<Keyboard>/5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar5",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cee2c7d0-b9d4-428f-acc9-a442cfbe0318",
+                    "path": "<Keyboard>/6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar6",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a8189e6c-6e2a-4ed6-bb22-21a83f32ec1f",
+                    "path": "<Keyboard>/7",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar7",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a3e99917-96e5-4024-83f1-c8897e1b6103",
+                    "path": "<Keyboard>/8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar8",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cbfbbc04-c3f2-4cd2-87b6-6b85d09378e1",
+                    "path": "<Keyboard>/9",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar9",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9e10fa90-110c-4ece-ac02-cd1e74f28cd0",
+                    "path": "<Keyboard>/0",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hotbar10",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d14b5704-e86f-4238-864a-6b29ead0e712",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleHotbar",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -569,15 +669,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "TransferAll",
-                    "type": "Button",
-                    "id": "f27f3059-229c-5dbd-8bf3-a0137f019f07",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -589,17 +680,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Close",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "190dcbd8-e7d4-5d84-ae08-90f82caa472c",
-                    "path": "<Keyboard>/shift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "TransferAll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

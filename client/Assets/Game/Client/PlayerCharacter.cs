@@ -350,7 +350,7 @@ namespace Game.Client
             bool pressed = GameInput.MoveClick.WasPressedThisFrame();
             if (!pressed && !(holdFromWorld && GameInput.MoveClick.IsPressed())) return;
             var pos = GameInput.PointerPosition;
-            bool blocked = MinimapView.BlocksPointer(pos) || TimeDial.BlocksPointer(pos) || SimView.BlocksPointer(pos) || ObservationCamera.BlocksPointer(pos);
+            bool blocked = MinimapView.BlocksPointer(pos) || TimeDial.BlocksPointer(pos) || SimView.BlocksPointer(pos) || InventoryView.BlocksPointer(pos) || ObservationCamera.BlocksPointer(pos);
             if (pressed) holdFromWorld = !blocked;
             if (blocked) return;
             ClickMoveRay(cam.ScreenPointToRay(pos), pressed);
@@ -392,7 +392,7 @@ namespace Game.Client
             {
                 JumpInput = GameInput.Jump.IsPressed();
                 ReadPointerMove();
-                if (GameInput.Dash.WasPressedThisFrame() && !SimView.AnyPanelOpen) TryDash();
+                if (GameInput.Dash.WasPressedThisFrame() && !SimView.AnyPanelOpen && !InventoryView.AnyOpen) TryDash();
             }
 
             var f = FeetLocal;

@@ -26,30 +26,34 @@ namespace Game.Client.EditTests
             ["Player/Dash"] = B("<Keyboard>/shift"),
             ["Player/UseTool"] = B("<Mouse>/rightButton"),
             ["Player/Back"] = B("<Keyboard>/escape"),
-            ["Player/SelectBlock1"] = B("<Keyboard>/1"),
-            ["Player/SelectBlock2"] = B("<Keyboard>/2"),
-            ["Player/SelectBlock3"] = B("<Keyboard>/3"),
-            ["Player/SelectBlock4"] = B("<Keyboard>/4"),
             ["Player/Collect"] = B("<Keyboard>/f"),
             ["Player/ModeDefault"] = B("<Keyboard>/d"),
             ["Player/ModeDig"] = B("<Keyboard>/q"),
             ["Player/ModeTill"] = B("<Keyboard>/e"),
             ["Player/ModeRain"] = B("<Keyboard>/r"),
             ["Player/ToggleBag"] = B("<Keyboard>/b"),
-            ["Player/ToggleStock"] = B("<Keyboard>/k"),
+            ["Player/Hotbar1"] = B("<Keyboard>/1"),
+            ["Player/Hotbar2"] = B("<Keyboard>/2"),
+            ["Player/Hotbar3"] = B("<Keyboard>/3"),
+            ["Player/Hotbar4"] = B("<Keyboard>/4"),
+            ["Player/Hotbar5"] = B("<Keyboard>/5"),
+            ["Player/Hotbar6"] = B("<Keyboard>/6"),
+            ["Player/Hotbar7"] = B("<Keyboard>/7"),
+            ["Player/Hotbar8"] = B("<Keyboard>/8"),
+            ["Player/Hotbar9"] = B("<Keyboard>/9"),
+            ["Player/Hotbar10"] = B("<Keyboard>/0"),
+            ["Player/ToggleHotbar"] = B("<Keyboard>/p"),
             ["Player/ToggleMap"] = B("<Keyboard>/m"),
             ["Player/ToggleTimeDial"] = B("<Keyboard>/t"),
             ["Player/ToggleSettings"] = B("<Keyboard>/o"),
             ["Player/RotateCamera"] = B("<Mouse>/middleButton"),
             ["Player/Look"] = E(InputActionType.Value, "Vector2", "<Mouse>/delta"),
             ["Player/Zoom"] = E(InputActionType.Value, "Axis", "<Mouse>/scroll/y"),
-            ["Player/CycleBlockModifier"] = B("<Keyboard>/alt"),
             ["Player/ToggleObservation"] = B("<Keyboard>/v"),
             ["Player/CameraReset"] = B("<Keyboard>/space"),
             ["Player/ToggleFirstPerson"] = B("<Keyboard>/x"),
             ["Pointer/Point"] = E(InputActionType.Value, "Vector2", "<Mouse>/position"),
             ["Panels/Close"] = B("<Keyboard>/escape"),
-            ["Panels/TransferAll"] = B("<Keyboard>/shift"),
             ["Map/Press"] = B("<Mouse>/leftButton"),
             ["Map/Zoom"] = E(InputActionType.Value, "Axis", "<Mouse>/scroll/y"),
             ["Map/Close"] = B("<Keyboard>/escape"),
@@ -63,7 +67,7 @@ namespace Game.Client.EditTests
         {
             var asset = Load();
             var exp = Expected();
-            Assert.AreEqual(35, exp.Count);
+            Assert.AreEqual(39, exp.Count);
             var actual = new HashSet<string>(asset.actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
             CollectionAssert.AreEquivalent(exp.Keys, actual);
             foreach (var kv in exp)
@@ -92,14 +96,14 @@ namespace Game.Client.EditTests
             var text = File.ReadAllText(Path_("Client", "GameInput.cs"));
             var found = new HashSet<string>(Regex.Matches(text, "Get\\(\"([A-Za-z]+/[A-Za-z0-9]+)\"\\)").Cast<Match>().Select(m => m.Groups[1].Value));
             var actual = new HashSet<string>(Load().actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
-            Assert.AreEqual(35, actual.Count);
+            Assert.AreEqual(39, actual.Count);
             CollectionAssert.AreEquivalent(actual, found);
         }
 
         [Test]
         public void NoDirectInputReadsInScope()
         {
-            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs", "ObservationCamera.cs", "MoveMarkers.cs" };
+            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "InventoryView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs", "ObservationCamera.cs", "MoveMarkers.cs" };
             var banned = new Regex(@"Keyboard\.current|Mouse\.current|\bInput\.Get|\bkb\.|\bmouse\.");
             var hits = new List<string>();
             foreach (var f in files)
