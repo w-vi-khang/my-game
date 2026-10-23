@@ -29,11 +29,11 @@ namespace Game.Core.Tests
             var smooth = MinimapOverlay.Borders(t);
             Assert.AreEqual(1, smooth.Count);
             var s = smooth[0];
-            Assert.AreEqual(72, s.Length, "9 điểm → 18 → 36 điểm sau 2 lần Chaikin");
+            Assert.AreEqual(72, s.Length, "9 points → 18 → 36 points after 2 Chaikin passes");
             for (int i = 0; i < s.Length; i += 2)
-                Assert.AreEqual(4f, s[i], 1e-6f, "đường thẳng giữ nguyên x = 4");
-            Assert.AreEqual(0f, s[1], 1e-6f, "giữ điểm đầu");
-            Assert.AreEqual(8f, s[s.Length - 1], 1e-6f, "giữ điểm cuối");
+                Assert.AreEqual(4f, s[i], 1e-6f, "straight line stays at x = 4");
+            Assert.AreEqual(0f, s[1], 1e-6f, "keeps first point");
+            Assert.AreEqual(8f, s[s.Length - 1], 1e-6f, "keeps last point");
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace Game.Core.Tests
             {
                 bool startsAtJunction = line[0] == 4f && line[1] == 4f;
                 bool endsAtJunction = line[line.Length - 2] == 4f && line[line.Length - 1] == 4f;
-                Assert.IsTrue(startsAtJunction || endsAtJunction, "sau làm mượt 3 đường vẫn gặp nhau ở (4, 4)");
+                Assert.IsTrue(startsAtJunction || endsAtJunction, "after smoothing 3 lines still meet at (4, 4)");
             }
         }
 
@@ -68,12 +68,12 @@ namespace Game.Core.Tests
             var raw = MinimapOverlay.Borders(t, 0);
             Assert.AreEqual(1, raw.Count);
             var r = raw[0];
-            Assert.AreEqual(17 * 2, r.Length, "16 cạnh → 17 điểm (lặp điểm đầu)");
+            Assert.AreEqual(17 * 2, r.Length, "16 edges → 17 points (first point repeated)");
             Assert.AreEqual(2f, r[0]); Assert.AreEqual(2f, r[1]);
             Assert.AreEqual(2f, r[r.Length - 2]); Assert.AreEqual(2f, r[r.Length - 1]);
 
             var s = MinimapOverlay.Borders(t)[0];
-            Assert.AreEqual(65 * 2, s.Length, "17 → 33 → 65 điểm");
+            Assert.AreEqual(65 * 2, s.Length, "17 → 33 → 65 points");
             Assert.AreEqual(s[0], s[s.Length - 2]);
             Assert.AreEqual(s[1], s[s.Length - 1]);
         }
@@ -101,7 +101,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(1.5f, p[1], 1e-6f);
             Assert.AreEqual(4f, p[2], 1e-6f);
             Assert.AreEqual(4f, p[3], 1e-6f);
-            Assert.IsTrue(float.IsNaN(p[4]) && float.IsNaN(p[5]), "map 2 không có cột → NaN");
+            Assert.IsTrue(float.IsNaN(p[4]) && float.IsNaN(p[5]), "map 2 has no column → NaN");
         }
     }
 }

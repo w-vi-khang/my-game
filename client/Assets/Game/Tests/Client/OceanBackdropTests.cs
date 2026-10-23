@@ -19,7 +19,7 @@ namespace Game.Client.Tests
                 yield return null;
                 float surface = p.waterLevel + 1; // ô y ≤ waterLevel là nước
                 Assert.AreEqual(surface - ocean.belowWaterSurface, go.transform.position.y, 1e-5f);
-                Assert.AreEqual(Game.World.BlockMesher.WaterSurfaceDrop, ocean.belowWaterSurface, 1e-6f, "liền với mặt nước trong map");
+                Assert.AreEqual(Game.World.BlockMesher.WaterSurfaceDrop, ocean.belowWaterSurface, 1e-6f, "flush with water surface in map");
 
                 var mesh = go.GetComponent<MeshFilter>().sharedMesh;
                 Assert.IsNotNull(mesh);
@@ -31,13 +31,13 @@ namespace Game.Client.Tests
                     Vector3 a = v[t[i]], b = v[t[i + 1]], c = v[t[i + 2]];
                     Vector3 center = (a + b + c) / 3f;
                     bool insideMap = center.x > 0 && center.x < p.sizeX && center.z > 0 && center.z < p.sizeZ;
-                    Assert.IsFalse(insideMap, $"tam giác mặt biển nằm trong map ở {center}");
+                    Assert.IsFalse(insideMap, $"sea surface triangle inside map at {center}");
                     Vector3 n = Vector3.Cross(b - a, c - a);
-                    Assert.Greater(n.y, 0f, "mặt hướng lên");
+                    Assert.Greater(n.y, 0f, "face points up");
                     area += n.magnitude * 0.5f;
                 }
                 float full = (p.sizeX + 2 * ocean.extent) * (p.sizeZ + 2 * ocean.extent);
-                Assert.AreEqual(full - p.sizeX * p.sizeZ, area, full * 1e-4f, "phủ kín vành ngoài map");
+                Assert.AreEqual(full - p.sizeX * p.sizeZ, area, full * 1e-4f, "covers the outer ring of the map");
             }
             finally
             {

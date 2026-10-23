@@ -44,7 +44,7 @@ namespace Game.Client.Tests
                     int h = view.World.SurfaceHeight(x, z);
                     if (sv.Sim.CanMarkTill(new CellPos(x, h, z))) return new Vector3Int(x, h, z);
                 }
-            Assert.Fail("Không tìm được ô đánh dấu được quanh trại");
+            Assert.Fail("Could not find a marked cell near the camp");
             return default;
         }
 

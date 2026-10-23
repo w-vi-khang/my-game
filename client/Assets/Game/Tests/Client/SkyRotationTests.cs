@@ -37,7 +37,7 @@ namespace Game.Client.Tests
             {
                 int cur = r.DisplayPhaseMs(6 * H, 10.0 + i * 0.01);
                 int step = TimeOfDay.ForwardArc(prev, cur);
-                Assert.Less(step, H, "bước " + i);
+                Assert.Less(step, H, "step " + i);
                 total += step;
                 prev = cur;
             }

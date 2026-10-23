@@ -55,7 +55,7 @@ namespace Game.World.Tests
             foreach (var h in s.Houses)
                 for (int dx = 0; dx < 2; dx++)
                     for (int dz = 0; dz < 2; dz++)
-                        Assert.IsTrue(plain.Contains(h.Cell.X + dx, h.Cell.Z + dz), "nhà " + h.Id);
+                        Assert.IsTrue(plain.Contains(h.Cell.X + dx, h.Cell.Z + dz), "house " + h.Id);
             Assert.AreEqual(1, s.Storages.Count);
             Assert.AreEqual(SimDemo.OnPlain(plain, SimDemo.PlainStorage), s.Storages[0].Cell);
             Assert.IsTrue(plain.Contains(s.Storages[0].Cell.X, s.Storages[0].Cell.Z));
@@ -78,7 +78,7 @@ namespace Game.World.Tests
             }
             Assert.AreEqual(plain.Bounds, sim.Bounds);
             Assert.AreEqual(64 * 64 * world.Size.Y, sim.PathfinderCellCount);
-            string line = $"SIMMEM {sim.PathfinderCellCount} ô ≈ {sim.PathfinderCellCount * 18 / 1048576.0:F1} MB (cả world {world.Size.CellCount * 18 / 1048576.0:F1} MB)";
+            string line = $"SIMMEM {sim.PathfinderCellCount} cells ≈ {sim.PathfinderCellCount * 18 / 1048576.0:F1} MB (whole world {world.Size.CellCount * 18 / 1048576.0:F1} MB)";
             TestContext.WriteLine(line);
             UnityEngine.Debug.Log(line);
         }

@@ -91,19 +91,19 @@ namespace Game.World.Tests
                     Assert.AreEqual(l.Map, m.Get(l.X, l.Z), $"seed {seed} {l}");
                     MinimapImage.ColumnInfo(w, l.X, l.Z, out int surf, out int depth);
                     Assert.AreEqual(surf, l.Surface, $"seed {seed} {l}");
-                    Assert.AreEqual(0, depth, $"seed {seed} {l} có nước");
-                    Assert.GreaterOrEqual(surf, p.waterLevel, $"seed {seed} {l} thấp hơn mực nước");
+                    Assert.AreEqual(0, depth, $"seed {seed} {l} has water");
+                    Assert.GreaterOrEqual(surf, p.waterLevel, $"seed {seed} {l} below water level");
                     for (int dz = -1; dz <= 1; dz++)
                         for (int dx = -1; dx <= 1; dx++)
                         {
                             MinimapImage.ColumnInfo(w, l.X + dx, l.Z + dz, out int s2, out int d2);
-                            Assert.AreEqual(0, d2, $"seed {seed} {l} láng giềng có nước");
-                            Assert.LessOrEqual(Math.Abs(s2 - surf), 1, $"seed {seed} {l} không phẳng");
+                            Assert.AreEqual(0, d2, $"seed {seed} {l} neighbor has water");
+                            Assert.LessOrEqual(Math.Abs(s2 - surf), 1, $"seed {seed} {l} not flat");
                         }
                     for (int dz = -margin; dz <= margin; dz++)
                         for (int dx = -margin; dx <= margin; dx++)
                             if (Math.Abs(dx) + Math.Abs(dz) <= margin)
-                                Assert.AreEqual(l.Map, m.Get(l.X + dx, l.Z + dz), $"seed {seed} {l} gần biên ({dx},{dz})");
+                                Assert.AreEqual(l.Map, m.Get(l.X + dx, l.Z + dz), $"seed {seed} {l} near boundary ({dx},{dz})");
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace Game.World.Tests
                     for (int j = i + 1; j < list.Count; j++)
                     {
                         long dx = list[i].X - list[j].X, dz = list[i].Z - list[j].Z;
-                        Assert.GreaterOrEqual(dx * dx + dz * dz, min2, $"seed {seed}: {list[i]} và {list[j]}");
+                        Assert.GreaterOrEqual(dx * dx + dz * dz, min2, $"seed {seed}: {list[i]} and {list[j]}");
                     }
             }
         }
@@ -146,7 +146,7 @@ namespace Game.World.Tests
                     double cx = sx / n, cz = sz / n;
                     var cp = list[map];
                     double d = Math.Sqrt((cp.X + 0.5 - cx) * (cp.X + 0.5 - cx) + (cp.Z + 0.5 - cz) * (cp.Z + 0.5 - cz));
-                    UnityEngine.Debug.Log($"CHECKPOINT seed={seed} {cp} cách trọng tâm {d:F1} ô");
+                    UnityEngine.Debug.Log($"CHECKPOINT seed={seed} {cp} {d:F1} cells from centroid");
                     Assert.LessOrEqual(d, 48.0, $"seed {seed} {cp}");
                 }
             }

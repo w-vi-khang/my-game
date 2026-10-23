@@ -62,13 +62,13 @@ namespace Game.World.Tests
                         {
                             overlaps++;
                             if (overlaps == 1)
-                                TestContext.WriteLine("chồng ô đầu tiên ở nhịp " + sim.State.Tick + ": " + DescribeCreature(a) + " | " + DescribeCreature(b));
+                                TestContext.WriteLine("first overlapping cell at tick " + sim.State.Tick + ": " + DescribeCreature(a) + " | " + DescribeCreature(b));
                         }
                     }
                 }
                 if (anyPhasing) phasingTicks++;
             }
-            TestContext.WriteLine("nhịp có Phasing: " + phasingTicks);
+            TestContext.WriteLine("ticks with Phasing: " + phasingTicks);
             Assert.AreEqual(0, overlaps);
         }
 
@@ -92,7 +92,7 @@ namespace Game.World.Tests
                         if (sim.OnPlot(c.Cell, c.SizeX, c.SizeZ, c.SizeY))
                         {
                             idleOnPlot++;
-                            if (idleOnPlot == 1) TestContext.WriteLine("rảnh trên ruộng đầu tiên: nhịp " + sim.State.Tick + ", sinh vật " + c.Id);
+                            if (idleOnPlot == 1) TestContext.WriteLine("first idle on plot: tick " + sim.State.Tick + ", creature " + c.Id);
                         }
                         if (Simulation.HomeDistance(c.Cell, c.SizeX, c.SizeZ, sim.State.Houses[c.HomeId]) > sim.Config.creature.homeRadius)
                             idleOutside++;
@@ -111,7 +111,7 @@ namespace Game.World.Tests
         }
 
         static string DescribeCreature(Creature c) =>
-            "id " + c.Id + " ô " + c.Cell + " " + c.State + " stage " + c.StageId;
+            "id " + c.Id + " cell " + c.Cell + " " + c.State + " stage " + c.StageId;
 
         [Test]
         public void BuildPlacesLayout()

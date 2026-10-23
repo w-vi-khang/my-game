@@ -54,12 +54,12 @@ namespace Game.Core
         /// <summary>Công trình đặc trưng của từng map (0023): loại, tên tạm, số lượng — tên thật user đặt sau.</summary>
         public LandmarkType[] landmarkTypes =
         {
-            new LandmarkType(0, "Công trình 1A", 1),
-            new LandmarkType(0, "Công trình 1B", 1),
-            new LandmarkType(1, "Công trình 2A", 1),
-            new LandmarkType(1, "Công trình 2B", 1),
-            new LandmarkType(2, "Công trình 3A", 1),
-            new LandmarkType(2, "Công trình 3B", 1),
+            new LandmarkType(0, "Công trình 1A", 1), // vi-text
+            new LandmarkType(0, "Công trình 1B", 1), // vi-text
+            new LandmarkType(1, "Công trình 2A", 1), // vi-text
+            new LandmarkType(1, "Công trình 2B", 1), // vi-text
+            new LandmarkType(2, "Công trình 3A", 1), // vi-text
+            new LandmarkType(2, "Công trình 3B", 1), // vi-text
         };
         /// <summary>Dấu mốc cách cột biên (biển, map khác, biên world) ít nhất bấy nhiêu bước 4 hướng trong cùng map.</summary>
         public int landmarkBorderMargin = 6;

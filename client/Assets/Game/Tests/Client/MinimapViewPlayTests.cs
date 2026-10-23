@@ -28,7 +28,7 @@ namespace Game.Client.Tests
             map = go.AddComponent<MinimapView>();
             for (int i = 0; i < 5 && !map.IsReady; i++)
                 yield return null;
-            Assert.IsTrue(map.IsReady, "Bản đồ chưa dựng");
+            Assert.IsTrue(map.IsReady, "Map not built");
         }
 
         [UnityTearDown]
@@ -62,7 +62,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(rgba.Length, px.Length * 4);
             for (int i = 0; i < px.Length; i++)
                 if (px[i].r != rgba[i * 4] || px[i].g != rgba[i * 4 + 1] || px[i].b != rgba[i * 4 + 2] || px[i].a != 255)
-                    Assert.Fail($"điểm ảnh {i} (x={i % 384}, z={i / 384}) lệch");
+                    Assert.Fail($"pixel {i} (x={i % 384}, z={i / 384}) differs");
             yield return null;
         }
 
@@ -91,9 +91,9 @@ namespace Game.Client.Tests
             AssertUvMatches(map);
             Assert.AreEqual(1f, map.Viewport.Zoom, 1e-5f);
             Assert.Greater(map.BorderCount, 0);
-            Assert.Greater(map.BorderVertexCount, 0, "ranh giới chưa dựng đỉnh");
-            Assert.Less(map.BorderVertexCount, 65000, "vượt giới hạn đỉnh UI");
-            Debug.Log($"MINIMAPTEST ranh giới {map.BorderCount} đường, {map.BorderVertexCount} đỉnh, khung {map.Viewport.PanelWidth:F0}x{map.Viewport.PanelHeight:F0}, dựng {map.BuildMs:F1} ms");
+            Assert.Greater(map.BorderVertexCount, 0, "border vertices not built");
+            Assert.Less(map.BorderVertexCount, 65000, "exceeds UI vertex limit");
+            Debug.Log($"MINIMAPTEST border {map.BorderCount} lines, {map.BorderVertexCount} vertices, viewport {map.Viewport.PanelWidth:F0}x{map.Viewport.PanelHeight:F0}, build {map.BuildMs:F1} ms");
 
             var vp = map.Viewport;
             vp.ZoomAt(vp.PanelWidth * 0.5f, vp.PanelHeight * 0.5f, 4f);
@@ -112,7 +112,7 @@ namespace Game.Client.Tests
             for (int m = 0; m < map.LabelCount; m++)
             {
                 Assert.AreEqual(view.Maps.Name(m), map.LabelText(m));
-                Assert.IsTrue(map.LabelVisible(m), $"tên map {m} bị ẩn");
+                Assert.IsTrue(map.LabelVisible(m), $"map name {m} is hidden");
                 map.Viewport.WorldToPanel(pos[2 * m], pos[2 * m + 1], out float px, out float py);
                 Assert.AreEqual(px, map.LabelPanelPosition(m).x, 0.5f, $"map {m} x");
                 Assert.AreEqual(py, map.LabelPanelPosition(m).y, 0.5f, $"map {m} y");
@@ -129,7 +129,7 @@ namespace Game.Client.Tests
             map.Viewport.WorldToPanel(100.5f, 250.5f, out float px, out float py);
             Assert.AreEqual(px, map.MarkerPanelPosition.x, 0.5f);
             Assert.AreEqual(py, map.MarkerPanelPosition.y, 0.5f);
-            Assert.Less(Mathf.Abs(Mathf.DeltaAngle(270f, map.MarkerAngle)), 0.5f, "nhìn +x → dấu quay về phải");
+            Assert.Less(Mathf.Abs(Mathf.DeltaAngle(270f, map.MarkerAngle)), 0.5f, "facing +x → marker points right");
         }
 
         [UnityTest]
@@ -142,7 +142,7 @@ namespace Game.Client.Tests
             var a = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             var b = a + new Vector2(40f, 0f);
             Vector2 pa = map.ScreenToPanel(a), pb = map.ScreenToPanel(b);
-            Assert.Greater(pb.x - pa.x, 0f, "sang phải trên màn hình = sang phải trong khung");
+            Assert.Greater(pb.x - pa.x, 0f, "right on screen = right in viewport");
             float expected = vp.CenterX - (pb.x - pa.x) / vp.PixelsPerColumn;
             map.PanScreen(a, b);
             Assert.AreEqual(expected, vp.CenterX, 1e-3f);
@@ -160,17 +160,17 @@ namespace Game.Client.Tests
         public IEnumerator BlocksPointerOnlyOverButtonWhenClosed()
         {
             Canvas.ForceUpdateCanvases();
-            Assert.IsTrue(MinimapView.BlocksPointer(map.ButtonScreenCenter), "tâm nút");
-            Assert.IsFalse(MinimapView.BlocksPointer(new Vector2(5f, 5f)), "góc dưới-trái khi đóng");
+            Assert.IsTrue(MinimapView.BlocksPointer(map.ButtonScreenCenter), "button center");
+            Assert.IsFalse(MinimapView.BlocksPointer(new Vector2(5f, 5f)), "bottom-left corner when closed");
             map.SetOpen(true);
-            Assert.IsTrue(MinimapView.BlocksPointer(new Vector2(5f, 5f)), "góc dưới-trái khi mở");
+            Assert.IsTrue(MinimapView.BlocksPointer(new Vector2(5f, 5f)), "bottom-left corner when open");
             yield return null;
         }
 
         [UnityTest]
         public IEnumerator IslandWorldHasNoMap()
         {
-            var go2 = new GameObject("Đảo");
+            var go2 = new GameObject("Island");
             go2.AddComponent<TerrainChunkView>(); // mặc định IslandV2, Maps = null
             var map2 = go2.AddComponent<MinimapView>();
             for (int i = 0; i < 3; i++)
@@ -200,7 +200,7 @@ namespace Game.Client.Tests
                         top = s;
                     }
                 }
-            Assert.GreaterOrEqual(fx, 0, "không có cột ở mép tầng gần camera");
+            Assert.GreaterOrEqual(fx, 0, "no column at the edge of the tier nearest the camera");
             int idx = fx + w.Size.X * fz;
             var before = map.Texture.GetPixels32()[idx];
             Assert.AreEqual(EditResult.Ok, view.Dig(new Vector3Int(fx, top, fz)));
@@ -208,9 +208,9 @@ namespace Game.Client.Tests
             var after = map.Texture.GetPixels32()[idx];
             uint c = MinimapImage.ColumnColor(w, fx, fz);
             Assert.AreEqual(new Color32((byte)(c >> 16), (byte)(c >> 8), (byte)c, 255), after);
-            Assert.AreNotEqual(before, after, "điểm ảnh phải đổi");
+            Assert.AreNotEqual(before, after, "pixel must change");
             Assert.GreaterOrEqual(map.UpdatedPixelCount, 1);
-            CollectionAssert.AreEqual(MinimapImage.Build(w), ToBytes(map.Texture.GetPixels32()), "texture = ảnh dựng lại từ world đã sửa");
+            CollectionAssert.AreEqual(MinimapImage.Build(w), ToBytes(map.Texture.GetPixels32()), "texture = image rebuilt from edited world");
         }
 
         [UnityTest]
@@ -229,7 +229,7 @@ namespace Game.Client.Tests
                 Assert.AreEqual(l.Kind == LandmarkKind.Checkpoint, map.LandmarkIconIsDiamond(i));
                 AssertColor((Color)LandmarkStyle.ColorOf(l), map.LandmarkIconColor(i));
                 Assert.AreEqual(l.Name, map.LandmarkLabelText(i));
-                Assert.IsFalse(map.LandmarkLabelVisible(i), "zoom 1 ẩn tên");
+                Assert.IsFalse(map.LandmarkLabelVisible(i), "zoom 1 hides names");
             }
             map.Viewport.ZoomAt(map.Viewport.PanelWidth * 0.5f, map.Viewport.PanelHeight * 0.5f, 3f);
             yield return null;
@@ -237,7 +237,7 @@ namespace Game.Client.Tests
             for (int i = 0; i < lms.Count; i++)
             {
                 var l = lms[i];
-                Assert.IsTrue(map.LandmarkLabelVisible(i), "zoom ≥ 2 hiện tên " + i);
+                Assert.IsTrue(map.LandmarkLabelVisible(i), "zoom ≥ 2 shows name " + i);
                 map.Viewport.WorldToPanel(l.X + 0.5f, l.Z + 0.5f, out float px, out float py);
                 Assert.AreEqual(px, map.LandmarkIconPosition(i).x, 0.01f);
                 Assert.AreEqual(py, map.LandmarkIconPosition(i).y, 0.01f);

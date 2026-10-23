@@ -35,24 +35,24 @@ namespace Game.World.Tests
             var p = new WorldMapParams();
             var world = WorldMapGenerator.Generate(p, out _);
             var editor = new WorldEditor(world, new PlayerBag(), 1, p.waterLevel);
-            Assert.IsTrue(FindTierEdgeColumn(world, p.waterLevel, out int x, out int z, out int top), "không có cột ở mép tầng");
+            Assert.IsTrue(FindTierEdgeColumn(world, p.waterLevel, out int x, out int z, out int top), "no column at the tier edge");
             var before = MinimapImage.Build(world);
             var img = (byte[])before.Clone();
             var material = world.GetMaterial(x, top, z);
 
             Assert.AreEqual(EditResult.Ok, editor.TryDig(x, top, z));
-            Assert.IsTrue(MinimapImage.UpdateColumn(world, img, x, z), "đào ô trên cùng ở mép tầng phải đổi màu");
-            Assert.AreEqual(1, DiffPixels(before, img), "đúng một điểm ảnh đổi");
-            CollectionAssert.AreEqual(MinimapImage.Build(world), img, "ảnh cập nhật theo cột = ảnh dựng lại");
+            Assert.IsTrue(MinimapImage.UpdateColumn(world, img, x, z), "digging the top cell at the tier edge must change color");
+            Assert.AreEqual(1, DiffPixels(before, img), "exactly one pixel changes");
+            CollectionAssert.AreEqual(MinimapImage.Build(world), img, "image updated per column = rebuilt image");
             int i = (x + world.Size.X * z) * 4;
             uint c = MinimapImage.ColumnColor(world, x, z);
             Assert.AreEqual(c, (uint)(img[i] << 16 | img[i + 1] << 8 | img[i + 2]));
-            Assert.IsFalse(MinimapImage.UpdateColumn(world, img, x, z), "gọi lại không đổi gì");
+            Assert.IsFalse(MinimapImage.UpdateColumn(world, img, x, z), "calling again changes nothing");
 
             editor.Bag.Add(material);
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(x, top, z, material));
             Assert.IsTrue(MinimapImage.UpdateColumn(world, img, x, z));
-            CollectionAssert.AreEqual(before, img, "đặt lại → ảnh như cũ");
+            CollectionAssert.AreEqual(before, img, "placed back → image as before");
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace Game.World.Tests
             // Đặt thêm 1 ô lên cột ở mép tầng (top % 4 == 0 → top + 1 cùng tầng) → màu không đổi.
             editor.Bag.Add(BlockMaterial.Dirt);
             Assert.AreEqual(EditResult.Ok, editor.TryPlace(x, top + 1, z, BlockMaterial.Dirt));
-            Assert.IsFalse(MinimapImage.UpdateColumn(world, img, x, z), "cùng tầng → không đổi điểm ảnh");
+            Assert.IsFalse(MinimapImage.UpdateColumn(world, img, x, z), "same tier → no pixel change");
             CollectionAssert.AreEqual(MinimapImage.Build(world), img);
         }
     }

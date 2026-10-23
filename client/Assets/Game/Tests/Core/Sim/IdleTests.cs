@@ -128,7 +128,7 @@ namespace Game.Core.Tests
             while (sim.State.Tick < 58)
             {
                 sim.Tick();
-                Assert.IsFalse(c.State == CreatureState.Idle && c.Cell == new CellPos(12, 2, 11), "đứng rảnh trên ô ruộng ở nhịp " + sim.State.Tick);
+                Assert.IsFalse(c.State == CreatureState.Idle && c.Cell == new CellPos(12, 2, 11), "idle on a plot cell at tick " + sim.State.Tick);
                 switch (sim.State.Tick)
                 {
                     case 1:
@@ -216,7 +216,7 @@ namespace Game.Core.Tests
             while (sim.State.Tick < 109)
             {
                 sim.Tick();
-                Assert.AreEqual(0, Overlaps(sim.State), "chồng ô ở nhịp " + sim.State.Tick);
+                Assert.AreEqual(0, Overlaps(sim.State), "overlapping cells at tick " + sim.State.Tick);
                 maxWait = Math.Max(maxWait, m.BlockedTicks);
                 switch (sim.State.Tick)
                 {
@@ -275,33 +275,33 @@ namespace Game.Core.Tests
             {
                 sim.Tick();
                 long tick = sim.State.Tick;
-                Assert.AreEqual(0, Overlaps(sim.State), "chồng ô ở nhịp " + tick);
+                Assert.AreEqual(0, Overlaps(sim.State), "overlapping cells at tick " + tick);
                 for (int i = 0; i < cs.Count; i++)
                 {
                     var c = cs[i];
                     if (c.State == CreatureState.Idle)
                     {
-                        Assert.LessOrEqual(Simulation.HomeDistance(c.Cell, 1, 1, house), 4, "rảnh ngoài bán kính, nhịp " + tick);
-                        Assert.IsFalse(sim.OnPlot(c.Cell, 1, 1, 1), "rảnh trên ruộng, nhịp " + tick);
+                        Assert.LessOrEqual(Simulation.HomeDistance(c.Cell, 1, 1, house), 4, "idle outside radius, tick " + tick);
+                        Assert.IsFalse(sim.OnPlot(c.Cell, 1, 1, 1), "idle on plot, tick " + tick);
                     }
                     else if (c.State == CreatureState.Moving)
                     {
-                        Assert.LessOrEqual(Simulation.HomeDistance(c.MoveTarget, 1, 1, house), 4, "đích ngoài bán kính, nhịp " + tick);
-                        Assert.IsFalse(sim.OnPlot(c.MoveTarget, 1, 1, 1), "đích là ruộng, nhịp " + tick);
+                        Assert.LessOrEqual(Simulation.HomeDistance(c.MoveTarget, 1, 1, house), 4, "target outside radius, tick " + tick);
+                        Assert.IsFalse(sim.OnPlot(c.MoveTarget, 1, 1, 1), "target is a plot, tick " + tick);
                     }
                     if (prev[i] != CreatureState.Idle && c.State == CreatureState.Idle) idleSince[i] = tick;
                     else if (prev[i] == CreatureState.Idle && c.State == CreatureState.Moving && idleSince[i] >= 0)
                     {
                         long gap = tick - idleSince[i];
-                        Assert.GreaterOrEqual(gap, 50, "nghỉ quá ngắn, nhịp " + tick);
-                        Assert.LessOrEqual(gap, 100, "nghỉ quá dài, nhịp " + tick);
+                        Assert.GreaterOrEqual(gap, 50, "rest too short, tick " + tick);
+                        Assert.LessOrEqual(gap, 100, "rest too long, tick " + tick);
                         gaps.Add(gap);
                         starts[i]++;
                     }
                     prev[i] = c.State;
                 }
             }
-            TestContext.WriteLine("starts: " + starts[0] + ", " + starts[1] + "; giá trị gap khác nhau: " + gaps.Count);
+            TestContext.WriteLine("starts: " + starts[0] + ", " + starts[1] + "; different gap values: " + gaps.Count);
             Assert.GreaterOrEqual(starts[0], 10);
             Assert.GreaterOrEqual(starts[1], 10);
             Assert.GreaterOrEqual(gaps.Count, 2);

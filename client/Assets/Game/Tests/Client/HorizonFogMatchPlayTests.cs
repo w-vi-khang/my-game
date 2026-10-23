@@ -111,8 +111,8 @@ namespace Game.Client.Tests
             var px = RenderPixels(camGo.GetComponent<Camera>());
             Color32 sky = px[120 * Size + 128];
             Color32 block = px[64 * Size + 128];
-            Close(sky, block, 2, "trời vs khối");
-            Close(block, (Color32)RenderSettings.fogColor, 2, "khối vs fogColor");
+            Close(sky, block, 2, "sky vs block");
+            Close(block, (Color32)RenderSettings.fogColor, 2, "block vs fogColor");
         }
 
         [UnityTest]
@@ -141,7 +141,7 @@ namespace Game.Client.Tests
             Color32 block = px[64 * Size + 128];
             Color32 fog = (Color32)RenderSettings.fogColor;
             int d = Mathf.Max(Mathf.Abs(block.r - fog.r), Mathf.Abs(block.g - fog.g), Mathf.Abs(block.b - fog.b));
-            Assert.GreaterOrEqual(d, 13, $"khối {block} vs fog {fog}");
+            Assert.GreaterOrEqual(d, 13, $"block {block} vs fog {fog}");
             yield return null;
         }
     }

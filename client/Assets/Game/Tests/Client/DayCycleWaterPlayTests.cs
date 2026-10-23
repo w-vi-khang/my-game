@@ -34,7 +34,7 @@ namespace Game.Client.Tests
             go = new GameObject("Terrain");
             view = go.AddComponent<TerrainChunkView>();
             yield return null;
-            Assert.IsNotNull(view.World, "Build chưa chạy");
+            Assert.IsNotNull(view.World, "Build not run");
             lightGo = new GameObject("Light");
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Directional;
@@ -82,7 +82,7 @@ namespace Game.Client.Tests
                 }
             }
             if (fx < 0)
-                Assert.Fail("Không có cột nước phù hợp");
+                Assert.Fail("No suitable water column");
             camGo.transform.position = new Vector3(fx + 0.5f, S + 3.5f, fz + 0.5f);
             yield return null;
             Assert.IsFalse(under.IsUnderwater);

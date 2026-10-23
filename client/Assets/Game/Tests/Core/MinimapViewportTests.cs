@@ -22,9 +22,9 @@ namespace Game.Core.Tests
             var v = New();
             Assert.AreEqual(1f, v.Zoom);
             Assert.AreEqual(1.5625f, v.PixelsPerColumn, Eps);
-            AssertPanel(v, 192f, 192f, 400f, 300f, "tâm world");
-            AssertPanel(v, 0f, 0f, 100f, 0f, "góc (0, 0)");
-            AssertPanel(v, 384f, 384f, 700f, 600f, "góc (384, 384)");
+            AssertPanel(v, 192f, 192f, 400f, 300f, "world center");
+            AssertPanel(v, 0f, 0f, 100f, 0f, "corner (0, 0)");
+            AssertPanel(v, 384f, 384f, 700f, 600f, "corner (384, 384)");
             v.PanelToWorld(400f, 300f, out float wx, out float wz);
             Assert.AreEqual(192f, wx, Eps);
             Assert.AreEqual(192f, wz, Eps);
@@ -41,7 +41,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(2f, v.Zoom, Eps);
             Assert.AreEqual(224f, v.CenterX, Eps);
             Assert.AreEqual(208f, v.CenterZ, Eps);
-            AssertPanel(v, 256f, 224f, 500f, 350f, "điểm dưới con trỏ");
+            AssertPanel(v, 256f, 224f, 500f, 350f, "point under cursor");
         }
 
         [Test]
@@ -61,12 +61,12 @@ namespace Game.Core.Tests
         {
             var v = New();
             v.Pan(100f, 100f);
-            Assert.AreEqual(192f, v.CenterX, Eps, "zoom 1: vùng nhìn ≥ world → căn giữa");
+            Assert.AreEqual(192f, v.CenterX, Eps, "zoom 1: view ≥ world → centered");
             Assert.AreEqual(192f, v.CenterZ, Eps);
 
             v.ZoomAt(400f, 300f, 2f); // 3,125 pixel/cột: nửa vùng nhìn 128 × 96 cột
             v.Pan(10000f, 0f);
-            Assert.AreEqual(128f, v.CenterX, Eps, "kéo sang phải hết cỡ → thấy mép trái world");
+            Assert.AreEqual(128f, v.CenterX, Eps, "drag fully right → left edge of world visible");
             v.Pan(-10000f, 0f);
             Assert.AreEqual(256f, v.CenterX, Eps);
             v.Pan(0f, 10000f);
@@ -81,7 +81,7 @@ namespace Game.Core.Tests
             var v = New();
             v.Pinch(300f, 300f, 500f, 300f, 250f, 300f, 550f, 300f); // khoảng cách 200 → 300
             Assert.AreEqual(1.5f, v.Zoom, Eps);
-            AssertPanel(v, 192f, 192f, 400f, 300f, "điểm dưới trung điểm giữ chỗ");
+            AssertPanel(v, 192f, 192f, 400f, 300f, "point under placeholder midpoint");
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace Game.Core.Tests
         {
             var v = New();
             v.VisibleUv(out float u, out float vv, out float w, out float h);
-            Assert.AreEqual(-1f / 6f, u, Eps, "zoom 1: khung rộng hơn world → u < 0");
+            Assert.AreEqual(-1f / 6f, u, Eps, "zoom 1: viewport wider than world → u < 0");
             Assert.AreEqual(0f, vv, Eps);
             Assert.AreEqual(4f / 3f, w, Eps);
             Assert.AreEqual(1f, h, Eps);

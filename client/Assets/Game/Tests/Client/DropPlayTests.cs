@@ -84,7 +84,7 @@ namespace Game.Client.Tests
             for (int i = 0; i < 300 && !player.Ready; i++)
                 yield return null;
             if (!player.Ready)
-                Assert.Fail($"Chunk chưa sẵn sàng tại {feetLocal}");
+                Assert.Fail($"Chunk not ready at {feetLocal}");
             yield return Run(Vector2.zero, false, 0.3f);
         }
 
@@ -100,10 +100,10 @@ namespace Game.Client.Tests
             Assert.AreEqual(ItemId.SeedBag(0), player.StarterStack.Item);
             Assert.AreEqual(4, player.StarterStack.Count);
             CollectionAssert.Contains(view.Editor.Drops.Stacks, player.StarterStack);
-            StringAssert.DoesNotContain("Túi hạt Cây A", input.HudText());
+            StringAssert.DoesNotContain("Túi hạt Cây A", input.HudText()); // vi-text
             Assert.GreaterOrEqual(input.CollectNearby(), 1);
             Assert.AreEqual(4, view.Bag.GetSeeds(0));
-            StringAssert.Contains("Túi hạt Cây A: 4", input.HudText());
+            StringAssert.Contains("Túi hạt Cây A: 4", input.HudText()); // vi-text
             yield return null;
         }
 
@@ -192,8 +192,8 @@ namespace Game.Client.Tests
             Assert.AreEqual(G + 1.15f, lc.y, 1e-4f);
             Assert.AreEqual(A.z + 0.5f, lc.z, 1e-4f);
             Assert.AreEqual(G + 1.2f, DropView.LocalCenter(s).y, 1e-4f);
-            Assert.AreEqual("Đất × 3", TerrainEditInput.DropLabel(d));
-            Assert.AreEqual("Túi hạt Cây A", TerrainEditInput.ItemLabel(ItemId.SeedBag(0)));
+            Assert.AreEqual("Đất × 3", TerrainEditInput.DropLabel(d)); // vi-text
+            Assert.AreEqual("Túi hạt Cây A", TerrainEditInput.ItemLabel(ItemId.SeedBag(0))); // vi-text
         }
     }
 }

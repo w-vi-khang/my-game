@@ -72,7 +72,7 @@ namespace Game.Core.Tests
                 var h = Stage(WorkAbility.Haul);
                 if (h != null && h.Status == StageStatus.Done) return;
             }
-            Assert.Fail("vận chuyển chưa xong sau " + max + " nhịp");
+            Assert.Fail("haul not finished after " + max + " ticks");
         }
 
         [Test]
@@ -325,7 +325,7 @@ namespace Game.Core.Tests
         {
             Layout(new int[0]);
             Assert.Throws<ArgumentException>(() => sim.EnqueueCrop(id, 2));
-            for (int i = 0; i < 5; i++) Assert.IsTrue(sim.EnqueueCrop(id, 0), "lần " + (i + 1));
+            for (int i = 0; i < 5; i++) Assert.IsTrue(sim.EnqueueCrop(id, 0), "run " + (i + 1));
             var slots = sim.State.Plots[id].Slots;
             Assert.AreEqual(2, slots.Count);
             Assert.AreEqual(3, slots[0].Count);
@@ -545,7 +545,7 @@ namespace Game.Core.Tests
                     if (t == 700) pair.Item2.TryDig(6, 1, 5);
                     s.Tick();
                 }
-                Assert.AreEqual(SimHash.Compute(a.State), SimHash.Compute(b.State), "nhịp " + t);
+                Assert.AreEqual(SimHash.Compute(a.State), SimHash.Compute(b.State), "tick " + t);
             }
             b.State.Stock.Seeds[1]++;
             Assert.AreNotEqual(SimHash.Compute(a.State), SimHash.Compute(b.State));

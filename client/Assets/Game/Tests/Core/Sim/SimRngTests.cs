@@ -11,7 +11,7 @@ namespace Game.Core.Tests
             var r = new SimRng(42, 54);
             uint[] expected = { 0xa15c02b7, 0x7b47f409, 0xba1d3330, 0x83d2f293, 0xbfa4784b, 0xcbed606e };
             for (int i = 0; i < expected.Length; i++)
-                Assert.AreEqual(expected[i], r.NextUInt(), "số thứ " + i);
+                Assert.AreEqual(expected[i], r.NextUInt(), "number " + i);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace Game.Core.Tests
                 Assert.That(v, Is.InRange(0, 6));
                 seen[v] = true;
             }
-            for (int i = 0; i < 7; i++) Assert.IsTrue(seen[i], "thiếu giá trị " + i);
+            for (int i = 0; i < 7; i++) Assert.IsTrue(seen[i], "missing value " + i);
         }
     }
 }

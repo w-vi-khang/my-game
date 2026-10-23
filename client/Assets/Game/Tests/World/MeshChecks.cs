@@ -45,7 +45,7 @@ namespace Game.World.Tests
                     continue;
                 bad++;
                 if (bad <= 5)
-                    log?.Invoke($"UNBALANCED {a} → {b}: {kv.Value} lần, ngược lại {back} lần");
+                    log?.Invoke($"UNBALANCED {a} → {b}: {kv.Value} times, reverse {back} times");
             }
             return bad;
         }

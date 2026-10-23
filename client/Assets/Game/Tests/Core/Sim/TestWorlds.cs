@@ -72,7 +72,7 @@ namespace Game.Core.Tests
                 if (cs[i].HomeId >= 0) continue;
                 if (current < 0 || sim.State.Houses[current].Residents.Count >= sim.State.Houses[current].Capacity)
                 {
-                    if (created >= HomeAnchors.GetLength(0)) throw new InvalidOperationException("Quá 3 nhà trong HomeAll");
+                    if (created >= HomeAnchors.GetLength(0)) throw new InvalidOperationException("More than 3 houses in HomeAll");
                     int x = HomeAnchors[created, 0], z = HomeAnchors[created, 1];
                     int y = 0;
                     while (sim.World.GetMaterial(x, y, z) != BlockMaterial.Empty) y++;

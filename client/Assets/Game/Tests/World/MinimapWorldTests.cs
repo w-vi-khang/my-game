@@ -38,12 +38,12 @@ namespace Game.World.Tests
             var ia = MinimapImage.Build(a);
             sw.Stop();
             var ib = MinimapImage.Build(b);
-            TestContext.WriteLine($"MINIMAP build {a.Size.X}×{a.Size.Z} ms={sw.Elapsed.TotalMilliseconds:F1}");
+            TestContext.WriteLine($"MINIMAP build {a.Size.X}x{a.Size.Z} ms={sw.Elapsed.TotalMilliseconds:F1}");
             Assert.AreEqual(a.Size.X * a.Size.Z * 4, ia.Length);
             Assert.AreEqual(ia.Length, ib.Length);
             for (int i = 0; i < ia.Length; i++)
                 if (ia[i] != ib[i])
-                    Assert.Fail($"byte {i} khác: {ia[i]} ≠ {ib[i]}");
+                    Assert.Fail($"byte {i} differs: {ia[i]} ≠ {ib[i]}");
         }
 
         [Test]
@@ -80,11 +80,11 @@ namespace Game.World.Tests
                     int i = (x + w.Size.X * z) * 4;
                     uint got = (uint)(img[i] << 16 | img[i + 1] << 8 | img[i + 2]);
                     if (got != want || img[i + 3] != 255)
-                        Assert.Fail($"cột ({x}, {z}): màu {got:x6} (alpha {img[i + 3]}) ≠ {want:x6}");
+                        Assert.Fail($"column ({x}, {z}): color {got:x6} (alpha {img[i + 3]}) ≠ {want:x6}");
                 }
-            TestContext.WriteLine($"MINIMAP tầng đất có mặt: {string.Join(",", landTiers)} · dải nước: {string.Join(",", waterBands)}");
-            Assert.GreaterOrEqual(landTiers.Count, 6, "ảnh phải có ít nhất 6 tầng đất");
-            Assert.GreaterOrEqual(waterBands.Count, 2, "ảnh phải có ít nhất 2 dải nước");
+            TestContext.WriteLine($"MINIMAP land tiers present: {string.Join(",", landTiers)} · water bands: {string.Join(",", waterBands)}");
+            Assert.GreaterOrEqual(landTiers.Count, 6, "image must have at least 6 land tiers");
+            Assert.GreaterOrEqual(waterBands.Count, 2, "image must have at least 2 water bands");
         }
 
         [Test]
@@ -111,12 +111,12 @@ namespace Game.World.Tests
                 for (int i = 0; i + 3 < line.Length; i += 2)
                 {
                     float ax = line[i], az = line[i + 1], bx = line[i + 2], bz = line[i + 3];
-                    Assert.AreEqual(1f, Math.Abs(bx - ax) + Math.Abs(bz - az), 1e-6f, "đoạn đơn vị theo trục");
+                    Assert.AreEqual(1f, Math.Abs(bx - ax) + Math.Abs(bz - az), 1e-6f, "unit segment along axis");
                     var key = ax == bx ? ((int)ax, (int)Math.Min(az, bz), true) : ((int)Math.Min(ax, bx), (int)az, false);
-                    Assert.IsTrue(edges.Contains(key), $"seed {seed}: đoạn {key} không ngăn hai map");
-                    Assert.IsTrue(seen.Add(key), $"seed {seed}: đoạn {key} lặp");
+                    Assert.IsTrue(edges.Contains(key), $"seed {seed}: segment {key} does not separate two maps");
+                    Assert.IsTrue(seen.Add(key), $"seed {seed}: segment {key} repeated");
                 }
-            Assert.AreEqual(edges.Count, seen.Count, "mọi cạnh ngăn map đều có trong ranh giới");
+            Assert.AreEqual(edges.Count, seen.Count, "every edge separating maps is in the border");
 
             // Đã làm mượt: mỗi điểm cách một cạnh ngăn map ≤ 0,5 ô; trung điểm mỗi cạnh cách đường làm mượt ≤ 0,5 ô.
             var smooth = MinimapOverlay.Borders(maps);
@@ -141,9 +141,9 @@ namespace Game.World.Tests
                         best = Math.Min(best, DistToSegment(mx, mz, line[i], line[i + 1], line[i + 2], line[i + 3]));
                 maxGap = Math.Max(maxGap, best);
             }
-            TestContext.WriteLine($"seed {seed}: {edges.Count} cạnh, {raw.Count} đường, {points} điểm sau làm mượt, lệch xa nhất {maxDev:F3}, hở xa nhất {maxGap:F3}");
-            Assert.LessOrEqual(maxDev, 0.5, $"seed {seed}: điểm làm mượt xa ranh giới");
-            Assert.LessOrEqual(maxGap, 0.5, $"seed {seed}: đường làm mượt bỏ sót cạnh");
+            TestContext.WriteLine($"seed {seed}: {edges.Count} edges, {raw.Count} lines, {points} points after smoothing, max deviation {maxDev:F3}, max gap {maxGap:F3}");
+            Assert.LessOrEqual(maxDev, 0.5, $"seed {seed}: smoothed point far from border");
+            Assert.LessOrEqual(maxGap, 0.5, $"seed {seed}: smoothed line missed an edge");
         }
 
         [Test]
@@ -155,9 +155,9 @@ namespace Game.World.Tests
             for (int m = 0; m < maps.MapCount; m++)
             {
                 float x = pos[2 * m], z = pos[2 * m + 1];
-                Assert.IsFalse(float.IsNaN(x) || float.IsNaN(z), $"seed {seed}: map {m} không có vị trí tên");
-                TestContext.WriteLine($"seed {seed}: {maps.Name(m)} ở ({x:F1}, {z:F1})");
-                Assert.AreEqual(m, (int)maps.Get((int)Math.Floor(x), (int)Math.Floor(z)), $"seed {seed}: tên {maps.Name(m)} nằm ngoài map");
+                Assert.IsFalse(float.IsNaN(x) || float.IsNaN(z), $"seed {seed}: map {m} has no name position");
+                TestContext.WriteLine($"seed {seed}: {maps.Name(m)} at ({x:F1}, {z:F1})");
+                Assert.AreEqual(m, (int)maps.Get((int)Math.Floor(x), (int)Math.Floor(z)), $"seed {seed}: name {maps.Name(m)} is outside the map");
             }
         }
 

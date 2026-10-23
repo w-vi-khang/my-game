@@ -23,7 +23,7 @@ namespace Game.Client.Tests
             go = new GameObject("Terrain");
             view = go.AddComponent<TerrainChunkView>();
             yield return null; // Start → Build
-            Assert.IsNotNull(view.World, "Build chưa chạy");
+            Assert.IsNotNull(view.World, "Build not run");
             camGo = new GameObject("Cam");
             cam = camGo.AddComponent<Camera>();
             fly = camGo.AddComponent<DebugFlyCamera>();
@@ -57,7 +57,7 @@ namespace Game.Client.Tests
                 }
             }
             if (fx < 0)
-                Assert.Fail("Không có cột đất phù hợp");
+                Assert.Fail("No suitable land column");
             camGo.transform.position = new Vector3(fx + 0.5f, h + 3.5f, fz + 0.5f);
             fly.Fly(new Vector3(0, -10, 0));
             Assert.AreEqual(h + 1 + 0.25f + FlyCameraCollision.Skin, camGo.transform.position.y, 1e-3f);
@@ -85,7 +85,7 @@ namespace Game.Client.Tests
                 }
             }
             if (fx < 0)
-                Assert.Fail("Không có cột nước phù hợp");
+                Assert.Fail("No suitable water column");
             var fogColor0 = RenderSettings.fogColor;
             float start0 = RenderSettings.fogStartDistance, end0 = RenderSettings.fogEndDistance;
             var clear0 = cam.clearFlags;

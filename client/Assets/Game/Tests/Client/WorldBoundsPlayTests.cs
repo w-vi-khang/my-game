@@ -28,7 +28,7 @@ namespace Game.Client.Tests
             go = new GameObject("Terrain");
             view = go.AddComponent<TerrainChunkView>();
             yield return null; // Start → Build
-            Assert.IsNotNull(view.World, "Build chưa chạy");
+            Assert.IsNotNull(view.World, "Build not run");
             camGo = new GameObject("Cam");
             cam = camGo.AddComponent<Camera>();
             fly = camGo.AddComponent<DebugFlyCamera>();
@@ -133,7 +133,7 @@ namespace Game.Client.Tests
                     break;
                 }
             if (fz < 0)
-                Assert.Fail("Không có ô nước ở mép");
+                Assert.Fail("No water cell at the edge");
             camGo.transform.position = new Vector3(1.0f, S + 0.3f, fz + 0.5f);
             yield return null;
             Assert.IsTrue(under.IsUnderwater);

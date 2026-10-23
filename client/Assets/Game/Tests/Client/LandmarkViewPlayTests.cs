@@ -68,7 +68,7 @@ namespace Game.Client.Tests
             }
             Assert.AreEqual(root.GetComponentsInChildren<MeshRenderer>(true).Length, root.GetComponentsInChildren<Collider>(true).Length); // mỗi khối có collider (brief 0021)
             var baseMat = Resources.Load<Material>("Materials/Landmark");
-            Assert.IsNotNull(baseMat, "thiếu Resources/Materials/Landmark.mat");
+            Assert.IsNotNull(baseMat, "missing Resources/Materials/Landmark.mat");
             Assert.AreEqual("Universal Render Pipeline/Lit", baseMat.shader.name);
             foreach (var r in root.GetComponentsInChildren<MeshRenderer>())
                 Assert.AreSame(baseMat.shader, r.sharedMaterial.shader);
@@ -76,7 +76,7 @@ namespace Game.Client.Tests
             foreach (var r in root.GetComponentsInChildren<MeshRenderer>())
                 mats.Add(r.sharedMaterial);
             Assert.LessOrEqual(mats.Count, 7);
-            Debug.Log($"LANDMARKVIEWTEST {view.Landmarks.Count} dấu mốc, {mats.Count} material, đặt {view.LandmarkMs:F1} ms");
+            Debug.Log($"LANDMARKVIEWTEST {view.Landmarks.Count} landmarks, {mats.Count} materials, placed {view.LandmarkMs:F1} ms");
             yield return null;
         }
 

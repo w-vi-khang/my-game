@@ -21,13 +21,13 @@ namespace Game.Core.Tests
         {
             var st = NewState(out var c, out var stage);
             c.State = CreatureState.Idle;
-            Assert.AreEqual("L1 · rảnh", CreatureStatus.Text(ViText.Load(), st, c));
+            Assert.AreEqual("L1 · rảnh", CreatureStatus.Text(ViText.Load(), st, c)); // vi-text
             c.State = CreatureState.Moving; c.StageId = -1;
-            Assert.AreEqual("L1 · đi", CreatureStatus.Text(ViText.Load(), st, c));
+            Assert.AreEqual("L1 · đi", CreatureStatus.Text(ViText.Load(), st, c)); // vi-text
             c.StageId = 0;
-            Assert.AreEqual("L1 · đi → xới", CreatureStatus.Text(ViText.Load(), st, c));
+            Assert.AreEqual("L1 · đi → xới", CreatureStatus.Text(ViText.Load(), st, c)); // vi-text
             c.State = CreatureState.Working; stage.WorkDone = 27500;
-            Assert.AreEqual("L1 · xới 45%", CreatureStatus.Text(ViText.Load(), st, c));
+            Assert.AreEqual("L1 · xới 45%", CreatureStatus.Text(ViText.Load(), st, c)); // vi-text
         }
 
         [Test]
@@ -36,22 +36,22 @@ namespace Game.Core.Tests
             var st = NewState(out var c, out var stage);
             c.State = CreatureState.Working; c.StageId = 0;
             stage.WorkDone = 0;
-            Assert.AreEqual("L1 · xới 0%", CreatureStatus.Text(ViText.Load(), st, c));
+            Assert.AreEqual("L1 · xới 0%", CreatureStatus.Text(ViText.Load(), st, c)); // vi-text
             stage.WorkDone = 59999;
-            Assert.AreEqual("L1 · xới 99%", CreatureStatus.Text(ViText.Load(), st, c));
+            Assert.AreEqual("L1 · xới 99%", CreatureStatus.Text(ViText.Load(), st, c)); // vi-text
             stage.WorkDone = 60000;
-            Assert.AreEqual("L1 · xới 100%", CreatureStatus.Text(ViText.Load(), st, c));
+            Assert.AreEqual("L1 · xới 100%", CreatureStatus.Text(ViText.Load(), st, c)); // vi-text
         }
 
         [Test]
         public void ReasonTexts()
         {
-            Assert.AreEqual("không có đường", CreatureStatus.ReasonText(ViText.Load(), StallReason.NoPath));
-            Assert.AreEqual("hết hạt", CreatureStatus.ReasonText(ViText.Load(), StallReason.NoSeeds));
-            Assert.AreEqual("kho đầy", CreatureStatus.ReasonText(ViText.Load(), StallReason.StorageFull));
-            Assert.AreEqual("thiếu năng lực", CreatureStatus.ReasonText(ViText.Load(), StallReason.NoAbility));
-            Assert.AreEqual("vận chuyển", CreatureStatus.AbilityName(ViText.Load(), WorkAbility.Haul));
-            Assert.AreEqual("thu hoạch", CreatureStatus.AbilityName(ViText.Load(), WorkAbility.Harvest));
+            Assert.AreEqual("không có đường", CreatureStatus.ReasonText(ViText.Load(), StallReason.NoPath)); // vi-text
+            Assert.AreEqual("hết hạt", CreatureStatus.ReasonText(ViText.Load(), StallReason.NoSeeds)); // vi-text
+            Assert.AreEqual("kho đầy", CreatureStatus.ReasonText(ViText.Load(), StallReason.StorageFull)); // vi-text
+            Assert.AreEqual("thiếu năng lực", CreatureStatus.ReasonText(ViText.Load(), StallReason.NoAbility)); // vi-text
+            Assert.AreEqual("vận chuyển", CreatureStatus.AbilityName(ViText.Load(), WorkAbility.Haul)); // vi-text
+            Assert.AreEqual("thu hoạch", CreatureStatus.AbilityName(ViText.Load(), WorkAbility.Harvest)); // vi-text
         }
     }
 }

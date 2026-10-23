@@ -68,7 +68,7 @@ namespace Game.Client.Tests
                 }
                 if (n >= 6) { spot = c; found = true; break; }
             }
-            Assert.IsTrue(found, "Không tìm được chỗ đứng quanh trại");
+            Assert.IsTrue(found, "Could not find a standing spot around the camp");
             player.Place(view.transform.TransformPoint(new Vector3(spot.x + 0.5f, spot.y + 1f, spot.z + 0.5f)), 0f);
             for (int i = 0; i < 600 && !player.Ready; i++) yield return null;
             Assert.IsTrue(player.Ready);
@@ -118,7 +118,7 @@ namespace Game.Client.Tests
                 if (sv.Sim.FindPlayerPathToPlot(FeetCell(), id, path)) { cell = c; return id; }
                 sv.UnmarkAt(c);
             }
-            Assert.Fail("Không có ô đánh dấu nào có đường tới");
+            Assert.Fail("No marked cell with a path");
             cell = default;
             return -1;
         }
@@ -205,7 +205,7 @@ namespace Game.Client.Tests
             yield return WaitSeconds(8f, () => farming.TillState == SelfTillState.None);
             Assert.AreEqual(SelfTillState.None, farming.TillState);
             Assert.IsTrue(sv.Sim.State.Plots[id].Tilled);
-            StringAssert.Contains("Xới xong ô", farming.StatusLine);
+            StringAssert.Contains("Xới xong ô", farming.StatusLine); // vi-text
         }
 
         [UnityTest]
@@ -219,7 +219,7 @@ namespace Game.Client.Tests
             yield return PressForward();
             Assert.AreEqual(SelfTillState.None, farming.TillState);
             Assert.IsFalse(sv.Sim.State.Plots[id].Tilled);
-            Assert.AreEqual("Huỷ tự xới", farming.StatusLine);
+            Assert.AreEqual("Huỷ tự xới", farming.StatusLine); // vi-text
         }
 
         [UnityTest]
@@ -231,7 +231,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(SelfTillState.Walking, farming.TillState);
             input.ToggleTool();
             Assert.AreEqual(SelfTillState.None, farming.TillState);
-            Assert.AreEqual("Huỷ tự xới", farming.StatusLine);
+            Assert.AreEqual("Huỷ tự xới", farming.StatusLine); // vi-text
             Assert.IsFalse(sv.Sim.State.Plots[id].Tilled);
             yield return null;
             Assert.AreNotEqual(AutoWalkState.Walking, player.AutoWalk);
@@ -248,7 +248,7 @@ namespace Game.Client.Tests
                     if (view.World.Size.InBounds(soil.X + ox, y, soil.Z + oz))
                         view.World.Set(soil.X + ox, y, soil.Z + oz, Cell.Make(BlockMaterial.Stone));
             Assert.IsFalse(farming.BeginSelfTill(id));
-            Assert.AreEqual("Không tới được ô này", farming.StatusLine);
+            Assert.AreEqual("Không tới được ô này", farming.StatusLine); // vi-text
             yield return null;
         }
 
@@ -262,7 +262,7 @@ namespace Game.Client.Tests
             Assert.IsTrue(sv.Sim.PlayerTill(id));
             yield return null;
             Assert.AreEqual(SelfTillState.None, farming.TillState);
-            Assert.AreEqual("Tự xới: ô đã được xới", farming.StatusLine);
+            Assert.AreEqual("Tự xới: ô đã được xới", farming.StatusLine); // vi-text
         }
 
         [UnityTest]
@@ -309,7 +309,7 @@ namespace Game.Client.Tests
                 var below = new Vector3Int(c.x, c.y - 1, c.z);
                 if (view.World.GetMaterial(below.x, below.y, below.z) == BlockMaterial.Dirt) return below;
             }
-            Assert.Fail("Không tìm được ô đất để thử Mưa");
+            Assert.Fail("Could not find a plot cell to test Rain");
             return default;
         }
 
@@ -320,11 +320,11 @@ namespace Game.Client.Tests
             Assert.AreEqual(RainResult.Grassed, farming.CastRain(dirt));
             Assert.AreEqual(BlockMaterial.Grass, view.World.GetMaterial(dirt.x, dirt.y, dirt.z));
             Assert.IsFalse(farming.RainCooldown.Ready);
-            StringAssert.Contains("Mưa (R): 10 giây", farming.HudLines());
+            StringAssert.Contains("Mưa (R): 10 giây", farming.HudLines()); // vi-text
             Assert.IsTrue(farming.RainBox.activeSelf);
 
             Assert.AreEqual(RainResult.NoEffect, farming.CastRain(dirt));
-            Assert.AreEqual("Mưa: còn 10 giây", farming.StatusLine);
+            Assert.AreEqual("Mưa: còn 10 giây", farming.StatusLine); // vi-text
 
             int id = PlotToPhase(PlotPhase.Water, out var cell);
             Assert.AreEqual(PlotPhase.Water, sv.Sim.State.Plots[id].Phase);
@@ -342,7 +342,7 @@ namespace Game.Client.Tests
 
             var f = FeetCell();
             Assert.AreEqual(RainResult.NoEffect, farming.CastRain(new Vector3Int(f.X + 12, f.Y, f.Z)));
-            Assert.AreEqual("Mưa: ngoài tầm 8 ô", farming.StatusLine);
+            Assert.AreEqual("Mưa: ngoài tầm 8 ô", farming.StatusLine); // vi-text
             Assert.IsTrue(farming.RainCooldown.Ready);
 
             yield return WaitSeconds(1f, () => !farming.RainBox.activeSelf);
@@ -359,8 +359,8 @@ namespace Game.Client.Tests
             Assert.IsTrue(farming.Harvest(id));
             Assert.AreEqual(p0 + cd.producePerHarvest, view.Bag.GetProduce(0));
             Assert.AreEqual(s0 + cd.seedsPerHarvest, view.Bag.GetSeeds(0));
-            StringAssert.Contains("Nông sản Cây A: " + view.Bag.GetProduce(0), input.HudText());
-            StringAssert.Contains("Thu hoạch Cây A", farming.StatusLine);
+            StringAssert.Contains("Nông sản Cây A: " + view.Bag.GetProduce(0), input.HudText()); // vi-text
+            StringAssert.Contains("Thu hoạch Cây A", farming.StatusLine); // vi-text
 
             // ô chín ngoài tầm → -1: dịch nhân vật ra xa
             int id2 = PlotToPhase(PlotPhase.Harvest, out var cell2);
@@ -374,9 +374,9 @@ namespace Game.Client.Tests
         public IEnumerator HudInitial()
         {
             var t = input.HudText();
-            StringAssert.Contains("Mưa (R): sẵn sàng", t);
+            StringAssert.Contains("Mưa (R): sẵn sàng", t); // vi-text
             ToTill();
-            StringAssert.Contains("lên biển = tự đi tới xới", input.HudText());
+            StringAssert.Contains("lên biển = tự đi tới xới", input.HudText()); // vi-text
             yield return null;
         }
     }

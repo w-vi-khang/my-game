@@ -11,7 +11,7 @@ namespace Game.World.Tests
         public void RunsWithBurst()
         {
             TerrainGenerator.Generate(Params(), out bool ranWithBurst);
-            Assert.IsTrue(ranWithBurst, "Job sinh địa hình phải chạy bằng Burst (FloatMode.Deterministic)");
+            Assert.IsTrue(ranWithBurst, "Terrain generation job must run with Burst (FloatMode.Deterministic)");
         }
 
         [Test]
@@ -48,23 +48,23 @@ namespace Game.World.Tests
             for (int z = 0; z < p.sizeZ; z++)
             {
                 for (int y = 0; y < p.bedrockLayers; y++)
-                    Assert.AreEqual(BlockMaterial.Bedrock, w.GetMaterial(x, y, z), $"đá đáy ({x},{y},{z})");
+                    Assert.AreEqual(BlockMaterial.Bedrock, w.GetMaterial(x, y, z), $"bottom rock ({x},{y},{z})");
 
                 int s = w.SurfaceHeight(x, z);
-                Assert.That(s, Is.InRange(p.bedrockLayers, p.maxSurface), $"mặt đất ({x},{z})");
+                Assert.That(s, Is.InRange(p.bedrockLayers, p.maxSurface), $"ground ({x},{z})");
                 if (s < p.minSurface)
-                    Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, s + 1, z), $"dưới minSurface chỉ được ở lòng hồ ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, s + 1, z), $"below minSurface only allowed in lake bed ({x},{z})");
 
                 var top = w.GetMaterial(x, s, z);
                 if (s <= p.waterLevel + p.sandBand)
-                    Assert.AreEqual(BlockMaterial.Sand, top, $"ô thấp gần nước là cát ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Sand, top, $"low cell near water is sand ({x},{z})");
                 else
-                    Assert.AreEqual(BlockMaterial.Grass, top, $"trên cùng là cỏ ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Grass, top, $"top is grass ({x},{z})");
 
                 for (int y = p.bedrockLayers; y < s; y++)
                 {
                     var expected = s - y <= p.dirtDepth ? BlockMaterial.Dirt : BlockMaterial.Stone;
-                    Assert.AreEqual(expected, w.GetMaterial(x, y, z), $"lớp ({x},{y},{z})");
+                    Assert.AreEqual(expected, w.GetMaterial(x, y, z), $"layer ({x},{y},{z})");
                 }
 
                 for (int y = s + 1; y < p.sizeY; y++)
@@ -72,15 +72,15 @@ namespace Game.World.Tests
                     ushort c = w.Get(x, y, z);
                     if (y <= p.waterLevel)
                     {
-                        Assert.AreEqual(BlockMaterial.Water, Cell.GetMaterial(c), $"nước tĩnh ({x},{y},{z})");
+                        Assert.AreEqual(BlockMaterial.Water, Cell.GetMaterial(c), $"still water ({x},{y},{z})");
                         Assert.AreEqual(Cell.MaxWaterLevel, Cell.GetWaterLevel(c));
                         waterCells++;
                     }
                     else
-                        Assert.AreEqual(BlockMaterial.Empty, Cell.GetMaterial(c), $"không khí ({x},{y},{z})");
+                        Assert.AreEqual(BlockMaterial.Empty, Cell.GetMaterial(c), $"air ({x},{y},{z})");
                 }
             }
-            Assert.Greater(waterCells, 0, "phải có ít nhất một hồ");
+            Assert.Greater(waterCells, 0, "must have at least one lake");
         }
 
         [Test]
@@ -109,9 +109,9 @@ namespace Game.World.Tests
                 if (edge >= p.islandMargin)
                     continue;
                 ring++;
-                Assert.AreEqual(seaFloor, w.SurfaceHeight(x, z), $"đáy biển ({x},{z})");
-                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, p.waterLevel, z), $"nước ở mặt biển ({x},{z})");
-                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, p.waterLevel + 1, z), $"trên mặt biển ({x},{z})");
+                Assert.AreEqual(seaFloor, w.SurfaceHeight(x, z), $"seabed ({x},{z})");
+                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, p.waterLevel, z), $"water at sea surface ({x},{z})");
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, p.waterLevel + 1, z), $"above sea surface ({x},{z})");
             }
             Assert.Greater(ring, 0);
         }

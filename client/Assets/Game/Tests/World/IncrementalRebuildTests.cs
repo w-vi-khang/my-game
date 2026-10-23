@@ -61,10 +61,10 @@ namespace Game.World.Tests
                     checks++;
                     var full = BlockMesher.BuildAll(world);
                     for (int c = 0; c < full.Length; c++)
-                        AssertSameMesh(full[c], meshes[c], $"chunk {c} sau {edits} lần sửa");
+                        AssertSameMesh(full[c], meshes[c], $"chunk {c} after {edits} edits");
                 }
             }
-            Assert.AreEqual(200, edits, "không đủ 200 lần sửa hợp lệ");
+            Assert.AreEqual(200, edits, "fewer than 200 valid edits");
             Assert.AreEqual(20, checks);
         }
 
@@ -88,8 +88,8 @@ namespace Game.World.Tests
                 if (before.Indices.Length != after.Indices.Length)
                     changedCases++;
             }
-            Assert.Greater(tried, 0, "không có cột nào để thử");
-            Assert.Greater(changedCases, 0, $"đào ô ở biên không đổi mesh chunk bên cạnh ({tried} lần thử)");
+            Assert.Greater(tried, 0, "no column to test");
+            Assert.Greater(changedCases, 0, $"digging a cell at the boundary does not change the neighbor chunk mesh ({tried} tries)");
         }
     }
 }

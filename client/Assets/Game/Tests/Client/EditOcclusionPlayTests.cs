@@ -48,9 +48,9 @@ namespace Game.Client.Tests
         public IEnumerator HouseAndStorageBlockPick()
         {
             foreach (var h in sv.Sim.State.Houses)
-                Assert.IsFalse(input.Pick(Down(h.Cell.X + h.SizeX * 0.5f, h.Cell.Z + h.SizeZ * 0.5f, 80f), out _, out _), "nhà " + h.Id);
+                Assert.IsFalse(input.Pick(Down(h.Cell.X + h.SizeX * 0.5f, h.Cell.Z + h.SizeZ * 0.5f, 80f), out _, out _), "house " + h.Id);
             var s = sv.Sim.State.Storages[0];
-            Assert.IsFalse(input.Pick(Down(s.Cell.X + 0.5f, s.Cell.Z + 0.5f, 80f), out _, out _), "kho");
+            Assert.IsFalse(input.Pick(Down(s.Cell.X + 0.5f, s.Cell.Z + 0.5f, 80f), out _, out _), "storage");
             Assert.AreEqual(3, go.transform.Find("Sim").GetComponentsInChildren<Collider>().Length);
             Debug.Log("EDITOCCLUSIONTEST ok");
             yield return null;
@@ -61,13 +61,13 @@ namespace Game.Client.Tests
         {
             foreach (var p in sv.Sim.State.Plots)
             {
-                Assert.IsTrue(input.Pick(Down(p.Soil.X + 0.5f, p.Soil.Z + 0.5f, 80f), out var dig, out var place), "ruộng " + p.Id);
+                Assert.IsTrue(input.Pick(Down(p.Soil.X + 0.5f, p.Soil.Z + 0.5f, 80f), out var dig, out var place), "plot " + p.Id);
                 Assert.AreEqual(new Vector3Int(p.Soil.X, p.Soil.Y, p.Soil.Z), dig);
                 Assert.AreEqual(dig + Vector3Int.up, place);
             }
             foreach (var c in sv.Sim.State.Creatures)
             {
-                Assert.IsTrue(input.Pick(Down(c.Cell.X + 0.5f, c.Cell.Z + 0.5f, 80f), out var d2, out _), "sinh vật " + c.Id);
+                Assert.IsTrue(input.Pick(Down(c.Cell.X + 0.5f, c.Cell.Z + 0.5f, 80f), out var d2, out _), "creature " + c.Id);
                 Assert.AreEqual(c.Cell.X, d2.x);
                 Assert.AreEqual(c.Cell.Z, d2.z);
             }

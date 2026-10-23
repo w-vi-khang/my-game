@@ -44,7 +44,7 @@ namespace Game.Core.Tests
         /// <summary>Đào rồi cho nước lan tới khi yên; trả về số ô ngập.</summary>
         static int DigSettle(WorldEditor e, int x, int y, int z)
         {
-            Assert.AreEqual(EditResult.Ok, e.TryDig(x, y, z), $"đào ({x},{y},{z})");
+            Assert.AreEqual(EditResult.Ok, e.TryDig(x, y, z), $"dig ({x},{y},{z})");
             return e.SettleWater();
         }
 
@@ -62,10 +62,10 @@ namespace Game.Core.Tests
         {
             var w = OpenSea();
             var e = Editor(w);
-            Assert.AreEqual(EditResult.NotAttached, e.TryPlace(8, 9, 8, BlockMaterial.Stone), "giữa không trung");
-            Assert.AreEqual(EditResult.Ok, e.TryPlace(8, 1, 8, BlockMaterial.Stone), "trong nước, kề đá đáy");
-            Assert.AreEqual(EditResult.Ok, e.TryPlace(8, 2, 8, BlockMaterial.Stone), "chồng lên khối vừa đặt");
-            Assert.AreEqual(EditResult.NotAttached, e.TryPlace(9, 3, 9, BlockMaterial.Stone), "chỉ chạm chéo không tính");
+            Assert.AreEqual(EditResult.NotAttached, e.TryPlace(8, 9, 8, BlockMaterial.Stone), "mid-air");
+            Assert.AreEqual(EditResult.Ok, e.TryPlace(8, 1, 8, BlockMaterial.Stone), "in water, next to bottom rock");
+            Assert.AreEqual(EditResult.Ok, e.TryPlace(8, 2, 8, BlockMaterial.Stone), "overlaps the block just placed");
+            Assert.AreEqual(EditResult.NotAttached, e.TryPlace(9, 3, 9, BlockMaterial.Stone), "diagonal contact does not count");
         }
 
         [Test]
@@ -112,9 +112,9 @@ namespace Game.Core.Tests
             for (int x = 6; x <= 8; x++)
                 w.Set(x, y, z, Cell.Make(BlockMaterial.Empty));
             var e = Editor(w);
-            Assert.AreEqual(0, DigSettle(e, 9, 4, 7), "chỉ kề hầm khô, không kề nước → không loang");
+            Assert.AreEqual(0, DigSettle(e, 9, 4, 7), "only next to a dry tunnel, not next to water → no spread");
             Assert.AreEqual(1, DigSettle(e, 4, 5, 7));
-            Assert.AreEqual(1 + 27 + 1, DigSettle(e, 5, 5, 7), "ô vừa đào + 27 ô hầm + ô (9, 4, 7) đào trước đó");
+            Assert.AreEqual(1 + 27 + 1, DigSettle(e, 5, 5, 7), "just-dug cell + 27 tunnel cells + cell (9, 4, 7) dug earlier");
             for (int y = 3; y <= S; y++)
             for (int z = 6; z <= 8; z++)
             for (int x = 6; x <= 8; x++)
@@ -129,7 +129,7 @@ namespace Game.Core.Tests
             // (4, 5, 7) chỉ chạm nước theo cạnh chéo nếu bốn ô kề mặt đều đặc: đặt đá ở (3, 5, 7) trước.
             Assert.AreEqual(EditResult.Ok, e.TryPlace(3, 5, 7, BlockMaterial.Stone));
             DigSettle(e, 4, 5, 7);
-            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(4, 5, 7), "(3, 5, 6) và (3, 4, 7) là nước nhưng chỉ chạm chéo");
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(4, 5, 7), "(3, 5, 6) and (3, 4, 7) are water but only touch diagonally");
         }
 
         [Test]
@@ -145,9 +145,9 @@ namespace Game.Core.Tests
             DigSettle(e, 0, 3, 5);
             Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(0, 3, 5));
             DigSettle(e, 1, 3, 5);
-            Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(1, 3, 5), "kề ô vừa ngập");
+            Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(1, 3, 5), "next to just-flooded cell");
             DigSettle(e, 5, 3, 5);
-            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(5, 3, 5), "giữa map, không kề nước");
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(5, 3, 5), "mid-map, not next to water");
         }
 
         // ---------------- Tường chữ U (ví dụ user hỏi khi duyệt 0012) ----------------
@@ -162,7 +162,7 @@ namespace Game.Core.Tests
                 bool rim = x == 5 || x == 9 || z == 5 || z == 9;
                 bool gap = openSide && z == 9 && x >= 6 && x <= 8; // miệng U quay ra biển
                 if (rim && !gap)
-                    Assert.AreEqual(EditResult.Ok, e.TryPlace(x, y, z, BlockMaterial.Stone), $"tường ({x},{y},{z})");
+                    Assert.AreEqual(EditResult.Ok, e.TryPlace(x, y, z, BlockMaterial.Stone), $"wall ({x},{y},{z})");
             }
         }
 
@@ -172,7 +172,7 @@ namespace Game.Core.Tests
             for (int y = 1; y <= S; y++)
             for (int z = 6; z <= 8; z++)
             for (int x = 6; x <= 8; x++)
-                Assert.AreEqual(EditResult.Ok, e.TryPlace(x, y, z, BlockMaterial.Stone), $"lấp ({x},{y},{z})");
+                Assert.AreEqual(EditResult.Ok, e.TryPlace(x, y, z, BlockMaterial.Stone), $"fill ({x},{y},{z})");
             for (int y = S; y >= 1; y--)
             for (int z = 6; z <= 8; z++)
             for (int x = 6; x <= 8; x++)
@@ -195,7 +195,7 @@ namespace Game.Core.Tests
             var w = OpenSea();
             var e = Editor(w);
             BuildRingWall(e, 1, openSide: false);
-            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "dựng tường không làm nước rút");
+            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "building a wall does not drain water");
         }
 
         [Test]
@@ -205,7 +205,7 @@ namespace Game.Core.Tests
             var e = Editor(w);
             BuildRingWall(e, 1, openSide: false);
             FillThenDigInside(e);
-            Assert.AreEqual(45, CountInside(w, BlockMaterial.Empty), "kín tới đáy → khô");
+            Assert.AreEqual(45, CountInside(w, BlockMaterial.Empty), "sealed to the bottom → dry");
         }
 
         [Test]
@@ -215,7 +215,7 @@ namespace Game.Core.Tests
             var e = Editor(w);
             BuildRingWall(e, 1, openSide: true);
             FillThenDigInside(e);
-            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "miệng U quay ra biển → ngập lại");
+            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "U mouth faces the sea → floods again");
         }
 
         [Test]
@@ -228,10 +228,10 @@ namespace Game.Core.Tests
             for (int z = 6; z <= 8; z++)
             {
                 DigSettle(e, 5, 1, z);
-                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(5, 1, z), "chân tường kề biển → ngập");
+                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(5, 1, z), "wall foot next to sea → floods");
             }
             FillThenDigInside(e);
-            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "nước luồn dưới chân tường");
+            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "water slips under the wall foot");
         }
 
         [Test]
@@ -242,7 +242,7 @@ namespace Game.Core.Tests
             BuildRingWall(e, 1, openSide: false);
             FillThenDigInside(e);
             DigSettle(e, 7, 3, 9);
-            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "mở thông ra biển, thấp hơn mực nước → ngập");
+            Assert.AreEqual(45, CountInside(w, BlockMaterial.Water), "open to the sea, below water level → floods");
         }
 
         // ---------------- Lan theo nhịp (0013) ----------------
@@ -262,13 +262,13 @@ namespace Game.Core.Tests
             var w = CoastWithCorridor();
             var e = Editor(w);
             Assert.AreEqual(EditResult.Ok, e.TryDig(4, S, 7));
-            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(4, S, 7), "đào xong chưa ngập — chờ nhịp");
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(4, S, 7), "not flooded after digging — waiting for tick");
             Assert.IsTrue(e.HasPendingWater);
             for (int step = 1; step <= 7; step++)
             {
-                Assert.AreEqual(1, e.StepWater(), $"nhịp {step}: mỗi nhịp ngập đúng 1 ô dọc hành lang");
+                Assert.AreEqual(1, e.StepWater(), $"tick {step}: each tick floods exactly 1 cell along the corridor");
                 for (int x = 4; x <= 10; x++)
-                    Assert.AreEqual(x - 4 < step ? BlockMaterial.Water : BlockMaterial.Empty, w.GetMaterial(x, S, 7), $"nhịp {step}, x = {x}");
+                    Assert.AreEqual(x - 4 < step ? BlockMaterial.Water : BlockMaterial.Empty, w.GetMaterial(x, S, 7), $"tick {step}, x = {x}");
             }
             Assert.AreEqual(0, e.StepWater());
             Assert.IsFalse(e.HasPendingWater);
@@ -283,7 +283,7 @@ namespace Game.Core.Tests
                 w.Set(4, y, 7, Cell.Make(BlockMaterial.Empty));
             var e = Editor(w);
             Assert.AreEqual(EditResult.Ok, e.TryDig(4, S, 7));
-            Assert.AreEqual(S, e.StepWater(), "ô vừa đào + cả giếng bên dưới trong cùng nhịp");
+            Assert.AreEqual(S, e.StepWater(), "just-dug cell + whole shaft below in the same tick");
             for (int y = 1; y <= S; y++)
                 Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(4, y, 7));
         }
@@ -296,12 +296,12 @@ namespace Game.Core.Tests
             Assert.AreEqual(EditResult.Ok, e.TryDig(4, S, 7));
             e.StepWater(); // (4, S, 7)
             e.StepWater(); // (5, S, 7)
-            Assert.AreEqual(EditResult.Ok, e.TryPlace(7, S, 7, BlockMaterial.Stone), "chặn trước khi nước tới");
+            Assert.AreEqual(EditResult.Ok, e.TryPlace(7, S, 7, BlockMaterial.Stone), "blocked before water arrives");
             e.SettleWater();
             Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(6, S, 7));
             Assert.AreEqual(BlockMaterial.Stone, w.GetMaterial(7, S, 7));
             for (int x = 8; x <= 10; x++)
-                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, S, 7), "sau khối chặn vẫn khô");
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, S, 7), "still dry behind the block");
         }
 
         [Test]

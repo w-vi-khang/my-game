@@ -20,7 +20,7 @@ namespace Game.Client.Tests
             go = new GameObject("Terrain");
             view = go.AddComponent<TerrainChunkView>();
             yield return null; // Start → Build
-            Assert.IsNotNull(view.World, "Build chưa chạy");
+            Assert.IsNotNull(view.World, "Build not run");
         }
 
         [UnityTearDown]
@@ -38,14 +38,14 @@ namespace Game.Client.Tests
                 yield return null;
                 waited++;
             }
-            Assert.GreaterOrEqual(view.LastRebuildFrame, editFrame, "mesh chưa dựng lại sau 5 khung hình");
+            Assert.GreaterOrEqual(view.LastRebuildFrame, editFrame, "mesh not rebuilt after 5 frames");
             framesTaken.Add(view.LastRebuildFrame - editFrame);
         }
 
         float SurfaceRay(int x, int z)
         {
             Assert.IsTrue(Physics.Raycast(new Vector3(x + 0.5f, 60f, z + 0.5f), Vector3.down, out var hit, 100f),
-                $"raycast không trúng collider ở cột {x},{z}");
+                $"raycast did not hit collider at column {x},{z}");
             return hit.point.y;
         }
 
@@ -57,11 +57,11 @@ namespace Game.Client.Tests
                 int cx = c % s.ChunksX, cz = c / s.ChunksX % s.ChunksZ, cy = c / (s.ChunksX * s.ChunksZ);
                 var expected = BlockMesher.Build(view.World, cx, cy, cz);
                 var mesh = view.ChunkMesh(c);
-                Assert.AreEqual(expected.Vertices.Length, mesh.vertexCount, $"chunk {c}: số đỉnh");
-                Assert.AreEqual(expected.Indices.Length, (int)mesh.GetIndexCount(0), $"chunk {c}: số chỉ số");
+                Assert.AreEqual(expected.Vertices.Length, mesh.vertexCount, $"chunk {c}: vertex count");
+                Assert.AreEqual(expected.Indices.Length, (int)mesh.GetIndexCount(0), $"chunk {c}: index count");
                 var v = mesh.vertices;
                 for (int i = 0; i < v.Length; i++)
-                    Assert.AreEqual((Vector3)expected.Vertices[i], v[i], $"chunk {c}: đỉnh {i}");
+                    Assert.AreEqual((Vector3)expected.Vertices[i], v[i], $"chunk {c}: vertex {i}");
             }
         }
 
@@ -87,7 +87,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(affected.Count, view.LastRebuildChunks);
             AssertMeshesMatchMesher(affected);
             float y1 = SurfaceRay(x, z);
-            Assert.Less(y1, y0 - 0.5f, "collider chưa theo hố vừa đào");
+            Assert.Less(y1, y0 - 0.5f, "collider did not follow the new pit");
 
             frame = Time.frameCount;
             view.Bag.Add(material);
@@ -95,11 +95,11 @@ namespace Game.Client.Tests
             Assert.AreEqual(0, view.Bag.Get(material));
             yield return WaitRebuild(frame, frames);
             AssertMeshesMatchMesher(affected);
-            Assert.AreEqual(y0, SurfaceRay(x, z), 1e-3f, "đặt lại → bề mặt như cũ");
+            Assert.AreEqual(y0, SurfaceRay(x, z), 1e-3f, "placed back → surface as before");
 
-            Debug.Log($"PLAYTEST khung hình chờ: [{string.Join(", ", frames)}]");
+            Debug.Log($"PLAYTEST frames waited: [{string.Join(", ", frames)}]");
             foreach (var f in frames)
-                Assert.LessOrEqual(f, 2, "mesh cập nhật chậm hơn 2 khung hình");
+                Assert.LessOrEqual(f, 2, "mesh updated slower than 2 frames");
         }
 
         [UnityTest]
@@ -107,19 +107,19 @@ namespace Game.Client.Tests
         {
             // Hồi quy (user báo 2026-10-13): Build() xoá mọi con của Terrain → khung chọn ô của TerrainEditInput bị huỷ
             // → MissingReferenceException trong Update, không đào/đặt được.
-            var marker = new GameObject("con khác");
+            var marker = new GameObject("Other Child");
             marker.transform.SetParent(go.transform, false);
             view.Build();
             yield return null;
-            Assert.IsTrue(marker != null, "Build() đã xoá con không phải chunk");
-            Assert.Greater(go.transform.Find("Chunks").childCount, 0, "không có chunk");
+            Assert.IsTrue(marker != null, "Build() removed a non-chunk child");
+            Assert.Greater(go.transform.Find("Chunks").childCount, 0, "no chunks");
             view.Build();
             int roots = 0;
             foreach (Transform t in go.transform)
                 if (t.name == "Chunks")
                     roots++;
             yield return null;
-            Assert.AreEqual(1, roots, "Build() lần hai để lại chunk cũ");
+            Assert.AreEqual(1, roots, "second Build() left old chunks");
         }
 
         void FindColumn(out int x, out int z, out int h)
@@ -138,7 +138,7 @@ namespace Game.Client.Tests
                 x = z = i; h = hh;
                 return;
             }
-            Assert.Fail("không tìm thấy cột thử");
+            Assert.Fail("test column not found");
             x = z = h = 0;
         }
 
@@ -272,7 +272,7 @@ namespace Game.Client.Tests
                 // Luật đặt (0012): khối phải kề khối đặc → dựng cột đỡ từ mặt đất (kể cả trong nước) lên y = 15 trước.
                 view.Bag.Add(BlockMaterial.Dirt, 16 - surface);
                 for (int y = surface + 1; y < 16; y++)
-                    Assert.AreEqual(EditResult.Ok, view.Place(new Vector3Int(16, y, 16), BlockMaterial.Dirt), $"cột đỡ y = {y}");
+                    Assert.AreEqual(EditResult.Ok, view.Place(new Vector3Int(16, y, 16), BlockMaterial.Dirt), $"supporting column y = {y}");
                 yield return null;
             }
             int frame = Time.frameCount;
@@ -287,7 +287,7 @@ namespace Game.Client.Tests
             yield return WaitRebuild(frame, frames);
             Assert.AreEqual(8, view.LastRebuildChunks);
             Assert.LessOrEqual(frames[0], 2);
-            Debug.Log($"PLAYTEST góc 8 chunk: mesh {view.LastMeshMs:F2} ms, ghi {view.LastWriteMs:F2} ms, bake {view.LastBakeMs:F2} ms, chờ {frames[0]} khung hình");
+            Debug.Log($"PLAYTEST 8-chunk corner: mesh {view.LastMeshMs:F2} ms, write {view.LastWriteMs:F2} ms, bake {view.LastBakeMs:F2} ms, waited {frames[0]} frames");
         }
 
         [UnityTest]
@@ -314,7 +314,7 @@ namespace Game.Client.Tests
                 bake += view.LastBakeMs;
                 n++;
             }
-            Debug.Log($"PLAYTEST 1 chunk (TB {n} lần): mesh {mesh / n:F2} ms, ghi {write / n:F2} ms, bake {bake / n:F2} ms");
+            Debug.Log($"PLAYTEST 1 chunk (avg {n} runs): mesh {mesh / n:F2} ms, write {write / n:F2} ms, bake {bake / n:F2} ms");
         }
 
         [UnityTest]
@@ -338,16 +338,16 @@ namespace Game.Client.Tests
                     found = true;
                 }
             }
-            Assert.IsTrue(found, "không có ô bờ biển ở mực nước");
+            Assert.IsTrue(found, "no shore cell at water level");
             Assert.AreEqual(EditResult.Ok, view.Dig(cell));
-            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(cell.x, cell.y, cell.z), "không ngập ngay khi vừa đào");
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(cell.x, cell.y, cell.z), "not flooded right after digging");
             Assert.IsTrue(view.Editor.HasPendingWater);
             float start = Time.time;
             while (view.Editor.HasPendingWater && Time.time - start < 5f)
                 yield return null;
-            Assert.IsFalse(view.Editor.HasPendingWater, "nước phải yên trong 5 giây");
-            Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(cell.x, cell.y, cell.z), "ô bờ biển đã ngập");
-            Assert.Greater(Time.time - start, 0.5f / view.waterStepsPerSecond, "ngập sau ít nhất một nhịp, không tức thời");
+            Assert.IsFalse(view.Editor.HasPendingWater, "water must settle within 5 seconds");
+            Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(cell.x, cell.y, cell.z), "shore cell flooded");
+            Assert.Greater(Time.time - start, 0.5f / view.waterStepsPerSecond, "floods after at least one tick, not instantly");
         }
     }
 }

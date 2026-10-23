@@ -15,7 +15,7 @@ namespace Game.Core.Tests
         static uint Pixel(byte[] img, WorldData w, int x, int z)
         {
             int i = (x + w.Size.X * z) * 4;
-            Assert.AreEqual(255, img[i + 3], $"alpha cột ({x}, {z})");
+            Assert.AreEqual(255, img[i + 3], $"alpha column ({x}, {z})");
             return (uint)(img[i] << 16 | img[i + 1] << 8 | img[i + 2]);
         }
 
@@ -26,9 +26,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(4, MinimapImage.WaterBands.Length);
             var all = new HashSet<uint>();
             foreach (var c in MinimapImage.LandTiers)
-                Assert.IsTrue(c <= 0xFFFFFF && all.Add(c), $"màu đất {c:x6} trùng hoặc sai");
+                Assert.IsTrue(c <= 0xFFFFFF && all.Add(c), $"land color {c:x6} duplicate or wrong");
             foreach (var c in MinimapImage.WaterBands)
-                Assert.IsTrue(c <= 0xFFFFFF && all.Add(c), $"màu nước {c:x6} trùng hoặc sai");
+                Assert.IsTrue(c <= 0xFFFFFF && all.Add(c), $"water color {c:x6} duplicate or wrong");
         }
 
         [Test]
@@ -73,15 +73,15 @@ namespace Game.Core.Tests
             Assert.AreEqual(16 * 16 * 4, img.Length);
             var t = MinimapImage.LandTiers;
             var b = MinimapImage.WaterBands;
-            Assert.AreEqual(t[5], Pixel(img, w, 0, 0), "mặt 20");
-            Assert.AreEqual(b[1], Pixel(img, w, 1, 0), "sâu 4");
-            Assert.AreEqual(b[0], Pixel(img, w, 2, 0), "sâu 1");
-            Assert.AreEqual(b[3], Pixel(img, w, 3, 0), "sâu 18");
-            Assert.AreEqual(t[11], Pixel(img, w, 4, 0), "mặt 47");
-            Assert.AreEqual(t[0], Pixel(img, w, 5, 0), "cột rỗng");
-            Assert.AreEqual(t[5], Pixel(img, w, 6, 0), "vòm");
-            Assert.AreEqual(t[7], Pixel(img, w, 0, 1), "hàng z = 1");
-            Assert.AreEqual(t[0], Pixel(img, w, 15, 15), "góc trên-phải rỗng");
+            Assert.AreEqual(t[5], Pixel(img, w, 0, 0), "surface 20");
+            Assert.AreEqual(b[1], Pixel(img, w, 1, 0), "depth 4");
+            Assert.AreEqual(b[0], Pixel(img, w, 2, 0), "depth 1");
+            Assert.AreEqual(b[3], Pixel(img, w, 3, 0), "depth 18");
+            Assert.AreEqual(t[11], Pixel(img, w, 4, 0), "surface 47");
+            Assert.AreEqual(t[0], Pixel(img, w, 5, 0), "empty column");
+            Assert.AreEqual(t[5], Pixel(img, w, 6, 0), "dome");
+            Assert.AreEqual(t[7], Pixel(img, w, 0, 1), "row z = 1");
+            Assert.AreEqual(t[0], Pixel(img, w, 15, 15), "empty top-right corner");
         }
     }
 }

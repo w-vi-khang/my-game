@@ -98,7 +98,7 @@ namespace Game.Core.Tests
                     if (c.State == CreatureState.Working && c.StageId >= 0 && sim.State.Stages[c.StageId].Ability == WorkAbility.Till)
                         worker = c;
             }
-            Assert.NotNull(worker, "chưa có con nào xới");
+            Assert.NotNull(worker, "no creature has tilled yet");
             Assert.IsTrue(sim.PlayerTill(id));
             Assert.AreEqual(CreatureState.Idle, worker.State);
             Assert.AreEqual(-1, worker.StageId);
@@ -146,7 +146,7 @@ namespace Game.Core.Tests
             Layout(true, crops: new[] { 0 });
             int guard = 0;
             while (sim.State.Stock.Seeds[0] != 9 && guard++ < 600) sim.Tick();
-            Assert.AreEqual(9, sim.State.Stock.Seeds[0], "chưa giao công đoạn gieo");
+            Assert.AreEqual(9, sim.State.Stock.Seeds[0], "sowing step not assigned yet");
             var sow = LastStage(WorkAbility.Sow);
             Assert.AreEqual(StageStatus.Assigned, sow.Status);
             var worker = sim.State.Creatures[sow.AssigneeId];
@@ -262,9 +262,9 @@ namespace Game.Core.Tests
             sim.Rain(new CellPos(2, 1, 2)); // → cỏ
             var before = (ushort[])w.Cells.Clone();
             ulong hash = SimHash.Compute(sim.State);
-            Assert.AreEqual(RainResult.NoEffect, sim.Rain(new CellPos(3, 1, 3)), "đá");
-            Assert.AreEqual(RainResult.NoEffect, sim.Rain(new CellPos(2, 1, 2)), "cỏ");
-            Assert.AreEqual(RainResult.NoEffect, sim.Rain(Soil), "ô ruộng đang lớn");
+            Assert.AreEqual(RainResult.NoEffect, sim.Rain(new CellPos(3, 1, 3)), "rock");
+            Assert.AreEqual(RainResult.NoEffect, sim.Rain(new CellPos(2, 1, 2)), "grass");
+            Assert.AreEqual(RainResult.NoEffect, sim.Rain(Soil), "growing plot cell");
             CollectionAssert.AreEqual(before, w.Cells);
             Assert.AreEqual(hash, SimHash.Compute(sim.State));
         }
@@ -480,7 +480,7 @@ namespace Game.Core.Tests
                     if (t == 7) s.Rain(Soil);
                     if (t == 8) s.StoreToStock(bags[i], 0, false, 1);
                 }
-                Assert.AreEqual(SimHash.Compute(sims[0].State), SimHash.Compute(sims[1].State), "nhịp " + t);
+                Assert.AreEqual(SimHash.Compute(sims[0].State), SimHash.Compute(sims[1].State), "tick " + t);
             }
             Assert.AreEqual(bags[0].GetSeeds(0), bags[1].GetSeeds(0));
             Assert.AreEqual(bags[0].GetProduce(0), bags[1].GetProduce(0));

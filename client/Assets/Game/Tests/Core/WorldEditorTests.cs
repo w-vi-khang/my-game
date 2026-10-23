@@ -123,7 +123,7 @@ namespace Game.Core.Tests
         {
             inv.Add(BlockMaterial.Dirt, 5);
             Assert.AreEqual(EditResult.NotEmpty, editor.TryPlace(1, 1, 1, BlockMaterial.Dirt));
-            Assert.AreEqual(EditResult.NotEmpty, editor.TryPlace(1, 0, 5, BlockMaterial.Dirt), "đá đáy");
+            Assert.AreEqual(EditResult.NotEmpty, editor.TryPlace(1, 0, 5, BlockMaterial.Dirt), "bottom rock");
             Assert.AreEqual(5, inv.Get(BlockMaterial.Dirt));
             Assert.IsEmpty(changed);
         }
@@ -326,13 +326,13 @@ namespace Game.Core.Tests
             world.Set(9, 14, 9, Cell.Make(BlockMaterial.Dirt));
             world.Set(9, 15, 9, Cell.Make(BlockMaterial.Dirt));
             var before = (ushort[])world.Cells.Clone();
-            Assert.IsFalse(editor.TryGrow(8, 1, 8), "cỏ");
-            Assert.IsFalse(editor.TryGrow(7, 1, 7), "ô ruộng");
-            Assert.IsFalse(editor.TryGrow(3, 1, 1), "đá");
-            Assert.IsFalse(editor.TryGrow(1, 1, 1), "đất có khối bên trên");
-            Assert.IsFalse(editor.TryGrow(9, 15, 9), "ô trên ngoài map");
-            Assert.IsFalse(editor.TryGrow(-1, 1, 1), "ngoài map");
-            Assert.IsFalse(editor.TryGrow(40, 1, 1), "ngoài map");
+            Assert.IsFalse(editor.TryGrow(8, 1, 8), "grass");
+            Assert.IsFalse(editor.TryGrow(7, 1, 7), "plot cell");
+            Assert.IsFalse(editor.TryGrow(3, 1, 1), "rock");
+            Assert.IsFalse(editor.TryGrow(1, 1, 1), "soil with a block above");
+            Assert.IsFalse(editor.TryGrow(9, 15, 9), "cell above outside map");
+            Assert.IsFalse(editor.TryGrow(-1, 1, 1), "outside map");
+            Assert.IsFalse(editor.TryGrow(40, 1, 1), "outside map");
             CollectionAssert.AreEqual(before, world.Cells);
             Assert.IsEmpty(changed);
         }

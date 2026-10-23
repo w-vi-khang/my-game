@@ -81,7 +81,7 @@ namespace Game.Client.Tests
             for (int i = 0; i < 300 && !player.Ready; i++)
                 yield return null;
             if (!player.Ready)
-                Assert.Fail($"Chunk chưa sẵn sàng tại {feetLocal}");
+                Assert.Fail($"Chunk not ready at {feetLocal}");
             yield return Run(Vector2.zero, false, 0.3f);
         }
 
@@ -94,7 +94,7 @@ namespace Game.Client.Tests
             for (int y = y0; y <= y1; y++)
                 for (int x = x0; x <= x1; x++)
                     for (int z = z0; z <= z1; z++)
-                        Assert.AreEqual(EditResult.Ok, view.Place(C(x, y, z), BlockMaterial.Stone), $"Đặt ({x},{y},{z})");
+                        Assert.AreEqual(EditResult.Ok, view.Place(C(x, y, z), BlockMaterial.Stone), $"Place ({x},{y},{z})");
             yield return null;
             yield return null;
         }
@@ -106,8 +106,8 @@ namespace Game.Client.Tests
         {
             Assert.IsTrue(player.Ready);
             yield return Run(Vector2.zero, false, 1f);
-            Assert.IsTrue(player.Controller.isGrounded, "đứng trên đất");
-            Assert.AreEqual(player.transform, view.streamTarget, "chunk nạp theo nhân vật");
+            Assert.IsTrue(player.Controller.isGrounded, "standing on ground");
+            Assert.AreEqual(player.transform, view.streamTarget, "chunks stream around the character");
             var f = Feet;
             bool nearCheckpoint = false;
             foreach (var l in view.Landmarks)
@@ -115,7 +115,7 @@ namespace Game.Client.Tests
                 {
                     nearCheckpoint = true;
                     MinimapImage.ColumnInfo(view.World, l.X, l.Z - 2, out int s, out _);
-                    Assert.Less(Mathf.Abs(f.y - (s + 1)), 0.1f, "chân ở mặt đất cạnh checkpoint");
+                    Assert.Less(Mathf.Abs(f.y - (s + 1)), 0.1f, "feet on ground next to checkpoint");
                 }
             if (!nearCheckpoint)
             {
@@ -134,8 +134,8 @@ namespace Game.Client.Tests
             follow.SetAngles(90f, 20f);
             yield return Run(new Vector2(0, 1), false, 1f);
             var p1 = Feet;
-            Assert.GreaterOrEqual(p1.x - p0.x, 3.5f, "đi theo +x");
-            Assert.Less(Mathf.Abs(p1.z - p0.z), 0.5f, "không lệch z");
+            Assert.GreaterOrEqual(p1.x - p0.x, 3.5f, "walks along +x");
+            Assert.Less(Mathf.Abs(p1.z - p0.z), 0.5f, "no z drift");
         }
 
         [UnityTest]
@@ -145,16 +145,16 @@ namespace Game.Client.Tests
             yield return Build(A.x - 1, A.x + 1, G + 1, G + 1, A.z + 2, A.z + 2);
             follow.SetAngles(0f, 20f);
             yield return Run(new Vector2(0, 1), true, 1.5f);
-            Assert.GreaterOrEqual(Feet.y, G + 2 - 0.1f, $"lên được bậc 1 ô (y={Feet.y:F2})");
-            Assert.Greater(Feet.z, A.z + 2, "qua bậc");
+            Assert.GreaterOrEqual(Feet.y, G + 2 - 0.1f, $"climbed 1-cell step (y={Feet.y:F2})");
+            Assert.Greater(Feet.z, A.z + 2, "crossed step");
 
             yield return Teleport(new Vector3(A.x + 6.5f, G + 1, A.z + 0.5f));
             yield return Build(A.x + 5, A.x + 7, G + 1, G + 2, A.z + 2, A.z + 2);
             yield return Run(new Vector2(0, 1), true, 1.5f);
             // Nhảy liên tục nên có thể đang lơ lửng ở đỉnh (≈ G + 2,28) — đứng yên 1 giây cho hạ xuống rồi mới đo bậc.
             yield return Run(Vector2.zero, false, 1f);
-            Assert.Less(Feet.z, A.z + 2 - 0.3f, $"không qua tường 2 ô (z={Feet.z:F2})");
-            Assert.Less(Feet.y, G + 2, $"không lên bậc 2 ô (y={Feet.y:F2})");
+            Assert.Less(Feet.z, A.z + 2 - 0.3f, $"did not pass 2-cell wall (z={Feet.z:F2})");
+            Assert.Less(Feet.y, G + 2, $"did not climb 2-cell step (y={Feet.y:F2})");
         }
 
         [UnityTest]
@@ -205,13 +205,13 @@ namespace Game.Client.Tests
                 MinimapImage.ColumnInfo(view.World, x, A.z, out int s, out int d);
                 if (d >= 4) { wx = x; ws = s; }
             }
-            if (wx < 0) Assert.Inconclusive("Không có cột nước sâu ≥ 4 ở z = A.z");
+            if (wx < 0) Assert.Inconclusive("No water column deeper than ≥ 4 at z = A.z");
             yield return Teleport(new Vector3(wx + 0.5f, ws + 1, A.z + 0.5f));
             for (int i = 0; i < 180 && !player.Controller.isGrounded; i++)
                 yield return null;
-            Assert.IsTrue(player.Controller.isGrounded, "chạm đáy");
+            Assert.IsTrue(player.Controller.isGrounded, "touched bottom");
             yield return null;
-            Assert.IsTrue(player.InWater, "đang trong nước");
+            Assert.IsTrue(player.InWater, "in water");
             follow.SetAngles(90f, 20f);
             float dWater = 0f;
             yield return Distance(1f, d => dWater = d);
@@ -222,13 +222,13 @@ namespace Game.Client.Tests
             follow.SnapNow();
             yield return null;
             yield return null;
-            Assert.IsTrue(camGo.GetComponent<UnderwaterView>().IsUnderwater, "camera dưới nước");
+            Assert.IsTrue(camGo.GetComponent<UnderwaterView>().IsUnderwater, "camera underwater");
 
             yield return Teleport(new Vector3(A.x + 0.5f, G + 1, A.z + 0.5f));
             follow.SetAngles(90f, 20f);
             float dLand = 0f;
             yield return Distance(1f, d => dLand = d);
-            Assert.Greater(dLand, 1f, "đi được trên cạn");
+            Assert.Greater(dLand, 1f, "walked on land");
             float ratio = dWater / dLand;
             Assert.That(ratio, Is.InRange(0.4f, 0.6f), $"dWater={dWater:F2} dLand={dLand:F2}");
         }
@@ -247,7 +247,7 @@ namespace Game.Client.Tests
             Assert.Less(follow.CurrentDistance, 2f, $"d={follow.CurrentDistance:F2}");
             var cell = view.CellAt(camGo.transform.position);
             var m = view.World.Size.InBounds(cell.x, cell.y, cell.z) ? view.World.GetMaterial(cell.x, cell.y, cell.z) : BlockMaterial.Empty;
-            Assert.That(m == BlockMaterial.Empty || m == BlockMaterial.Water, $"camera trong ô đặc {cell} = {m}");
+            Assert.That(m == BlockMaterial.Empty || m == BlockMaterial.Water, $"camera inside solid cell {cell} = {m}");
         }
 
         [UnityTest]
@@ -258,12 +258,12 @@ namespace Game.Client.Tests
             var far = C(A.x + 8, G, A.z);
             var before = view.World.GetMaterial(far.x, far.y, far.z);
             Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(far, far));
-            Assert.AreEqual(before, view.World.GetMaterial(far.x, far.y, far.z), "ô xa không đổi");
+            Assert.AreEqual(before, view.World.GetMaterial(far.x, far.y, far.z), "far cell unchanged");
             tei.ShowAim(true, far, far);
-            Assert.IsFalse(tei.OutlineVisible, "khung ngoài tầm");
+            Assert.IsFalse(tei.OutlineVisible, "outline out of reach");
             var near = C(A.x + 7, G, A.z);
             tei.ShowAim(true, near, near);
-            Assert.IsTrue(tei.OutlineVisible, "khung trong tầm");
+            Assert.IsTrue(tei.OutlineVisible, "outline in reach");
             Assert.AreEqual(EditResult.Ok, tei.UseTool(near, near));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(near.x, near.y, near.z));
 
@@ -273,7 +273,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(pc, pc));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(pc.x, pc.y, pc.z));
             tei.ShowAim(true, pc, pc);
-            Assert.IsFalse(tei.GhostVisible, "bản mờ ngoài tầm");
+            Assert.IsFalse(tei.GhostVisible, "ghost out of reach");
         }
 
         [UnityTest]
@@ -301,9 +301,9 @@ namespace Game.Client.Tests
             player.MoveInput = new Vector2(0, 1);
             for (int i = 0; i < 20; i++)
                 yield return null;
-            Assert.Less(Vector3.Distance(p0, player.transform.position), 0.05f, "nhân vật đứng yên khi bay");
+            Assert.Less(Vector3.Distance(p0, player.transform.position), 0.05f, "character stays still while flying");
             camGo.transform.position += Vector3.up * 20f;
-            Assert.IsTrue(player.InToolReach(C(A.x + 3, G, A.z)), "tầm theo nhân vật");
+            Assert.IsTrue(player.InToolReach(C(A.x + 3, G, A.z)), "reach follows character");
             player.SetFlyMode(false);
             Assert.IsTrue(follow.enabled);
             var pivot = player.transform.position + Vector3.up * follow.pivotHeight;
@@ -316,7 +316,7 @@ namespace Game.Client.Tests
             var map = go.AddComponent<MinimapView>();
             for (int i = 0; i < 5 && !map.IsReady; i++)
                 yield return null;
-            Assert.IsTrue(map.IsReady, "Bản đồ chưa dựng");
+            Assert.IsTrue(map.IsReady, "Map not built");
             yield return Teleport(new Vector3(A.x + 0.5f, G + 1, A.z + 0.5f));
             map.SetOpen(true);
             player.SetFlyMode(true);

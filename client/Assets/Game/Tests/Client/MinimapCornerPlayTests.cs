@@ -29,7 +29,7 @@ namespace Game.Client.Tests
             map = go.AddComponent<MinimapView>();
             for (int i = 0; i < 5 && !map.IsReady; i++)
                 yield return null;
-            Assert.IsTrue(map.IsReady, "Bản đồ chưa dựng");
+            Assert.IsTrue(map.IsReady, "Map not built");
             yield return null;
             Canvas.ForceUpdateCanvases();
         }
@@ -71,7 +71,7 @@ namespace Game.Client.Tests
             Assert.Greater(map.CornerBorderVertexCount, 0);
             Assert.Less(map.CornerBorderVertexCount, 65000);
             Assert.AreEqual(view.Landmarks.Count, map.CornerLandmarkCount);
-            Debug.Log($"MINIMAPCORNER đỉnh ranh giới {map.CornerBorderVertexCount}");
+            Debug.Log($"MINIMAPCORNER border vertices {map.CornerBorderVertexCount}");
             yield return null;
         }
 
@@ -102,7 +102,7 @@ namespace Game.Client.Tests
             for (int m = 0; m < view.Maps.MapCount; m++)
             {
                 int x = FirstColumnOf(view.Maps, m, out int z);
-                Assert.GreaterOrEqual(x, 0, "map " + m + " không có cột");
+                Assert.GreaterOrEqual(x, 0, "map " + m + " has no column");
                 Place(new Vector3(x + 0.5f, 40, z + 0.5f), Vector3.forward);
                 yield return null;
                 Assert.AreEqual(view.Maps.Name(m), map.CornerMapName, "map " + m);
@@ -124,8 +124,8 @@ namespace Game.Client.Tests
                 var l = view.Landmarks[i];
                 map.CornerViewport.WorldToPanel(l.X + 0.5f, l.Z + 0.5f, out float px, out float py);
                 var p = map.CornerLandmarkPosition(i);
-                Assert.AreEqual(px, p.x, 0.01f, "dấu mốc " + i);
-                Assert.AreEqual(py, p.y, 0.01f, "dấu mốc " + i);
+                Assert.AreEqual(px, p.x, 0.01f, "landmark " + i);
+                Assert.AreEqual(py, p.y, 0.01f, "landmark " + i);
             }
             yield return null;
         }
@@ -147,7 +147,7 @@ namespace Game.Client.Tests
                         top = s;
                     }
                 }
-            Assert.GreaterOrEqual(fx, 0, "không có cột ở mép tầng gần camera");
+            Assert.GreaterOrEqual(fx, 0, "no column at the edge of the tier nearest the camera");
             int idx = fx + w.Size.X * fz;
             var tex = (Texture2D)map.CornerTexture;
             var before = tex.GetPixels32()[idx];
@@ -156,7 +156,7 @@ namespace Game.Client.Tests
             var after = ((Texture2D)map.CornerTexture).GetPixels32()[idx];
             uint c = MinimapImage.ColumnColor(w, fx, fz);
             Assert.AreEqual(new Color32((byte)(c >> 16), (byte)(c >> 8), (byte)c, 255), after);
-            Assert.AreNotEqual(before, after, "điểm ảnh phải đổi");
+            Assert.AreNotEqual(before, after, "pixel must change");
         }
 
         [UnityTest]
@@ -168,7 +168,7 @@ namespace Game.Client.Tests
             Assert.IsTrue(map.IsOpen);
             Assert.IsTrue(map.PanelActive);
             Assert.IsFalse(map.CornerActive);
-            Assert.AreEqual("Đóng (M)", map.CloseButtonText);
+            Assert.AreEqual("Đóng (M)", map.CloseButtonText); // vi-text
 
             Assert.IsTrue(map.PressAt(map.ButtonScreenCenter));
             yield return null;

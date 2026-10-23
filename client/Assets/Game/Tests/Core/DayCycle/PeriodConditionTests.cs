@@ -34,11 +34,11 @@ namespace Game.Core.Tests
         public void ValidateRejectsBadValues()
         {
             Assert.Throws<ArgumentException>(new PeriodCondition { periods = null }.Validate, "null");
-            Assert.Throws<ArgumentException>(new PeriodCondition(new string[0]).Validate, "rỗng");
-            Assert.Throws<ArgumentException>(new PeriodCondition("night").Validate, "thường");
+            Assert.Throws<ArgumentException>(new PeriodCondition(new string[0]).Validate, "empty");
+            Assert.Throws<ArgumentException>(new PeriodCondition("night").Validate, "lowercase");
             Assert.Throws<ArgumentException>(new PeriodCondition("Noon").Validate, "Noon");
-            Assert.Throws<ArgumentException>(new PeriodCondition("1").Validate, "số");
-            Assert.Throws<ArgumentException>(new PeriodCondition("Day", "Day").Validate, "trùng");
+            Assert.Throws<ArgumentException>(new PeriodCondition("1").Validate, "number");
+            Assert.Throws<ArgumentException>(new PeriodCondition("Day", "Day").Validate, "duplicate");
             var c = JsonUtility.FromJson<PeriodCondition>("{\"periods\":[\"Dawn\",\"Night\"]}");
             Assert.DoesNotThrow(c.Validate);
             Assert.IsTrue(c.IsMet(DayPeriod.Night));

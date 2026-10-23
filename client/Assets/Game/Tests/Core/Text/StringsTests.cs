@@ -26,8 +26,8 @@ namespace Game.Core.Tests
         public void FallbackAndMissingKeys()
         {
             var root = new Strings(F("vi", "a", "A", "b", "B"));
-            var tr = new Strings(F("de", "a", "Ä"), root);
-            Assert.AreEqual("Ä", tr.Get("a"));
+            var tr = new Strings(F("de", "a", "Ä"), root); // vi-text
+            Assert.AreEqual("Ä", tr.Get("a")); // vi-text
             Assert.AreEqual("B", tr.Get("b"));
             Assert.AreEqual("[c]", tr.Get("c"));
             CollectionAssert.AreEqual(new[] { "b" }, tr.MissingKeys());
@@ -38,17 +38,17 @@ namespace Game.Core.Tests
         [Test]
         public void FormatUsesInvariantCulture()
         {
-            var s = new Strings(F("vi", "k", "Mưa: còn {0} giây", "f", "{0:F1}"));
-            Assert.AreEqual("Mưa: còn 7 giây", s.Format("k", 7));
+            var s = new Strings(F("vi", "k", "Mưa: còn {0} giây", "f", "{0:F1}")); // vi-text
+            Assert.AreEqual("Mưa: còn 7 giây", s.Format("k", 7)); // vi-text
             Assert.AreEqual("2.5", s.Format("f", 2.5f));
         }
 
         [Test]
         public void BrokenFormatFallsBack()
         {
-            var root = new Strings(F("vi", "k", "Mưa {0}"));
+            var root = new Strings(F("vi", "k", "Mưa {0}")); // vi-text
             var tr = new Strings(F("en", "k", "Rain {1}"), root);
-            Assert.AreEqual("Mưa 3", tr.Format("k", 3));
+            Assert.AreEqual("Mưa 3", tr.Format("k", 3)); // vi-text
             var alone = new Strings(F("en", "k", "Rain {1}"));
             Assert.AreEqual("Rain {1}", alone.Format("k", 3));
         }
@@ -67,7 +67,7 @@ namespace Game.Core.Tests
         [Test]
         public void ToFileSortedAndJsonRoundTrip()
         {
-            var s = new Strings(F("Tiếng Việt", "b", "Bê", "a", "Ă", "c", "Cờ"));
+            var s = new Strings(F("Tiếng Việt", "b", "Bê", "a", "Ă", "c", "Cờ")); // vi-text
             var f = s.ToFile();
             Assert.AreEqual(new[] { "a", "b", "c" }, new[] { f.entries[0].key, f.entries[1].key, f.entries[2].key });
             var back = new Strings(JsonUtility.FromJson<StringFile>(JsonUtility.ToJson(f, true)));
@@ -78,10 +78,10 @@ namespace Game.Core.Tests
         [Test]
         public void ParsesSampleJson()
         {
-            const string json = "{ \"formatVersion\": 1, \"language\": \"Tiếng Việt\", \"entries\": [ { \"key\": \"hud.rain_ready\", \"text\": \"Mưa (R): sẵn sàng\" } ] }";
+            const string json = "{ \"formatVersion\": 1, \"language\": \"Tiếng Việt\", \"entries\": [ { \"key\": \"hud.rain_ready\", \"text\": \"Mưa (R): sẵn sàng\" } ] }"; // vi-text
             var s = new Strings(JsonUtility.FromJson<StringFile>(json));
-            Assert.AreEqual("Tiếng Việt", s.Language);
-            Assert.AreEqual("Mưa (R): sẵn sàng", s.Get("hud.rain_ready"));
+            Assert.AreEqual("Tiếng Việt", s.Language); // vi-text
+            Assert.AreEqual("Mưa (R): sẵn sàng", s.Get("hud.rain_ready")); // vi-text
         }
     }
 }

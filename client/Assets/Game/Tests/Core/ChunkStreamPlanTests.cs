@@ -65,7 +65,7 @@ namespace Game.Core.Tests
             {
                 long d = ChunkStreamPlan.DistanceSq(212, 192, c % 24, c / 24);
                 if (d > 128L * 128 && d <= 160L * 160 && !load.Contains(c) && Expected(192, 192, 128).Contains(c))
-                    Assert.IsTrue(plan.IsLoaded(c), $"cột {c}");
+                    Assert.IsTrue(plan.IsLoaded(c), $"column {c}");
             }
         }
 

@@ -24,7 +24,7 @@ namespace Game.Client.Tests
             view.streaming = true;
             view.streamTarget = camGo.transform;
             yield return null; // Start → Build
-            Assert.IsNotNull(view.World, "Build chưa chạy");
+            Assert.IsNotNull(view.World, "Build not run");
         }
 
         [UnityTearDown]
@@ -40,7 +40,7 @@ namespace Game.Client.Tests
             var cell = view.CellAt(camGo.transform.position);
             for (int col = 0; col < 576; col++)
                 if (view.ChunkMesh(col) != null)
-                    Assert.LessOrEqual(ChunkStreamPlan.DistanceSq(cell.x, cell.z, col % 24, col / 24), 160L * 160, $"cột {col}");
+                    Assert.LessOrEqual(ChunkStreamPlan.DistanceSq(cell.x, cell.z, col % 24, col / 24), 160L * 160, $"column {col}");
         }
 
         [UnityTest]
@@ -103,7 +103,7 @@ namespace Game.Client.Tests
                 }
             }
             if (fx < 0)
-                Assert.Fail("Không đào được ô nào");
+                Assert.Fail("No cell could be dug");
             for (int w = 0; w < 2 && view.LastRebuildFrame < frame; w++)
                 yield return null;
             Assert.GreaterOrEqual(view.LastRebuildFrame, frame);

@@ -34,7 +34,7 @@ namespace Game.Client.Tests
             dial = camGo.AddComponent<TimeDial>();
             for (int i = 0; i < 5 && !dial.IsReady; i++)
                 yield return null;
-            Assert.IsTrue(dial.IsReady, "Vòng chưa dựng");
+            Assert.IsTrue(dial.IsReady, "Dial not built");
             Canvas.ForceUpdateCanvases();
         }
 
@@ -52,15 +52,15 @@ namespace Game.Client.Tests
             Assert.IsFalse(dial.IsOpen);
             Assert.IsFalse(dial.RingActive);
             Assert.IsTrue(dial.CanvasActive);
-            Assert.AreEqual("Đang ở buổi: Ban ngày", dial.PeriodText);
+            Assert.AreEqual("Đang ở buổi: Ban ngày", dial.PeriodText); // vi-text
             Assert.AreEqual(TimeDialShape.Sun, dial.ButtonShape);
             now = 0;
             yield return null;
-            Assert.AreEqual("Đang ở buổi: Ban đêm", dial.PeriodText);
+            Assert.AreEqual("Đang ở buổi: Ban đêm", dial.PeriodText); // vi-text
             Assert.AreEqual(TimeDialShape.Moon, dial.ButtonShape);
             now = 5 * H;
             yield return null;
-            Assert.AreEqual("Đang ở buổi: Bình minh", dial.PeriodText);
+            Assert.AreEqual("Đang ở buổi: Bình minh", dial.PeriodText); // vi-text
             Assert.AreEqual(TimeDialShape.Moon, dial.ButtonShape);
         }
 
@@ -91,10 +91,10 @@ namespace Game.Client.Tests
             Assert.Greater(dusk.x, dawn.x);
             Assert.AreEqual(noon.x, midnight.x, 1f);
             Assert.AreEqual(dawn.y, dusk.y, 1f);
-            Assert.AreEqual("Giữa trưa", dial.LandmarkLabel(TimeLandmark.Noon));
-            Assert.AreEqual("Hoàng hôn", dial.LandmarkLabel(TimeLandmark.Dusk));
-            Assert.AreEqual("Giữa đêm", dial.LandmarkLabel(TimeLandmark.Midnight));
-            Assert.AreEqual("Bình minh", dial.LandmarkLabel(TimeLandmark.Dawn));
+            Assert.AreEqual("Giữa trưa", dial.LandmarkLabel(TimeLandmark.Noon)); // vi-text
+            Assert.AreEqual("Hoàng hôn", dial.LandmarkLabel(TimeLandmark.Dusk)); // vi-text
+            Assert.AreEqual("Giữa đêm", dial.LandmarkLabel(TimeLandmark.Midnight)); // vi-text
+            Assert.AreEqual("Bình minh", dial.LandmarkLabel(TimeLandmark.Dawn)); // vi-text
             yield return null;
         }
 
@@ -169,7 +169,7 @@ namespace Game.Client.Tests
             var map = go.AddComponent<MinimapView>();
             for (int i = 0; i < 5 && !map.IsReady; i++)
                 yield return null;
-            Assert.IsTrue(map.IsReady, "Bản đồ chưa dựng");
+            Assert.IsTrue(map.IsReady, "Map not built");
             dial.SetOpen(true);
             map.SetOpen(true);
             yield return null;

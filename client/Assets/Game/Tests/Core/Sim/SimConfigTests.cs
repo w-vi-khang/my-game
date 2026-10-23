@@ -70,27 +70,27 @@ namespace Game.Core.Tests
         {
             var c = new SimConfig();
             c.stageTimes = new[] { c.stageTimes[0], c.stageTimes[1], c.stageTimes[2], c.stageTimes[3] };
-            Assert.Throws<ArgumentException>(c.Validate, "thiếu Haul");
+            Assert.Throws<ArgumentException>(c.Validate, "missing Haul");
 
             c = new SimConfig();
             c.stageTimes[0].baseTimeMs = 6050;
-            Assert.Throws<ArgumentException>(c.Validate, "baseTimeMs lẻ nhịp");
+            Assert.Throws<ArgumentException>(c.Validate, "baseTimeMs not a multiple of tick");
 
             c = new SimConfig();
             c.species[1].id = "L1";
-            Assert.Throws<ArgumentException>(c.Validate, "trùng id loài");
+            Assert.Throws<ArgumentException>(c.Validate, "duplicate species id");
 
             c = new SimConfig();
             c.species[0].ability2 = c.species[0].ability1;
-            Assert.Throws<ArgumentException>(c.Validate, "hai năng lực giống nhau");
+            Assert.Throws<ArgumentException>(c.Validate, "two identical abilities");
 
             c = new SimConfig();
             c.species[0].ability1 = "Fly";
-            Assert.Throws<ArgumentException>(c.Validate, "năng lực Fly");
+            Assert.Throws<ArgumentException>(c.Validate, "ability Fly");
 
             c = new SimConfig();
             c.species[0].ability1 = "3";
-            Assert.Throws<ArgumentException>(c.Validate, "năng lực dạng số");
+            Assert.Throws<ArgumentException>(c.Validate, "numeric ability");
 
             c = new SimConfig();
             c.species[0].mastery1 = 0;
@@ -98,7 +98,7 @@ namespace Game.Core.Tests
 
             c = new SimConfig();
             c.species[0].moveSpeedMilliCellsPerSecond = 5;
-            Assert.Throws<ArgumentException>(c.Validate, "tốc độ quá nhỏ");
+            Assert.Throws<ArgumentException>(c.Validate, "speed too small");
 
             c = new SimConfig();
             c.species[0].sizeX = 0;
@@ -114,44 +114,44 @@ namespace Game.Core.Tests
 
             c = new SimConfig();
             c.crops[0].startSeeds = 41;
-            Assert.Throws<ArgumentException>(c.Validate, "tổng startSeeds > capacity");
+            Assert.Throws<ArgumentException>(c.Validate, "total startSeeds > capacity");
 
             c = new SimConfig();
             c.crops = new CropDef[0];
-            Assert.Throws<ArgumentException>(c.Validate, "crops rỗng");
+            Assert.Throws<ArgumentException>(c.Validate, "empty crops");
 
             c = new SimConfig();
             c.crops[1].id = c.crops[0].id;
-            Assert.Throws<ArgumentException>(c.Validate, "trùng id cây");
+            Assert.Throws<ArgumentException>(c.Validate, "duplicate crop id");
 
             c = new SimConfig();
             c.crops[0].growTimeMs = 120050;
-            Assert.Throws<ArgumentException>(c.Validate, "growTimeMs không chia hết msPerTick");
+            Assert.Throws<ArgumentException>(c.Validate, "growTimeMs not divisible by msPerTick");
 
             c = new SimConfig();
             c.crops[0].seedsPerHarvest = 0;
             c.crops[0].producePerHarvest = 0;
-            Assert.Throws<ArgumentException>(c.Validate, "mỗi vụ không ra gì");
+            Assert.Throws<ArgumentException>(c.Validate, "each harvest yields nothing");
 
             c = new SimConfig();
             c.farm.queueSlots = 0;
-            Assert.Throws<ArgumentException>(c.Validate, "ô đợi 0");
+            Assert.Throws<ArgumentException>(c.Validate, "wait cells 0");
 
             c = new SimConfig();
             c.farm.slotMaxCount = 0;
-            Assert.Throws<ArgumentException>(c.Validate, "tối đa 0");
+            Assert.Throws<ArgumentException>(c.Validate, "max 0");
 
             c = new SimConfig();
             c.house.capacity = 0;
-            Assert.Throws<ArgumentException>(c.Validate, "nhà sức chứa 0");
+            Assert.Throws<ArgumentException>(c.Validate, "house capacity 0");
 
             c = new SimConfig();
             c.creature.stuckTimeMs = 30050;
-            Assert.Throws<ArgumentException>(c.Validate, "stuckTimeMs lẻ nhịp");
+            Assert.Throws<ArgumentException>(c.Validate, "stuckTimeMs not a multiple of tick");
 
             c = new SimConfig();
             c.creature.blockWaitMs = 1050;
-            Assert.Throws<ArgumentException>(c.Validate, "blockWaitMs lẻ nhịp");
+            Assert.Throws<ArgumentException>(c.Validate, "blockWaitMs not a multiple of tick");
 
             c = new SimConfig();
             c.creature.phaseAfterMs = 1000;
@@ -167,7 +167,7 @@ namespace Game.Core.Tests
 
             c = new SimConfig();
             c.creature.wanderMinMs = 5050;
-            Assert.Throws<ArgumentException>(c.Validate, "wanderMinMs lẻ nhịp");
+            Assert.Throws<ArgumentException>(c.Validate, "wanderMinMs not a multiple of tick");
 
             c = new SimConfig();
             c.creature.wanderMaxMs = 4000;
@@ -175,27 +175,27 @@ namespace Game.Core.Tests
 
             c = new SimConfig();
             c.masteryLevels = new MasteryLevel[0];
-            Assert.Throws<ArgumentException>(c.Validate, "bảng mức rỗng");
+            Assert.Throws<ArgumentException>(c.Validate, "empty level table");
 
             c = new SimConfig();
             c.masteryLevels[0].minMastery = 2;
-            Assert.Throws<ArgumentException>(c.Validate, "ngưỡng đầu > 1");
+            Assert.Throws<ArgumentException>(c.Validate, "first threshold > 1");
 
             c = new SimConfig();
             c.masteryLevels[2].minMastery = 50;
-            Assert.Throws<ArgumentException>(c.Validate, "ngưỡng không tăng");
+            Assert.Throws<ArgumentException>(c.Validate, "thresholds not increasing");
 
             c = new SimConfig();
             c.masteryLevels[0].speedPermille = 0;
-            Assert.Throws<ArgumentException>(c.Validate, "hệ số 0");
+            Assert.Throws<ArgumentException>(c.Validate, "factor 0");
 
             c = new SimConfig();
             c.masteryLevels[4].speedPermille = 10001;
-            Assert.Throws<ArgumentException>(c.Validate, "hệ số > 10000");
+            Assert.Throws<ArgumentException>(c.Validate, "factor > 10000");
 
             c = new SimConfig();
             c.masteryLevels[3].speedPermille = 900;
-            Assert.Throws<ArgumentException>(c.Validate, "hệ số giảm");
+            Assert.Throws<ArgumentException>(c.Validate, "factor decreasing");
         }
 
         [TestCase(1, 500)]

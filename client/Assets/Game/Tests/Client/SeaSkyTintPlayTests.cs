@@ -11,7 +11,7 @@ namespace Game.Client.Tests
         const int H = 3_600_000;
         const int Size = 256;
         const float CamH = 26f, Pitch = 13f;
-        static readonly (string name, long ms)[] Phases = { ("binh-minh", 6L * H), ("ngay", 12L * H), ("hoang-hon", 18L * H), ("dem", 0L) };
+        static readonly (string name, long ms)[] Phases = { ("dawn", 6L * H), ("day", 12L * H), ("dusk", 18L * H), ("night", 0L) };
 
         // Mốc đo trước khi sửa shader (base e15b86a, bước 2 brief 0034). BaselineFilled = true → test chỉ ghi log.
         static readonly bool BaselineFilled = true;

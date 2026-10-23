@@ -57,7 +57,7 @@ namespace Game.Client.Tests
             for (int k = 1; k <= N; k++)
             {
                 var cur = DaySky.Evaluate(k / (float)N);
-                string at = " ở mẫu " + k;
+                string at = " at sample " + k;
                 Step(prev.zenith, cur.zenith, "zenith" + at);
                 Step(prev.horizon, cur.horizon, "horizon" + at);
                 Step(prev.cloud, cur.cloud, "cloud" + at);
@@ -70,8 +70,8 @@ namespace Game.Client.Tests
                 Assert.Less(Mathf.Abs(prev.lightIntensity - cur.lightIntensity), 0.02f, "lightIntensity" + at);
                 if (Vector3.Angle(prev.lightForward, cur.lightForward) > 10f)
                 {
-                    Assert.Less(prev.lightIntensity, 1e-3f, "đổi hướng đèn khi còn sáng" + at);
-                    Assert.Less(cur.lightIntensity, 1e-3f, "đổi hướng đèn khi còn sáng" + at);
+                    Assert.Less(prev.lightIntensity, 1e-3f, "light direction changes while still lit" + at);
+                    Assert.Less(cur.lightIntensity, 1e-3f, "light direction changes while still lit" + at);
                 }
                 prev = cur;
             }

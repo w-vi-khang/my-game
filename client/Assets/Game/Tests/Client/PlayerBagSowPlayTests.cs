@@ -68,7 +68,7 @@ namespace Game.Client.Tests
                 }
                 if (n >= 6) { spot = c; found = true; break; }
             }
-            Assert.IsTrue(found, "Không tìm được chỗ đứng quanh trại");
+            Assert.IsTrue(found, "Could not find a standing spot around the camp");
             player.Place(view.transform.TransformPoint(new Vector3(spot.x + 0.5f, spot.y + 1f, spot.z + 0.5f)), 0f);
             for (int i = 0; i < 600 && !player.Ready; i++) yield return null;
             Assert.IsTrue(player.Ready);
@@ -118,7 +118,7 @@ namespace Game.Client.Tests
                 if (sv.Sim.FindPlayerPathToPlot(FeetCell(), id, path)) { cell = c; return id; }
                 sv.UnmarkAt(c);
             }
-            Assert.Fail("Không có ô đánh dấu nào có đường tới");
+            Assert.Fail("No marked cell with a path");
             cell = default;
             return -1;
         }
@@ -174,7 +174,7 @@ namespace Game.Client.Tests
                     yield return PlaceAt(x, z);
                     yield break;
                 }
-            Assert.Fail("Không có chỗ cách kho >= 12 ô");
+            Assert.Fail("No spot >= 12 cells from storage");
         }
 
         void EnterSow(int crop, int seeds)
@@ -199,11 +199,11 @@ namespace Game.Client.Tests
             view.Bag.AddProduce(1, 2);
             SimView.BagRows(view.Bag, cfg, rows);
             Assert.AreEqual(3, rows.Count);
-            Assert.AreEqual("Đất × 3", rows[0].Label);
+            Assert.AreEqual("Đất × 3", rows[0].Label); // vi-text
             Assert.AreEqual(-1, rows[0].SeedCrop);
-            Assert.AreEqual("Túi hạt Cây A × 4", rows[1].Label);
+            Assert.AreEqual("Túi hạt Cây A × 4", rows[1].Label); // vi-text
             Assert.AreEqual(0, rows[1].SeedCrop);
-            Assert.AreEqual("Nông sản Cây B × 2", rows[2].Label);
+            Assert.AreEqual("Nông sản Cây B × 2", rows[2].Label); // vi-text
             Assert.AreEqual(-1, rows[2].SeedCrop);
         }
 
@@ -231,7 +231,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(0, farming.SowCrop);
             Assert.IsFalse(sv.BagOpen);
             Assert.IsFalse(sv.ChooseSeedFromBag(1));
-            Assert.AreEqual("Gieo: túi hết hạt Cây B", farming.StatusLine);
+            Assert.AreEqual("Gieo: túi hết hạt Cây B", farming.StatusLine); // vi-text
             Assert.AreEqual(0, farming.SowCrop);
 
             farming.ExitSowMode();
@@ -255,7 +255,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(0, p.CurrentCrop);
             Assert.AreEqual(1, view.Bag.GetSeeds(0));
             Assert.AreEqual(slots, p.Slots.Count);
-            Assert.AreEqual($"Gieo Cây A vào ô {cell}", farming.StatusLine);
+            Assert.AreEqual($"Gieo Cây A vào ô {cell}", farming.StatusLine); // vi-text
             Assert.AreEqual(0, farming.SowCrop);
         }
 
@@ -280,18 +280,18 @@ namespace Game.Client.Tests
             int id = PlotToPhase(PlotPhase.Idle, out var cell);
             Assert.IsTrue(sv.Sim.EnqueueCrop(id, 1));
             Assert.IsFalse(farming.SowAt(cell));
-            Assert.AreEqual("Ô đang chờ gieo Cây B", farming.StatusLine);
+            Assert.AreEqual("Ô đang chờ gieo Cây B", farming.StatusLine); // vi-text
 
             // đã có cây
             int id2 = PlotToPhase(PlotPhase.Water, out var cell2);
             Assert.IsFalse(farming.SowAt(cell2));
-            Assert.AreEqual("Gieo: ô đã có cây", farming.StatusLine);
+            Assert.AreEqual("Gieo: ô đã có cây", farming.StatusLine); // vi-text
             seeds = view.Bag.GetSeeds(0);
 
             // biển chưa xới
             int id3 = MarkReachable(out var cell3, new List<CellPos>());
             Assert.IsFalse(farming.SowAt(cell3));
-            Assert.AreEqual("Gieo: ô chưa xới xong", farming.StatusLine);
+            Assert.AreEqual("Gieo: ô chưa xới xong", farming.StatusLine); // vi-text
 
             // đất trống ngoài ô ruộng
             Vector3Int free = default;
@@ -300,7 +300,7 @@ namespace Game.Client.Tests
                 if (sv.Sim.PlotAt(new CellPos(c.x, c.y, c.z)) < 0) { free = c; found = true; break; }
             Assert.IsTrue(found);
             Assert.IsFalse(farming.SowAt(free));
-            Assert.AreEqual("Gieo: chỉ gieo vào ô ruộng đã xới", farming.StatusLine);
+            Assert.AreEqual("Gieo: chỉ gieo vào ô ruộng đã xới", farming.StatusLine); // vi-text
 
             Assert.AreEqual(seeds, view.Bag.GetSeeds(0));
             Assert.AreEqual(0, farming.SowCrop);
@@ -310,7 +310,7 @@ namespace Game.Client.Tests
             seeds = view.Bag.GetSeeds(0);
             yield return PlaceAt(cell4.x + 12, cell4.z);
             Assert.IsFalse(farming.SowAt(cell4));
-            Assert.AreEqual("Gieo: ngoài tầm 8 ô", farming.StatusLine);
+            Assert.AreEqual("Gieo: ngoài tầm 8 ô", farming.StatusLine); // vi-text
             Assert.AreEqual(seeds, view.Bag.GetSeeds(0));
             Assert.AreEqual(0, farming.SowCrop);
         }
@@ -322,7 +322,7 @@ namespace Game.Client.Tests
             EnterSow(0, 1);
             Assert.IsTrue(farming.SowAt(cell));
             Assert.AreEqual(-1, farming.SowCrop);
-            StringAssert.EndsWith(" · hết hạt, thoát chế độ gieo", farming.StatusLine);
+            StringAssert.EndsWith(" · hết hạt, thoát chế độ gieo", farming.StatusLine); // vi-text
         }
 
         [Test]
@@ -348,7 +348,7 @@ namespace Game.Client.Tests
             input.ToggleTool();
             Assert.AreEqual(-1, farming.SowCrop);
             Assert.AreEqual(tool, input.Tool);
-            Assert.AreEqual("Thoát chế độ gieo", farming.StatusLine);
+            Assert.AreEqual("Thoát chế độ gieo", farming.StatusLine); // vi-text
             string line = farming.StatusLine;
             farming.ExitSowMode();
             Assert.AreEqual(line, farming.StatusLine);
@@ -358,7 +358,7 @@ namespace Game.Client.Tests
         public void SowHud()
         {
             EnterSow(0, 3);
-            StringAssert.Contains("Gieo Cây A (còn 3) — chuột phải / Esc để thoát", farming.HudLines());
+            StringAssert.Contains("Gieo Cây A (còn 3) — chuột phải / Esc để thoát", farming.HudLines()); // vi-text
         }
 
         [UnityTest]
@@ -372,7 +372,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(1, sv.TransferStock(0, false, false, false));
             Assert.AreEqual(2, view.Bag.GetSeeds(0));
             Assert.AreEqual(s0 + 1, stock.Seeds[0]);
-            Assert.AreEqual("Đã chuyển 1 hạt Cây A → kho", sv.StockMessage);
+            Assert.AreEqual("Đã chuyển 1 hạt Cây A → kho", sv.StockMessage); // vi-text
             Assert.AreEqual(2, sv.TransferStock(0, false, false, true));
             Assert.AreEqual(0, view.Bag.GetSeeds(0));
             Assert.AreEqual(s0 + 3, stock.Seeds[0]);
@@ -387,9 +387,9 @@ namespace Game.Client.Tests
             Assert.AreEqual(p0 + 2, stock.Produce[0]);
 
             Assert.AreEqual(0, sv.TransferStock(1, true, true, false));
-            Assert.AreEqual("Kho không có nông sản Cây B", sv.StockMessage);
+            Assert.AreEqual("Kho không có nông sản Cây B", sv.StockMessage); // vi-text
             Assert.AreEqual(0, sv.TransferStock(1, false, false, false));
-            Assert.AreEqual("Túi không có hạt Cây B", sv.StockMessage);
+            Assert.AreEqual("Túi không có hạt Cây B", sv.StockMessage); // vi-text
         }
 
         [UnityTest]
@@ -404,7 +404,7 @@ namespace Game.Client.Tests
                 view.Bag.AddSeeds(0, 3);
                 Assert.AreEqual(1, sv.TransferStock(0, false, false, true));
                 Assert.AreEqual(0, sv.TransferStock(0, false, false, true));
-                Assert.AreEqual("Kho đầy", sv.StockMessage);
+                Assert.AreEqual("Kho đầy", sv.StockMessage); // vi-text
             }
             finally { stock.Capacity = cap; }
         }
@@ -417,7 +417,7 @@ namespace Game.Client.Tests
             view.Bag.AddSeeds(0, 3);
             int s0 = sv.Sim.State.Stock.Seeds[0];
             Assert.AreEqual(0, sv.TransferStock(0, false, false, true));
-            Assert.AreEqual("Lại gần kho (8 ô) để chuyển đồ", sv.StockMessage);
+            Assert.AreEqual("Lại gần kho (8 ô) để chuyển đồ", sv.StockMessage); // vi-text
             Assert.AreEqual(3, view.Bag.GetSeeds(0));
             Assert.AreEqual(s0, sv.Sim.State.Stock.Seeds[0]);
         }
@@ -454,7 +454,7 @@ namespace Game.Client.Tests
             Assert.IsTrue(input.UnmarkAimed(cell));
             Assert.IsTrue(sv.Sim.State.Plots[id].Removed);
             Assert.AreEqual(SelfTillState.None, farming.TillState);
-            Assert.AreEqual("Huỷ tự xới", farming.StatusLine);
+            Assert.AreEqual("Huỷ tự xới", farming.StatusLine); // vi-text
 
             int id2 = MarkReachable(out var cell2, new List<CellPos>());
             Assert.AreNotEqual(id, id2);
@@ -485,8 +485,8 @@ namespace Game.Client.Tests
             Assert.AreEqual(SelfTillState.Tilling, farming.TillState);
             Assert.AreEqual("", farming.StatusLine);
             var lines = farming.HudLines();
-            StringAssert.Contains("Đang xới ô", lines);
-            StringAssert.DoesNotContain("đang đi tới", lines);
+            StringAssert.Contains("Đang xới ô", lines); // vi-text
+            StringAssert.DoesNotContain("đang đi tới", lines); // vi-text
         }
     }
 }

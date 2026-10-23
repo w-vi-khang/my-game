@@ -59,7 +59,7 @@ namespace Game.World.Tests
             for (int c = 0; c < meshesNoLip.Length; c++)
                 parts.Add((meshesNoLip[c].Vertices, meshesNoLip[c].Indices, ChunkOrigin(c)));
             int bad = MeshChecks.UnbalancedEdges(parts, (a, b) => OnMapRim(a) && OnMapRim(b), TestContext.WriteLine);
-            Assert.AreEqual(0, bad, "cạnh hở hoặc lệch chiều bên trong map");
+            Assert.AreEqual(0, bad, "open edge or wrong winding inside map");
         }
 
         /// <summary>Điểm nằm trên mép map theo x/z.</summary>
@@ -79,7 +79,7 @@ namespace Game.World.Tests
                 {
                     float3 center = (v[q] + v[q + 2]) * 0.5f + o;
                     float3 nrm = math.normalize(math.cross(v[q + 1] - v[q], v[q + 3] - v[q]));
-                    Assert.IsTrue(seen.Add((Key(center), Key(nrm))), $"mặt trùng ở {center} (chunk {c})");
+                    Assert.IsTrue(seen.Add((Key(center), Key(nrm))), $"duplicate faces at {center} (chunk {c})");
                     total++;
                 }
             }
@@ -96,10 +96,10 @@ namespace Game.World.Tests
                 for (int i = 0; i < m.Vertices.Length; i++)
                 {
                     float3 p = m.Vertices[i] + o, n = m.Normals[i];
-                    if (p.x < 0.6f) Assert.Greater(n.x, -0.9f, $"vách hướng ra ngoài ở {p}");
-                    if (p.z < 0.6f) Assert.Greater(n.z, -0.9f, $"vách hướng ra ngoài ở {p}");
-                    if (p.x > 63.4f) Assert.Less(n.x, 0.9f, $"vách hướng ra ngoài ở {p}");
-                    if (p.z > 63.4f) Assert.Less(n.z, 0.9f, $"vách hướng ra ngoài ở {p}");
+                    if (p.x < 0.6f) Assert.Greater(n.x, -0.9f, $"wall faces outward at {p}");
+                    if (p.z < 0.6f) Assert.Greater(n.z, -0.9f, $"wall faces outward at {p}");
+                    if (p.x > 63.4f) Assert.Less(n.x, 0.9f, $"wall faces outward at {p}");
+                    if (p.z > 63.4f) Assert.Less(n.z, 0.9f, $"wall faces outward at {p}");
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace Game.World.Tests
                 BlockMesher.Build(world, 1, 1, 1);
             sw.Stop();
             double oneMs = sw.Elapsed.TotalMilliseconds / runs;
-            TestContext.WriteLine($"MESHTIME khối 32 chunk song song: {allMs:F1} ms; 1 chunk đơn: {oneMs:F2} ms (Editor, Burst bật)");
+            TestContext.WriteLine($"MESHTIME 32 chunks block in parallel: {allMs:F1} ms; 1 single chunk: {oneMs:F2} ms (Editor, Burst on)");
             Assert.Pass();
         }
     }

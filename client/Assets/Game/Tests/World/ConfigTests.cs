@@ -17,7 +17,7 @@ namespace Game.World.Tests
             Assert.IsTrue(File.Exists(SourcePath), SourcePath);
             Assert.IsTrue(File.Exists(ClientCopyPath), ClientCopyPath);
             Assert.AreEqual(File.ReadAllText(SourcePath), File.ReadAllText(ClientCopyPath),
-                "Bản trong client khác design/data/world_m1.json — chép lại từ design/data");
+                "Client copy differs from design/data/world_m1.json — copy it again from design/data");
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace Game.World.Tests
             Assert.IsTrue(File.Exists(src), src);
             Assert.IsTrue(File.Exists(copy), copy);
             Assert.AreEqual(File.ReadAllText(src), File.ReadAllText(copy),
-                "Bản trong client khác design/data/sim_m1.json — chép lại từ design/data");
+                "Client copy differs from design/data/sim_m1.json — copy it again from design/data");
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace Game.World.Tests
             Assert.IsTrue(File.Exists(src), src);
             Assert.IsTrue(File.Exists(copy), copy);
             Assert.AreEqual(File.ReadAllText(src), File.ReadAllText(copy),
-                "Bản trong client khác design/data/time_m1.json — chép lại từ design/data");
+                "Client copy differs from design/data/time_m1.json — copy it again from design/data");
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace Game.World.Tests
             Assert.IsTrue(File.Exists(MapsSourcePath), MapsSourcePath);
             Assert.IsTrue(File.Exists(MapsClientCopyPath), MapsClientCopyPath);
             Assert.AreEqual(File.ReadAllText(MapsSourcePath), File.ReadAllText(MapsClientCopyPath),
-                "Bản trong client khác design/data/world_maps_m1.json — chép lại từ design/data");
+                "Client copy differs from design/data/world_maps_m1.json — copy it again from design/data");
         }
 
         [Test]

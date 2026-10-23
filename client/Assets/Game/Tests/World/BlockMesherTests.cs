@@ -87,7 +87,7 @@ namespace Game.World.Tests
             Assert.AreEqual(16 * 16 * 2, mesh.TriangleCount);
             for (int i = 0; i < mesh.Vertices.Length; i++)
             {
-                Assert.AreEqual(8f, mesh.Vertices[i].y, 1e-6f, $"đỉnh {i}");
+                Assert.AreEqual(8f, mesh.Vertices[i].y, 1e-6f, $"vertex {i}");
                 Assert.AreEqual(new float3(0, 1, 0), mesh.Normals[i]);
                 Assert.AreEqual(BlockMesher.TopColor(BlockMaterial.Grass), mesh.Colors[i]);
             }
@@ -116,9 +116,9 @@ namespace Game.World.Tests
                 colliderTris += mesh.ColliderIndices.Length / 3;
                 maxTris = math.max(maxTris, mesh.TriangleCount);
             }
-            TestContext.WriteLine($"MESHSTATS bo cạnh world_m1: {faces} mặt lộ; hiển thị {renderTris} tam giác " +
-                                  $"({(float)renderTris / faces:F2}/mặt), lớn nhất {maxTris}/chunk; collider {colliderTris}; " +
-                                  $"mép cỏ thêm {lipTris} → tổng {renderTris + lipTris}");
+            TestContext.WriteLine($"MESHSTATS rounded edges world_m1: {faces} exposed faces; rendered {renderTris} triangles " +
+                                  $"({(float)renderTris / faces:F2}/face), max {maxTris}/chunk; collider {colliderTris}; " +
+                                  $"grass lip adds {lipTris} → total {renderTris + lipTris}");
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace Game.World.Tests
             var w = new WorldData(new WorldSize(16, 16, 16));
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Stone));
             var mesh = BlockMesher.Build(w, 0, 0, 0);
-            Assert.AreEqual(0, Unbalanced(mesh), "khối đơn phải kín");
+            Assert.AreEqual(0, Unbalanced(mesh), "single block must be closed");
             // Mọi đỉnh nằm trên mặt "lõi co r rồi nở r": khoảng cách tới lõi [r, 1 − r]³ đúng bằng r; pháp tuyến hướng ra từ lõi.
             float3 lo = new float3(4, 8, 4) + R, hi = new float3(5, 9, 5) - R;
             int rounded = 0;
@@ -135,12 +135,12 @@ namespace Game.World.Tests
             {
                 float3 p = mesh.Vertices[i];
                 float3 q = math.clamp(p, lo, hi);
-                Assert.AreEqual(R, math.distance(p, q), 1e-4f, $"đỉnh {i} {p}");
-                Assert.Less(math.distance(mesh.Normals[i], math.normalize(p - q)), 1e-3f, $"pháp tuyến {i}");
+                Assert.AreEqual(R, math.distance(p, q), 1e-4f, $"vertex {i} {p}");
+                Assert.Less(math.distance(mesh.Normals[i], math.normalize(p - q)), 1e-3f, $"normal {i}");
                 if (math.cmax(math.abs(math.normalize(p - q))) < 0.99f)
                     rounded++;
             }
-            Assert.Greater(rounded, 0, "phải có đỉnh trên phần bo");
+            Assert.Greater(rounded, 0, "must have vertices on the rounded part");
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace Game.World.Tests
                     if ((config >> k & 1) != 0)
                         w.Set(7 + (k & 1), 7 + (k >> 1 & 1), 7 + (k >> 2 & 1), Cell.Make(BlockMaterial.Stone));
                 var mesh = BlockMesher.Build(w, 0, 0, 0);
-                Assert.AreEqual(0, Unbalanced(mesh), $"tổ hợp {config}");
+                Assert.AreEqual(0, Unbalanced(mesh), $"combination {config}");
             }
         }
 
@@ -173,7 +173,7 @@ namespace Game.World.Tests
                     if (rng.NextDouble() < density)
                         w.Set(x, y, z, Cell.Make(BlockMaterial.Dirt));
                 var mesh = BlockMesher.Build(w, 0, 0, 0);
-                Assert.AreEqual(0, Unbalanced(mesh), $"hình ngẫu nhiên {trial}");
+                Assert.AreEqual(0, Unbalanced(mesh), $"random shape {trial}");
             }
         }
 
@@ -191,7 +191,7 @@ namespace Game.World.Tests
             {
                 float3 a = mesh.Vertices[mesh.Indices[t]], b = mesh.Vertices[mesh.Indices[t + 1]], c = mesh.Vertices[mesh.Indices[t + 2]];
                 bool onSharedPlane = a.x == 5f && b.x == 5f && c.x == 5f;
-                Assert.IsFalse(onSharedPlane, $"mặt thừa ở x = 5: {a} {b} {c}");
+                Assert.IsFalse(onSharedPlane, $"redundant faces at x = 5: {a} {b} {c}");
             }
         }
 
@@ -209,7 +209,7 @@ namespace Game.World.Tests
                 Assert.AreEqual(c0, mesh.Colors[mesh.Indices[t + 2]]);
                 // Tam giác của mặt trên (kể cả dải bo tới 45°) nghiêng < 45° → pháp tuyến hình học y > 0,7.
                 bool top = math.normalize(GeometricNormal(mesh, t)).y > 0.7f;
-                Assert.AreEqual(top ? BlockMesher.TopColor(BlockMaterial.Grass) : BlockMesher.TopColor(BlockMaterial.Dirt), c0, $"tam giác {t / 3}");
+                Assert.AreEqual(top ? BlockMesher.TopColor(BlockMaterial.Grass) : BlockMesher.TopColor(BlockMaterial.Dirt), c0, $"triangle {t / 3}");
                 if (top)
                     grassTris++;
             }
@@ -229,7 +229,7 @@ namespace Game.World.Tests
                 Assert.AreEqual(c0, mesh.Colors[mesh.Indices[t + 1]]);
                 Assert.AreEqual(c0, mesh.Colors[mesh.Indices[t + 2]]);
                 bool top = math.normalize(GeometricNormal(mesh, t)).y > 0.7f;
-                Assert.AreEqual(top ? BlockMesher.TopColor(BlockMaterial.Farmland) : BlockMesher.TopColor(BlockMaterial.Dirt), c0, $"tam giác {t / 3}");
+                Assert.AreEqual(top ? BlockMesher.TopColor(BlockMaterial.Farmland) : BlockMesher.TopColor(BlockMaterial.Dirt), c0, $"triangle {t / 3}");
                 if (top) tops++;
             }
             Assert.Greater(tops, 0);
@@ -259,7 +259,7 @@ namespace Game.World.Tests
                 // Quy ước như mesher cũ: pháp tuyến hình học = cross(b − a, c − a) cùng hướng pháp tuyến đỉnh.
                 float3 face = GeometricNormal(mesh, t);
                 float3 vn = mesh.Normals[mesh.Indices[t]] + mesh.Normals[mesh.Indices[t + 1]] + mesh.Normals[mesh.Indices[t + 2]];
-                Assert.Greater(math.dot(face, vn), 0f, $"tam giác {t / 3}");
+                Assert.Greater(math.dot(face, vn), 0f, $"triangle {t / 3}");
             }
         }
 
@@ -277,7 +277,7 @@ namespace Game.World.Tests
                 if (mesh.TriangleCount > 0)
                     surfaceChunks++;
             }
-            TestContext.WriteLine($"MESHSTATS bo cạnh: {surfaceChunks}/32 chunk có mặt; lớn nhất {maxTris} tam giác, {maxVerts} đỉnh/chunk");
+            TestContext.WriteLine($"MESHSTATS rounded edges: {surfaceChunks}/32 chunks have surface; max {maxTris} triangles, {maxVerts} vertices/chunk");
         }
 
         [Test]
@@ -332,17 +332,17 @@ namespace Game.World.Tests
                 for (int i = 0; i < p.Length; i++)
                 {
                     BlockMesher.LipProfile(i, depth, out p[i], out n[i]);
-                    Assert.AreEqual(1f, math.length(n[i]), 1e-5f, $"depth {depth}, điểm {i}: pháp tuyến đơn vị");
-                    Assert.That(p[i].x, Is.InRange(-1e-5f, lo + 1e-5f), $"depth {depth}, điểm {i}: t trong [0, LipOverhang]");
+                    Assert.AreEqual(1f, math.length(n[i]), 1e-5f, $"depth {depth}, point {i}: unit normal");
+                    Assert.That(p[i].x, Is.InRange(-1e-5f, lo + 1e-5f), $"depth {depth}, point {i}: t in [0, LipOverhang]");
                     if (i > 0 && i < 7)
-                        Assert.Less(p[i].y, p[i - 1].y + 1e-6f, $"depth {depth}, điểm {i}: A0..C2 đi xuống");
+                        Assert.Less(p[i].y, p[i - 1].y + 1e-6f, $"depth {depth}, point {i}: A0..C2 go downward");
                 }
                 AssertNear(new float2(lo - rt, 0f), p[0], "A0"); AssertNear(new float2(0f, 1f), n[0], "n A0");
                 AssertNear(new float2(lo, -rt), p[3], "A3"); AssertNear(new float2(1f, 0f), n[3], "n A3");
                 AssertNear(new float2(lo, -(depth - rb)), p[4], "C0"); AssertNear(new float2(1f, 0f), n[4], "n C0");
                 AssertNear(new float2(lo - rb, -depth), p[6], "C2"); AssertNear(new float2(0f, -1f), n[6], "n C2");
                 AssertNear(new float2(0f, -BlockMesher.LipFloor), p[7], "W"); AssertNear(new float2(0f, -1f), n[7], "n W");
-                Assert.Greater(p[7].y, p[6].y + 0.04f, $"depth {depth}: mặt dưới nghiêng lên vào vách");
+                Assert.Greater(p[7].y, p[6].y + 0.04f, $"depth {depth}: underside slopes up into the wall");
             }
         }
 
@@ -359,12 +359,12 @@ namespace Game.World.Tests
             float3 lo = new float3(4, 8, 4), hi = new float3(5, 9, 5);
             var stone = new WorldData(new WorldSize(16, 16, 16));
             stone.Set(4, 8, 4, Cell.Make(BlockMaterial.Stone));
-            AssertInside(BlockMesher.Build(stone, 0, 0, 0), lo, hi, "đá");
+            AssertInside(BlockMesher.Build(stone, 0, 0, 0), lo, hi, "rock");
 
             var covered = new WorldData(new WorldSize(16, 16, 16));
             covered.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
             covered.Set(4, 9, 4, Cell.Make(BlockMaterial.Stone));
-            AssertInside(BlockMesher.Build(covered, 0, 0, 0), lo, new float3(5, 10, 5), "cỏ bị đè");
+            AssertInside(BlockMesher.Build(covered, 0, 0, 0), lo, new float3(5, 10, 5), "grass pressed down");
 
             var open = new WorldData(new WorldSize(16, 16, 16));
             open.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
@@ -375,22 +375,22 @@ namespace Game.World.Tests
                 maxOut = math.max(maxOut, math.cmax(math.max(lo - p, p - hi)));
                 minY = math.min(minY, p.y);
             }
-            Assert.AreEqual(BlockMesher.LipOverhang, maxOut, 1e-4f, "mép nhô ra");
-            Assert.GreaterOrEqual(minY, 8f - 1e-4f, "đáy khối");
+            Assert.AreEqual(BlockMesher.LipOverhang, maxOut, 1e-4f, "overhanging lip");
+            Assert.GreaterOrEqual(minY, 8f - 1e-4f, "block bottom");
             int lipLow = 0;
             foreach (var p in mesh.Vertices)
                 if (math.cmax(math.max(lo - p, p - hi)) > 1e-3f)
                 {
-                    Assert.GreaterOrEqual(p.y, 9f - MaxLip - 1e-4f, $"váy quá sâu ở {p}");
+                    Assert.GreaterOrEqual(p.y, 9f - MaxLip - 1e-4f, $"skirt too deep at {p}");
                     if (p.y < 9f - 0.1f) lipLow++;
                 }
-            Assert.Greater(lipLow, 0, "phải có váy cỏ buông xuống");
+            Assert.Greater(lipLow, 0, "must have a hanging grass skirt");
         }
 
         static void AssertInside(ChunkMesh m, float3 lo, float3 hi, string what)
         {
             foreach (var p in m.Vertices)
-                Assert.IsTrue(math.all(p >= lo - 1e-4f) && math.all(p <= hi + 1e-4f), $"{what}: đỉnh {p} ngoài ô");
+                Assert.IsTrue(math.all(p >= lo - 1e-4f) && math.all(p <= hi + 1e-4f), $"{what}: vertex {p} outside cell");
         }
 
         /// <summary>Tia (o, dir) cắt tam giác gần nhất (Möller–Trumbore). normal = GeometricNormal (mặt trước theo quy ước mesher).</summary>
@@ -453,12 +453,12 @@ namespace Game.World.Tests
             var mesh = BlockMesher.Build(w, 0, 0, 0);
             foreach (var p in LipFootprint())
             {
-                Assert.IsTrue(FirstHit(mesh, new float3(p.x, 8f, p.y), new float3(0, 1, 0), out float dUp, out float3 nUp), $"dưới {p}: không chạm");
-                Assert.Less(nUp.y, 0f, $"dưới {p}: chạm mặt sau (nhìn xuyên)");
-                Assert.That(8f + dUp, Is.InRange(9f - MaxLip - 1e-4f, 9f - BlockMesher.LipFloor + 1e-4f), $"dưới {p}: độ cao chạm");
-                Assert.IsTrue(FirstHit(mesh, new float3(p.x, 10f, p.y), new float3(0, -1, 0), out float dDown, out float3 nDown), $"trên {p}: không chạm");
-                Assert.Greater(nDown.y, 0f, $"trên {p}: chạm mặt sau");
-                Assert.That(10f - dDown, Is.InRange(9f - MaxLip - 1e-4f, 9f + 1e-4f), $"trên {p}: độ cao chạm");
+                Assert.IsTrue(FirstHit(mesh, new float3(p.x, 8f, p.y), new float3(0, 1, 0), out float dUp, out float3 nUp), $"below {p}: no hit");
+                Assert.Less(nUp.y, 0f, $"below {p}: hit back face (see-through)");
+                Assert.That(8f + dUp, Is.InRange(9f - MaxLip - 1e-4f, 9f - BlockMesher.LipFloor + 1e-4f), $"below {p}: hit height");
+                Assert.IsTrue(FirstHit(mesh, new float3(p.x, 10f, p.y), new float3(0, -1, 0), out float dDown, out float3 nDown), $"above {p}: no hit");
+                Assert.Greater(nDown.y, 0f, $"above {p}: hit back face");
+                Assert.That(10f - dDown, Is.InRange(9f - MaxLip - 1e-4f, 9f + 1e-4f), $"above {p}: hit height");
             }
         }
 
@@ -479,9 +479,9 @@ namespace Game.World.Tests
                     continue;
                 cap++;
                 if (p.y < 9f - BlockMesher.LipFloor - 1e-4f)
-                    Assert.IsTrue(p.x >= 5f + BlockMesher.LipOverhang - BlockMesher.LipBottomRound - 1e-4f || p.x <= 4f - BlockMesher.LipOverhang + BlockMesher.LipBottomRound + 1e-4f, $"nắp lòi dưới đáy ở {p}");
+                    Assert.IsTrue(p.x >= 5f + BlockMesher.LipOverhang - BlockMesher.LipBottomRound - 1e-4f || p.x <= 4f - BlockMesher.LipOverhang + BlockMesher.LipBottomRound + 1e-4f, $"cap pokes out under the bottom at {p}");
             }
-            Assert.AreEqual(2 * (BlockMesher.LipProfilePoints + 2), cap, "2 nắp × (LipProfilePoints + 2) đỉnh");
+            Assert.AreEqual(2 * (BlockMesher.LipProfilePoints + 2), cap, "2 caps x (LipProfilePoints + 2) vertices");
         }
 
         [Test]
@@ -495,8 +495,8 @@ namespace Game.World.Tests
             var b = BlockMesher.BuildAll(w);
             for (int c = 0; c < a.Length; c++)
             {
-                CollectionAssert.AreEqual(a[c].Vertices, b[c].Vertices, "tất định: đỉnh");
-                CollectionAssert.AreEqual(a[c].Indices, b[c].Indices, "tất định: chỉ số");
+                CollectionAssert.AreEqual(a[c].Vertices, b[c].Vertices, "deterministic: vertices");
+                CollectionAssert.AreEqual(a[c].Indices, b[c].Indices, "deterministic: indices");
             }
             // Đỉnh mặt trước của mép cỏ (t = LipOverhang: A3 và C0 của mặt cắt, thấp hơn mặt trên) tại ranh giới hai ô x = 14..18: phải có ở cả dải bên trái lẫn bên phải.
             var at = new Dictionary<long, int>();
@@ -515,9 +515,9 @@ namespace Game.World.Tests
                     }
                 }
             }
-            Assert.AreEqual(5 * 2 * 2, at.Count, "mỗi ranh giới x = 14..18, mỗi sườn có 2 điểm mặt trước (A3, C0)");
+            Assert.AreEqual(5 * 2 * 2, at.Count, "each boundary x = 14..18, each slope has 2 front-face points (A3, C0)");
             foreach (var kv in at)
-                Assert.AreEqual(2, kv.Value, "điểm mặt trước ở ranh giới phải trùng giữa hai dải kề nhau (kể cả qua biên chunk x = 16) — mỗi dải 1 đỉnh mỗi điểm");
+                Assert.AreEqual(2, kv.Value, "front-face points at the boundary must coincide between two adjacent strips (including across chunk edge x = 16) — 1 vertex per point per strip");
         }
 
         // ---------------- AO theo đỉnh + mã hoa văn (bước 5.4) ----------------
@@ -537,18 +537,18 @@ namespace Game.World.Tests
                 if (math.abs(p.y - 8f) > 1e-4f || mesh.Normals[i].y < 0.99f)
                     continue;
                 uint c = mesh.Colors[i];
-                Assert.AreEqual(baseColor >> 24, c >> 24, "giữ mã hoa văn");
+                Assert.AreEqual(baseColor >> 24, c >> 24, "keeps pattern code");
                 bool touchesWall = p.x >= 5f - 1e-4f && p.x <= 6f + 1e-4f && p.z >= 4f - 1e-4f && p.z <= 5f + 1e-4f;
                 bool far = math.abs(p.x - 5.5f) > 2f || math.abs(p.z - 4.5f) > 2f;
                 if (touchesWall && (c & 0xFF) < (baseColor & 0xFF))
                     darkNearWall++;
                 if (far)
                 {
-                    Assert.AreEqual(baseColor, c, $"đỉnh xa tường không bị tối ở {p}");
+                    Assert.AreEqual(baseColor, c, $"vertex far from wall is not darkened at {p}");
                     farChecked++;
                 }
             }
-            Assert.Greater(darkNearWall, 0, "đỉnh nền sát chân tường phải tối hơn (AO)");
+            Assert.Greater(darkNearWall, 0, "base vertex next to wall foot must be darker (AO)");
             Assert.Greater(farChecked, 0);
         }
 
@@ -575,7 +575,7 @@ namespace Game.World.Tests
             w.Set(8, 7, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
             w.Set(8, 8, 8, Cell.Make(BlockMaterial.Stone));
             var mesh = BlockMesher.Build(w, 0, 0, 0);
-            Assert.AreEqual(2, mesh.WaterTriangleCount, "đúng một tứ giác mặt nước");
+            Assert.AreEqual(2, mesh.WaterTriangleCount, "exactly one water quad");
             for (int k = 0; k < mesh.WaterIndices.Length; k++)
             {
                 float3 p = mesh.Vertices[mesh.WaterIndices[k]];
@@ -586,7 +586,7 @@ namespace Game.World.Tests
             for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
             {
                 float3 a = mesh.Vertices[mesh.WaterIndices[t]], b = mesh.Vertices[mesh.WaterIndices[t + 1]], c = mesh.Vertices[mesh.WaterIndices[t + 2]];
-                Assert.Greater(math.cross(b - a, c - a).y, 0f, "mặt nước hướng lên (cùng quy ước mặt trước)");
+                Assert.Greater(math.cross(b - a, c - a).y, 0f, "water face points up (same convention as front face)");
             }
         }
     }

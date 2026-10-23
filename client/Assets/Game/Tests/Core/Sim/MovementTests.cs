@@ -32,7 +32,7 @@ namespace Game.Core.Tests
             while (sim.State.Tick < tick)
             {
                 sim.Tick();
-                Assert.AreEqual(0, Overlaps(sim.State), "chồng ô ở nhịp " + sim.State.Tick);
+                Assert.AreEqual(0, Overlaps(sim.State), "overlapping cells at tick " + sim.State.Tick);
             }
         }
 
@@ -183,7 +183,7 @@ namespace Game.Core.Tests
             while (sim.State.Tick < 109)
             {
                 sim.Tick();
-                Assert.AreEqual(0, Overlaps(sim.State), "chồng ô ở nhịp " + sim.State.Tick);
+                Assert.AreEqual(0, Overlaps(sim.State), "overlapping cells at tick " + sim.State.Tick);
                 maxWait = Math.Max(maxWait, m.BlockedTicks);
                 switch (sim.State.Tick)
                 {

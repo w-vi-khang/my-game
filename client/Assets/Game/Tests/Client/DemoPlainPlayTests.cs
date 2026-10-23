@@ -49,12 +49,12 @@ namespace Game.Client.Tests
                 for (int x = plain.X0; x < plain.X0 + plain.Size; x++)
                 {
                     MinimapImage.ColumnInfo(view.World, x, z, out int surf, out int depth);
-                    Assert.AreEqual(plain.Ground, surf, $"mặt ({x},{z})");
-                    Assert.AreEqual(0, depth, $"nước ({x},{z})");
-                    Assert.AreEqual(BlockMaterial.Grass, view.World.GetMaterial(x, surf, z), $"vật liệu ({x},{z})");
+                    Assert.AreEqual(plain.Ground, surf, $"surface ({x},{z})");
+                    Assert.AreEqual(0, depth, $"water ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Grass, view.World.GetMaterial(x, surf, z), $"material ({x},{z})");
                 }
             foreach (var l in view.Landmarks)
-                Assert.IsFalse(plain.Contains(l.X, l.Z), "dấu mốc " + l.Name + " trong đồng bằng");
+                Assert.IsFalse(plain.Contains(l.X, l.Z), "landmark " + l.Name + " inside the plain");
             yield return null;
         }
 

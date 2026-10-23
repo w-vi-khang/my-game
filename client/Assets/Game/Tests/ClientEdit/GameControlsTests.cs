@@ -78,7 +78,7 @@ namespace Game.Client.EditTests
                 foreach (var g in m.bindings.Where(b => !b.isComposite).GroupBy(b => b.path).Where(g => g.Count() > 1))
                     if (!AllowedDuplicates.Contains(m.name + ":" + g.Key))
                         bad.Add(m.name + " " + g.Key);
-            Assert.IsEmpty(bad, "Trùng phím trong cùng map: " + string.Join("; ", bad));
+            Assert.IsEmpty(bad, "Duplicate keys in the same map: " + string.Join("; ", bad));
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace Game.Client.EditTests
                 for (int i = 0; i < lines.Length; i++)
                     if (!lines[i].Trim().StartsWith("//") && banned.IsMatch(lines[i])) hits.Add(f + ":" + (i + 1));
             }
-            Assert.IsEmpty(hits, "Còn đọc thẳng phím/chuột: " + string.Join(", ", hits));
+            Assert.IsEmpty(hits, "Still reads keys/mouse directly: " + string.Join(", ", hits));
         }
 
         [Test]

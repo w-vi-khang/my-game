@@ -90,7 +90,7 @@ namespace Game.Client.Tests
             s.language = "en";
             GameSettings.Apply(s);
             Assert.AreEqual("Settings", GameSettings.Text.Get("settings.title"));
-            Assert.AreEqual("Đóng (Esc)", GameSettings.Text.Get("settings.close"));
+            Assert.AreEqual("Đóng (Esc)", GameSettings.Text.Get("settings.close")); // vi-text
             Assert.IsNull(GameSettings.LanguageError);
         }
 
@@ -102,7 +102,7 @@ namespace Game.Client.Tests
             s.language = "xx";
             LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("LANG"));
             GameSettings.Apply(s);
-            Assert.AreEqual("Cài đặt", GameSettings.Text.Get("settings.title"));
+            Assert.AreEqual("Cài đặt", GameSettings.Text.Get("settings.title")); // vi-text
             Assert.AreEqual("xx", GameSettings.LanguageError);
             Assert.AreEqual("xx", GameSettings.Current.language);
         }
@@ -252,10 +252,10 @@ namespace Game.Client.Tests
             day.sun = light;
             var dial = camGo.AddComponent<TimeDial>();
             for (int i = 0; i < 600 && !(map.IsReady && dial.IsReady); i++) yield return null;
-            Assert.IsTrue(map.IsReady, "Bản đồ chưa dựng");
-            Assert.IsTrue(dial.IsReady, "Vòng chưa dựng");
-            Assert.AreEqual("Bình minh", dial.LandmarkLabel(TimeLandmark.Dawn));
-            Assert.AreEqual("Đóng (M)", map.CloseButtonText);
+            Assert.IsTrue(map.IsReady, "Map not built");
+            Assert.IsTrue(dial.IsReady, "Dial not built");
+            Assert.AreEqual("Bình minh", dial.LandmarkLabel(TimeLandmark.Dawn)); // vi-text
+            Assert.AreEqual("Đóng (M)", map.CloseButtonText); // vi-text
 
             Directory.CreateDirectory(GameSettings.LangDir);
             var file = new StringFile
@@ -275,7 +275,7 @@ namespace Game.Client.Tests
             s = GameSettings.Current.Clone();
             s.language = PlayerSettings.DefaultLanguage;
             GameSettings.Apply(s);
-            Assert.AreEqual("Đóng (M)", map.CloseButtonText);
+            Assert.AreEqual("Đóng (M)", map.CloseButtonText); // vi-text
             UnityEngine.Object.Destroy(lightGo);
             yield return null;
         }

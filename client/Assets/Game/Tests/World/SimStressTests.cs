@@ -91,7 +91,7 @@ namespace Game.World.Tests
             foreach (var l in kept)
                 Assert.IsFalse(plain.Contains(l.X, l.Z));
             Assert.AreEqual(lms.Count, kept.Count + inside);
-            TestContext.WriteLine($"dấu mốc: {lms.Count}, giữ {kept.Count}, trong đồng bằng {inside}");
+            TestContext.WriteLine($"landmarks: {lms.Count}, kept {kept.Count}, inside plain {inside}");
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace Game.World.Tests
                 }
             }
             long produce = sim.State.Stock.ProduceTotal;
-            TestContext.WriteLine($"4000 nhịp: {sw.Elapsed.TotalMilliseconds:F0} ms, AStarCount={sim.AStarCount}, BfsCount={sim.BfsCount}, produce={produce}, overlaps={overlaps}, idleOnPlot={idleOnPlot}, idleOutside={idleOutside}");
+            TestContext.WriteLine($"4000 ticks: {sw.Elapsed.TotalMilliseconds:F0} ms, AStarCount={sim.AStarCount}, BfsCount={sim.BfsCount}, produce={produce}, overlaps={overlaps}, idleOnPlot={idleOnPlot}, idleOutside={idleOutside}");
             Assert.AreEqual(0, overlaps);
             Assert.AreEqual(0, idleOnPlot);
             Assert.AreEqual(0, idleOutside);
@@ -147,7 +147,7 @@ namespace Game.World.Tests
                 a.State.Events.Clear();
                 b.State.Events.Clear();
                 if (t % 100 == 0)
-                    Assert.AreEqual(SimHash.Compute(b.State), SimHash.Compute(a.State), "nhịp " + t);
+                    Assert.AreEqual(SimHash.Compute(b.State), SimHash.Compute(a.State), "tick " + t);
             }
             Assert.Greater(a.PhaseTicks[2], 0);
             for (int k = 0; k < 9; k++)

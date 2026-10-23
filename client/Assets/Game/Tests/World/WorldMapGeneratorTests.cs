@@ -35,7 +35,7 @@ namespace Game.World.Tests
         public void RunsWithBurst()
         {
             WorldMapGenerator.Generate(Params(20261013), out _, out bool burst);
-            Assert.IsTrue(burst, "Job sinh world nhiều map phải chạy bằng Burst (FloatMode.Deterministic)");
+            Assert.IsTrue(burst, "Multi-map world generation job must run with Burst (FloatMode.Deterministic)");
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace Game.World.Tests
             var sw = Stopwatch.StartNew();
             var w2 = WorldMapGenerator.Generate(Params(20261013), out var m2);
             sw.Stop();
-            TestContext.WriteLine($"sinh world v3 lần 2: {sw.ElapsedMilliseconds} ms");
+            TestContext.WriteLine($"world v3 generation, second run: {sw.ElapsedMilliseconds} ms");
             Assert.AreEqual(WorldHash.Compute(w1), WorldHash.Compute(w2));
             Assert.AreEqual(WorldHash.Compute(m1), WorldHash.Compute(m2));
         }
@@ -81,23 +81,23 @@ namespace Game.World.Tests
             for (int z = 0; z < p.sizeZ; z++)
             {
                 for (int y = 0; y < p.bedrockLayers; y++)
-                    Assert.AreEqual(BlockMaterial.Bedrock, w.GetMaterial(x, y, z), $"đá đáy ({x},{y},{z})");
+                    Assert.AreEqual(BlockMaterial.Bedrock, w.GetMaterial(x, y, z), $"bottom rock ({x},{y},{z})");
 
                 int s = w.SurfaceHeight(x, z);
-                Assert.That(s, Is.InRange(p.bedrockLayers, p.maxSurface), $"mặt đất ({x},{z})");
+                Assert.That(s, Is.InRange(p.bedrockLayers, p.maxSurface), $"ground ({x},{z})");
                 if (s < p.minSurface)
-                    Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, s + 1, z), $"dưới minSurface phải có nước ngay trên ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, s + 1, z), $"below minSurface must have water right above ({x},{z})");
 
                 var top = w.GetMaterial(x, s, z);
                 if (s <= p.waterLevel + p.sandBand)
-                    Assert.AreEqual(BlockMaterial.Sand, top, $"ô thấp gần nước là cát ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Sand, top, $"low cell near water is sand ({x},{z})");
                 else
-                    Assert.AreEqual(BlockMaterial.Grass, top, $"trên cùng là cỏ ({x},{z})");
+                    Assert.AreEqual(BlockMaterial.Grass, top, $"top is grass ({x},{z})");
 
                 for (int y = p.bedrockLayers; y < s; y++)
                 {
                     var expected = s - y <= p.dirtDepth ? BlockMaterial.Dirt : BlockMaterial.Stone;
-                    Assert.AreEqual(expected, w.GetMaterial(x, y, z), $"lớp ({x},{y},{z})");
+                    Assert.AreEqual(expected, w.GetMaterial(x, y, z), $"layer ({x},{y},{z})");
                 }
 
                 for (int y = s + 1; y < p.sizeY; y++)
@@ -105,16 +105,16 @@ namespace Game.World.Tests
                     ushort c = w.Get(x, y, z);
                     if (y <= p.waterLevel)
                     {
-                        Assert.AreEqual(BlockMaterial.Water, Cell.GetMaterial(c), $"nước tĩnh ({x},{y},{z})");
+                        Assert.AreEqual(BlockMaterial.Water, Cell.GetMaterial(c), $"still water ({x},{y},{z})");
                         Assert.AreEqual(Cell.MaxWaterLevel, Cell.GetWaterLevel(c));
                         waterCells++;
                     }
                     else
-                        Assert.AreEqual(BlockMaterial.Empty, Cell.GetMaterial(c), $"không khí ({x},{y},{z})");
+                        Assert.AreEqual(BlockMaterial.Empty, Cell.GetMaterial(c), $"air ({x},{y},{z})");
                 }
             }
-            TestContext.WriteLine($"ô nước: {waterCells}");
-            Assert.Greater(waterCells, 0, "phải có nước");
+            TestContext.WriteLine($"water cells: {waterCells}");
+            Assert.Greater(waterCells, 0, "must have water");
         }
 
         [Test]
@@ -130,12 +130,12 @@ namespace Game.World.Tests
                 if (edge >= p.seaRing)
                     continue;
                 ring++;
-                Assert.AreEqual(seaFloor, w.SurfaceHeight(x, z), $"đáy biển ({x},{z})");
-                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, p.waterLevel, z), $"nước ở mặt biển ({x},{z})");
-                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, p.waterLevel + 1, z), $"trên mặt biển ({x},{z})");
-                Assert.AreEqual(MapTable.Ocean, maps.Get(x, z), $"bảng map ở vành biển ({x},{z})");
+                Assert.AreEqual(seaFloor, w.SurfaceHeight(x, z), $"seabed ({x},{z})");
+                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, p.waterLevel, z), $"water at sea surface ({x},{z})");
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, p.waterLevel + 1, z), $"above sea surface ({x},{z})");
+                Assert.AreEqual(MapTable.Ocean, maps.Get(x, z), $"map table at sea ring ({x},{z})");
             }
-            TestContext.WriteLine($"cột vành biển: {ring}");
+            TestContext.WriteLine($"sea ring columns: {ring}");
             Assert.Greater(ring, 0);
         }
 
@@ -150,11 +150,11 @@ namespace Game.World.Tests
             {
                 byte id = maps.Get(x, z);
                 if (id == MapTable.Ocean)
-                    Assert.AreEqual(seaFloor, w.SurfaceHeight(x, z), $"cột biển phải ở đáy biển ({x},{z})");
+                    Assert.AreEqual(seaFloor, w.SurfaceHeight(x, z), $"sea column must be on the seabed ({x},{z})");
                 else
-                    Assert.Less(id, maps.MapCount, $"id map ngoài phạm vi ({x},{z})");
+                    Assert.Less(id, maps.MapCount, $"map id out of range ({x},{z})");
                 if (IsLandColumn(w, p, x, z))
-                    Assert.AreNotEqual(MapTable.Ocean, id, $"cột đất phải thuộc một map ({x},{z})");
+                    Assert.AreNotEqual(MapTable.Ocean, id, $"land column must belong to a map ({x},{z})");
             }
         }
 
@@ -171,9 +171,9 @@ namespace Game.World.Tests
                 if (id != MapTable.Ocean && IsLandColumn(w, p, x, z))
                     count[id]++;
             }
-            TestContext.WriteLine($"seed {seed}: cột đất theo map = [{string.Join(", ", count)}]");
+            TestContext.WriteLine($"seed {seed}: land columns per map = [{string.Join(", ", count)}]");
             for (int i = 0; i < count.Length; i++)
-                Assert.That(count[i], Is.InRange(12288, 20480), $"diện tích map {i} (seed {seed})");
+                Assert.That(count[i], Is.InRange(12288, 20480), $"area of map {i} (seed {seed})");
         }
 
         [Test]
@@ -196,7 +196,7 @@ namespace Game.World.Tests
                         startZ = z;
                     }
                 }
-                Assert.Greater(total, 0, $"map {i} rỗng (seed {seed})");
+                Assert.Greater(total, 0, $"map {i} empty (seed {seed})");
 
                 var seen = new bool[p.sizeX * p.sizeZ];
                 var stack = new Stack<int>();
@@ -213,8 +213,8 @@ namespace Game.World.Tests
                     TryPush(cx, cz + 1);
                     TryPush(cx, cz - 1);
                 }
-                TestContext.WriteLine($"seed {seed}: map {i} có {total} cột, tới được {reached}");
-                Assert.AreEqual(total, reached, $"map {i} bị đứt thành nhiều mảnh (seed {seed})");
+                TestContext.WriteLine($"seed {seed}: map {i} has {total} columns, reached {reached}");
+                Assert.AreEqual(total, reached, $"map {i} split into several pieces (seed {seed})");
 
                 void TryPush(int nx, int nz)
                 {
@@ -249,7 +249,7 @@ namespace Game.World.Tests
                 }
                 if (border.Count == 0)
                 {
-                    Assert.Fail($"map {a} và {b} không giáp nhau (seed {seed})");
+                    Assert.Fail($"maps {a} and {b} are not adjacent (seed {seed})");
                     return;
                 }
 
@@ -279,9 +279,9 @@ namespace Game.World.Tests
                     if (cross > dev)
                         dev = cross;
                 }
-                TestContext.WriteLine($"seed {seed}: cặp {a}-{b}: {border.Count} cột biên, dài {len:F1}, dev = {dev:F2}");
-                Assert.GreaterOrEqual(len, 32.0, $"ranh giới {a}-{b} quá ngắn (seed {seed})");
-                Assert.GreaterOrEqual(dev, 8.0, $"ranh giới {a}-{b} quá thẳng (seed {seed})");
+                TestContext.WriteLine($"seed {seed}: pair {a}-{b}: {border.Count} border columns, length {len:F1}, dev = {dev:F2}");
+                Assert.GreaterOrEqual(len, 32.0, $"border {a}-{b} too short (seed {seed})");
+                Assert.GreaterOrEqual(dev, 8.0, $"border {a}-{b} too straight (seed {seed})");
             }
         }
 
@@ -316,7 +316,7 @@ namespace Game.World.Tests
             Assert.AreEqual(1, MapTable.MergeFragments(ids, 6, 3, 2));
             Assert.AreEqual(0, ids[1 + 6 * 2]);
             for (int i = 0; i < ids.Length; i++)
-                if (i != 1 + 6 * 2) Assert.AreEqual(before[i], ids[i], $"ô {i}");
+                if (i != 1 + 6 * 2) Assert.AreEqual(before[i], ids[i], $"cell {i}");
         }
 
         [Test]
