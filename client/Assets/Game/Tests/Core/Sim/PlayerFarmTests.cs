@@ -164,9 +164,10 @@ namespace Game.Core.Tests
             Layout(false, crops: new[] { 1 });
             bag.AddSeeds(0, 1);
             bag.AddSeeds(1, 1);
-            // pha Till chưa xới
+            // pha Till, còn 1 vụ trong hàng đợi → hàng đợi trước
             Assert.AreEqual(PlotPhase.Till, Plot.Phase);
-            Assert.AreEqual(PlayerSowResult.NotTilled, sim.PlayerSow(id, 0, bag));
+            Assert.AreEqual(PlayerSowResult.QueueNotEmpty, sim.PlayerSow(id, 0, bag));
+            Assert.AreEqual(1, Plot.Slots.Count);
             sim.PlayerTill(id);
             Assert.AreEqual(PlotPhase.Sow, Plot.Phase);
             Assert.AreEqual(PlayerSowResult.OtherCrop, sim.PlayerSow(id, 0, bag));
@@ -179,6 +180,30 @@ namespace Game.Core.Tests
             Assert.AreEqual(PlayerSowResult.HasCrop, sim.PlayerSow(id, 1, bag));
             Assert.AreEqual(PlayerSowResult.NoPlot, sim.PlayerSow(99, 0, bag));
             Assert.Throws<ArgumentException>(() => sim.PlayerSow(id, 5, bag));
+            // pha Till, hàng đợi trống → chưa xới
+            Layout(false);
+            bag.AddSeeds(0, 1);
+            Assert.AreEqual(PlotPhase.Till, Plot.Phase);
+            Assert.AreEqual(PlayerSowResult.NotTilled, sim.PlayerSow(id, 0, bag));
+            Assert.AreEqual(1, bag.GetSeeds(0));
+        }
+
+        [Test]
+        public void SowRejectsWhenQueueNotEmpty()
+        {
+            Layout(false);
+            Assert.IsTrue(sim.PlayerTill(id));
+            Assert.IsTrue(sim.EnqueueCrop(id, 0)); // mở vụ hiện tại
+            Assert.IsTrue(sim.EnqueueCrop(id, 0)); // nằm trong hàng đợi
+            Assert.Greater(Plot.Slots.Count, 0);
+            bag.AddSeeds(0, 2);
+            int slots = Plot.Slots.Count;
+            Assert.AreEqual(PlayerSowResult.QueueNotEmpty, sim.CheckPlayerSow(id, 0, bag));
+            Assert.AreEqual(PlayerSowResult.QueueNotEmpty, sim.PlayerSow(id, 0, bag));
+            Assert.AreEqual(2, bag.GetSeeds(0));
+            Assert.AreEqual(slots, Plot.Slots.Count);
+            while (Plot.Slots.Count > 0) Assert.IsTrue(sim.ClearSlot(id, 0));
+            Assert.AreEqual(PlayerSowResult.Ok, sim.PlayerSow(id, 0, bag));
         }
 
         [Test]

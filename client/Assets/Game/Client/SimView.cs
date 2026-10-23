@@ -361,8 +361,8 @@ namespace Game.Client
         }
         public void ToggleStock() => StockOpen = !StockOpen;
 
-        /// <summary>Một dòng bảng túi (brief 0042). SeedCrop ≥ 0 = dòng túi hạt (click → chế độ gieo), -1 = chỉ xem.</summary>
-        public struct BagRow { public string Label; public int SeedCrop; }
+        /// <summary>Một dòng bảng túi (brief 0042, 0059). Holdable = bấm để cầm (khối, túi hạt, camera quan sát); nông sản chỉ xem.</summary>
+        public struct BagRow { public string Label; public ItemId Item; public bool Holdable; }
         public bool BagOpen { get; private set; }
         public void ToggleBag() => BagOpen = !BagOpen;
         readonly List<BagRow> bagRows = new List<BagRow>();
@@ -371,32 +371,34 @@ namespace Game.Client
         static string T(string k) => GameSettings.Text.Get(k);
         static string Format(string k, params object[] a) => GameSettings.Text.Format(k, a);
 
-        /// <summary>Các dòng bảng túi: khối (theo giá trị BlockMaterial tăng dần), túi hạt, nông sản (theo loại cây); bỏ dòng 0.</summary>
+        /// <summary>Các dòng bảng túi: khối (theo giá trị BlockMaterial tăng dần), túi hạt, nông sản (theo loại cây); bỏ dòng 0; cuối cùng camera quan sát (luôn có, 0034 mục 4).</summary>
         public static void BagRows(PlayerBag bag, SimConfig cfg, List<BagRow> rows)
         {
             rows.Clear();
             for (int m = 1; m < 256; m++)
             {
                 int n = bag.Get((BlockMaterial)m);
-                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_block", TerrainEditInput.ItemLabel(ItemId.Block((BlockMaterial)m)), n), SeedCrop = -1 });
+                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_block", TerrainEditInput.ItemLabel(ItemId.Block((BlockMaterial)m)), n), Item = ItemId.Block((BlockMaterial)m), Holdable = true });
             }
             for (int i = 0; i < cfg.crops.Length; i++)
             {
                 int n = bag.GetSeeds(i);
-                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_seeds", SiteStatus.CropName(GameSettings.Text, cfg, i), n), SeedCrop = i });
+                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_seeds", SiteStatus.CropName(GameSettings.Text, cfg, i), n), Item = ItemId.SeedBag(i), Holdable = true });
             }
             for (int i = 0; i < cfg.crops.Length; i++)
             {
                 int n = bag.GetProduce(i);
-                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_produce", SiteStatus.CropName(GameSettings.Text, cfg, i), n), SeedCrop = -1 });
+                if (n > 0) rows.Add(new BagRow { Label = Format("bag.row_produce", SiteStatus.CropName(GameSettings.Text, cfg, i), n), Item = ItemId.Produce(i), Holdable = false });
             }
+            var cam = ItemId.Tool(ToolItem.ObservationCamera);
+            rows.Add(new BagRow { Label = Format("bag.row_block", TerrainEditInput.ItemLabel(cam), 1), Item = cam, Holdable = true });
         }
 
-        /// <summary>Click túi hạt crop: vào chế độ gieo, đóng bảng túi. false nếu không vào được.</summary>
-        public bool ChooseSeedFromBag(int crop)
+        /// <summary>Bấm dòng túi (0034 mục 4): cầm item, đóng bảng túi. false nếu không cầm được.</summary>
+        public bool HoldFromBag(ItemId item)
         {
-            var farming = GetComponent<PlayerFarmActions>();
-            if (farming == null || !farming.EnterSowMode(crop)) return false;
+            var edit = GetComponent<TerrainEditInput>();
+            if (edit == null || !edit.HoldItem(item)) return false;
             BagOpen = false;
             return true;
         }
@@ -526,13 +528,12 @@ namespace Game.Client
                 var br = BagPanelRect(gw, gh, bagRows.Count);
                 GUI.Box(br, "");
                 GUI.Label(new Rect(br.x + 8f, br.y + 4f, br.width - 16f, 24f), T("bag.title"), hudStyle);
-                if (bagRows.Count == 0) GUI.Label(new Rect(br.x + 8f, br.y + 32f, br.width - 16f, 24f), T("bag.empty"), hudStyle);
                 for (int k = 0; k < bagRows.Count; k++)
                 {
                     var rr = new Rect(br.x + 8f, br.y + 32f + 26f * k, br.width - 16f, 24f);
-                    if (bagRows[k].SeedCrop >= 0)
+                    if (bagRows[k].Holdable)
                     {
-                        if (GUI.Button(rr, bagRows[k].Label)) { ChooseSeedFromBag(bagRows[k].SeedCrop); break; }
+                        if (GUI.Button(rr, bagRows[k].Label)) { HoldFromBag(bagRows[k].Item); break; }
                     }
                     else GUI.Label(rr, bagRows[k].Label, hudStyle);
                 }

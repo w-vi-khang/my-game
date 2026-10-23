@@ -148,7 +148,6 @@ namespace Game.Client
             if (farming != null)
             {
                 farming.CancelSelfTill();
-                farming.ExitSowMode();
             }
             shownCamera = Camera.main;
             if (shownCamera != null)

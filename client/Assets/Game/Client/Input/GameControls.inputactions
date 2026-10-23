@@ -87,15 +87,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CycleTool",
-                    "type": "Button",
-                    "id": "4a2f94c8-8186-5d5b-a1e3-6654c9d2d0d1",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Collect",
                     "type": "Button",
                     "id": "1abbff11-d117-5ac8-bc5f-a6cf1e9041df",
@@ -346,17 +337,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "SelectBlock4",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fd4ec4a3-d6bd-593e-a5d8-78fca6b75790",
-                    "path": "<Keyboard>/tab",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "CycleTool",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

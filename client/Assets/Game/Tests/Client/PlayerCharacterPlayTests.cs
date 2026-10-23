@@ -264,13 +264,12 @@ namespace Game.Client.Tests
             Assert.AreEqual(RightClickAction.OutOfReach, tei.RightClickAt(true, far, far));
             Assert.AreEqual(before, view.World.GetMaterial(far.x, far.y, far.z), "far cell unchanged");
             Assert.AreNotEqual(ClickMoveState.Walking, player.ClickMove, "out of reach: no walking");
+            Assert.IsTrue(tei.ReachRingVisible, "reach ring flashes on right click out of reach");
             tei.ShowAim(tei.Preview(true, far, far), true, far, far);
             Assert.IsFalse(tei.HighlightVisible, "no highlight out of reach");
-            Assert.IsTrue(tei.ReachRingVisible, "reach ring out of reach");
             var near = C(A.x + 7, G, A.z);
             tei.ShowAim(tei.Preview(true, near, near), true, near, near);
             Assert.IsTrue(tei.HighlightVisible, "highlight in reach");
-            Assert.IsFalse(tei.ReachRingVisible);
             Assert.AreEqual(RightClickAction.Dig, tei.RightClickAt(true, near, near));
             float t = 0f;
             while (t < 5f && tei.Walk.State == WalkToActState.Walking) { yield return null; t += Time.deltaTime; }
@@ -278,8 +277,8 @@ namespace Game.Client.Tests
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(near.x, near.y, near.z));
 
             tei.ToggleMode(ControlMode.Dig);
-            tei.CycleTempHold();
             view.Bag.Add(BlockMaterial.Dirt, 1);
+            Assert.IsTrue(tei.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             var pc = C(A.x + 18, G + 1, A.z);
             Assert.AreEqual(RightClickAction.OutOfReach, tei.RightClickAt(true, pc, pc));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(pc.x, pc.y, pc.z));

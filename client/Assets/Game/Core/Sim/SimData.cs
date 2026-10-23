@@ -65,7 +65,7 @@ namespace Game.Core.Sim
     public enum AssigneeKind : byte { None = 0, Creature = 1, Player = 2 }
 
     /// <summary>Kết quả người chơi gieo (7f).</summary>
-    public enum PlayerSowResult : byte { Ok = 0, NoPlot = 1, NotTilled = 2, HasCrop = 3, OtherCrop = 4, NoSeeds = 5 }
+    public enum PlayerSowResult : byte { Ok = 0, NoPlot = 1, NotTilled = 2, HasCrop = 3, OtherCrop = 4, NoSeeds = 5, QueueNotEmpty = 6 }
 
     /// <summary>Kết quả phép Mưa (7f).</summary>
     public enum RainResult : byte { NoEffect = 0, Watered = 1, Grassed = 2 }

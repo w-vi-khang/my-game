@@ -11,6 +11,12 @@ namespace Game.Core
         public static float DashCooldownSeconds { get; private set; } = 3f;
         public static float StuckSeconds { get; private set; } = 0.3f;
         public static float ClickMarkSeconds { get; private set; } = 0.5f;
+        /// <summary>Vòng tầm mờ hết sau chừng này giây (0036 mục 5, số tạm).</summary>
+        public static float ReachRingFadeSeconds { get; private set; } = 1f;
+        /// <summary>F Thu: vòng vùng + gió hiện chừng này giây (0036 mục 6, số tạm).</summary>
+        public static float CollectShowSeconds { get; private set; } = 0.5f;
+        /// <summary>Vật rơi bay về nhân vật chừng này giây (0036 mục 6, số tạm).</summary>
+        public static float CollectFlySeconds { get; private set; } = 0.3f;
         public static float CameraPitch { get; private set; } = 10f;
         public static float CameraDistance { get; private set; } = 9f;
         public static float FirstPersonPitch { get; private set; } = 15f;
@@ -30,6 +36,9 @@ namespace Game.Core
             DashCooldownSeconds = p.dashCooldownMs / 1000f;
             StuckSeconds = p.stuckMs / 1000f;
             ClickMarkSeconds = p.clickMarkMs / 1000f;
+            ReachRingFadeSeconds = p.reachRingFadeMs / 1000f;
+            CollectShowSeconds = p.collectShowMs / 1000f;
+            CollectFlySeconds = p.collectFlyMs / 1000f;
             CameraPitch = p.cameraPitch;
             CameraDistance = p.cameraDistance;
             FirstPersonPitch = p.firstPersonPitch;

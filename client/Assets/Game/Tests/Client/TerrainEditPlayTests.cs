@@ -178,7 +178,7 @@ namespace Game.Client.Tests
             yield return null;
             FindColumn(out int x, out int z, out int h);
             view.Bag.Add(BlockMaterial.Dirt);
-            input.CycleTempHold();
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             var dig = new Vector3Int(x, h, z);
             var place = new Vector3Int(x, h + 1, z);
             Assert.AreEqual(EditResult.Ok, view.Editor.CheckPlace(place.x, place.y, place.z, BlockMaterial.Dirt));
@@ -190,18 +190,21 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator GhostRedWhenOutOfMaterial()
+        public IEnumerator HoldingLastBlockExitsAfterPlace()
         {
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
             FindColumn(out int x, out int z, out int h);
-            input.CycleTempHold();
+            while (view.Bag.TryTake(BlockMaterial.Dirt)) { }
+            view.Bag.Add(BlockMaterial.Dirt);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             var dig = new Vector3Int(x, h, z);
             var place = new Vector3Int(x, h + 1, z);
-            Assert.AreEqual(EditResult.NoMaterial, view.Editor.CheckPlace(place.x, place.y, place.z, BlockMaterial.Dirt));
+            Assert.AreEqual(RightClickAction.PlaceBlock, input.RightClickAt(true, dig, place));
+            Assert.AreEqual(BlockMaterial.Dirt, view.World.GetMaterial(place.x, place.y, place.z));
+            Assert.IsFalse(input.Control.HasHeld);
             input.ShowAim(input.Preview(true, dig, place), true, dig, place);
-            Assert.IsTrue(input.GhostVisible);
-            Assert.AreEqual(TerrainEditInput.MissingColor, input.GhostColor);
+            Assert.IsFalse(input.GhostVisible, "no 'out of material' ghost any more");
         }
 
         [UnityTest]
@@ -210,17 +213,19 @@ namespace Game.Client.Tests
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
             FindColumn(out int x, out int z, out int h);
-            input.CycleTempHold();
             view.Bag.Add(BlockMaterial.Dirt);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             var dig = new Vector3Int(x, h, z);
             var far = new Vector3Int(x, h + 3, z);
             input.ShowAim(input.Preview(true, dig, far), true, dig, far);
-            Assert.IsFalse(input.GhostVisible);
+            Assert.IsTrue(input.GhostVisible);
+            Assert.AreEqual(TerrainEditInput.InvalidColor, input.GhostColor);
             var place = new Vector3Int(x, h + 1, z);
             view.Editor.IsOccupied = (cx, cy, cz) => true;
             input.ShowAim(input.Preview(true, dig, place), true, dig, place);
             view.Editor.IsOccupied = null;
-            Assert.IsFalse(input.GhostVisible);
+            Assert.IsTrue(input.GhostVisible);
+            Assert.AreEqual(TerrainEditInput.InvalidColor, input.GhostColor, "rule fails in reach → red ghost");
         }
 
         [UnityTest]
@@ -253,9 +258,8 @@ namespace Game.Client.Tests
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(x, h, z));
             Assert.AreEqual(before, view.Bag.Get(mat));
             Assert.AreEqual(1, view.Editor.Drops.At(x, h, z).Count);
-            input.CycleTempHold();
-            Assert.IsTrue(input.Control.HasHeld);
             view.Bag.Add(BlockMaterial.Dirt);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             Assert.AreEqual(RightClickAction.PlaceBlock, input.RightClickAt(true, dig, dig));
             Assert.AreEqual(BlockMaterial.Dirt, view.World.GetMaterial(x, h, z));
         }

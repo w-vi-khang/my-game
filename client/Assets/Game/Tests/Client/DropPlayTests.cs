@@ -85,7 +85,7 @@ namespace Game.Client.Tests
                 yield return null;
             if (!player.Ready)
                 Assert.Fail($"Chunk not ready at {feetLocal}");
-            yield return Run(Vector2.zero, false, 0.3f);
+            yield return Run(Vector2.zero, false, PlayerMotion.CollectFlySeconds + 0.2f);
         }
 
         static Vector3Int C(int x, int y, int z) => new Vector3Int(x, y, z);
@@ -113,7 +113,7 @@ namespace Game.Client.Tests
         {
             yield return Teleport(Local(A.x + 0.5f, G + 1, A.z + 0.5f));
             input.CollectNearby();
-            yield return Run(Vector2.zero, false, 0.3f);
+            yield return Run(Vector2.zero, false, PlayerMotion.CollectFlySeconds + 0.2f);
             int dirt0 = view.Bag.Get(BlockMaterial.Dirt), stone0 = view.Bag.Get(BlockMaterial.Stone);
             var near = view.Editor.Drops.Add(A.x + 1, G + 1, A.z, B(BlockMaterial.Dirt), 2);
             var far = view.Editor.Drops.Add(A.x + 3, G + 1, A.z, B(BlockMaterial.Stone), 1);
@@ -123,7 +123,7 @@ namespace Game.Client.Tests
             Assert.IsNotNull(view.Editor.Drops.Find(far.Id));
             Assert.IsNull(view.Editor.Drops.Find(near.Id));
             Assert.AreEqual(1, dv.FlyingCount);
-            yield return Run(Vector2.zero, false, 0.3f);
+            yield return Run(Vector2.zero, false, PlayerMotion.CollectFlySeconds + 0.2f);
             Assert.AreEqual(0, dv.FlyingCount);
         }
 
@@ -132,7 +132,7 @@ namespace Game.Client.Tests
         {
             yield return Teleport(Local(A.x + 0.5f, G + 1, A.z + 0.5f));
             input.CollectNearby();
-            yield return Run(Vector2.zero, false, 0.3f);
+            yield return Run(Vector2.zero, false, PlayerMotion.CollectFlySeconds + 0.2f);
             int dirt0 = view.Bag.Get(BlockMaterial.Dirt);
             var near = view.Editor.Drops.Add(A.x + 2, G + 1, A.z, B(BlockMaterial.Dirt), 2);
             var far = view.Editor.Drops.Add(A.x + 11, G + 1, A.z, B(BlockMaterial.Stone), 1);
@@ -154,7 +154,7 @@ namespace Game.Client.Tests
         {
             yield return Teleport(Local(A.x + 0.5f, G + 1, A.z + 0.5f));
             input.CollectNearby();
-            yield return Run(Vector2.zero, false, 0.3f);
+            yield return Run(Vector2.zero, false, PlayerMotion.CollectFlySeconds + 0.2f);
             var c = C(A.x + 2, G, A.z);
             var m = view.World.GetMaterial(c.x, c.y, c.z);
             int b0 = view.Bag.Get(m);

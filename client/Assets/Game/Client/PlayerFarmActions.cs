@@ -8,7 +8,7 @@ namespace Game.Client
 {
     public enum SelfTillState { None, Walking, Tilling }
 
-    /// <summary>Người chơi tự xới (đi tới + 6 giây), phép Mưa (R, hồi), thu hoạch vào túi, chế độ gieo từ túi hạt (brief 0042) — sim 7f, brief 0041. Luật ở Game.Core (Simulation, PlayerTimers).</summary>
+    /// <summary>Người chơi tự xới (đi tới + 6 giây), phép Mưa (R, hồi), thu hoạch vào túi, gieo khi cầm túi hạt (0034 mục 4, brief 0059) — sim 7f, brief 0041. Luật ở Game.Core (Simulation, PlayerTimers).</summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class PlayerFarmActions : MonoBehaviour
     {
@@ -18,8 +18,6 @@ namespace Game.Client
         public Cooldown RainCooldown { get; private set; }
         /// <summary>Dòng trạng thái mới nhất (tự xới / Mưa / thu hoạch) cho HUD; "" lúc đầu.</summary>
         public string StatusLine { get; private set; } = "";
-        /// <summary>Loại cây đang gieo (chế độ gieo, brief 0042); -1 = không ở chế độ gieo.</summary>
-        public int SowCrop { get; private set; } = -1;
         /// <summary>Hộp Mưa (xanh nhạt, 0,5 giây).</summary>
         public GameObject RainBox { get; private set; }
 
@@ -111,38 +109,12 @@ namespace Game.Client
             StatusLine = T("farm.till_cancel");
         }
 
-        /// <summary>Vào chế độ gieo loại crop (túi còn hạt). Huỷ tự xới đang chạy. false nếu không có mô phỏng / túi hết hạt loại đó.</summary>
-        public bool EnterSowMode(int crop)
+        /// <summary>Gieo 1 hạt túi loại crop vào ô ruộng có Soil = cell (cầm túi hạt, 0034 mục 4). Ghi StatusLine (lý do khi không gieo được). true khi đã gieo.</summary>
+        public bool SowAt(Vector3Int cell, int crop)
         {
             var sim = Sim;
-            if (sim == null || view.Bag == null) return false;
-            if (view.Bag.GetSeeds(crop) <= 0)
-            {
-                StatusLine = Format("farm.sow_no_seeds", CropN(crop));
-                return false;
-            }
-            CancelSelfTill();
-            var edit = GetComponent<TerrainEditInput>();
-            if (edit != null) edit.Control.ClearToDefault();
-            SowCrop = crop;
-            StatusLine = "";
-            return true;
-        }
-
-        /// <summary>Đang ở chế độ gieo → thoát, StatusLine "Thoát chế độ gieo".</summary>
-        public void ExitSowMode()
-        {
-            if (SowCrop < 0) return;
-            SowCrop = -1;
-            StatusLine = T("farm.sow_exit");
-        }
-
-        /// <summary>Chuột trái ở chế độ gieo: gieo 1 hạt túi vào ô ruộng có Soil = cell. true khi đã gieo.</summary>
-        public bool SowAt(Vector3Int cell)
-        {
-            var sim = Sim;
-            if (SowCrop < 0 || sim == null || view.Bag == null) return false;
-            var cropName = CropN(SowCrop);
+            if (crop < 0 || sim == null || view.Bag == null) return false;
+            var cropName = CropN(crop);
             var player = PlayerCharacter.Active;
             if (player != null && !player.InTargetReach(cell))
             {
@@ -150,16 +122,11 @@ namespace Game.Client
                 return false;
             }
             int plotId = sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
-            var r = plotId < 0 ? PlayerSowResult.NoPlot : sim.PlayerSow(plotId, SowCrop, view.Bag);
+            var r = plotId < 0 ? PlayerSowResult.NoPlot : sim.PlayerSow(plotId, crop, view.Bag);
             switch (r)
             {
                 case PlayerSowResult.Ok:
                     StatusLine = Format("farm.sow_ok", cropName, cell);
-                    if (view.Bag.GetSeeds(SowCrop) == 0)
-                    {
-                        SowCrop = -1;
-                        StatusLine += T("farm.sow_last");
-                    }
                     return true;
                 case PlayerSowResult.NoPlot: StatusLine = T("farm.sow_no_plot"); break;
                 case PlayerSowResult.NotTilled: StatusLine = T("farm.sow_not_tilled"); break;
@@ -169,8 +136,8 @@ namespace Game.Client
                     break;
                 case PlayerSowResult.NoSeeds:
                     StatusLine = Format("farm.sow_no_seeds", cropName);
-                    SowCrop = -1;
                     break;
+                case PlayerSowResult.QueueNotEmpty: StatusLine = T("farm.sow_queue"); break;
             }
             return false;
         }
@@ -286,8 +253,6 @@ namespace Game.Client
         public string HudLines()
         {
             var text = RainCooldown.Ready ? T("farm.rain_ready") : Format("farm.rain_hud_cooldown", RainCooldown.RemainingWholeSeconds);
-            if (SowCrop >= 0 && Sim != null && view.Bag != null)
-                text += Format("farm.hud_sow", CropN(SowCrop), view.Bag.GetSeeds(SowCrop));
             if (TillState == SelfTillState.Tilling)
                 text += Format("farm.hud_tilling", PlotSoil(), (int)TillTimer.Elapsed, (int)TillTimer.Duration);
             else if (TillState == SelfTillState.Walking)

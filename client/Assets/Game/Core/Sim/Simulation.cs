@@ -997,7 +997,7 @@ namespace Game.Core.Sim
             return true;
         }
 
-        /// <summary>Kiểm người chơi gieo cây cropId vào ô plotId được không, không đổi gì.</summary>
+        /// <summary>Kiểm người chơi gieo cây cropId vào ô plotId được không, không đổi gì. Ô còn hạt trong hàng đợi (Slots) → QueueNotEmpty (0034 mục 4).</summary>
         public PlayerSowResult CheckPlayerSow(int plotId, int cropId, PlayerBag bag)
         {
             CheckCropArg(cropId);
@@ -1007,6 +1007,7 @@ namespace Game.Core.Sim
             if (p.Phase == PlotPhase.Sow && p.CurrentCrop != cropId) return PlayerSowResult.OtherCrop;
             if (p.Phase == PlotPhase.Water || p.Phase == PlotPhase.Growing || p.Phase == PlotPhase.Harvest)
                 return PlayerSowResult.HasCrop;
+            if (p.Slots.Count > 0) return PlayerSowResult.QueueNotEmpty; // gieo tay chỉ ô hàng đợi trống (0034 mục 4)
             if (p.Phase == PlotPhase.Till || (p.Phase == PlotPhase.Idle && !p.SoilReady))
                 return PlayerSowResult.NotTilled;
             if (bag.GetSeeds(cropId) <= 0) return PlayerSowResult.NoSeeds;

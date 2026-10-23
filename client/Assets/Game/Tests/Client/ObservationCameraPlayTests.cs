@@ -120,12 +120,10 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator TabHoldCameraAndRightClickPlaces()
+        public IEnumerator HoldCameraAndRightClickPlaces()
         {
             follow.enabled = false;
-            tei.CycleTempHold();
-            Assert.AreEqual(ItemKind.Block, tei.Control.Held.Kind);
-            tei.CycleTempHold();
+            Assert.IsTrue(tei.HoldItem(ItemId.Tool(ToolItem.ObservationCamera)));
             Assert.AreEqual(ItemKind.Tool, tei.Control.Held.Kind);
             StringAssert.Contains("<color=yellow>Camera quan sát</color>", tei.HudText()); // vi-text
             StringAssert.Contains("chuột phải lên khối = đặt camera quan sát", tei.HudText()); // vi-text
@@ -140,7 +138,8 @@ namespace Game.Client.Tests
             var far = GroundAhead(30);
             Assert.AreEqual(RightClickAction.OutOfReach, tei.RightClickAt(true, far, far));
             AssertPose(obs.Point, AboveCell(c), r1);
-            tei.CycleTempHold();
+            Assert.AreEqual(ItemKind.Tool, tei.Control.Held.Kind, "still held after placing");
+            tei.Control.ClearToDefault();
             Assert.IsFalse(tei.Control.HasHeld);
         }
 
@@ -288,7 +287,7 @@ namespace Game.Client.Tests
             obs.Toggle();
             yield return WaitViewing();
             tei.ToggleMode(ControlMode.Dig);
-            tei.CycleTempHold();
+            Assert.IsFalse(tei.HoldItem(ItemId.Tool(ToolItem.ObservationCamera)));
             Assert.AreEqual(ControlMode.Default, tei.Control.Mode);
             Assert.IsFalse(tei.Control.HasHeld);
             var f = player.FeetLocal;

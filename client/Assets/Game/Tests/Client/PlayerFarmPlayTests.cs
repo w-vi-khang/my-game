@@ -223,13 +223,14 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator TabCancelsWalking()
+        public IEnumerator HoldItemCancelsWalking()
         {
             ToTill();
             int id = MarkReachable(out var cell, new List<CellPos>());
             input.RightClickAt(true, cell, cell);
             Assert.AreEqual(SelfTillState.Walking, farming.TillState);
-            input.CycleTempHold();
+            view.Bag.Add(BlockMaterial.Dirt, 1);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             Assert.AreEqual(SelfTillState.None, farming.TillState);
             Assert.AreEqual("Huỷ tự xới", farming.StatusLine); // vi-text
             Assert.IsFalse(sv.Sim.State.Plots[id].Tilled);

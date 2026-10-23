@@ -15,7 +15,6 @@ namespace Game.Client
         public static InputAction SelectBlock2 => Get("Player/SelectBlock2");
         public static InputAction SelectBlock3 => Get("Player/SelectBlock3");
         public static InputAction SelectBlock4 => Get("Player/SelectBlock4");
-        public static InputAction CycleTool => Get("Player/CycleTool");
         public static InputAction Collect => Get("Player/Collect");
         public static InputAction ModeDefault => Get("Player/ModeDefault");
         public static InputAction ModeDig => Get("Player/ModeDig");

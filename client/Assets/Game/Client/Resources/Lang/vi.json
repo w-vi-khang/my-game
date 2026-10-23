@@ -12,7 +12,7 @@
     },
     {
       "key": "bag.hint",
-      "text": "Click túi hạt để gieo · B / Esc: đóng"
+      "text": "Bấm vật phẩm để cầm · B / Esc: đóng"
     },
     {
       "key": "bag.row_block",
@@ -183,10 +183,6 @@
       "text": "\nTúi hạt {0}: {1}"
     },
     {
-      "key": "farm.hud_sow",
-      "text": "\nGieo {0} (còn {1}) — Esc / Tab để thoát"
-    },
-    {
       "key": "farm.hud_tilling",
       "text": "\nĐang xới ô {0}: {1}/{2} giây"
     },
@@ -223,20 +219,12 @@
       "text": "Mưa: tưới ô ruộng {0}"
     },
     {
-      "key": "farm.sow_exit",
-      "text": "Thoát chế độ gieo"
-    },
-    {
       "key": "farm.sow_far",
       "text": "Gieo: ngoài tầm {0:0.#} ô"
     },
     {
       "key": "farm.sow_has_crop",
       "text": "Gieo: ô đã có cây"
-    },
-    {
-      "key": "farm.sow_last",
-      "text": " · hết hạt, thoát chế độ gieo"
     },
     {
       "key": "farm.sow_no_plot",
@@ -257,6 +245,10 @@
     {
       "key": "farm.sow_other",
       "text": "Ô đang chờ gieo {0}"
+    },
+    {
+      "key": "farm.sow_queue",
+      "text": "Gieo: ô còn hạt trong hàng đợi — chỉ gieo tay ô có hàng đợi trống"
     },
     {
       "key": "farm.till_cancel",
@@ -289,6 +281,14 @@
     {
       "key": "farm.unreachable",
       "text": "Không tới được ô này"
+    },
+    {
+      "key": "hold.empty",
+      "text": " · hết {0}, thôi cầm"
+    },
+    {
+      "key": "hold.none",
+      "text": "Túi không còn {0}"
     },
     {
       "key": "hud.aimed_drop",
@@ -324,7 +324,7 @@
     },
     {
       "key": "hud.held",
-      "text": " · Cầm: <b><color=yellow>{0}</color></b> (Tab đổi · Esc bỏ)"
+      "text": " · Cầm: <b><color=yellow>{0}</color></b> (Esc / D: thôi cầm)"
     },
     {
       "key": "hud.held_camera",
@@ -336,11 +336,11 @@
     },
     {
       "key": "hud.help_idle",
-      "text": " · Không có nhân vật: phím chế độ tắt · Tab: cầm tạm khối / camera quan sát · 1–4 / Alt + lăn chuột: chọn loại khối · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n"
+      "text": " · Không có nhân vật: phím chế độ tắt · 1–4 / Alt + lăn chuột: chọn loại khối · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n"
     },
     {
       "key": "hud.help_walk",
-      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · click trái ô ruộng: xem bảng · A: nhảy · Shift: lướt · Chuột phải: làm việc của chế độ / thu hoạch / mở kho / nhặt (chọn trong {0:0.#} ô, tự đi tới {1:0.#} ô rồi làm) · F: thu vật rơi (trong {2:0.#} ô) · Tab: cầm tạm khối / camera quan sát · B: túi · 1–4 / Alt + lăn chuột: chọn loại khối · giữ chuột giữa: xoay · lăn chuột: gần/xa · Space: camera về sau lưng · X: góc nhìn thứ nhất · F3: camera bay\n"
+      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · click trái ô ruộng: xem bảng · A: nhảy · Shift: lướt · Chuột phải: làm việc của chế độ / thu hoạch / mở kho / nhặt (chọn trong {0:0.#} ô, tự đi tới {1:0.#} ô rồi làm) · F: thu vật rơi (trong {2:0.#} ô) · B: túi (bấm vật phẩm để cầm) · 1–4 / Alt + lăn chuột: chọn loại khối · giữ chuột giữa: xoay · lăn chuột: gần/xa · Space: camera về sau lưng · X: góc nhìn thứ nhất · F3: camera bay\n"
     },
     {
       "key": "hud.mode",

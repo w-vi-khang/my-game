@@ -64,7 +64,7 @@ namespace Game.Client
             if (ObservationCamera.BlocksBack) return true;
             if (sim != null && (sim.BagOpen || sim.StockOpen || sim.OpenPlotId >= 0)) return true;
             if (MinimapView.IsAnyOpen || TimeDial.IsAnyOpen) return true;
-            return editInput != null && editInput.Farming != null && editInput.Farming.SowCrop >= 0;
+            return editInput != null && editInput.Control.HasHeld;
         }
 
         public void HandleKeys(bool oPressed, bool escPressed)

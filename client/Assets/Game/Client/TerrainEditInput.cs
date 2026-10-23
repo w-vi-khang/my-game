@@ -7,7 +7,8 @@ namespace Game.Client
 {
     /// <summary>
     /// Điều khiển PC trong scene (0033, 0034): phím 1–4 / Alt + lăn chọn loại khối.
-    /// World 7l c1 (brief 0058): chế độ D/Q/E/R (ControlState), chuột phải theo RightClick.Resolve trong 10 ô rồi tự đi tới 2 ô (WalkToAct), lớp đỏ + vòng tầm, F Thu 2 ô, click trái ô ruộng → bảng; Tab cầm tạm khối / camera quan sát tới c2.
+    /// World 7l c1 (brief 0058): chế độ D/Q/E/R (ControlState), chuột phải theo RightClick.Resolve trong 10 ô rồi tự đi tới 2 ô (WalkToAct), lớp đỏ, F Thu 2 ô, click trái ô ruộng → bảng.
+    /// World 7l c2 (brief 0059): cầm vật phẩm từ bảng túi (khối / túi hạt / camera quan sát, HoldItem), bản mờ đỏ khi sai chỗ, hết → thôi cầm; vòng tầm chỉ khi chuột phải ngoài tầm; F hiện vùng + gió.
     /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021). Vật rơi / kho dưới con trỏ là đích của chuột phải (nhặt / mở kho).
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
@@ -34,8 +35,8 @@ namespace Game.Client
         public bool TillAvailable => Farm != null;
         public TillResult LastTill { get; private set; }
 
-        /// <summary>Màu bản mờ khi túi hết loại đang chọn.</summary>
-        public static readonly Color MissingColor = new Color(1f, 0.2f, 0.2f, 0.5f);
+        /// <summary>Màu bản mờ khi chỗ con trỏ không đặt được khối đang cầm (0034 mục 4).</summary>
+        public static readonly Color InvalidColor = new Color(1f, 0.2f, 0.2f, 0.5f);
         /// <summary>Chế độ D/Q/E/R + vật đang cầm (0034 mục 3).</summary>
         public ControlState Control { get; } = new ControlState();
         /// <summary>Việc chuột phải / click trái đang đi tới rồi làm.</summary>
@@ -85,6 +86,7 @@ namespace Game.Client
             var player = PlayerCharacter.Active;
             if (Observation.Engaged) { Walk.Cancel(player, false); HideAim(); return; } // xem camera quan sát: không công cụ (brief 0053)
             if (Walk.Tick(player)) lastResult = T("farm.unreachable");
+            DropHeldIfEmpty();
             if (GameInput.SelectBlock1.WasPressedThisFrame()) SelectMaterial(0);
             if (GameInput.SelectBlock2.WasPressedThisFrame()) SelectMaterial(1);
             if (GameInput.SelectBlock3.WasPressedThisFrame()) SelectMaterial(2);
@@ -96,12 +98,7 @@ namespace Game.Client
                 if (GameInput.ModeTill.WasPressedThisFrame()) ToggleMode(ControlMode.Till);
                 if (GameInput.ModeRain.WasPressedThisFrame()) ToggleMode(ControlMode.Rain);
             }
-            if (GameInput.CycleTool.WasPressedThisFrame()) CycleTempHold();
-            if (GameInput.Back.WasPressedThisFrame())
-            {
-                if (Farming.SowCrop >= 0) Farming.ExitSowMode();
-                else if (Control.HasHeld) Control.ClearToDefault();
-            }
+            if (GameInput.Back.WasPressedThisFrame() && Control.HasHeld) Control.ClearToDefault();
             if (GameInput.Collect.WasPressedThisFrame()) CollectNearby();
 
             bool hasPointer = GameInput.HasPointer;
@@ -158,33 +155,58 @@ namespace Game.Client
             return true;
         }
 
-        /// <summary>D/Q/E/R (0034 mục 3): thoát gieo, huỷ đi tới (dừng nhân vật), Control.ToggleMode(m). No-op khi đang xem camera quan sát; Till khi không có Sim → no-op.</summary>
+        /// <summary>D/Q/E/R (0034 mục 3): huỷ đi tới (dừng nhân vật), Control.ToggleMode(m). No-op khi đang xem camera quan sát; Till khi không có Sim → no-op.</summary>
         public void ToggleMode(ControlMode m)
         {
             if (Observation != null && Observation.Engaged) return;
             if (m == ControlMode.Till && !TillAvailable) return;
-            Farming.ExitSowMode();
             Walk.Cancel(PlayerCharacter.Active, true);
             Control.ToggleMode(m);
         }
 
-        /// <summary>Tab vòng tạm tới c2: không cầm → khối SelectedMaterial → camera quan sát → không cầm. Đang gieo → chỉ thoát gieo. Huỷ tự xới + đi tới (dừng nhân vật). No-op khi đang xem.</summary>
-        public void CycleTempHold()
+        /// <summary>Cầm vật phẩm (0034 mục 4): khối / túi hạt (túi còn ≥ 1; hạt cần có Sim) hoặc camera quan sát. Huỷ tự xới + đi tới (dừng nhân vật). Khối thuộc bảng 1–4 → đổi loại đang chọn theo. false (không đổi gì) khi đang xem camera quan sát, không có túi, hết, hoặc nông sản.</summary>
+        public bool HoldItem(ItemId item)
         {
-            if (Observation != null && Observation.Engaged) return;
-            if (Farming.SowCrop >= 0) { Farming.ExitSowMode(); return; }
+            if (Observation != null && Observation.Engaged) return false;
+            if (!CanHold(item)) return false;
             Farming.CancelSelfTill();
             Walk.Cancel(PlayerCharacter.Active, true);
-            if (!Control.HasHeld) Control.Hold(ItemId.Block(SelectedMaterial));
-            else if (Control.Held.Kind == ItemKind.Block) Control.Hold(ItemId.Tool(ToolItem.ObservationCamera));
-            else Control.ClearToDefault();
+            if (item.Kind == ItemKind.Block) { int i = System.Array.IndexOf(Palette, item.Material); if (i >= 0) selected = i; }
+            Control.Hold(item);
+            return true;
         }
 
-        /// <summary>Phím 1–4 / Alt + lăn: chọn loại i; đang cầm khối → cầm loại mới.</summary>
+        bool CanHold(ItemId item)
+        {
+            switch (item.Kind)
+            {
+                case ItemKind.Tool: return item.ToolKind == ToolItem.ObservationCamera;
+                case ItemKind.Block: return view.Bag != null && view.Bag.Get(item.Material) > 0;
+                case ItemKind.SeedBag: return Farm != null && view.Bag != null && view.Bag.GetSeeds(item.Crop) > 0;
+                default: return false;
+            }
+        }
+
+        /// <summary>Hết khối / hạt đang cầm → thôi cầm, nối "hết …, thôi cầm" vào dòng kết quả (0034 mục 4).</summary>
+        void DropHeldIfEmpty()
+        {
+            if (!Control.HasHeld) return;
+            var k = Control.Held.Kind;
+            if ((k != ItemKind.Block && k != ItemKind.SeedBag) || CanHold(Control.Held)) return;
+            var label = ItemLabel(Control.Held);
+            Control.ClearToDefault();
+            lastResult += Format("hold.empty", label);
+        }
+
+        /// <summary>Phím 1–4 / Alt + lăn: chọn loại i; đang cầm khối → cầm loại mới (túi hết loại đó → không đổi, dòng "Túi không còn…"). Không cầm → chỉ đổi loại đang chọn.</summary>
         public void SelectMaterial(int i)
         {
+            if (Control.HasHeld && Control.Held.Kind == ItemKind.Block)
+            {
+                if (!HoldItem(ItemId.Block(Palette[i]))) lastResult = Format("hold.none", Name(Palette[i]));
+                return;
+            }
             selected = i;
-            if (Control.HasHeld && Control.Held.Kind == ItemKind.Block) Control.Hold(ItemId.Block(Palette[i]));
         }
 
         Vector3Int StorageCell(int sid)
@@ -201,9 +223,15 @@ namespace Game.Client
             _ => false,
         };
 
-        bool HeldUsableAt(Vector3Int placeCell)
+        bool HeldUsableAt(Vector3Int digCell, Vector3Int placeCell)
         {
             if (!Control.HasHeld) return false;
+            if (Control.Held.Kind == ItemKind.SeedBag)
+            {
+                if (Farm == null || view.Bag == null) return false;
+                int id = Farm.Sim.PlotAt(new CellPos(digCell.x, digCell.y, digCell.z));
+                return id >= 0 && Farm.Sim.CheckPlayerSow(id, Control.Held.Crop, view.Bag) == PlayerSowResult.Ok;
+            }
             if (Control.Held.Kind == ItemKind.Block)
                 return view.Editor != null && view.Editor.CheckPlace(placeCell.x, placeCell.y, placeCell.z, Control.Held.Material) == EditResult.Ok;
             return Control.Held.Kind == ItemKind.Tool;
@@ -225,15 +253,13 @@ namespace Game.Client
             var t = new RightClickTarget
             {
                 InTargetReach = player == null || player.InTargetReach(reachCell),
-                HeldUsable = hasCell && HeldUsableAt(placeCell),
+                HeldUsable = hasCell && HeldUsableAt(digCell, placeCell),
                 ModeUsable = hasCell && ModeUsableAt(digCell),
                 RipeCrop = hasCell && Farming.RipePlotAt(digCell) >= 0,
                 Storage = storageId >= 0,
                 Drop = drop != null,
             };
-            var a = RightClick.Resolve(Control, t);
-            if (a == RightClickAction.None && hasCell && Farming.SowCrop >= 0 && !Control.HasHeld) a = RightClickAction.UseHeld; // chế độ gieo cũ = cầm hạt (c2 thay)
-            return a;
+            return RightClick.Resolve(Control, t);
         }
 
         /// <summary>Chuột phải: Preview rồi làm ngay hoặc đi tới 2 ô rồi làm (WalkToAct). Trả việc đã chọn; None / OutOfReach → không làm gì, không đổi dòng kết quả.</summary>
@@ -241,25 +267,27 @@ namespace Game.Client
         {
             if (Observation != null && Observation.Engaged) return RightClickAction.None;
             var a = Preview(hasCell, digCell, placeCell, drop, storageId);
-            if (a == RightClickAction.None || a == RightClickAction.OutOfReach) return a;
             var player = PlayerCharacter.Active;
+            if (a == RightClickAction.OutOfReach && player != null) player.Markers.FlashReachRing();
+            if (a == RightClickAction.None && hasCell && Control.HasHeld && Control.Held.Kind == ItemKind.SeedBag)
+                Farming.SowAt(digCell, Control.Held.Crop); // chỉ để báo lý do (quyết định 6)
+            if (a == RightClickAction.None || a == RightClickAction.OutOfReach) return a;
             if (Farming.TillState != SelfTillState.None) Farming.CancelSelfTill();
-            bool camera = Control.HasHeld && Control.Held.Kind == ItemKind.Tool;
-            var material = Control.HasHeld && Control.Held.Kind == ItemKind.Block ? Control.Held.Material : SelectedMaterial;
+            var held = Control.HasHeld ? Control.Held : default;
             if (a == RightClickAction.Till && IsUntilledPlot(digCell))
             {
                 Walk.Cancel(player, false);
-                Execute(a, digCell, placeCell, drop, storageId, camera, material); // tự xới tự tìm đường (brief 0041)
+                Execute(a, digCell, placeCell, drop, storageId, held); // tự xới tự tìm đường (brief 0041)
                 return a;
             }
             var cell = a == RightClickAction.PlaceBlock ? placeCell
                 : drop != null && a == RightClickAction.PickDrop ? new Vector3Int(drop.X, drop.Y, drop.Z)
                 : storageId >= 0 && a == RightClickAction.OpenStorage ? StorageCell(storageId) : digCell;
-            Walk.Begin(player, cell, a == RightClickAction.Dig, () => Execute(a, digCell, placeCell, drop, storageId, camera, material));
+            Walk.Begin(player, cell, a == RightClickAction.Dig, () => Execute(a, digCell, placeCell, drop, storageId, held));
             return a;
         }
 
-        void Execute(RightClickAction a, Vector3Int digCell, Vector3Int placeCell, DropStack drop, int storageId, bool camera, BlockMaterial material)
+        void Execute(RightClickAction a, Vector3Int digCell, Vector3Int placeCell, DropStack drop, int storageId, ItemId held)
         {
             switch (a)
             {
@@ -275,14 +303,16 @@ namespace Game.Client
                     break;
                 case RightClickAction.PickDrop: CollectDrop(drop); break;
                 case RightClickAction.PlaceBlock:
+                    var material = held.Material;
                     var p = view.Place(placeCell, material);
                     lastResult = p == EditResult.Ok ? Format("edit.place_ok", Name(material), placeCell) : Format("edit.place_fail", Name(material), Explain(p));
                     break;
                 case RightClickAction.UseHeld:
-                    if (camera) PlaceObservationCamera(digCell);
-                    else { lastResult = ""; Farming.SowAt(digCell); }
+                    if (held.Kind == ItemKind.Tool) PlaceObservationCamera(digCell);
+                    else if (held.Kind == ItemKind.SeedBag) { lastResult = ""; Farming.SowAt(digCell, held.Crop); }
                     break;
             }
+            if (a == RightClickAction.PlaceBlock || a == RightClickAction.UseHeld) DropHeldIfEmpty();
         }
 
         void DoDig(Vector3Int digCell)
@@ -323,23 +353,19 @@ namespace Game.Client
             return new Color((c & 0xFF) / 255f, (c >> 8 & 0xFF) / 255f, (c >> 16 & 0xFF) / 255f, 0.5f);
         }
 
-        /// <summary>Tắt lớp đỏ, bản mờ, vòng tầm.</summary>
+        /// <summary>Tắt lớp đỏ, bản mờ.</summary>
         public void HideAim()
         {
             highlightRenderer.enabled = false;
             ghostRenderer.enabled = false;
-            var p = PlayerCharacter.Active;
-            if (p != null) p.Markers.ShowReachRing(false);
         }
 
-        /// <summary>Tô / bản mờ / vòng tầm theo việc a (0034 mục 3): Dig / Till / Rain / UseHeld → lớp đỏ ở digCell; PlaceBlock → bản mờ màu vật liệu ở placeCell (đỏ khi túi hết); OutOfReach khi có chế độ / vật cầm → vòng tầm.</summary>
+        /// <summary>Tô / bản mờ theo việc a (0034 mục 3): Dig / Till / Rain / UseHeld → lớp đỏ ở digCell; PlaceBlock → bản mờ màu vật liệu ở placeCell ; cầm khối mà chỗ đó không đặt được → bản mờ đỏ (InvalidColor).</summary>
         public void ShowAim(RightClickAction a, bool hasCell, Vector3Int digCell, Vector3Int placeCell)
         {
             HideAim();
             if (view.Editor == null) return;
             var player = PlayerCharacter.Active;
-            bool active = Control.Mode != ControlMode.Default || Control.HasHeld || Farming.SowCrop >= 0;
-            if (player != null) player.Markers.ShowReachRing(active && a == RightClickAction.OutOfReach);
             switch (a)
             {
                 case RightClickAction.Dig:
@@ -359,9 +385,9 @@ namespace Game.Client
             }
             if (a == RightClickAction.None && hasCell && Control.HasHeld && Control.Held.Kind == ItemKind.Block
                 && (player == null || player.InTargetReach(digCell))
-                && view.Editor.CheckPlace(placeCell.x, placeCell.y, placeCell.z, Control.Held.Material) == EditResult.NoMaterial)
+                && view.Editor.CheckPlace(placeCell.x, placeCell.y, placeCell.z, Control.Held.Material) != EditResult.Ok)
             {
-                GhostColor = MissingColor;
+                GhostColor = InvalidColor;
                 ghostMat.SetColor("_BaseColor", GhostColor);
                 Ghost.transform.localPosition = placeCell;
                 ghostRenderer.enabled = true;
@@ -393,11 +419,12 @@ namespace Game.Client
             return DropPick.Pick(view.Editor.Drops.Stacks, o.x, o.y, o.z, d.x, d.y, d.z, limit, f.x, f.y, f.z, out _);
         }
 
-        /// <summary>Phím F (Thu): nhặt mọi chồng trong tầm Thu 2 ô; ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>
+        /// <summary>Phím F (Thu): nhặt mọi chồng trong tầm Thu 2 ô; hiện vùng 2 ô + gió (0036 mục 6); ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>
         public int CollectNearby()
         {
             var player = PlayerCharacter.Active;
             if (player == null || view.Editor == null) return 0;
+            player.Markers.ShowCollect();
             var f = player.FeetLocal;
             int n = view.Editor.Drops.CollectInReach(f.x, f.y, f.z, view.Bag);
             lastResult = n > 0 ? Format("edit.collect_ok", n) : Format("edit.collect_none", PlayerRules.CollectReach);
@@ -416,9 +443,10 @@ namespace Game.Client
             return true;
         }
 
-        /// <summary>Tên vật phẩm: khối → Đất / Cỏ / Đá / Cát (khác: tên enum); túi hạt loại 0 → "Túi hạt Cây A", loại khác → "Túi hạt loại N".</summary>
+        /// <summary>Tên vật phẩm: khối → Đất / Cỏ / Đá / Cát (khác: tên enum); túi hạt loại 0 → "Túi hạt Cây A", loại khác → "Túi hạt loại N"; camera quan sát → Camera quan sát.</summary>
         public static string ItemLabel(ItemId item)
         {
+            if (item.Kind == ItemKind.Tool) return T("hud.held_camera");
             if (item.Kind == ItemKind.SeedBag)
                 return item.Crop == StarterBag.Crop ? T("item.seed_bag_a") : Format("item.seed_bag_n", item.Crop);
             var n = Name(item.Material);
@@ -461,7 +489,7 @@ namespace Game.Client
         {
             if (view.Bag == null) return "";
             var text = Format("hud.mode", T(Control.Mode switch { ControlMode.Dig => "hud.mode_dig", ControlMode.Till => "hud.mode_till", ControlMode.Rain => "hud.mode_rain", _ => "hud.mode_default" }))
-                + (Control.HasHeld ? Format("hud.held", Control.Held.Kind == ItemKind.Tool ? T("hud.held_camera") : ItemLabel(Control.Held)) : "")
+                + (Control.HasHeld ? Format("hud.held", ItemLabel(Control.Held)) : "")
                 + HelpText();
             if (Control.Mode == ControlMode.Till)
                 text += T("hud.till_help");

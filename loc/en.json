@@ -12,7 +12,7 @@
     },
     {
       "key": "bag.hint",
-      "text": "Click a seed bag to sow · B / Esc: close"
+      "text": "Click an item to hold it · B / Esc: close"
     },
     {
       "key": "bag.row_block",
@@ -183,10 +183,6 @@
       "text": "\nSeed bag {0}: {1}"
     },
     {
-      "key": "farm.hud_sow",
-      "text": "\nSowing {0} ({1} left) — Esc / Tab to exit"
-    },
-    {
       "key": "farm.hud_tilling",
       "text": "\nTilling cell {0}: {1}/{2} s"
     },
@@ -223,20 +219,12 @@
       "text": "Rain: watered plot cell {0}"
     },
     {
-      "key": "farm.sow_exit",
-      "text": "Left sowing mode"
-    },
-    {
       "key": "farm.sow_far",
       "text": "Sow: out of reach ({0:0.#} cells)"
     },
     {
       "key": "farm.sow_has_crop",
       "text": "Sow: cell already has a crop"
-    },
-    {
-      "key": "farm.sow_last",
-      "text": " · out of seeds, left sowing mode"
     },
     {
       "key": "farm.sow_no_plot",
@@ -257,6 +245,10 @@
     {
       "key": "farm.sow_other",
       "text": "Cell is waiting for {0} to be sown"
+    },
+    {
+      "key": "farm.sow_queue",
+      "text": "Sow: this plot still has seeds queued — you can only hand-sow a plot with an empty queue"
     },
     {
       "key": "farm.till_cancel",
@@ -289,6 +281,14 @@
     {
       "key": "farm.unreachable",
       "text": "Can't reach this cell"
+    },
+    {
+      "key": "hold.empty",
+      "text": " · out of {0}, no longer holding it"
+    },
+    {
+      "key": "hold.none",
+      "text": "No {0} left in the bag"
     },
     {
       "key": "hud.aimed_drop",
@@ -324,7 +324,7 @@
     },
     {
       "key": "hud.held",
-      "text": " · Holding: <b><color=yellow>{0}</color></b> (Tab switch · Esc drop)"
+      "text": " · Holding: <b><color=yellow>{0}</color></b> (Esc / D: put away)"
     },
     {
       "key": "hud.held_camera",
@@ -336,11 +336,11 @@
     },
     {
       "key": "hud.help_idle",
-      "text": " · No character: mode keys off · Tab: temporarily hold a block / observation camera · 1–4 / Alt + mouse wheel: choose block type · WASD, Q/E, hold middle mouse: camera · stop flying to dig/place\n"
+      "text": " · No character: mode keys off · 1–4 / Alt + mouse wheel: choose block type · WASD, Q/E, hold middle mouse: camera · stop flying to dig/place\n"
     },
     {
       "key": "hud.help_walk",
-      "text": " · Left-click: walk to the clicked spot (hold to follow the cursor) · left-click a plot: show its panel · A: jump · Shift: dash · Right-click: mode action / harvest / open storage / pick up (target within {0:0.#} cells, walks to {1:0.#} cells then acts) · F: collect dropped items (within {2:0.#} cells) · Tab: temporarily hold a block / observation camera · B: bag · 1–4 / Alt + mouse wheel: choose block type · hold middle mouse: rotate · mouse wheel: zoom · Space: camera behind character · X: first-person view · F3: fly camera\n"
+      "text": " · Left-click: walk to the clicked spot (hold to follow the cursor) · left-click a plot: show its panel · A: jump · Shift: dash · Right-click: mode action / harvest / open storage / pick up (target within {0:0.#} cells, walks to {1:0.#} cells then acts) · F: collect dropped items (within {2:0.#} cells) · B: bag (click an item to hold it) · 1–4 / Alt + mouse wheel: choose block type · hold middle mouse: rotate · mouse wheel: zoom · Space: camera behind character · X: first-person view · F3: fly camera\n"
     },
     {
       "key": "hud.mode",

@@ -8,7 +8,7 @@ using UnityEngine.TestTools;
 
 namespace Game.Client.Tests
 {
-    /// <summary>World 7l c1 (brief 0058) — chế độ D/Q/E/R, Tab cầm tạm, chuột phải tự đi tới 2 ô, lớp đỏ + vòng tầm, F Thu 2 ô, click trái ô ruộng + Bỏ đánh dấu.</summary>
+    /// <summary>World 7l c1 (brief 0058) — chế độ D/Q/E/R, chuột phải tự đi tới 2 ô, lớp đỏ, F Thu 2 ô, click trái ô ruộng + Bỏ đánh dấu. Brief 0059 (7l c2): cầm vật phẩm từ túi, vòng tầm khi chuột phải ngoài tầm, F vùng + gió.</summary>
     public class ControlModePlayTests
     {
         GameObject camGo, go, playerGo;
@@ -106,8 +106,37 @@ namespace Game.Client.Tests
             }
         }
 
+        IEnumerator Wait(float s)
+        {
+            float t = 0f;
+            while (t < s) { yield return null; t += Time.deltaTime; }
+        }
+
+        void SetBag(BlockMaterial m, int n)
+        {
+            while (view.Bag.TryTake(m)) { }
+            if (n > 0) view.Bag.Add(m, n);
+        }
+
+        void SetSeeds(int n)
+        {
+            int have = view.Bag.GetSeeds(0);
+            if (have > 0) view.Bag.TryTakeSeeds(0, have);
+            if (n > 0) view.Bag.AddSeeds(0, n);
+        }
+
+        /// <summary>Ô ruộng đã xới (trống) ở Ahead(dx); trả id.</summary>
+        int TilledPlot(int dx)
+        {
+            var cell = Ahead(dx);
+            Assert.AreEqual(TillResult.Marked, sv.UseTill(cell));
+            int id = sv.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
+            Assert.IsTrue(sv.Sim.PlayerTill(id));
+            return id;
+        }
+
         [UnityTest]
-        public IEnumerator ModeKeysToggleAndTabCycle()
+        public IEnumerator ModeKeysAndHoldItem()
         {
             input.ToggleMode(ControlMode.Dig);
             Assert.AreEqual(ControlMode.Dig, input.Control.Mode);
@@ -118,15 +147,22 @@ namespace Game.Client.Tests
             input.ToggleMode(ControlMode.Rain);
             Assert.AreEqual(ControlMode.Rain, input.Control.Mode);
             input.ToggleMode(ControlMode.Default);
-            input.CycleTempHold();
-            Assert.AreEqual(ItemKind.Block, input.Control.Held.Kind);
-            Assert.AreEqual(input.SelectedMaterial, input.Control.Held.Material);
-            input.CycleTempHold();
-            Assert.AreEqual(ItemKind.Tool, input.Control.Held.Kind);
-            input.CycleTempHold();
-            Assert.IsFalse(input.Control.HasHeld);
-            input.CycleTempHold();
+            SetBag(BlockMaterial.Dirt, 2);
+            SetBag(BlockMaterial.Stone, 1);
+            SetBag(BlockMaterial.Sand, 0);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
+            Assert.AreEqual(BlockMaterial.Dirt, input.Control.Held.Material);
+            Assert.AreEqual(BlockMaterial.Dirt, input.SelectedMaterial);
             input.SelectMaterial(2);
+            Assert.AreEqual(BlockMaterial.Stone, input.Control.Held.Material);
+            input.SelectMaterial(3); // Cát, túi 0
+            Assert.AreEqual(BlockMaterial.Stone, input.Control.Held.Material);
+            StringAssert.Contains("Túi không còn cát", input.HudText()); // vi-text
+            Assert.IsTrue(input.HoldItem(ItemId.Tool(ToolItem.ObservationCamera)));
+            Assert.AreEqual(ItemKind.Tool, input.Control.Held.Kind);
+            Assert.IsFalse(input.HoldItem(ItemId.Produce(0)));
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Stone)));
+            Assert.IsFalse(input.HoldItem(ItemId.Block(BlockMaterial.Sand)));
             Assert.AreEqual(BlockMaterial.Stone, input.Control.Held.Material);
             input.ToggleMode(ControlMode.Dig);
             Assert.IsFalse(input.Control.HasHeld);
@@ -149,21 +185,28 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator OutOfTargetReachDoesNothingAndShowsRing()
+        public IEnumerator OutOfReachRightClickFlashesRing()
         {
             var cell = Ahead(12);
             input.ToggleMode(ControlMode.Dig);
             var before = view.World.GetMaterial(cell.x, cell.y, cell.z);
+            input.ShowAim(input.Preview(true, cell, cell + Vector3Int.up), true, cell, cell + Vector3Int.up);
+            Assert.IsFalse(input.ReachRingVisible); // di chuột không hiện
             Assert.AreEqual(RightClickAction.OutOfReach, input.RightClickAt(true, cell, cell + Vector3Int.up));
             Assert.AreEqual(ClickMoveState.None, player.ClickMove);
             Assert.AreEqual(before, view.World.GetMaterial(cell.x, cell.y, cell.z));
-            input.ShowAim(input.Preview(true, cell, cell + Vector3Int.up), true, cell, cell + Vector3Int.up);
             Assert.IsTrue(input.ReachRingVisible);
             Assert.IsFalse(input.HighlightVisible);
-            input.ToggleMode(ControlMode.Default);
-            input.ShowAim(input.Preview(true, cell, cell + Vector3Int.up), true, cell, cell + Vector3Int.up);
+            Assert.Greater(player.Markers.ReachRingAlpha, 0.2f);
+            Assert.LessOrEqual(player.Markers.ReachRingAlpha, 0.25f);
+            yield return Wait(0.5f);
+            Assert.Less(player.Markers.ReachRingAlpha, 0.2f);
+            Assert.Greater(player.Markers.ReachRingAlpha, 0f);
+            yield return Wait(PlayerMotion.ReachRingFadeSeconds + 0.2f);
             Assert.IsFalse(input.ReachRingVisible);
-            yield break;
+            input.ToggleMode(ControlMode.Default);
+            input.RightClickAt(true, cell, cell + Vector3Int.up);
+            Assert.IsTrue(input.ReachRingVisible);
         }
 
         [UnityTest]
@@ -239,28 +282,49 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator TempHoldPlacesBlockAfterWalking()
+        public IEnumerator HeldBlockPlacesAfterWalkingAndExitsWhenEmpty()
         {
-            view.Bag.Add(BlockMaterial.Dirt, 3);
-            input.CycleTempHold();
+            SetBag(BlockMaterial.Dirt, 1);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
             var cell = Ahead(6);
             var place = cell + Vector3Int.up;
             Assert.AreEqual(RightClickAction.PlaceBlock, input.RightClickAt(true, cell, place));
             yield return WaitWalk();
             Assert.AreEqual(WalkToActState.Done, input.Walk.State);
             Assert.AreEqual(BlockMaterial.Dirt, view.World.GetMaterial(place.x, place.y, place.z));
+            Assert.IsFalse(input.Control.HasHeld);
+            StringAssert.Contains("hết Đất, thôi cầm", input.HudText()); // vi-text
         }
 
         [UnityTest]
-        public IEnumerator TempHoldCameraPlacesAfterWalking()
+        public IEnumerator HeldCameraPlacesAfterWalking()
         {
-            input.CycleTempHold();
-            input.CycleTempHold();
+            Assert.IsTrue(input.HoldItem(ItemId.Tool(ToolItem.ObservationCamera)));
             var cell = Ahead(6);
             Assert.AreEqual(RightClickAction.UseHeld, input.RightClickAt(true, cell, cell + Vector3Int.up));
             yield return WaitWalk();
             Assert.AreEqual(WalkToActState.Done, input.Walk.State);
             Assert.IsTrue(input.Observation.HasCamera);
+            Assert.AreEqual(ItemKind.Tool, input.Control.Held.Kind);
+        }
+
+        [UnityTest]
+        public IEnumerator GhostRedWhenCannotPlace()
+        {
+            SetBag(BlockMaterial.Dirt, 3);
+            Assert.IsTrue(input.HoldItem(ItemId.Block(BlockMaterial.Dirt)));
+            var cell = Ahead(3);
+            Assert.AreEqual(RightClickAction.None, input.Preview(true, cell, cell)); // ô đặc
+            input.ShowAim(RightClickAction.None, true, cell, cell);
+            Assert.IsTrue(input.GhostVisible);
+            Assert.AreEqual(TerrainEditInput.InvalidColor, input.GhostColor);
+            var place = cell + Vector3Int.up;
+            var a = input.Preview(true, cell, place);
+            Assert.AreEqual(RightClickAction.PlaceBlock, a);
+            input.ShowAim(a, true, cell, place);
+            Assert.IsTrue(input.GhostVisible);
+            Assert.AreEqual(TerrainEditInput.GhostColorOf(BlockMaterial.Dirt), input.GhostColor);
+            yield break;
         }
 
         [UnityTest]
@@ -337,21 +401,109 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator SowModeWalksThenSows()
+        public IEnumerator HeldSeedWalksThenSows()
         {
             var cell = Ahead(6);
-            Assert.AreEqual(TillResult.Marked, sv.UseTill(cell));
-            int id = sv.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
-            Assert.IsTrue(sv.Sim.PlayerTill(id));
-            view.Bag.AddSeeds(0, 2);
+            TilledPlot(6);
+            SetSeeds(2);
             input.ToggleMode(ControlMode.Dig);
-            Assert.IsTrue(farming.EnterSowMode(0));
+            Assert.IsTrue(input.HoldItem(ItemId.SeedBag(0)));
             Assert.AreEqual(ControlMode.Default, input.Control.Mode);
-            int seeds = view.Bag.GetSeeds(0);
             Assert.AreEqual(RightClickAction.UseHeld, input.RightClickAt(true, cell, cell + Vector3Int.up));
             yield return WaitWalk();
             Assert.AreEqual(WalkToActState.Done, input.Walk.State);
-            Assert.AreEqual(seeds - 1, view.Bag.GetSeeds(0));
+            Assert.AreEqual(1, view.Bag.GetSeeds(0));
+            Assert.IsTrue(input.Control.HasHeld);
+            Assert.AreEqual(ItemId.SeedBag(0), input.Control.Held);
+        }
+
+        [UnityTest]
+        public IEnumerator HeldSeedLastSeedExits()
+        {
+            var cell = Ahead(2);
+            TilledPlot(2);
+            SetSeeds(1);
+            Assert.IsTrue(input.HoldItem(ItemId.SeedBag(0)));
+            Assert.AreEqual(RightClickAction.UseHeld, input.RightClickAt(true, cell, cell + Vector3Int.up));
+            yield return WaitWalk();
+            Assert.AreEqual(0, view.Bag.GetSeeds(0));
+            Assert.IsFalse(input.Control.HasHeld);
+            StringAssert.Contains("thôi cầm", input.HudText()); // vi-text
+        }
+
+        [UnityTest]
+        public IEnumerator HeldSeedRejectsQueuedPlot()
+        {
+            var cell = Ahead(2);
+            int id = TilledPlot(2);
+            Assert.IsTrue(sv.Sim.EnqueueCrop(id, 0));
+            Assert.IsTrue(sv.Sim.EnqueueCrop(id, 0));
+            Assert.Greater(sv.Sim.State.Plots[id].Slots.Count, 0);
+            SetSeeds(2);
+            Assert.IsTrue(input.HoldItem(ItemId.SeedBag(0)));
+            Assert.AreNotEqual(RightClickAction.UseHeld, input.Preview(true, cell, cell + Vector3Int.up));
+            input.RightClickAt(true, cell, cell + Vector3Int.up);
+            yield return WaitWalk();
+            Assert.AreEqual(2, view.Bag.GetSeeds(0));
+            Assert.AreEqual("Gieo: ô còn hạt trong hàng đợi — chỉ gieo tay ô có hàng đợi trống", farming.StatusLine); // vi-text
+        }
+
+        [UnityTest]
+        public IEnumerator HeldSeedDefersToHarvest()
+        {
+            var cell = Ahead(2);
+            int id = TilledPlot(2);
+            SetSeeds(1);
+            Assert.IsTrue(sv.Sim.EnqueueCrop(id, 0));
+            Assert.AreEqual(PlayerSowResult.Ok, sv.Sim.PlayerSow(id, 0, view.Bag));
+            Assert.AreEqual(RainResult.Watered, sv.Sim.Rain(new CellPos(cell.x, cell.y, cell.z)));
+            sv.Sim.State.Plots[id].RipeTick = sv.Sim.State.Tick;
+            sv.Sim.Tick();
+            Assert.AreEqual(PlotPhase.Harvest, sv.Sim.State.Plots[id].Phase);
+            SetSeeds(1);
+            Assert.IsTrue(input.HoldItem(ItemId.SeedBag(0)));
+            Assert.AreEqual(RightClickAction.Harvest, input.Preview(true, cell, cell + Vector3Int.up));
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator CollectShowsAreaAndWindEvenWhenEmpty()
+        {
+            Assert.AreEqual(0, input.CollectNearby());
+            Assert.IsTrue(player.Markers.CollectVisible);
+            Assert.AreEqual(MoveMarkers.WindStreaks, player.Markers.WindVisibleCount);
+            Assert.AreEqual(0.5f, player.Markers.CollectAlpha, 0.05f);
+            yield return Wait(PlayerMotion.CollectShowSeconds + 0.2f);
+            Assert.IsFalse(player.Markers.CollectVisible);
+            Assert.AreEqual(0, player.Markers.WindVisibleCount);
+        }
+
+        [UnityTest]
+        public IEnumerator CollectedDropFliesForConfiguredTime()
+        {
+            view.Editor.Drops.Add(spot.x + 1, spot.y + 1, spot.z, ItemId.Block(BlockMaterial.Dirt), 1);
+            Assert.AreEqual(1, input.CollectNearby());
+            Assert.AreEqual(1, input.DropView.FlyingCount);
+            yield return Wait(PlayerMotion.CollectFlySeconds + 0.2f);
+            Assert.AreEqual(0, input.DropView.FlyingCount);
+        }
+
+        [UnityTest]
+        public IEnumerator BagPanelHoldsAndCloses()
+        {
+            sv.ToggleBag();
+            Assert.IsTrue(sv.BagOpen);
+            var rows = new System.Collections.Generic.List<SimView.BagRow>();
+            SimView.BagRows(view.Bag, sv.Sim.Config, rows);
+            var last = rows[rows.Count - 1];
+            Assert.AreEqual(ItemId.Tool(ToolItem.ObservationCamera), last.Item);
+            Assert.IsTrue(last.Holdable);
+            Assert.AreEqual("Camera quan sát × 1", last.Label); // vi-text
+            Assert.IsTrue(sv.HoldFromBag(ItemId.Tool(ToolItem.ObservationCamera)));
+            Assert.IsFalse(sv.BagOpen);
+            Assert.AreEqual(ItemKind.Tool, input.Control.Held.Kind);
+            Assert.IsFalse(sv.HoldFromBag(ItemId.Produce(0)));
+            yield break;
         }
     }
 }

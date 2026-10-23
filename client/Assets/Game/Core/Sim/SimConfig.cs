@@ -155,6 +155,9 @@ namespace Game.Core.Sim
         public int dashCooldownMs = 3000;
         public int stuckMs = 300;
         public int clickMarkMs = 500;
+        public int reachRingFadeMs = 1000;
+        public int collectShowMs = 500;
+        public int collectFlyMs = 300;
         public float cameraPitch = 10f;
         public float cameraDistance = 9f;
         public float firstPersonPitch = 15f;
@@ -399,6 +402,12 @@ namespace Game.Core.Sim
                 throw new ArgumentException("player.stuckMs must be in [50, 5000].");
             if (player.clickMarkMs < 50 || player.clickMarkMs > 5000)
                 throw new ArgumentException("player.clickMarkMs must be in [50, 5000].");
+            if (player.reachRingFadeMs < 50 || player.reachRingFadeMs > 5000)
+                throw new ArgumentException("player.reachRingFadeMs must be in [50, 5000].");
+            if (player.collectShowMs < 50 || player.collectShowMs > 5000)
+                throw new ArgumentException("player.collectShowMs must be in [50, 5000].");
+            if (player.collectFlyMs < 50 || player.collectFlyMs > 5000)
+                throw new ArgumentException("player.collectFlyMs must be in [50, 5000].");
             if (!(player.cameraPitch >= 10f && player.cameraPitch <= 85f))
                 throw new ArgumentException("player.cameraPitch must be in [10, 85].");
             if (!(player.cameraDistance >= 2.5f && player.cameraDistance <= 24f))

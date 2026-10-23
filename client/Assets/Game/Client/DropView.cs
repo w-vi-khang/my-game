@@ -7,7 +7,7 @@ namespace Game.Client
 {
     /// <summary>
     /// Vẽ vật rơi (task contract sim 7e, brief 0037): mỗi chồng một khối mini cạnh 0,3 ô màu như khối (túi hạt: hộp 0,3 × 0,4 × 0,3 màu nâu), xoay chậm;
-    /// vẽ gộp theo loại bằng Graphics.RenderMeshInstanced, không tạo GameObject cho từng chồng. Chồng vừa nhặt bay về nhân vật 0,2 giây (chỉ hiển thị).
+    /// vẽ gộp theo loại bằng Graphics.RenderMeshInstanced, không tạo GameObject cho từng chồng. Chồng vừa nhặt bay về nhân vật PlayerMotion.CollectFlySeconds (0036 mục 6; chỉ hiển thị).
     /// TerrainEditInput tự thêm component này.
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -16,7 +16,6 @@ namespace Game.Client
         public const float BlockSize = 0.3f;
         public static readonly Vector3 SeedBagSize = new Vector3(0.3f, 0.4f, 0.3f);
         public static readonly Color SeedBagColor = new Color(0.55f, 0.40f, 0.20f);
-        public const float FlySeconds = 0.2f;
         public const float SpinDegreesPerSecond = 45f;
         /// <summary>Số thể hiện mỗi lần vẽ: ≤ 511 khi mỗi thể hiện là Matrix4x4 (docs RenderMeshInstanced).</summary>
         const int Batch = 500;
@@ -98,7 +97,7 @@ namespace Game.Client
             for (int i = flying.Count - 1; i >= 0; i--)
             {
                 var f = flying[i];
-                float k = (now - f.Start) / FlySeconds;
+                float k = (now - f.Start) / PlayerMotion.CollectFlySeconds;
                 if (k >= 1f) { flying.RemoveAt(i); continue; }
                 var to = player != null ? player.FeetLocal + Vector3.up * PlayerRules.BodyCenterHeight : f.From;
                 AddInstance(f.Item, toWorld * Matrix4x4.TRS(Vector3.Lerp(f.From, to, k), Quaternion.identity, SizeOf(f.Item) * (1f - 0.5f * k)));
