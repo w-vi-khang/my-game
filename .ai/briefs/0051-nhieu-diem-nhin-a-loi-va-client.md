@@ -1,9 +1,9 @@
 # Brief 0051 — nhiều điểm nhìn A: lõi ChunkStreamPlan + TerrainChunkView
 
-> Trạng thái: chờ review
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 10:38
+> Cập nhật: 2026-10-23 10:48
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -88,6 +88,10 @@ Bộ nạp chunk nhận **danh sách điểm nhìn** (mỗi điểm có bán kí
    - `AddViewpointRespectsMaxAndRejectsDuplicates`: `view.maxViewpoints` mặc định 2 nên `AddViewpoint` lần 1 ok; lần 2 với Transform khác → `Assert.Throws<System.InvalidOperationException>`; lần 2 với cùng Transform → `Assert.Throws<System.ArgumentException>` (kiểm tra trùng trước kiểm tra tối đa; ghi đúng thứ tự này trong code: null → bán kính → trùng → tối đa); `RemoveViewpoint` Transform chưa đăng ký → `false`. Dọn mọi GameObject đã tạo.
    Xong khi: lớp `TerrainStreamingPlayTests` qua hết (4 cũ + 2 mới).
 8. **Toàn bộ test + dọn** (xem "Lệnh executor chạy").
+9. **Sửa sau review 1** (chỉ 2 file test; code `ChunkStreamPlan.cs`/`TerrainChunkView.cs` KHÔNG đổi). Lý do: điều kiện gỡ ở bước 7 do Planner viết sai (cột > 160 tới điểm phụ gồm cả vùng điểm chính → không bao giờ "sạch"); bản sửa của executor (xa cả hai điểm) chỉ kiểm cột chưa từng nạp nên luôn đúng kể cả khi `RemoveViewpoint` không gỡ gì.
+   - `TerrainStreamingPlayTests.SecondViewpointLoadsItsColumnsAndUnloadsWhenRemoved`, phần sau khi nạp xong điểm phụ: **trước** `RemoveViewpoint`, lập `held` = các `col` (0..575) có `view.ChunkMesh(col) != null` **và** `DistanceSq` tới ô camera chính (`view.CellAt(camGo.transform.position)`) `> 160L*160`; `Assert.IsNotEmpty(held)` (đảm bảo test có cột để kiểm). Rồi `Assert.IsTrue(view.RemoveViewpoint(t))`; `yield return null` tối đa 300 khung đến khi mọi `col` trong `held` có `ChunkMesh(col) == null` (không hết → `Assert.Fail`). Sau đó gọi helper sẵn có `AssertLoadedWithinUnloadRadius()` (mọi cột còn mesh đều ≤ 160 tới camera chính), `Assert.AreEqual(1, view.ViewpointCount)`, `Assert.AreEqual(0, view.MissingColumnsWithin(128))`. Bỏ vòng `clear` cũ. Giữ `try/finally`.
+   - `ChunkStreamPlanTests.TooManyViewpointsThrows`: thêm 2 assert — danh sách 1 điểm `StreamViewpoint(192, 192, 128, 100)` (unload < load) và 1 điểm `StreamViewpoint(192, 192, -1, 160)` → mỗi cái `Assert.Throws<ArgumentOutOfRangeException>`; sau đó `Assert.AreEqual(0, plan.LoadedCount)` (Phần cần test có "bán kính sai" nhưng chưa có test).
+   Xong khi: `ChunkStreamPlanTests` 12/12, `TerrainStreamingPlayTests` 6/6, EditMode toàn bộ 504/504, PlayMode toàn bộ 170/170 (số test không đổi); dọn `git checkout -- client/ProjectSettings/EditorSettings.asset`; `git status --short` chỉ còn 2 file test + brief. Ghi giờ bắt đầu/kết thúc lần sửa vào Kết quả (dòng mới "Sửa 1: …"), cập nhật Kết quả test.
 
 ## Tiêu chí xong
 - `ChunkStreamPlanTests` qua: các test cũ + 6 test mới (tên ở bước 5).
@@ -156,3 +160,14 @@ Ghi chú: MCP bridge mất kết nối tạm lúc biên dịch/vào Play; kết 
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa. Điểm đã đối chiếu. -->
+### Review 1 — 2026-10-23 (Opus)
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp `Model thực thi: Sonnet · medium`. Mọi dòng "Phần cần test" có kết quả. [repo] brief
+- `git show --stat b3125ad`: đúng 4 file trong Phạm vi; working tree sạch. [run]
+- Quyết định 1–2 đạt: `ChunkStreamPlan.Update(IReadOnlyList<StreamViewpoint>…)` tính `dMin`/`inLoad`/`inKeep` trên mọi điểm, gỡ khi `!inKeep`, ứng viên sắp theo (dMin, chỉ số), một `maxLoad` chung. [repo] `client/Assets/Game/Core/ChunkStreamPlan.cs:71-120`
+- Quyết định 3–5 đạt: `maxViewpoints` qua constructor (mặc định 1, < 1 ném), kiểm tra trước khi đổi trạng thái, hàm một tâm + constructor 4 tham số giữ nguyên qua list `single` dùng lại; không cấp phát trong vòng cột; comment mới tiếng Anh. [repo] `ChunkStreamPlan.cs:21-64`
+- Client đạt bước 6: `AddViewpoint` đúng thứ tự null → bán kính → trùng → tối đa; `CollectViewpoints` thêm điểm chính trước, bỏ Transform đã huỷ; `Build`/`LateUpdate` dùng `viewpointBuffer`. [repo] `client/Assets/Game/Client/TerrainChunkView.cs:113-165,251,329`
+- Test EditMode 6 mới đúng tên và đúng ý bước 5. [repo] `client/Assets/Game/Tests/Core/ChunkStreamPlanTests.cs:87-201` (test đầu ở `:109`)
+- **Lỗi:** `SecondViewpointLoadsItsColumnsAndUnloadsWhenRemoved` phần "gỡ khi bỏ điểm" không kiểm được gì: chỉ xét cột > 160 tới **cả hai** điểm, mà các cột đó chưa từng nạp (điểm chính đứng yên, nạp bán kính 128) → qua kể cả khi `RemoveViewpoint` không gỡ cột nào. Gốc là bước 7 Planner viết sai điều kiện (cột > 160 tới điểm phụ gồm cả vùng điểm chính, sẽ không bao giờ sạch); executor đã ghi lệch nhưng đáng ra phải `cần Opus`. [repo] `client/Assets/Game/Tests/Client/TerrainStreamingPlayTests.cs:132-145`
+- Thiếu nhỏ: "bán kính sai" trong Phần cần test chưa có test (code có kiểm tra). [repo] `ChunkStreamPlanTests.cs:192`
+- Giờ thực tế (10 phút) chưa cộng vào roadmap: ghi khi duyệt.
+- Kết luận: cần sửa (bước 9)
