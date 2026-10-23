@@ -1,6 +1,6 @@
 # Brief 0056 — điều khiển PC B2: camera kiểu LoL, Space về mặc định, X góc nhìn thứ nhất, Cài đặt góc/khoảng cách
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -192,8 +192,24 @@ Cảm giác (tốc độ lướt, góc 55°, 14 ô, dấu click, vòng chân) ch
 ---
 
 ## Kết quả
+- Base commit: 47d0584
+- Chạy bằng: Sonnet · medium
+- Bắt đầu: 18:04 · Kết thúc: 18:17 (~13 phút)
+- Commit: f268ce9 — FollowCamera, PlayerCharacter, PlayerSettings, SettingsView, GameInput, GameControls.inputactions, vi.json, test (PlayerSettingsTests, GameControlsTests, SettingsPlayTests.Apply_ReachesScene, CameraPcPlayTests mới + .meta).
+- Test cũ sửa vì giả định camera: không có.
+- Editor Unity đang tắt (MCP không thấy instance) → chạy bằng tools/unity_test.py; đã `git checkout` EditorSettings.asset. TerrainEditPlayTests.cs để nguyên, không commit.
 
 ## Kết quả test
+| # | Kết quả | Bằng chứng |
+|---|---|---|
+| 1 | đạt | EditMode toàn bộ 532/532 (gồm GameControlsTests 33 action) |
+| 2 | đạt | PlayerSettingsTests 7/7 gồm MigratesV1AndOptionalCamera |
+| 3 | đạt | SettingsPlayTests.Apply_ReachesScene |
+| 4–10 | đạt | CameraPcPlayTests 7/7 (lần đầu FirstPersonAtEyes fail do tôi viết sai DeltaAngle trong test; đã sửa test, code không đổi) |
+| 11 | đạt | PlayMode toàn bộ gồm các lớp regression nêu trong brief |
+| 12 | đạt | EditMode 532/0 fail; PlayMode 196/196, 0 fail. read_console không kiểm được (Editor tắt); biên dịch sạch vì test chạy được |
+- `python3 -m json.tool vi.json` exit 0.
+- Chờ user: mục "User tự test" (cảm giác, hình ảnh).
 
 ## Vướng mắc
 
