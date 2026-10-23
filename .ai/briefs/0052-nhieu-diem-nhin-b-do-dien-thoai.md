@@ -285,16 +285,43 @@ Base commit: a14e7f4
 Chạy bằng: claude-sonnet-5-5 · medium
 Giờ: bắt đầu 11:22, dừng 11:32 (2026-10-23) — bước 1–8 xong, bước 9 (điện thoại) chưa đo được.
 Đã làm: bước 1–8. Scene: `git diff --stat` = 4 insertions (`secondViewpoint: 0`); `grep "secondViewpoint: 1"` = 0, `: 0` = 1. `WalkBench.unity.meta` bị đổi guid do tạo lại scene → đã `git checkout` lại. Hai APK khác nhau (cmp differ): `client/Builds/walkbench.apk`, `walkbench-2vp.apk` (35.382.399 byte). Log build 2vp: `WalkBench build: Succeeded … → Builds/walkbench-2vp.apk`; lần build 1 điểm nhìn: APK mới 11:31 (dòng log không còn trong console khi đọc).
-Bước 9: CHƯA ĐO (xem Vướng mắc).
+Bước 9 (tiếp tục 11:49–11:53 sau khi user bật debug wifi; máy qua adb wifi `adb-PFQCRWVWR46HU4GQ-fN8sCo._adb-tls-connect._tcp`, model 24095PCADG): **2 điểm nhìn đạt ≥ 30 FPS (41,5)**. Không có dòng nào chứa `Exception`. Màn hình không khoá.
+
+Lần A (1 điểm nhìn) — Thermal Status: 2
+```
+WALKBENCH started: center (123,5, 212,5), R=32, dry land=True
+WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1679 avgFps=42,0 avgMs=23,81 p50Ms=24,96 p99Ms=41,60 maxMs=179,29 | distance=163,6 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1074,5 gcReservedMaxMB=171,3 | creatures=3 | pass30fps=True passNoHole=True
+```
+Lần B (2 điểm nhìn, nghỉ 60 s sau A) — Thermal Status: 2
+```
+WALKBENCH second viewpoint: map 2 centroid (210,6, 119,5)
+WALKBENCH started: center (123,5, 212,5), R=32, dry land=True
+WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1660 avgFps=41,5 avgMs=24,10 p50Ms=24,96 p99Ms=41,59 maxMs=149,79 | distance=164,0 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=2 secondCenter=(210,6;119,5) | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=401 loadedChunksMax=1203 | sysMemMaxMB=1123,2 gcReservedMaxMB=40,3 | creatures=3 | pass30fps=True passNoHole=True
+```
+
+| | 0039 | lần A | lần B |
+|---|---|---|---|
+| avgFps | 49,4 | 42,0 | 41,5 |
+| p50Ms | 16,65 | 24,96 | 24,96 |
+| p99Ms | 41,59 | 41,60 | 41,59 |
+| maxMs | 187,65 | 179,29 | 149,79 |
+| holeFrames | 0 | 0 | 0 |
+| secondHoleFrames | — | 0 | 0 |
+| loadedColumnsMax | — | 287 | 401 |
+| loadedChunksMax | 861 | 861 | 1203 |
+| sysMemMaxMB | — | 1074,5 | 1123,2 |
+| Thermal | 2 | 2 | 2 |
+
+Nhận xét: lần A (1 điểm nhìn) thấp hơn số 0039 (42,0 vs 49,4; p50 24,96 vs 16,65) — khác điều kiện máy/thời điểm; so sánh A–B cùng điều kiện: chênh 0,5 FPS. Giờ: bắt đầu 11:22, kết thúc ~11:55.
 
 ## Kết quả test
 - `MapCentroidLiesInMap2`, `SecondViewpointWalkLogsSummary`, `WalksRouteAndLogsSummary`: đạt — `WalkBenchPlayTests` 6/6 [run].
 - read_console Error: rỗng sau biên dịch.
 - EditMode toàn bộ 504/504; PlayMode toàn bộ 172/172. Đã `git checkout` EditorSettings.asset và UnityConnectSettings.asset.
-- Build 2 APK: đạt (xem Kết quả). Điện thoại: không đạt/chưa chạy — không có máy.
+- Build 2 APK: đạt (xem Kết quả). Điện thoại: đạt — 2 dòng `WALKBENCH device=` từ 24095PCADG, lần B `viewpoints=2`, 0 Exception.
 
 ## Vướng mắc
-Không tìm thấy điện thoại 24095PCADG: `adb devices` rỗng (không USB); `adb connect 192.168.1.6:5555` → Connection refused; `adb mdns services` báo `adb-PFQCRWVWR46HU4GQ-fN8sCo 192.168.1.6:35903` nhưng `adb connect 192.168.1.6:35903` → Connection refused (mdns cũ). Cần user cắm USB (hoặc bật lại wireless debugging) rồi chạy lại bước 9 với hai APK đã build sẵn (không cần build lại).
+Không tìm thấy điện thoại 24095PCADG: `adb devices` rỗng (không USB); `adb connect 192.168.1.6:5555` → Connection refused; `adb mdns services` báo `adb-PFQCRWVWR46HU4GQ-fN8sCo 192.168.1.6:35903` nhưng `adb connect 192.168.1.6:35903` → Connection refused (mdns cũ). (Đã giải quyết: user bật debug wifi, đo xong.) Cần user cắm USB (hoặc bật lại wireless debugging) rồi chạy lại bước 9 với hai APK đã build sẵn (không cần build lại).
 
 ---
 <!-- PLANNER ghi khi review. -->
