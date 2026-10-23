@@ -1,9 +1,9 @@
 # Brief 0052 — nhiều điểm nhìn B: WalkBench có điểm nhìn thứ hai ở Map 2, đo điện thoại
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 11:25
+> Cập nhật: 2026-10-23 11:45
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -227,6 +227,12 @@ Thêm vào `WalkBench` một cờ `secondViewpoint`. Bật cờ thì có thêm m
    5. Kẻ bảng so sánh ở Kết quả. Cột: 0039 · lần A · lần B. Dòng: avgFps, p50Ms, p99Ms, maxMs, holeFrames, secondHoleFrames, loadedColumnsMax, loadedChunksMax, sysMemMaxMB, Thermal. Cột 0039 lấy từ "Bối cảnh"; ô không có ghi `—`.
    6. Lần B `avgFps < 30` → áp dụng QĐ 7.
 
+10. **Trả lời Vướng mắc (Planner, 2026-10-23 11:45).** Bước 1–8 đã xong ở `209bc81`, đã đối chiếu (xem Review). Lần chạy tiếp **chỉ làm bước 9**:
+   - Dùng 2 APK có sẵn: `client/Builds/walkbench.apk` và `client/Builds/walkbench-2vp.apk` (build 11:31–11:32 từ `209bc81`). Không build lại, không sửa code, không chạy lại test.
+   - Chỉ khi một trong hai file không còn: build lại đúng file đó theo bước 8, rồi làm bước dọn ProjectSettings.
+   - Ghi kết quả bước 9 nối tiếp mục Kết quả / Kết quả test (giữ nguyên phần cũ). Ghi giờ bắt đầu/kết thúc mới.
+   - Vẫn không thấy máy → như bước 9.1 (`cần Opus`, dừng).
+
 ## Tiêu chí xong
 - `WalkBenchPlayTests` 6/6. Toàn bộ EditMode + PlayMode qua.
 - Hai APK build `Succeeded`.
@@ -294,3 +300,11 @@ Không tìm thấy điện thoại 24095PCADG: `adb devices` rỗng (không USB)
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+### Review 1 — 2026-10-23 (Opus) — phần code, chưa kết luận
+- Trạng thái `cần Opus` vì không thấy điện thoại. Planner kiểm lại lúc 11:40: `adb devices` rỗng; `adb connect 192.168.1.6:35903` và `:5555` → Connection refused. [run]
+- `git show --stat 209bc81`: đúng 4 file trong Phạm vi. `TerrainChunkView.cs`, `ChunkStreamPlan.cs`, `SimView.unity` không đổi. Working tree sạch. [run]
+- Bước 1–7 khớp nguyên văn brief. [repo] `client/Assets/Game/Client/WalkBench.cs`, `client/Assets/Game/Client/Editor/WalkBenchBuild.cs`, `client/Assets/Game/Tests/Client/WalkBenchPlayTests.cs` (diff `209bc81`)
+- Scene WalkBench có thêm `secondViewpoint: 0`, và cả `invertY: 0` ×2 và `maxViewpoints: 2`. Đây là các trường đã có ở brief trước, scene được tạo lại từ SimView nên mới ghi ra. Hợp lệ. Không có `secondViewpoint: 1`. [repo]
+- Test: 6/6, EditMode 504/504, PlayMode 172/172 (executor báo). Số khớp mong đợi (+2 PlayMode). Không chạy lại.
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp `Model thực thi`.
+- Còn thiếu: bước 9 (điện thoại). Trả lời ở bước 10; chờ user cắm lại máy.
