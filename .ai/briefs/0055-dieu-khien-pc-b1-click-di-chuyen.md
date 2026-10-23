@@ -1,6 +1,6 @@
 # Brief 0055 — điều khiển PC B1: click trái để đi, dấu click, vòng chân, nhảy A, lướt Shift (bỏ WASD)
 
-> Trạng thái: cần Opus
+> Trạng thái: đang làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -77,7 +77,7 @@ Phần camera (góc mặc định kiểu LoL, Space, X, Cài đặt) là brief *
   - `client/Assets/Game/Client/PlayerCharacter.cs`, `client/Assets/Game/Client/MoveMarkers.cs` (mới) + `.meta`
   - `client/Assets/Game/Client/TerrainEditInput.cs` (chỉ các chỗ ở bước 7), `client/Assets/Game/Client/PlayerFarmActions.cs` (dòng 216), `client/Assets/Game/Client/SimView.cs` (thêm 1 thuộc tính tĩnh)
   - `client/Assets/Game/Client/Resources/Lang/vi.json` (9 chuỗi ở bước 8)
-  - Test: `Tests/Core/PlayerMotionTests.cs` (mới) + `.meta`, `Tests/Core/Sim/SimConfigTests.cs`, `Tests/ClientEdit/GameControlsTests.cs`, `Tests/Client/GameControlsPlayTests.cs`, `Tests/Client/ClickMovePlayTests.cs` (mới) + `.meta`
+  - Test: `Tests/Core/PlayerMotionTests.cs` (mới) + `.meta`, `Tests/Core/Sim/SimConfigTests.cs`, `Tests/ClientEdit/GameControlsTests.cs`, `Tests/Client/GameControlsPlayTests.cs`, `Tests/Client/ClickMovePlayTests.cs` (mới) + `.meta`, `Tests/Client/PlayerBagSowPlayTests.cs` (chỉ dòng 361: chuỗi `farm.hud_sow` mới — Planner bổ sung 2026-10-23)
   - File brief này (mục Kết quả trở xuống)
 - Không được sửa:
   - `FollowCamera.cs`, `SettingsView.cs`, `PlayerSettings.cs` (brief 0056);
@@ -342,7 +342,8 @@ Không riêng cho brief này — user xem cảm giác di chuyển + camera một
 ## Kết quả
 Base commit: d38e0db
 Chạy bằng: claude-sonnet-5-5 · medium
-Bắt đầu: 17:41 (giờ máy)
+Bắt đầu: 17:41 · Kết thúc: 17:58 (giờ máy)
+Commit: 0ce293a (code, test, .meta; không gồm TerrainEditPlayTests.cs)
 
 ## Kết quả test
 Bước 1–9 đã code xong, **chưa commit** (file nằm trong working tree). Biên dịch 0 lỗi.
@@ -351,10 +352,14 @@ Bước 1–9 đã code xong, **chưa commit** (file nằm trong working tree). 
 - PlayMode toàn bộ (189 test): 186 qua, 3 fail lần chạy đầu; 2 fail do test mới của tôi (đã sửa, 8/8 qua). Còn 1 fail: `PlayerBagSowPlayTests.SowHud` (xem Vướng mắc). Chưa chạy lại PlayMode toàn bộ sau khi sửa.
 - `grep GameInput.Cancel|GameInput.Move\b` rỗng; `cmp` hai sim_m1.json giống; `json.tool vi.json` ok; đã `git checkout EditorSettings.asset`.
 
+- **Cập nhật cuối:** sửa `PlayerBagSowPlayTests.cs:361` theo Planner; EditMode 531/531, PlayMode 189/189 (0 fail), `read_console` 0 lỗi, đã `git checkout EditorSettings.asset`. Mọi dòng #1–#17 đạt.
+
 ## Vướng mắc
+(đã giải quyết: sửa dòng 361 theo Planner)
 Test cũ ngoài Phạm vi bị hỏng bởi chuỗi bước 8 → dừng theo điều kiện "test cũ ngoài danh sách bị hỏng".
 - `client/Assets/Game/Tests/Client/PlayerBagSowPlayTests.cs:361`: `StringAssert.Contains("Gieo Cây A (còn 3) — chuột phải / Esc để thoát", farming.HudLines())`, trong khi bước 8 đặt `farm.hud_sow` = `\nGieo {0} (còn {1}) — Esc / Tab để thoát`.
 - Đề xuất: cho phép sửa đúng dòng 361 thành `"Gieo Cây A (còn 3) — Esc / Tab để thoát"` (1 dòng, không đổi logic), rồi tôi chạy lại PlayMode toàn bộ và commit. Không còn việc nào khác bị chặn.
+- **Trả lời Planner (2026-10-23):** đồng ý. Brief sót test này (lỗi của Planner). `PlayerBagSowPlayTests.cs` thêm vào Phạm vi, chỉ dòng 361, sửa đúng như đề xuất. Sau đó chạy lại PlayMode toàn bộ → 0 fail, dọn `EditorSettings.asset`, ghi giờ kết thúc, commit (bước 10). Trạng thái về `đang làm`.
 
 ---
 
