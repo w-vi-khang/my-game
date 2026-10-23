@@ -12,12 +12,12 @@ namespace Game.Core
         public const float UiScaleMin = 0.75f, UiScaleMax = 2f;
         public const string DefaultLanguage = "vi";
 
-        public int formatVersion = 2;
+        public int formatVersion = 3;
         /// <summary>0 = theo mặc định của game (sim_m1.json player.cameraDistance / cameraPitch).</summary>
         public float cameraDistance = 0f;
         /// <summary>0 = theo mặc định của game (sim_m1.json player.cameraDistance / cameraPitch).</summary>
         public float cameraPitch = 0f;
-        public float lookSensitivity = 0.15f;
+        public float lookSensitivity = 0.3f;
         public bool invertY = false;
         public float uiScale = 1f;
         public int targetFps = 60;
@@ -25,10 +25,10 @@ namespace Game.Core
 
         public void Clamp()
         {
-            if (formatVersion < 2) { cameraDistance = 0f; cameraPitch = 0f; formatVersion = 2; }
+            if (formatVersion < 3) { cameraDistance = 0f; cameraPitch = 0f; lookSensitivity = 0.3f; formatVersion = 3; }
             cameraDistance = ClampOptional(cameraDistance, CameraDistanceMin, CameraDistanceMax);
             cameraPitch = ClampOptional(cameraPitch, CameraPitchMin, CameraPitchMax);
-            lookSensitivity = ClampF(lookSensitivity, LookSensitivityMin, LookSensitivityMax, 0.15f);
+            lookSensitivity = ClampF(lookSensitivity, LookSensitivityMin, LookSensitivityMax, 0.3f);
             uiScale = ClampF(uiScale, UiScaleMin, UiScaleMax, 1f);
             if (targetFps != 30 && targetFps != 60) targetFps = 60;
             if (!IsValidLanguage(language)) language = DefaultLanguage;

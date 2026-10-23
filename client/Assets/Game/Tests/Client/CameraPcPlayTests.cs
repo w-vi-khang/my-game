@@ -101,29 +101,29 @@ namespace Game.Client.Tests
         public IEnumerator DefaultHighAngleFollows()
         {
             yield return Teleport(Spot);
-            Assert.AreEqual(55f, follow.pitch, 0.01f);
-            Assert.AreEqual(14f, follow.distance, 0.01f);
-            Assert.AreEqual(55f, follow.defaultPitch, 0.01f);
-            Assert.AreEqual(14f, follow.defaultDistance, 0.01f);
+            Assert.AreEqual(10f, follow.pitch, 0.01f);
+            Assert.AreEqual(9f, follow.distance, 0.01f);
+            Assert.AreEqual(10f, follow.defaultPitch, 0.01f);
+            Assert.AreEqual(9f, follow.defaultDistance, 0.01f);
             float yaw0 = follow.yaw;
             player.MoveTo(Spot + new Vector3(4.5f, 0f, 0.5f));
             yield return Wait(1.5f);
             Assert.AreEqual(yaw0, follow.yaw, 0.001f);
             float d = Vector3.Distance(camGo.transform.position, Feet + Vector3.up * follow.pivotHeight);
-            Assert.LessOrEqual(d, 14.01f);
+            Assert.LessOrEqual(d, 9.01f);
         }
 
         [UnityTest]
         public IEnumerator ResetBehindUsesFacing()
         {
             yield return Teleport(Spot);
-            follow.SetAngles(200f, 10f);
+            follow.SetAngles(200f, 30f);
             follow.distance = 5f;
             player.Visual.rotation = Quaternion.Euler(0f, 90f, 0f);
             follow.ResetBehind();
             Assert.AreEqual(90f, follow.yaw, 0.01f);
-            Assert.AreEqual(55f, follow.pitch, 0.01f);
-            Assert.AreEqual(14f, follow.distance, 0.01f);
+            Assert.AreEqual(10f, follow.pitch, 0.01f);
+            Assert.AreEqual(9f, follow.distance, 0.01f);
             var pivot = Feet + Vector3.up * follow.pivotHeight;
             var v = camGo.transform.position - pivot;
             var h = new Vector3(v.x, 0f, v.z).normalized;
@@ -170,7 +170,7 @@ namespace Game.Client.Tests
             follow.ResetBehind();
             Assert.IsFalse(follow.FirstPerson);
             Assert.IsTrue(player.BodyVisible);
-            Assert.AreEqual(55f, follow.pitch, 0.01f);
+            Assert.AreEqual(10f, follow.pitch, 0.01f);
         }
 
         [UnityTest]

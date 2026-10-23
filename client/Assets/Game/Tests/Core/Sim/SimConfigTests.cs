@@ -59,9 +59,10 @@ namespace Game.Core.Tests
             Assert.AreEqual(3000, cfg.player.dashCooldownMs);
             Assert.AreEqual(300, cfg.player.stuckMs);
             Assert.AreEqual(500, cfg.player.clickMarkMs);
-            Assert.AreEqual(55f, cfg.player.cameraPitch);
-            Assert.AreEqual(14f, cfg.player.cameraDistance);
+            Assert.AreEqual(10f, cfg.player.cameraPitch);
+            Assert.AreEqual(9f, cfg.player.cameraDistance);
             Assert.AreEqual(15f, cfg.player.firstPersonPitch);
+            Assert.AreEqual(2f, cfg.player.observationHeight);
             Assert.AreEqual(6f, cfg.PlayerTillSeconds);
             Assert.AreEqual(10f, cfg.RainCooldownSeconds);
         }
@@ -105,6 +106,8 @@ namespace Game.Core.Tests
             Bad(c => c.player.cameraPitch = 90f, "cameraPitch 90");
             Bad(c => c.player.cameraDistance = 2f, "cameraDistance 2");
             Bad(c => c.player.firstPersonPitch = -40f, "firstPersonPitch -40");
+            Bad(c => c.player.observationHeight = 0.5f, "observationHeight 0.5");
+            Bad(c => c.player.observationHeight = 11f, "observationHeight 11");
             Bad(c => c.player = null, "player null");
         }
 

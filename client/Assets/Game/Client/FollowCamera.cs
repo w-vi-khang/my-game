@@ -11,13 +11,13 @@ namespace Game.Client
     public class FollowCamera : MonoBehaviour
     {
         public PlayerCharacter target;
-        public float distance = 14f, minDistance = 2.5f, maxDistance = 24f;
-        public float pitch = 55f, minPitch = -20f, maxPitch = 85f;
+        public float distance = 9f, minDistance = 2.5f, maxDistance = 24f;
+        public float pitch = 10f, minPitch = -20f, maxPitch = 85f;
         public float yaw;
-        public float lookSensitivity = 0.15f;
+        public float lookSensitivity = 0.3f;
         public bool invertY;
         public float pivotHeight = 1.6f, castRadius = 0.2f;
-        public float defaultPitch = 55f, defaultDistance = 14f, firstPersonPitch = 15f, eyeHeight = 1.5f, eyeForward = 0.25f;
+        public float defaultPitch = 10f, defaultDistance = 9f, firstPersonPitch = 15f, eyeHeight = 1.5f, eyeForward = 0.25f;
 
         public bool FirstPerson { get; private set; }
         bool defaultsApplied;

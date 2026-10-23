@@ -9,10 +9,10 @@ namespace Game.Core.Tests
         public void DefaultsUnchangedByClamp()
         {
             var s = new PlayerSettings();
-            Assert.AreEqual(2, s.formatVersion);
+            Assert.AreEqual(3, s.formatVersion);
             Assert.AreEqual(0f, s.cameraDistance);
             Assert.AreEqual(0f, s.cameraPitch);
-            Assert.AreEqual(0.15f, s.lookSensitivity);
+            Assert.AreEqual(0.3f, s.lookSensitivity);
             Assert.IsFalse(s.invertY);
             Assert.AreEqual(1f, s.uiScale);
             Assert.AreEqual(60, s.targetFps);
@@ -50,7 +50,7 @@ namespace Game.Core.Tests
                 s.Clamp();
                 Assert.AreEqual(0f, s.cameraDistance);
                 Assert.AreEqual(0f, s.cameraPitch);
-                Assert.AreEqual(0.15f, s.lookSensitivity);
+                Assert.AreEqual(0.3f, s.lookSensitivity);
                 Assert.AreEqual(1f, s.uiScale);
             }
         }
@@ -96,17 +96,25 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void MigratesV1AndOptionalCamera()
+        public void MigratesOldVersionsAndOptionalCamera()
         {
             var s = JsonUtility.FromJson<PlayerSettings>("{\"formatVersion\":1,\"cameraDistance\":6}");
             s.Clamp();
-            Assert.AreEqual(2, s.formatVersion);
+            Assert.AreEqual(3, s.formatVersion);
             Assert.AreEqual(0f, s.cameraDistance);
             Assert.AreEqual(0f, s.cameraPitch);
-            s = JsonUtility.FromJson<PlayerSettings>("{\"formatVersion\":2,\"cameraDistance\":10,\"cameraPitch\":40}");
+            Assert.AreEqual(0.3f, s.lookSensitivity);
+            s = JsonUtility.FromJson<PlayerSettings>("{\"formatVersion\":2,\"cameraDistance\":10,\"cameraPitch\":40,\"lookSensitivity\":0.15}");
+            s.Clamp();
+            Assert.AreEqual(3, s.formatVersion);
+            Assert.AreEqual(0f, s.cameraDistance);
+            Assert.AreEqual(0f, s.cameraPitch);
+            Assert.AreEqual(0.3f, s.lookSensitivity);
+            s = JsonUtility.FromJson<PlayerSettings>("{\"formatVersion\":3,\"cameraDistance\":10,\"cameraPitch\":40,\"lookSensitivity\":0.2}");
             s.Clamp();
             Assert.AreEqual(10f, s.cameraDistance);
             Assert.AreEqual(40f, s.cameraPitch);
+            Assert.AreEqual(0.2f, s.lookSensitivity, 1e-5f);
             s = new PlayerSettings { cameraDistance = -3, cameraPitch = -3 };
             s.Clamp();
             Assert.AreEqual(0f, s.cameraDistance);

@@ -117,11 +117,11 @@ namespace Game.Client
             if (!hasPointer || cam == null || view.Editor == null)
                 return;
 
-            // Camera tool: left click places the observation camera at the current view (brief 0053); sow mode keeps priority.
+            // Camera tool: right click on a block places the observation camera above it (decision 0035); sow mode keeps priority.
             if (Tool == EditTool.Camera && Farming.SowCrop < 0)
             {
                 ShowAim(false, default, default);
-                if (GameInput.UseTool.WasPressedThisFrame()) PlaceObservationCamera();
+                if (GameInput.UseTool.WasPressedThisFrame() && Pick(cam.ScreenPointToRay(pointer), out var camCell, out _)) UseTool(camCell, camCell);
                 return;
             }
 
@@ -193,12 +193,16 @@ namespace Game.Client
             return true;
         }
 
-        /// <summary>Places the observation camera at Camera.main's position and rotation; writes the HUD result line. False if no camera or engaged.</summary>
-        public bool PlaceObservationCamera()
+        /// <summary>Places the observation camera ObservationHeight cells above the top face of cell, facing like Camera.main (decision 0035); writes the HUD result line. False if no camera, engaged, or cell out of tool reach.</summary>
+        public bool PlaceObservationCamera(Vector3Int cell)
         {
             var cam = Camera.main;
-            if (cam == null || !Observation.Place(cam.transform.position, cam.transform.rotation)) return false;
-            lastResult = Format("edit.camera_placed", view.CellAt(cam.transform.position));
+            if (cam == null) return false;
+            var player = PlayerCharacter.Active;
+            if (player != null && !player.InToolReach(cell)) return false;
+            var pos = view.transform.TransformPoint(new Vector3(cell.x + 0.5f, cell.y + 1f + PlayerMotion.ObservationHeight, cell.z + 0.5f));
+            if (!Observation.Place(pos, cam.transform.rotation)) return false;
+            lastResult = Format("edit.camera_placed", cell);
             return true;
         }
 
@@ -262,7 +266,12 @@ namespace Game.Client
         {
             if (Observation != null && Observation.Engaged) return EditResult.NotPlaceable;
             if (Farming != null && Farming.SowCrop >= 0) { lastResult = ""; return Farming.SowAt(digCell) ? EditResult.Ok : EditResult.NotPlaceable; }
-            if (Tool == EditTool.Camera) return PlaceObservationCamera() ? EditResult.Ok : EditResult.NotPlaceable;
+            if (Tool == EditTool.Camera)
+            {
+                var cp = PlayerCharacter.Active;
+                if (cp != null && !cp.InToolReach(digCell)) return EditResult.OutOfReach;
+                return PlaceObservationCamera(digCell) ? EditResult.Ok : EditResult.NotPlaceable;
+            }
             var player = PlayerCharacter.Active;
             if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell))
                 return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0031)

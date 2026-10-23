@@ -10,6 +10,7 @@ namespace Game.Client
     /// V / HUD button: register the pose as the second streaming viewpoint, show the loading text until the columns within
     /// loadRadius are loaded, then move Camera.main there with its follow/fly controllers disabled.
     /// V / button / Esc: restore Camera.main and remove the viewpoint. While Loading or Viewing, tools and player movement are locked.
+    /// Placed by right-clicking a block: ObservationHeight cells above its top face, facing like Camera.main. While viewing, middle mouse + move rotates the view; the direction is kept until placed again (decision 0035).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class ObservationCamera : MonoBehaviour
@@ -27,6 +28,8 @@ namespace Game.Client
         Renderer[] markerRenderers;
         const float MarkerHideDistance = 1.5f;
         GUIStyle loadingStyle;
+        float lookYaw, lookPitch;
+        public const float LookPitchMin = -80f, LookPitchMax = 85f;
 
         public ObservationState State { get; private set; }
         /// <summary>Placed pose (also the streaming viewpoint while engaged); null until first placed.</summary>
@@ -65,6 +68,8 @@ namespace Game.Client
         void Update()
         {
             HandleKeys(GameInput.ToggleObservation.WasPressedThisFrame(), GameInput.Back.WasPressedThisFrame());
+            if (State == ObservationState.Viewing && GameInput.HasPointer && GameInput.RotateCamera.IsPressed() && !MinimapView.IsAnyOpen && !SettingsView.IsAnyOpen)
+                ApplyLook(GameInput.Look.ReadValue<Vector2>(), follow != null ? follow.lookSensitivity : 0.3f, follow != null && follow.invertY);
             if (State == ObservationState.Loading && view.MissingColumnsWithin(Point, view.loadRadius) == 0) ShowView();
         }
 
@@ -96,7 +101,21 @@ namespace Game.Client
         {
             if (Engaged) return false;
             if (Point == null) BuildPoint();
-            Point.SetPositionAndRotation(position, rotation);
+            var e = rotation.eulerAngles;
+            lookYaw = e.y;
+            lookPitch = Mathf.Clamp(e.x > 180f ? e.x - 360f : e.x, LookPitchMin, LookPitchMax);
+            Point.SetPositionAndRotation(position, Quaternion.Euler(lookPitch, lookYaw, 0f));
+            return true;
+        }
+
+        /// <summary>Viewing only: rotate the observation pose and the shown camera by a mouse delta (decision 0035). The new direction is kept for later views until Place. False when not Viewing.</summary>
+        public bool ApplyLook(Vector2 delta, float sensitivity, bool invertY)
+        {
+            if (State != ObservationState.Viewing) return false;
+            lookYaw += delta.x * sensitivity;
+            lookPitch = Mathf.Clamp(lookPitch - delta.y * sensitivity * (invertY ? -1f : 1f), LookPitchMin, LookPitchMax);
+            Point.rotation = Quaternion.Euler(lookPitch, lookYaw, 0f);
+            if (shownCamera != null) shownCamera.transform.rotation = Point.rotation;
             return true;
         }
 

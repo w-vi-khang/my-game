@@ -8,7 +8,7 @@ using UnityEngine.TestTools;
 
 namespace Game.Client.Tests
 {
-    /// <summary>World 7j (brief 0053): observation camera — place, tool cycle, load then view, return, locks.</summary>
+    /// <summary>World 7j (brief 0053): observation camera — place, tool cycle, load then view, return, locks. Brief 0057: place on a cell, look while viewing.</summary>
     public class ObservationCameraPlayTests
     {
         GameObject camGo, go, playerGo;
@@ -76,6 +76,9 @@ namespace Game.Client.Tests
             return view.transform.TransformPoint(new Vector3(c.x, view.World.Size.Y, c.y));
         }
 
+        Vector3Int GroundAhead(int dx) { var f = player.FeetLocal; return new Vector3Int(Mathf.FloorToInt(f.x) + dx, Mathf.FloorToInt(f.y) - 1, Mathf.FloorToInt(f.z)); }
+        Vector3 AboveCell(Vector3Int c) => view.transform.TransformPoint(new Vector3(c.x + 0.5f, c.y + 1f + PlayerMotion.ObservationHeight, c.z + 0.5f));
+
         IEnumerator WaitViewing()
         {
             for (int i = 0; i < 600 && obs.State != ObservationState.Viewing; i++) yield return null;
@@ -83,16 +86,17 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator PlaceTakesCameraPoseAndReplaces()
+        public IEnumerator PlaceOnCellUsesCameraAnglesAndReplaces()
         {
+            follow.enabled = false;
             Assert.IsFalse(obs.HasCamera);
             Assert.IsFalse(obs.ButtonVisible);
             Assert.IsFalse(ObservationCamera.BlocksPointer(ButtonCenterOnScreen()));
-            var p1 = new Vector3(150.25f, 45.5f, 140.75f);
+            var c1 = GroundAhead(2);
             var r1 = Quaternion.Euler(30f, 45f, 0f);
-            camGo.transform.SetPositionAndRotation(p1, r1);
-            Assert.IsTrue(tei.PlaceObservationCamera());
-            AssertPose(obs.Point, p1, r1);
+            camGo.transform.SetPositionAndRotation(new Vector3(150.25f, 45.5f, 140.75f), r1);
+            Assert.IsTrue(tei.PlaceObservationCamera(c1));
+            AssertPose(obs.Point, AboveCell(c1), r1);
             StringAssert.Contains("Đã đặt camera quan sát", tei.HudText()); // vi-text
             Assert.IsTrue(obs.ButtonVisible);
             Assert.IsTrue(obs.MarkerVisible);
@@ -100,12 +104,15 @@ namespace Game.Client.Tests
             Assert.IsTrue(ObservationCamera.BlocksPointer(ButtonCenterOnScreen()));
             Assert.IsFalse(ObservationCamera.BlocksPointer(new Vector2(Screen.width / 2f, Screen.height / 2f)));
             var first = obs.Point;
-            var p2 = new Vector3(200.5f, 50f, 210.5f);
+            var c2 = GroundAhead(-3);
             var r2 = Quaternion.Euler(10f, 200f, 0f);
-            camGo.transform.SetPositionAndRotation(p2, r2);
-            Assert.IsTrue(tei.PlaceObservationCamera());
+            camGo.transform.SetPositionAndRotation(new Vector3(200.5f, 50f, 210.5f), r2);
+            Assert.IsTrue(tei.PlaceObservationCamera(c2));
             Assert.AreSame(first, obs.Point);
-            AssertPose(obs.Point, p2, r2);
+            AssertPose(obs.Point, AboveCell(c2), r2);
+            var far = GroundAhead(30);
+            Assert.IsFalse(tei.PlaceObservationCamera(far));
+            AssertPose(obs.Point, AboveCell(c2), r2);
             Assert.AreEqual(1, go.GetComponentsInChildren<Transform>(true).Count(t => t.name == "ObservationPoint"));
             yield return null;
             Assert.AreEqual(0, obs.Point.GetComponentsInChildren<Collider>(true).Length);
@@ -115,20 +122,65 @@ namespace Game.Client.Tests
         [UnityTest]
         public IEnumerator CameraToolCycleAndClickPlaces()
         {
+            follow.enabled = false;
             tei.ToggleTool();
             Assert.AreEqual(EditTool.Place, tei.Tool);
             tei.ToggleTool();
             Assert.AreEqual(EditTool.Camera, tei.Tool);
             StringAssert.Contains("<color=yellow>Camera</color>", tei.HudText());
-            StringAssert.Contains("đặt camera quan sát tại chỗ và hướng đang nhìn", tei.HudText()); // vi-text
-            var p1 = new Vector3(150.25f, 45.5f, 140.75f);
+            StringAssert.Contains("chuột phải lên khối = đặt camera quan sát", tei.HudText()); // vi-text
             var r1 = Quaternion.Euler(30f, 45f, 0f);
-            camGo.transform.SetPositionAndRotation(p1, r1);
-            Assert.AreEqual(EditResult.Ok, tei.UseTool(default, default));
-            AssertPose(obs.Point, p1, r1);
+            camGo.transform.SetPositionAndRotation(new Vector3(150.25f, 45.5f, 140.75f), r1);
+            var c = GroundAhead(2);
+            Assert.AreEqual(EditResult.Ok, tei.UseTool(c, c));
+            AssertPose(obs.Point, AboveCell(c), r1);
+            var far = GroundAhead(30);
+            Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(far, far));
+            AssertPose(obs.Point, AboveCell(c), r1);
             tei.ToggleTool();
             Assert.AreEqual(EditTool.Dig, tei.Tool);
             yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator ViewRightAfterPlacingMovesCamera()
+        {
+            yield return null;
+            var before = camGo.transform.position;
+            Assert.IsTrue(tei.PlaceObservationCamera(GroundAhead(2)));
+            obs.Toggle();
+            yield return WaitViewing();
+            Assert.Greater(Vector3.Distance(camGo.transform.position, before), 1f);
+            AssertPose(camGo.transform, obs.Point.position, obs.Point.rotation);
+            obs.Toggle();
+        }
+
+        [UnityTest]
+        public IEnumerator LookRotatesWhileViewingAndIsKept()
+        {
+            follow.enabled = false;
+            camGo.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
+            Assert.IsTrue(tei.PlaceObservationCamera(GroundAhead(2)));
+            Assert.IsFalse(obs.ApplyLook(new Vector2(100f, 0f), 0.3f, false));
+            Assert.Less(Quaternion.Angle(obs.Point.rotation, Quaternion.Euler(20f, 0f, 0f)), 0.01f);
+            obs.Toggle();
+            yield return WaitViewing();
+            Assert.IsTrue(obs.ApplyLook(new Vector2(100f, 0f), 0.3f, false));
+            Assert.Less(Quaternion.Angle(obs.Point.rotation, Quaternion.Euler(20f, 30f, 0f)), 0.01f);
+            Assert.Less(Quaternion.Angle(camGo.transform.rotation, obs.Point.rotation), 0.01f);
+            obs.ApplyLook(new Vector2(0f, 1000f), 0.3f, false);
+            Assert.Less(Quaternion.Angle(obs.Point.rotation, Quaternion.Euler(-80f, 30f, 0f)), 0.01f);
+            obs.ApplyLook(new Vector2(0f, 10f), 0.3f, true);
+            Assert.Less(Quaternion.Angle(obs.Point.rotation, Quaternion.Euler(-77f, 30f, 0f)), 0.01f);
+            obs.Toggle();
+            Assert.Less(Quaternion.Angle(obs.Point.rotation, Quaternion.Euler(-77f, 30f, 0f)), 0.01f);
+            obs.Toggle();
+            yield return WaitViewing();
+            Assert.Less(Quaternion.Angle(camGo.transform.rotation, Quaternion.Euler(-77f, 30f, 0f)), 0.01f);
+            obs.Toggle();
+            camGo.transform.rotation = Quaternion.Euler(25f, 90f, 0f);
+            Assert.IsTrue(tei.PlaceObservationCamera(GroundAhead(-3)));
+            Assert.Less(Quaternion.Angle(obs.Point.rotation, Quaternion.Euler(25f, 90f, 0f)), 0.01f);
         }
 
         [UnityTest]
@@ -197,6 +249,8 @@ namespace Game.Client.Tests
             Assert.IsTrue(obs.Place(Map2Pose(), Quaternion.Euler(40f, 0f, 0f)));
             obs.HandleKeys(true, false);
             Assert.AreEqual(ObservationState.Loading, obs.State);
+            Assert.IsFalse(obs.ApplyLook(new Vector2(100f, 0f), 0.3f, false));
+            Assert.Less(Quaternion.Angle(obs.Point.rotation, Quaternion.Euler(40f, 0f, 0f)), 0.01f);
             obs.HandleKeys(true, false);
             Assert.AreEqual(ObservationState.Off, obs.State);
             Assert.AreEqual(1, view.ViewpointCount);
@@ -210,7 +264,7 @@ namespace Game.Client.Tests
         {
             var settings = go.AddComponent<SettingsView>();
             yield return null;
-            Assert.IsTrue(tei.PlaceObservationCamera());
+            Assert.IsTrue(tei.PlaceObservationCamera(GroundAhead(2)));
             obs.Toggle();
             yield return WaitViewing();
             settings.HandleKeys(false, true);
@@ -228,7 +282,7 @@ namespace Game.Client.Tests
         [UnityTest]
         public IEnumerator ToolsAndMovementLockedWhileViewing()
         {
-            Assert.IsTrue(tei.PlaceObservationCamera());
+            Assert.IsTrue(tei.PlaceObservationCamera(GroundAhead(2)));
             obs.Toggle();
             yield return WaitViewing();
             var tool = tei.Tool;
@@ -239,7 +293,7 @@ namespace Game.Client.Tests
             var before = view.World.Get(c.x, c.y, c.z);
             Assert.AreEqual(EditResult.NotPlaceable, tei.UseTool(c, c));
             Assert.AreEqual(before, view.World.Get(c.x, c.y, c.z));
-            Assert.IsFalse(tei.PlaceObservationCamera());
+            Assert.IsFalse(tei.PlaceObservationCamera(GroundAhead(2)));
             var p0 = player.transform.position;
             player.MoveInput = new Vector2(0f, 1f);
             player.JumpInput = true;
@@ -259,7 +313,7 @@ namespace Game.Client.Tests
             try
             {
                 view.AddViewpoint(dummy, 128, 160);
-                tei.PlaceObservationCamera();
+                tei.PlaceObservationCamera(GroundAhead(2));
                 LogAssert.Expect(LogType.Warning, new Regex("^OBSERVE"));
                 Assert.IsFalse(obs.Toggle());
                 Assert.AreEqual(ObservationState.Off, obs.State);
@@ -279,16 +333,16 @@ namespace Game.Client.Tests
         {
             follow.enabled = false;
             camGo.transform.SetPositionAndRotation(new Vector3(150.25f, 45.5f, 140.75f), Quaternion.Euler(30f, 45f, 0f));
-            Assert.IsTrue(tei.PlaceObservationCamera());
+            Assert.IsTrue(tei.PlaceObservationCamera(GroundAhead(2)));
             yield return null;
             Assert.IsTrue(obs.MarkerVisible);
-            Assert.IsFalse(obs.MarkerRendered, "marker must not cover the view right after placing");
-            camGo.transform.position = obs.Point.position + new Vector3(0f, 0f, -3f);
-            yield return null;
-            Assert.IsTrue(obs.MarkerRendered);
+            Assert.IsTrue(obs.MarkerRendered, "marker is drawn while the camera is far");
             camGo.transform.position = obs.Point.position + new Vector3(1f, 0f, 0f);
             yield return null;
             Assert.IsFalse(obs.MarkerRendered);
+            camGo.transform.position = obs.Point.position + new Vector3(0f, 0f, -3f);
+            yield return null;
+            Assert.IsTrue(obs.MarkerRendered);
         }
     }
 }

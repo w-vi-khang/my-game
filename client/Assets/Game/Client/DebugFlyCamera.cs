@@ -14,7 +14,7 @@ namespace Game.Client
     {
         public float speed = 10f;
         public float fastMultiplier = 3f;
-        public float lookSensitivity = 0.15f;
+        public float lookSensitivity = 0.3f;
         public bool invertY;
         /// <summary>World để chặn camera vào ô đặc (brief 0011); null → bay xuyên như cũ (SimView).</summary>
         public TerrainChunkView terrain;

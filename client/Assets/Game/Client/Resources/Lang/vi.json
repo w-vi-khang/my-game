@@ -316,7 +316,7 @@
     },
     {
       "key": "hud.camera_help",
-      "text": "Camera: chuột phải = đặt camera quan sát tại chỗ và hướng đang nhìn (đặt lại thì thay chỗ cũ) · V hoặc nút Xem camera: xem / quay về\n"
+      "text": "Camera: chuột phải lên khối = đặt camera quan sát cao hơn khối 2 ô, hướng theo camera đang nhìn (đặt lại thì thay chỗ cũ) · V hoặc nút Xem camera: xem / quay về · đang xem: giữ chuột giữa để xoay\n"
     },
     {
       "key": "hud.elevation",

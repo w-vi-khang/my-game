@@ -157,9 +157,10 @@ namespace Game.Core.Sim
         public int dashCooldownMs = 3000;
         public int stuckMs = 300;
         public int clickMarkMs = 500;
-        public float cameraPitch = 55f;
-        public float cameraDistance = 14f;
+        public float cameraPitch = 10f;
+        public float cameraDistance = 9f;
         public float firstPersonPitch = 15f;
+        public float observationHeight = 2f;
     }
 
     /// <summary>
@@ -410,6 +411,8 @@ namespace Game.Core.Sim
                 throw new ArgumentException("player.cameraDistance must be in [2.5, 24].");
             if (!(player.firstPersonPitch >= -30f && player.firstPersonPitch <= 60f))
                 throw new ArgumentException("player.firstPersonPitch must be in [-30, 60].");
+            if (!(player.observationHeight >= 1f && player.observationHeight <= 10f))
+                throw new ArgumentException("player.observationHeight must be in [1, 10].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
                 throw new ArgumentException("farm.queueSlots must be in [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)

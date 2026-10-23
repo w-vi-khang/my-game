@@ -205,7 +205,7 @@ namespace Game.Client.Tests
         {
             Assert.IsNotNull(settings);
             var s = GameSettings.Current.Clone();
-            s.cameraDistance = 10f; s.cameraPitch = 40f; s.lookSensitivity = 0.3f; s.invertY = true; s.targetFps = 30;
+            s.cameraDistance = 10f; s.cameraPitch = 40f; s.lookSensitivity = 0.4f; s.invertY = true; s.targetFps = 30;
             GameSettings.Apply(s);
             var follow = camGo.GetComponent<FollowCamera>();
             var fly = camGo.GetComponent<DebugFlyCamera>();
@@ -213,9 +213,9 @@ namespace Game.Client.Tests
             Assert.AreEqual(40f, follow.pitch);
             Assert.AreEqual(40f, follow.defaultPitch);
             Assert.AreEqual(10f, follow.defaultDistance);
-            Assert.AreEqual(0.3f, follow.lookSensitivity);
+            Assert.AreEqual(0.4f, follow.lookSensitivity);
             Assert.IsTrue(follow.invertY);
-            Assert.AreEqual(0.3f, fly.lookSensitivity);
+            Assert.AreEqual(0.4f, fly.lookSensitivity);
             Assert.AreEqual(30, Application.targetFrameRate);
             Assert.AreEqual(30, sv.TargetFps);
             var s2 = GameSettings.Current.Clone();
