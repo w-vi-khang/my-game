@@ -1,6 +1,6 @@
 # Brief 0054 — điều khiển PC A: luật lõi (tầm, máu/mana, túi ô vuông, chuyển đồ, chuột phải)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -415,8 +415,18 @@ Không. Client chưa dùng luật mới; chơi không đổi.
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 06c27b9
+Chạy bằng: Sonnet · medium (claude-sonnet-5-5)
+Bắt đầu: 17:12 · Kết thúc: 17:21 (~9 phút thực tế)
+Commit: 9c993e6 — 10 file mới (+.meta) trong Core/Tests, sửa DropField, PlayerBag, PlayerRules, SimConfig, hai sim_m1.json, PlayerBagTests, PlayerRulesTests, SimConfigTests.
 
 ## Kết quả test
+- Biên dịch: `read_console` không lỗi (chỉ cảnh báo cũ CS0618 ở file Client ngoài phạm vi).
+- Các phần ở bảng 1–8: đạt — mọi test mới có tên đúng bảng và qua (EditMode).
+- EditMode toàn bộ: 527 tổng, lần đầu 526 qua + 1 lỗi do test của chính mình (`ItemTransferTests.FromSlotAndFromStore`: kho chung có sẵn hạt đầu game nên phải so với mốc đầu); sửa test, chạy lại lớp đó 3/3 qua.
+- PlayMode toàn bộ: 181/181 qua (brief ghi 180; chênh 1 do thay đổi dở của TerrainEditPlayTests.cs).
+- `python3 tools/check_design.py`: đạt. Hai sim_m1.json giống nhau từng byte.
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy. Editor đang ở Play Mode khi bắt đầu → đã Stop để chạy test.
 
 ## Vướng mắc
 
