@@ -112,7 +112,7 @@
     },
     {
       "key": "edit.explain_no_material",
-      "text": "túi hết loại này (nhặt vật rơi bằng F hoặc chuột trái, hoặc chọn loại khác bằng 1–4 / Alt + lăn chuột)"
+      "text": "túi hết loại này (nhặt vật rơi bằng F hoặc chuột phải, hoặc chọn loại khác bằng 1–4 / Alt + lăn chuột)"
     },
     {
       "key": "edit.explain_not_attached",
@@ -188,7 +188,7 @@
     },
     {
       "key": "farm.hud_sow",
-      "text": "\nGieo {0} (còn {1}) — chuột phải / Esc để thoát"
+      "text": "\nGieo {0} (còn {1}) — Esc / Tab để thoát"
     },
     {
       "key": "farm.hud_tilling",
@@ -296,11 +296,11 @@
     },
     {
       "key": "hud.aimed_drop",
-      "text": "\nNhặt (chuột trái): {0}"
+      "text": "\nNhặt (chuột phải): {0}"
     },
     {
       "key": "hud.aimed_harvest",
-      "text": "\nThu hoạch (chuột trái): {0}"
+      "text": "\nThu hoạch (chuột phải): {0}"
     },
     {
       "key": "hud.bag",
@@ -316,7 +316,7 @@
     },
     {
       "key": "hud.camera_help",
-      "text": "Camera: chuột trái = đặt camera quan sát tại chỗ và hướng đang nhìn (đặt lại thì thay chỗ cũ) · V hoặc nút Xem camera: xem / quay về\n"
+      "text": "Camera: chuột phải = đặt camera quan sát tại chỗ và hướng đang nhìn (đặt lại thì thay chỗ cũ) · V hoặc nút Xem camera: xem / quay về\n"
     },
     {
       "key": "hud.elevation",
@@ -328,15 +328,15 @@
     },
     {
       "key": "hud.help_fly",
-      "text": " · Chuột trái: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n"
+      "text": " · Chuột phải: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n"
     },
     {
       "key": "hud.help_idle",
-      "text": " · Chuột trái: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n"
+      "text": " · Chuột phải: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n"
     },
     {
       "key": "hud.help_walk",
-      "text": " · Chuột trái: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · R: phép Mưa (trong {0:0.#} ô) · B: túi · chuột trái lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · WASD: đi · Space: nhảy · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n"
+      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · A: nhảy · Shift: lướt · Chuột phải: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · R: phép Mưa (trong {0:0.#} ô) · B: túi · chuột phải lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · giữ chuột giữa: xoay · lăn chuột: gần/xa · F3: camera bay\n"
     },
     {
       "key": "hud.rebuild",
@@ -348,7 +348,7 @@
     },
     {
       "key": "hud.till_help",
-      "text": "Xới: chuột trái lên đất/cỏ = đánh dấu · lên biển = tự đi tới xới · chuột phải lên biển = bỏ đánh dấu · lên ô ruộng = chọn giống · K: kho\n"
+      "text": "Xới: chuột phải lên đất/cỏ = đánh dấu · lên biển = tự đi tới xới · lên ô ruộng = chọn giống · K: kho\n"
     },
     {
       "key": "hud.tool",

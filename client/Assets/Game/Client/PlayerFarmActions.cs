@@ -213,7 +213,7 @@ namespace Game.Client
                 return;
             }
             // Tilling
-            if (player != null && (player.FlyMode || player.MoveInput.sqrMagnitude > 0.01f || player.JumpInput))
+            if (player != null && player.HasMoveIntent)
             {
                 CancelSelfTill();
                 return;

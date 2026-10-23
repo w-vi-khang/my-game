@@ -3,13 +3,13 @@ using UnityEngine.InputSystem;
 
 namespace Game.Client
 {
-    /// <summary>Hành động điều khiển (0033): gameplay / UI đọc qua đây, không đọc thẳng phím. Asset project-wide: Input/GameControls.inputactions. Bảng đổi phím: M3.</summary>
+    /// <summary>Hành động điều khiển (0033): gameplay / UI đọc qua đây, không đọc thẳng phím. Asset project-wide: Input/GameControls.inputactions. Bảng đổi phím: M1 (7l f, 0034).</summary>
     public static class GameInput
     {
-        public static InputAction Move => Get("Player/Move");
+        public static InputAction MoveClick => Get("Player/MoveClick");
         public static InputAction Jump => Get("Player/Jump");
+        public static InputAction Dash => Get("Player/Dash");
         public static InputAction UseTool => Get("Player/UseTool");
-        public static InputAction Cancel => Get("Player/Cancel");
         public static InputAction Back => Get("Player/Back");
         public static InputAction SelectBlock1 => Get("Player/SelectBlock1");
         public static InputAction SelectBlock2 => Get("Player/SelectBlock2");

@@ -358,7 +358,7 @@ namespace Game.Client.Tests
         public void SowHud()
         {
             EnterSow(0, 3);
-            StringAssert.Contains("Gieo Cây A (còn 3) — chuột phải / Esc để thoát", farming.HudLines()); // vi-text
+            StringAssert.Contains("Gieo Cây A (còn 3) — Esc / Tab để thoát", farming.HudLines()); // vi-text
         }
 
         [UnityTest]

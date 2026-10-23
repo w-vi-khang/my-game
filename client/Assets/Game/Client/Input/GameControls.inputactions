@@ -6,13 +6,13 @@
             "id": "0067eb6b-c669-5107-9a5a-f1576ed1f769",
             "actions": [
                 {
-                    "name": "Move",
-                    "type": "Value",
-                    "id": "91348265-890d-5ad4-8b40-222806b99c51",
-                    "expectedControlType": "Vector2",
+                    "name": "MoveClick",
+                    "type": "Button",
+                    "id": "be88c2c1-da3a-438e-a46c-2e5defe745c2",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 },
                 {
                     "name": "Jump",
@@ -24,18 +24,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "UseTool",
+                    "name": "Dash",
                     "type": "Button",
-                    "id": "f1e37030-0cc9-5a0a-9bbb-a4258a4527c9",
+                    "id": "3c5904cf-a443-42ad-aa03-77d3ffbf5e3c",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Cancel",
+                    "name": "UseTool",
                     "type": "Button",
-                    "id": "b7540b79-2c58-53f5-bfdc-d9c76c8bfb91",
+                    "id": "f1e37030-0cc9-5a0a-9bbb-a4258a4527c9",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -206,64 +206,20 @@
             ],
             "bindings": [
                 {
-                    "name": "WASD",
-                    "id": "ea3e8135-3f68-50e0-b31a-017cf3773dd0",
-                    "path": "2DVector(mode=1)",
+                    "name": "",
+                    "id": "f010b30c-da86-4140-ac1e-94b19c512ae9",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
+                    "action": "MoveClick",
+                    "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "up",
-                    "id": "8a7bd224-c443-5114-8227-1f03918f3c49",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "293cfbb1-bf72-51e1-8f0c-a579d1fd8952",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "left",
-                    "id": "d882d4dc-b6dc-5697-b382-c0071dc07af3",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "2e4de1e5-87de-55ba-9eea-9f3c0e916647",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
                     "id": "28250aef-4e98-58d9-ae79-ee8daaf9f98a",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -273,23 +229,23 @@
                 },
                 {
                     "name": "",
-                    "id": "b299fda1-3fe1-5fda-bba2-d1b848a9e496",
-                    "path": "<Mouse>/leftButton",
+                    "id": "0580460f-186c-4721-956b-01835ad39ee4",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "UseTool",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "bb205b8a-3e28-54d3-938f-0b905a83e4f2",
+                    "id": "b299fda1-3fe1-5fda-bba2-d1b848a9e496",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Cancel",
+                    "action": "UseTool",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

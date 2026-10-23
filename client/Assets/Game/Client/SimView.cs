@@ -452,6 +452,9 @@ namespace Game.Client
         /// <summary>Con trỏ (toạ độ màn hình, gốc dưới-trái) trên nút Kho / bảng kho / bảng ô ruộng → công cụ không dùng (brief 0030 mục 12).</summary>
         public static bool BlocksPointer(Vector2 screen) => SettingsView.BlocksPointer(screen) || (active != null && active.Sim != null && active.Covers(screen));
 
+        /// <summary>Bảng túi / kho / ô ruộng đang mở (Shift lướt bị bỏ qua, brief 0055).</summary>
+        public static bool AnyPanelOpen => active != null && (active.BagOpen || active.StockOpen || active.OpenPlotId >= 0);
+
         public bool Covers(Vector2 screen)
         {
             float s = GuiScale, gw = Screen.width / s, gh = Screen.height / s;

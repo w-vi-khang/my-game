@@ -44,6 +44,7 @@ namespace Game.Client
             var c = JsonUtility.FromJson<SimConfig>(asset.text);
             c.Validate();
             PlayerRules.Configure(c.player);
+            PlayerMotion.Configure(c.player);
             return c;
         }
 

@@ -7,10 +7,12 @@ using UnityEngine.Rendering;
 namespace Game.Client
 {
     /// <summary>
-    /// Nhân vật người chơi trên PC (world 7h, brief 0035, 0028): khối ghép cao 2 ô, CharacterController, WASD đi theo hướng camera, Space nhảy,
+    /// Nhân vật người chơi trên PC (world 7h, brief 0035, 0028): khối ghép cao 2 ô, CharacterController, chuột trái đi tới chỗ click (0034, 7l b), A nhảy, Shift lướt (MoveInput/JumpInput vẫn gán được từ code: test, WalkBench),
     /// F3 bật/tắt camera bay (debug), tự đi theo đường ô (sim 7f, brief 0041). Đầu game đặt túi hạt Cây A × 4 gần chỗ xuất phát (brief 0037). Luật tầm với / ô chiếm / biên / nước ở Game.Core.PlayerRules. Gốc transform = chân.
     /// </summary>
     public enum AutoWalkState { None, Walking, Arrived, Cancelled, Failed }
+
+    public enum ClickMoveState { None, Walking, Arrived, Blocked }
 
     [RequireComponent(typeof(CharacterController))]
     public class PlayerCharacter : MonoBehaviour
@@ -47,6 +49,7 @@ namespace Game.Client
         /// <summary>Bắt đầu tự đi qua các ô chân (toạ độ terrain, Game.Core.Sim.CellPos). Đường rỗng → Arrived ngay.</summary>
         public void StartAutoWalk(IReadOnlyList<Game.Core.Sim.CellPos> path)
         {
+            ClickMove = ClickMoveState.None;
             autoPath.Clear();
             for (int i = 0; i < path.Count; i++) autoPath.Add(path[i]);
             autoIndex = 0;
@@ -58,6 +61,80 @@ namespace Game.Client
         public void StopAutoWalk()
         {
             if (AutoWalk == AutoWalkState.Walking) AutoWalk = AutoWalkState.None;
+        }
+
+        /// <summary>Đi tới chỗ click (0034 mục 1).</summary>
+        public ClickMoveState ClickMove { get; private set; }
+        /// <summary>Đích click, toạ độ terrain; y = độ cao chân lúc click.</summary>
+        public Vector3 ClickTargetLocal { get; private set; }
+        public DashState Dash { get; private set; }
+        public bool Dashing => Dash != null && Dash.Active;
+        /// <summary>Hướng đi ngang (world) frame vừa rồi; zero khi đứng yên. Mũi tên dưới chân dùng.</summary>
+        public Vector3 MoveDirection { get; private set; }
+        public MoveMarkers Markers { get; private set; }
+        /// <summary>Người chơi đang tự di chuyển → huỷ tự đi theo đường ô / tự xới.</summary>
+        public bool HasMoveIntent => FlyMode || MoveInput.sqrMagnitude > 0.01f || JumpInput || ClickMove == ClickMoveState.Walking || Dashing;
+        public const float ClickRayDistance = 500f;
+        StuckTimer stuck;
+        Vector3 dashDir;
+        bool holdFromWorld;
+
+        /// <summary>Đặt đích đi (toạ độ terrain); y bỏ qua — đích quy về độ cao chân hiện tại.</summary>
+        public void MoveTo(Vector3 targetLocal)
+        {
+            ClickTargetLocal = new Vector3(targetLocal.x, FeetLocal.y, targetLocal.z);
+            ClickMove = ClickMoveState.Walking;
+            stuck.Reset();
+        }
+
+        public void StopClickMove()
+        {
+            if (ClickMove == ClickMoveState.Walking) ClickMove = ClickMoveState.None;
+        }
+
+        /// <summary>Điểm world dưới tia: trúng collider, không thì mặt phẳng ngang qua chân; còn lại false.</summary>
+        public bool PointOnWorld(Ray ray, out Vector3 pointWorld, out Vector3 normalWorld)
+        {
+            if (Physics.Raycast(ray, out var hit, ClickRayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            {
+                pointWorld = hit.point;
+                normalWorld = hit.normal;
+                return true;
+            }
+            if (new Plane(Vector3.up, transform.position).Raycast(ray, out float enter) && enter > 0f)
+            {
+                pointWorld = ray.GetPoint(enter);
+                normalWorld = Vector3.up;
+                return true;
+            }
+            pointWorld = default;
+            normalWorld = Vector3.up;
+            return false;
+        }
+
+        /// <summary>Click trái: đi tới điểm dưới tia; mark → dấu click. Trả false khi tia không cho điểm.</summary>
+        public bool ClickMoveRay(Ray ray, bool mark)
+        {
+            if (!PointOnWorld(ray, out var p, out var n)) return false;
+            MoveTo(terrain.transform.InverseTransformPoint(p));
+            if (mark) Markers.ShowClick(p, n);
+            return true;
+        }
+
+        /// <summary>Shift: lướt theo hướng đang đi (đứng yên → hướng mặt).</summary>
+        public bool TryDash()
+        {
+            if (FlyMode || ObservationCamera.InputLocked || !Ready || !Dash.TryStart(Controller.isGrounded)) return false;
+            var d = Vector3.zero;
+            if (ClickMove == ClickMoveState.Walking)
+            {
+                var f = FeetLocal;
+                d = terrain.transform.TransformDirection(new Vector3(ClickTargetLocal.x - f.x, 0f, ClickTargetLocal.z - f.z));
+                d.y = 0f;
+            }
+            if (d.sqrMagnitude < 1e-6f) { d = Visual.forward; d.y = 0f; }
+            dashDir = d.normalized;
+            return true;
         }
 
         float vy;
@@ -81,6 +158,9 @@ namespace Game.Client
             if (terrain != null) terrain.streamTarget = transform;
             BuildVisual();
             ConfigLoader.LoadSimConfig();
+            stuck = new StuckTimer(PlayerMotion.StuckSeconds);
+            Dash = new DashState(PlayerMotion.DashCells, PlayerMotion.DashSeconds, PlayerMotion.DashCooldownSeconds);
+            Markers = gameObject.AddComponent<MoveMarkers>();
         }
 
         void OnDestroy()
@@ -149,6 +229,9 @@ namespace Game.Client
             Controller.enabled = true;
             Visual.rotation = Quaternion.Euler(0f, yawDeg, 0f);
             vy = 0f;
+            ClickMove = ClickMoveState.None;
+            Dash?.Stop();
+            stuck?.Reset();
             Ready = false;
             if (follow != null) follow.SetAngles(yawDeg, 20f);
             else { pendingYaw = yawDeg; hasPendingYaw = true; }
@@ -157,6 +240,7 @@ namespace Game.Client
 
         public void SetFlyMode(bool on)
         {
+            if (on) { ClickMove = ClickMoveState.None; Dash?.Stop(); }
             if (fly == null) { FlyMode = false; return; }
             FlyMode = on;
             fly.enabled = on;
@@ -178,6 +262,18 @@ namespace Game.Client
         {
             var f = FeetLocal;
             return PlayerRules.Occupies(f.x, f.y, f.z, x, y, z);
+        }
+
+        void ReadPointerMove()
+        {
+            if (!GameInput.HasPointer || MinimapView.IsAnyOpen || cam == null) return;
+            bool pressed = GameInput.MoveClick.WasPressedThisFrame();
+            if (!pressed && !(holdFromWorld && GameInput.MoveClick.IsPressed())) return;
+            var pos = GameInput.PointerPosition;
+            bool blocked = MinimapView.BlocksPointer(pos) || TimeDial.BlocksPointer(pos) || SimView.BlocksPointer(pos) || ObservationCamera.BlocksPointer(pos);
+            if (pressed) holdFromWorld = !blocked;
+            if (blocked) return;
+            ClickMoveRay(cam.ScreenPointToRay(pos), pressed);
         }
 
         void Update()
@@ -208,17 +304,20 @@ namespace Game.Client
             {
                 MoveInput = Vector2.zero;
                 JumpInput = false;
+                if (ClickMove == ClickMoveState.Walking) ClickMove = ClickMoveState.None;
+                Dash.Stop();
             }
             else if (readKeyboard)
             {
-                MoveInput = GameInput.Move.ReadValue<Vector2>();
                 JumpInput = GameInput.Jump.IsPressed();
+                ReadPointerMove();
+                if (GameInput.Dash.WasPressedThisFrame() && !SimView.AnyPanelOpen) TryDash();
             }
 
             var f = FeetLocal;
             InWater = PlayerRules.InWater(terrain.World, f.x, f.y, f.z);
 
-            if (AutoWalk == AutoWalkState.Walking && (FlyMode || MoveInput.sqrMagnitude > 0.01f || JumpInput))
+            if (AutoWalk == AutoWalkState.Walking && HasMoveIntent)
                 AutoWalk = AutoWalkState.Cancelled;
             bool autoJump = false;
             float step = walkSpeed * (InWater ? PlayerRules.WaterSpeedFactor : 1f) * Time.deltaTime;
@@ -247,21 +346,66 @@ namespace Game.Client
                     if (autoStall > 3f) AutoWalk = AutoWalkState.Failed;
                 }
             }
+            else if (ClickMove == ClickMoveState.Walking)
+            {
+                float dx = ClickTargetLocal.x - f.x, dz = ClickTargetLocal.z - f.z;
+                float dist = Mathf.Sqrt(dx * dx + dz * dz);
+                if (dist <= PlayerMotion.ArriveDistance)
+                {
+                    ClickMove = ClickMoveState.Arrived;
+                    dir = Vector3.zero;
+                }
+                else
+                {
+                    dir = terrain.transform.TransformDirection(new Vector3(dx / dist, 0f, dz / dist));
+                    step = Mathf.Min(step, dist);
+                    autoJump = Controller.isGrounded && PlayerMotion.ShouldStepUp(terrain.World, f.x, f.y, f.z, dx / dist, dz / dist);
+                }
+            }
             var h = dir * step;
 
-            if (Controller.isGrounded && vy < 0f) vy = -2f;
-            if (Controller.isGrounded && (JumpInput || autoJump)) vy = jumpSpeed;
-            vy = Mathf.Max(vy - gravity * Time.deltaTime, -maxFallSpeed);
+            bool grounded = Controller.isGrounded;
+            Dash.Tick(Time.deltaTime, grounded);
+            if (Dashing)
+            {
+                h = dashDir * Dash.Step(Time.deltaTime);
+                vy = 0f;
+            }
+            else
+            {
+                if (grounded && vy < 0f) vy = -2f;
+                if (grounded && (JumpInput || autoJump)) vy = jumpSpeed;
+                vy = Mathf.Max(vy - gravity * Time.deltaTime, -maxFallSpeed);
+            }
 
             var lh = terrain.transform.InverseTransformVector(h);
             float lx = lh.x, lz = lh.z;
             PlayerRules.ClampToWorld(terrain.World.Size, f.x, f.z, ref lx, ref lz);
             h = terrain.transform.TransformVector(new Vector3(lx, 0f, lz));
 
+            var before = transform.position;
             Controller.Move(h + Vector3.up * (vy * Time.deltaTime));
+            var moved = transform.position - before;
+            float movedH = Mathf.Sqrt(moved.x * moved.x + moved.z * moved.z);
+            float wantH = Mathf.Sqrt(h.x * h.x + h.z * h.z);
+            if (Dashing && movedH < wantH * 0.5f) Dash.Stop();
+            if (ClickMove == ClickMoveState.Walking && !Dashing)
+            {
+                if (stuck.Update(Time.deltaTime, wantH > 1e-5f && movedH >= wantH * 0.25f)) ClickMove = ClickMoveState.Blocked;
+            }
+            else stuck.Reset();
 
-            if (dir.sqrMagnitude > 0.01f)
-                Visual.rotation = Quaternion.Slerp(Visual.rotation, Quaternion.LookRotation(dir), 15f * Time.deltaTime);
+            if (Dashing)
+            {
+                Visual.rotation = Quaternion.LookRotation(dashDir);
+                MoveDirection = dashDir;
+            }
+            else
+            {
+                if (dir.sqrMagnitude > 0.01f)
+                    Visual.rotation = Quaternion.Slerp(Visual.rotation, Quaternion.LookRotation(dir), 15f * Time.deltaTime);
+                MoveDirection = dir.sqrMagnitude > 0.01f ? new Vector3(dir.x, 0f, dir.z).normalized : Vector3.zero;
+            }
             Visual.localPosition = Controller.isGrounded && dir.sqrMagnitude > 0.01f
                 ? new Vector3(0f, bobHeight * Mathf.Abs(Mathf.Sin(Time.time * bobFrequency)), 0f)
                 : Vector3.zero;

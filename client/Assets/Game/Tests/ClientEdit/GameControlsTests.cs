@@ -21,10 +21,10 @@ namespace Game.Client.EditTests
 
         static Dictionary<string, (InputActionType type, string ect, string[] paths)> Expected() => new Dictionary<string, (InputActionType, string, string[])>
         {
-            ["Player/Move"] = E(InputActionType.Value, "Vector2", "2DVector(mode=1)", "<Keyboard>/w", "<Keyboard>/s", "<Keyboard>/a", "<Keyboard>/d"),
-            ["Player/Jump"] = B("<Keyboard>/space"),
-            ["Player/UseTool"] = B("<Mouse>/leftButton"),
-            ["Player/Cancel"] = B("<Mouse>/rightButton"),
+            ["Player/MoveClick"] = B("<Mouse>/leftButton"),
+            ["Player/Jump"] = B("<Keyboard>/a"),
+            ["Player/Dash"] = B("<Keyboard>/shift"),
+            ["Player/UseTool"] = B("<Mouse>/rightButton"),
             ["Player/Back"] = B("<Keyboard>/escape"),
             ["Player/SelectBlock1"] = B("<Keyboard>/1"),
             ["Player/SelectBlock2"] = B("<Keyboard>/2"),
@@ -95,7 +95,7 @@ namespace Game.Client.EditTests
         [Test]
         public void NoDirectInputReadsInScope()
         {
-            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs", "ObservationCamera.cs" };
+            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs", "ObservationCamera.cs", "MoveMarkers.cs" };
             var banned = new Regex(@"Keyboard\.current|Mouse\.current|\bInput\.Get|\bkb\.|\bmouse\.");
             var hits = new List<string>();
             foreach (var f in files)

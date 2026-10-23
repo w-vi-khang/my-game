@@ -17,6 +17,7 @@ namespace Game.Client
     /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 8 ô (0031), được dùng khi đang đi; Alt + lăn chọn loại.
     /// Sim 7f (brief 0041): chuột trái lên biển = tự đi tới xới, chuột phải = bỏ đánh dấu; R = phép Mưa; chuột trái lên cây chín (mọi công cụ) = thu hoạch.
     /// Sim 7f (brief 0042): chế độ gieo — chuột trái gieo, chuột phải / Esc / Tab thoát; click khối kho trong 8 ô mở bảng kho.
+    /// World 7l b (brief 0055): chuột trái = đi (PlayerCharacter); công cụ tạm dùng chuột phải tới 7l c; thoát gieo bằng Esc / Tab; bỏ đánh dấu xới tạm không có phím (7l c: nút trong bảng).
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
@@ -95,12 +96,6 @@ namespace Game.Client
 
             bool hasPointer = GameInput.HasPointer;
             var pointer = GameInput.PointerPosition;
-            if (hasPointer && Farming.SowCrop >= 0 && GameInput.Cancel.WasPressedThisFrame())
-            {
-                Farming.ExitSowMode();
-                ShowAim(false, default, default);
-                return;
-            }
             // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
             if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer) || ObservationCamera.BlocksPointer(pointer)))
             {
@@ -183,7 +178,6 @@ namespace Game.Client
             if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
 
             if (GameInput.UseTool.WasPressedThisFrame()) UseTool(digCell, placeCell);
-            if (Tool == EditTool.Till && GameInput.Cancel.WasPressedThisFrame()) UnmarkAimed(digCell);
         }
 
         /// <summary>Chuột phải khi cầm Xới: bỏ biển ô cell (trong 8 ô); ô đang tự xới → huỷ tự xới. true khi đã bỏ.</summary>

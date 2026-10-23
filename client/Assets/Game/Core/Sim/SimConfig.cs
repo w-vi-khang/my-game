@@ -152,6 +152,14 @@ namespace Game.Core.Sim
         public int bagPageSize = 10;
         public int hotbarPageSize = 10;
         public int stackMax = 999;
+        public float dashCells = 4f;
+        public int dashMs = 150;
+        public int dashCooldownMs = 3000;
+        public int stuckMs = 300;
+        public int clickMarkMs = 500;
+        public float cameraPitch = 55f;
+        public float cameraDistance = 14f;
+        public float firstPersonPitch = 15f;
     }
 
     /// <summary>
@@ -386,6 +394,22 @@ namespace Game.Core.Sim
                 throw new ArgumentException("player.hotbarPageSize must be in [1, 100].");
             if (player.stackMax < 1 || player.stackMax > 99999)
                 throw new ArgumentException("player.stackMax must be in [1, 99999].");
+            if (!(player.dashCells >= 0.5f && player.dashCells <= 16f))
+                throw new ArgumentException("player.dashCells must be in [0.5, 16].");
+            if (player.dashMs < 10 || player.dashMs > 2000)
+                throw new ArgumentException("player.dashMs must be in [10, 2000].");
+            if (player.dashCooldownMs < 100 || player.dashCooldownMs > 60000)
+                throw new ArgumentException("player.dashCooldownMs must be in [100, 60000].");
+            if (player.stuckMs < 50 || player.stuckMs > 5000)
+                throw new ArgumentException("player.stuckMs must be in [50, 5000].");
+            if (player.clickMarkMs < 50 || player.clickMarkMs > 5000)
+                throw new ArgumentException("player.clickMarkMs must be in [50, 5000].");
+            if (!(player.cameraPitch >= 10f && player.cameraPitch <= 85f))
+                throw new ArgumentException("player.cameraPitch must be in [10, 85].");
+            if (!(player.cameraDistance >= 2.5f && player.cameraDistance <= 24f))
+                throw new ArgumentException("player.cameraDistance must be in [2.5, 24].");
+            if (!(player.firstPersonPitch >= -30f && player.firstPersonPitch <= 60f))
+                throw new ArgumentException("player.firstPersonPitch must be in [-30, 60].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
                 throw new ArgumentException("farm.queueSlots must be in [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)

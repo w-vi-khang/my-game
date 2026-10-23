@@ -35,6 +35,7 @@
         "targetReach": 10, "actReach": 2, "digReach": 2, "collectReach": 2,
         "manaMax": 100, "manaDig": 5, "manaPlace": 3, "manaRain": 15, "manaRegenPerCell": 2,
         "hpMax": 100, "fallSafeCells": 4, "fallDamagePerCell": 10, "drownDamagePerSecond": 5, "hpRegenPerSecond": 1, "hpRegenDelayMs": 5000,
-        "bagSlots": 10, "hotbarSlots": 2, "bagPageSize": 10, "hotbarPageSize": 10, "stackMax": 999
+        "bagSlots": 10, "hotbarSlots": 2, "bagPageSize": 10, "hotbarPageSize": 10, "stackMax": 999,
+        "dashCells": 4, "dashMs": 150, "dashCooldownMs": 3000, "stuckMs": 300, "clickMarkMs": 500, "cameraPitch": 55, "cameraDistance": 14, "firstPersonPitch": 15
     }
 }

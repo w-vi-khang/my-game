@@ -54,6 +54,14 @@ namespace Game.Core.Tests
             Assert.AreEqual(10, cfg.player.bagPageSize);
             Assert.AreEqual(10, cfg.player.hotbarPageSize);
             Assert.AreEqual(999, cfg.player.stackMax);
+            Assert.AreEqual(4f, cfg.player.dashCells);
+            Assert.AreEqual(150, cfg.player.dashMs);
+            Assert.AreEqual(3000, cfg.player.dashCooldownMs);
+            Assert.AreEqual(300, cfg.player.stuckMs);
+            Assert.AreEqual(500, cfg.player.clickMarkMs);
+            Assert.AreEqual(55f, cfg.player.cameraPitch);
+            Assert.AreEqual(14f, cfg.player.cameraDistance);
+            Assert.AreEqual(15f, cfg.player.firstPersonPitch);
             Assert.AreEqual(6f, cfg.PlayerTillSeconds);
             Assert.AreEqual(10f, cfg.RainCooldownSeconds);
         }
@@ -89,6 +97,14 @@ namespace Game.Core.Tests
             Bad(c => c.player.bagSlots = 0, "bagSlots 0");
             Bad(c => c.player.stackMax = 0, "stackMax 0");
             Bad(c => c.player.hpRegenDelayMs = -1, "hpRegenDelayMs -1");
+            Bad(c => c.player.dashCells = 0.4f, "dashCells 0.4");
+            Bad(c => c.player.dashMs = 5, "dashMs 5");
+            Bad(c => c.player.dashCooldownMs = 50, "dashCooldownMs 50");
+            Bad(c => c.player.stuckMs = 10, "stuckMs 10");
+            Bad(c => c.player.clickMarkMs = 6000, "clickMarkMs 6000");
+            Bad(c => c.player.cameraPitch = 90f, "cameraPitch 90");
+            Bad(c => c.player.cameraDistance = 2f, "cameraDistance 2");
+            Bad(c => c.player.firstPersonPitch = -40f, "firstPersonPitch -40");
             Bad(c => c.player = null, "player null");
         }
 

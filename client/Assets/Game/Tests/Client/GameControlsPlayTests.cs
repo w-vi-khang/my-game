@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace Game.Client.Tests
 {
-    /// <summary>0033: hành động project-wide chạy lúc chơi; đổi phím lúc chạy (chuẩn bị bảng đổi phím M3).</summary>
+    /// <summary>0033: hành động project-wide chạy lúc chơi; đổi phím lúc chạy (chuẩn bị bảng đổi phím 7l f).</summary>
     public class GameControlsPlayTests
     {
         [Test]
@@ -29,26 +29,26 @@ namespace Game.Client.Tests
             if (!wasEnabled) InputSystem.actions.Enable();
             try
             {
-                Assert.AreEqual("<Mouse>/leftButton", GameInput.UseTool.bindings[0].effectivePath);
-                Assert.AreEqual("<Mouse>/rightButton", GameInput.Cancel.bindings[0].effectivePath);
-
-                GameInput.UseTool.ApplyBindingOverride("<Mouse>/rightButton");
-                GameInput.Cancel.ApplyBindingOverride("<Mouse>/leftButton");
                 Assert.AreEqual("<Mouse>/rightButton", GameInput.UseTool.bindings[0].effectivePath);
-                Assert.AreEqual("<Mouse>/leftButton", GameInput.Cancel.bindings[0].effectivePath);
+                Assert.AreEqual("<Mouse>/leftButton", GameInput.MoveClick.bindings[0].effectivePath);
+
+                GameInput.UseTool.ApplyBindingOverride("<Mouse>/leftButton");
+                GameInput.MoveClick.ApplyBindingOverride("<Mouse>/rightButton");
+                Assert.AreEqual("<Mouse>/leftButton", GameInput.UseTool.bindings[0].effectivePath);
+                Assert.AreEqual("<Mouse>/rightButton", GameInput.MoveClick.bindings[0].effectivePath);
                 Assert.Greater(GameInput.UseTool.controls.Count, 0);
-                foreach (var c in GameInput.UseTool.controls) Assert.AreEqual("rightButton", c.name);
-                foreach (var c in GameInput.Cancel.controls) Assert.AreEqual("leftButton", c.name);
+                foreach (var c in GameInput.UseTool.controls) Assert.AreEqual("leftButton", c.name);
+                foreach (var c in GameInput.MoveClick.controls) Assert.AreEqual("rightButton", c.name);
 
                 GameInput.UseTool.RemoveAllBindingOverrides();
-                GameInput.Cancel.RemoveAllBindingOverrides();
-                Assert.AreEqual("<Mouse>/leftButton", GameInput.UseTool.bindings[0].effectivePath);
-                foreach (var c in GameInput.UseTool.controls) Assert.AreEqual("leftButton", c.name);
+                GameInput.MoveClick.RemoveAllBindingOverrides();
+                Assert.AreEqual("<Mouse>/rightButton", GameInput.UseTool.bindings[0].effectivePath);
+                foreach (var c in GameInput.UseTool.controls) Assert.AreEqual("rightButton", c.name);
             }
             finally
             {
                 GameInput.UseTool.RemoveAllBindingOverrides();
-                GameInput.Cancel.RemoveAllBindingOverrides();
+                GameInput.MoveClick.RemoveAllBindingOverrides();
                 InputSystem.RemoveDevice(mouse);
                 if (!wasEnabled) InputSystem.actions.Disable();
             }
