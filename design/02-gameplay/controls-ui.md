@@ -32,9 +32,10 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 | Nhảy | Space | Nút nhảy | A | M1 |
 | Hành động chính (dùng công cụ đang cầm) | Chuột trái | Nút hành động chính | RT | M1 |
 | Huỷ / bỏ điểm đang chọn | Chuột phải | Nút huỷ (hiện khi đang chọn) | B | M1 |
-| Đổi công cụ | Tab (Đào → Đặt → Xới); phím 1–4 chọn loại khối (PC M1 đã làm) | Chạm ô trên thanh công cụ | LB / RB | M1 |
+| Đổi công cụ | Tab (Đào → Đặt → Xới → Camera); phím 1–4 chọn loại khối (PC M1 đã làm) | Chạm ô trên thanh công cụ | LB / RB | M1 |
 | Tương tác (nhặt, mở kho, nói chuyện NPC) | F (PC M1: Thu vật rơi trong tầm; mở kho = click khối kho) | Nút ngữ cảnh (hiện khi có thứ để tương tác) | X | M1 |
 | Phép Mưa (nhắm 1 ô) | R | _(chưa có)_ | _(chưa có)_ | M1 |
+| Camera quan sát | Tab chọn công cụ Camera + chuột trái: đặt camera quan sát tại vị trí và hướng đang nhìn (M1 tối đa 1, đặt lại thì thay chỗ cũ). V hoặc nút "Xem camera (V)" ở hàng nút dưới bên phải (chỉ hiện khi đã đặt): hiện "Đang tải…" tới khi vùng quanh camera nạp đủ rồi xem toàn màn hình, góc nhìn cố định, nhân vật đứng yên, không dùng công cụ. V / nút "Quay về (V)" / Esc: quay về | _(chưa có)_ | _(chưa có)_ | M1 ([0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), world 7j) |
 | Bảng kho | K (hoặc click khối kho trong 8 ô); giữ Shift khi bấm nút chuyển = chuyển tất cả | _(chưa có)_ | _(chưa có)_ | M1 |
 | Cài đặt | O; Esc khi không có bảng nào mở | _(chưa có)_ | _(chưa có)_ | M1 ([0032](../decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md)) |
 | Chạy nhanh | Shift | Đẩy joystick hết cỡ | Nhấn cần trái | M2 |
@@ -45,7 +46,7 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 | Phép 1–4 (khi nhập hồn) | Phím 1–4 (thanh công cụ đổi thành ô phép) | 4 nút quanh nút hành động chính | LB, RB, LT, X (khi nhập hồn X không dùng để tương tác; Y giữ cho nhập hồn / thoát) | M2 |
 | Túi đồ / sinh vật / bản đồ | B (M1, sim 7f) / C / M | Nút menu → chọn | Select | M2 (bản đồ: M1 — [0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md); phóng to bằng cuộn chuột / chụm 2 ngón; ô minimap tròn luôn hiện góc trên-phải, bấm/chạm để mở bản đồ lớn — world 7g, user 2026-10-21) |
 | Chọn thời điểm (vòng 4 mốc: giữa trưa, hoàng hôn, giữa đêm, bình minh) | T hoặc bấm nút tròn góc trên-phải (dưới nút bản đồ); bấm mốc để chọn; Esc / T / bấm ra ngoài để đóng | Chạm nút tròn → chạm mốc; chạm ra ngoài để đóng | _(chưa có)_ | M1 ([0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md), brief 0024; cạnh nút có dòng "Đang ở buổi: …"; ẩn khi bản đồ mở) |
-| Menu, tạm dừng | Esc (PC M1: đóng bảng đang mở / thoát chế độ gieo; không có bảng nào mở → mở Cài đặt) | Nút menu | Start | M1 |
+| Menu, tạm dừng | Esc (PC M1: đóng bảng đang mở / thoát chế độ gieo / thoát xem camera quan sát; không có bảng nào mở → mở Cài đặt) | Nút menu | Start | M1 |
 
 Phím của các hàng M1 ở cột bàn phím-chuột là phím mặc định đang có trong code (khớp asset `GameControls.inputactions`, brief 0047, 2026-10-22: 30 hành động trong 6 ngữ cảnh Player / Pointer / Panels / Map / TimeDial / Settings; phím debug F1–F3 không thuộc bảng). Phím M2 trở đi vẫn là đề xuất [ý tưởng]; code đọc phím qua lớp hành động (Input System actions) từ M1 — [0033](../decisions/0033-tach-lop-hanh-dong-dieu-khien.md); cho người chơi **đổi phím** (M3; lưu trong `settings.json`, trùng phím cùng ngữ cảnh → hỏi đổi chỗ, chỉ chuột + bàn phím, Esc cố định — 0033) — Input System 1.19 có `PerformInteractiveRebinding()` để đổi lúc chạy, `SaveBindingOverridesAsJson` / `LoadBindingOverridesFromJson` để lưu ([docs](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.19/manual/ActionBindings.html)).
 

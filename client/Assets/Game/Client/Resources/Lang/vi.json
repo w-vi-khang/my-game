@@ -91,6 +91,10 @@
       "text": "Cây {0}"
     },
     {
+      "key": "edit.camera_placed",
+      "text": "Đã đặt camera quan sát tại {0}"
+    },
+    {
       "key": "edit.collect_none",
       "text": "Thu: không có vật rơi trong {0:0.#} ô"
     },
@@ -311,6 +315,10 @@
       "text": "<b><color=yellow>[{0} {1}: {2}]</color></b>   "
     },
     {
+      "key": "hud.camera_help",
+      "text": "Camera: chuột trái = đặt camera quan sát tại chỗ và hướng đang nhìn (đặt lại thì thay chỗ cũ) · V hoặc nút Xem camera: xem / quay về\n"
+    },
+    {
       "key": "hud.elevation",
       "text": "Góc nhìn: {0} (0° = ngang mặt biển, + nhìn lên, - nhìn xuống)\n"
     },
@@ -345,6 +353,10 @@
     {
       "key": "hud.tool",
       "text": "Công cụ: <b><color=yellow>{0}</color></b> (Tab đổi)"
+    },
+    {
+      "key": "hud.tool_camera",
+      "text": "Camera"
     },
     {
       "key": "hud.tool_dig",
@@ -393,6 +405,18 @@
     {
       "key": "map.hint",
       "text": "Lăn chuột / chụm 2 ngón: phóng to · kéo: di chuyển · M / Esc / nút Đóng: đóng"
+    },
+    {
+      "key": "observe.button_back",
+      "text": "Quay về (V)"
+    },
+    {
+      "key": "observe.button_view",
+      "text": "Xem camera (V)"
+    },
+    {
+      "key": "observe.loading",
+      "text": "Đang tải…"
     },
     {
       "key": "plot.close",

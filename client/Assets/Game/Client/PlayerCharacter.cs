@@ -194,7 +194,7 @@ namespace Game.Client
                 else Debug.LogWarning("STARTERBAG could not find a place for the seed bag near the spawn point");
             }
 
-            if (DebugKeys.WasPressed(Key.F3)) SetFlyMode(!FlyMode);
+            if (!ObservationCamera.InputLocked && DebugKeys.WasPressed(Key.F3)) SetFlyMode(!FlyMode);
 
             if (!Ready)
             {
@@ -204,7 +204,7 @@ namespace Game.Client
                     return;
             }
 
-            if (FlyMode)
+            if (FlyMode || ObservationCamera.InputLocked)
             {
                 MoveInput = Vector2.zero;
                 JumpInput = false;

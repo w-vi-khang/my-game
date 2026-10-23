@@ -5,8 +5,8 @@ using Game.World;
 
 namespace Game.Client
 {
-    /// <summary>Công cụ đang cầm (brief 0027, 0030): Tab xoay Đào → Đặt → Xới (Xới khi có SimView).</summary>
-    public enum EditTool { Dig, Place, Till }
+    /// <summary>Held tool (briefs 0027, 0030, 0053): Tab cycles Dig → Place → Till (with SimView) → Camera.</summary>
+    public enum EditTool { Dig, Place, Till, Camera }
 
     /// <summary>
     /// Đào/đặt bằng chuột trong scene TerrainView (world-tech bước 4, user duyệt 2026-10-13):
@@ -62,6 +62,8 @@ namespace Game.Client
 
         /// <summary>Tự xới / Mưa / thu hoạch (brief 0041); thêm trong Awake nếu chưa có.</summary>
         public PlayerFarmActions Farming { get; private set; }
+        /// <summary>Observation camera (brief 0053); added in Awake if missing.</summary>
+        public ObservationCamera Observation { get; private set; }
         /// <summary>Id ô ruộng chín đang ngắm (trong tầm); -1 nếu không.</summary>
         public int AimedHarvest { get; private set; } = -1;
 
@@ -74,12 +76,15 @@ namespace Game.Client
             if (DropView == null) DropView = gameObject.AddComponent<DropView>();
             Farming = GetComponent<PlayerFarmActions>();
             if (Farming == null) Farming = gameObject.AddComponent<PlayerFarmActions>();
+            Observation = GetComponent<ObservationCamera>();
+            if (Observation == null) Observation = gameObject.AddComponent<ObservationCamera>();
         }
 
         void Update()
         {
             AimedDrop = null;
             AimedHarvest = -1;
+            if (Observation.Engaged) { ShowAim(false, default, default); return; } // observation view: no tools (brief 0053)
             if (GameInput.SelectBlock1.WasPressedThisFrame()) selected = 0;
             if (GameInput.SelectBlock2.WasPressedThisFrame()) selected = 1;
             if (GameInput.SelectBlock3.WasPressedThisFrame()) selected = 2;
@@ -97,7 +102,7 @@ namespace Game.Client
                 return;
             }
             // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
-            if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer)))
+            if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer) || ObservationCamera.BlocksPointer(pointer)))
             {
                 ShowAim(false, default, default);
                 return;
@@ -116,6 +121,14 @@ namespace Game.Client
             var cam = Camera.main;
             if (!hasPointer || cam == null || view.Editor == null)
                 return;
+
+            // Camera tool: left click places the observation camera at the current view (brief 0053); sow mode keeps priority.
+            if (Tool == EditTool.Camera && Farming.SowCrop < 0)
+            {
+                ShowAim(false, default, default);
+                if (GameInput.UseTool.WasPressedThisFrame()) PlaceObservationCamera();
+                return;
+            }
 
             var ray = cam.ScreenPointToRay(pointer);
             var player = PlayerCharacter.Active;
@@ -186,12 +199,28 @@ namespace Game.Client
             return true;
         }
 
-        /// <summary>Tab: Đào → Đặt → Xới (khi có SimView) → Đào.</summary>
+        /// <summary>Places the observation camera at Camera.main's position and rotation; writes the HUD result line. False if no camera or engaged.</summary>
+        public bool PlaceObservationCamera()
+        {
+            var cam = Camera.main;
+            if (cam == null || !Observation.Place(cam.transform.position, cam.transform.rotation)) return false;
+            lastResult = Format("edit.camera_placed", view.CellAt(cam.transform.position));
+            return true;
+        }
+
+        /// <summary>Tab: Dig → Place → Till (with SimView) → Camera → Dig. No-op while the observation view is engaged.</summary>
         public void ToggleTool()
         {
+            if (Observation != null && Observation.Engaged) return;
             if (Farming != null && Farming.SowCrop >= 0) { Farming.ExitSowMode(); return; }
             Farming?.CancelSelfTill();
-            Tool = Tool == EditTool.Dig ? EditTool.Place : Tool == EditTool.Place && TillAvailable ? EditTool.Till : EditTool.Dig;
+            Tool = Tool switch
+            {
+                EditTool.Dig => EditTool.Place,
+                EditTool.Place => TillAvailable ? EditTool.Till : EditTool.Camera,
+                EditTool.Till => EditTool.Camera,
+                _ => EditTool.Dig,
+            };
         }
 
         /// <summary>Màu bản mờ của vật liệu: TopColor, alpha 0,5.</summary>
@@ -210,6 +239,7 @@ namespace Game.Client
             outline.enabled = false;
             ghostRenderer.enabled = false;
             if (!picked || view.Editor == null) return;
+            if (Tool == EditTool.Camera) return;
             var player = PlayerCharacter.Active;
             if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell)) return; // ngoài tầm 8 ô: không khung, không bản mờ (0031)
             if (Tool == EditTool.Till)
@@ -236,7 +266,9 @@ namespace Game.Client
         /// <summary>Chuột trái: dùng công cụ đang cầm; ghi dòng kết quả ở HUD.</summary>
         public EditResult UseTool(Vector3Int digCell, Vector3Int placeCell)
         {
+            if (Observation != null && Observation.Engaged) return EditResult.NotPlaceable;
             if (Farming != null && Farming.SowCrop >= 0) { lastResult = ""; return Farming.SowAt(digCell) ? EditResult.Ok : EditResult.NotPlaceable; }
+            if (Tool == EditTool.Camera) return PlaceObservationCamera() ? EditResult.Ok : EditResult.NotPlaceable;
             var player = PlayerCharacter.Active;
             if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell))
                 return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0031)
@@ -360,9 +392,10 @@ namespace Game.Client
         public string HudText()
         {
             if (view.Bag == null) return "";
-            var text = Format("hud.tool", T(Tool switch { EditTool.Dig => "hud.tool_dig", EditTool.Place => "hud.tool_place", _ => "hud.tool_till" })) + HelpText();
+            var text = Format("hud.tool", T(Tool switch { EditTool.Dig => "hud.tool_dig", EditTool.Place => "hud.tool_place", EditTool.Till => "hud.tool_till", _ => "hud.tool_camera" })) + HelpText();
             if (Tool == EditTool.Till)
                 text += T("hud.till_help");
+            if (Tool == EditTool.Camera) text += T("hud.camera_help");
             var cam = Camera.main;
             if (cam != null)
                 text += Format("hud.elevation", FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y)));

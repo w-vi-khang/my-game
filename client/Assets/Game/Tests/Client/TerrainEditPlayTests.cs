@@ -151,6 +151,8 @@ namespace Game.Client.Tests
             input.ToggleTool();
             Assert.AreEqual(EditTool.Place, input.Tool);
             input.ToggleTool();
+            Assert.AreEqual(EditTool.Camera, input.Tool);
+            input.ToggleTool();
             Assert.AreEqual(EditTool.Dig, input.Tool);
         }
 

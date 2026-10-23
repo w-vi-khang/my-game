@@ -76,13 +76,15 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator TabCyclesThreeToolsWithSim()
+        public IEnumerator TabCyclesFourToolsWithSim()
         {
             Assert.IsTrue(input.TillAvailable);
             input.ToggleTool();
             Assert.AreEqual(EditTool.Place, input.Tool);
             input.ToggleTool();
             Assert.AreEqual(EditTool.Till, input.Tool);
+            input.ToggleTool();
+            Assert.AreEqual(EditTool.Camera, input.Tool);
             input.ToggleTool();
             Assert.AreEqual(EditTool.Dig, input.Tool);
             yield break;

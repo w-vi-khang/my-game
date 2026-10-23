@@ -42,6 +42,7 @@ namespace Game.Client.EditTests
             ["Player/Look"] = E(InputActionType.Value, "Vector2", "<Mouse>/delta"),
             ["Player/Zoom"] = E(InputActionType.Value, "Axis", "<Mouse>/scroll/y"),
             ["Player/CycleBlockModifier"] = B("<Keyboard>/alt"),
+            ["Player/ToggleObservation"] = B("<Keyboard>/v"),
             ["Pointer/Point"] = E(InputActionType.Value, "Vector2", "<Mouse>/position"),
             ["Panels/Close"] = B("<Keyboard>/escape"),
             ["Panels/TransferAll"] = B("<Keyboard>/shift"),
@@ -58,7 +59,7 @@ namespace Game.Client.EditTests
         {
             var asset = Load();
             var exp = Expected();
-            Assert.AreEqual(30, exp.Count);
+            Assert.AreEqual(31, exp.Count);
             var actual = new HashSet<string>(asset.actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
             CollectionAssert.AreEquivalent(exp.Keys, actual);
             foreach (var kv in exp)
@@ -87,14 +88,14 @@ namespace Game.Client.EditTests
             var text = File.ReadAllText(Path_("Client", "GameInput.cs"));
             var found = new HashSet<string>(Regex.Matches(text, "Get\\(\"([A-Za-z]+/[A-Za-z0-9]+)\"\\)").Cast<Match>().Select(m => m.Groups[1].Value));
             var actual = new HashSet<string>(Load().actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
-            Assert.AreEqual(30, actual.Count);
+            Assert.AreEqual(31, actual.Count);
             CollectionAssert.AreEquivalent(actual, found);
         }
 
         [Test]
         public void NoDirectInputReadsInScope()
         {
-            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs" };
+            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs", "ObservationCamera.cs" };
             var banned = new Regex(@"Keyboard\.current|Mouse\.current|\bInput\.Get|\bkb\.|\bmouse\.");
             var hits = new List<string>();
             foreach (var f in files)
