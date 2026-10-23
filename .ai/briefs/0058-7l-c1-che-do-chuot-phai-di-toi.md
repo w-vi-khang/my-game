@@ -1,6 +1,6 @@
 # Brief 0058 — 7l c1: chế độ D/Q/E/R, chuột phải tự đi tới 2 ô rồi làm, lớp đỏ + vòng tầm, F Thu 2 ô, click trái ô ruộng → bảng (Bỏ đánh dấu)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23 20:56
@@ -702,7 +702,9 @@ Lệch so với brief:
   - QĐ 11–12 click trái ô ruộng → đi tới → `OpenPlotPanel`; nút Bỏ đánh dấu bật khi `!Tilled`, huỷ tự xới ô đó, đóng bảng → đúng.
   - QĐ 13 / bước 9 chuỗi vi.json nguyên văn → đúng (đọc bằng python) [run].
 - Ghi nhận nhỏ (không chặn): `WalkToAct.Begin` khi ô mới đã trong tầm thì làm ngay nhưng không dừng nhân vật nếu đang đi tới việc cũ → nhân vật đi tiếp tới ô cũ. Brief không quy định; chờ user xem có khó chịu không. Scene còn field thừa `outlinePixels` (Unity bỏ qua).
-- Chờ user xem 13 mục "User tự test" rồi mới kết luận.
+- User xem 13 mục (2026-10-24): "ok làm tiếp" → đạt. Góp ý đổi hành vi (không phải lỗi so với brief) → đưa vào c2: vòng tầm chỉ hiện khi **bấm chuột phải** ngoài tầm (không hiện khi chỉ di chuột); F hiện vùng 2 ô + hiệu ứng gió hút vật rơi về nhân vật.
+- Giờ thực tế: Executor 23 phút → ghi vào world-tech dòng 7l c.
+- Kết luận: đã duyệt
 
 ## Kiểm chứng
 - Chưa kiểm được qua `verify_run client_test client_test_play`: Unity Editor đang mở project (exit 1, "another Unity instance"); theo AGENTS.local §10 đã chạy toàn bộ qua MCP thay thế: EditMode 528/528, PlayMode 213/213, console 0 lỗi (sau commit `a5515ac`, file không đổi thêm).
