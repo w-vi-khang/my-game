@@ -689,6 +689,20 @@ Lệch so với brief:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Planner Opus · 2026-10-23. `Chạy bằng` claude-sonnet-5-5 · medium = `Model thực thi` → khớp. Mọi dòng "Phần cần test" có kết quả (đạt).
+- `git show --stat a5515ac`: 34 file, đều trong Phạm vi (+ test sửa thêm đã ghi ở Kết quả, chỉ đổi cách gọi / tên). Không đụng `ControlState.cs`, camera, `design/` ngoài `sim_m1.json`.
+- Grep tiêu chí: còn `CastRain` nhưng là hàm `PlayerFarmActions.CastRain`, không phải key input — mẫu grep của brief rộng quá, chấp nhận. `diff` 2 JSON → giống [run].
+- Đối chiếu Quyết định đã chốt (đọc `TerrainEditInput.cs`, `WalkToAct.cs`, `SimView.cs`, `MoveMarkers.cs`, `PlayerRules.cs`, `DropField.cs`, `DropPick.cs`, `PlayerFarmActions.cs`):
+  - QĐ 1 Tab vòng tạm + 1–4 đổi khối đang cầm → đúng (`CycleTempHold`, `SelectMaterial`).
+  - QĐ 2 WalkToAct: bay / không nhân vật / đã trong tầm → làm ngay; `ClickMove != Walking` → `farm.unreachable`; Xới lên biển chưa xới → `BeginSelfTill` không đi trước → đúng.
+  - QĐ 3 huỷ: chuột phải mới, click trái (không dừng), D/Q/E/R + Tab (dừng), đang xem camera → đúng.
+  - QĐ 4 tầm: ô đích theo vật rơi / kho / digCell; lưới an toàn `TargetReach` ở các hàm thực hiện; F dùng `CollectReach`; tầm cũ gỡ hết → đúng.
+  - QĐ 5–8 (`ModeUsableAt`, `HeldUsableAt`, gieo = UseHeld chỉ khi `Resolve` None — ngoài tầm đã thành `OutOfReach` trong `ControlState.Resolve`; phím chế độ tắt khi bay; Esc) → đúng.
+  - QĐ 9–10 lớp đỏ (GhostBlock, màu, ×1,04, bỏ outline), vòng tầm 64 điểm r=TargetReach nét 0,08 α0,25 → đúng.
+  - QĐ 11–12 click trái ô ruộng → đi tới → `OpenPlotPanel`; nút Bỏ đánh dấu bật khi `!Tilled`, huỷ tự xới ô đó, đóng bảng → đúng.
+  - QĐ 13 / bước 9 chuỗi vi.json nguyên văn → đúng (đọc bằng python) [run].
+- Ghi nhận nhỏ (không chặn): `WalkToAct.Begin` khi ô mới đã trong tầm thì làm ngay nhưng không dừng nhân vật nếu đang đi tới việc cũ → nhân vật đi tiếp tới ô cũ. Brief không quy định; chờ user xem có khó chịu không. Scene còn field thừa `outlinePixels` (Unity bỏ qua).
+- Chờ user xem 13 mục "User tự test" rồi mới kết luận.
 
 ## Kiểm chứng
 - Chưa kiểm được qua `verify_run client_test client_test_play`: Unity Editor đang mở project (exit 1, "another Unity instance"); theo AGENTS.local §10 đã chạy toàn bộ qua MCP thay thế: EditMode 528/528, PlayMode 213/213, console 0 lỗi (sau commit `a5515ac`, file không đổi thêm).
