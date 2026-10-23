@@ -1,6 +1,6 @@
 # Brief 0061 — 7l d1: túi người chơi thành túi ô vuông thật (túi 10 ô + túi phụ 2 ô, 999/ô, túi đầy → vật nằm lại)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -292,8 +292,21 @@ Gom vào danh sách chơi thử cuối của task (user 2026-10-24: phần "user
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 45f5369
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-24 03:46
+- Kết thúc: 2026-10-24 04:02 (một vòng; phần lớn là đợi biên dịch + EditMode ~10 phút).
+- Commit: 7d51dc5 (`brief 0061: 7l d1 slot-based player bag ...`).
+- File đã đổi: Core/PlayerBag.cs (viết lại), SlotInventory.cs (TopUp), DropField.cs, PlayerRules.cs, Sim/Simulation.cs; Client/TerrainChunkView.cs, TerrainBench.cs, TerrainEditInput.cs; Lang/vi.json, loc/en.json, loc/context.json (`bag.full`); Tests: SlotInventoryTests, PlayerBagTests, DropFieldTests, PlayerFarmTests.
+- Lệch so với brief: không. `Simulation.World` đúng tên như brief. Test `PlayerBagTests.TryTakeSeeds` cũ: bỏ dòng `Assert.Throws<NotSupportedException>(Add Tool)` (hành vi đã đổi theo quyết định 7: Tool được nhận). Không test cũ nào khác hỏng; không áp dụng quy tắc bước 9 khác.
 
 ## Kết quả test
+- Lệnh 1: parse JSON 3 file OK; `loc_check.py check loc/en.json` exit 0 (178/178); `grep UnityEngine Core` rỗng; `check_design.py` exit 0.
+- Lệnh 2 (MCP): biên dịch 0 lỗi console. EditMode lần 1: 541/542 — `IncrementalRebuildTests.IncrementalRebuildMatchesFullRebuild` quá timeout 180 s (205 s; Editor không focus, test mesh không liên quan túi; chạy trước 0061 qua trong brief 0060); chạy lại riêng → **qua** (40 s). Như vậy EditMode **542/542 qua** (lần 1 + chạy lại). PlayMode **230/230 qua**. Console 0 lỗi sau chạy.
+- Lệnh 3: đã `git checkout -- client/ProjectSettings/EditorSettings.asset`; không commit `InitTestScene*`.
+- Lệnh 4 `verify_run --all`: design exit 0, asset_check exit 0; client_test / client_test_play exit 1 vì Editor mở → **Chưa kiểm được** bằng dòng lệnh; kết quả MCP thay thế.
+- Phần cần test: TopUp, túi ô vuông qua PlayerBag (7 test mới + cũ), nhặt khi túi đầy (2 test mới + DropFieldTests cũ), thu hoạch dư + lấy từ kho (2 test mới + PlayerFarmTests cũ), chuỗi `bag.full` (HardcodedTextScanTests + loc_check), regression lõi + client + toàn bộ EditMode/PlayMode → **đạt** (trong 542 + 230 test qua).
+- User tự test (3 mục trong brief) → **chờ user — gộp cuối** (user AFK, theo điều phối của Planner).
 
 ## Vướng mắc
 
