@@ -34,6 +34,26 @@ namespace Game.Core.Tests
             Assert.AreEqual(8f, cfg.player.handReach);
             Assert.AreEqual(0, cfg.player.starterCrop);
             Assert.AreEqual(4, cfg.player.starterSeeds);
+            Assert.AreEqual(10f, cfg.player.targetReach);
+            Assert.AreEqual(2f, cfg.player.actReach);
+            Assert.AreEqual(2f, cfg.player.digReach);
+            Assert.AreEqual(2f, cfg.player.collectReach);
+            Assert.AreEqual(100, cfg.player.manaMax);
+            Assert.AreEqual(5, cfg.player.manaDig);
+            Assert.AreEqual(3, cfg.player.manaPlace);
+            Assert.AreEqual(15, cfg.player.manaRain);
+            Assert.AreEqual(2, cfg.player.manaRegenPerCell);
+            Assert.AreEqual(100, cfg.player.hpMax);
+            Assert.AreEqual(4, cfg.player.fallSafeCells);
+            Assert.AreEqual(10, cfg.player.fallDamagePerCell);
+            Assert.AreEqual(5, cfg.player.drownDamagePerSecond);
+            Assert.AreEqual(1, cfg.player.hpRegenPerSecond);
+            Assert.AreEqual(5000, cfg.player.hpRegenDelayMs);
+            Assert.AreEqual(10, cfg.player.bagSlots);
+            Assert.AreEqual(2, cfg.player.hotbarSlots);
+            Assert.AreEqual(10, cfg.player.bagPageSize);
+            Assert.AreEqual(10, cfg.player.hotbarPageSize);
+            Assert.AreEqual(999, cfg.player.stackMax);
             Assert.AreEqual(6f, cfg.PlayerTillSeconds);
             Assert.AreEqual(10f, cfg.RainCooldownSeconds);
         }
@@ -62,6 +82,13 @@ namespace Game.Core.Tests
             Bad(c => c.player.starterCrop = -1, "starterCrop -1");
             Bad(c => c.player.starterSeeds = -1, "starterSeeds -1");
             Bad(c => c.player.starterSeeds = 100, "starterSeeds 100");
+            Bad(c => c.player.targetReach = 0.5f, "targetReach 0.5");
+            Bad(c => c.player.targetReach = 33, "targetReach 33");
+            Bad(c => c.player.actReach = 11, "actReach 11");
+            Bad(c => c.player.manaDig = 101, "manaDig 101");
+            Bad(c => c.player.bagSlots = 0, "bagSlots 0");
+            Bad(c => c.player.stackMax = 0, "stackMax 0");
+            Bad(c => c.player.hpRegenDelayMs = -1, "hpRegenDelayMs -1");
             Bad(c => c.player = null, "player null");
         }
 

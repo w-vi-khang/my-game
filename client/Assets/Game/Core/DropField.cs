@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace Game.Core
 {
-    public enum ItemKind : byte { Block = 0, SeedBag = 1 }
+    public enum ItemKind : byte { Block = 0, SeedBag = 1, Produce = 2, Tool = 3 }
+
+    public enum ToolItem : byte { ObservationCamera = 0 }
 
     /// <summary>Loại vật phẩm: khối (Value = BlockMaterial) hoặc túi hạt (Value = chỉ số loại cây).</summary>
     public readonly struct ItemId : IEquatable<ItemId>
@@ -18,6 +20,14 @@ namespace Game.Core
                 throw new ArgumentOutOfRangeException(nameof(crop), crop, "Crop must be in 0..255");
             return new ItemId(ItemKind.SeedBag, (byte)crop);
         }
+        public static ItemId Produce(int crop)
+        {
+            if (crop < 0 || crop > 255)
+                throw new ArgumentOutOfRangeException(nameof(crop), crop, "Crop must be in 0..255");
+            return new ItemId(ItemKind.Produce, (byte)crop);
+        }
+        public static ItemId Tool(ToolItem t) => new ItemId(ItemKind.Tool, (byte)t);
+        public ToolItem ToolKind => (ToolItem)Value;
         public BlockMaterial Material => (BlockMaterial)Value;
         public int Crop => Value;
         public bool Equals(ItemId other) => Kind == other.Kind && Value == other.Value;
@@ -25,7 +35,16 @@ namespace Game.Core
         public override int GetHashCode() => ((int)Kind << 8) | Value;
         public static bool operator ==(ItemId a, ItemId b) => a.Equals(b);
         public static bool operator !=(ItemId a, ItemId b) => !a.Equals(b);
-        public override string ToString() => Kind == ItemKind.Block ? "Block:" + Material : "SeedBag:" + Crop;
+        public override string ToString()
+        {
+            switch (Kind)
+            {
+                case ItemKind.Block: return "Block:" + Material;
+                case ItemKind.SeedBag: return "SeedBag:" + Crop;
+                case ItemKind.Produce: return "Produce:" + Crop;
+                default: return "Tool:" + ToolKind;
+            }
+        }
     }
 
     /// <summary>Một chồng vật rơi: một loại vật phẩm, số lượng ≥ 1, nằm ở ô (X, Y, Z); ô bên dưới luôn đặc.</summary>

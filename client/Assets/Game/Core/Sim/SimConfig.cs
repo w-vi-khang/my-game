@@ -132,6 +132,26 @@ namespace Game.Core.Sim
         public float handReach = 8f;
         public int starterCrop = 0;
         public int starterSeeds = 4;
+        public float targetReach = 10f;
+        public float actReach = 2f;
+        public float digReach = 2f;
+        public float collectReach = 2f;
+        public int manaMax = 100;
+        public int manaDig = 5;
+        public int manaPlace = 3;
+        public int manaRain = 15;
+        public int manaRegenPerCell = 2;
+        public int hpMax = 100;
+        public int fallSafeCells = 4;
+        public int fallDamagePerCell = 10;
+        public int drownDamagePerSecond = 5;
+        public int hpRegenPerSecond = 1;
+        public int hpRegenDelayMs = 5000;
+        public int bagSlots = 10;
+        public int hotbarSlots = 2;
+        public int bagPageSize = 10;
+        public int hotbarPageSize = 10;
+        public int stackMax = 999;
     }
 
     /// <summary>
@@ -326,6 +346,46 @@ namespace Game.Core.Sim
                 throw new ArgumentException("player.starterCrop must be in [0, number of crops).");
             if (player.starterSeeds < 0 || player.starterSeeds > 99)
                 throw new ArgumentException("player.starterSeeds must be in [0, 99].");
+            if (!(player.targetReach >= 1f && player.targetReach <= 32f))
+                throw new ArgumentException("player.targetReach must be in [1, 32].");
+            if (!(player.actReach >= 0.5f && player.actReach <= player.targetReach))
+                throw new ArgumentException("player.actReach must be in [0.5, targetReach].");
+            if (!(player.digReach >= 0.5f && player.digReach <= player.targetReach))
+                throw new ArgumentException("player.digReach must be in [0.5, targetReach].");
+            if (!(player.collectReach >= 0.5f && player.collectReach <= 32f))
+                throw new ArgumentException("player.collectReach must be in [0.5, 32].");
+            if (player.manaMax < 1 || player.manaMax > 10000)
+                throw new ArgumentException("player.manaMax must be in [1, 10000].");
+            if (player.hpMax < 1 || player.hpMax > 10000)
+                throw new ArgumentException("player.hpMax must be in [1, 10000].");
+            if (player.manaDig < 0 || player.manaDig > player.manaMax)
+                throw new ArgumentException("player.manaDig must be in [0, manaMax].");
+            if (player.manaPlace < 0 || player.manaPlace > player.manaMax)
+                throw new ArgumentException("player.manaPlace must be in [0, manaMax].");
+            if (player.manaRain < 0 || player.manaRain > player.manaMax)
+                throw new ArgumentException("player.manaRain must be in [0, manaMax].");
+            if (player.manaRegenPerCell < 0 || player.manaRegenPerCell > player.manaMax)
+                throw new ArgumentException("player.manaRegenPerCell must be in [0, manaMax].");
+            if (player.fallSafeCells < 0 || player.fallSafeCells > 64)
+                throw new ArgumentException("player.fallSafeCells must be in [0, 64].");
+            if (player.fallDamagePerCell < 0 || player.fallDamagePerCell > player.hpMax)
+                throw new ArgumentException("player.fallDamagePerCell must be in [0, hpMax].");
+            if (player.drownDamagePerSecond < 0 || player.drownDamagePerSecond > player.hpMax)
+                throw new ArgumentException("player.drownDamagePerSecond must be in [0, hpMax].");
+            if (player.hpRegenPerSecond < 0 || player.hpRegenPerSecond > player.hpMax)
+                throw new ArgumentException("player.hpRegenPerSecond must be in [0, hpMax].");
+            if (player.hpRegenDelayMs < 0 || player.hpRegenDelayMs > 600000)
+                throw new ArgumentException("player.hpRegenDelayMs must be in [0, 600000].");
+            if (player.bagSlots < 1 || player.bagSlots > 1000)
+                throw new ArgumentException("player.bagSlots must be in [1, 1000].");
+            if (player.hotbarSlots < 1 || player.hotbarSlots > 100)
+                throw new ArgumentException("player.hotbarSlots must be in [1, 100].");
+            if (player.bagPageSize < 1 || player.bagPageSize > 100)
+                throw new ArgumentException("player.bagPageSize must be in [1, 100].");
+            if (player.hotbarPageSize < 1 || player.hotbarPageSize > 100)
+                throw new ArgumentException("player.hotbarPageSize must be in [1, 100].");
+            if (player.stackMax < 1 || player.stackMax > 99999)
+                throw new ArgumentException("player.stackMax must be in [1, 99999].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
                 throw new ArgumentException("farm.queueSlots must be in [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)

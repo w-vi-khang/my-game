@@ -95,5 +95,34 @@ namespace Game.Core.Tests
             Assert.IsFalse(PlayerRules.InWater(w, 2.5f, 2f, 2.5f));
             Assert.IsFalse(PlayerRules.InWater(w, -1f, 1f, 2.5f));
         }
+
+        [Test]
+        public void NewReaches_Boundary()
+        {
+            Assert.IsTrue(PlayerRules.InTargetReach(0.5f, -0.5f, 0.5f, 10, 0, 0));
+            Assert.IsFalse(PlayerRules.InTargetReach(0.5f, -0.5f, 0.5f, 11, 0, 0));
+            Assert.IsTrue(PlayerRules.InActReach(0.5f, -0.5f, 0.5f, 2, 0, 0));
+            Assert.IsFalse(PlayerRules.InActReach(0.5f, -0.5f, 0.5f, 3, 0, 0));
+            Assert.IsTrue(PlayerRules.InActReach(0.5f, -0.5f, 0.5f, 1, 0, 1));
+            Assert.IsFalse(PlayerRules.InActReach(0.5f, -0.5f, 0.5f, 2, 0, 1));
+            Assert.IsTrue(PlayerRules.InDigReach(0.5f, -0.5f, 0.5f, 2, 0, 0));
+            Assert.IsFalse(PlayerRules.InDigReach(0.5f, -0.5f, 0.5f, 3, 0, 0));
+            Assert.IsTrue(PlayerRules.InDigReach(0.5f, -0.5f, 0.5f, 1, 0, 1));
+            Assert.IsFalse(PlayerRules.InDigReach(0.5f, -0.5f, 0.5f, 2, 0, 1));
+            Assert.IsTrue(PlayerRules.InCollectReach(0.5f, -0.5f, 0.5f, 2, 0, 0));
+            Assert.IsFalse(PlayerRules.InCollectReach(0.5f, -0.5f, 0.5f, 3, 0, 0));
+            Assert.IsTrue(PlayerRules.InCollectReach(0.5f, -0.5f, 0.5f, 1, 0, 1));
+            Assert.IsFalse(PlayerRules.InCollectReach(0.5f, -0.5f, 0.5f, 2, 0, 1));
+        }
+
+        [Test]
+        public void Configure_ChangesNewReaches()
+        {
+            PlayerRules.Configure(new Game.Core.Sim.PlayerConfig { targetReach = 6, actReach = 3 });
+            Assert.IsTrue(PlayerRules.InTargetReach(0.5f, -0.5f, 0.5f, 6, 0, 0));
+            Assert.IsFalse(PlayerRules.InTargetReach(0.5f, -0.5f, 0.5f, 7, 0, 0));
+            Assert.IsTrue(PlayerRules.InActReach(0.5f, -0.5f, 0.5f, 3, 0, 0));
+            Assert.IsFalse(PlayerRules.InActReach(0.5f, -0.5f, 0.5f, 4, 0, 0));
+        }
     }
 }

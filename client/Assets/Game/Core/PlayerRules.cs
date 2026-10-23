@@ -9,12 +9,16 @@ namespace Game.Core
     /// </summary>
     public static class PlayerRules
     {
-        /// <summary>Tầm công cụ: đào, đặt, xới, click ô ruộng (0031: 8 ô).</summary>
+        /// <summary>Tầm công cụ: đào, đặt, xới, click ô ruộng (0031: 8 ô). Client hiện tại còn dùng; 7l c (0034) chuyển sang TargetReach/ActReach rồi gỡ.</summary>
         /// (đọc từ sim_m1.json player.toolReach — Configure)
         public static float ToolReach { get; private set; } = 8f;
-        /// <summary>Tầm việc tay: nhặt (sau này gieo, thu hoạch, phép Mưa, mở kho — 0031: 8 ô).</summary>
+        /// <summary>Tầm việc tay: nhặt (sau này gieo, thu hoạch, phép Mưa, mở kho — 0031: 8 ô). Client hiện tại còn dùng; 7l c (0034) chuyển sang TargetReach/ActReach rồi gỡ.</summary>
         /// (đọc từ sim_m1.json player.handReach — Configure)
         public static float HandReach { get; private set; } = 8f;
+        public static float TargetReach { get; private set; } = 10f; // tầm thao tác (0034)
+        public static float ActReach { get; private set; } = 2f;     // tầm thực hiện
+        public static float DigReach { get; private set; } = 2f;     // tầm đào (nâng cấp sau)
+        public static float CollectReach { get; private set; } = 2f; // Thu (F)
 
         /// <summary>Đặt luật người chơi từ cấu hình (ConfigLoader gọi sau Validate). null → ArgumentNullException.</summary>
         public static void Configure(PlayerConfig p)
@@ -22,6 +26,10 @@ namespace Game.Core
             if (p == null) throw new ArgumentNullException(nameof(p));
             ToolReach = p.toolReach;
             HandReach = p.handReach;
+            TargetReach = p.targetReach;
+            ActReach = p.actReach;
+            DigReach = p.digReach;
+            CollectReach = p.collectReach;
             StarterBag.Crop = p.starterCrop;
             StarterBag.Seeds = p.starterSeeds;
         }
@@ -36,6 +44,14 @@ namespace Game.Core
             Within(ToolReach, feetX, feetY, feetZ, x, y, z);
         public static bool InHandReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
             Within(HandReach, feetX, feetY, feetZ, x, y, z);
+        public static bool InTargetReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
+            Within(TargetReach, feetX, feetY, feetZ, x, y, z);
+        public static bool InActReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
+            Within(ActReach, feetX, feetY, feetZ, x, y, z);
+        public static bool InDigReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
+            Within(DigReach, feetX, feetY, feetZ, x, y, z);
+        public static bool InCollectReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
+            Within(CollectReach, feetX, feetY, feetZ, x, y, z);
 
         /// <summary>Tâm ô (x, y, z) cách tâm thân (chân + BodyCenterHeight) ≤ reach (Euclid).</summary>
         static bool Within(float reach, float feetX, float feetY, float feetZ, int x, int y, int z)

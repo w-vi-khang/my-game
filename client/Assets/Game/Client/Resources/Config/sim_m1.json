@@ -30,5 +30,11 @@
     "farm": { "queueSlots": 2, "slotMaxCount": 3 },
     "house": { "capacity": 2, "sizeX": 2, "sizeZ": 2, "sizeY": 2 },
     "creature": { "stuckTimeMs": 30000, "blockWaitMs": 1000, "phaseAfterMs": 5000, "homeRadius": 4, "wanderMinMs": 5000, "wanderMaxMs": 10000 },
-    "player": { "rainCooldownMs": 10000, "toolReach": 8, "handReach": 8, "starterCrop": 0, "starterSeeds": 4 }
+    "player": {
+        "rainCooldownMs": 10000, "toolReach": 8, "handReach": 8, "starterCrop": 0, "starterSeeds": 4,
+        "targetReach": 10, "actReach": 2, "digReach": 2, "collectReach": 2,
+        "manaMax": 100, "manaDig": 5, "manaPlace": 3, "manaRain": 15, "manaRegenPerCell": 2,
+        "hpMax": 100, "fallSafeCells": 4, "fallDamagePerCell": 10, "drownDamagePerSecond": 5, "hpRegenPerSecond": 1, "hpRegenDelayMs": 5000,
+        "bagSlots": 10, "hotbarSlots": 2, "bagPageSize": 10, "hotbarPageSize": 10, "stackMax": 999
+    }
 }

@@ -96,13 +96,16 @@ namespace Game.Core
             return true;
         }
 
-        /// <summary>Thêm vật phẩm: Block → Add(Material, amount); SeedBag → AddSeeds(Crop, amount).</summary>
+        /// <summary>Thêm vật phẩm: Block → Add(Material, amount); SeedBag → AddSeeds(Crop, amount); Produce → AddProduce; Tool → NotSupportedException.</summary>
         public void Add(ItemId item, int amount)
         {
-            if (item.Kind == ItemKind.Block)
-                Add(item.Material, amount);
-            else
-                AddSeeds(item.Crop, amount);
+            switch (item.Kind)
+            {
+                case ItemKind.Block: Add(item.Material, amount); break;
+                case ItemKind.SeedBag: AddSeeds(item.Crop, amount); break;
+                case ItemKind.Produce: AddProduce(item.Crop, amount); break;
+                default: throw new NotSupportedException("Tool items are not stored in PlayerBag (bag slots come in 7l d).");
+            }
         }
 
         static void CheckCrop(int crop)
