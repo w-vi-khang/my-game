@@ -1,6 +1,6 @@
 # Brief 0059 — 7l c2: cầm vật phẩm từ túi (khối / hạt / camera quan sát), bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F hiện vùng 2 ô + gió hút
 
-> Trạng thái: chờ làm
+> Trạng thái: đang làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24 (Planner trả lời vướng mắc)
@@ -538,12 +538,13 @@ Mở scene SimView trên Mac, Play:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-Base commit: 612bfb7
+Base commit: 612bfb7 (tiếp tục sau trả lời Planner; HEAD 30fd1ce)
 Chạy bằng: Sonnet · medium (claude-sonnet-5-5)
 Bắt đầu: 2026-10-24 01:28
 <!-- Base commit · Chạy bằng: <model id> · <effort> · commit · file đã đổi · thời gian bắt đầu/kết thúc (giờ thực tế M1) · lệch so với brief. -->
 
 ## Kết quả test
+Chưa kiểm được (client_test, client_test_play): Unity Editor đang mở project (pid 7345) nhưng cầu MCP không kết nối ('No Unity Editor instances found'), còn verify_run client_test exit 1 vì Editor đang giữ project. Code bước 1–12 đã viết xong, chưa biên dịch, chưa commit. Đã kiểm ngoài Unity: grep tên đã xoá = rỗng; 2 JSON cấu hình giống hệt; loc_check.py check loc/en.json OK; check_design.py OK; Game.Core không có UnityEngine; vi/en/context/.inputactions parse được. Cần user bật cầu MCP (hoặc tắt Unity) rồi chạy lại /ai-workflow-kit:exec 0059. Rủi ro: SowRejections (PlayerFarmTests) có thể hỏng vì QueueNotEmpty trước NotTilled (Layout enqueue ở pha Till) → nếu vậy `cần Opus`. Tiêu chí grep `FlySeconds` khớp nhầm `CollectFlySeconds` (đề xuất Planner sửa thành `DropView.FlySeconds`).
 Kiểm chứng: design exit 0 (62 file hợp lệ). Chưa kiểm được: client_test / client_test_play — brief dừng `cần Opus` giữa chừng (bước 6–12 chưa làm, `ObservationCamera.cs` còn gọi `ExitSowMode` đã xoá nên chưa biên dịch được); checklist thiết kế không đổi (không sửa `design/` ngoài JSON). Chạy lại khi brief xong.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng. Mỗi lệnh → kết quả thật. -->
 
