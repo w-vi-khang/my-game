@@ -22,6 +22,9 @@
 - Sửa một phần → liệt kê các phần bị ảnh hưởng (gameplay ↔ economy ↔ progression ↔ story ↔ thành phần/tech ↔ roadmap) và cập nhật, hoặc hỏi user nếu ảnh hưởng tới phần đã Chốt.
 - Sơ đồ dùng Mermaid trong markdown (không dùng ảnh) để sửa và diff được.
 
+## Tham số chưa chốt (user, 2026-10-24)
+- Số cụ thể user chưa đưa (thời gian hiệu ứng, tốc độ, bán kính...): Planner tự ước lượng ban đầu, **không hỏi user**; đặt thành tham số chỉnh được trong JSON `design/data/` (không hard-code), ghi `[số tạm]` + "chưa chốt" ở tài liệu. User chỉnh sau khi chơi thử hoặc giữ nguyên.
+
 ## Phạm vi cho một người làm
 - Mỗi tính năng/nội dung mới phải có ước lượng công (ngày-người) và thuộc một milestone. Nếu tổng ước lượng vượt quỹ thời gian trong roadmap → cảnh báo user và đề xuất cắt, không lặng lẽ thêm.
 - Ưu tiên giải pháp có sẵn (Unity/asset store cho client, dịch vụ có sẵn cho server/backend) hơn tự làm, khi không ảnh hưởng pillar — ghi rõ là đề xuất, kèm chi phí có nguồn.

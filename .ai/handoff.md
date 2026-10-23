@@ -13,4 +13,4 @@ Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-p
 2. Sau đó c3 (máu / mana), 7l d, 7l e; sim 7g theo 0036.
 
 ## Model đề xuất
-Opus · medium (viết brief c2).
+Opus · medium (viết brief c2). Tham số số tạm (vòng tầm 1 s, vùng F 0,5 s, vật rơi bay 0,3 s) đặt trong JSON `design/data/`, ghi chưa chốt (AGENTS.local "Tham số chưa chốt").

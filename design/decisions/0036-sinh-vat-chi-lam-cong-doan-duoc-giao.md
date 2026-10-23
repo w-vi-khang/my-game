@@ -33,7 +33,8 @@ User trả lời 3 câu hỏi làm rõ (2026-10-24): Tiếp tục = 1 công đo�
 5. **Vòng tầm thao tác:** chỉ hiện khi **bấm chuột phải** mà ô đích ngoài tầm thao tác (không hiện khi chỉ di chuột). Hiện rồi mờ dần trong khoảng 1 giây [số tạm]. Thay dòng "con trỏ ra ngoài tầm" của 0034 mục 3.
 6. **F Thu:** bấm F → hiện **vùng 2 ô** quanh nhân vật (vòng mờ) + **hiệu ứng gió hút** (vệt / hạt bay về phía nhân vật); vật rơi trong 2 ô bay về nhân vật rồi vào túi.
    - Thời gian hiện ~0,5 giây, vật rơi bay ~0,3 giây [số tạm]; hình hiệu ứng tạm (LineRenderer / ParticleSystem có sẵn), art sau.
-   - Không có vật rơi trong 2 ô vẫn hiện vùng + gió (đề xuất Planner, user xem ở c2).
+   - Không có vật rơi trong 2 ô vẫn hiện vùng + gió (đề xuất Planner, user đồng ý 2026-10-24).
+7. **Tham số chưa chốt** (user 2026-10-24): 1 giây mờ vòng tầm, 0,5 giây hiện vùng F, 0,3 giây vật rơi bay là số Planner ước lượng, để trong file cấu hình JSON ở `design/data/` (chỉnh không cần sửa code), user chỉnh sau khi chơi thử hoặc giữ nguyên.
 
 ## Hệ quả
 - **Thành phần:** client Unity (Game.Core: cờ giao việc ô ruộng + luật Sim; client: nút Tiếp tục, vòng tầm, hiệu ứng F). Không thêm thành phần.
