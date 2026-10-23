@@ -1,6 +1,6 @@
 # Brief 0055 — điều khiển PC B1: click trái để đi, dấu click, vòng chân, nhảy A, lướt Shift (bỏ WASD)
 
-> Trạng thái: đang làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
