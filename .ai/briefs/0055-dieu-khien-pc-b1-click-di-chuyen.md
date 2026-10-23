@@ -358,4 +358,9 @@ Test cũ ngoài Phạm vi bị hỏng bởi chuỗi bước 8 → dừng theo đ
 
 ---
 
+## Kiểm chứng
+- design: `check_design.py` exit 0 (verify_run).
+- Chưa kiểm được qua verify_run: client_test / client_test_play (`tools/unity_test.py` cần Editor tắt; Editor đang mở qua MCP, 0010). Thay bằng `run_tests` qua MCP: EditMode 531/531; PlayMode 186/189 → 8/8 `ClickMovePlayTests` sau sửa, còn `SowHud` chờ Planner (xem Vướng mắc).
+- Checklist: Game.Core/PlayerMotion.cs chỉ `using System; Game.Core.Sim` (đạt); các mục thiết kế không đổi `design/` ngoài sim_m1.json (đạt/không áp dụng); giờ thực tế: bắt đầu 17:41, chưa kết thúc (chờ Planner).
+
 ## Review
