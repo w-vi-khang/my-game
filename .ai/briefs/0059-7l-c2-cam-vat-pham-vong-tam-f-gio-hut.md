@@ -1,6 +1,6 @@
 # Brief 0059 — 7l c2: cầm vật phẩm từ túi (khối / hạt / camera quan sát), bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F hiện vùng 2 ô + gió hút
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24 (Planner trả lời vướng mắc vòng 2: giữ thứ tự kiểm, sửa test; cho sửa DropPlayTests.cs)
@@ -558,19 +558,20 @@ Mở scene SimView trên Mac, Play:
 ## Kết quả
 Base commit: 612bfb7 (tiếp tục sau trả lời Planner; HEAD 30fd1ce)
 Chạy bằng: Sonnet · medium (claude-sonnet-5-5)
-Bắt đầu: 2026-10-24 01:28
+Bắt đầu: 2026-10-24 01:28 · Kết thúc: 2026-10-24 02:41 (vòng 3 sau trả lời Planner)
+Commit code: 88424f8 (29 file: Core Sim/PlayerMotion/SimConfig, Client TerrainEditInput/PlayerFarmActions/SimView/MoveMarkers/DropView/SettingsView/GameInput/ObservationCamera/inputactions, vi.json, loc/en.json, loc/context.json, 2 JSON sim_m1, test). Vòng 3 sửa thêm: PlayerFarmTests.SowRejections, DropPlayTests (5 chỗ chờ).
+Lệch: không (giờ thực tế tổng chưa tính, Planner cộng).
 <!-- Base commit · Chạy bằng: <model id> · <effort> · commit · file đã đổi · thời gian bắt đầu/kết thúc (giờ thực tế M1) · lệch so với brief. -->
 
 ## Kết quả test
-Code bước 1–12 xong trong working tree (CHƯA commit code; chờ Planner quyết). Unity MCP kết nối được lần này.
-- Biên dịch: refresh_unity + read_console → 0 lỗi.
-- EditMode toàn bộ: **528/529** đạt; hỏng `Game.Core.Tests.PlayerFarmTests.SowRejections` (PlayerFarmTests.cs:169: Expected NotTilled, was QueueNotEmpty).
-- PlayMode toàn bộ: **218/219** đạt; hỏng `Game.Client.Tests.DropPlayTests.CollectNearbyTakesOnlyWithin2` (DropPlayTests.cs:127: Expected 0, was 1).
-- Các test mới/đổi của brief (ControlModePlayTests, PlayerBagSowPlayTests, TerrainEditPlayTests, ObservationCameraPlayTests, SowRejectsWhenQueueNotEmpty, GameControlsTests, SimConfigTests, PlayerMotionTests): đều đạt.
-- Đã chạy ngoài Unity trước đó: grep tên đã xoá rỗng; 2 JSON giống hệt; loc_check OK; check_design OK; Game.Core không UnityEngine.
-- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã làm.
-- Chưa chạy `verify_run --all` (Editor đang mở).
-- User tự test: chưa (chờ).
+Sau bước 13 (vòng 3, 2026-10-24 02:41). Unity MCP.
+- Biên dịch: 0 lỗi console.
+- EditMode toàn bộ: **529/529** đạt (gồm `PlayerFarmTests.SowRejections`, `SowRejectsWhenQueueNotEmpty`, `GameControlsTests`, `SimConfigTests`, `PlayerMotionTests`).
+- PlayMode toàn bộ: **219/219** đạt (gồm `DropPlayTests.*`, `ControlModePlayTests` mọi test bước 11, `PlayerBagSowPlayTests`, `TerrainEditPlayTests`, `ObservationCameraPlayTests`). Lần chạy đầu bị ngắt ở 193/219 ("player was stopped", không có test hỏng); chạy lại sạch.
+- Grep tên đã xoá: rỗng; 2 JSON giống hệt; `loc_check.py check loc/en.json` OK (exit 0); `check_design.py` OK; `Game.Core` không có UnityEngine.
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã làm. `InitTestScene*` không commit.
+- `verify_run --all`: **Chưa chạy** (Editor đang mở → client_test/client_test_play không chạy dòng lệnh được; thay bằng kết quả MCP ở trên).
+- Phần "User tự test" (mục 1–8): **chờ user** (hình ảnh, cảm giác, thời gian 1 s / 0,5 s / 0,3 s).
 
 ## Vướng mắc
 **(Vòng 2, 2026-10-24)** Hai test hỏng, cả hai do luật brief nhưng ngoài quy tắc sửa:
