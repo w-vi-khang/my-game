@@ -488,6 +488,10 @@ Ghi chú: 2 dòng `// vi-text` thừa trên chuỗi "Xem camera (V)" (không d�
 - `verify_run design` exit 0. EditMode toàn bộ 504/504. PlayMode toàn bộ 180/180. Dọn: checkout EditorSettings.asset; `git status` chỉ còn file Phạm vi + `.meta` mới + brief.
 - User tự test (mục "User tự test") → chờ user.
 
+## Kiểm chứng
+- Chưa kiểm được qua verify_run `client_test`/`client_test_play`: `tools/unity_test.py` chỉ chạy khi Editor TẮT, còn Editor đang mở qua MCP (0010, AGENTS.local §Phân vai). Thay bằng `run_tests` MCP: EditMode 504/504, PlayMode 180/180 (xem Kết quả test). `verify_run design` exit 0.
+- Checklist: pillar P3 (đạt, Mục tiêu) · thành phần client Unity (đạt, Mục tiêu) · glossary/thuật ngữ mới (không thêm thuật ngữ; Planner ghi khi review) · liên quan chéo (đạt, chỉ controls-ui.md; world-tech/roadmap để Planner) · [ý tưởng]/Chốt (đạt, quyết định 0029) · nguồn (đạt, không số liệu ngoài) · phạm vi M1 (đạt, 1 brief) · Game.Core không đổi (đạt) · test "Xong khi" (đạt, 8/8) · chỉ M1 (đạt) · giờ thực tế (đạt: ~12 phút, 12:19–12:31).
+
 ## Vướng mắc
 
 ---
