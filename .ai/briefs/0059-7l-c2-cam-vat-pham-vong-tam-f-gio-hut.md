@@ -542,6 +542,7 @@ Bắt đầu: 2026-10-24 01:28
 <!-- Base commit · Chạy bằng: <model id> · <effort> · commit · file đã đổi · thời gian bắt đầu/kết thúc (giờ thực tế M1) · lệch so với brief. -->
 
 ## Kết quả test
+Kiểm chứng: design exit 0 (62 file hợp lệ). Chưa kiểm được: client_test / client_test_play — brief dừng `cần Opus` giữa chừng (bước 6–12 chưa làm, `ObservationCamera.cs` còn gọi `ExitSowMode` đã xoá nên chưa biên dịch được); checklist thiết kế không đổi (không sửa `design/` ngoài JSON). Chạy lại khi brief xong.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt / chờ user + bằng chứng. Mỗi lệnh → kết quả thật. -->
 
 ## Vướng mắc
