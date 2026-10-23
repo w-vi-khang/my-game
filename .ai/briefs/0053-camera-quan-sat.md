@@ -1,6 +1,6 @@
 # Brief 0053 — camera quan sát tối giản (world 7j)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23 13:30
@@ -515,6 +515,9 @@ Chạy bằng: claude-sonnet-5-5 · medium
 Bắt đầu: 12:19 · Kết thúc: 12:31 (~12 phút thực tế)
 Commit: 175e9bf
 File đổi: Client/ObservationCamera.cs (mới), TerrainEditInput.cs, PlayerCharacter.cs, SettingsView.cs, GameInput.cs, GameControls.inputactions, vi.json, GameControlsTests.cs, TerrainEditPlayTests.cs, SimFarmUiPlayTests.cs, ObservationCameraPlayTests.cs (mới), design/02-gameplay/controls-ui.md
+Sửa lần 1 (bước 11): Base commit f798d4c · claude-sonnet-5-5 · medium · bắt đầu 14:35 · kết thúc 14:43 (~8 phút) · commit a562645
+Sửa lần 1: File đổi: Client/ObservationCamera.cs (field markerRenderers, MarkerRendered, LateUpdate), Tests/Client/ObservationCameraPlayTests.cs (test 9)
+Sửa lần 1 · kết quả test: ObservationCameraPlayTests 9/9 đạt (gồm MarkerHiddenWhileCameraClose); EditMode 504/504; PlayMode 181/181 sau khi chạy lại 1 test: lần chạy toàn bộ đầu có TerrainEditPlayTests.TimingSingleChunkEdits fail (Expected 1 chunk, was 5 — test đo thời gian, đào ngẫu nhiên seed 7, không liên quan marker), chạy riêng đạt → nghi flaky, Planner xem; dọn EditorSettings.asset xong, git status chỉ còn file Phạm vi + brief. User tự test (mục 2–5) → chờ user.
 Ghi chú: 2 dòng `// vi-text` thừa trên chuỗi "Xem camera (V)" (không dấu) bị HardcodedTextScanTests bắt → đã bỏ marker ở 2 dòng đó.
 
 ## Kết quả test
