@@ -689,3 +689,8 @@ Lệch so với brief:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+- Chưa kiểm được qua `verify_run client_test client_test_play`: Unity Editor đang mở project (exit 1, "another Unity instance"); theo AGENTS.local §10 đã chạy toàn bộ qua MCP thay thế: EditMode 528/528, PlayMode 213/213, console 0 lỗi (sau commit `a5515ac`, file không đổi thêm).
+- `design`, `asset_check` qua `verify_run`: exit 0.
+- Checklist: pillar/thành phần/glossary/roadmap/nguồn/phạm vi — không đổi `design/` (ngoài `design/data/sim_m1.json`) → không áp dụng; Game.Core không tham chiếu UnityEngine → đạt (grep rỗng); bước M1 có test → đạt (mục Kết quả test); chỉ làm hạng mục M1 (0007) → đạt; giờ thực tế ~23 phút → ghi ở mục Kết quả.
