@@ -1,6 +1,6 @@
 # Brief 0063 — 7l d3: chuyển đồ túi / túi phụ / kho (kéo thả cả chồng; chọn ô → Tab đổi đích → 1 / 2 / 3)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -224,3 +224,14 @@ Gom vào danh sách chơi thử cuối của task (user 2026-10-24). Mục cần
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+**Kết luận: code ok, chờ user xem gộp cuối** (user 2026-10-24) → **đã duyệt**. Brief cuối của 7l d → **7l d xong phần code**.
+
+Đối chiếu (review đầy đủ, diff `f2c75a7`):
+- `ItemTransfer.ToSlot` đúng mẫu brief (Core chỉ đổi file này).
+- `InventoryView`: `Update` nhấn → `PointerDown`, giữ → `PointerMove`, nhả → `PointerUp`, chuột phải chỉ khi `!Dragging`; Tab / 1 / 2 / 3 chỉ khi `TransferActive` (= túi mở + có chọn); phím túi phụ vẫn chỉ khi túi + kho đóng → không giẫm phím 1–3. `PointerUp`: kéo → `DropAt`, không → `LeftClickAt(điểm nhấn)`. `DropAt` đúng Quyết định 2 (ô ↔ ô `Move`; vào kho `FromSlot`; từ kho `ToSlot` rồi `FromStore` khi ô khác loại; nền → vào nơi đó; kho → kho bỏ qua; nguồn đổi / hết giữa chừng → bỏ). `TransferPart` dùng `PartAmount` + `FromSlot` / `FromStore`, bỏ chọn khi ô hết. `Report` đúng 3 khoá dòng kết quả.
+- Chi tiết tự chọn (chấp nhận): thả "nền" dùng cả panel nơi đó; kéo túi ↔ túi phụ thành công không ghi dòng.
+- Test: `ToSlotFromStock` + 9 test PlayMode mới đúng tên; test 0062 không phải sửa. EditMode 543/543 (test mesh quá giờ lần đầu như 0061, chạy lại qua), PlayMode 242/242, console 0 lỗi [kết quả executor qua MCP]; Planner không chạy lại.
+
+Giờ thực tế: Executor 04:25–04:43 = **18 phút**. **Tổng 7l d: 53 phút** (0061 16 + 0062 19 + 0063 18) so với ước lượng 3–4 ngày-người — ghi vào world-tech dòng 7l d + roadmap bảng giờ.
+
+Danh sách user xem gộp cuối (từ brief này): 5 mục "User tự test" + kéo chuột thật qua `Update` (hình kéo bám con trỏ), thả trên nền panel.
