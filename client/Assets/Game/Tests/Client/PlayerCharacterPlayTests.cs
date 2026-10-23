@@ -22,6 +22,8 @@ namespace Game.Client.Tests
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            // Headless batchmode runs uncapped (dt ≈ 0.0003 s): CharacterController steps fall below skinWidth, so isGrounded flickers and walking stalls. Fix dt like a 60 fps frame.
+            Time.captureFramerate = 60;
             camGo = new GameObject("Cam");
             camGo.tag = "MainCamera";
             camGo.AddComponent<Camera>();
@@ -55,6 +57,7 @@ namespace Game.Client.Tests
         [UnityTearDown]
         public IEnumerator TearDown()
         {
+            Time.captureFramerate = 0;
             Object.Destroy(playerGo);
             Object.Destroy(go);
             Object.Destroy(camGo);
