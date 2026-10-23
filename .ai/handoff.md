@@ -1,28 +1,16 @@
-# Handoff — 2026-10-23
+# Handoff — 2026-10-24
 
 ## Đang làm
-Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)). Bước **7l c1** = brief [0058](briefs/0058-7l-c1-che-do-chuot-phai-di-toi.md):
-- **Trạng thái:** `chờ review`.
-- **Executor:** Sonnet · medium, commit `a5515ac` (code + test), `37e91c4` (kết quả), `2fec6cc` (ghi chú kiểm chứng).
-- **Test qua MCP:** EditMode 528/528, PlayMode 213/213, 0 lỗi console.
-- **`verify_run client_test client_test_play`:** exit 1 vì Unity Editor đang mở project — không chạy được khi Editor mở.
-- Quyết định Tab vòng tạm (user) đã ghi ở task contract (commit `fdb5c0f`).
-
-**Phiên review Opus · medium bị chặn:** hook kit báo máy đang chạy ai-workflow-kit 0.15.1, kit đã có 0.17.0, project bị khoá tới khi cập nhật. User cần chạy:
-
-```bash
-claude plugin marketplace update ai-workflow-kit && claude plugin update ai-workflow-kit@ai-workflow-kit
-```
-
-rồi khởi động lại Claude Code.
+Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)).
+- **7l c1** (brief 0058) **đã duyệt** 2026-10-24 (review đầy đủ + user xem đạt); giờ thực tế ghi ở world-tech dòng 7l c (commit `bed6052`).
+- User góp ý sau chơi thử → quyết định [0036](../design/decisions/0036-sinh-vat-chi-lam-cong-doan-duoc-giao.md) (Chốt, commit `680697c`):
+  - mục 5–6 gộp vào **c2**: vòng tầm chỉ hiện khi bấm chuột phải ngoài tầm (mờ dần ~1 giây); F hiện vùng 2 ô + gió hút vật rơi bay về nhân vật.
+  - mục 1–4 (sinh vật chỉ làm công đoạn được giao, nút Tiếp tục) = **sim 7g**, task riêng **sau 7l c** (c2 + c3).
+- File lạ chưa track: `client/Assets/InitTestScene644b8064-….unity(.meta)` — scene tạm của Unity Test Runner, không phải của review; xoá khi Editor không chạy test.
 
 ## Bước tiếp
-1. Sau khi cập nhật kit: phiên Opus · medium chạy `/ai-workflow-kit:review-brief 0058`.
-   - Mức review: đầy đủ + user xem.
-   - Đọc diff `a5515ac`, đối chiếu 15 quyết định đã chốt và tiêu chí xong của brief.
-   - Ghi giờ thực tế vào roadmap / world-tech dòng 7l c.
-   - Liệt kê 13 mục "User tự test" cho user xem trên Mac.
-2. Duyệt xong → brief c2 (cầm vật phẩm: khối bản mờ / đỏ, hạt chỉ ô ruộng hàng đợi trống, camera quan sát là vật phẩm; xoá Tab tạm), rồi c3 (máu / mana), 7l d, 7l e.
+1. Planner (Opus) viết brief **7l c2**: cầm vật phẩm từ túi (khối bản mờ / đỏ, hạt chỉ ô ruộng hàng đợi trống, camera quan sát là vật phẩm), xoá Tab tạm, + 0036 mục 5–6. Tra docs Unity 6000.4 cho API hiệu ứng (LineRenderer / ParticleSystem).
+2. Sau đó c3 (máu / mana), 7l d, 7l e; sim 7g theo 0036.
 
 ## Model đề xuất
-Opus · medium (review 0058).
+Opus · medium (viết brief c2).
