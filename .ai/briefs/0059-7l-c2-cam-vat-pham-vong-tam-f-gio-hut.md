@@ -1,9 +1,9 @@
 # Brief 0059 — 7l c2: cầm vật phẩm từ túi (khối / hạt / camera quan sát), bỏ Tab tạm, vòng tầm khi chuột phải ngoài tầm, F hiện vùng 2 ô + gió hút
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 (Executor: 2 test hỏng, cần Planner)
+> Cập nhật: 2026-10-24 (Planner trả lời vướng mắc vòng 2: giữ thứ tự kiểm, sửa test; cho sửa DropPlayTests.cs)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -144,6 +144,9 @@ Hiệu ứng gió dùng `LineRenderer`, không dùng `ParticleSystem` (0036 mụ
 14. Chuỗi người chơi đọc + bản tiếng Anh + ngữ cảnh: chép nguyên văn ở bước 10.
 15. **`ObservationCamera.cs`** (Planner trả lời vướng mắc 2026-10-24, phương án A): chỉ xoá dòng `farming.ExitSowMode();` trong `Open` (khối `if (farming != null)` còn `farming.CancelSelfTill();`). Không sửa gì khác trong file này.
 
+16. **Thứ tự kiểm giữ như quyết định 3** (Planner trả lời vướng mắc vòng 2, 2026-10-24, phương án A): ô có hàng đợi (`Slots`) = đã giao cho sinh vật → báo `QueueNotEmpty` cả khi chưa xới; báo `NotTilled` trước sẽ dẫn người chơi xới xong vẫn không gieo được. Sửa test `SowRejections` theo bước 13, không đổi `CheckPlayerSow`.
+17. **Chờ vật rơi bay xong trong test** = `PlayerMotion.CollectFlySeconds + 0.2f` (không chờ đúng bằng thời gian bay).
+
 ## Phạm vi
 - Được sửa:
   - Core:
@@ -154,7 +157,7 @@ Hiệu ứng gió dùng `LineRenderer`, không dùng `ParticleSystem` (0036 mụ
   - JSON: `design/data/sim_m1.json`, `client/Assets/Game/Client/Resources/Config/sim_m1.json` (chỉ thêm 3 key).
   - Client: `Client/TerrainEditInput.cs`, `Client/PlayerFarmActions.cs`, `Client/SimView.cs` (chỉ phần túi), `Client/MoveMarkers.cs`, `Client/DropView.cs`, `Client/SettingsView.cs` (chỉ `OtherPanelOpen`), `Client/GameInput.cs`, `Client/Input/GameControls.inputactions`, `Client/ObservationCamera.cs` (chỉ xoá dòng `farming.ExitSowMode();`, quyết định 15).
   - Chuỗi: `Client/Resources/Lang/vi.json`, `loc/en.json`, `loc/context.json`.
-  - Test: các file ở bước 11–12.
+  - Test: các file ở bước 11–12; `Tests/Client/DropPlayTests.cs` (chỉ thời gian chờ, bước 13).
   - File brief này (mục Kết quả / Kết quả test / Vướng mắc).
 - Không được sửa: `Core/ControlState.cs`, `Core/PlayerBag.cs`, `Client/WalkToAct.cs`, `ObservationCamera.cs` (ngoài dòng ở quyết định 15), `PlayerCharacter.cs`, `design/` ngoài `design/data/sim_m1.json`, task contract, mọi file khác. Không sửa `GameControlsTests.cs` ngoài `Expected()` và hai số đếm.
 
@@ -459,6 +462,21 @@ Hiệu ứng gió dùng `LineRenderer`, không dùng `ParticleSystem` (0036 mụ
     | `Tests/ClientEdit/GameControlsTests.cs` | `Expected()` + 2 số đếm (bước 9) |
 
     Test nào khác hỏng vì đổi ở brief này → sửa theo cùng quy tắc, ghi tên vào Kết quả. Hỏng mà không thuộc quy tắc → dừng, `cần Opus`.
+13. **Sửa 2 test hỏng** (Planner trả lời vướng mắc vòng 2, quyết định 16–17). Code bước 1–12 đã có trong working tree — không làm lại.
+    - `Tests/Core/Sim/PlayerFarmTests.cs` `SowRejections`:
+      - `:168–169`: đổi comment thành `// pha Till, còn 1 vụ trong hàng đợi → hàng đợi trước` và assert `PlayerSowResult.QueueNotEmpty` (thay `NotTilled`); thêm `Assert.AreEqual(1, Plot.Slots.Count);` ngay sau.
+      - Cuối test (sau `Assert.Throws…`) thêm khối kiểm `NotTilled` với hàng đợi trống:
+        ```csharp
+        // pha Till, hàng đợi trống → chưa xới
+        Layout(false);
+        bag.AddSeeds(0, 1);
+        Assert.AreEqual(PlotPhase.Till, Plot.Phase);
+        Assert.AreEqual(PlayerSowResult.NotTilled, sim.PlayerSow(id, 0, bag));
+        Assert.AreEqual(1, bag.GetSeeds(0));
+        ```
+        (`Layout` tạo lại `sim`, `id`, `bag` — `PlayerFarmTests.cs:23–40`.)
+    - `Tests/Client/DropPlayTests.cs`: mọi `yield return Run(Vector2.zero, false, 0.3f);` (`:88`, `:116`, `:126`, `:135`, `:157` — cùng dạng chờ vật bay) → `yield return Run(Vector2.zero, false, PlayerMotion.CollectFlySeconds + 0.2f);`. Thiếu `using` cho namespace của `PlayerMotion` → thêm. Không sửa gì khác trong file.
+    - Chạy lại: EditMode + PlayMode toàn bộ (phải 529/529 và 219/219), rồi dọn `git checkout -- client/ProjectSettings/EditorSettings.asset`; commit code; ghi Kết quả / Kết quả test, trạng thái `chờ review`.
 
 ## Tiêu chí xong
 - EditMode + PlayMode qua hết, 0 lỗi console (qua MCP, xem "Lệnh executor chạy").
@@ -563,6 +581,8 @@ Code bước 1–12 xong trong working tree (CHƯA commit code; chờ Planner qu
 2. `DropPlayTests.CollectNearbyTakesOnlyWithin2` (:126): chờ `Run(..., 0.3f)` đúng bằng `CollectFlySeconds` = 0,3 → còn 1 chồng đang bay (đua thời gian). `DropPlayTests.cs` ngoài Phạm vi.
    - Đề xuất: cho sửa `DropPlayTests.cs` — đổi thời gian chờ thành `PlayerMotion.CollectFlySeconds + 0.2f` (như bước 11 đã làm cho test mới). Có thể các test khác trong file cùng dạng nhưng hiện chỉ test này hỏng.
 **Planner trả lời:**
+1. Chọn **A** (giữ thứ tự quyết định 3, sửa test) — quyết định 16, bước 13. Lý do: ô còn hàng đợi là ô đã giao cho sinh vật; báo "chưa xới" sẽ khiến người chơi xới xong vẫn bị chặn. Phần `OtherCrop` của test giữ nguyên (sau xới, vụ lấy khỏi `Slots` → `Slots` trống, như vướng mắc mô tả).
+2. Đồng ý: được sửa `DropPlayTests.cs`, chỉ thời gian chờ, cả 5 chỗ cùng dạng — quyết định 17, bước 13.
 
 
 ---
