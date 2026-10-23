@@ -22,7 +22,7 @@ Bộ nạp chunk nhận **một danh sách điểm nhìn** thay vì một tâm. 
 - **Collider và tương tác ở điểm nhìn phụ:** giữ nguyên cách hiện tại. Cột nạp được dựng như nhau, không tách loại.
 
 ## Tiêu chí chấp nhận (kiểm chứng được)
-- [ ] **Lõi `ChunkStreamPlan` nhận danh sách điểm nhìn.**
+- [x] **Lõi `ChunkStreamPlan` nhận danh sách điểm nhìn.**
   - Mỗi điểm nhìn gồm (x, z, bán kính nạp, bán kính gỡ).
   - Có số điểm nhìn tối đa, truyền vào khi tạo plan (không viết cứng). Vượt số tối đa → exception.
   - **Nạp:** cột chưa nạp có khoảng cách ≤ bán kính nạp của *ít nhất một* điểm nhìn.
@@ -31,17 +31,17 @@ Bộ nạp chunk nhận **một danh sách điểm nhìn** thay vì một tâm. 
   - `MissingWithin` vẫn dùng được cho từng điểm nhìn.
   - Giữ hàm một tâm hiện có (gọi qua danh sách 1 điểm) để test và scene cũ không đổi hành vi.
   - Kiểm bằng: test EditMode mới. Phải có: hợp vùng của 2 điểm ở xa nhau; một cột trong vùng của cả 2 chỉ nạp 1 lần; điểm nhìn rời đi thì gỡ đúng phần không còn ai giữ; 1 điểm cho kết quả giống hệt bản cũ; chạy 2 lần cùng dữ liệu cho cùng kết quả (tất định); vượt số tối đa thì ném exception. Toàn bộ `ChunkStreamPlanTests` cũ vẫn qua.
-- [ ] **Client `TerrainChunkView` nạp theo danh sách điểm nhìn.**
+- [x] **Client `TerrainChunkView` nạp theo danh sách điểm nhìn.**
   - Điểm nhìn chính vẫn là `streamTarget`/`Camera.main` như hiện tại.
   - Thêm API để client đăng ký/gỡ thêm điểm nhìn (Transform kèm bán kính). 7j sẽ dùng API này.
   - Số tối đa lấy từ cấu hình; M1 = 2 (0029 mục 1).
   - Kiểm bằng: test PlayMode. Thêm một điểm nhìn thứ hai ở map khác thì cột quanh đó được nạp, và `MissingColumnsWithin` tại đó về 0 sau đủ khung. Gỡ điểm nhìn đó thì cột được gỡ. Các test PlayMode cũ vẫn qua.
-- [ ] **Đo trên điện thoại với 2 điểm nhìn ở hai map: ≥ 30 FPS** (dòng 7i, cột "Xong khi").
+- [x] **Đo trên điện thoại với 2 điểm nhìn ở hai map: ≥ 30 FPS** (dòng 7i, cột "Xong khi").
   - Dùng chế độ đo đi bộ có sẵn (`WalkBench`, brief 0039), bật thêm một cờ để đặt điểm nhìn thứ hai cố định ở Map 2. (user chốt 2026-10-23).
   - Ghi avgFps, p50/p99 ms, holeFrames, số cột đang nạp. So với lần đo WalkBench trước.
   - Dưới 30 FPS → ghi số liệu và báo Planner, không tự tối ưu trong task này.
   - Kiểm bằng: AI tự cài APK và đọc logcat (máy luôn ở chế độ USB dev).
-- [ ] Toàn bộ EditMode + PlayMode qua; `git status` sạch sau bước dọn.
+- [x] Toàn bộ EditMode + PlayMode qua; `git status` sạch sau bước dọn.
 
 ## Ràng buộc
 - `Game.Core` không tham chiếu UnityEngine. Dùng số nguyên, tất định.

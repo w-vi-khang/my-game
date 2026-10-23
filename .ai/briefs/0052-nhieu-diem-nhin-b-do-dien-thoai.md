@@ -1,9 +1,9 @@
 # Brief 0052 — nhiều điểm nhìn B: WalkBench có điểm nhìn thứ hai ở Map 2, đo điện thoại
 
-> Trạng thái: chờ làm
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 11:45
+> Cập nhật: 2026-10-23 12:00
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -335,3 +335,16 @@ Không tìm thấy điện thoại 24095PCADG: `adb devices` rỗng (không USB)
 - Test: 6/6, EditMode 504/504, PlayMode 172/172 (executor báo). Số khớp mong đợi (+2 PlayMode). Không chạy lại.
 - Chạy bằng `claude-sonnet-5-5 · medium` khớp `Model thực thi`.
 - Còn thiếu: bước 9 (điện thoại). Trả lời ở bước 10; chờ user cắm lại máy.
+
+### Review 2 — 2026-10-23 (Opus)
+- Commit kết quả `1586bb9` chỉ đổi file brief; working tree sạch. Chạy bằng `claude-sonnet-5-5 · medium` khớp. [run]
+- Bước 9 đạt [repo] mục Kết quả:
+  - Lần B: `viewpoints=2`, tâm Map 2 (210,6; 119,5). **avgFps 41,5 ≥ 30.** `holeFrames=0`, `secondHoleFrames=0`, 0 `Exception`.
+  - Lần A: 42,0 FPS. Cả hai lần Thermal 2.
+- Mọi dòng ở Phần cần test đều có kết quả. Đủ Tiêu chí xong.
+- Ghi nhận, không chặn duyệt:
+  - p50 = 24,96 ms ở **cả hai** lần (khoảng 40 Hz). Có thể máy đang khoá khung hình hoặc hạ xung do nóng [chưa xác minh]. Vì vậy chênh A–B 0,5 FPS chưa nói lên chi phí thật của điểm nhìn thứ hai. Chỉ chắc được: số cột nạp tăng 287 → 401, chunk 861 → 1203, bộ nhớ hệ thống +49 MB.
+  - Lần A thấp hơn 0039 (42,0 so với 49,4) dù cùng 1 điểm nhìn: điều kiện máy khác.
+  - Bảng ghi sysMem của 0039 là `—`, thực ra có số 1091,3 (`.ai/briefs/0039-world-7h-b-do-fps-di-bo.md:453`).
+- Giờ thực tế: Executor 10 phút (11:22–11:32) + 6 phút đo (11:49–11:55), đã cộng vào roadmap.
+- Kết luận: đã duyệt
