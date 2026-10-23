@@ -1,9 +1,9 @@
 # Brief 0061 — 7l d1: túi người chơi thành túi ô vuông thật (túi 10 ô + túi phụ 2 ô, 999/ô, túi đầy → vật nằm lại)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24
+> Cập nhật: 2026-10-24 (review)
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -314,3 +314,18 @@ Gom vào danh sách chơi thử cuối của task (user 2026-10-24: phần "user
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+**Kết luận: code ok, chờ user xem gộp cuối** (user 2026-10-24: phần "user xem" của 7l d–f + sim 7g gộp một lần ở cuối task; không chờ user) → trạng thái **đã duyệt**.
+
+Đối chiếu (review đầy đủ, đọc diff `7d51dc5`):
+- `PlayerBag` đúng Quyết định 2–6: `Main` / `Hotbar`, cài `IItemStore`; thứ tự thêm túi phụ lấp → túi lấp → ô trống túi → ô trống túi phụ; lấy túi trước rồi túi phụ; `CanAdd` cộng `long` rồi cắt; event chỉ khi n > 0, tham số tổng mới; Tool không phát event. `Configure` tĩnh, gọi từ `PlayerRules.Configure` (`Core/PlayerRules.cs:27`).
+- `SlotInventory.TopUp` đúng mẫu brief. `DropField.Take` (`Core/DropField.cs:212–220`): lấy một phần, `Collected` khi ≥ 1, chồng còn lại giữ ô; `LastBlocked` đặt lại đầu mỗi lần nhặt.
+- `Simulation.DropOverflow` + nhánh Harvest + `TakeFromStock` giới hạn `CanAdd` đúng Quyết định 9–10.
+- Client: camera quan sát vào ô túi khi tạo túi; `CanHold(Tool)` cần có trong túi; dòng `Túi đầy` ở F / chuột phải nhặt; bench 999 mỗi loại.
+- Test: 10 test mới đúng tên brief; một assert cũ (`Add Tool` ném `NotSupportedException`) bỏ đúng theo Quyết định 7. EditMode 542/542 (1 test mesh quá giờ lần đầu do Editor không focus, chạy lại riêng qua — không liên quan túi), PlayMode 230/230, console 0 lỗi [kết quả executor qua MCP]. Planner không chạy lại (kết quả đủ, không đáng ngờ).
+- Phạm vi: không đụng `SimView`, `ItemTransfer`, `StockStore`, `design/`.
+
+Ghi chú (không cần sửa): `new PlayerBag()` dùng số đã `Configure`; nếu một scene tạo túi trước khi `ConfigLoader.LoadSimConfig` chạy thì dùng mặc định trong code — hiện trùng JSON (10/2/10/10/999) nên không lệch; khi user đổi `bagSlots` trong JSON để thử, kiểm lại thứ tự này (ghi vào danh sách chơi thử cuối).
+
+Giờ thực tế: Executor 03:46–04:02 = **16 phút** (1 vòng) so với ước lượng 1–1,5 ngày-người cho phần d1.
+
+Danh sách user xem gộp cuối (từ brief này): 3 mục ở "User tự test" + thử đổi `player.bagSlots` trong JSON xem túi nhận đúng số ô.
