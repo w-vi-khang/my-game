@@ -1,6 +1,6 @@
 # Brief 0054 — điều khiển PC A: luật lõi (tầm, máu/mana, túi ô vuông, chuyển đồ, chuột phải)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -434,3 +434,12 @@ Commit: 9c993e6 — 10 file mới (+.meta) trong Core/Tests, sửa DropField, Pl
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Mức: đầy đủ · Planner Opus · medium (phiên con), 2026-10-23.
+- `Chạy bằng` Sonnet · medium khớp `Model thực thi` [repo brief:419].
+- Phạm vi: `git show --stat 9c993e6` — 29 file, đều trong "Được sửa / Được tạo" (+ `.meta`); không đụng `Client/` (trừ bản sao JSON), `World/`, `Simulation.cs`, `SimData.cs`; `TerrainEditPlayTests.cs` không commit [run].
+- Game.Core không tham chiếu UnityEngine/UnityEditor: grep 5 file mới rỗng [run]. Chuỗi exception tiếng Anh.
+- Quyết định đã chốt, đối chiếu diff: 20 trường `PlayerConfig` + kiểm biên đúng tên/khoảng; `toolReach`/`handReach` giữ; `configVersion` không đổi; hai `sim_m1.json` giống từng byte (`cmp`) [run]; `PlayerRules` 4 tầm mới dùng `Within`; `ItemKind.Produce/Tool`, `ToString` switch, `PlayerBag.Add` switch + `NotSupportedException`; `PlayerVitals` đúng thuật toán (rơi `floor(f−4+1e-4)×10`, ngập 5/1000 ms, hồi sau 5000 ms, `Died` một lần, Respawn); `SlotInventory` lấp chồng trước → ô trống, lấy từ ô lớn nhất, trang vòng; `StockStore` chỉ hạt + nông sản, giới hạn `Free`; `ItemTransfer` ưu tiên Bag > Hotbar > Stock, Stock chỉ khi mở, `ceil`; `RightClick.Resolve` đúng 6 bậc.
+- Lệch nhỏ (chấp nhận): `Move` sang ô trống trả `false` khi chồng nguồn > `dest.StackMax` (`SlotInventory.cs` khối `Move`) — brief không nói ca này; chặn tràn, cùng tinh thần nhánh đổi chỗ. Hiện mọi túi dùng chung `stackMax` nên không xảy ra.
+- Phần cần test: 23 hàm test đúng tên bảng (bước 2–8) + assert thêm vào `SimConfigTests` (bước 1) [run `git show`]; Kết quả test ghi "đạt" gộp cho bảng 1–8, EditMode 527 (1 test tự sửa vì kho có hạt đầu game — sửa test, không sửa luật), PlayMode 181/181 (chênh +1 do `TerrainEditPlayTests.cs` dở). Không chạy lại: kết quả đủ, không đáng ngờ.
+- Giờ thực tế: 9 phút (17:12–17:21) so với ước lượng 2–3 ngày-người — đã ghi `design/05-roadmap.md` (bảng giờ M1) + `design/04-tech/world-tech.md` dòng 7l a; `check_design.py` đạt [run].
+- Kết luận: đã duyệt
