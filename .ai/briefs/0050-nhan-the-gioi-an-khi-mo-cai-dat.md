@@ -148,3 +148,4 @@ Mỗi lệnh ở "Lệnh executor chạy": `<lệnh>` → <kết quả thật, d
 
 ## Review
 <!-- Kết luận: đã duyệt | cần sửa (thêm bước sửa vào "Các bước", trạng thái về chờ làm). Điểm đã đối chiếu. -->
+2026-10-23 — review nhẹ: đạt phần tự động, **chờ user xem**. Đối chiếu: diff `8f8f00e` đúng 3 file Phạm vi, khớp nguyên văn các bước 1–3; Kết quả test đủ mọi dòng (EditMode 498/498, PlayMode 168/168 = trước + 1); model `claude-sonnet-5-5 · low` khớp brief. Giờ thực tế đã ghi roadmap. Còn: user xem 3 mục "User tự test" → đặt `đã duyệt`.
