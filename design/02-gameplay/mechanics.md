@@ -80,7 +80,7 @@ Chốt (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong
   - *Phép Mưa:* ô không có tác dụng (không phải ô ruộng chờ tưới, không phải ô đất có ô trên trống) → không tính hồi.
   - *Thu hoạch:* với mọi công cụ / chế độ; Cây A +1 nông sản +1 hạt, Cây B +3 +2 (`sim_m1.json`); không chở về kho.
   - *Kho ↔ túi:* chỉ hạt và nông sản (khối không cất kho); mỗi click 1, Shift + click tất cả; túi → kho dừng khi kho chung đầy; có kho trong 8 ô mới chuyển được, ngoài tầm bảng kho chỉ xem.
-- Sinh vật vẫn làm như cũ (0025–0027).
+- ~~Sinh vật vẫn làm như cũ (0025–0027).~~ → **Sinh vật chỉ làm công đoạn được giao** ([0036](../decisions/0036-sinh-vat-chi-lam-cong-doan-duoc-giao.md), user 2026-10-24, sim 7g): biển canh tác = giao xới; hàng đợi có hạt = giao trồng đủ chuỗi; nút **Tiếp tục** trên ô tiến trình = giao 1 công đoạn kế. Vụ người chơi tự gieo → sinh vật không tự tưới / thu hoạch / xới lại. Người chơi chen vào ô đã giao → sinh vật làm tiếp.
 
 #### Sinh vật trở lại — luật M1
 - Loài đạt đủ yêu cầu mở khoá → **2 cá thể** xuất hiện ở rìa map, đi về phía người chơi và **tự vào đội làm việc** (chưa có thẻ bài — bắt bằng thẻ từ M2).

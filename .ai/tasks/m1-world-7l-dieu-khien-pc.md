@@ -69,6 +69,7 @@ Mỗi bước đạt đúng cột "Xong khi" của dòng 7l a–f trong world-te
 - Ghi chú cho brief 7l c (từ review 0055/0056): nối máu/mana vào client (AddMoved, rơi, ngập — chưa bước nào nhận); nút "Bỏ đánh dấu" (phím Cancel đã bỏ ở 0055); công cụ đang tạm ở chuột phải; giữ chuột trái vào tường không chuyển Blocked.
 - 7l c chia 3 brief, làm lần lượt (user, 2026-10-23): **c1** chế độ D/Q/E/R + chuột phải tự đi tới 2 ô rồi làm + tô đỏ khối + vòng tầm + F Thu 2 ô + click trái ô ruộng (nút Bỏ đánh dấu); **c2** cầm vật phẩm (khối, hạt, camera quan sát); **c3** nối máu/mana vào client.
 - c1 (brief 0058): Đặt khối + camera quan sát giữ tạm bằng Tab vòng Không → cầm khối → cầm camera → Không; Đào/Xới bỏ khỏi Tab (thành Q/E); c2 xoá Tab tạm (user, 2026-10-23).
+- Sau chơi thử c1 (user, 2026-10-24, [0036](../../design/decisions/0036-sinh-vat-chi-lam-cong-doan-duoc-giao.md) mục 5–6): c2 thêm vòng tầm chỉ hiện khi chuột phải ngoài tầm (mờ dần) và F hiện vùng 2 ô + gió hút vật rơi về nhân vật. Luật "sinh vật chỉ làm công đoạn được giao" (0036 mục 1–4) là sim 7g, task riêng sau 7l c — ngoài phạm vi task này.
 - Trước 7l d, cầm vật phẩm tạm qua bảng túi cũ (B → bấm vật phẩm); khối tạm chọn loại bằng phím 1–4 như hiện nay; 7l d thay bằng túi ô vuông (user, 2026-10-23).
 
 ## Câu hỏi còn mở
