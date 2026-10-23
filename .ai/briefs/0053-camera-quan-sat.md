@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 12:32
+> Cập nhật: 2026-10-23 12:50
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -498,3 +498,16 @@ Ghi chú: 2 dòng `// vi-text` thừa trên chuỗi "Xem camera (V)" (không d�
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Mức: đầy đủ + user xem · Planner Opus · 2026-10-23
+- `Chạy bằng` claude-sonnet-5-5 · medium = `Model thực thi` Sonnet · medium → khớp.
+- Mỗi dòng "Phần cần test" có kết quả trong "Kết quả test" (đạt); User tự test → chờ user.
+- `git diff --stat af271c6 HEAD`: 15 file, đều trong Phạm vi (+ 2 `.meta` mới + brief); không đụng `TerrainChunkView`/`ChunkStreamPlan`/`Game.Core`/scene → đạt QĐ 9.
+- `ObservationCamera.cs` so `diff -w` với khối code bước 3: trùng nguyên văn [run].
+- `TerrainEditInput.cs`: enum Camera, `Observation` thêm trong Awake, khoá đầu `Update`/`ToggleTool`/`UseTool`, chặn con trỏ nút, nhánh chuột trái công cụ Camera (gieo ưu tiên), `ShowAim` bỏ khung, HUD `hud.tool_camera` + `hud.camera_help` → đúng bước 4, QĐ 1, 2, 5.
+- `PlayerCharacter.cs` (F3 + xoá Move/Jump khi `InputLocked`), `SettingsView.OtherPanelOpen` (`BlocksBack`) → đúng bước 5–6, QĐ 5–6.
+- Input: action `ToggleObservation` `<Keyboard>/v`, `GameInput`, `GameControlsTests` 31 + `ObservationCamera.cs` trong `NoDirectInputReadsInScope` → đúng bước 1. `vi.json` 6 key đúng chữ, đúng thứ tự.
+- `ObservationCameraPlayTests.cs`: 8 test đúng tên và assert như bước 8 (gồm `Map2Pose` cần nạp, `held` không rỗng, gỡ cột vùng camera trong 300 khung). Bỏ 2 marker `// vi-text` trên chuỗi không dấu là đúng (scanner bắt marker thừa) — không đổi assert.
+- 2 test vòng Tab sửa đúng bước 7; `controls-ui.md` đúng bước 9.
+- Kết quả test executor (EditMode 504/504, PlayMode 180/180, design exit 0) khớp Tiêu chí xong; không đáng ngờ → không chạy lại.
+- Planner ghi thêm: roadmap (dòng World 7j, Executor 12 phút so với 1–2 ngày-người), world-tech 7j "code + test xong, chờ user xem", `controls-ui.md` sửa số hành động 30 → 31 (dòng chú thích dưới bảng, executor không được giao). Glossary đã có "Camera quan sát", "Công cụ Camera", "Điểm nhìn". `check_design.py` exit 0 [run].
+- Chờ user xem (PC, Play scene `SimView`): Tab tới Camera + chuột trái → dòng "Đã đặt camera quan sát tại …" + nút "Xem camera (V)"; khối cam đúng chỗ, đi xuyên được; từ trại Map 1 bấm `V` → "Đang tải…" rồi góc nhìn camera, không lỗ, khối ẩn, WASD/Space/chuột không làm gì; `V` / nút "Quay về (V)" / `Esc` → về đúng chỗ, Esc không mở Cài đặt; nút không đè Kho/Cài đặt/Túi; báo thời gian "Đang tải…".
