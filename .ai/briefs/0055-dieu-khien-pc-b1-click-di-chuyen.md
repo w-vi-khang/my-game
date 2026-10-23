@@ -1,6 +1,6 @@
 # Brief 0055 — điều khiển PC B1: click trái để đi, dấu click, vòng chân, nhảy A, lướt Shift (bỏ WASD)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -369,3 +369,11 @@ Test cũ ngoài Phạm vi bị hỏng bởi chuỗi bước 8 → dừng theo đ
 - Checklist: Game.Core/PlayerMotion.cs chỉ `using System; Game.Core.Sim` (đạt); không đổi `design/` ngoài sim_m1.json (đạt); giờ thực tế 17:41–17:58 (~17 phút).
 
 ## Review
+- Chạy bằng `claude-sonnet-5-5 · medium` khớp Model thực thi `Sonnet · medium`.
+- Phần cần test #1–#17 đều có kết quả (cập nhật cuối: EditMode 531/531, PlayMode 189/189, `read_console` 0 lỗi); đoạn "chưa commit" ở đầu Kết quả test là ghi chú cũ, đã được thay bằng dòng Cập nhật cuối.
+- `git show --stat 0ce293a`: 23 file, đều trong Phạm vi (+ `PlayerBagSowPlayTests.cs:361` đúng phần Planner bổ sung); `TerrainEditPlayTests.cs` không nằm trong commit (vẫn là thay đổi dở của phiên khác).
+- Quyết định đã chốt — đối chiếu diff: đích quy về độ cao chân (`PlayerCharacter.MoveTo`), đi thẳng, tới đích ≤ `ArriveDistance` 0,05; kẹt = quãng thực < 25 % trong `stuckMs` → `Blocked`; tự nhảy bậc nhìn trước 0,7 ô, ô tầng chân đặc + 2 ô trên trống (`PlayerMotion.ShouldStepUp`); tia không trúng → mặt phẳng ngang qua chân; dấu click chỉ khi bấm, giữ chỉ khi bấm bắt đầu trên world (`holdFromWorld`); lướt vy = 0, hồi tính từ lúc bắt đầu, dừng khi < 50 %, trên không 1 lần, bỏ qua khi bảng mở (`SimView.AnyPanelOpen`); A = Jump, Shift = Dash, UseTool → chuột phải, bỏ Move/Cancel; 8 số mới trong JSON + kiểm biên; hai `sim_m1.json` cùng diff.
+- `Game.Core/PlayerMotion.cs` chỉ `using System; Game.Core.Sim` (No Engine References đạt).
+- Ghi nhận nhỏ, không chặn (để ý khi user xem sau 0056 / 7l c): (a) giữ chuột trái gọi `MoveTo` mỗi frame → `stuck.Reset()` mỗi frame, nên đang giữ chuột vào tường sẽ không chuyển `Blocked` (nhân vật cứ đẩy vào tường tới khi nhả); (b) tia `Physics.Raycast` có thể trúng chính capsule của nhân vật khi click lên nhân vật → đích ≈ chỗ đứng (vô hại).
+- Giờ thực tế: 17:41–17:58 (~17 phút); cộng vào roadmap khi xong cả 7l b (sau 0056).
+- Kết luận: đã duyệt
