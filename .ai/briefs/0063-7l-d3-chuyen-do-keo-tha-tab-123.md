@@ -1,6 +1,6 @@
 # Brief 0063 — 7l d3: chuyển đồ túi / túi phụ / kho (kéo thả cả chồng; chọn ô → Tab đổi đích → 1 / 2 / 3)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -201,8 +201,22 @@ Gom vào danh sách chơi thử cuối của task (user 2026-10-24). Mục cần
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 748f81e
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-24 04:25
+- Kết thúc: 2026-10-24 05:00 (một vòng; ≈ 0,5 giờ thực tế, phần lớn đợi EditMode ~10 phút + PlayMode).
+- Commit: f2c75a7 (`brief 0063: 7l d3 item transfer ...`).
+- File đã đổi: Core/ItemTransfer.cs (`ToSlot`); Client/InventoryView.cs, GameInput.cs, Input/GameControls.inputactions; Lang/vi.json, loc/en.json, loc/context.json (sửa `inv.bag_hint`, thêm 8 khoá); Tests: ItemTransferTests, InventoryPlayTests, GameControlsTests (43 action).
+- Lệch so với brief: không về hành vi. Chi tiết tự chọn: khung nền đích (`Frame`) bao quanh lưới ô với padding 6, thả "nền" dùng cả panel của nơi đó (khung hẹp hơn) cho dễ trúng; `CoversPanelFrame` dùng khung hẹp theo đúng tên. Kéo thả túi ↔ túi phụ (cả "nền") không ghi dòng khi thành công; ghi `inv.move_none` khi đích đầy. Khi nguồn kéo hết đồ / đổi loại giữa lúc nhấn và nhả → bỏ qua (không chuyển). Lỗi tự sửa 1 lần trong lúc làm: `PointerUp` xoá nguồn kéo trước `DropAt` — đã sửa, test qua.
+- Test cũ: không cần sửa theo bước 7 (test 0062 gọi `LeftClickAt` trực tiếp, vẫn chạy).
 
 ## Kết quả test
+- Lệnh 1: parse JSON (inputactions, vi.json, en.json, context.json) OK; `loc_check.py check loc/en.json` exit 0; `grep UnityEngine Core` rỗng; `check_design.py` exit 0 (trong `verify_run --all`); `git diff --stat 748f81e..HEAD -- Core` chỉ `ItemTransfer.cs`.
+- Lệnh 2 (MCP): biên dịch 0 lỗi console. EditMode lần 1: 542/543 — `IncrementalRebuildMatchesFullRebuild` quá timeout 180 s (như brief 0061, Editor không focus); chạy lại riêng → qua (38 s) ⇒ **543/543 qua**. PlayMode **242/242 qua** (gồm 17 test `InventoryPlayTests`). Console 0 lỗi sau chạy.
+- Lệnh 3: đã `git checkout -- client/ProjectSettings/EditorSettings.asset`; không commit `InitTestScene*`.
+- Lệnh 4 `verify_run --all`: design exit 0, asset_check exit 0; client_test / client_test_play exit 1 vì Editor mở → **Chưa kiểm được** bằng dòng lệnh; kết quả MCP thay thế.
+- `ToSlot` → **đạt** (`ItemTransferTests.ToSlotFromStock`). Phím mới → **đạt** (`GameControlsTests` 43 action). Kéo thả túi ↔ túi phụ → **đạt** (`DragBagToHotbarMovesStack`, `DragSwapsAndMerges`). Túi ↔ kho → **đạt** (`DragBetweenBagAndStock`). Click ≠ kéo, thả ngoài, chặn con trỏ khi kéo → **đạt** (`ClickIsNotDrag`, `DropOutsideCancels`). Tab + 1/2/3 → **đạt** (`KeysDefaultTargetTabAndParts`, `TabWithoutStock`, `TransferNeedsBagOpen`, `TargetFullMessage`). Chuỗi → **đạt** (`HardcodedTextScanTests`, `loc_check`). Regression 0062 + điều khiển (gồm `HotbarKeysHold`) + toàn bộ EditMode / PlayMode → **đạt**.
+- Kéo chuột thật qua `Update` (nhấn / giữ / nhả bằng `GameInput`), hình kéo bám con trỏ, màu khung đích, ngưỡng 8 px → **chờ user — gộp cuối** (test gọi `PointerDown/Move/Up` trực tiếp, chưa mô phỏng chuột thật).
 
 ## Vướng mắc
 
