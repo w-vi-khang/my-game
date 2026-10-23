@@ -109,5 +109,67 @@ namespace Game.Client.Tests
             Assert.GreaterOrEqual(view.LastRebuildFrame, frame);
             Assert.IsNotNull(view.ChunkMesh(view.World.Size.ChunkIndex(fx, fy, 100)));
         }
+
+        [UnityTest]
+        public IEnumerator SecondViewpointLoadsItsColumnsAndUnloadsWhenRemoved()
+        {
+            var second = new GameObject("Second");
+            try
+            {
+                second.transform.position = new Vector3(192, 40, 330);
+                var t = second.transform;
+                view.AddViewpoint(t, 128, 160);
+                for (int i = 0; i < 300 && view.MissingColumnsWithin(t, 128) != 0; i++)
+                    yield return null;
+                if (view.MissingColumnsWithin(t, 128) != 0)
+                    Assert.Fail("Second viewpoint columns not loaded within 300 frames");
+                Assert.AreEqual(0, view.MissingColumnsWithin(128));
+                Assert.AreEqual(2, view.ViewpointCount);
+                Assert.AreEqual(view.LoadedColumnCount * 3, view.LoadedChunkCount);
+
+                var cell = view.CellAt(t.position);
+                Assert.IsTrue(view.RemoveViewpoint(t));
+                bool clear = false;
+                for (int i = 0; i < 300 && !clear; i++)
+                {
+                    yield return null;
+                    clear = true;
+                    for (int col = 0; col < 576 && clear; col++)
+                    {
+                        long dSecond = ChunkStreamPlan.DistanceSq(cell.x, cell.z, col % 24, col / 24);
+                        var pc = view.CellAt(camGo.transform.position);
+                        long dPrimary = ChunkStreamPlan.DistanceSq(pc.x, pc.z, col % 24, col / 24);
+                        if (dSecond > 160L * 160 && dPrimary > 160L * 160 && view.ChunkMesh(col) != null) clear = false;
+                    }
+                }
+                Assert.IsTrue(clear, "Columns of the removed viewpoint still loaded after 300 frames");
+                Assert.AreEqual(1, view.ViewpointCount);
+                Assert.AreEqual(0, view.MissingColumnsWithin(128));
+            }
+            finally
+            {
+                Object.Destroy(second);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator AddViewpointRespectsMaxAndRejectsDuplicates()
+        {
+            var a = new GameObject("A");
+            var b = new GameObject("B");
+            try
+            {
+                view.AddViewpoint(a.transform, 128, 160);
+                Assert.Throws<System.InvalidOperationException>(() => view.AddViewpoint(b.transform, 128, 160));
+                Assert.Throws<System.ArgumentException>(() => view.AddViewpoint(a.transform, 128, 160));
+                Assert.IsFalse(view.RemoveViewpoint(b.transform));
+            }
+            finally
+            {
+                Object.Destroy(a);
+                Object.Destroy(b);
+            }
+            yield return null;
+        }
     }
 }

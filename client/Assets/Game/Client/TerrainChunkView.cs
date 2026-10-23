@@ -34,6 +34,12 @@ namespace Game.Client
         public int loadRadius = 128;
         public int unloadRadius = 160;
         public int maxColumnsPerFrame = 2;
+        /// <summary>Max streaming viewpoints (primary + extra). Read when the plan is created in Build.</summary>
+        public int maxViewpoints = 2;
+
+        struct ExtraViewpoint { public Transform Target; public int LoadRadius, UnloadRadius; }
+        readonly List<ExtraViewpoint> extraViewpoints = new List<ExtraViewpoint>();
+        readonly List<StreamViewpoint> viewpointBuffer = new List<StreamViewpoint>();
 
         sealed class ChunkSlot
         {
@@ -92,15 +98,70 @@ namespace Game.Client
         public int LastLoadedColumns { get; private set; }
 
         /// <summary>Số cột có khoảng cách ≤ radius tới camera mà chưa nạp; 0 nếu không streaming.</summary>
-        public int MissingColumnsWithin(int radius)
+        public int MissingColumnsWithin(int radius) => MissingColumnsWithin(StreamCenter(), radius);
+
+        /// <summary>Same as MissingColumnsWithin(int) but centred on the given viewpoint (null, not streaming or no plan gives 0).</summary>
+        public int MissingColumnsWithin(Transform viewpoint, int radius)
         {
-            if (!streaming || plan == null)
+            if (!streaming || plan == null || viewpoint == null)
                 return 0;
-            var center = StreamCenter();
-            if (center == null)
-                return 0;
-            var cell = CellAt(center.position);
+            var cell = CellAt(viewpoint.position);
             return plan.MissingWithin(cell.x, cell.z, radius);
+        }
+
+        /// <summary>Registers an extra streaming viewpoint. Check order: null, radii, duplicate, maximum.</summary>
+        public void AddViewpoint(Transform target, int loadRadius, int unloadRadius)
+        {
+            if (target == null) throw new System.ArgumentNullException(nameof(target));
+            if (loadRadius < 0) throw new System.ArgumentOutOfRangeException(nameof(loadRadius));
+            if (unloadRadius < loadRadius) throw new System.ArgumentOutOfRangeException(nameof(unloadRadius));
+            foreach (var e in extraViewpoints)
+                if (e.Target == target) throw new System.ArgumentException("viewpoint already registered", nameof(target));
+            if (extraViewpoints.Count + 1 >= maxViewpoints)
+                throw new System.InvalidOperationException($"viewpoint maximum {maxViewpoints} reached");
+            extraViewpoints.Add(new ExtraViewpoint { Target = target, LoadRadius = loadRadius, UnloadRadius = unloadRadius });
+        }
+
+        /// <summary>Removes an extra viewpoint; returns whether it was registered. The primary viewpoint is untouched.</summary>
+        public bool RemoveViewpoint(Transform target)
+        {
+            for (int i = 0; i < extraViewpoints.Count; i++)
+                if (extraViewpoints[i].Target == target)
+                {
+                    extraViewpoints.RemoveAt(i);
+                    return true;
+                }
+            return false;
+        }
+
+        /// <summary>Viewpoints currently in effect: primary (if it has a centre) plus extras whose Transform is alive.</summary>
+        public int ViewpointCount
+        {
+            get
+            {
+                int n = StreamCenter() != null ? 1 : 0;
+                foreach (var e in extraViewpoints)
+                    if (e.Target != null) n++;
+                return n;
+            }
+        }
+
+        bool CollectViewpoints()
+        {
+            viewpointBuffer.Clear();
+            var center = StreamCenter();
+            if (center != null)
+            {
+                var cell = CellAt(center.position);
+                viewpointBuffer.Add(new StreamViewpoint(cell.x, cell.z, loadRadius, unloadRadius));
+            }
+            foreach (var e in extraViewpoints)
+            {
+                if (e.Target == null) continue;
+                var cell = CellAt(e.Target.position);
+                viewpointBuffer.Add(new StreamViewpoint(cell.x, cell.z, e.LoadRadius, e.UnloadRadius));
+            }
+            return viewpointBuffer.Count > 0;
         }
 
         Transform StreamCenter() => streamTarget != null ? streamTarget : (Camera.main != null ? Camera.main.transform : null);
@@ -177,7 +238,7 @@ namespace Game.Client
             var s = World.Size;
             if (streaming)
             {
-                plan = new ChunkStreamPlan(s.ChunksX, s.ChunksZ, loadRadius, unloadRadius);
+                plan = new ChunkStreamPlan(s.ChunksX, s.ChunksZ, loadRadius, unloadRadius, maxViewpoints);
                 slots = new ChunkSlot[s.ChunkCount];
                 var center = StreamCenter();
                 if (center == null)
@@ -185,9 +246,9 @@ namespace Game.Client
                     Debug.LogError("TERRAINVIEW streaming: no streamTarget and no Camera.main");
                     return;
                 }
-                var cell = CellAt(center.position);
+                CollectViewpoints();
                 var first = Stopwatch.StartNew();
-                plan.Update(cell.x, cell.z, 0, toLoad, toUnload);
+                plan.Update(viewpointBuffer, 0, toLoad, toUnload);
                 var build = new List<int>();
                 AcquireColumns(toLoad, build);
                 Rebuild(build);
@@ -263,11 +324,9 @@ namespace Game.Client
             LastLoadedColumns = 0;
             if (streaming && plan != null)
             {
-                var center = StreamCenter();
-                if (center != null)
+                if (CollectViewpoints())
                 {
-                    var cell = CellAt(center.position);
-                    plan.Update(cell.x, cell.z, maxColumnsPerFrame, toLoad, toUnload);
+                    plan.Update(viewpointBuffer, maxColumnsPerFrame, toLoad, toUnload);
                     int cy = World.Size.ChunksY, cols = plan.ColumnCount;
                     foreach (var col in toUnload)
                         for (int k = 0; k < cy; k++)
