@@ -67,6 +67,8 @@ Mỗi bước đạt đúng cột "Xong khi" của dòng 7l a–f trong world-te
 - Brief 0053 (camera quan sát) không duyệt riêng, gộp vào 7l c: user, 2026-10-23.
 - Bản sửa 7l b (brief 0057, 0035): camera quan sát đặt trên ô + xoay khi xem làm sớm; 7l c chỉ còn đổi thành vật phẩm trong túi + tự đi tới 2 ô.
 - Ghi chú cho brief 7l c (từ review 0055/0056): nối máu/mana vào client (AddMoved, rơi, ngập — chưa bước nào nhận); nút "Bỏ đánh dấu" (phím Cancel đã bỏ ở 0055); công cụ đang tạm ở chuột phải; giữ chuột trái vào tường không chuyển Blocked.
+- 7l c chia 3 brief, làm lần lượt (user, 2026-10-23): **c1** chế độ D/Q/E/R + chuột phải tự đi tới 2 ô rồi làm + tô đỏ khối + vòng tầm + F Thu 2 ô + click trái ô ruộng (nút Bỏ đánh dấu); **c2** cầm vật phẩm (khối, hạt, camera quan sát); **c3** nối máu/mana vào client.
+- Trước 7l d, cầm vật phẩm tạm qua bảng túi cũ (B → bấm vật phẩm); khối tạm chọn loại bằng phím 1–4 như hiện nay; 7l d thay bằng túi ô vuông (user, 2026-10-23).
 
 ## Câu hỏi còn mở
 _(không)_ — Xới: bỏ đánh dấu bằng nút "Bỏ đánh dấu" trong bảng khi click trái lên biển (user đồng ý 2026-10-23).
