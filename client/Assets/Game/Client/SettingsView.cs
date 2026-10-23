@@ -17,6 +17,8 @@ namespace Game.Client
 
         static SettingsView active;
 
+        public static bool IsAnyOpen => active != null && active.IsOpen;
+
         SimView sim;
         TerrainEditInput editInput;
         GUIStyle labelStyle;

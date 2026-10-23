@@ -648,6 +648,9 @@ namespace Game.Client
 
         public static float StatusTop(float hudBottom) => Mathf.Max(100f, hudBottom + 4f);
 
+        /// <summary>World-space labels (creature status, red "!" markers) are hidden while the Settings panel is open so they do not draw over it.</summary>
+        public static bool WorldLabelsVisible => !SettingsView.IsAnyOpen;
+
         void OnGUI()
         {
             if (Sim == null)
@@ -674,7 +677,7 @@ namespace Game.Client
                 DrawFarmGui(scale);
 
             var cam = Camera.main;
-            if (cam == null)
+            if (cam == null || !WorldLabelsVisible)
                 return;
             var cs = Sim.State.Creatures;
             for (int i = 0; i < cs.Count && i < bodies.Count; i++)

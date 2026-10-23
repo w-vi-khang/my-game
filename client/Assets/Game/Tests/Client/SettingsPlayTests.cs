@@ -240,6 +240,20 @@ namespace Game.Client.Tests
             Assert.IsFalse(settings.IsOpen);
             yield return null;
         }
+        [UnityTest]
+        public IEnumerator WorldLabels_HiddenWhileSettingsOpen()
+        {
+            Assert.IsFalse(SettingsView.IsAnyOpen);
+            Assert.IsTrue(SimView.WorldLabelsVisible);
+            settings.HandleKeys(true, false);
+            Assert.IsTrue(SettingsView.IsAnyOpen);
+            Assert.IsFalse(SimView.WorldLabelsVisible, "World labels must be hidden while Settings is open");
+            settings.HandleKeys(true, false);
+            Assert.IsFalse(SettingsView.IsAnyOpen);
+            Assert.IsTrue(SimView.WorldLabelsVisible);
+            yield return null;
+        }
+
 
         [UnityTest]
         public IEnumerator LanguageSwitch_UpdatesUgui()
