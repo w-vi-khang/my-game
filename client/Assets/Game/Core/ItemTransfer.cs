@@ -66,5 +66,19 @@ namespace Game.Core
             from.Remove(item, n);
             return n;
         }
+
+        /// <summary>Kéo thả từ kho vào một ô (0034 mục 6): ô trống hoặc cùng loại → chuyển min(amount, from.Count(item), chỗ trống của ô); ô chứa loại khác → 0. Trả số đã chuyển.</summary>
+        public static int ToSlot(IItemStore from, ItemId item, SlotInventory to, int slot, int amount)
+        {
+            if (from == null) throw new ArgumentNullException(nameof(from));
+            if (to == null) throw new ArgumentNullException(nameof(to));
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount must be >= 0");
+            if (ReferenceEquals(from, to)) throw new ArgumentException("Source and target must differ.");
+            int n = Math.Min(amount, from.Count(item));
+            if (n <= 0) return 0;
+            n = to.AddToSlot(slot, item, n);
+            if (n > 0) from.Remove(item, n);
+            return n;
+        }
     }
 }

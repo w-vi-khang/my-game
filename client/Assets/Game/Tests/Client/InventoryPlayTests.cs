@@ -257,5 +257,170 @@ namespace Game.Client.Tests
             Assert.IsFalse(settings.OtherPanelOpen());
             yield break;
         }
+
+        IEnumerator Drag(Vector2 from, Vector2 to)
+        {
+            inv.PointerDown(from);
+            yield return null;
+            inv.PointerMove(Vector2.Lerp(from, to, 0.5f));
+            inv.PointerMove(to);
+            yield return null;
+            inv.PointerUp(to);
+            yield return null;
+        }
+
+        static readonly ItemId Dirt = ItemId.Block(BlockMaterial.Dirt);
+        static readonly ItemId Stone = ItemId.Block(BlockMaterial.Stone);
+        static readonly ItemId Sand = ItemId.Block(BlockMaterial.Sand);
+
+        [UnityTest]
+        public IEnumerator DragBagToHotbarMovesStack()
+        {
+            view.Bag.Add(BlockMaterial.Dirt, 5);
+            inv.ToggleBag();
+            yield return Frames();
+            yield return Drag(inv.SlotScreenCenter(ItemContainer.Bag, 1), inv.SlotScreenCenter(ItemContainer.Hotbar, 1));
+            Assert.AreEqual(Dirt, view.Bag.Hotbar.Get(1).Item);
+            Assert.AreEqual(5, view.Bag.Hotbar.Get(1).Count);
+            Assert.IsTrue(view.Bag.Main.Get(1).IsEmpty);
+            Assert.IsFalse(inv.Dragging);
+        }
+
+        [UnityTest]
+        public IEnumerator DragSwapsAndMerges()
+        {
+            view.Bag.Add(BlockMaterial.Dirt, 3);
+            view.Bag.Hotbar.AddToSlot(0, Stone, 2);
+            inv.ToggleBag();
+            yield return Frames();
+            yield return Drag(inv.SlotScreenCenter(ItemContainer.Bag, 1), inv.SlotScreenCenter(ItemContainer.Hotbar, 0));
+            Assert.AreEqual(Dirt, view.Bag.Hotbar.Get(0).Item);
+            Assert.AreEqual(3, view.Bag.Hotbar.Get(0).Count);
+            Assert.AreEqual(Stone, view.Bag.Main.Get(1).Item);
+            Assert.AreEqual(2, view.Bag.Main.Get(1).Count);
+            view.Bag.Main.AddToSlot(2, Dirt, 4);
+            yield return Frames(1);
+            yield return Drag(inv.SlotScreenCenter(ItemContainer.Bag, 2), inv.SlotScreenCenter(ItemContainer.Hotbar, 0));
+            Assert.AreEqual(7, view.Bag.Hotbar.Get(0).Count);
+            Assert.IsTrue(view.Bag.Main.Get(2).IsEmpty);
+        }
+
+        [UnityTest]
+        public IEnumerator DragBetweenBagAndStock()
+        {
+            yield return GoNearStorage();
+            Assert.IsTrue(sv.OpenStockAt(0));
+            var stock = sv.Sim.State.Stock;
+            int s0 = stock.Seeds[0];
+            view.Bag.AddSeeds(0, 3);
+            yield return Frames();
+            yield return Drag(inv.SlotScreenCenter(ItemContainer.Bag, 1), inv.SlotScreenCenter(ItemContainer.Stock, 0));
+            Assert.AreEqual(s0 + 3, stock.Seeds[0]);
+            Assert.IsTrue(view.Bag.Main.Get(1).IsEmpty);
+            StringAssert.Contains("Đã chuyển 3", input.HudText()); // vi-text
+            Assert.AreEqual(ItemId.SeedBag(0), inv.SlotAt(ItemContainer.Stock, 0).Item);
+            yield return Drag(inv.SlotScreenCenter(ItemContainer.Stock, 0), inv.SlotScreenCenter(ItemContainer.Bag, 2));
+            Assert.AreEqual(ItemId.SeedBag(0), view.Bag.Main.Get(2).Item);
+            Assert.AreEqual(s0 + 3, view.Bag.Main.Get(2).Count);
+            Assert.AreEqual(0, stock.Seeds[0]);
+            view.Bag.Add(BlockMaterial.Dirt, 2);
+            yield return Frames(1);
+            Assert.AreEqual(Dirt, view.Bag.Main.Get(1).Item);
+            yield return Drag(inv.SlotScreenCenter(ItemContainer.Bag, 1), inv.SlotScreenCenter(ItemContainer.Stock, 0));
+            Assert.AreEqual(2, view.Bag.Main.Get(1).Count);
+            StringAssert.Contains("Kho không nhận", input.HudText()); // vi-text
+        }
+
+        [UnityTest]
+        public IEnumerator ClickIsNotDrag()
+        {
+            view.Bag.Add(BlockMaterial.Dirt, 1);
+            inv.ToggleBag();
+            yield return Frames();
+            var p = inv.SlotScreenCenter(ItemContainer.Bag, 1);
+            Assert.IsTrue(inv.PointerDown(p));
+            inv.PointerMove(p + new Vector2(3f, 0f));
+            Assert.IsTrue(inv.PointerUp(p + new Vector2(3f, 0f)));
+            Assert.IsTrue(inv.InfoVisible);
+            Assert.IsFalse(inv.Dragging);
+            Assert.AreEqual(Dirt, view.Bag.Main.Get(1).Item);
+        }
+
+        [UnityTest]
+        public IEnumerator DropOutsideCancels()
+        {
+            view.Bag.Add(BlockMaterial.Dirt, 1);
+            inv.ToggleBag();
+            yield return Frames();
+            var mid = new Vector2(Screen.width / 2f, Screen.height / 2f);
+            Assert.IsFalse(inv.Covers(mid));
+            var p = inv.SlotScreenCenter(ItemContainer.Bag, 1);
+            inv.PointerDown(p);
+            inv.PointerMove(mid);
+            Assert.IsTrue(inv.Dragging);
+            Assert.IsTrue(InventoryView.BlocksPointer(mid));
+            inv.PointerUp(mid);
+            Assert.IsFalse(inv.Dragging);
+            Assert.AreEqual(Dirt, view.Bag.Main.Get(1).Item);
+        }
+
+        [UnityTest]
+        public IEnumerator KeysDefaultTargetTabAndParts()
+        {
+            yield return GoNearStorage();
+            Assert.IsTrue(sv.OpenStockAt(0));
+            view.Bag.AddSeeds(0, 9);
+            Assert.IsTrue(inv.Select(ItemContainer.Bag, 1));
+            Assert.AreEqual(ItemContainer.Hotbar, inv.CurrentTarget);
+            Assert.AreEqual(5, inv.TransferPart(2));
+            Assert.AreEqual(5, view.Bag.Hotbar.Count(ItemId.SeedBag(0)));
+            Assert.AreEqual(4, view.Bag.Main.Get(1).Count);
+            inv.NextTarget();
+            Assert.AreEqual(ItemContainer.Stock, inv.CurrentTarget);
+            StringAssert.Contains("Chuyển tới: kho", inv.InfoText); // vi-text
+            Assert.AreEqual(2, inv.TransferPart(3));
+            Assert.AreEqual(2, inv.TransferPart(1));
+            Assert.IsTrue(view.Bag.Main.Get(1).IsEmpty);
+            Assert.IsFalse(inv.HasSelection);
+        }
+
+        [UnityTest]
+        public IEnumerator TabWithoutStock()
+        {
+            view.Bag.Add(BlockMaterial.Dirt, 2);
+            inv.ToggleBag();
+            Assert.IsTrue(inv.Select(ItemContainer.Bag, 1));
+            Assert.AreEqual(ItemContainer.Hotbar, inv.CurrentTarget);
+            inv.NextTarget();
+            Assert.AreEqual(ItemContainer.Hotbar, inv.CurrentTarget);
+            Assert.AreEqual(1, inv.TransferPart(2));
+            Assert.IsTrue(inv.Select(ItemContainer.Hotbar, 0));
+            Assert.AreEqual(ItemContainer.Bag, inv.CurrentTarget);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TransferNeedsBagOpen()
+        {
+            view.Bag.Hotbar.AddToSlot(0, Dirt, 2);
+            Assert.IsTrue(inv.Select(ItemContainer.Hotbar, 0));
+            Assert.IsFalse(inv.TransferActive);
+            Assert.AreEqual(0, inv.TransferPart(1));
+            Assert.AreEqual(2, view.Bag.Hotbar.Get(0).Count);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator TargetFullMessage()
+        {
+            inv.ToggleBag();
+            view.Bag.Hotbar.AddToSlot(0, Stone, 999);
+            view.Bag.Hotbar.AddToSlot(1, Sand, 999);
+            view.Bag.Add(BlockMaterial.Dirt, 3);
+            Assert.IsTrue(inv.Select(ItemContainer.Bag, 1));
+            Assert.AreEqual(0, inv.TransferPart(1));
+            StringAssert.Contains("Không chuyển được: túi phụ đầy", input.HudText()); // vi-text
+            yield break;
+        }
     }
 }

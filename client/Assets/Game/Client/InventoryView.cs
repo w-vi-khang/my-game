@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Game.Core;
+using Game.Core.Sim;
 using Game.Core.View;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,12 +11,15 @@ namespace Game.Client
     /// Túi / túi phụ / kho ô vuông (0034 mục 4, 6; world 7l d2, brief 0062). uGUI dựng bằng code, không EventSystem (tự kiểm con trỏ, phím qua GameInput).
     /// B túi, P ẩn/hiện túi phụ (mở túi luôn hiện), kho mở từ SimView.OpenStockAt (mở luôn túi, tự đóng khi xa > 10 ô).
     /// Click trái ô → bảng thông tin lề trái; chuột phải ô → cầm, túi đóng; 1–0 = ô túi phụ khi túi + kho đóng.
+    /// Brief 0063: kéo thả cả chồng (tự làm, ngưỡng 8 px); chọn ô → Tab đổi đích (túi > túi phụ > kho) → 1 / 2 / 3.
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class InventoryView : MonoBehaviour
     {
         const float CellSize = 56f, CellGap = 6f, PanelPad = 8f, ButtonSize = 28f;
         const int Columns = 5;
+        /// <summary>Con trỏ đi xa điểm nhấn chừng này (px màn hình) thì bắt đầu kéo [số tạm] — cảm giác UI.</summary>
+        public const float DragThresholdPx = 8f;
 
         public static InventoryView Active { get; private set; }
         public static bool AnyOpen => Active != null && (Active.BagOpen || Active.StockOpen || Active.HasSelection);
@@ -37,6 +41,10 @@ namespace Game.Client
         /// <summary>Stock: vật phẩm đang chọn (lưu ItemId, không lưu chỉ số).</summary>
         public ItemId SelectedStockItem { get; private set; }
         public bool InfoVisible => HasSelection;
+        public bool Dragging { get; private set; }
+        /// <summary>Đích của phím 1 / 2 / 3 (Tab đổi).</summary>
+        public ItemContainer CurrentTarget { get; private set; }
+        public bool TransferActive => BagOpen && HasSelection;
         /// <summary>4 dòng bảng thông tin nối "\n" (cho test); "" khi không chọn.</summary>
         public string InfoText => TryGetSelected(out var item) ? string.Join("\n", InfoLines(item)) : "";
 
@@ -51,7 +59,8 @@ namespace Game.Client
         sealed class Grid
         {
             public ItemContainer Container;
-            public RectTransform Panel;
+            public RectTransform Panel, Frame;
+            public Image FrameImage;
             public SlotUi[] Cells;
             public RectTransform Prev, Next;
             public Text PageLabel, Title, Hint;
@@ -65,6 +74,14 @@ namespace Game.Client
         Grid bagGrid, hotbarGrid, stockGrid;
         RectTransform infoPanel;
         Text[] infoLines;
+        RectTransform dragRt;
+        Image dragImage;
+        StockStore stockStore;
+        bool pressActive, hasSource;
+        Vector2 pressPos;
+        ItemContainer dragFrom;
+        int dragSlot = -1;
+        ItemId dragItem;
         string[] infoShown;
         int consumedFrame = -1;
         bool built;
@@ -96,6 +113,7 @@ namespace Game.Client
             BagOpen = open;
             if (!open)
             {
+                CancelDrag();
                 StockOpen = false;
                 StockIndex = -1;
                 ClearSelection();
@@ -112,6 +130,7 @@ namespace Game.Client
             StockOpen = true;
             StockPage = 0;
             BagOpen = true;
+            ResetTarget();
             return true;
         }
 
@@ -208,6 +227,7 @@ namespace Game.Client
             }
             SelectedContainer = c;
             HasSelection = true;
+            ResetTarget();
             return true;
         }
 
@@ -251,6 +271,176 @@ namespace Game.Client
         {
             if (view == null || view.Bag == null || BagOpen || StockOpen) return false;
             return HoldFromSlot(ItemContainer.Hotbar, k);
+        }
+
+        // ---------- chuyển đồ (brief 0063) ----------
+
+        StockStore Stock => Sim == null ? null : (stockStore ??= new StockStore(simView.Sim));
+
+        IItemStore StoreOf(ItemContainer c) => c == ItemContainer.Bag ? (IItemStore)view.Bag.Main : c == ItemContainer.Hotbar ? view.Bag.Hotbar : Stock;
+
+        static string TargetName(ItemContainer c) => T(c == ItemContainer.Bag ? "inv.target_bag" : c == ItemContainer.Hotbar ? "inv.target_hotbar" : "inv.target_stock");
+
+        void ResetTarget()
+        {
+            if (HasSelection) CurrentTarget = ItemTransfer.DefaultTarget(SelectedContainer, StockOpen);
+        }
+
+        /// <summary>Tab: đích kế tiếp (Quyết định 3). Không TransferActive → không làm gì.</summary>
+        public void NextTarget()
+        {
+            if (!TransferActive) return;
+            CurrentTarget = ItemTransfer.NextTarget(SelectedContainer, CurrentTarget, StockOpen);
+        }
+
+        /// <summary>1 / 2 / 3: chuyển PartAmount(số ở ô chọn, part) sang CurrentTarget; trả số đã chuyển (không TransferActive → 0).</summary>
+        public int TransferPart(int part)
+        {
+            if (!TransferActive || !TryGetSelected(out var item)) return 0;
+            var src = SelectedContainer;
+            var dest = CurrentTarget;
+            if (dest == src || StoreOf(dest) == null) return 0;
+            int count = src == ItemContainer.Stock ? Stock.Count(item) : Inv(src).Get(SelectedSlot).Count;
+            int amount = ItemTransfer.PartAmount(count, part);
+            int n = src == ItemContainer.Stock
+                ? ItemTransfer.FromStore(Stock, item, StoreOf(dest), amount)
+                : ItemTransfer.FromSlot(Inv(src), SelectedSlot, StoreOf(dest), amount);
+            Report(n, item, dest);
+            if (HasSelection && !TryGetSelected(out _)) ClearSelection();
+            return n;
+        }
+
+        void Report(int n, ItemId item, ItemContainer dest)
+        {
+            var edit = GetComponent<TerrainEditInput>();
+            if (edit == null) return;
+            if (n > 0) edit.SetResult(Fmt("inv.moved", n, ItemName(item), TargetName(dest)));
+            else if (dest == ItemContainer.Stock && (item.Kind == ItemKind.Block || item.Kind == ItemKind.Tool)) edit.SetResult(Fmt("inv.stock_rejects", ItemName(item)));
+            else edit.SetResult(Fmt("inv.move_none", TargetName(dest)));
+        }
+
+        void CancelDrag()
+        {
+            Dragging = false;
+            pressActive = false;
+            hasSource = false;
+            if (dragRt != null) dragRt.gameObject.SetActive(false);
+        }
+
+        /// <summary>Nhấn chuột trái: trúng phần nào của InventoryView → ghi điểm nhấn (+ ô nguồn nếu ô có đồ), true.</summary>
+        public bool PointerDown(Vector2 screen)
+        {
+            if (!built || !Covers(screen)) return false;
+            pressActive = true;
+            pressPos = screen;
+            hasSource = false;
+            foreach (var c in Containers)
+            {
+                if (!Visible(c)) continue;
+                var g = GridOf(c);
+                if (!Hit(g.Panel, screen)) continue;
+                int n = ShownCount(c);
+                for (int i = 0; i < n && i < g.Cells.Length; i++)
+                {
+                    if (!Hit(g.Cells[i].Rt, screen)) continue;
+                    var st = SlotAt(c, i);
+                    if (st.IsEmpty) return true;
+                    hasSource = true;
+                    dragFrom = c;
+                    dragItem = st.Item;
+                    dragSlot = c == ItemContainer.Stock ? -1 : Inv(c).PageStart(PageOf(c)) + i;
+                    return true;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>Giữ chuột: quá DragThresholdPx từ điểm nhấn và có ô nguồn → Dragging; hình kéo bám con trỏ.</summary>
+        public void PointerMove(Vector2 screen)
+        {
+            if (!pressActive || !hasSource) return;
+            if (!Dragging && (screen - pressPos).magnitude > DragThresholdPx)
+            {
+                Dragging = true;
+                dragImage.color = new Color(IconColor(dragItem).r, IconColor(dragItem).g, IconColor(dragItem).b, 0.8f);
+                dragRt.gameObject.SetActive(true);
+                dragRt.SetAsLastSibling();
+            }
+            if (Dragging) dragRt.position = new Vector3(screen.x, screen.y, 0f);
+        }
+
+        /// <summary>Nhả: Dragging → DropAt(screen); không → LeftClickAt(điểm nhấn) như 0062. Trả true nếu đã xử lý.</summary>
+        public bool PointerUp(Vector2 screen)
+        {
+            if (!pressActive) return false;
+            bool was = Dragging, source = hasSource;
+            var press = pressPos;
+            CancelDrag();
+            hasSource = source;
+            if (was) { DropAt(screen); hasSource = false; return true; }
+            hasSource = false;
+            return LeftClickAt(press);
+        }
+
+        /// <summary>true nếu điểm trong khung nền của nơi c (nơi đó đang hiện).</summary>
+        public bool CoversPanelFrame(ItemContainer c, Vector2 screen) => built && Visible(c) && Hit(GridOf(c).Frame, screen);
+
+        /// <summary>Thả ô nguồn (hasSource) tại screen: chuyển cả chồng (Quyết định 2); trả số đã chuyển.</summary>
+        int DropAt(Vector2 screen)
+        {
+            if (!hasSource) return 0;
+            ItemContainer tc = default;
+            int ti = -1;
+            bool found = false;
+            foreach (var c in Containers)
+            {
+                if (!Visible(c)) continue;
+                var g = GridOf(c);
+                if (!Hit(g.Panel, screen)) continue;
+                found = true;
+                tc = c;
+                int n = ShownCount(c);
+                for (int i = 0; i < n && i < g.Cells.Length; i++)
+                    if (Hit(g.Cells[i].Rt, screen)) { ti = i; break; }
+                break;
+            }
+            hasSource = false;
+            if (!found) return 0;
+            var src = dragFrom;
+            var item = dragItem;
+            if (src == ItemContainer.Stock)
+            {
+                if (tc == ItemContainer.Stock || Stock == null) return 0;
+                int count = Stock.Count(item);
+                if (count <= 0) return 0;
+                var destInv = Inv(tc);
+                int moved = 0;
+                if (ti >= 0) moved = ItemTransfer.ToSlot(Stock, item, destInv, destInv.PageStart(PageOf(tc)) + ti, count);
+                if (moved == 0) moved = ItemTransfer.FromStore(Stock, item, destInv, count);
+                Report(moved, item, tc);
+                return moved;
+            }
+            var srcInv = Inv(src);
+            var st = srcInv.Get(dragSlot);
+            if (st.IsEmpty || st.Item != item) return 0;
+            if (tc == ItemContainer.Stock)
+            {
+                if (Stock == null) return 0;
+                int moved = ItemTransfer.FromSlot(srcInv, dragSlot, Stock, st.Count);
+                Report(moved, item, tc);
+                return moved;
+            }
+            var di = Inv(tc);
+            if (ti >= 0)
+            {
+                int destSlot = di.PageStart(PageOf(tc)) + ti;
+                if (di == srcInv && destSlot == dragSlot) return 0;
+                return srcInv.Move(dragSlot, di, destSlot) ? st.Count : 0; // gộp / đổi chỗ: không ghi dòng (thấy ngay trên ô)
+            }
+            if (di == srcInv) return 0;
+            int m = ItemTransfer.FromSlot(srcInv, dragSlot, di, st.Count);
+            if (m == 0) Report(0, item, tc);
+            return m;
         }
 
         // ---------- chữ ----------
@@ -314,11 +504,20 @@ namespace Game.Client
                 for (int k = 0; k < 10; k++)
                     if (GameInput.Hotbar(k).WasPressedThisFrame()) UseHotbarKey(k);
             AutoCloseStock();
+            if (TransferActive)
+            {
+                if (GameInput.NextTarget.WasPressedThisFrame()) NextTarget();
+                if (GameInput.TransferAll.WasPressedThisFrame()) TransferPart(1);
+                else if (GameInput.TransferHalf.WasPressedThisFrame()) TransferPart(2);
+                else if (GameInput.TransferThird.WasPressedThisFrame()) TransferPart(3);
+            }
             if (GameInput.HasPointer)
             {
                 var pos = GameInput.PointerPosition;
-                if (GameInput.MoveClick.WasPressedThisFrame() && LeftClickAt(pos)) consumedFrame = Time.frameCount;
-                if (GameInput.UseTool.WasPressedThisFrame() && RightClickAt(pos)) consumedFrame = Time.frameCount;
+                if (GameInput.MoveClick.WasPressedThisFrame() && PointerDown(pos)) consumedFrame = Time.frameCount;
+                if (pressActive && GameInput.MoveClick.IsPressed()) PointerMove(pos);
+                if (pressActive && GameInput.MoveClick.WasReleasedThisFrame() && PointerUp(pos)) consumedFrame = Time.frameCount;
+                if (!Dragging && GameInput.UseTool.WasPressedThisFrame() && RightClickAt(pos)) consumedFrame = Time.frameCount;
             }
             Refresh();
         }
@@ -338,6 +537,7 @@ namespace Game.Client
             StockOpen = false;
             StockIndex = -1;
             if (HasSelection && SelectedContainer == ItemContainer.Stock) ClearSelection();
+            ResetTarget();
         }
 
         // ---------- con trỏ ----------
@@ -351,7 +551,7 @@ namespace Game.Client
 
         public bool Covers(Vector2 screen)
         {
-            if (Time.frameCount == consumedFrame) return true;
+            if (Dragging || Time.frameCount == consumedFrame) return true;
             if (!built) return false;
             foreach (var c in Containers)
             {
@@ -494,6 +694,12 @@ namespace Game.Client
             g.Panel = NewRt(c + " Panel", root);
             Place(g.Panel, anchor, anchor, pos, new Vector2(w, h));
             NewImage(g.Panel, new Color(0f, 0f, 0f, 0.35f));
+            // Khung nền (padding 6, sau các ô): đổi màu khi là đích chuyển đồ (brief 0063).
+            int usedCols = Mathf.Min(columns, cellCount);
+            g.Frame = NewRt("Frame", g.Panel);
+            Place(g.Frame, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(PanelPad - 6f, -(top - 6f)),
+                new Vector2(usedCols * CellSize + (usedCols - 1) * CellGap + 12f, rows * CellSize + (rows - 1) * CellGap + 12f));
+            g.FrameImage = NewImage(g.Frame, Color.clear);
             for (int i = 0; i < cellCount; i++) g.Cells[i] = NewCell(g.Panel, i, columns, top, c == ItemContainer.Hotbar);
             var tr = new Vector2(1f, 1f);
             if (titled)
@@ -544,11 +750,11 @@ namespace Game.Client
             stockGrid = NewGrid(ItemContainer.Stock, root, new Vector2(1f, 0.5f), new Vector2(-12f, 0f), main.PageSize, Columns, true);
 
             infoPanel = NewRt("Info Panel", root);
-            Place(infoPanel, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(12f, 0f), new Vector2(280f, 132f));
+            Place(infoPanel, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(12f, 0f), new Vector2(280f, 166f));
             NewImage(infoPanel, new Color(0f, 0f, 0f, 0.7f));
-            infoLines = new Text[4];
-            infoShown = new string[4] { "", "", "", "" };
-            for (int i = 0; i < 4; i++)
+            infoLines = new Text[5];
+            infoShown = new string[5] { "", "", "", "", "" };
+            for (int i = 0; i < 5; i++)
             {
                 var line = NewRt("Line " + i, infoPanel);
                 Place(line, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -8f - 30f * i), new Vector2(260f, 28f));
@@ -556,6 +762,11 @@ namespace Game.Client
                 infoLines[i].horizontalOverflow = HorizontalWrapMode.Wrap;
             }
             infoLines[0].fontStyle = FontStyle.Bold;
+            var dragGo = NewRt("Drag", root);
+            Place(dragGo, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(CellSize - 16f, CellSize - 16f));
+            dragRt = dragGo;
+            dragImage = NewImage(dragGo, Color.white);
+            dragGo.gameObject.SetActive(false);
             RefreshText();
         }
 
@@ -574,6 +785,9 @@ namespace Game.Client
         void Refresh()
         {
             if (HasSelection && !TryGetSelected(out _)) ClearSelection();
+            if (HasSelection && (CurrentTarget == SelectedContainer || (CurrentTarget == ItemContainer.Stock && !StockOpen))) ResetTarget();
+            foreach (var c0 in Containers)
+                GridOf(c0).FrameImage.color = TransferActive && CurrentTarget == c0 ? new Color(0.25f, 0.5f, 0.9f, 0.45f) : Color.clear;
             hotbarGrid.Panel.gameObject.SetActive(HotbarShown);
             bagGrid.Panel.gameObject.SetActive(BagOpen);
             stockGrid.Panel.gameObject.SetActive(StockOpen);
@@ -633,19 +847,24 @@ namespace Game.Client
             t.text = value;
         }
 
-        string[] InfoLines(ItemId item) => new[]
+        string[] InfoLines(ItemId item)
         {
-            ItemName(item),
-            InfoSource(item),
-            Fmt("inv.info_bag", view.Bag.Count(item)),
-            InfoStock(item),
-        };
+            var lines = new List<string>
+            {
+                ItemName(item),
+                InfoSource(item),
+                Fmt("inv.info_bag", view.Bag.Count(item)),
+                InfoStock(item),
+            };
+            if (TransferActive) lines.Add(Fmt("inv.target", TargetName(CurrentTarget)));
+            return lines.ToArray();
+        }
 
         void RefreshInfo()
         {
             if (!HasSelection || !TryGetSelected(out var item)) return;
             var lines = InfoLines(item);
-            for (int i = 0; i < 4; i++) SetText(infoLines[i], ref infoShown[i], lines[i]);
+            for (int i = 0; i < 5; i++) SetText(infoLines[i], ref infoShown[i], i < lines.Length ? lines[i] : "");
         }
     }
 }

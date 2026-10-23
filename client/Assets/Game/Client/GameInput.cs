@@ -57,6 +57,10 @@ namespace Game.Client
         public static InputAction ToggleFirstPerson => Get("Player/ToggleFirstPerson");
         public static InputAction Point => Get("Pointer/Point");
         public static InputAction PanelsClose => Get("Panels/Close");
+        public static InputAction NextTarget => Get("Panels/NextTarget");
+        public static InputAction TransferAll => Get("Panels/TransferAll");
+        public static InputAction TransferHalf => Get("Panels/TransferHalf");
+        public static InputAction TransferThird => Get("Panels/TransferThird");
         public static InputAction MapPress => Get("Map/Press");
         public static InputAction MapZoom => Get("Map/Zoom");
         public static InputAction MapClose => Get("Map/Close");

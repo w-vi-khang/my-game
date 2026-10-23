@@ -332,7 +332,7 @@
     },
     {
       "key": "inv.bag_hint",
-      "text": "Chuột phải ô: cầm · Click trái: xem · B / Esc: đóng"
+      "text": "Kéo thả: chuyển cả chồng · Click: chọn · Tab: đổi đích · 1 / 2 / 3: hết / nửa / một phần ba · Chuột phải: cầm · B / Esc: đóng"
     },
     {
       "key": "inv.bag_title",
@@ -349,6 +349,14 @@
     {
       "key": "inv.info_stock",
       "text": "Trong kho: {0}"
+    },
+    {
+      "key": "inv.move_none",
+      "text": "Không chuyển được: {0} đầy"
+    },
+    {
+      "key": "inv.moved",
+      "text": "Đã chuyển {0} {1} → {2}"
     },
     {
       "key": "inv.not_holdable",
@@ -381,6 +389,26 @@
     {
       "key": "inv.source_seeds",
       "text": "Cách có: thu hoạch cây chín, túi hạt đầu game, lấy từ kho"
+    },
+    {
+      "key": "inv.stock_rejects",
+      "text": "Kho không nhận {0} (chỉ hạt + nông sản)"
+    },
+    {
+      "key": "inv.target",
+      "text": "Chuyển tới: {0} (Tab đổi)"
+    },
+    {
+      "key": "inv.target_bag",
+      "text": "túi"
+    },
+    {
+      "key": "inv.target_hotbar",
+      "text": "túi phụ"
+    },
+    {
+      "key": "inv.target_stock",
+      "text": "kho"
     },
     {
       "key": "item.dirt",

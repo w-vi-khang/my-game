@@ -332,7 +332,7 @@
     },
     {
       "key": "inv.bag_hint",
-      "text": "Right-click a slot: hold · Left-click: details · B / Esc: close"
+      "text": "Drag: move the whole stack · Click: select · Tab: change target · 1 / 2 / 3: all / half / a third · Right-click: hold · B / Esc: close"
     },
     {
       "key": "inv.bag_title",
@@ -349,6 +349,14 @@
     {
       "key": "inv.info_stock",
       "text": "In storage: {0}"
+    },
+    {
+      "key": "inv.move_none",
+      "text": "Nothing moved: {0} is full"
+    },
+    {
+      "key": "inv.moved",
+      "text": "Moved {0} {1} → {2}"
     },
     {
       "key": "inv.not_holdable",
@@ -381,6 +389,26 @@
     {
       "key": "inv.source_seeds",
       "text": "How to get: harvest ripe crops, the starter seed bag, or take from storage"
+    },
+    {
+      "key": "inv.stock_rejects",
+      "text": "Storage doesn't take {0} (seeds and produce only)"
+    },
+    {
+      "key": "inv.target",
+      "text": "Move to: {0} (Tab to change)"
+    },
+    {
+      "key": "inv.target_bag",
+      "text": "bag"
+    },
+    {
+      "key": "inv.target_hotbar",
+      "text": "quick bar"
+    },
+    {
+      "key": "inv.target_stock",
+      "text": "storage"
     },
     {
       "key": "item.dirt",

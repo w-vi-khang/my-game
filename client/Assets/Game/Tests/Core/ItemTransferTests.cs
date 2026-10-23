@@ -70,5 +70,26 @@ namespace Game.Core.Tests
             Assert.AreEqual(base0 + 2, stock.Count(seed));
             Assert.Throws<ArgumentException>(() => ItemTransfer.FromSlot(bag, 0, bag, 1));
         }
+
+        [Test]
+        public void ToSlotFromStock()
+        {
+            var w = TestWorlds.Flat(1);
+            var sim = new Simulation(TestWorlds.NoWander(), w);
+            sim.AddStorage(new CellPos(6, 2, 9));
+            var stock = new StockStore(sim);
+            var seed = ItemId.SeedBag(0);
+            int have = stock.Count(seed);
+            stock.Add(seed, 6 - Math.Min(6, have)); // đảm bảo ≥ 6
+            have = stock.Count(seed);
+            var bag = new SlotInventory(3, 10, 5);
+            Assert.AreEqual(5, ItemTransfer.ToSlot(stock, seed, bag, 1, 999));
+            Assert.AreEqual(5, bag.Get(1).Count);
+            Assert.AreEqual(have - 5, stock.Count(seed));
+            bag.AddToSlot(2, ItemId.Block(BlockMaterial.Dirt), 1);
+            Assert.AreEqual(0, ItemTransfer.ToSlot(stock, seed, bag, 2, 1)); // ô khác loại
+            Assert.AreEqual(0, ItemTransfer.ToSlot(stock, seed, bag, 1, 1)); // ô đầy
+            Assert.Throws<ArgumentException>(() => ItemTransfer.ToSlot(bag, seed, bag, 1, 1));
+        }
     }
 }
