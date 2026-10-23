@@ -1,6 +1,6 @@
 # Brief 0049 — code tiếng Anh (B): test sang tiếng Anh + test quét toàn bộ
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-23
@@ -155,3 +155,14 @@ Commit: 0f45dfd — 57 file trong `client/Assets/Game` (Tests/** + `Core/WorldMa
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Review đầy đủ, Planner Opus · medium, 2026-10-23 (code 0f45dfd, kết quả 498f633):
+- `Chạy bằng` claude-sonnet-5-5 · medium khớp `Model thực thi` Sonnet · medium. Mọi dòng "Phần cần test" có kết quả (4 thử âm tính, scan sạch, chữ hiển thị, tên đổi, hồi quy, tiền tố log).
+- Phạm vi: `git diff --name-only b2dd852 0f45dfd` = 55 file `Tests/**` + `Core/WorldMapParams.cs` (chỉ thêm ` // vi-text` ở :57-62) [run].
+- QĐ 1: lệnh quét bước 2 chạy lại → TOTAL 102, 0 dòng thiếu `// vi-text`; soát cả 102 dòng: đều là kỳ vọng so với output hiển thị (`SiteStatus`/`CreatureStatus`/`farming.*`/`sv.StockMessage`/`dial.*`/`map.CloseButtonText`/`GameSettings.Text`/`ViText`), bảng chuỗi test (`StringsTests`), tên ngôn ngữ, hoặc dữ liệu `WorldMapParams` [run].
+- QĐ 2/6: so từng dòng cũ ↔ mới sau khi thay literal bằng `""` và bỏ ` // vi-text` → 0 khác biệt ngoài literal (trừ file scan test viết lại); 99 dòng gắn dấu ngoài scan test giữ nguyên chữ cũ; không dòng comment nào đổi ngoài summary scan test [run]. Mẫu `BlockMesherTests` giữ tiền tố `MESHSTATS`, nội suy, định dạng `:F2`.
+- QĐ 3: dòng bị xoá không chứa dấu chỉ là `"kho"`, tên pha `binh-minh/ngay/hoang-hon/dem` và mảng `Files` cũ — khớp bảng tên cố định [run].
+- QĐ 4: `HardcodedTextScanTests.cs` đọc: `Directory.GetFiles(…, AllDirectories)` + `GetRelativePath` + `\`→`/` + sort Ordinal; regex dấu viết escape `[À-ỹĐđ]` (cùng dải); danh sách từ không dấu đúng QĐ, `IgnoreCase`, file scan bỏ kiểm không dấu; `vi-text not allowed here` / `unused vi-text` đúng điều kiện; `AllUsedKeysExist` bỏ `Tests/`; `"Not sorted Ordinal: "` [repo `client/Assets/Game/Tests/Core/Text/HardcodedTextScanTests.cs:16-105`].
+- Số test 498/167 = trước khi làm (roadmap 0048) → không đáng ngờ, không chạy lại.
+- Lệch nhỏ (không ảnh hưởng kết quả): executor không chạy riêng bước 2 "fail trước" mà làm gộp bước 2–4; 4 thử âm tính đã chứng minh test quét bắt đúng lỗi.
+- Giờ: executor 13 phút (09:30–09:43) — đã ghi roadmap; task `m1-code-tieng-anh` xong (0048 + 0049: 23 phút so với ~1 ngày-người), cập nhật task contract.
+- Kết luận: đã duyệt

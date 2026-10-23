@@ -20,13 +20,13 @@ Hiện trạng [run 2026-10-22, commit 259355e, regex `"(?:[^"\\]|\\.)*"` chứa
 - Không đổi hành vi, bố cục, số liệu, định dạng số.
 
 ## Tiêu chí chấp nhận (kiểm chứng được)
-- [ ] 0 literal chứa `[À-ỹĐđ]` ngoài comment trong `client/Assets/Game/**/*.cs`, trừ danh sách miễn ở QĐ 4 — kiểm bằng: `HardcodedTextScanTests.NoVietnameseLiterals` (đã mở rộng) qua.
-- [ ] Không còn chữ tiếng Việt không dấu trong danh sách từ (QĐ 5), vd `"Kho "` — kiểm bằng: test quét không dấu qua.
-- [ ] Tên GameObject/mesh/khối (`"Dấu mốc"` ở `TerrainChunkView.cs:50` + `LandmarkView`, `"Thân"/"Đầu"/"Mũi"` ở `PlayerCharacter.cs:108-110`, `"Kho "`…) sang tiếng Anh; test tìm theo tên cũ (`LandmarkViewPlayTests.cs:45,91,109`, `PlayerBagSowPlayTests.cs:431`…) đổi theo — kiểm bằng: PlayMode toàn bộ qua.
-- [ ] Exception, `Debug.Log*`, `TestContext.WriteLine`, thông báo assert sang tiếng Anh; **giữ nguyên tiền tố đầu dòng và số/định dạng** — kiểm bằng: diff review + grep các tiền tố ở QĐ 3 vẫn còn đủ.
-- [ ] 17 menu `Game/…` sang tiếng Anh, giữ `Build APK <tên>` — kiểm bằng: `grep -n MenuItem client/Assets/Game/Client/Editor/*.cs` không có ký tự tiếng Việt.
-- [ ] Bench overlay (`TerrainBench`, `WalkBench` `result`) sang tiếng Anh trong code (chữ cho người làm game, không qua `vi.json`).
-- [ ] EditMode + PlayMode toàn bộ qua; test chỉ đổi **thông báo** assert, không đổi giá trị kỳ vọng, trừ kỳ vọng là tên object đã đổi.
+- [x] 0 literal chứa `[À-ỹĐđ]` ngoài comment trong `client/Assets/Game/**/*.cs`, trừ danh sách miễn ở QĐ 4 — kiểm bằng: `HardcodedTextScanTests.NoVietnameseLiterals` (đã mở rộng) qua.
+- [x] Không còn chữ tiếng Việt không dấu trong danh sách từ (QĐ 5), vd `"Kho "` — kiểm bằng: test quét không dấu qua.
+- [x] Tên GameObject/mesh/khối (`"Dấu mốc"` ở `TerrainChunkView.cs:50` + `LandmarkView`, `"Thân"/"Đầu"/"Mũi"` ở `PlayerCharacter.cs:108-110`, `"Kho "`…) sang tiếng Anh; test tìm theo tên cũ (`LandmarkViewPlayTests.cs:45,91,109`, `PlayerBagSowPlayTests.cs:431`…) đổi theo — kiểm bằng: PlayMode toàn bộ qua.
+- [x] Exception, `Debug.Log*`, `TestContext.WriteLine`, thông báo assert sang tiếng Anh; **giữ nguyên tiền tố đầu dòng và số/định dạng** — kiểm bằng: diff review + grep các tiền tố ở QĐ 3 vẫn còn đủ.
+- [x] 17 menu `Game/…` sang tiếng Anh, giữ `Build APK <tên>` — kiểm bằng: `grep -n MenuItem client/Assets/Game/Client/Editor/*.cs` không có ký tự tiếng Việt.
+- [x] Bench overlay (`TerrainBench`, `WalkBench` `result`) sang tiếng Anh trong code (chữ cho người làm game, không qua `vi.json`).
+- [x] EditMode + PlayMode toàn bộ qua; test chỉ đổi **thông báo** assert, không đổi giá trị kỳ vọng, trừ kỳ vọng là tên object đã đổi.
 
 ## Ràng buộc
 - `Game.Core` vẫn không tham chiếu UnityEngine (test quét đọc file nằm trong assembly test, như 0046 QĐ 7).
@@ -45,4 +45,7 @@ Hiện trạng [run 2026-10-22, commit 259355e, regex `"(?:[^"\\]|\\.)*"` chứa
 _(đã chốt 2026-10-22, Planner, trong brief 0049)_
 - Test so chữ hiển thị tiếng Việt bằng literal: **giữ literal** (để test kiểm đúng chữ người chơi thấy), gắn ` // vi-text` cuối dòng. Dấu chỉ hợp lệ trong `Tests/**` và `Core/WorldMapParams.cs` (danh sách miễn); dấu sai chỗ hoặc thừa → test quét báo lỗi.
 - Từ không dấu: `kho tui nha ruong cay khoi hinh bien huong khong duoc cua gieo xoi tuoi hoach buoi binh minh hoang dem`, nguyên từ, không phân biệt hoa thường. Chạy thử trên HEAD 0c6a82c: chỉ bắt `EditOcclusionPlayTests.cs:53` và `SeaSkyTintPlayTests.cs:14` (đều là chữ tiếng Việt thật), không bắt nhầm literal tiếng Anh [run].
-- Brief A = 0048 (đã duyệt), brief B = 0049.
+- Brief A = 0048 (đã duyệt), brief B = 0049 (đã duyệt 2026-10-23).
+
+## Trạng thái
+Xong 2026-10-23 — brief 0048 + 0049 đã duyệt; mọi tiêu chí chấp nhận đạt (review 0049: `HardcodedTextScanTests` quét toàn bộ `client/Assets/Game/**/*.cs`, 498 EditMode + 167 PlayMode qua).
