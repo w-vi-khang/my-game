@@ -1,9 +1,9 @@
 # Brief 0053 — camera quan sát tối giản (world 7j)
 
-> Trạng thái: chờ review
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-23 12:50
+> Cập nhật: 2026-10-23 13:30
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết. -->
 
@@ -417,6 +417,42 @@ Mọi đường dẫn dưới đây tính từ `client/Assets/Game/`.
    - Dòng `:48` (Menu, tạm dừng), cột Bàn phím-chuột: `Esc (PC M1: đóng bảng đang mở / thoát chế độ gieo; không có bảng nào mở → mở Cài đặt)` → `Esc (PC M1: đóng bảng đang mở / thoát chế độ gieo / thoát xem camera quan sát; không có bảng nào mở → mở Cài đặt)`.
    Xong khi: `sh "/Users/macvn/.claude/plugins/cache/ai-workflow-kit/ai-workflow-kit/0.15.1/scripts/run.sh" verify_run design` exit 0.
 10. **Toàn bộ test + dọn** (xem "Lệnh executor chạy"), ghi Kết quả.
+11. **Sửa sau review (user xem 2026-10-23): khối đánh dấu che màn hình ngay sau khi đặt.** Nguyên nhân: camera đặt đúng tư thế `Camera.main`, nên khối "Lens" (0,2 m, cách 0,35 m phía trước) nằm ngay trước mắt → ô vuông đen giữa màn hình tới khi camera rời đi. Quyết định (Planner): **khi `Camera.main` cách `Point` ≤ 1,5 m thì tắt renderer của khối đánh dấu**; `Marker.activeSelf` / `MarkerVisible` giữ nguyên nghĩa cũ (ẩn khi đang xem), các test cũ không đổi. API: `Renderer.enabled` [docs](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Renderer-enabled.html), `Component.GetComponentsInChildren` [docs](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Component.GetComponentsInChildren.html), `Camera.main` [docs](https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Camera-main.html).
+    - `Client/ObservationCamera.cs`: thêm field `Renderer[] markerRenderers;` và `const float MarkerHideDistance = 1.5f;` cạnh các field hiện có; thêm property ngay dưới `MarkerVisible`:
+      ```csharp
+      /// <summary>Marker is active and its renderers are on (hidden while Camera.main is within MarkerHideDistance).</summary>
+      public bool MarkerRendered => MarkerVisible && markerRenderers[0].enabled;
+      ```
+      Cuối `BuildPoint()` (sau 2 lệnh `AddBlock`): `markerRenderers = Marker.GetComponentsInChildren<Renderer>(true);`. Thêm hàm ngay sau `Update()`:
+      ```csharp
+      void LateUpdate()
+      {
+          if (!MarkerVisible) return;
+          var cam = Camera.main;
+          bool show = cam == null || (cam.transform.position - Point.position).sqrMagnitude > MarkerHideDistance * MarkerHideDistance;
+          foreach (var r in markerRenderers) r.enabled = show;
+      }
+      ```
+    - `Tests/Client/ObservationCameraPlayTests.cs`: thêm test thứ 9 ở cuối class:
+      ```csharp
+      [UnityTest]
+      public IEnumerator MarkerHiddenWhileCameraClose()
+      {
+          follow.enabled = false;
+          camGo.transform.SetPositionAndRotation(new Vector3(150.25f, 45.5f, 140.75f), Quaternion.Euler(30f, 45f, 0f));
+          Assert.IsTrue(tei.PlaceObservationCamera());
+          yield return null;
+          Assert.IsTrue(obs.MarkerVisible);
+          Assert.IsFalse(obs.MarkerRendered, "marker must not cover the view right after placing");
+          camGo.transform.position = obs.Point.position + new Vector3(0f, 0f, -3f);
+          yield return null;
+          Assert.IsTrue(obs.MarkerRendered);
+          camGo.transform.position = obs.Point.position + new Vector3(1f, 0f, 0f);
+          yield return null;
+          Assert.IsFalse(obs.MarkerRendered);
+      }
+      ```
+    Xong khi: `run_tests` PlayMode lọc `Game.Client.Tests.ObservationCameraPlayTests` → 9/9; PlayMode toàn bộ → 181/181; EditMode toàn bộ → 504/504; dọn `git checkout -- client/ProjectSettings/EditorSettings.asset`; `git status --short` chỉ còn 2 file trên + brief. Ghi giờ bắt đầu/kết thúc lần sửa vào Kết quả (dòng mới "Sửa lần 1: …"), kết quả test vào Kết quả test. Không làm lại bước 1–10.
 
 ## Tiêu chí xong
 - `ObservationCameraPlayTests` 8/8; `GameControlsTests` qua (31 hành động); `TerrainEditPlayTests.ToolStartsDigAndTabToggles` và `SimFarmUiPlayTests.TabCyclesFourToolsWithSim` qua.
@@ -457,7 +493,7 @@ Unity Editor mở project `client/` qua MCP (`run_tests`, `read_console`), quy�
 ### User tự test
 Trên PC, scene `SimView` (hoặc `TerrainView`), bấm Play trong Editor:
 1. Đi ra rìa Map 1 hướng về Map 2 (mở bản đồ `M` để xem ranh giới), Tab tới công cụ **Camera** (HUD trái ghi "Công cụ: Camera"), chuột trái → dòng "Đã đặt camera quan sát tại …"; nút "Xem camera (V)" hiện ở hàng nút dưới bên phải.
-2. Xoay camera nhìn lại chỗ vừa đặt: thấy khối cam nhỏ (có mặt đen chỉ hướng) lơ lửng đúng chỗ, nhân vật đi xuyên qua được.
+2. Ngay sau khi đặt: **không có ô đen/cam che giữa màn hình**. Xoay camera nhìn lại chỗ vừa đặt: thấy khối cam nhỏ (có mặt đen chỉ hướng) lơ lửng đúng chỗ, nhân vật đi xuyên qua được.
 3. Đi về trại Map 1 (xa camera), bấm `V`: thấy chữ "Đang tải…" giữa màn hình một lúc rồi hình chuyển sang góc nhìn camera ở Map 2, **không có lỗ** địa hình; khối cam không hiện; WASD/Space/chuột giữa/chuột trái không làm gì.
 4. Bấm `V` lần nữa → về camera sau lưng nhân vật, đúng chỗ cũ. Thử lại bằng nút "Quay về (V)" và bằng `Esc` (Esc không được mở bảng Cài đặt).
 5. Báo lại: có lỗ/giật khi chuyển không, nút có đè nút khác không, thời gian "Đang tải…" khoảng bao lâu.
@@ -511,3 +547,6 @@ Mức: đầy đủ + user xem · Planner Opus · 2026-10-23
 - Kết quả test executor (EditMode 504/504, PlayMode 180/180, design exit 0) khớp Tiêu chí xong; không đáng ngờ → không chạy lại.
 - Planner ghi thêm: roadmap (dòng World 7j, Executor 12 phút so với 1–2 ngày-người), world-tech 7j "code + test xong, chờ user xem", `controls-ui.md` sửa số hành động 30 → 31 (dòng chú thích dưới bảng, executor không được giao). Glossary đã có "Camera quan sát", "Công cụ Camera", "Điểm nhìn". `check_design.py` exit 0 [run].
 - Chờ user xem (PC, Play scene `SimView`): Tab tới Camera + chuột trái → dòng "Đã đặt camera quan sát tại …" + nút "Xem camera (V)"; khối cam đúng chỗ, đi xuyên được; từ trại Map 1 bấm `V` → "Đang tải…" rồi góc nhìn camera, không lỗ, khối ẩn, WASD/Space/chuột không làm gì; `V` / nút "Quay về (V)" / `Esc` → về đúng chỗ, Esc không mở Cài đặt; nút không đè Kho/Cài đặt/Túi; báo thời gian "Đang tải…".
+- User xem (2026-10-23, ảnh Play `SimView`): đặt camera → dòng "Đã đặt camera quan sát tại (123, 24, 197)" và nút "Xem camera (V)" đúng chỗ, không đè Kho/Cài đặt/Túi (đạt). Lỗi: **ô vuông đen lớn giữa màn hình ngay sau khi đặt** — là khối "Lens" của khối đánh dấu, nằm 0,35 m trước `Camera.main` vì camera đặt đúng tư thế camera (`ObservationCamera.cs` `BuildPoint`/`AddBlock`, `TerrainEditInput.cs:206`). Lỗi do brief (Planner), không phải executor.
+- Sửa: bước 11 (tắt renderer khối khi `Camera.main` cách ≤ 1,5 m; test 9 `MarkerHiddenWhileCameraClose`). Các mục user xem còn lại (xem từ trại, không lỗ, khoá điều khiển, quay về bằng V/nút/Esc, thời gian "Đang tải…") thử lại sau khi sửa.
+- Kết luận: cần sửa
