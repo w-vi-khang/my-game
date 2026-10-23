@@ -401,8 +401,8 @@ namespace Game.Core.Tests
         public void StorageInReach()
         {
             Layout(false);
-            Assert.IsTrue(sim.StorageInReach(6.5f, 1.5f, 1.5f));
-            Assert.IsFalse(sim.StorageInReach(6.5f, 1.5f, 1.4f));
+            Assert.IsTrue(sim.StorageInReach(6.5f, 1.5f, -0.5f));
+            Assert.IsFalse(sim.StorageInReach(6.5f, 1.5f, -0.6f));
             var empty = new Simulation(TestWorlds.NoWander(), TestWorlds.Flat(1));
             Assert.IsFalse(empty.StorageInReach(6.5f, 1.5f, 9.5f));
         }

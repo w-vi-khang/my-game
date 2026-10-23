@@ -143,7 +143,7 @@ namespace Game.Client.Tests
 
         void ToTill()
         {
-            while (input.Tool != EditTool.Till) input.ToggleTool();
+            if (input.Control.Mode != ControlMode.Till) input.ToggleMode(ControlMode.Till);
         }
 
         IEnumerator PlaceAt(int x, int z)
@@ -237,7 +237,7 @@ namespace Game.Client.Tests
             farming.ExitSowMode();
             ToTill();
             MarkReachable(out var cell, new List<CellPos>());
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             Assert.AreEqual(SelfTillState.Walking, farming.TillState);
             Assert.IsTrue(farming.EnterSowMode(0));
             Assert.AreEqual(SelfTillState.None, farming.TillState);
@@ -249,7 +249,8 @@ namespace Game.Client.Tests
             int id = PlotToPhase(PlotPhase.Idle, out var cell);
             EnterSow(0, 2);
             int slots = sv.Sim.State.Plots[id].Slots.Count;
-            input.UseTool(cell, cell);
+            player.Place(view.transform.TransformPoint(new Vector3(cell.x + 0.5f, cell.y + 1f, cell.z + 1.5f)), 0f);
+            Assert.AreEqual(RightClickAction.UseHeld, input.RightClickAt(true, cell, cell));
             var p = sv.Sim.State.Plots[id];
             Assert.AreEqual(PlotPhase.Water, p.Phase);
             Assert.AreEqual(0, p.CurrentCrop);
@@ -310,7 +311,7 @@ namespace Game.Client.Tests
             seeds = view.Bag.GetSeeds(0);
             yield return PlaceAt(cell4.x + 12, cell4.z);
             Assert.IsFalse(farming.SowAt(cell4));
-            Assert.AreEqual("Gieo: ngoài tầm 8 ô", farming.StatusLine); // vi-text
+            Assert.AreEqual("Gieo: ngoài tầm 10 ô", farming.StatusLine); // vi-text
             Assert.AreEqual(seeds, view.Bag.GetSeeds(0));
             Assert.AreEqual(0, farming.SowCrop);
         }
@@ -326,32 +327,37 @@ namespace Game.Client.Tests
         }
 
         [Test]
-        public void SowModeDoesNotUseTool()
+        public void SowModeIgnoresDigMode()
         {
-            while (input.Tool != EditTool.Dig) input.ToggleTool();
+            input.ToggleMode(ControlMode.Dig);
             EnterSow(0, 2);
+            Assert.AreEqual(ControlMode.Default, input.Control.Mode, "entering sow mode resets to Default");
             Vector3Int grass = default;
             bool found = false;
             foreach (var c in Candidates())
                 if (sv.Sim.PlotAt(new CellPos(c.x, c.y, c.z)) < 0) { grass = c; found = true; break; }
             Assert.IsTrue(found);
             var before = view.World.Get(grass.x, grass.y, grass.z);
-            Assert.AreEqual(EditResult.NotPlaceable, input.UseTool(grass, grass));
+            Assert.AreEqual(RightClickAction.UseHeld, input.RightClickAt(true, grass, grass));
+            input.Walk.Cancel(player, true);
             Assert.AreEqual(before, view.World.Get(grass.x, grass.y, grass.z));
         }
 
         [Test]
         public void ExitSow()
         {
-            var tool = input.Tool;
             EnterSow(0, 2);
-            input.ToggleTool();
+            input.CycleTempHold();
             Assert.AreEqual(-1, farming.SowCrop);
-            Assert.AreEqual(tool, input.Tool);
+            Assert.IsFalse(input.Control.HasHeld, "Tab only exits sow mode");
             Assert.AreEqual("Thoát chế độ gieo", farming.StatusLine); // vi-text
             string line = farming.StatusLine;
             farming.ExitSowMode();
             Assert.AreEqual(line, farming.StatusLine);
+            EnterSow(0, 2);
+            input.ToggleMode(ControlMode.Dig);
+            Assert.AreEqual(-1, farming.SowCrop, "mode key exits sow mode");
+            Assert.AreEqual(ControlMode.Dig, input.Control.Mode);
         }
 
         [Test]
@@ -417,7 +423,7 @@ namespace Game.Client.Tests
             view.Bag.AddSeeds(0, 3);
             int s0 = sv.Sim.State.Stock.Seeds[0];
             Assert.AreEqual(0, sv.TransferStock(0, false, false, true));
-            Assert.AreEqual("Lại gần kho (8 ô) để chuyển đồ", sv.StockMessage); // vi-text
+            Assert.AreEqual("Lại gần kho (10 ô) để chuyển đồ", sv.StockMessage); // vi-text
             Assert.AreEqual(3, view.Bag.GetSeeds(0));
             Assert.AreEqual(s0, sv.Sim.State.Stock.Seeds[0]);
         }
@@ -445,25 +451,6 @@ namespace Game.Client.Tests
         }
 
         [Test]
-        public void UnmarkAimedCancelsSelfTill()
-        {
-            ToTill();
-            int id = MarkReachable(out var cell, new List<CellPos>());
-            Assert.IsTrue(farming.BeginSelfTill(id));
-            Assert.AreEqual(SelfTillState.Walking, farming.TillState);
-            Assert.IsTrue(input.UnmarkAimed(cell));
-            Assert.IsTrue(sv.Sim.State.Plots[id].Removed);
-            Assert.AreEqual(SelfTillState.None, farming.TillState);
-            Assert.AreEqual("Huỷ tự xới", farming.StatusLine); // vi-text
-
-            int id2 = MarkReachable(out var cell2, new List<CellPos>());
-            Assert.AreNotEqual(id, id2);
-            string line = farming.StatusLine;
-            Assert.IsTrue(input.UnmarkAimed(cell2));
-            Assert.AreEqual(line, farming.StatusLine);
-        }
-
-        [Test]
         public void StatusTopBelowHud()
         {
             Assert.AreEqual(100f, SimView.StatusTop(0f));
@@ -475,7 +462,7 @@ namespace Game.Client.Tests
         {
             ToTill();
             MarkReachable(out var cell, new List<CellPos>());
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             float t = 0f;
             while (t < 10f && farming.TillState == SelfTillState.Walking)
             {

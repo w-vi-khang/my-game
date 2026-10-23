@@ -264,10 +264,22 @@ namespace Game.Client
             }
         }
 
-        public bool InToolReach(Vector3Int cell)
+        public bool InTargetReach(Vector3Int cell)
         {
             var f = FeetLocal;
-            return PlayerRules.InToolReach(f.x, f.y, f.z, cell.x, cell.y, cell.z);
+            return PlayerRules.InTargetReach(f.x, f.y, f.z, cell.x, cell.y, cell.z);
+        }
+
+        public bool InActReach(Vector3Int cell)
+        {
+            var f = FeetLocal;
+            return PlayerRules.InActReach(f.x, f.y, f.z, cell.x, cell.y, cell.z);
+        }
+
+        public bool InDigReach(Vector3Int cell)
+        {
+            var f = FeetLocal;
+            return PlayerRules.InDigReach(f.x, f.y, f.z, cell.x, cell.y, cell.z);
         }
 
         public bool OccupiesCell(int x, int y, int z)

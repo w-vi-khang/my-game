@@ -32,7 +32,10 @@ namespace Game.Client.EditTests
             ["Player/SelectBlock4"] = B("<Keyboard>/4"),
             ["Player/CycleTool"] = B("<Keyboard>/tab"),
             ["Player/Collect"] = B("<Keyboard>/f"),
-            ["Player/CastRain"] = B("<Keyboard>/r"),
+            ["Player/ModeDefault"] = B("<Keyboard>/d"),
+            ["Player/ModeDig"] = B("<Keyboard>/q"),
+            ["Player/ModeTill"] = B("<Keyboard>/e"),
+            ["Player/ModeRain"] = B("<Keyboard>/r"),
             ["Player/ToggleBag"] = B("<Keyboard>/b"),
             ["Player/ToggleStock"] = B("<Keyboard>/k"),
             ["Player/ToggleMap"] = B("<Keyboard>/m"),
@@ -61,7 +64,7 @@ namespace Game.Client.EditTests
         {
             var asset = Load();
             var exp = Expected();
-            Assert.AreEqual(33, exp.Count);
+            Assert.AreEqual(36, exp.Count);
             var actual = new HashSet<string>(asset.actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
             CollectionAssert.AreEquivalent(exp.Keys, actual);
             foreach (var kv in exp)
@@ -90,7 +93,7 @@ namespace Game.Client.EditTests
             var text = File.ReadAllText(Path_("Client", "GameInput.cs"));
             var found = new HashSet<string>(Regex.Matches(text, "Get\\(\"([A-Za-z]+/[A-Za-z0-9]+)\"\\)").Cast<Match>().Select(m => m.Groups[1].Value));
             var actual = new HashSet<string>(Load().actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
-            Assert.AreEqual(33, actual.Count);
+            Assert.AreEqual(36, actual.Count);
             CollectionAssert.AreEquivalent(actual, found);
         }
 

@@ -122,6 +122,8 @@ namespace Game.Client
                 return false;
             }
             CancelSelfTill();
+            var edit = GetComponent<TerrainEditInput>();
+            if (edit != null) edit.Control.ClearToDefault();
             SowCrop = crop;
             StatusLine = "";
             return true;
@@ -142,9 +144,9 @@ namespace Game.Client
             if (SowCrop < 0 || sim == null || view.Bag == null) return false;
             var cropName = CropN(SowCrop);
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(cell))
+            if (player != null && !player.InTargetReach(cell))
             {
-                StatusLine = Format("farm.sow_far", PlayerRules.ToolReach);
+                StatusLine = Format("farm.sow_far", PlayerRules.TargetReach);
                 return false;
             }
             int plotId = sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
@@ -230,9 +232,9 @@ namespace Game.Client
         public RainResult CastRain(Vector3Int cell)
         {
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(cell))
+            if (player != null && !player.InTargetReach(cell))
             {
-                StatusLine = Format("farm.rain_far", PlayerRules.ToolReach);
+                StatusLine = Format("farm.rain_far", PlayerRules.TargetReach);
                 return RainResult.NoEffect;
             }
             if (!RainCooldown.Ready)
@@ -257,7 +259,7 @@ namespace Game.Client
             return r;
         }
 
-        /// <summary>Id ô ruộng chín có Soil = cell, trong tầm 8 ô (có nhân vật); -1 nếu không.</summary>
+        /// <summary>Id ô ruộng chín có Soil = cell, trong tầm thao tác (có nhân vật); -1 nếu không.</summary>
         public int RipePlotAt(Vector3Int cell)
         {
             var sim = Sim;
@@ -265,7 +267,7 @@ namespace Game.Client
             int id = sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
             if (id < 0 || !sim.CanPlayerHarvest(id)) return -1;
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(cell)) return -1;
+            if (player != null && !player.InTargetReach(cell)) return -1;
             return id;
         }
 

@@ -128,8 +128,6 @@ namespace Game.Core.Sim
     public class PlayerConfig
     {
         public int rainCooldownMs = 10000;
-        public float toolReach = 8f;
-        public float handReach = 8f;
         public int starterCrop = 0;
         public int starterSeeds = 4;
         public float targetReach = 10f;
@@ -347,10 +345,6 @@ namespace Game.Core.Sim
                 throw new ArgumentException("Sum of crops[].startSeeds must be <= storage.capacity.");
             if (player == null)
                 throw new ArgumentException("player must not be missing.");
-            if (!(player.toolReach >= 1f && player.toolReach <= 32f))
-                throw new ArgumentException("player.toolReach must be in [1, 32].");
-            if (!(player.handReach >= 1f && player.handReach <= 32f))
-                throw new ArgumentException("player.handReach must be in [1, 32].");
             if (player.starterCrop < 0 || player.starterCrop >= crops.Length)
                 throw new ArgumentException("player.starterCrop must be in [0, number of crops).");
             if (player.starterSeeds < 0 || player.starterSeeds > 99)

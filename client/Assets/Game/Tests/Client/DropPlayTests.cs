@@ -101,6 +101,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(4, player.StarterStack.Count);
             CollectionAssert.Contains(view.Editor.Drops.Stacks, player.StarterStack);
             StringAssert.DoesNotContain("Túi hạt Cây A", input.HudText()); // vi-text
+            yield return Teleport(Local(player.StarterStack.X + 0.5f, player.StarterStack.Y, player.StarterStack.Z - 0.5f));
             Assert.GreaterOrEqual(input.CollectNearby(), 1);
             Assert.AreEqual(4, view.Bag.GetSeeds(0));
             StringAssert.Contains("Túi hạt Cây A: 4", input.HudText()); // vi-text
@@ -108,14 +109,14 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator CollectNearbyTakesOnlyWithin8()
+        public IEnumerator CollectNearbyTakesOnlyWithin2()
         {
             yield return Teleport(Local(A.x + 0.5f, G + 1, A.z + 0.5f));
             input.CollectNearby();
             yield return Run(Vector2.zero, false, 0.3f);
             int dirt0 = view.Bag.Get(BlockMaterial.Dirt), stone0 = view.Bag.Get(BlockMaterial.Stone);
-            var near = view.Editor.Drops.Add(A.x + 2, G + 1, A.z, B(BlockMaterial.Dirt), 2);
-            var far = view.Editor.Drops.Add(A.x + 9, G + 1, A.z, B(BlockMaterial.Stone), 1);
+            var near = view.Editor.Drops.Add(A.x + 1, G + 1, A.z, B(BlockMaterial.Dirt), 2);
+            var far = view.Editor.Drops.Add(A.x + 3, G + 1, A.z, B(BlockMaterial.Stone), 1);
             Assert.AreEqual(1, input.CollectNearby());
             Assert.AreEqual(dirt0 + 2, view.Bag.Get(BlockMaterial.Dirt));
             Assert.AreEqual(stone0, view.Bag.Get(BlockMaterial.Stone));
@@ -134,13 +135,13 @@ namespace Game.Client.Tests
             yield return Run(Vector2.zero, false, 0.3f);
             int dirt0 = view.Bag.Get(BlockMaterial.Dirt);
             var near = view.Editor.Drops.Add(A.x + 2, G + 1, A.z, B(BlockMaterial.Dirt), 2);
-            var far = view.Editor.Drops.Add(A.x + 9, G + 1, A.z, B(BlockMaterial.Stone), 1);
+            var far = view.Editor.Drops.Add(A.x + 11, G + 1, A.z, B(BlockMaterial.Stone), 1);
             var rayNear = new Ray(view.transform.TransformPoint(Local(A.x + 2.5f, G + 6f, A.z + 0.5f)), Vector3.down);
             Assert.AreEqual(near.Id, input.PickDrop(rayNear)?.Id);
-            var rayFar = new Ray(view.transform.TransformPoint(Local(A.x + 9.5f, G + 6f, A.z + 0.5f)), Vector3.down);
+            var rayFar = new Ray(view.transform.TransformPoint(Local(A.x + 11.5f, G + 6f, A.z + 0.5f)), Vector3.down);
             Assert.IsNull(input.PickDrop(rayFar));
             Assert.IsTrue(input.Pick(rayFar, out var dig, out _));
-            Assert.AreEqual(C(A.x + 9, G, A.z), dig);
+            Assert.AreEqual(C(A.x + 11, G, A.z), dig);
             Assert.IsTrue(input.CollectDrop(near));
             Assert.AreEqual(dirt0 + 2, view.Bag.Get(BlockMaterial.Dirt));
             Assert.IsFalse(input.CollectDrop(far));
@@ -157,7 +158,12 @@ namespace Game.Client.Tests
             var c = C(A.x + 2, G, A.z);
             var m = view.World.GetMaterial(c.x, c.y, c.z);
             int b0 = view.Bag.Get(m);
-            Assert.AreEqual(EditResult.Ok, input.UseTool(c, c + Vector3Int.up));
+            input.ToggleMode(ControlMode.Dig);
+            Assert.AreEqual(RightClickAction.Dig, input.RightClickAt(true, c, c + Vector3Int.up));
+            float wt = 0f;
+            while (wt < 5f && input.Walk.State == WalkToActState.Walking) { yield return null; wt += Time.deltaTime; }
+            Assert.AreEqual(WalkToActState.Done, input.Walk.State);
+            input.ToggleMode(ControlMode.Dig);
             var at = view.Editor.Drops.At(c.x, c.y, c.z);
             Assert.AreEqual(1, at.Count);
             Assert.AreEqual(B(m), at[0].Item);

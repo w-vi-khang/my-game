@@ -120,26 +120,28 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator CameraToolCycleAndClickPlaces()
+        public IEnumerator TabHoldCameraAndRightClickPlaces()
         {
             follow.enabled = false;
-            tei.ToggleTool();
-            Assert.AreEqual(EditTool.Place, tei.Tool);
-            tei.ToggleTool();
-            Assert.AreEqual(EditTool.Camera, tei.Tool);
-            StringAssert.Contains("<color=yellow>Camera</color>", tei.HudText());
+            tei.CycleTempHold();
+            Assert.AreEqual(ItemKind.Block, tei.Control.Held.Kind);
+            tei.CycleTempHold();
+            Assert.AreEqual(ItemKind.Tool, tei.Control.Held.Kind);
+            StringAssert.Contains("<color=yellow>Camera quan sát</color>", tei.HudText()); // vi-text
             StringAssert.Contains("chuột phải lên khối = đặt camera quan sát", tei.HudText()); // vi-text
             var r1 = Quaternion.Euler(30f, 45f, 0f);
             camGo.transform.SetPositionAndRotation(new Vector3(150.25f, 45.5f, 140.75f), r1);
             var c = GroundAhead(2);
-            Assert.AreEqual(EditResult.Ok, tei.UseTool(c, c));
+            Assert.AreEqual(RightClickAction.UseHeld, tei.RightClickAt(true, c, c));
+            float t = 0f;
+            while (t < 5f && tei.Walk.State == WalkToActState.Walking) { yield return null; t += Time.deltaTime; }
+            Assert.AreEqual(WalkToActState.Done, tei.Walk.State);
             AssertPose(obs.Point, AboveCell(c), r1);
             var far = GroundAhead(30);
-            Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(far, far));
+            Assert.AreEqual(RightClickAction.OutOfReach, tei.RightClickAt(true, far, far));
             AssertPose(obs.Point, AboveCell(c), r1);
-            tei.ToggleTool();
-            Assert.AreEqual(EditTool.Dig, tei.Tool);
-            yield break;
+            tei.CycleTempHold();
+            Assert.IsFalse(tei.Control.HasHeld);
         }
 
         [UnityTest]
@@ -285,13 +287,14 @@ namespace Game.Client.Tests
             Assert.IsTrue(tei.PlaceObservationCamera(GroundAhead(2)));
             obs.Toggle();
             yield return WaitViewing();
-            var tool = tei.Tool;
-            tei.ToggleTool();
-            Assert.AreEqual(tool, tei.Tool);
+            tei.ToggleMode(ControlMode.Dig);
+            tei.CycleTempHold();
+            Assert.AreEqual(ControlMode.Default, tei.Control.Mode);
+            Assert.IsFalse(tei.Control.HasHeld);
             var f = player.FeetLocal;
             var c = new Vector3Int(Mathf.FloorToInt(f.x) + 2, Mathf.FloorToInt(f.y) - 1, Mathf.FloorToInt(f.z));
             var before = view.World.Get(c.x, c.y, c.z);
-            Assert.AreEqual(EditResult.NotPlaceable, tei.UseTool(c, c));
+            Assert.AreEqual(RightClickAction.None, tei.RightClickAt(true, c, c));
             Assert.AreEqual(before, view.World.Get(c.x, c.y, c.z));
             Assert.IsFalse(tei.PlaceObservationCamera(GroundAhead(2)));
             var p0 = player.transform.position;
@@ -302,8 +305,8 @@ namespace Game.Client.Tests
             Assert.Less(new Vector2(p.x - p0.x, p.z - p0.z).magnitude, 0.05f);
             Assert.AreEqual(Vector2.zero, player.MoveInput);
             obs.Toggle();
-            tei.ToggleTool();
-            Assert.AreNotEqual(tool, tei.Tool);
+            tei.ToggleMode(ControlMode.Dig);
+            Assert.AreEqual(ControlMode.Dig, tei.Control.Mode);
         }
 
         [UnityTest]

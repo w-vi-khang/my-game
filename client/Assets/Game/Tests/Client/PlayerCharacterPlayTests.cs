@@ -254,29 +254,38 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator ReachLimitsTools()
+        public IEnumerator ReachLimitsRightClick()
         {
             yield return Teleport(new Vector3(A.x + 0.5f, G + 1, A.z + 0.5f));
             var tei = go.GetComponent<TerrainEditInput>();
-            var far = C(A.x + 8, G, A.z);
+            tei.ToggleMode(ControlMode.Dig);
+            var far = C(A.x + 12, G, A.z);
             var before = view.World.GetMaterial(far.x, far.y, far.z);
-            Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(far, far));
+            Assert.AreEqual(RightClickAction.OutOfReach, tei.RightClickAt(true, far, far));
             Assert.AreEqual(before, view.World.GetMaterial(far.x, far.y, far.z), "far cell unchanged");
-            tei.ShowAim(true, far, far);
-            Assert.IsFalse(tei.OutlineVisible, "outline out of reach");
+            Assert.AreNotEqual(ClickMoveState.Walking, player.ClickMove, "out of reach: no walking");
+            tei.ShowAim(tei.Preview(true, far, far), true, far, far);
+            Assert.IsFalse(tei.HighlightVisible, "no highlight out of reach");
+            Assert.IsTrue(tei.ReachRingVisible, "reach ring out of reach");
             var near = C(A.x + 7, G, A.z);
-            tei.ShowAim(true, near, near);
-            Assert.IsTrue(tei.OutlineVisible, "outline in reach");
-            Assert.AreEqual(EditResult.Ok, tei.UseTool(near, near));
+            tei.ShowAim(tei.Preview(true, near, near), true, near, near);
+            Assert.IsTrue(tei.HighlightVisible, "highlight in reach");
+            Assert.IsFalse(tei.ReachRingVisible);
+            Assert.AreEqual(RightClickAction.Dig, tei.RightClickAt(true, near, near));
+            float t = 0f;
+            while (t < 5f && tei.Walk.State == WalkToActState.Walking) { yield return null; t += Time.deltaTime; }
+            Assert.AreEqual(WalkToActState.Done, tei.Walk.State);
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(near.x, near.y, near.z));
 
-            tei.ToggleTool();
+            tei.ToggleMode(ControlMode.Dig);
+            tei.CycleTempHold();
             view.Bag.Add(BlockMaterial.Dirt, 1);
-            var pc = C(A.x + 9, G + 1, A.z);
-            Assert.AreEqual(EditResult.OutOfReach, tei.UseTool(pc, pc));
+            var pc = C(A.x + 18, G + 1, A.z);
+            Assert.AreEqual(RightClickAction.OutOfReach, tei.RightClickAt(true, pc, pc));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(pc.x, pc.y, pc.z));
-            tei.ShowAim(true, pc, pc);
+            tei.ShowAim(RightClickAction.OutOfReach, true, pc, pc);
             Assert.IsFalse(tei.GhostVisible, "ghost out of reach");
+            Assert.IsTrue(tei.ReachRingVisible);
         }
 
         [UnityTest]
@@ -306,7 +315,7 @@ namespace Game.Client.Tests
                 yield return null;
             Assert.Less(Vector3.Distance(p0, player.transform.position), 0.05f, "character stays still while flying");
             camGo.transform.position += Vector3.up * 20f;
-            Assert.IsTrue(player.InToolReach(C(A.x + 3, G, A.z)), "reach follows character");
+            Assert.IsTrue(player.InTargetReach(C(A.x + 3, G, A.z)), "reach follows character");
             player.SetFlyMode(false);
             Assert.IsTrue(follow.enabled);
             var pivot = player.transform.position + Vector3.up * follow.pivotHeight;

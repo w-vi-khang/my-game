@@ -35,8 +35,11 @@ namespace Game.Core.Tests
             Assert.IsNull(DropPick.Pick(field.Stacks, 5.5f, 5f, 5.5f, 0, -1, 0, 3.4f, 5.5f, 1f, 5.5f, out _));
 
         [Test]
-        public void OutOfHandReachIgnored() =>
-            Assert.IsNull(DropPick.Pick(field.Stacks, 5.5f, 5f, 5.5f, 0, -1, 0, 100f, 5.5f, 1f, 14.5f, out _));
+        public void OutOfTargetReachIgnored()
+        {
+            Assert.IsNull(DropPick.Pick(field.Stacks, 5.5f, 5f, 5.5f, 0, -1, 0, 100f, 5.5f, 1f, 17.5f, out _));
+            Assert.IsNotNull(DropPick.Pick(field.Stacks, 5.5f, 5f, 5.5f, 0, -1, 0, 100f, 5.5f, 1f, 14.5f, out _));
+        }
 
         [Test]
         public void NearestAlongRayWins()

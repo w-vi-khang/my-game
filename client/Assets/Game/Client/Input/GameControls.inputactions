@@ -105,7 +105,34 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CastRain",
+                    "name": "ModeDefault",
+                    "type": "Button",
+                    "id": "4d1e2ac3-0563-44cd-b07e-d66eeb51ca63",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ModeDig",
+                    "type": "Button",
+                    "id": "4ea0af31-69a4-4f8f-9b7e-e14eca2f2a92",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ModeTill",
+                    "type": "Button",
+                    "id": "22c8f0c9-a0f1-4005-b9d0-76a4aa722566",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ModeRain",
                     "type": "Button",
                     "id": "cea171d8-75c0-58bc-a97d-f32ad5b5da1e",
                     "expectedControlType": "Button",
@@ -346,12 +373,45 @@
                 },
                 {
                     "name": "",
+                    "id": "908ea1b1-1c3a-48fc-8433-aa1202675b31",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ModeDefault",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cef7164a-bfb0-47d5-8669-810a71317842",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ModeDig",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "74d3878c-d233-4d0e-8cf0-c431d6b5c8ff",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ModeTill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "7f89d177-d0f7-511c-af49-55de7220b4b1",
                     "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "CastRain",
+                    "action": "ModeRain",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

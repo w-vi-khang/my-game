@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.Client
 {
-    /// <summary>Dấu click + vòng dưới chân + mũi tên hướng đi (0034 mục 1, world 7l b). LineRenderer, shader Game/SelectionOverlay.</summary>
+    /// <summary>Dấu click + vòng dưới chân + mũi tên hướng đi (0034 mục 1, world 7l b) + vòng tầm thao tác (0034 mục 3). LineRenderer, shader Game/SelectionOverlay.</summary>
     public class MoveMarkers : MonoBehaviour
     {
         public float clickRadius = 0.35f, ringRadius = 0.6f;
@@ -13,8 +13,10 @@ namespace Game.Client
         public float ClickAlpha { get; private set; }
         public bool RingVisible => ring.enabled;
         public bool ArrowVisible => arrow.enabled;
+        public bool ReachRingVisible => reach.enabled;
+        public void ShowReachRing(bool on) { if (reach.enabled != on) reach.enabled = on; }
 
-        LineRenderer click, ring, arrow;
+        LineRenderer click, ring, arrow, reach;
         PlayerCharacter player;
         float clickAge;
 
@@ -30,6 +32,9 @@ namespace Game.Client
             SetColor(arrow, new Color(1f, 1f, 1f, 0.6f));
             ring.enabled = false;
             arrow.enabled = false;
+            reach = Make(Child("ReachRing"), Circle(64, PlayerRules.TargetReach), true, 0.08f);
+            SetColor(reach, new Color(1f, 1f, 1f, 0.25f));
+            reach.enabled = false;
         }
 
         void OnDestroy()

@@ -51,7 +51,7 @@ namespace Game.Core.Tests
             Assert.AreEqual(ItemId.SeedBag(0), s.Item);
             Assert.AreEqual(4, s.Count);
             Assert.AreEqual((10, 2, 13), (s.X, s.Y, s.Z));
-            Assert.AreEqual(1, editor.Drops.CollectInReach(FX, FY, FZ, bag));
+            Assert.AreEqual(1, editor.Drops.CollectInReach(FX, FY, FZ + 1.5f, bag));
             Assert.AreEqual(4, bag.GetSeeds(0));
         }
 

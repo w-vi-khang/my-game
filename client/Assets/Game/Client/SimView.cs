@@ -304,6 +304,27 @@ namespace Game.Client
             return true;
         }
 
+        /// <summary>Click trái ô ruộng (0034 mục 3): mở bảng ô ruộng plotId (có biển hoặc đã xới). false nếu không có / đã bỏ.</summary>
+        public bool OpenPlotPanel(int plotId)
+        {
+            if (Sim == null || plotId < 0 || plotId >= Sim.State.Plots.Count || Sim.State.Plots[plotId].Removed) return false;
+            OpenPlotId = plotId;
+            return true;
+        }
+
+        /// <summary>Nút "Bỏ đánh dấu" (0034 mục 3): ô đang mở chưa xới → bỏ biển, huỷ tự xới ô đó, đóng bảng. true khi đã bỏ.</summary>
+        public bool UnmarkOpenPlot()
+        {
+            if (OpenPlotId < 0 || Sim.State.Plots[OpenPlotId].Tilled) return false;
+            int id = OpenPlotId;
+            var s = Sim.State.Plots[id].Soil;
+            ClosePlotPanel();
+            if (!UnmarkAt(new Vector3Int(s.X, s.Y, s.Z))) return false;
+            var farming = GetComponent<PlayerFarmActions>();
+            if (farming != null && farming.TillState != SelfTillState.None && farming.TillPlotId == id) farming.CancelSelfTill();
+            return true;
+        }
+
         /// <summary>Nút "Tự xới" của bảng ô ruộng (ô xới lại): đóng bảng rồi tự đi tới xới. false nếu không tự xới được.</summary>
         public bool SelfTillOpenPlot()
         {
@@ -386,7 +407,7 @@ namespace Game.Client
         /// <summary>Chỉ số kho có collider c (hộp kho); -1 nếu không phải.</summary>
         public int StorageIdOf(Collider c) => c == null ? -1 : storageColliders.IndexOf(c);
 
-        /// <summary>Click khối kho index (brief 0042): trong 8 ô (hoặc không có nhân vật) → mở bảng kho, true.</summary>
+        /// <summary>Click khối kho index (brief 0042): trong tầm thao tác (hoặc không có nhân vật) → mở bảng kho, true.</summary>
         public bool OpenStockAt(int index)
         {
             var player = PlayerCharacter.Active;
@@ -394,13 +415,13 @@ namespace Game.Client
             {
                 var f = player.FeetLocal;
                 var cell = Sim.State.Storages[index].Cell;
-                if (!PlayerRules.InHandReach(f.x, f.y, f.z, cell.X, cell.Y, cell.Z)) return false;
+                if (!PlayerRules.InTargetReach(f.x, f.y, f.z, cell.X, cell.Y, cell.Z)) return false;
             }
             StockOpen = true;
             return true;
         }
 
-        /// <summary>Có kho trong 8 ô (không có nhân vật → true).</summary>
+        /// <summary>Có kho trong tầm thao tác (không có nhân vật → true).</summary>
         public bool CanTransferStock
         {
             get
@@ -421,7 +442,7 @@ namespace Game.Client
             string kind = T(produce ? "stock.kind_produce" : "stock.kind_seeds");
             string id = SiteStatus.CropName(GameSettings.Text, Sim.Config, crop);
             int amount = all ? int.MaxValue : 1;
-            if (!CanTransferStock) { StockMessage = Format("stock.too_far", PlayerRules.HandReach); return 0; }
+            if (!CanTransferStock) { StockMessage = Format("stock.too_far", PlayerRules.TargetReach); return 0; }
             int n;
             if (toBag)
             {
@@ -496,7 +517,7 @@ namespace Game.Client
                     GUI.enabled = true;
                 }
                 GUI.Label(new Rect(r.x + 8f, r.yMax - 28f, r.width - 16f, 24f),
-                    !CanTransferStock ? Format("stock.too_far", PlayerRules.HandReach) : (StockMessage != "" ? StockMessage : T("stock.hint")), hudStyle);
+                    !CanTransferStock ? Format("stock.too_far", PlayerRules.TargetReach) : (StockMessage != "" ? StockMessage : T("stock.hint")), hudStyle);
             }
             if (GUI.Button(BagButtonRect(gw, gh), T("bag.button"))) ToggleBag();
             if (BagOpen)
@@ -581,7 +602,10 @@ namespace Game.Client
 
             GUI.enabled = Sim.CanPlayerTill(OpenPlotId) && PlayerCharacter.Active != null;
             if (GUI.Button(new Rect(pr.x + 10f, pr.yMax - 36f, 110f, 28f), T("plot.self_till"))) SelfTillOpenPlot();
+            GUI.enabled = !p.Tilled;
+            if (GUI.Button(new Rect(pr.x + 130f, pr.yMax - 36f, 120f, 28f), T("plot.unmark"))) UnmarkOpenPlot();
             GUI.enabled = true;
+            if (OpenPlotId < 0) return;
             if (GUI.Button(new Rect(pr.xMax - 120f, pr.yMax - 36f, 110f, 28f), T("plot.close"))) ClosePlotPanel();
         }
 

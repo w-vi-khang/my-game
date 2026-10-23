@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Game.Core
 {
-    /// <summary>Chọn chồng vật rơi bằng tia (task contract 7e, brief 0037): hộp cạnh BoxSize, đáy ở mặt ô, giữa ô theo x/z; chỉ chồng trong tầm việc tay.</summary>
+    /// <summary>Chọn chồng vật rơi bằng tia (task contract 7e, brief 0037): hộp cạnh BoxSize, đáy ở mặt ô, giữa ô theo x/z; chỉ chồng trong tầm thao tác.</summary>
     public static class DropPick
     {
         public const float BoxSize = 0.5f;
 
         /// <summary>
-        /// Chồng có hộp bị tia (o + t·d, t ≥ 0) trúng với t ≤ maxDistance và tâm ô trong tầm việc tay của chân (feet); t nhỏ nhất thắng,
+        /// Chồng có hộp bị tia (o + t·d, t ≥ 0) trúng với t ≤ maxDistance và tâm ô trong tầm thao tác của chân (feet); t nhỏ nhất thắng,
         /// bằng nhau → chồng đứng trước trong stacks. Không có → null, distance = 0. Toạ độ ô (terrain).
         /// </summary>
         public static DropStack Pick(IReadOnlyList<DropStack> stacks, float ox, float oy, float oz, float dx, float dy, float dz,
@@ -22,7 +22,7 @@ namespace Game.Core
             for (int i = 0; i < stacks.Count; i++)
             {
                 var s = stacks[i];
-                if (!PlayerRules.InHandReach(feetX, feetY, feetZ, s.X, s.Y, s.Z)) continue;
+                if (!PlayerRules.InTargetReach(feetX, feetY, feetZ, s.X, s.Y, s.Z)) continue;
                 if (!RayBox(ox, oy, oz, dx, dy, dz,
                         s.X + 0.5f - h, s.Y, s.Z + 0.5f - h, s.X + 0.5f + h, s.Y + BoxSize, s.Z + 0.5f + h, out float t)) continue;
                 if (t > maxDistance) continue;

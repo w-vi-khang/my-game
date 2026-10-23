@@ -135,10 +135,10 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void CollectInReachTakesOnlyWithin8()
+        public void CollectInReachTakesOnlyWithin2()
         {
-            Drops.Add(8, 1, 0, B(BlockMaterial.Dirt), 2);
-            Drops.Add(9, 1, 0, B(BlockMaterial.Stone), 1);
+            Drops.Add(1, 1, 0, B(BlockMaterial.Dirt), 2);
+            Drops.Add(3, 1, 0, B(BlockMaterial.Stone), 1);
             var got = new List<DropStack>();
             Drops.Collected += s => got.Add(s);
             Assert.AreEqual(1, Drops.CollectInReach(0.5f, 0.5f, 0.5f, bag));
@@ -149,8 +149,8 @@ namespace Game.Core.Tests
             Assert.AreEqual(1, Drops.Stacks.Count);
             Assert.AreEqual(B(BlockMaterial.Stone), Drops.Stacks[0].Item);
 
-            Drops.Add(8, 1, 0, B(BlockMaterial.Dirt), 1);
-            Assert.AreEqual(0, Drops.CollectInReach(0.4f, 0.5f, 0.5f, bag));
+            Drops.Add(1, 1, 0, B(BlockMaterial.Dirt), 1);
+            Assert.AreEqual(0, Drops.CollectInReach(-0.6f, 0.5f, 0.5f, bag));
             Assert.AreEqual(2, bag.Get(BlockMaterial.Dirt));
         }
 
@@ -159,7 +159,7 @@ namespace Game.Core.Tests
         {
             var dirt = Drops.Add(2, 1, 0, B(BlockMaterial.Dirt), 1);
             Drops.Add(3, 1, 0, B(BlockMaterial.Stone), 1);
-            var far = Drops.Add(9, 1, 0, B(BlockMaterial.Sand), 1);
+            var far = Drops.Add(11, 1, 0, B(BlockMaterial.Sand), 1);
             Assert.IsTrue(Drops.TryCollect(dirt.Id, 0.5f, 0.5f, 0.5f, bag));
             Assert.AreEqual(1, bag.Get(BlockMaterial.Dirt));
             Assert.AreEqual(0, bag.Get(BlockMaterial.Stone));
@@ -169,7 +169,7 @@ namespace Game.Core.Tests
             Assert.IsFalse(Drops.TryCollect(far.Id, 0.5f, 0.5f, 0.5f, bag));
             Assert.AreEqual(v, Drops.Version);
             Assert.AreEqual(0, bag.Get(BlockMaterial.Sand));
-            Assert.AreEqual(1, Drops.At(9, 1, 0).Count);
+            Assert.AreEqual(1, Drops.At(11, 1, 0).Count);
         }
 
         [Test]

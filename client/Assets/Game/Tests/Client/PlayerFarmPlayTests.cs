@@ -125,7 +125,7 @@ namespace Game.Client.Tests
 
         void ToTill()
         {
-            while (input.Tool != EditTool.Till) input.ToggleTool();
+            if (input.Control.Mode != ControlMode.Till) input.ToggleMode(ControlMode.Till);
         }
 
         IEnumerator WaitSeconds(float s, System.Func<bool> until)
@@ -198,7 +198,7 @@ namespace Game.Client.Tests
         {
             ToTill();
             int id = MarkReachable(out var cell, new List<CellPos>());
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             Assert.AreEqual(SelfTillState.Walking, farming.TillState);
             yield return WaitSeconds(10f, () => farming.TillState != SelfTillState.Walking);
             Assert.AreEqual(SelfTillState.Tilling, farming.TillState);
@@ -213,7 +213,7 @@ namespace Game.Client.Tests
         {
             ToTill();
             int id = MarkReachable(out var cell, new List<CellPos>());
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             yield return WaitSeconds(10f, () => farming.TillState != SelfTillState.Walking);
             Assert.AreEqual(SelfTillState.Tilling, farming.TillState);
             yield return PressForward();
@@ -227,9 +227,9 @@ namespace Game.Client.Tests
         {
             ToTill();
             int id = MarkReachable(out var cell, new List<CellPos>());
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             Assert.AreEqual(SelfTillState.Walking, farming.TillState);
-            input.ToggleTool();
+            input.CycleTempHold();
             Assert.AreEqual(SelfTillState.None, farming.TillState);
             Assert.AreEqual("Huỷ tự xới", farming.StatusLine); // vi-text
             Assert.IsFalse(sv.Sim.State.Plots[id].Tilled);
@@ -257,7 +257,7 @@ namespace Game.Client.Tests
         {
             ToTill();
             int id = MarkReachable(out var cell, new List<CellPos>());
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             Assert.AreEqual(SelfTillState.Walking, farming.TillState);
             Assert.IsTrue(sv.Sim.PlayerTill(id));
             yield return null;
@@ -342,7 +342,7 @@ namespace Game.Client.Tests
 
             var f = FeetCell();
             Assert.AreEqual(RainResult.NoEffect, farming.CastRain(new Vector3Int(f.X + 12, f.Y, f.Z)));
-            Assert.AreEqual("Mưa: ngoài tầm 8 ô", farming.StatusLine); // vi-text
+            Assert.AreEqual("Mưa: ngoài tầm 10 ô", farming.StatusLine); // vi-text
             Assert.IsTrue(farming.RainCooldown.Ready);
 
             yield return WaitSeconds(1f, () => !farming.RainBox.activeSelf);
@@ -375,6 +375,8 @@ namespace Game.Client.Tests
         {
             var t = input.HudText();
             StringAssert.Contains("Mưa (R): sẵn sàng", t); // vi-text
+            StringAssert.Contains("Chế độ:", t); // vi-text
+            StringAssert.Contains("Mặc định", t); // vi-text
             ToTill();
             StringAssert.Contains("lên biển = tự đi tới xới", input.HudText()); // vi-text
             yield return null;

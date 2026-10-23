@@ -1070,12 +1070,12 @@ namespace Game.Core.Sim
             return changed ? RainResult.Grassed : RainResult.NoEffect;
         }
 
-        /// <summary>Có kho nào trong tầm việc tay của nhân vật (0031: 8 ô).</summary>
+        /// <summary>Có kho nào trong tầm thao tác của nhân vật (0034: 10 ô).</summary>
         public bool StorageInReach(float feetX, float feetY, float feetZ)
         {
             var st = State.Storages;
             for (int i = 0; i < st.Count; i++)
-                if (PlayerRules.InHandReach(feetX, feetY, feetZ, st[i].Cell.X, st[i].Cell.Y, st[i].Cell.Z)) return true;
+                if (PlayerRules.InTargetReach(feetX, feetY, feetZ, st[i].Cell.X, st[i].Cell.Y, st[i].Cell.Z)) return true;
             return false;
         }
 

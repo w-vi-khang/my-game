@@ -50,9 +50,8 @@ namespace Game.Client.Tests
 
         void ToTill()
         {
-            input.ToggleTool();
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Till, input.Tool);
+            input.ToggleMode(ControlMode.Till);
+            Assert.AreEqual(ControlMode.Till, input.Control.Mode);
         }
 
         void TickUntilTilled(int id)
@@ -76,17 +75,13 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator TabCyclesFourToolsWithSim()
+        public IEnumerator TillModeOnlyWithSim()
         {
             Assert.IsTrue(input.TillAvailable);
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Place, input.Tool);
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Till, input.Tool);
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Camera, input.Tool);
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Dig, input.Tool);
+            input.ToggleMode(ControlMode.Till);
+            Assert.AreEqual(ControlMode.Till, input.Control.Mode);
+            input.ToggleMode(ControlMode.Till);
+            Assert.AreEqual(ControlMode.Default, input.Control.Mode);
             yield break;
         }
 
@@ -95,7 +90,7 @@ namespace Game.Client.Tests
         {
             ToTill();
             var cell = FindMarkable();
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             Assert.AreEqual(TillResult.Marked, input.LastTill);
             int id = sv.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
             Assert.GreaterOrEqual(id, 4);
@@ -109,7 +104,7 @@ namespace Game.Client.Tests
         {
             ToTill();
             var cell = FindMarkable();
-            input.UseTool(cell, cell);
+            input.RightClickAt(true, cell, cell);
             int id = sv.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
             TickUntilTilled(id);
             yield return null;
@@ -142,15 +137,15 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator ShowAimTillOutline()
+        public IEnumerator ShowAimTillHighlight()
         {
             ToTill();
             var cell = FindMarkable();
-            input.ShowAim(true, cell, cell);
-            Assert.IsTrue(input.OutlineVisible);
+            input.ShowAim(input.Preview(true, cell, cell), true, cell, cell);
+            Assert.IsTrue(input.HighlightVisible);
             Assert.IsFalse(input.GhostVisible);
-            input.ShowAim(true, Vector3Int.zero, Vector3Int.zero);
-            Assert.IsFalse(input.OutlineVisible);
+            input.ShowAim(input.Preview(true, Vector3Int.zero, Vector3Int.zero), true, Vector3Int.zero, Vector3Int.zero);
+            Assert.IsFalse(input.HighlightVisible);
             yield break;
         }
 

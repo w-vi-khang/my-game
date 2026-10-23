@@ -5,27 +5,16 @@ using Game.World;
 
 namespace Game.Client
 {
-    /// <summary>Held tool (briefs 0027, 0030, 0053): Tab cycles Dig → Place → Till (with SimView) → Camera.</summary>
-    public enum EditTool { Dig, Place, Till, Camera }
-
     /// <summary>
-    /// Đào/đặt bằng chuột trong scene TerrainView (world-tech bước 4, user duyệt 2026-10-13):
-    /// Tab đổi công cụ Đào ⇄ Đặt (brief 0027), chuột trái dùng công cụ; phím 1–4 hoặc lăn chuột chọn đất/cỏ/đá/cát.
-    /// Đào: khung trắng = ô sẽ đào. Đặt: bản mờ màu vật liệu ở ô sẽ đặt (đỏ = túi hết; sai luật → không có); nhãn góc trái = công cụ, túi đồ, lý do khi không đào/đặt được.
-    /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021).
-    /// Sim 7e (brief 0037): F = Thu (nhặt mọi vật rơi trong 8 ô); tia chuột trúng vật rơi trong 8 ô → chuột trái nhặt cả chồng thay cho công cụ; vật rơi ngoài 8 ô không chặn tia.
-    /// World 7h (brief 0035): có nhân vật (PlayerCharacter.Active) → đào/đặt/xới chỉ trong tầm 8 ô (0031), được dùng khi đang đi; Alt + lăn chọn loại.
-    /// Sim 7f (brief 0041): chuột trái lên biển = tự đi tới xới, chuột phải = bỏ đánh dấu; R = phép Mưa; chuột trái lên cây chín (mọi công cụ) = thu hoạch.
-    /// Sim 7f (brief 0042): chế độ gieo — chuột trái gieo, chuột phải / Esc / Tab thoát; click khối kho trong 8 ô mở bảng kho.
-    /// World 7l b (brief 0055): chuột trái = đi (PlayerCharacter); công cụ tạm dùng chuột phải tới 7l c; thoát gieo bằng Esc / Tab; bỏ đánh dấu xới tạm không có phím (7l c: nút trong bảng).
+    /// Điều khiển PC trong scene (0033, 0034): phím 1–4 / Alt + lăn chọn loại khối.
+    /// World 7l c1 (brief 0058): chế độ D/Q/E/R (ControlState), chuột phải theo RightClick.Resolve trong 10 ô rồi tự đi tới 2 ô (WalkToAct), lớp đỏ + vòng tầm, F Thu 2 ô, click trái ô ruộng → bảng; Tab cầm tạm khối / camera quan sát tới c2.
+    /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021). Vật rơi / kho dưới con trỏ là đích của chuột phải (nhặt / mở kho).
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class TerrainEditInput : MonoBehaviour
     {
         public float maxDistance = 200f;
-        /// <summary>Độ dày nét khung chọn tính bằng pixel màn hình — giữ nguyên dù camera xa hay gần.</summary>
-        public float outlinePixels = 3f;
 
         static readonly BlockMaterial[] Palette =
             { BlockMaterial.Dirt, BlockMaterial.Grass, BlockMaterial.Stone, BlockMaterial.Sand };
@@ -35,7 +24,8 @@ namespace Game.Client
         static string Format(string k, params object[] a) => GameSettings.Text.Format(k, a);
 
         TerrainChunkView view;
-        LineRenderer outline;
+        MeshRenderer highlightRenderer;
+        Transform highlight;
         int selected;
         string lastResult = "";
         SimView simView;
@@ -46,10 +36,17 @@ namespace Game.Client
 
         /// <summary>Màu bản mờ khi túi hết loại đang chọn.</summary>
         public static readonly Color MissingColor = new Color(1f, 0.2f, 0.2f, 0.5f);
-        public EditTool Tool { get; private set; } = EditTool.Dig;
+        /// <summary>Chế độ D/Q/E/R + vật đang cầm (0034 mục 3).</summary>
+        public ControlState Control { get; } = new ControlState();
+        /// <summary>Việc chuột phải / click trái đang đi tới rồi làm.</summary>
+        public WalkToAct Walk { get; } = new WalkToAct();
+        /// <summary>Màu lớp phủ đỏ lên khối sẽ bị tác động.</summary>
+        public static readonly Color HighlightColor = new Color(1f, 0.15f, 0.15f, 0.35f);
+        public bool HighlightVisible => highlightRenderer.enabled;
+        public Vector3Int HighlightCell { get; private set; }
+        public bool ReachRingVisible { get { var p = PlayerCharacter.Active; return p != null && p.Markers.ReachRingVisible; } }
         public BlockMaterial SelectedMaterial => Palette[selected];
         public GameObject Ghost { get; private set; }
-        public bool OutlineVisible => outline.enabled;
         public bool GhostVisible => ghostRenderer.enabled;
         public Vector3Int GhostCell => Vector3Int.RoundToInt(Ghost.transform.localPosition);
         public Color GhostColor { get; private set; }
@@ -58,7 +55,7 @@ namespace Game.Client
 
         /// <summary>Vẽ vật rơi (brief 0037); thêm trong Awake nếu chưa có.</summary>
         public DropView DropView { get; private set; }
-        /// <summary>Chồng vật rơi đang ngắm (trong tầm việc tay); null nếu không có.</summary>
+        /// <summary>Chồng vật rơi đang ngắm (trong tầm thao tác); null nếu không có.</summary>
         public DropStack AimedDrop { get; private set; }
 
         /// <summary>Tự xới / Mưa / thu hoạch (brief 0041); thêm trong Awake nếu chưa có.</summary>
@@ -71,7 +68,7 @@ namespace Game.Client
         void Awake()
         {
             view = GetComponent<TerrainChunkView>();
-            outline = CreateOutline();
+            CreateHighlight();
             CreateGhost();
             DropView = GetComponent<DropView>();
             if (DropView == null) DropView = gameObject.AddComponent<DropView>();
@@ -85,13 +82,26 @@ namespace Game.Client
         {
             AimedDrop = null;
             AimedHarvest = -1;
-            if (Observation.Engaged) { ShowAim(false, default, default); return; } // observation view: no tools (brief 0053)
-            if (GameInput.SelectBlock1.WasPressedThisFrame()) selected = 0;
-            if (GameInput.SelectBlock2.WasPressedThisFrame()) selected = 1;
-            if (GameInput.SelectBlock3.WasPressedThisFrame()) selected = 2;
-            if (GameInput.SelectBlock4.WasPressedThisFrame()) selected = 3;
-            if (GameInput.CycleTool.WasPressedThisFrame()) ToggleTool();
-            if (GameInput.Back.WasPressedThisFrame() && Farming.SowCrop >= 0) Farming.ExitSowMode();
+            var player = PlayerCharacter.Active;
+            if (Observation.Engaged) { Walk.Cancel(player, false); HideAim(); return; } // xem camera quan sát: không công cụ (brief 0053)
+            if (Walk.Tick(player)) lastResult = T("farm.unreachable");
+            if (GameInput.SelectBlock1.WasPressedThisFrame()) SelectMaterial(0);
+            if (GameInput.SelectBlock2.WasPressedThisFrame()) SelectMaterial(1);
+            if (GameInput.SelectBlock3.WasPressedThisFrame()) SelectMaterial(2);
+            if (GameInput.SelectBlock4.WasPressedThisFrame()) SelectMaterial(3);
+            if (player != null && !player.FlyMode)
+            {
+                if (GameInput.ModeDefault.WasPressedThisFrame()) ToggleMode(ControlMode.Default);
+                if (GameInput.ModeDig.WasPressedThisFrame()) ToggleMode(ControlMode.Dig);
+                if (GameInput.ModeTill.WasPressedThisFrame()) ToggleMode(ControlMode.Till);
+                if (GameInput.ModeRain.WasPressedThisFrame()) ToggleMode(ControlMode.Rain);
+            }
+            if (GameInput.CycleTool.WasPressedThisFrame()) CycleTempHold();
+            if (GameInput.Back.WasPressedThisFrame())
+            {
+                if (Farming.SowCrop >= 0) Farming.ExitSowMode();
+                else if (Control.HasHeld) Control.ClearToDefault();
+            }
             if (GameInput.Collect.WasPressedThisFrame()) CollectNearby();
 
             bool hasPointer = GameInput.HasPointer;
@@ -99,7 +109,7 @@ namespace Game.Client
             // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
             if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer) || ObservationCamera.BlocksPointer(pointer)))
             {
-                ShowAim(false, default, default);
+                HideAim();
                 return;
             }
             if (hasPointer)
@@ -108,8 +118,8 @@ namespace Game.Client
                 if (GameInput.CycleBlockModifier.IsPressed())
                 {
                     float wheel = GameInput.Zoom.ReadValue<float>();
-                    if (wheel > 0.01f) selected = (selected + Palette.Length - 1) % Palette.Length;
-                    else if (wheel < -0.01f) selected = (selected + 1) % Palette.Length;
+                    if (wheel > 0.01f) SelectMaterial((selected + Palette.Length - 1) % Palette.Length);
+                    else if (wheel < -0.01f) SelectMaterial((selected + 1) % Palette.Length);
                 }
             }
 
@@ -117,108 +127,193 @@ namespace Game.Client
             if (!hasPointer || cam == null || view.Editor == null)
                 return;
 
-            // Camera tool: right click on a block places the observation camera above it (decision 0035); sow mode keeps priority.
-            if (Tool == EditTool.Camera && Farming.SowCrop < 0)
-            {
-                ShowAim(false, default, default);
-                if (GameInput.UseTool.WasPressedThisFrame() && Pick(cam.ScreenPointToRay(pointer), out var camCell, out _)) UseTool(camCell, camCell);
-                return;
-            }
-
             var ray = cam.ScreenPointToRay(pointer);
-            var player = PlayerCharacter.Active;
-            // Vật rơi trong tầm việc tay 8 ô dưới con trỏ → chuột trái nhặt cả chồng, không đào/đặt/xới (task contract 7e); ngoài 8 ô không chặn tia.
             AimedDrop = PickDrop(ray);
-            if (AimedDrop != null)
+            int sid = -1;
+            if (Farm != null && Physics.Raycast(ray, out var sh, maxDistance)) sid = Farm.StorageIdOf(sh.collider);
+            bool hasCell = Pick(ray, out var digCell, out var placeCell);
+            AimedHarvest = hasCell ? Farming.RipePlotAt(digCell) : -1;
+            if (GameInput.MoveClick.WasPressedThisFrame())
             {
-                ShowAim(false, default, default);
-                if (player.FlyMode && DebugFlyCamera.IsMoveKeyHeld()) return;
-                if (GameInput.UseTool.WasPressedThisFrame()) CollectDrop(AimedDrop);
-                return;
+                Walk.Cancel(player, false);
+                if (hasCell && AimedDrop == null && sid < 0) ViewPlotAt(digCell);
             }
-            if (Farm != null && GameInput.UseTool.WasPressedThisFrame() && Physics.Raycast(ray, out var sh, maxDistance))
-            {
-                int sid = Farm.StorageIdOf(sh.collider);
-                if (sid >= 0) { lastResult = Farm.OpenStockAt(sid) ? T("edit.open_stock") : Format("edit.stock_far", PlayerRules.HandReach); ShowAim(false, default, default); return; }
-            }
-            if (!Pick(ray, out var digCell, out var placeCell))
-            {
-                ShowAim(false, default, default);
-                return;
-            }
-
-            if (GameInput.CastRain.WasPressedThisFrame()) Farming.CastRain(digCell);
-            AimedHarvest = Farming.RipePlotAt(digCell);
-            if (AimedHarvest >= 0)
-            {
-                ShowAim(false, default, default);
-                if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
-                if (GameInput.UseTool.WasPressedThisFrame()) Farming.Harvest(AimedHarvest);
-                return;
-            }
-
-            if (Farming.SowCrop >= 0)
-            {
-                ShowAim(false, default, default);
-                if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
-                if (GameInput.UseTool.WasPressedThisFrame()) UseTool(digCell, placeCell);
-                return;
-            }
-
-            ShowAim(true, digCell, placeCell);
-            if (outline.enabled)
-            {
-            // Độ rộng nét theo đơn vị thế giới để ra outlinePixels trên màn hình ở khoảng cách tới tâm ô.
-            float dist = Vector3.Distance(cam.transform.position, outline.transform.TransformPoint(0.5f, 0.5f, 0.5f));
-            float worldPerPixel = 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) / Screen.height;
-            outline.widthMultiplier = outlinePixels * worldPerPixel;
-            }
-
-            // Camera bay (không có nhân vật, hoặc chế độ debug F3): chỉ đào/đặt khi dừng (user 2026-10-20). Có nhân vật: được dùng công cụ khi đang đi (0028).
+            var a = Preview(hasCell, digCell, placeCell, AimedDrop, sid);
+            ShowAim(a, hasCell, digCell, placeCell);
+            // Camera bay (không có nhân vật, hoặc chế độ debug F3): chỉ làm khi dừng (user 2026-10-20).
             if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
-
-            if (GameInput.UseTool.WasPressedThisFrame()) UseTool(digCell, placeCell);
+            if (GameInput.UseTool.WasPressedThisFrame()) RightClickAt(hasCell, digCell, placeCell, AimedDrop, sid);
         }
 
-        /// <summary>Chuột phải khi cầm Xới: bỏ biển ô cell (trong 8 ô); ô đang tự xới → huỷ tự xới. true khi đã bỏ.</summary>
-        public bool UnmarkAimed(Vector3Int cell)
-        {
-            if (Farm == null) return false;
-            var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(cell)) return false;
-            int id = Farm.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
-            if (!Farm.UnmarkAt(cell)) return false;
-            if (Farming.TillState != SelfTillState.None && Farming.TillPlotId == id) Farming.CancelSelfTill();
-            lastResult = Format("edit.unmark", cell);
-            return true;
-        }
-
-        /// <summary>Places the observation camera ObservationHeight cells above the top face of cell, facing like Camera.main (decision 0035); writes the HUD result line. False if no camera, engaged, or cell out of tool reach.</summary>
+        /// <summary>Places the observation camera ObservationHeight cells above the top face of cell, facing like Camera.main (decision 0035); writes the HUD result line. False if no camera, engaged, or cell out of target reach.</summary>
         public bool PlaceObservationCamera(Vector3Int cell)
         {
             var cam = Camera.main;
             if (cam == null) return false;
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(cell)) return false;
+            if (player != null && !player.InTargetReach(cell)) return false;
             var pos = view.transform.TransformPoint(new Vector3(cell.x + 0.5f, cell.y + 1f + PlayerMotion.ObservationHeight, cell.z + 0.5f));
             if (!Observation.Place(pos, cam.transform.rotation)) return false;
             lastResult = Format("edit.camera_placed", cell);
             return true;
         }
 
-        /// <summary>Tab: Dig → Place → Till (with SimView) → Camera → Dig. No-op while the observation view is engaged.</summary>
-        public void ToggleTool()
+        /// <summary>D/Q/E/R (0034 mục 3): thoát gieo, huỷ đi tới (dừng nhân vật), Control.ToggleMode(m). No-op khi đang xem camera quan sát; Till khi không có Sim → no-op.</summary>
+        public void ToggleMode(ControlMode m)
         {
             if (Observation != null && Observation.Engaged) return;
-            if (Farming != null && Farming.SowCrop >= 0) { Farming.ExitSowMode(); return; }
-            Farming?.CancelSelfTill();
-            Tool = Tool switch
+            if (m == ControlMode.Till && !TillAvailable) return;
+            Farming.ExitSowMode();
+            Walk.Cancel(PlayerCharacter.Active, true);
+            Control.ToggleMode(m);
+        }
+
+        /// <summary>Tab vòng tạm tới c2: không cầm → khối SelectedMaterial → camera quan sát → không cầm. Đang gieo → chỉ thoát gieo. Huỷ tự xới + đi tới (dừng nhân vật). No-op khi đang xem.</summary>
+        public void CycleTempHold()
+        {
+            if (Observation != null && Observation.Engaged) return;
+            if (Farming.SowCrop >= 0) { Farming.ExitSowMode(); return; }
+            Farming.CancelSelfTill();
+            Walk.Cancel(PlayerCharacter.Active, true);
+            if (!Control.HasHeld) Control.Hold(ItemId.Block(SelectedMaterial));
+            else if (Control.Held.Kind == ItemKind.Block) Control.Hold(ItemId.Tool(ToolItem.ObservationCamera));
+            else Control.ClearToDefault();
+        }
+
+        /// <summary>Phím 1–4 / Alt + lăn: chọn loại i; đang cầm khối → cầm loại mới.</summary>
+        public void SelectMaterial(int i)
+        {
+            selected = i;
+            if (Control.HasHeld && Control.Held.Kind == ItemKind.Block) Control.Hold(ItemId.Block(Palette[i]));
+        }
+
+        Vector3Int StorageCell(int sid)
+        {
+            var c = Farm.Sim.State.Storages[sid].Cell;
+            return new Vector3Int(c.X, c.Y, c.Z);
+        }
+
+        bool ModeUsableAt(Vector3Int digCell) => Control.Mode switch
+        {
+            ControlMode.Dig => true,
+            ControlMode.Till => Farm != null && Farm.CanTillAt(digCell),
+            ControlMode.Rain => true,
+            _ => false,
+        };
+
+        bool HeldUsableAt(Vector3Int placeCell)
+        {
+            if (!Control.HasHeld) return false;
+            if (Control.Held.Kind == ItemKind.Block)
+                return view.Editor != null && view.Editor.CheckPlace(placeCell.x, placeCell.y, placeCell.z, Control.Held.Material) == EditResult.Ok;
+            return Control.Held.Kind == ItemKind.Tool;
+        }
+
+        bool IsUntilledPlot(Vector3Int cell)
+        {
+            if (Farm == null) return false;
+            int id = Farm.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
+            return id >= 0 && !Farm.Sim.State.Plots[id].Tilled;
+        }
+
+        /// <summary>Việc chuột phải sẽ làm ở chỗ này (không làm gì). hasCell = Pick trúng địa hình; drop / storageId từ tia (null / -1 nếu không).</summary>
+        public RightClickAction Preview(bool hasCell, Vector3Int digCell, Vector3Int placeCell, DropStack drop = null, int storageId = -1)
+        {
+            if (!hasCell && drop == null && storageId < 0) return RightClickAction.None;
+            var player = PlayerCharacter.Active;
+            var reachCell = drop != null ? new Vector3Int(drop.X, drop.Y, drop.Z) : storageId >= 0 ? StorageCell(storageId) : digCell;
+            var t = new RightClickTarget
             {
-                EditTool.Dig => EditTool.Place,
-                EditTool.Place => TillAvailable ? EditTool.Till : EditTool.Camera,
-                EditTool.Till => EditTool.Camera,
-                _ => EditTool.Dig,
+                InTargetReach = player == null || player.InTargetReach(reachCell),
+                HeldUsable = hasCell && HeldUsableAt(placeCell),
+                ModeUsable = hasCell && ModeUsableAt(digCell),
+                RipeCrop = hasCell && Farming.RipePlotAt(digCell) >= 0,
+                Storage = storageId >= 0,
+                Drop = drop != null,
             };
+            var a = RightClick.Resolve(Control, t);
+            if (a == RightClickAction.None && hasCell && Farming.SowCrop >= 0 && !Control.HasHeld) a = RightClickAction.UseHeld; // chế độ gieo cũ = cầm hạt (c2 thay)
+            return a;
+        }
+
+        /// <summary>Chuột phải: Preview rồi làm ngay hoặc đi tới 2 ô rồi làm (WalkToAct). Trả việc đã chọn; None / OutOfReach → không làm gì, không đổi dòng kết quả.</summary>
+        public RightClickAction RightClickAt(bool hasCell, Vector3Int digCell, Vector3Int placeCell, DropStack drop = null, int storageId = -1)
+        {
+            if (Observation != null && Observation.Engaged) return RightClickAction.None;
+            var a = Preview(hasCell, digCell, placeCell, drop, storageId);
+            if (a == RightClickAction.None || a == RightClickAction.OutOfReach) return a;
+            var player = PlayerCharacter.Active;
+            if (Farming.TillState != SelfTillState.None) Farming.CancelSelfTill();
+            bool camera = Control.HasHeld && Control.Held.Kind == ItemKind.Tool;
+            var material = Control.HasHeld && Control.Held.Kind == ItemKind.Block ? Control.Held.Material : SelectedMaterial;
+            if (a == RightClickAction.Till && IsUntilledPlot(digCell))
+            {
+                Walk.Cancel(player, false);
+                Execute(a, digCell, placeCell, drop, storageId, camera, material); // tự xới tự tìm đường (brief 0041)
+                return a;
+            }
+            var cell = a == RightClickAction.PlaceBlock ? placeCell
+                : drop != null && a == RightClickAction.PickDrop ? new Vector3Int(drop.X, drop.Y, drop.Z)
+                : storageId >= 0 && a == RightClickAction.OpenStorage ? StorageCell(storageId) : digCell;
+            Walk.Begin(player, cell, a == RightClickAction.Dig, () => Execute(a, digCell, placeCell, drop, storageId, camera, material));
+            return a;
+        }
+
+        void Execute(RightClickAction a, Vector3Int digCell, Vector3Int placeCell, DropStack drop, int storageId, bool camera, BlockMaterial material)
+        {
+            switch (a)
+            {
+                case RightClickAction.Dig: DoDig(digCell); break;
+                case RightClickAction.Till: DoTill(digCell); break;
+                case RightClickAction.Rain: Farming.CastRain(digCell); break;
+                case RightClickAction.Harvest:
+                    int id = Farming.RipePlotAt(digCell);
+                    if (id >= 0) Farming.Harvest(id);
+                    break;
+                case RightClickAction.OpenStorage:
+                    lastResult = Farm.OpenStockAt(storageId) ? T("edit.open_stock") : Format("edit.stock_far", PlayerRules.TargetReach);
+                    break;
+                case RightClickAction.PickDrop: CollectDrop(drop); break;
+                case RightClickAction.PlaceBlock:
+                    var p = view.Place(placeCell, material);
+                    lastResult = p == EditResult.Ok ? Format("edit.place_ok", Name(material), placeCell) : Format("edit.place_fail", Name(material), Explain(p));
+                    break;
+                case RightClickAction.UseHeld:
+                    if (camera) PlaceObservationCamera(digCell);
+                    else { lastResult = ""; Farming.SowAt(digCell); }
+                    break;
+            }
+        }
+
+        void DoDig(Vector3Int digCell)
+        {
+            var m = view.World.Size.InBounds(digCell.x, digCell.y, digCell.z)
+                ? view.World.GetMaterial(digCell.x, digCell.y, digCell.z) : BlockMaterial.Empty;
+            var r = view.Dig(digCell);
+            lastResult = r == EditResult.Ok ? Format("edit.dig_ok", digCell, Name(m == BlockMaterial.Farmland ? BlockMaterial.Dirt : m)) : Format("edit.dig_fail", digCell, Explain(r));
+        }
+
+        void DoTill(Vector3Int digCell)
+        {
+            LastTill = Farm != null ? Farm.UseTill(digCell) : TillResult.Invalid;
+            lastResult = LastTill switch
+            {
+                TillResult.Marked => Format("edit.mark", digCell),
+                TillResult.SelfTill => "",
+                TillResult.OpenedPlot => Format("edit.open_plot", Farm.OpenPlotId),
+                _ => Format("edit.till_invalid", digCell),
+            };
+            if (LastTill == TillResult.SelfTill) Farming.BeginSelfTill(Farm.Sim.PlotAt(new CellPos(digCell.x, digCell.y, digCell.z)));
+        }
+
+        /// <summary>Click trái lên ô ruộng ở cell: đi tới 2 ô rồi mở bảng ô ruộng. false nếu không có Sim / không phải ô ruộng.</summary>
+        public bool ViewPlotAt(Vector3Int cell)
+        {
+            if (Farm == null) return false;
+            int id = Farm.Sim.PlotAt(new CellPos(cell.x, cell.y, cell.z));
+            if (id < 0) return false;
+            Walk.Begin(PlayerCharacter.Active, cell, false, () => Farm.OpenPlotPanel(id));
+            return true;
         }
 
         /// <summary>Màu bản mờ của vật liệu: TopColor, alpha 0,5.</summary>
@@ -228,79 +323,49 @@ namespace Game.Client
             return new Color((c & 0xFF) / 255f, (c >> 8 & 0xFF) / 255f, (c >> 16 & 0xFF) / 255f, 0.5f);
         }
 
-        /// <summary>
-        /// Cập nhật khung / bản mờ theo công cụ (brief 0027). picked = false → tắt cả hai.
-        /// Đào: khung ở digCell. Đặt: bản mờ ở placeCell khi CheckPlace = Ok (màu vật liệu) hoặc NoMaterial (đỏ); kết quả khác → ẩn.
-        /// </summary>
-        public void ShowAim(bool picked, Vector3Int digCell, Vector3Int placeCell)
+        /// <summary>Tắt lớp đỏ, bản mờ, vòng tầm.</summary>
+        public void HideAim()
         {
-            outline.enabled = false;
+            highlightRenderer.enabled = false;
             ghostRenderer.enabled = false;
-            if (!picked || view.Editor == null) return;
-            if (Tool == EditTool.Camera) return;
-            var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell)) return; // ngoài tầm 8 ô: không khung, không bản mờ (0031)
-            if (Tool == EditTool.Till)
-            {
-                if (Farm == null || !Farm.CanTillAt(digCell)) return;
-                outline.enabled = true;
-                outline.transform.localPosition = digCell;
-                return;
-            }
-            if (Tool == EditTool.Dig)
-            {
-                outline.enabled = true;
-                outline.transform.localPosition = digCell;
-                return;
-            }
-            var r = view.Editor.CheckPlace(placeCell.x, placeCell.y, placeCell.z, SelectedMaterial);
-            if (r != EditResult.Ok && r != EditResult.NoMaterial) return;
-            GhostColor = r == EditResult.Ok ? GhostColorOf(SelectedMaterial) : MissingColor;
-            ghostMat.SetColor("_BaseColor", GhostColor);
-            Ghost.transform.localPosition = placeCell;
-            ghostRenderer.enabled = true;
+            var p = PlayerCharacter.Active;
+            if (p != null) p.Markers.ShowReachRing(false);
         }
 
-        /// <summary>Chuột trái: dùng công cụ đang cầm; ghi dòng kết quả ở HUD.</summary>
-        public EditResult UseTool(Vector3Int digCell, Vector3Int placeCell)
+        /// <summary>Tô / bản mờ / vòng tầm theo việc a (0034 mục 3): Dig / Till / Rain / UseHeld → lớp đỏ ở digCell; PlaceBlock → bản mờ màu vật liệu ở placeCell (đỏ khi túi hết); OutOfReach khi có chế độ / vật cầm → vòng tầm.</summary>
+        public void ShowAim(RightClickAction a, bool hasCell, Vector3Int digCell, Vector3Int placeCell)
         {
-            if (Observation != null && Observation.Engaged) return EditResult.NotPlaceable;
-            if (Farming != null && Farming.SowCrop >= 0) { lastResult = ""; return Farming.SowAt(digCell) ? EditResult.Ok : EditResult.NotPlaceable; }
-            if (Tool == EditTool.Camera)
-            {
-                var cp = PlayerCharacter.Active;
-                if (cp != null && !cp.InToolReach(digCell)) return EditResult.OutOfReach;
-                return PlaceObservationCamera(digCell) ? EditResult.Ok : EditResult.NotPlaceable;
-            }
+            HideAim();
+            if (view.Editor == null) return;
             var player = PlayerCharacter.Active;
-            if (player != null && !player.InToolReach(Tool == EditTool.Place ? placeCell : digCell))
-                return EditResult.OutOfReach; // click ngoài tầm: không làm gì, không đổi dòng kết quả (0031)
-            if (Farming != null && Farming.TillState != SelfTillState.None) Farming.CancelSelfTill();
-            if (Tool == EditTool.Till)
+            bool active = Control.Mode != ControlMode.Default || Control.HasHeld || Farming.SowCrop >= 0;
+            if (player != null) player.Markers.ShowReachRing(active && a == RightClickAction.OutOfReach);
+            switch (a)
             {
-                LastTill = Farm != null ? Farm.UseTill(digCell) : TillResult.Invalid;
-                lastResult = LastTill switch
-                {
-                    TillResult.Marked => Format("edit.mark", digCell),
-                    TillResult.SelfTill => "",
-                    TillResult.OpenedPlot => Format("edit.open_plot", Farm.OpenPlotId),
-                    _ => Format("edit.till_invalid", digCell),
-                };
-                if (LastTill == TillResult.SelfTill) Farming.BeginSelfTill(Farm.Sim.PlotAt(new Game.Core.Sim.CellPos(digCell.x, digCell.y, digCell.z)));
-                // Giữ chữ ký EditResult cho Đào/Đặt; kết quả Xới đọc ở LastTill.
-                return LastTill == TillResult.Invalid ? EditResult.NotPlaceable : EditResult.Ok;
+                case RightClickAction.Dig:
+                case RightClickAction.Till:
+                case RightClickAction.Rain:
+                case RightClickAction.UseHeld:
+                    highlight.localPosition = (Vector3)digCell - Vector3.one * 0.02f;
+                    HighlightCell = digCell;
+                    highlightRenderer.enabled = true;
+                    return;
+                case RightClickAction.PlaceBlock:
+                    GhostColor = GhostColorOf(Control.Held.Material);
+                    ghostMat.SetColor("_BaseColor", GhostColor);
+                    Ghost.transform.localPosition = placeCell;
+                    ghostRenderer.enabled = true;
+                    return;
             }
-            if (Tool == EditTool.Dig)
+            if (a == RightClickAction.None && hasCell && Control.HasHeld && Control.Held.Kind == ItemKind.Block
+                && (player == null || player.InTargetReach(digCell))
+                && view.Editor.CheckPlace(placeCell.x, placeCell.y, placeCell.z, Control.Held.Material) == EditResult.NoMaterial)
             {
-                var m = view.World.Size.InBounds(digCell.x, digCell.y, digCell.z)
-                    ? view.World.GetMaterial(digCell.x, digCell.y, digCell.z) : BlockMaterial.Empty;
-                var r = view.Dig(digCell);
-                lastResult = r == EditResult.Ok ? Format("edit.dig_ok", digCell, Name(m == BlockMaterial.Farmland ? BlockMaterial.Dirt : m)) : Format("edit.dig_fail", digCell, Explain(r));
-                return r;
+                GhostColor = MissingColor;
+                ghostMat.SetColor("_BaseColor", GhostColor);
+                Ghost.transform.localPosition = placeCell;
+                ghostRenderer.enabled = true;
             }
-            var p = view.Place(placeCell, SelectedMaterial);
-            lastResult = p == EditResult.Ok ? Format("edit.place_ok", PaletteName(selected), placeCell) : Format("edit.place_fail", PaletteName(selected), Explain(p));
-            return p;
         }
 
         /// <summary>
@@ -316,7 +381,7 @@ namespace Game.Client
             return true;
         }
 
-        /// <summary>Chồng vật rơi gần nhất mà tia trúng, trong tầm việc tay 8 ô, không bị collider nào (địa hình, nhà, dấu mốc) che; không có nhân vật → null.</summary>
+        /// <summary>Chồng vật rơi gần nhất mà tia trúng, trong tầm thao tác 10 ô, không bị collider nào (địa hình, nhà, dấu mốc) che; không có nhân vật → null.</summary>
         public DropStack PickDrop(Ray ray)
         {
             var player = PlayerCharacter.Active;
@@ -328,18 +393,18 @@ namespace Game.Client
             return DropPick.Pick(view.Editor.Drops.Stacks, o.x, o.y, o.z, d.x, d.y, d.z, limit, f.x, f.y, f.z, out _);
         }
 
-        /// <summary>Phím F (Thu): nhặt mọi chồng trong 8 ô; ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>
+        /// <summary>Phím F (Thu): nhặt mọi chồng trong tầm Thu 2 ô; ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>
         public int CollectNearby()
         {
             var player = PlayerCharacter.Active;
             if (player == null || view.Editor == null) return 0;
             var f = player.FeetLocal;
             int n = view.Editor.Drops.CollectInReach(f.x, f.y, f.z, view.Bag);
-            lastResult = n > 0 ? Format("edit.collect_ok", n) : Format("edit.collect_none", PlayerRules.HandReach);
+            lastResult = n > 0 ? Format("edit.collect_ok", n) : Format("edit.collect_none", PlayerRules.CollectReach);
             return n;
         }
 
-        /// <summary>Click nhặt một chồng (phải trong tầm việc tay); ghi dòng kết quả khi được.</summary>
+        /// <summary>Nhặt một chồng (phải trong tầm thao tác); ghi dòng kết quả khi được.</summary>
         public bool CollectDrop(DropStack s)
         {
             var player = PlayerCharacter.Active;
@@ -387,18 +452,20 @@ namespace Game.Client
             if (player == null)
                 return T("hud.help_idle");
             if (player.FlyMode)
-                return Format("hud.help_fly", PlayerRules.ToolReach, PlayerRules.HandReach);
-            return Format("hud.help_walk", PlayerRules.ToolReach, PlayerRules.HandReach);
+                return Format("hud.help_fly", PlayerRules.TargetReach, PlayerRules.CollectReach);
+            return Format("hud.help_walk", PlayerRules.TargetReach, PlayerRules.ActReach, PlayerRules.CollectReach);
         }
 
         /// <summary>Chữ HUD góc trái (tách khỏi OnGUI để test); "" nếu chưa có túi.</summary>
         public string HudText()
         {
             if (view.Bag == null) return "";
-            var text = Format("hud.tool", T(Tool switch { EditTool.Dig => "hud.tool_dig", EditTool.Place => "hud.tool_place", EditTool.Till => "hud.tool_till", _ => "hud.tool_camera" })) + HelpText();
-            if (Tool == EditTool.Till)
+            var text = Format("hud.mode", T(Control.Mode switch { ControlMode.Dig => "hud.mode_dig", ControlMode.Till => "hud.mode_till", ControlMode.Rain => "hud.mode_rain", _ => "hud.mode_default" }))
+                + (Control.HasHeld ? Format("hud.held", Control.Held.Kind == ItemKind.Tool ? T("hud.held_camera") : ItemLabel(Control.Held)) : "")
+                + HelpText();
+            if (Control.Mode == ControlMode.Till)
                 text += T("hud.till_help");
-            if (Tool == EditTool.Camera) text += T("hud.camera_help");
+            if (Control.HasHeld && Control.Held.Kind == ItemKind.Tool) text += T("hud.camera_help");
             var cam = Camera.main;
             if (cam != null)
                 text += Format("hud.elevation", FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y)));
@@ -440,41 +507,8 @@ namespace Game.Client
             HudBottom = 10f + h;
         }
 
-        LineRenderer CreateOutline()
+        static Mesh CubeMesh()
         {
-            var go = new GameObject("Selection");
-            go.transform.SetParent(transform, false);
-            var lr = go.AddComponent<LineRenderer>();
-            lr.useWorldSpace = false;
-            lr.widthMultiplier = 0.04f;
-            lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            // Vẽ đè lên địa hình: khung bao ô đặc nên nửa dưới nằm trong mặt mesh mịn, ZTest thường sẽ che mất.
-            var shader = Shader.Find("Game/SelectionOverlay");
-            if (shader == null)
-                shader = Shader.Find("Universal Render Pipeline/Unlit");
-            var mat = shader != null
-                ? new UnityEngine.Material(shader)
-                : new UnityEngine.Material(UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline.defaultMaterial);
-            mat.SetColor("_BaseColor", Color.white);
-            lr.sharedMaterial = mat;
-            // 12 cạnh khối lập phương đơn vị trong một đường 16 điểm (3 cạnh vẽ lặp).
-            var p = new[]
-            {
-                new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 1, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 0),
-                new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(1, 1, 1), new Vector3(0, 1, 1), new Vector3(0, 0, 1),
-                new Vector3(0, 1, 1), new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1), new Vector3(1, 0, 1),
-                new Vector3(1, 0, 0),
-            };
-            lr.positionCount = p.Length;
-            lr.SetPositions(p);
-            lr.enabled = false;
-            return lr;
-        }
-
-        void CreateGhost()
-        {
-            var go = new GameObject("Ghost");
-            go.transform.SetParent(transform, false);
             var verts = new Vector3[8];
             for (int i = 0; i < 8; i++)
                 verts[i] = new Vector3(i & 1, i >> 1 & 1, i >> 2 & 1);
@@ -491,7 +525,32 @@ namespace Game.Client
             mesh.vertices = verts;
             mesh.triangles = tris;
             mesh.RecalculateBounds();
-            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            return mesh;
+        }
+
+        void CreateHighlight()
+        {
+            var go = new GameObject("Highlight");
+            go.transform.SetParent(transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = CubeMesh();
+            highlightRenderer = go.AddComponent<MeshRenderer>();
+            highlightRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            var shader = Shader.Find("Game/GhostBlock");
+            if (shader == null)
+                shader = Shader.Find("Game/SelectionOverlay");
+            var mat = new UnityEngine.Material(shader);
+            mat.SetColor("_BaseColor", HighlightColor);
+            highlightRenderer.sharedMaterial = mat;
+            go.transform.localScale = Vector3.one * 1.04f;
+            highlightRenderer.enabled = false;
+            highlight = go.transform;
+        }
+
+        void CreateGhost()
+        {
+            var go = new GameObject("Ghost");
+            go.transform.SetParent(transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = CubeMesh();
             ghostRenderer = go.AddComponent<MeshRenderer>();
             ghostRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             var shader = Shader.Find("Game/GhostBlock");

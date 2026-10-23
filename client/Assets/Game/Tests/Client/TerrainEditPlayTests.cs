@@ -143,46 +143,48 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator ToolStartsDigAndTabToggles()
+        public IEnumerator ModeStartsDefault()
         {
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
-            Assert.AreEqual(EditTool.Dig, input.Tool);
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Place, input.Tool);
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Camera, input.Tool);
-            input.ToggleTool();
-            Assert.AreEqual(EditTool.Dig, input.Tool);
+            Assert.AreEqual(ControlMode.Default, input.Control.Mode);
+            Assert.IsFalse(input.Control.HasHeld);
         }
 
         [UnityTest]
-        public IEnumerator DigToolShowsOutlineOnly()
+        public IEnumerator DigModeShowsRedHighlightOnly()
         {
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
             FindColumn(out int x, out int z, out int h);
-            input.ShowAim(true, new Vector3Int(x, h, z), new Vector3Int(x, h + 1, z));
-            Assert.IsTrue(input.OutlineVisible);
+            var dig = new Vector3Int(x, h, z);
+            var place = new Vector3Int(x, h + 1, z);
+            input.ShowAim(input.Preview(true, dig, place), true, dig, place);
+            Assert.IsFalse(input.HighlightVisible, "default mode: no highlight");
+            input.ToggleMode(ControlMode.Dig);
+            input.ShowAim(input.Preview(true, dig, place), true, dig, place);
+            Assert.IsTrue(input.HighlightVisible);
+            Assert.AreEqual(dig, input.HighlightCell);
             Assert.IsFalse(input.GhostVisible);
-            input.ShowAim(false, default, default);
-            Assert.IsFalse(input.OutlineVisible);
+            input.HideAim();
+            Assert.IsFalse(input.HighlightVisible);
             Assert.IsFalse(input.GhostVisible);
         }
 
         [UnityTest]
-        public IEnumerator PlaceToolShowsGhostAtPlaceCell()
+        public IEnumerator HeldBlockShowsGhostAtPlaceCell()
         {
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
             FindColumn(out int x, out int z, out int h);
-            input.ToggleTool();
             view.Bag.Add(BlockMaterial.Dirt);
+            input.CycleTempHold();
+            var dig = new Vector3Int(x, h, z);
             var place = new Vector3Int(x, h + 1, z);
             Assert.AreEqual(EditResult.Ok, view.Editor.CheckPlace(place.x, place.y, place.z, BlockMaterial.Dirt));
-            input.ShowAim(true, new Vector3Int(x, h, z), place);
+            input.ShowAim(input.Preview(true, dig, place), true, dig, place);
             Assert.IsTrue(input.GhostVisible);
-            Assert.IsFalse(input.OutlineVisible);
+            Assert.IsFalse(input.HighlightVisible);
             Assert.AreEqual(place, input.GhostCell);
             Assert.AreEqual(TerrainEditInput.GhostColorOf(BlockMaterial.Dirt), input.GhostColor);
         }
@@ -193,10 +195,11 @@ namespace Game.Client.Tests
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
             FindColumn(out int x, out int z, out int h);
-            input.ToggleTool();
+            input.CycleTempHold();
+            var dig = new Vector3Int(x, h, z);
             var place = new Vector3Int(x, h + 1, z);
             Assert.AreEqual(EditResult.NoMaterial, view.Editor.CheckPlace(place.x, place.y, place.z, BlockMaterial.Dirt));
-            input.ShowAim(true, new Vector3Int(x, h, z), place);
+            input.ShowAim(input.Preview(true, dig, place), true, dig, place);
             Assert.IsTrue(input.GhostVisible);
             Assert.AreEqual(TerrainEditInput.MissingColor, input.GhostColor);
         }
@@ -207,14 +210,15 @@ namespace Game.Client.Tests
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
             FindColumn(out int x, out int z, out int h);
-            input.ToggleTool();
+            input.CycleTempHold();
             view.Bag.Add(BlockMaterial.Dirt);
             var dig = new Vector3Int(x, h, z);
-            input.ShowAim(true, dig, new Vector3Int(x, h + 3, z));
+            var far = new Vector3Int(x, h + 3, z);
+            input.ShowAim(input.Preview(true, dig, far), true, dig, far);
             Assert.IsFalse(input.GhostVisible);
             var place = new Vector3Int(x, h + 1, z);
             view.Editor.IsOccupied = (cx, cy, cz) => true;
-            input.ShowAim(true, dig, place);
+            input.ShowAim(input.Preview(true, dig, place), true, dig, place);
             view.Editor.IsOccupied = null;
             Assert.IsFalse(input.GhostVisible);
         }
@@ -233,7 +237,7 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator UseToolDigsOrPlacesByTool()
+        public IEnumerator RightClickDigsOrPlacesByModeAndHeld()
         {
             var input = go.AddComponent<TerrainEditInput>();
             yield return null;
@@ -242,13 +246,17 @@ namespace Game.Client.Tests
             var place = new Vector3Int(x, h + 1, z);
             var mat = view.World.GetMaterial(x, h, z);
             int before = view.Bag.Get(mat);
-            Assert.AreEqual(EditResult.Ok, input.UseTool(dig, place));
+            Assert.AreEqual(RightClickAction.None, input.RightClickAt(true, dig, place), "default mode, nothing held");
+            Assert.AreEqual(mat, view.World.GetMaterial(x, h, z));
+            input.ToggleMode(ControlMode.Dig);
+            Assert.AreEqual(RightClickAction.Dig, input.RightClickAt(true, dig, place));
             Assert.AreEqual(BlockMaterial.Empty, view.World.GetMaterial(x, h, z));
             Assert.AreEqual(before, view.Bag.Get(mat));
             Assert.AreEqual(1, view.Editor.Drops.At(x, h, z).Count);
-            input.ToggleTool();
+            input.CycleTempHold();
+            Assert.IsTrue(input.Control.HasHeld);
             view.Bag.Add(BlockMaterial.Dirt);
-            Assert.AreEqual(EditResult.Ok, input.UseTool(dig, dig));
+            Assert.AreEqual(RightClickAction.PlaceBlock, input.RightClickAt(true, dig, dig));
             Assert.AreEqual(BlockMaterial.Dirt, view.World.GetMaterial(x, h, z));
         }
 
@@ -258,7 +266,7 @@ namespace Game.Client.Tests
             var input = go.AddComponent<TerrainEditInput>();
             view.Build();
             yield return null;
-            Assert.IsNotNull(go.transform.Find("Selection"), "selection frame destroyed by Build()");
+            Assert.IsNotNull(go.transform.Find("Highlight"), "highlight destroyed by Build()");
             Assert.IsTrue(input.isActiveAndEnabled);
         }
 
@@ -296,6 +304,8 @@ namespace Game.Client.Tests
         public IEnumerator TimingSingleChunkEdits()
         {
             // Đo 20 lần sửa giữa chunk (1 chunk) — ghi trung bình vào log.
+            // Tắt nước lan: đào ô kề nước làm StepWater dựng thêm chunk (số nhịp phụ thuộc deltaTime → flaky khi khung chậm/targetFrameRate rò).
+            view.waterStepsPerSecond = 0f;
             var rng = new System.Random(7);
             double mesh = 0, write = 0, bake = 0;
             int n = 0;

@@ -11,42 +11,12 @@ namespace Game.Core.Tests
         [Test]
         public void Configure_ChangesReach()
         {
-            PlayerRules.Configure(new Game.Core.Sim.PlayerConfig { toolReach = 10, handReach = 3 });
-            Assert.IsTrue(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 10, 0, 0));
-            Assert.IsFalse(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 11, 0, 0));
-            Assert.IsTrue(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 3, 0, 0));
-            Assert.IsFalse(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 4, 0, 0));
+            PlayerRules.Configure(new Game.Core.Sim.PlayerConfig { targetReach = 12, collectReach = 3 });
+            Assert.IsTrue(PlayerRules.InTargetReach(0.5f, -0.5f, 0.5f, 12, 0, 0));
+            Assert.IsFalse(PlayerRules.InTargetReach(0.5f, -0.5f, 0.5f, 13, 0, 0));
+            Assert.IsTrue(PlayerRules.InCollectReach(0.5f, -0.5f, 0.5f, 3, 0, 0));
+            Assert.IsFalse(PlayerRules.InCollectReach(0.5f, -0.5f, 0.5f, 4, 0, 0));
             Assert.Throws<System.ArgumentNullException>(() => PlayerRules.Configure(null));
-        }
-
-        [Test]
-        public void InToolReach_BoundaryExactly8()
-        {
-            Assert.IsTrue(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 8, 0, 0));
-            Assert.IsFalse(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 9, 0, 0));
-            Assert.IsTrue(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 0, 8, 0));
-            Assert.IsTrue(PlayerRules.InToolReach(0.5f, -0.5f, 0.5f, 0, 0, -8));
-        }
-
-        [Test]
-        public void InToolReach_8Point1Outside()
-        {
-            Assert.IsFalse(PlayerRules.InToolReach(0.4f, -0.5f, 0.5f, 8, 0, 0));
-        }
-
-        [Test]
-        public void InHandReach_BoundaryExactly8()
-        {
-            Assert.IsTrue(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 8, 0, 0));
-            Assert.IsFalse(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 9, 0, 0));
-            Assert.IsTrue(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 0, 8, 0));
-            Assert.IsTrue(PlayerRules.InHandReach(0.5f, -0.5f, 0.5f, 0, 0, -8));
-        }
-
-        [Test]
-        public void InHandReach_8Point1Outside()
-        {
-            Assert.IsFalse(PlayerRules.InHandReach(0.4f, -0.5f, 0.5f, 8, 0, 0));
         }
 
         [Test]

@@ -174,7 +174,7 @@ namespace Game.Core
             int n = 0;
             foreach (var s in stacks.ToArray())
             {
-                if (!PlayerRules.InHandReach(feetX, feetY, feetZ, s.X, s.Y, s.Z))
+                if (!PlayerRules.InCollectReach(feetX, feetY, feetZ, s.X, s.Y, s.Z))
                     continue;
                 Take(s, bag);
                 n++;
@@ -189,7 +189,7 @@ namespace Game.Core
             if (bag == null)
                 throw new ArgumentNullException(nameof(bag));
             var s = Find(stackId);
-            if (s == null || !PlayerRules.InHandReach(feetX, feetY, feetZ, s.X, s.Y, s.Z))
+            if (s == null || !PlayerRules.InTargetReach(feetX, feetY, feetZ, s.X, s.Y, s.Z))
                 return false;
             Take(s, bag);
             Version++;

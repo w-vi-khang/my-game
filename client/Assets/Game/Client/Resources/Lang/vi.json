@@ -327,16 +327,44 @@
       "text": "F1: 30 FPS · F2: 60 FPS — mục tiêu {0} · đo {1:F1} FPS · nhịp {2}"
     },
     {
+      "key": "hud.held",
+      "text": " · Cầm: <b><color=yellow>{0}</color></b> (Tab đổi · Esc bỏ)"
+    },
+    {
+      "key": "hud.held_camera",
+      "text": "Camera quan sát"
+    },
+    {
       "key": "hud.help_fly",
-      "text": " · Chuột phải: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · 1–4 / Alt + lăn chuột: chọn loại · Camera bay: WASD, Q/E, giữ chuột giữa · dừng bay mới đào/đặt được · F3: về nhân vật\n"
+      "text": " · Chuột phải: làm việc của chế độ (trong {0:0.#} ô quanh nhân vật, làm ngay không đi tới) · F: thu vật rơi (trong {1:0.#} ô) · 1–4 / Alt + lăn chuột: chọn loại khối · Camera bay: WASD, Q/E, giữ chuột giữa (phím chế độ tắt khi bay) · dừng bay mới đào/đặt được · F3: về nhân vật\n"
     },
     {
       "key": "hud.help_idle",
-      "text": " · Chuột phải: dùng công cụ · 1–4 / Alt + lăn chuột: chọn loại · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n"
+      "text": " · Không có nhân vật: phím chế độ tắt · Tab: cầm tạm khối / camera quan sát · 1–4 / Alt + lăn chuột: chọn loại khối · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n"
     },
     {
       "key": "hud.help_walk",
-      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · A: nhảy · Shift: lướt · Chuột phải: dùng công cụ (trong {0:0.#} ô quanh nhân vật) · F: thu vật rơi (trong {1:0.#} ô) · R: phép Mưa (trong {0:0.#} ô) · B: túi · chuột phải lên cây chín: thu hoạch · 1–4 / Alt + lăn chuột: chọn loại · giữ chuột giữa: xoay · lăn chuột: gần/xa · Space: camera về sau lưng · X: góc nhìn thứ nhất · F3: camera bay\n"
+      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · click trái ô ruộng: xem bảng · A: nhảy · Shift: lướt · Chuột phải: làm việc của chế độ / thu hoạch / mở kho / nhặt (chọn trong {0:0.#} ô, tự đi tới {1:0.#} ô rồi làm) · F: thu vật rơi (trong {2:0.#} ô) · Tab: cầm tạm khối / camera quan sát · B: túi · 1–4 / Alt + lăn chuột: chọn loại khối · giữ chuột giữa: xoay · lăn chuột: gần/xa · Space: camera về sau lưng · X: góc nhìn thứ nhất · F3: camera bay\n"
+    },
+    {
+      "key": "hud.mode",
+      "text": "Chế độ: <b><color=yellow>{0}</color></b> (D mặc định · Q đào · E xới · R tưới)"
+    },
+    {
+      "key": "hud.mode_default",
+      "text": "Mặc định"
+    },
+    {
+      "key": "hud.mode_dig",
+      "text": "Đào"
+    },
+    {
+      "key": "hud.mode_rain",
+      "text": "Tưới (Mưa)"
+    },
+    {
+      "key": "hud.mode_till",
+      "text": "Xới"
     },
     {
       "key": "hud.rebuild",
@@ -348,27 +376,7 @@
     },
     {
       "key": "hud.till_help",
-      "text": "Xới: chuột phải lên đất/cỏ = đánh dấu · lên biển = tự đi tới xới · lên ô ruộng = chọn giống · K: kho\n"
-    },
-    {
-      "key": "hud.tool",
-      "text": "Công cụ: <b><color=yellow>{0}</color></b> (Tab đổi)"
-    },
-    {
-      "key": "hud.tool_camera",
-      "text": "Camera"
-    },
-    {
-      "key": "hud.tool_dig",
-      "text": "Đào"
-    },
-    {
-      "key": "hud.tool_place",
-      "text": "Đặt"
-    },
-    {
-      "key": "hud.tool_till",
-      "text": "Xới"
+      "text": "Xới: chuột phải lên đất/cỏ = đánh dấu · lên biển = tự đi tới xới · lên ô ruộng = chọn giống · click trái ô ruộng: bảng (nút Bỏ đánh dấu) · K: kho\n"
     },
     {
       "key": "item.dirt",
@@ -469,6 +477,10 @@
     {
       "key": "plot.till_tile",
       "text": "Xới"
+    },
+    {
+      "key": "plot.unmark",
+      "text": "Bỏ đánh dấu"
     },
     {
       "key": "plot.water",

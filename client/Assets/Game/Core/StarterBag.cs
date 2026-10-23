@@ -63,7 +63,7 @@ namespace Game.Core
             if (top + 1 >= size.Y) return false;
             y = top + 1;
             if (Math.Abs(y - (int)Math.Floor(feetY)) > 1) return false;
-            return PlayerRules.InHandReach(feetX, feetY, feetZ, cx, y, cz);
+            return PlayerRules.InTargetReach(feetX, feetY, feetZ, cx, y, cz);
         }
     }
 }

@@ -4,17 +4,11 @@ using Game.Core.Sim;
 namespace Game.Core
 {
     /// <summary>
-    /// Luật nhân vật người chơi M1 (world 7h, 0028): tầm với mọi thao tác 8 ô (0031) từ tâm thân, ô bị thân chiếm, biên world, trong nước.
+    /// Luật nhân vật người chơi M1 (world 7h, 0028): tầm thao tác 10 ô, tầm thực hiện / đào / Thu 2 ô (0034) từ tâm thân, ô bị thân chiếm, biên world, trong nước.
     /// Gốc nhân vật = chân (giữa đáy); thân cao BodyHeight, nửa rộng HalfWidth.
     /// </summary>
     public static class PlayerRules
     {
-        /// <summary>Tầm công cụ: đào, đặt, xới, click ô ruộng (0031: 8 ô). Client hiện tại còn dùng; 7l c (0034) chuyển sang TargetReach/ActReach rồi gỡ.</summary>
-        /// (đọc từ sim_m1.json player.toolReach — Configure)
-        public static float ToolReach { get; private set; } = 8f;
-        /// <summary>Tầm việc tay: nhặt (sau này gieo, thu hoạch, phép Mưa, mở kho — 0031: 8 ô). Client hiện tại còn dùng; 7l c (0034) chuyển sang TargetReach/ActReach rồi gỡ.</summary>
-        /// (đọc từ sim_m1.json player.handReach — Configure)
-        public static float HandReach { get; private set; } = 8f;
         public static float TargetReach { get; private set; } = 10f; // tầm thao tác (0034)
         public static float ActReach { get; private set; } = 2f;     // tầm thực hiện
         public static float DigReach { get; private set; } = 2f;     // tầm đào (nâng cấp sau)
@@ -24,8 +18,6 @@ namespace Game.Core
         public static void Configure(PlayerConfig p)
         {
             if (p == null) throw new ArgumentNullException(nameof(p));
-            ToolReach = p.toolReach;
-            HandReach = p.handReach;
             TargetReach = p.targetReach;
             ActReach = p.actReach;
             DigReach = p.digReach;
@@ -40,10 +32,6 @@ namespace Game.Core
         public const float WaterSpeedFactor = 0.5f;
         const float Shrink = 0.001f;
 
-        public static bool InToolReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
-            Within(ToolReach, feetX, feetY, feetZ, x, y, z);
-        public static bool InHandReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
-            Within(HandReach, feetX, feetY, feetZ, x, y, z);
         public static bool InTargetReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
             Within(TargetReach, feetX, feetY, feetZ, x, y, z);
         public static bool InActReach(float feetX, float feetY, float feetZ, int x, int y, int z) =>
