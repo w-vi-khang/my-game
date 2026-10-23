@@ -590,3 +590,7 @@ Sau bước 13 (vòng 3, 2026-10-24 02:41). Unity MCP.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+- Chưa kiểm được `verify_run client_test client_test_play`: Unity Editor đang mở project (exit 1, "another Unity instance is running", đã chạy 2026-10-24). Thay bằng MCP trên cùng Editor sau sửa `PlayerFarmTests.cs`: EditMode 529/529, PlayMode 219/219.
+- Checklist: mục thiết kế (pillar, thành phần, glossary, [ý tưởng], nguồn, roadmap) — không đổi file design/ nào trong brief này ngoài `design/data/sim_m1.json` (3 key `[số tạm]`, 0036 mục 7) → đạt/không áp dụng; `Game.Core` không UnityEngine → đạt (grep rỗng); test đúng cột "Xong khi" → đạt (test bước 11–12); chỉ làm hạng mục M1 → đạt; giờ thực tế: Planner cộng khi review.
