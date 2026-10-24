@@ -1,6 +1,6 @@
 # Brief 0073 — Sửa lỗ hổng mép cỏ ở góc giao nhau (bug, user 2026-10-24)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-24
@@ -101,9 +101,57 @@ Gộp vào lần chơi thử cuối: nhìn các góc lõm và bậc thang cỏ t
 - Base commit: e9a8a06
 - Chạy bằng: claude-opus-5-5 · medium
 - Bắt đầu: 2026-10-24 14:37 · dừng 14:44 (cần Opus, chưa sửa code)
-- Chưa đổi file code nào. Test viết ở bước 1 lưu thành patch (không commit) ở `side-session-notes/local_78cbbfd7-…/0073-test-seethrough-diag.patch` → `git apply` để dùng lại.
+- Vòng 2 (QĐ 5–6): base 572fcef, bắt đầu 2026-10-24 14:47, kết thúc 15:13. Tổng thời gian thực tế: vòng 1 0:07 + vòng 2 0:26 ≈ 0,55 giờ.
+- **Commit code: `b739d0a`.** File đổi:
+  - `client/Assets/Game/World/BlockMesher.cs` (+`AddLipConcave`, 2 hằng);
+  - `client/Assets/Game/Tests/World/BlockMesherTests.cs` (+`CornerWorld`, `RayMesh`, `ClearanceToSolid`, `SeeThroughRays`, 2 test × 6 cấu hình). Test cũ không sửa.
+- **Nguyên nhân gốc:**
+  - Ở góc lõm của mặt trên ô cỏ (hai ô kề theo x và theo z đặc, ô chéo rỗng), phép bo cạnh (lăn cầu R) làm mặt trên ô đó lõm xuống tới R quanh trục góc, trong góc phần tư R × R.
+  - Hai dải mép cỏ bên cạnh thì dừng hoặc bắt đầu đúng ở trục, nên không dải nào phủ vết lõm. Nó hiện thành tam giác tối nhỏ: pháp tuyến nghiêng, có AO.
+  - Mesh vẫn kín, nên không có chỗ nhìn xuyên theo nghĩa hình học.
+- **Cách sửa:**
+  - `AddGrassLip` gọi `AddLipConcave` cho 4 góc của mặt trên ô cỏ hở trên. Điều kiện: ô kề x đặc, ô kề z đặc, ô chéo rỗng.
+  - Mảnh là lục giác phẳng phủ góc phần tư [0, R]², nâng `LipConcaveLift` = 0,002. Mảnh chồm `LipConcaveOverlap` = 0,01 qua hai đường trục (không chồm sang ô chéo rỗng) để không lọt khe pixel với mặt trên dải bên cạnh. Màu cỏ, pháp tuyến lên, 6 đỉnh / 4 tam giác.
+  - Mỗi trục góc chỉ một trong 4 ô quanh nó thoả điều kiện, nên tự nhiên thêm đúng một lần, không cần khử trùng.
+  - **Lệch so với chữ trong QĐ 5:** điều kiện xét từ ô có vết lõm (g+e), không đòi ô g có dải mép cỏ và không đòi hở phía trên g+s+e. Với H1 hai cách cho cùng kết quả. Chỉ cách này phủ được 2 dạng H4 còn sót ở lần sửa đầu: góc lõm có khối cao hơn đè lên ô bên kia, ví dụ quanh (4, 8, 3); và ô cỏ trong hốc giữa hai vách cao, ví dụ (8, 7, 2).
+  - Hình dải, mảnh góc lồi, collider: không đổi.
+- **Số đỉnh** (world M1, `BlockMesher.BuildAll`) [run execute_code]: 150 025 → **151 201 (+0,78 %)**. Tam giác 165 578 → **166 362 (+0,47 %)**, tức 196 góc lõm × 4. Số "trước" lấy bằng cách bỏ tam giác/đỉnh của mảnh (y lẻ 0,002); số tam giác trước khớp MESHSTATS cũ 165 578.
+- **Ảnh Editor (bước 2, scratch, không commit):** render H1 trong preview scene bằng shader Game/Terrain.
+  - Trước (`0073-editor-before-near.png`): vết lõm hình thoi khác màu ngay ở trục góc lõm.
+  - Sau, lần 1 (mảnh vuông chỉ chạm mép): hết vết lõm nhưng còn vệt sáng lấm tấm hình chữ V dọc hai đường trục (khe rasterize) → thêm phần chồm 0,01.
+  - Sau, lần 2 (`0073-editor-after2-{near,far,grazing}.png`): mặt cỏ liền; phóng to 4× chỉ còn 1 điểm dưới 1 pixel ở trục. Nhìn sát mặt (grazing) và nhìn xa: không thấy z-fighting.
+- **Điện thoại 24095PCADG** (192.168.1.6:35093, Thermal Status 2 từ đầu tới cuối):
+  - `0073-17.png`: bậc thang cỏ + nhiều góc lõm quanh nhân vật, **không thấy khe/tam giác tối ở góc**. HUD ghi "measuring… 32 s" (lệch với 17 s mở app: đồng hồ WalkBench khác mốc, chưa kiểm).
+  - `0073-30.png`: hành lang giữa hai vách cỏ, không thấy khe ở góc.
+- File bị build làm bẩn, đã `git checkout --`: `client/Assets/Game/Client/Scenes/WalkBench.unity.meta`, `client/ProjectSettings/UnityConnectSettings.asset`. Sau PlayMode: `client/ProjectSettings/EditorSettings.asset`. `.apk`/`.png` bị ignore (không track). Đã `adb uninstall com.viventa.walkbench`.
 
 ## Kết quả test
+- **Vòng 2, test mới** [run 2026-10-24]:
+  - `NoBevelDentShowsAtGrassCornersFromAbove(H1…H4)`: tia trên xuống thẳng + xiên 45° × 4 hướng chéo, vào 6 điểm ≤ 0,1 quanh mỗi góc mặt trên ô cỏ. Phải chạm mặt trước ở y ≥ mặt trên − 0,02. Bỏ tia có gốc cách ô đặc < R.
+
+    | Cấu hình | Trước sửa | Sau sửa |
+    |---|---|---|
+    | H1 | **13** / 14 148 (đỏ) | 0 / 14 148 |
+    | H2 | 0 | 0 |
+    | H3 | 0 | 0 |
+    | H3b | 0 | 0 |
+    | H3c | 0 | 0 |
+    | H4 | **136** / 9 780 (đỏ) | 0 / 9 780 |
+
+    Lần chạy đầu chưa có bộ lọc gốc tia: H2 cũng đỏ 2 tia. Gốc tia khi đó nằm trong phần bo của chỗ thắt hai cột chéo, chạm mặt sau. Đó là lỗi của test, không phải chỗ hở → thêm bộ lọc gốc tia cách ô đặc ≥ R. Kết quả "trước sửa" ở bảng là sau khi đã lọc: chạy lại trên `BlockMesher.cs` gốc (đã khôi phục tạm bằng `git checkout`).
+  - `NoSeeThroughAtCorners(H1…H4)`: 0 tia hở cả trước lẫn sau sửa (hồi quy).
+- Hình mép cỏ cũ không đổi: `LipProfileIsRoundedPillow`, `LipIsClosedFromBelowAndUnchangedFromAbove`, `LipEndCapMatchesClosedCrossSection`, `LipIsDeterministicAndContinuousAcrossCellsAndChunks`, `ConcaveCornerIsDarkerByVertexAo` → **đạt** (`BlockMesherTests` 34/34).
+- Regression chung: EditMode **608/608** (596 + 12 mới), PlayMode **268/268**, console 0 Error → **đạt**.
+- `git diff --stat client/Assets/Settings client/ProjectSettings`: rỗng → **đạt**.
+- Hiệu năng:
+  - Số đỉnh +0,78 % (< 5 %) → **đạt**.
+  - FPS WalkBench điện thoại, cùng máy, Thermal Status 2 cả hai lần: lần 1 avgFps **41,3** (p99 41,6 ms); lần 2 **44,5** (p50 24,95, p99 33,30 ms). Mốc brief 0072: 44.
+  - Lần 1 tụt 2,7, có thể do nhiệt (status 2 trước khi mở app); lần 2 đạt. Đánh giá: **đạt (lần 2), lần 1 cần lưu ý**.
+  - `plots=4` (0072 là 20), chưa kiểm vì sao, không thuộc phạm vi brief.
+- Chờ user: nhìn góc lõm, bậc thang cỏ trên PC và điện thoại (gộp lần chơi thử cuối).
+- Vòng 1: chưa đổi file code nào. Test viết ở bước 1 lưu thành patch (không commit) ở `side-session-notes/local_78cbbfd7-…/0073-test-seethrough-diag.patch` → `git apply` để dùng lại.
+
+### Vòng 1 (giữ để đối chiếu)
 Bước 1, test `NoSeeThroughAtCorners(config)` (EditMode) [run 2026-10-24]. Dựng world 16³ bằng các cột địa hình. Ở mỗi ô lộ mặt trên lấy 8 điểm đích, cách mặt ô 0,18 (= R + 0,055). Bắn 12 phương vị × độ cao 20°/45°/70°. Gốc tia cách đích 2,5, cách ô đặc ≥ 0,4.
 
 | Cấu hình | Tia hở / tổng | Chẩn đoán "lõm" (xem dưới) |
@@ -122,6 +170,7 @@ Chẩn đoán thêm (không assert). Bắn tia từ trên xuống, thẳng đứ
 - H4: (3.98, 8, 3.98) → 7.943; (11.98, 8, 3.02) → 7.943; (2.98, 9, 4.02) → 8.943.
 
 ## Vướng mắc
+_(Vòng 1 — đã trả lời: QĐ 5–6, phương án A.)_
 **Câu hỏi:** test nhìn xuyên không đỏ. Có chuyển tiêu chí sang "không lộ lõm bo cạnh ở góc lõm" rồi sửa không?
 
 **Phân tích** [suy luận từ code + số đo DIAG, chưa xem bằng mắt]:
