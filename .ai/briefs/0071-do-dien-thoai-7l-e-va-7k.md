@@ -1,6 +1,6 @@
 # Brief 0071 — Đo điện thoại: 7l e (20 ô ruộng có icon) + 7k (GPU Resident Drawer / occlusion A-B-C)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: nhẹ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -64,10 +64,60 @@ Không.
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 0011f4f
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ: bắt đầu 13:53, kết thúc 14:09 (đo 13:53–14:08, gỡ app 14:09). Máy 24095PCADG qua `192.168.1.6:35093`; Thermal Status = 2 trước cả 6 lần; không khoá màn hình (isKeyguardShowing=false) ở cả 6 lần. Đã gỡ `com.viventa.walkbench`.
+Không sửa code, không build, không mở Unity.
+
+Dòng nguyên văn:
+```
+E0: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1747 avgFps=43,7 avgMs=22,90 p50Ms=24,95 p99Ms=33,34 maxMs=50,05 | distance=163,6 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1091,7 gcReservedMaxMB=171,0 | creatures=3 | plots=4 plotIconsVisibleAvg=0,0 | pass30fps=True passNoHole=True
+E20: WALKBENCH plots: 20 (target 20)
+E20: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1768 avgFps=44,2 avgMs=22,62 p50Ms=24,95 p99Ms=33,32 maxMs=49,93 | distance=163,6 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1103,0 gcReservedMaxMB=171,0 | creatures=3 | plots=20 plotIconsVisibleAvg=0,0 | pass30fps=True passNoHole=True
+A: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1764 avgFps=44,1 avgMs=22,67 p50Ms=24,95 p99Ms=33,33 maxMs=49,93 | distance=163,7 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1100,9 gcReservedMaxMB=171,0 | creatures=3 | plots=4 plotIconsVisibleAvg=0,0 | gpuMsAvg=21,60 gpuMsP99=27,19 gpuSamples=1738 grd=Disabled occ=False | pass30fps=True passNoHole=True
+B: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=2437 avgFps=60,9 avgMs=16,41 p50Ms=16,37 p99Ms=16,53 maxMs=32,79 | distance=163,8 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=794,8 gcReservedMaxMB=171,0 | creatures=3 | plots=4 plotIconsVisibleAvg=0,0 | gpuMsAvg=0,19 gpuMsP99=0,53 gpuSamples=2399 grd=InstancedDrawing occ=False | pass30fps=True passNoHole=True
+C: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1189 avgFps=29,7 avgMs=33,65 p50Ms=33,28 p99Ms=49,92 maxMs=66,59 | distance=164,1 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1156,1 gcReservedMaxMB=171,0 | creatures=3 | plots=4 plotIconsVisibleAvg=0,0 | gpuMsAvg=32,56 gpuMsP99=40,69 gpuSamples=1175 grd=InstancedDrawing occ=True | pass30fps=False passNoHole=True
+A2: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1768 avgFps=44,2 avgMs=22,61 p50Ms=24,95 p99Ms=33,33 maxMs=49,93 | distance=163,6 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1087,4 gcReservedMaxMB=171,0 | creatures=3 | plots=4 plotIconsVisibleAvg=0,0 | gpuMsAvg=21,60 gpuMsP99=27,45 gpuSamples=1744 grd=Disabled occ=False | pass30fps=True passNoHole=True
+```
+
+### Bảng 7l e (1 điểm nhìn, Thermal 2)
+| | 0052 | E0 | E20 |
+|---|---|---|---|
+| avgFps | 42,0–49,4 | 43,7 | 44,2 |
+| p50Ms | | 24,95 | 24,95 |
+| p99Ms | | 33,34 | 33,32 |
+| maxMs | | 50,05 | 49,93 |
+| plots | | 4 | 20 (target 20) |
+| plotIconsVisibleAvg | | 0,0 | **0,0** |
+| sysMemMaxMB | | 1091,7 | 1103,0 |
+- E20 `avgFps` 44,2 ≥ 30 → đạt tiêu chí avgFps. **Nhưng `plotIconsVisibleAvg = 0,0`** (0065 yêu cầu ≥ 10 icon trong khung) — số đo "icon trong khung" bằng 0 ở cả E0/E20: có thể icon không hiện trong WalkBench hoặc chỉ số không đếm đúng; chưa điều tra (ngoài phạm vi). Ghi cho Planner.
+- Vì E20 không có icon nào trong khung, 44,2 FPS chưa chứng minh chi phí icon.
+
+### Bảng 7k (Thermal 2 cả 4 lần)
+| | A | B | C | A2 |
+|---|---|---|---|---|
+| avgFps | 44,1 | **60,9** | **29,7** | 44,2 |
+| p50Ms | 24,95 | 16,37 | 33,28 | 24,95 |
+| p99Ms | 33,33 | 16,53 | 49,92 | 33,33 |
+| maxMs | 49,93 | 32,79 | 66,59 | 49,93 |
+| gpuMsAvg | 21,60 | **0,19** | 32,56 | 21,60 |
+| gpuMsP99 | 27,19 | 0,53 | 40,69 | 27,45 |
+| gpuSamples | 1738 | 2399 | 1175 | 1744 |
+| grd | Disabled | InstancedDrawing | InstancedDrawing | Disabled |
+| occ | False | False | True | False |
+| holeFrames | 0 | 0 | 0 | 0 |
+| sysMemMaxMB | 1100,9 | 794,8 | 1156,1 | 1087,4 |
+- A/A2 lệch avgFps 0,2% (44,1 vs 44,2) → ổn định.
+- B và C đều chạy, không crash, không dòng lỗi GPU Resident/BatchRenderer trong log (lọc `grep` chỉ ra các dòng nhiễu của hệ thống Android, không liên quan).
+- **Cảnh báo cho Planner (không kết luận, QĐ 5):** B có `gpuMsAvg=0,19 ms` (A 21,6) và `sysMemMaxMB` thấp hơn ~300 MB: nhìn không giống "nhanh hơn thật" mà giống GPU hầu như không vẽ gì (hoặc GRD không vẽ terrain/vật, hoặc GPU timing sai). Số 60,9 FPS có thể là khung gần rỗng. Chưa chụp màn hình để xác nhận (ngoài bước). Nên kiểm hình ảnh thật trước khi tin B. C (occlusion bật) chậm hơn A (29,7 FPS, dưới 30 — `pass30fps=False`), khớp cảnh báo docs "occlusion có thể làm tăng thời gian render".
 
 ## Kết quả test
+- Đo 7l e: đạt (E0, E20 có dòng `device=`; E20 `plots=20`, avgFps 44,2 ≥ 30; plotIconsVisibleAvg = 0 ghi chú).
+- Đo 7k: đạt — 4 dòng có `grd`/`occ` đúng biến thể (A Disabled/False; B InstancedDrawing/False; C InstancedDrawing/True; A2 Disabled/False).
+- `git status`: chỉ đổi brief này (ngoài `.ai/handoff.md`, `.claude/settings.json` của phiên khác).
 
 ## Vướng mắc
+Không có.
 
 ---
 <!-- PLANNER ghi khi review. -->
