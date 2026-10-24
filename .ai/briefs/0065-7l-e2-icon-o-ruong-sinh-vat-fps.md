@@ -76,6 +76,7 @@ Từ 0034 (user, 2026-10-23) và task contract:
   - `client/Assets/Game/Core/View/WorldIcons.cs` (mới), `Core/Sim/SimConfig.cs`, `Core/PlayerMotion.cs`;
   - `client/Assets/Game/Client/WorldIconsView.cs` (mới), `Client/TimeDialGraphic.cs`, `Client/SimView.cs`, `Client/WalkBench.cs`, `Client/Editor/WalkBenchBuild.cs`, `client/Assets/Game/Client/Scenes/WalkBench.unity` (do menu tạo lại);
   - `design/data/sim_m1.json` (chỉ thêm 3 số ở bước 1);
+  - `client/Assets/Game/Client/Resources/Config/sim_m1.json` — bản sao client, phải giống hệt `design/data/sim_m1.json` (`ConfigTests.SimClientCopyMatchesDesignData`; phát hiện ở review 0064);
   - test: `Tests/Core/View/WorldIconsTests.cs` (mới), `Tests/Client/WorldIconsPlayTests.cs` (mới), `Tests/Client/WalkBenchPlayTests.cs`, `Tests/Client/SettingsPlayTests.cs` (chỉ nếu test `WorldLabelsVisible` cần thêm assert icon);
   - các `.meta` Unity tự sinh cho file mới; mục Kết quả của brief này.
 - Không được sửa: luật mô phỏng (`Simulation.cs` trừ đọc), `CreatureStatus.cs`, `SiteStatus.cs`, HUD / menu phép của 0064, `InventoryView.cs`, `SimView.unity`, file của phiên khác.
