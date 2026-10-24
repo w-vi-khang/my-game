@@ -1,6 +1,6 @@
 # Brief 0067 — sim 7g: sinh vật chỉ làm công đoạn được giao (vụ tự làm, nút Tiếp tục, xới lại khi được giao)
 
-> Trạng thái: đang làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -214,11 +214,19 @@ Bước **sim 7g** (brief duy nhất) của task [m1-sim-7g-sinh-vat-chi-lam-vie
 ## Kết quả
 Base commit: 71ad5b9
 Chạy bằng: claude-sonnet-5-5 · medium
-Bắt đầu: 2026-10-24 09:34
+Bắt đầu: 2026-10-24 09:34 · Kết thúc: ~10:25 (giờ máy; phần lớn chờ test chạy nền)
+Commit: 467b3b1
+File đổi: Core/Sim/SimData.cs, Simulation.cs, SimHash.cs; Client/SimView.cs; Resources/Lang/vi.json (plot.continue); Tests/Core/Sim/AssignedWorkTests.cs (mới); Tests/Client/SimFarmUiPlayTests.cs (+2 test).
+Lệch brief: không (một lần sửa test `CanContinue_FalseCases`: `Unmark` chỉ dùng được cho ô chưa xới nên case Removed dùng Layout mới).
 
 
 ## Kết quả test
-<!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt + bằng chứng. Mỗi lệnh → kết quả thật. -->
+- Biên dịch: `read_console` Error = 0.
+- Lõi (`AssignedWorkTests`, 12 test) + regression Sim/`PlayerFarmTests`/`FarmTests`/`HardcodedTextScanTests`: đạt — EditMode toàn bộ 582/582 qua (mã băm test tất định cũ không đổi).
+- Client (`ContinueRetillsIdlePlot`, `ContinueGrantsSelfMadeWater`) + regression PlayMode: đạt — PlayMode toàn bộ 267 test, 266 qua; hỏng duy nhất `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` (0.021 > 0.002, đã biết chỉ hỏng khi chạy cả bộ); chạy riêng 1/1 qua.
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy.
+- Xem nút Tiếp tục (vị trí/chữ), chơi thử: chờ user — gộp cuối.
+
 
 ## Vướng mắc
 
