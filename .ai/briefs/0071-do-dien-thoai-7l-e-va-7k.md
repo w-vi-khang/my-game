@@ -1,6 +1,6 @@
 # Brief 0071 — Đo điện thoại: 7l e (20 ô ruộng có icon) + 7k (GPU Resident Drawer / occlusion A-B-C)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: nhẹ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -123,3 +123,7 @@ Không có.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Model: Sonnet · medium khớp. Đủ dòng `WALKBENCH` cho cả 6 lần, `grd`/`occ` đúng biến thể; A/A2 lệch 0,2% → số ổn định. Đạt tiêu chí brief.
+- 7l e: `plotIconsVisibleAvg` = 0 ở E20 — nguyên nhân [repo]: `WorldIconsView.Place` (`WorldIconsView.cs:151-156`) ẩn icon xa camera quá `PlayerMotion.IconMaxCells`; ô ruộng của `AddPlots` nằm 3–16 ô quanh tâm trại, đường đi bán kính 32, camera nhìn theo hướng đi → icon không vào khung. Tiêu chí dòng 7l e ("≥ 30 FPS với 20 ô ruộng có icon") **chưa chứng minh** → brief 0072.
+- 7k: C (occlusion) 29,7 FPS < A 44,1 → **tắt occlusion culling** (0029 mục 4). B 60,9 FPS với GPU 0,19 ms và bộ nhớ thấp hơn ~300 MB: không tin được nếu chưa thấy hình → brief 0072 chụp màn hình A/B trên điện thoại.
+- Kết luận: đã duyệt
