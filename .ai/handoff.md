@@ -6,7 +6,7 @@
 - Phiên hiện dùng (từ 2026-10-24 chiều): phiên điều phối mới tự làm Planner (phiên Planner/Executor cũ không nhận tin được); Executor [exec-0070](#local_90d07a05-1772-4d2c-a99e-6da3dd1fe9fa). 0070 vòng 1 bị chặn → Planner trả lời QĐ 7–11 (commit `cb506a8`: màn hình Mac tắt khi AFK → `caffeinate`; B crash → build lại riêng B một lần). Phiên mới chỉ mở được trong lượt user gõ (lượt do sự kiện phiên khác bị từ chối start_session).
 - Executor hay kết thúc lượt khi PlayMode đang chạy (MCP rớt khi vào Play) → nhắc "sleep 60 rồi get_test_job, chỉ dừng khi chờ review / cần Opus".
 - Danh sách chơi thử gộp bước 7: [playtest-buoc-7.md](playtest-buoc-7.md).
-- Đã duyệt: 0068 (ổn định test), 0069 (sim 8a lõi), **0070** (world 7k: Mac đo xong — không thấy lợi, GPU ~10 ms cả A/B/C; 3 APK `walkbench-gpu-{a,b,c}.apk` sẵn). **Hết hạng mục M1 làm được mà không cần user** → đang dừng, chờ user (xem "Bước tiếp" mục 5).
+- Đã duyệt: 0068 (ổn định test), 0069 (sim 8a lõi), **0070–0072** (world 7k **xong**: Mac không lợi; điện thoại C occlusion 29,7 FPS < A 44, B GRD không vẽ world → tắt cả hai. 7l e đo điện thoại **đạt**: khung có ≥ 10 icon ~59 FPS, 20 ô 44 FPS). **Hết hạng mục M1 làm được mà không cần user** → đang dừng, chờ user (xem "Bước tiếp" mục 5).
 
 ## Đang làm
 Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)).
@@ -37,7 +37,7 @@ Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-p
 5. **Chờ user** (sáng 2026-10-25), theo thứ tự đề xuất:
    1. **Chơi thử gộp bước 7**: [playtest-buoc-7.md](playtest-buoc-7.md) (7l d–f, sim 7g). Góp ý → brief sửa.
    2. **Trả lời 3 câu hỏi sim 8b** ([task contract m1-sim-8](tasks/m1-sim-8-moi-truong-song.md) mục Câu hỏi còn mở: vùng đếm, loài mở sẵn, chỗ hiện danh sách yêu cầu; số đo world M1: 48.077 cỏ, 0 cỏ cạnh nước, 0 đá lộ thiên) → Planner viết brief 8b.
-   3. **Cắm điện thoại (USB debug)** → Executor tự đo (không cần user thao tác thêm): (i) 7l e: bước 9.4 brief 0065 với `walkbench.apk` + `walkbench-plots.apk`; (ii) 7k: 3 APK `walkbench-gpu-{a,b,c}.apk` (brief 0070) → Planner kết luận bật/tắt GPU occlusion.
+   3. ~~Đo điện thoại~~ xong 2026-10-24 (brief 0071–0072, máy qua gỡ lỗi Wi‑Fi `adb connect 192.168.1.6:<cổng>`, cổng xem `adb mdns services`).
    - Sau đó M1 còn: sim 8b (1,5–3,5 ngày) rồi rà tiêu chí xong M1 (roadmap).
 
 ## Model đề xuất

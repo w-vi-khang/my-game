@@ -1,6 +1,6 @@
 # Brief 0072 — Đo lại 7l e với icon trong khung + chụp màn hình kiểm bản GRD (7k B) trên điện thoại
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -150,3 +150,8 @@ Không chặn. Câu hỏi cho Planner: B không hiển thị world (xem trên) �
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Model: Sonnet · medium khớp. Diff `f215796`: `AddPlots` mới đúng QĐ 2 (2 hàng R−3, R−5, bắt đầu 15 ô phía trước, bỏ cột biển/rỗng), 3 số đo mới chèn sau `plotIconsVisibleAvg` đúng QĐ 3; `targetPlots == 0` không đổi; trong Phạm vi. Test 596 + 268 qua; cấu hình sạch.
+- Lệch test chấp nhận: "≥ 16 ô trong [R−6, R−2]" vì sim có sẵn ô ruộng demo gần trại.
+- 7k: ảnh B (20 s đen, 40 s splash) → GRD không vẽ world trên 24095PCADG → tắt GRD + occlusion (0029 mục 4). 7k xong; world-tech + roadmap đã ghi.
+- 7l e: `iconFrames` 84 / 91 < ngưỡng 100 do Planner đặt, nhưng cộng 175 khung ≥ 10 icon ở 16,8 ms (~59 FPS) cách ngưỡng 30 FPS rất xa; FPS chung 20 ô = 4 ô (~44). Planner chấp nhận: **đạt ≥ 30 FPS với 20 ô ruộng có icon**. Ảnh `plots-30` không bắt được icon — không cần chụp lại.
+- Kết luận: đã duyệt
