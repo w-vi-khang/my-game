@@ -1,6 +1,6 @@
 # Brief 0070 — World 7k: thử GPU Resident Drawer + GPU occlusion culling (đo trên Mac; APK sẵn cho điện thoại)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24 11:00
@@ -142,10 +142,30 @@ Không (phần đo điện thoại là bước riêng khi user cắm máy — Pl
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: cd86128
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ: bắt đầu 10:40, dừng 11:00.
+Đã làm (code chưa qua test hồi quy — dừng giữa chừng): `WalkBench.cs` (+`gpuMsAvg/gpuMsP99/gpuSamples/grd/occ`, chèn trước `pass30fps`), `WalkBenchBuild.cs` (+`WithGpuVariant`, `BuildMac`, 2 menu A-B-C). Biên dịch được, console 0 Error.
+Lệch brief:
+- Không sửa asmdef (ngoài Phạm vi; `Game.Client`/`Game.Client.Editor` không tham chiếu assembly URP). Nên `WalkBenchBuild` sửa `PC_RPAsset`/`Mobile_RPAsset`/`Mobile_Renderer`/`GraphicsSettings` qua `SerializedObject` (`m_GPUResidentDrawerMode`, `m_GPUResidentDrawerEnableOcclusionCullingInCameras`, `m_RenderingMode`, `m_BrgStripping`); giá trị enum `GPUResidentDrawerMode.InstancedDrawing`, `BatchRendererGroupStrippingMode.KeepAll` tra theo tên qua reflection (không nằm trong assembly tham chiếu). `WalkBench.cs` đọc `grd=`/`occ=` bằng reflection trên `GraphicsSettings.currentRenderPipeline`.
+- Build Mac/APK làm bẩn ngoài ý muốn (không phải giá trị GRD/BRG, đó đã khôi phục đúng): `PC_RPAsset.asset` (m_Prefilter*), `UniversalRenderPipelineGlobalSettings.asset` (+rid), `ProjectSettings.asset` (+entry `Standalone` batching), `UnityConnectSettings.asset` (m_Enabled 0→1), `WalkBench.unity.meta` (guid mới do `EnsureScene` xoá/tạo lại scene). Đã `git checkout` lại các file này; `git diff --stat client/Assets/Settings client/ProjectSettings` rỗng lúc dừng. Planner cân nhắc: `EnsureScene` đổi guid scene mỗi lần gọi (hành vi sẵn có), và build Mac thêm entry `Standalone` vào `m_BuildTargetBatching`.
+- Thời gian build Mac: A 51 s (121 079 032 B), B 2 m 32 s (122 517 764 B), C 11 s (122 937 956 B).
 
 ## Kết quả test
+- Bước 1 (WALKBENCH có `gpuMsAvg=`): đạt — Editor Play ra dòng `... gpuMsAvg=-1.00 gpuMsP99=-1.00 gpuSamples=0 grd=Disabled occ=False | pass30fps=False ...` (frames=0: Editor không focus không ra khung đo; trước `pass30fps`, đúng thứ tự).
+- Bước 2 (menu build Mac): đạt về build — 3 `.app` có trong `client/Builds/`; diff `Settings/`+`ProjectSettings/` sau đó chỉ còn các file build-side-effect nêu trên (đã khôi phục).
+- Bước 3 (đo Mac): **không đạt — dừng.** Không có dòng `WALKBENCH` tổng kết nào ở cả 3 bản (xem Vướng mắc).
+- Bước 4 (APK), EditMode/PlayMode toàn bộ: **chưa làm** (dừng trước).
 
 ## Vướng mắc
+Điều kiện dừng "Bản Mac B/C không chạy được": **B crash khi tạo GPU Resident Drawer.** Log đầy đủ ở thư mục ghi chú chung: `0070-mac-{a,b,c}.log` (`/Users/macvn/Library/Application Support/Claude/side-session-notes/local_78cbbfd7-.../`).
+- **B** (GRD, occ tắt): ngay sau `WALKBENCH started`:
+  1. `NullReferenceException … at UnityEngine.Rendering.GPUInstanceDataBufferUploader+GPUResources.LoadShaders (GPUResidentDrawerResources resources)`
+  2. `… RenderersBatchersContext..ctor → GPUResidentDrawer..ctor → GPUResidentDrawer.Recreate → UniversalRenderPipelineAsset.CreatePipeline`
+  3. rồi `Exception: Blitter is already initialized` (UniversalRenderPipeline..ctor) lặp lại, log 3271 dòng; không ra `WALKBENCH` tổng kết. Nghi `GPUResidentDrawerResources` null: URP Global Settings (`Assets/Settings/UniversalRenderPipelineGlobalSettings.asset`) chưa có resources GRD; build có thêm vài `rid` mới vào file này (đã khôi phục).
+- **C** (GRD + occlusion): log có `GPU Resident Drawer created with GPU Occlusion Culling.` (tạo được) nhưng không ra dòng `WALKBENCH` sau 120 s.
+- **A** (đối chứng, GRD tắt): cũng không ra dòng `WALKBENCH` sau 100–120 s, dù `WALKBENCH started` có; log toàn cảnh báo `ScreenSpaceAmbientOcclusion render feature … resources` và `Shader … BokehDepthOfField/UberPost is not supported` (PostProcessing shader bị strip trong player). Lần đo đầu chạy nền cũng không ra kết quả (player macOS tạm dừng khi không focus nếu `runInBackground` tắt); lần sau dùng `open -n` (lên foreground) vẫn không ra. Chưa rõ vì sao A không kết thúc 43 s đo (WalkBench dùng `realtimeSinceStartup`, `Finish()` chỉ trong `Update`). Nghi app bị tạm dừng/ngừng vẽ khi chạy từ dòng lệnh trong phiên không phải foreground thật; chưa kiểm chứng.
+Câu hỏi: (1) Đo Mac có cần làm lại bằng cách khác (vd `-batchmode` không đồ hoạ không đo được GPU; hay cho user chạy tay `.app` trên màn hình)? (2) B crash do thiếu GPU Resident Drawer resources trong URP Global Settings — Planner quyết định có cho Executor bật/tạo resources đó (sửa `UniversalRenderPipelineGlobalSettings.asset`, ngoài Phạm vi) hay ghi kết quả "GRD không chạy được trên Mac build hiện tại → tắt" theo 0029 mục 4. Đề xuất: ghi kết quả B crash (đủ cho "không chạy được → tắt, ghi kết quả" nếu cũng crash trên điện thoại) và giao user chạy tay bản A/C trên Mac nếu vẫn muốn số.
 
 ---
 <!-- PLANNER ghi khi review. -->
