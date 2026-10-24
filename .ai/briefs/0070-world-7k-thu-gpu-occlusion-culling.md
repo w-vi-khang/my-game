@@ -1,6 +1,6 @@
 # Brief 0070 — World 7k: thử GPU Resident Drawer + GPU occlusion culling (đo trên Mac; APK sẵn cho điện thoại)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24 (Planner trả lời vướng mắc)
@@ -151,30 +151,40 @@ Không (phần đo điện thoại là bước riêng khi user cắm máy — Pl
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-Base commit: cd86128
+Base commit (vòng 2): cb506a8 (code vòng 1: 050d905)
 Chạy bằng: claude-sonnet-5-5 · medium
-Giờ: bắt đầu 10:40, dừng 11:00.
-Đã làm (code chưa qua test hồi quy — dừng giữa chừng): `WalkBench.cs` (+`gpuMsAvg/gpuMsP99/gpuSamples/grd/occ`, chèn trước `pass30fps`), `WalkBenchBuild.cs` (+`WithGpuVariant`, `BuildMac`, 2 menu A-B-C). Biên dịch được, console 0 Error.
-Lệch brief:
-- Không sửa asmdef (ngoài Phạm vi; `Game.Client`/`Game.Client.Editor` không tham chiếu assembly URP). Nên `WalkBenchBuild` sửa `PC_RPAsset`/`Mobile_RPAsset`/`Mobile_Renderer`/`GraphicsSettings` qua `SerializedObject` (`m_GPUResidentDrawerMode`, `m_GPUResidentDrawerEnableOcclusionCullingInCameras`, `m_RenderingMode`, `m_BrgStripping`); giá trị enum `GPUResidentDrawerMode.InstancedDrawing`, `BatchRendererGroupStrippingMode.KeepAll` tra theo tên qua reflection (không nằm trong assembly tham chiếu). `WalkBench.cs` đọc `grd=`/`occ=` bằng reflection trên `GraphicsSettings.currentRenderPipeline`.
-- Build Mac/APK làm bẩn ngoài ý muốn (không phải giá trị GRD/BRG, đó đã khôi phục đúng): `PC_RPAsset.asset` (m_Prefilter*), `UniversalRenderPipelineGlobalSettings.asset` (+rid), `ProjectSettings.asset` (+entry `Standalone` batching), `UnityConnectSettings.asset` (m_Enabled 0→1), `WalkBench.unity.meta` (guid mới do `EnsureScene` xoá/tạo lại scene). Đã `git checkout` lại các file này; `git diff --stat client/Assets/Settings client/ProjectSettings` rỗng lúc dừng. Planner cân nhắc: `EnsureScene` đổi guid scene mỗi lần gọi (hành vi sẵn có), và build Mac thêm entry `Standalone` vào `m_BuildTargetBatching`.
-- Thời gian build Mac: A 51 s (121 079 032 B), B 2 m 32 s (122 517 764 B), C 11 s (122 937 956 B).
+Giờ vòng 2: bắt đầu 13:22, kết thúc 13:43.
+Code: `WalkBench.cs` (vòng 1) + `WalkBenchBuild.cs`: thêm tạm `runInBackground=true` cho Mac trong `WithGpuVariant` (khôi phục ở finally), `BuildMacGpuVariant(char)` + `BuildMacGpuA/B/C()` (cho `-executeMethod`). Commit vòng 2: xem `git log` ("brief 0070: parameterless Mac GPU variant…"). Vẫn dùng SerializedObject/reflection (QĐ 7).
+
+Lưu ý quy trình: lúc bắt đầu Editor đang TẮT (MCP không kết nối), nên build Mac chạy bằng Unity `-batchmode -executeMethod` (thứ tự A, C, B → QĐ 9). Giữa chừng Editor được mở lại (phiên khác/user), nên build APK + test chạy qua MCP.
+
+### Đo Mac (M1 MacBookPro17,1, Metal, 1920x1080 cửa sổ, caffeinate, runInBackground=true; vsync nên trần ~60 FPS)
+| Lần | avgFps | p50Ms | p99Ms | maxMs | gpuMsAvg | gpuMsP99 | gpuSamples | grd | occ | holeFrames |
+|---|---|---|---|---|---|---|---|---|---|---|
+| A | 59.4 | 16.67 | 18.55 | 42.35 | 9.80 | 12.10 | 2378 | Disabled | False | 0 |
+| B | 58.4 | 16.67 | 19.81 | 515.57 | 9.90 | 12.07 | 2336 | InstancedDrawing | False | 0 |
+| C | 59.6 | 16.67 | 17.69 | 26.09 | 10.55 | 12.79 | 2384 | InstancedDrawing | True | 0 |
+| A (lại) | 56.7 | 16.67 | 20.46 | 941.41 | 10.27 | 15.93 | 2269 | Disabled | False | 0 |
+- Hai lần A lệch avgFps 4,6% (59.4 vs 56.7), gpuMsAvg lệch 4,8%; maxMs 942 ms ở A lần 2 và 516 ms ở B là hitch đơn lẻ (có thể do máy nền). Chênh A/B/C nằm trong nhiễu đo; không thấy lợi rõ của GRD/occlusion trên Mac ở cảnh này. Không kết luận (QĐ 6).
+- **B không crash** lần này (QĐ 9: build B sau A, C). Không có lỗi đỏ nào ở dòng WALKBENCH. Vòng 1 B crash là do build B trước khi Global Settings/GRD resources được import (nghi; không kiểm chứng thêm). A ra WALKBENCH bình thường (QĐ 8: caffeinate + runInBackground hiệu quả; không cần kiểm CGSSessionScreenIsLocked).
+- Log: scratch `mac-{a,b,c,a2}.log` (không commit).
+- Thời gian build Mac (batchmode): A 126 s, C 108 s, B 20 s (tổng gồm khởi động Unity).
+
+### APK (build qua MCP menu, không cài, không đo — QĐ 4)
+- `client/Builds/walkbench-gpu-a.apk` 35 313 769 B; `-b.apk` 36 179 973 B; `-c.apk` 36 355 323 B. Không track (git ls-files rỗng).
+- `adb devices` lúc 13:42: không thấy máy.
+
+### File bị build làm bẩn, đã `git checkout --` (QĐ 10)
+`PC_RPAsset.asset`, `Mobile_RPAsset.asset` (m_Prefilter*), `Mobile_Renderer.asset` (reserialize AssetVersion 2→3, xrSystemData…), `UniversalRenderPipelineGlobalSettings.asset`, `ProjectSettings.asset`, `UnityConnectSettings.asset`, `WalkBench.unity.meta`, `EditorSettings.asset` (sau PlayMode). Sau cùng: `git diff --stat client/Assets/Settings client/ProjectSettings` rỗng; `WalkBench.unity` không đổi.
+Ghi cho Planner: Mobile_Renderer bị reserialize (AssetVersion 3) mỗi lần build APK — hành vi của Unity, không phải giá trị GRD.
 
 ## Kết quả test
-- Bước 1 (WALKBENCH có `gpuMsAvg=`): đạt — Editor Play ra dòng `... gpuMsAvg=-1.00 gpuMsP99=-1.00 gpuSamples=0 grd=Disabled occ=False | pass30fps=False ...` (frames=0: Editor không focus không ra khung đo; trước `pass30fps`, đúng thứ tự).
-- Bước 2 (menu build Mac): đạt về build — 3 `.app` có trong `client/Builds/`; diff `Settings/`+`ProjectSettings/` sau đó chỉ còn các file build-side-effect nêu trên (đã khôi phục).
-- Bước 3 (đo Mac): **không đạt — dừng.** Không có dòng `WALKBENCH` tổng kết nào ở cả 3 bản (xem Vướng mắc).
-- Bước 4 (APK), EditMode/PlayMode toàn bộ: **chưa làm** (dừng trước).
-
-## Vướng mắc
-Điều kiện dừng "Bản Mac B/C không chạy được": **B crash khi tạo GPU Resident Drawer.** Log đầy đủ ở thư mục ghi chú chung: `0070-mac-{a,b,c}.log` (`/Users/macvn/Library/Application Support/Claude/side-session-notes/local_78cbbfd7-.../`).
-- **B** (GRD, occ tắt): ngay sau `WALKBENCH started`:
-  1. `NullReferenceException … at UnityEngine.Rendering.GPUInstanceDataBufferUploader+GPUResources.LoadShaders (GPUResidentDrawerResources resources)`
-  2. `… RenderersBatchersContext..ctor → GPUResidentDrawer..ctor → GPUResidentDrawer.Recreate → UniversalRenderPipelineAsset.CreatePipeline`
-  3. rồi `Exception: Blitter is already initialized` (UniversalRenderPipeline..ctor) lặp lại, log 3271 dòng; không ra `WALKBENCH` tổng kết. Nghi `GPUResidentDrawerResources` null: URP Global Settings (`Assets/Settings/UniversalRenderPipelineGlobalSettings.asset`) chưa có resources GRD; build có thêm vài `rid` mới vào file này (đã khôi phục).
-- **C** (GRD + occlusion): log có `GPU Resident Drawer created with GPU Occlusion Culling.` (tạo được) nhưng không ra dòng `WALKBENCH` sau 120 s.
-- **A** (đối chứng, GRD tắt): cũng không ra dòng `WALKBENCH` sau 100–120 s, dù `WALKBENCH started` có; log toàn cảnh báo `ScreenSpaceAmbientOcclusion render feature … resources` và `Shader … BokehDepthOfField/UberPost is not supported` (PostProcessing shader bị strip trong player). Lần đo đầu chạy nền cũng không ra kết quả (player macOS tạm dừng khi không focus nếu `runInBackground` tắt); lần sau dùng `open -n` (lên foreground) vẫn không ra. Chưa rõ vì sao A không kết thúc 43 s đo (WalkBench dùng `realtimeSinceStartup`, `Finish()` chỉ trong `Update`). Nghi app bị tạm dừng/ngừng vẽ khi chạy từ dòng lệnh trong phiên không phải foreground thật; chưa kiểm chứng.
-Câu hỏi: (1) Đo Mac có cần làm lại bằng cách khác (vd `-batchmode` không đồ hoạ không đo được GPU; hay cho user chạy tay `.app` trên màn hình)? (2) B crash do thiếu GPU Resident Drawer resources trong URP Global Settings — Planner quyết định có cho Executor bật/tạo resources đó (sửa `UniversalRenderPipelineGlobalSettings.asset`, ngoài Phạm vi) hay ghi kết quả "GRD không chạy được trên Mac build hiện tại → tắt" theo 0029 mục 4. Đề xuất: ghi kết quả B crash (đủ cho "không chạy được → tắt, ghi kết quả" nếu cũng crash trên điện thoại) và giao user chạy tay bản A/C trên Mac nếu vẫn muốn số.
+- Bước 1 (gpuMsAvg trong WALKBENCH): đạt — Editor vòng 1 (gpuMsAvg=-1 do frames=0) và bản Mac có số thật (xem bảng), thứ tự trường đúng.
+- Build biến thể + khôi phục cấu hình: đạt — grd/occ đúng biến thể trong log Mac; diff Settings/ProjectSettings rỗng sau khôi phục.
+- Đo Mac: đạt — 4 dòng WALKBENCH; A lệch 4,6%.
+- Regression: BuildAndroid cũ không đổi; scene không đổi (diff rỗng).
+- EditMode 596/596 đạt; PlayMode 267/267 đạt (MCP); console 0 Error.
+- `git status`: không có .app/.apk bị track.
 
 ---
 <!-- PLANNER ghi khi review. -->
