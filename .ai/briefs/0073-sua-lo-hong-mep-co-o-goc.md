@@ -1,6 +1,6 @@
 # Brief 0073 — Sửa lỗ hổng mép cỏ ở góc giao nhau (bug, user 2026-10-24)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-24
@@ -33,6 +33,18 @@ Cần tìm nguyên nhân gốc, sửa để không còn nhìn xuyên ở các g�
 2. Mesh vẫn tất định, vẫn liền qua biên chunk. Collider không đổi (vẫn là mặt khối vuông).
 3. Số đỉnh/tam giác tăng thêm ít. Ghi số đỉnh của world M1 (hoặc một vùng chuẩn có sẵn trong test/bench) trước và sau. Tăng > 5% thì ghi rõ lý do.
 4. Không đụng `Game.Core`, không đụng dữ liệu `design/data/`.
+5. **(Trả lời vướng mắc, Planner 2026-10-24) Chọn phương án A.**
+   - Lỗi user thấy là **vết lõm bo cạnh ở góc lõm chưa được mép cỏ che**. Mesh vẫn kín, nhưng vết lõm hiện thành tam giác tối: pháp tuyến nghiêng, có AO. Ảnh gốc khớp vị trí góc lõm.
+   - Tiêu chí test bước 1 đổi thành **"không lộ lõm bo cạnh ở góc lõm"**. Tia từ trên xuống, thẳng đứng và xiên 45° theo 4 hướng chéo, nhắm vào điểm trên mặt trên ô cỏ trong vùng ≤ R quanh trục góc lõm. Tia phải chạm mặt quay lên ở y ≥ mặt trên − 0,02. Giữ cả test nhìn xuyên (đang xanh) làm hồi quy.
+   - Sửa: thêm **mảnh góc lõm** trong `AddGrassLip`, đúng điều kiện Executor đề xuất:
+     - ô cỏ `g` có sườn `s` lộ;
+     - ô `g+e` (dọc cạnh) đặc, ô `g+s+e` đặc;
+     - trên `g+e` không đặc.
+   - Hình mảnh: quạt phủ góc phần tư quanh trục góc ở y = mặt trên. Được nâng ≤ 0,002 để tránh z-fighting. Màu cỏ, pháp tuyến lên.
+   - Đếm mỗi góc lõm một lần, tránh trùng khi duyệt từ ô `g` của hai sườn.
+   - Ô cỏ có ô đặc phía trên → không thêm (không có mép cỏ).
+   - Chỉ áp dụng cho ô cỏ có mép cỏ; vật liệu khác giữ nguyên bo cạnh.
+6. **Bước 2 (xem bằng mắt) thành bắt buộc**, làm sau khi sửa. Dựng H1 trong Editor qua MCP, chụp gần góc lõm trước/sau, kiểm cả z-fighting. Bước 6 (ảnh điện thoại) giữ nguyên.
 
 ## Phạm vi
 - Được sửa:
@@ -77,6 +89,7 @@ Cần tìm nguyên nhân gốc, sửa để không còn nhìn xuyên ở các g�
 Gộp vào lần chơi thử cuối: nhìn các góc lõm và bậc thang cỏ trong game (PC và điện thoại), kiểm không còn khe tối ở chỗ giao nhau.
 
 ## Dừng và chuyển lại Opus khi
+- (Vòng 2) Test mới (QĐ 5) không đỏ trước khi sửa → dừng. Mảnh góc lõm gây z-fighting thấy được mà nâng ≤ 0,002 không hết → dừng.
 - Không cấu hình nào đỏ trước khi sửa (test chưa bắt được lỗi user thấy). Khi đó ghi các cấu hình đã thử và ảnh Editor nếu có, rồi dừng.
 - Muốn sửa phải đổi hình dạng mép cỏ đã duyệt (QĐ 1), hoặc số đỉnh tăng > 15%.
 - Cần sửa file ngoài Phạm vi; cùng một lỗi sửa 2 lần vẫn chưa qua.
