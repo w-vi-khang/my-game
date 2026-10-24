@@ -152,9 +152,11 @@ namespace Game.Client.Editor
         {
             var restore = new List<Action>();
             bool oldStats = PlayerSettings.enableFrameTimingStats;
+            bool oldRunInBackground = PlayerSettings.runInBackground;
             try
             {
                 PlayerSettings.enableFrameTimingStats = true;
+                if (!android) PlayerSettings.runInBackground = true;
                 if (variant == 'B' || variant == 'C')
                 {
                     restore.Add(SetInt(Load(GraphicsSettingsPath), "m_BrgStripping", BrgKeepAll));
@@ -171,6 +173,7 @@ namespace Game.Client.Editor
             finally
             {
                 PlayerSettings.enableFrameTimingStats = oldStats;
+                PlayerSettings.runInBackground = oldRunInBackground;
                 for (int k = restore.Count - 1; k >= 0; k--) restore[k]();
                 AssetDatabase.SaveAssets();
             }
@@ -196,8 +199,16 @@ namespace Game.Client.Editor
         public static void BuildMacGpuVariants()
         {
             foreach (char v in new[] { 'A', 'B', 'C' })
-                WithGpuVariant(v, false, () => BuildMac($"Builds/walkbench-mac-{char.ToLower(v)}.app"));
+                BuildMacGpuVariant(v);
         }
+
+        // Parameterless entry points for -executeMethod (batchmode) builds.
+        public static void BuildMacGpuA() => BuildMacGpuVariant('A');
+        public static void BuildMacGpuB() => BuildMacGpuVariant('B');
+        public static void BuildMacGpuC() => BuildMacGpuVariant('C');
+
+        public static void BuildMacGpuVariant(char v) =>
+            WithGpuVariant(v, false, () => BuildMac($"Builds/walkbench-mac-{char.ToLower(v)}.app"));
 
         [MenuItem("Game/Build APK WalkBench GPU A-B-C")]
         public static void BuildAndroidGpuVariants()
