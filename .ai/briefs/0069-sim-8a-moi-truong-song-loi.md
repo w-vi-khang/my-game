@@ -1,9 +1,9 @@
 # Brief 0069 — Sim 8a: môi trường sống, lõi (đếm yêu cầu theo sự kiện, loài trở lại)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 10:35
+> Cập nhật: 2026-10-24 — Planner duyệt
 
 Task contract: [m1-sim-8-moi-truong-song](../tasks/m1-sim-8-moi-truong-song.md) (phần 8a).
 
@@ -239,3 +239,19 @@ Lệch brief (ghi để Planner biết):
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner, 2026-10-24 — review đầy đủ.
+- Chạy bằng `claude-sonnet-5-5 · medium` = Model thực thi.
+- Diff `26b9201`: 17 file, đều trong Phạm vi. Không đụng `Simulation` / `SimData` / `SimHash` / `WorldEditor` → mã băm không đổi.
+- Đọc `HabitatTracker.cs`:
+  - QĐ 4: quét một lần; `OnCellChanged` tính lại đúng 10 ô (chính nó + 4 ô ngang, ở tầng y và y−1); một hàm `Matches` dùng chung cho quét đầu và sự kiện.
+  - QĐ 5: `crops` = vụ đã gieo (Water / Growing / Harvest), lọc `cropId`, bỏ `Removed`.
+  - QĐ 6: API đúng chữ ký; loài đã mở không khoá lại; loài không có yêu cầu không mở.
+- No Engine References: grep rỗng.
+- Lệch brief chấp nhận: ca "đặt đá lên đá lộ thiên → giảm 1" trong brief sai (ô đá mới cũng lộ thiên). Executor đã đổi test đúng: đặt đất → −1, đặt đá → giữ nguyên. Lỗi ở brief, không phải code.
+- Tiêu chí xong: đạt.
+  - EditMode 596/596 (+14 test), PlayMode 267/267, console 0 Error.
+  - Đã ghi số đo `ScanTimeOnM1World`: 156 ms. Số đếm ban đầu trên world M1: cỏ 48.077, cỏ cạnh nước 0, đá lộ thiên 0.
+- Phát hiện cho câu hỏi (a): với định nghĩa hiện tại, world M1 mới sinh có 0 ô cỏ cạnh nước (bờ biển và hồ là cát) và 0 ô đá lộ thiên (đá bị đất/cỏ phủ). Như vậy L2/L3 phải cải tạo thật, còn L1 (≥ 20 cỏ) đạt ngay nếu đếm cả map. Đã ghi vào task contract.
+- Giờ: Executor ~14 phút so với ước lượng 8a 1,5–2,5 ngày. Đã ghi ở simulation-tech dòng 8 + roadmap.
+- Kết luận: đã duyệt
+

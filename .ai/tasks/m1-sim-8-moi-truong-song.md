@@ -63,6 +63,7 @@
 - **(a) Vùng đếm M1:** cả Map 1 / cả world (text duyệt 2026-10-13, lúc đó world chỉ có 1 map) hay vùng mô phỏng (đồng bằng 48 × 48 giữa Map 1)?
   - Map 1 có sẵn rất nhiều cỏ và đá → đếm cả map thì L1/L3 gần như đạt ngay, nên mở khoá không còn là thử thách.
   - Đề xuất Planner: vùng mô phỏng 48 × 48. Hoặc giữ cả map nhưng tăng ngưỡng.
+  - Số đo (brief 0069, world M1 seed 20261013, cả world): 48.077 ô cỏ, **0** ô cỏ cạnh nước, **0** ô đá lộ thiên. L2/L3 phải cải tạo thật (đào hồ cạnh cỏ, đào lộ đá), còn L1 đạt ngay nếu đếm cả map.
 - **(b) Loài mở sẵn trong demo:** hiện demo có sẵn L1–L3.
   - Muốn thấy "loài trở lại" phải khoá ít nhất một loài lúc đầu.
   - Đề xuất Planner: mở sẵn L1 (xới, gieo), khoá L2 + L3. Người chơi tự tưới/thu (đã làm được từ 0028) cho tới khi L2 trở lại.
