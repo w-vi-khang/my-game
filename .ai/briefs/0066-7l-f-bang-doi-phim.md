@@ -258,6 +258,7 @@ Bắt đầu: 2026-10-24 07:52
 
 
 ## Kết quả test
+Chưa kiểm được: EditMode không biên dịch (asmdef ClientEdit thiếu Game.Client, xem Vướng mắc), nên chưa chạy EditMode/PlayMode; Unity Editor đang mở nên `tools/unity_test.py` cũng không chạy được. Code production biên dịch 0 lỗi.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt + bằng chứng. Mỗi lệnh → kết quả thật. -->
 
 ## Vướng mắc
