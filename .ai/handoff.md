@@ -18,7 +18,15 @@ Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-p
 ## Bước tiếp
 1. ~~7l a–f, sim 7g~~ (xong phần code). Còn treo: đo FPS điện thoại 7l e (khi user cắm máy — xem trên).
 2. **Bước tiếp: user chơi thử gộp cuối** — danh sách lấy từ mục "User tự test" + Review của brief 0061–0067 (0066: tab Điều khiển, đổi chuột trái ↔ phải, trùng → Đổi chỗ / Huỷ, Mặc định, Esc / F1 không nhận; 0067: biển xới rồi đứng yên, tự gieo → không ai tưới, Tiếp tục tưới / thu / xới lại, hàng đợi làm đủ chuỗi, chen vào thì sinh vật làm tiếp). Góp ý của user → brief sửa.
-3. Brief nhỏ ổn định 3 test chỉ hỏng khi chạy cả bộ (xem trên).
+3. Brief nhỏ ổn định 3 test chỉ hỏng khi chạy cả bộ → **brief [0068](briefs/0068-on-dinh-3-test-chap-chon.md)** (chờ làm, Sonnet · medium).
+4. **Hạng mục M1 còn lại** (rà 2026-10-24, Planner):
+   - sim 6: đã xong từ brief 0006, chỉ thiếu ghi ở bảng → đã ghi bù ở simulation-tech.
+   - **sim 8 môi trường sống** (3–6 ngày): chia **8a lõi** (`Game.Core`: dữ liệu yêu cầu, đếm theo sự kiện, sự kiện "loài trở lại"; vùng đếm + loài mở sẵn là tham số JSON [số tạm]) và **8b client**. Làm được 8a từ phần đã duyệt (simulation-tech "Môi trường sống", mechanics "Sinh vật trở lại — luật M1", 0020/0025: ô ruộng không tính cỏ, 0024: điều kiện "buổi"). **8b cần user quyết trước:**
+     - (a) vùng đếm M1: cả Map 1 (theo text 2026-10-13, nhưng Map 1 có sẵn rất nhiều cỏ → L1 đạt ngay) hay vùng mô phỏng 48 × 48;
+     - (b) demo bắt đầu với loài nào đã mở (hiện L1–L3 có sẵn);
+     - (c) chỗ hiện danh sách yêu cầu trên PC, vì 0034 bỏ "loài ghim" khỏi HUD: bảng riêng mở bằng phím/nút?
+   - **world 7k** thử GPU occlusion culling (1–2 ngày): phần Mac làm được; phần điện thoại cần máy qua adb (lúc 09:3x adb không thấy máy).
+   - Treo, cần user: đo FPS điện thoại 7l e; chơi thử gộp cuối.
 
 ## Model đề xuất
 Opus · medium (tổng hợp danh sách chơi thử, viết brief sửa theo góp ý).
