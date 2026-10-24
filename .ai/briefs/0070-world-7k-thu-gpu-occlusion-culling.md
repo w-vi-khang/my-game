@@ -1,9 +1,9 @@
 # Brief 0070 — World 7k: thử GPU Resident Drawer + GPU occlusion culling (đo trên Mac; APK sẵn cho điện thoại)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 11:00
+> Cập nhật: 2026-10-24 (Planner trả lời vướng mắc)
 
 <!-- Không có task contract riêng: hạng mục đo/thử nhỏ, quyết định gốc 0029 mục 4 (Chốt). Dòng 7k ở design/04-tech/world-tech.md. -->
 
@@ -67,6 +67,14 @@ Brief này **không đổi cấu hình phát hành** của project. GRD/occlusio
    - `IsFeatureEnabled()` false → `gpuMsAvg=-1`.
    - Không đổi các trường cũ, không đổi thứ tự của chúng; chỉ chèn thêm một đoạn `| gpuMsAvg=… gpuMsP99=… gpuSamples=… grd=… occ=… |` ngay trước đoạn `pass30fps`.
 6. **Không kết luận bật/tắt** trong brief này. Executor chỉ ghi số đo. Planner ghi kết luận Mac vào world-tech khi review; quyết định cuối chờ số đo điện thoại.
+7. **(Trả lời vướng mắc, Planner 2026-10-24) Chấp nhận lệch brief của vòng 1:** sửa asset qua `SerializedObject` + reflection thay vì API URP (không thêm tham chiếu asmdef).
+8. **Bản Mac không ra `WALKBENCH` — nguyên nhân nghi:** máy đặt `displaysleep 10` [run `pmset -g` lúc review], user AFK → màn hình tắt / khoá, player Metal không vẽ khung nên `Update` không chạy tới `Finish()`. Cách đo lại:
+   - chạy mỗi bản kèm `caffeinate -u -d -t 90 &` ngay trước lệnh mở app (`-u` báo có người dùng → bật màn hình; `-d` giữ màn hình sáng) và mở bằng `open -n -W --args …` hoặc chạy trực tiếp file trong `Contents/MacOS/`;
+   - trong `WithGpuVariant`, khi build Mac đặt tạm `PlayerSettings.runInBackground = true` (khôi phục trong `finally` như các giá trị khác);
+   - nếu A **vẫn** không ra `WALKBENCH` sau 120 s: kiểm `ioreg -n Root -d1 | grep -i CGSSessionScreenIsLocked` và ghi kết quả; **bỏ phần đo Mac** (ghi "đo Mac chờ user ở máy"), không thử cách khác, làm tiếp bước 4–6.
+9. **B crash (`GPUInstanceDataBufferUploader+GPUResources.LoadShaders` NullReference):** `GPUResidentDrawerResources` có trong `UniversalRenderPipelineGlobalSettings.asset` [repo], nên nghi tài nguyên GRD bị loại khỏi bản build B (C build sau B thì tạo được GRD). Kiểm một lần: build lại **riêng B sau A và C** (thêm hàm public `BuildMacGpuVariant(char)` để gọi từng biến thể qua MCP `execute_code` hoặc menu riêng), rồi chạy B. Vẫn crash → ghi "B crash trên Mac" + 3 dòng lỗi đầu, **không** sửa Global Settings, đo tiếp C và A.
+10. **File bị build làm bẩn** (`PC_RPAsset.asset` m_Prefilter*, `UniversalRenderPipelineGlobalSettings.asset` +rid, `ProjectSettings.asset` batching `Standalone`, `UnityConnectSettings.asset`, `WalkBench.unity.meta`): sau mỗi lượt build `git checkout --` các file này là đúng; ghi danh sách file đã khôi phục vào Kết quả. Không sửa `EnsureScene`.
+11. **APK (bước 4) vẫn build** dù Mac B crash: 3 APK là thứ cần cho đo điện thoại sau này. Cùng cách khôi phục file như QĐ 10.
 
 ## Phạm vi
 - Được sửa:
@@ -94,7 +102,7 @@ Brief này **không đổi cấu hình phát hành** của project. GRD/occlusio
    - Thêm `BuildMac(string outputPath)`: `BuildTarget.StandaloneOSX`, `scenes = { ScenePath }`, gọi `EnsureScene(false)` trước.
    - Thêm 2 menu: `[MenuItem("Game/Build Mac WalkBench GPU A-B-C")]` build 3 `.app`; `[MenuItem("Game/Build APK WalkBench GPU A-B-C")]` build 3 APK. Mỗi menu gọi `WithGpuVariant` cho A, B, C.
    - Xong khi: chạy menu Mac qua MCP `execute_menu_item` → 3 `.app`. Sau đó `git diff --stat client/Assets/Settings client/ProjectSettings` rỗng.
-3. **Đo Mac** (QĐ 3): chạy A, B, C, A theo lệnh ở QĐ 3. Mỗi log: `grep WALKBENCH <log>` lấy dòng tổng kết. Nếu B/C có lỗi đỏ trong log (shader, BRG) → ghi nguyên văn 3 dòng lỗi đầu. Không cần ảnh chụp.
+3. **Đo Mac** (QĐ 3, sửa theo QĐ 8–9): build lại 3 bản Mac (đã có `runInBackground` tạm), chạy A, B, C, A theo QĐ 3 kèm `caffeinate` (QĐ 8); B crash thì build lại riêng B một lần (QĐ 9). Mỗi log: `grep WALKBENCH <log>` lấy dòng tổng kết. Nếu B/C có lỗi đỏ trong log (shader, BRG) → ghi nguyên văn 3 dòng lỗi đầu. Không cần ảnh chụp.
 4. **Build APK** (QĐ 4): chạy menu APK → 3 file APK. Kiểm lại `git diff --stat client/Assets/Settings client/ProjectSettings` rỗng.
 5. Ghi Kết quả:
    - bảng Mac 4 lần chạy × (`avgFps`, `p50Ms`, `p99Ms`, `gpuMsAvg`, `gpuMsP99`, `gpuSamples`, `grd`, `occ`, `holeFrames`);
@@ -103,7 +111,7 @@ Brief này **không đổi cấu hình phát hành** của project. GRD/occlusio
    - dòng `adb devices` lúc kết thúc.
 
 ## Tiêu chí xong
-- Có 4 dòng `WALKBENCH` Mac (A, B, C, A), dòng nào cũng có `gpuMsAvg=` và `grd=`/`occ=` đúng biến thể (A: grd tắt; B: grd bật, occ false; C: grd bật, occ true).
+- Có 4 dòng `WALKBENCH` Mac (A, B, C, A), dòng nào cũng có `gpuMsAvg=` và `grd=`/`occ=` đúng biến thể (A: grd tắt; B: grd bật, occ false; C: grd bật, occ true). Bản nào không ra dòng vì lý do ở QĐ 8–9 → ghi lý do + log thay cho dòng đó.
 - Có 3 APK trong `client/Builds/`.
 - `git diff --stat client/Assets/Settings client/ProjectSettings` rỗng. Sau khi chạy test PlayMode: `git checkout -- client/ProjectSettings/EditorSettings.asset`.
 - EditMode + PlayMode toàn bộ qua (582+14 = 596 / 267 trước brief), console 0 Error.
@@ -133,6 +141,7 @@ Ghi giờ bắt đầu/kết thúc vào Kết quả.
 Không (phần đo điện thoại là bước riêng khi user cắm máy — Planner giao sau).
 
 ## Dừng và chuyển lại Opus khi
+- (Vòng 2) Các trường hợp ở QĐ 8–9 **không** còn là điều kiện dừng: ghi kết quả rồi làm tiếp.
 - Một API ở mục Bối cảnh không tồn tại hoặc khác chữ ký (vd không có `RenderingMode.ForwardPlus`, `m_BrgStripping` không có trong SerializedObject).
 - Bản Mac B/C không chạy được (crash, không ra dòng `WALKBENCH` sau 60 s) → ghi log, dừng ở đó; không thử cách khác.
 - Không khôi phục được cấu hình (diff `Settings/` / `ProjectSettings/` không rỗng sau `finally`).
