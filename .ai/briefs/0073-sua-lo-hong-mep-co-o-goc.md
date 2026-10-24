@@ -1,6 +1,6 @@
 # Brief 0073 — Sửa lỗ hổng mép cỏ ở góc giao nhau (bug, user 2026-10-24)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-24
@@ -85,10 +85,48 @@ Gộp vào lần chơi thử cuối: nhìn các góc lõm và bậc thang cỏ t
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: e9a8a06
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-10-24 14:37 · dừng 14:44 (cần Opus, chưa sửa code)
+- Chưa đổi file code nào. Test viết ở bước 1 lưu thành patch (không commit) ở `side-session-notes/local_78cbbfd7-…/0073-test-seethrough-diag.patch` → `git apply` để dùng lại.
 
 ## Kết quả test
+Bước 1, test `NoSeeThroughAtCorners(config)` (EditMode) [run 2026-10-24]. Dựng world 16³ bằng các cột địa hình. Ở mỗi ô lộ mặt trên lấy 8 điểm đích, cách mặt ô 0,18 (= R + 0,055). Bắn 12 phương vị × độ cao 20°/45°/70°. Gốc tia cách đích 2,5, cách ô đặc ≥ 0,4.
+
+| Cấu hình | Tia hở / tổng | Chẩn đoán "lõm" (xem dưới) |
+|---|---|---|
+| H1 góc lõm chữ L cùng độ cao | 0 / 32 842 | **2** / 29 040 — tại góc lõm (7, 8, 7) |
+| H2 hai ô chéo | 0 / 30 892 | 0 |
+| H3 dải gặp bậc cao hơn | 0 / 32 288 | 0 |
+| H3b dải gặp ô đá cùng độ cao | 0 / 32 697 | 0 |
+| H3c bậc thang dọc sườn | 0 / 31 961 | 0 |
+| H4 địa hình ngẫu nhiên 6–9 (seed 73) | 0 / 22 703 | **26** / 29 040 — mẫu đều ở góc lõm |
+
+Cả bộ `BlockMesherTests` 28/28 qua [run]. **Không cấu hình nào đỏ theo tiêu chí nhìn xuyên** → dừng theo brief.
+
+Chẩn đoán thêm (không assert). Bắn tia từ trên xuống, thẳng đứng và xiên 45° theo 4 hướng chéo, vào điểm trên mặt trên ô cỏ sát mép. Nếu chạm thấp hơn mặt trên > 0,04 thì tính là lộ lõm bo cạnh không có mép cỏ che. Mẫu:
+- H1: tia thẳng xuống (6.98, 8, 7.02) chạm y = 7.943; tia xiên vào (6.94, 8, 7.06) chạm đúng trục góc (7, 7.94, 7).
+- H4: (3.98, 8, 3.98) → 7.943; (11.98, 8, 3.02) → 7.943; (2.98, 9, 4.02) → 8.943.
 
 ## Vướng mắc
+**Câu hỏi:** test nhìn xuyên không đỏ. Có chuyển tiêu chí sang "không lộ lõm bo cạnh ở góc lõm" rồi sửa không?
+
+**Phân tích** [suy luận từ code + số đo DIAG, chưa xem bằng mắt]:
+- Mesh khối bo cạnh kín (`AllVertexConfigurationsAreClosed`, `RandomShapesAreClosed` qua). Vì vậy tia từ ngoài không thể tới điểm trong khối mà không chạm mặt trước. Chỗ "nhìn xuyên" như user thấy không tồn tại theo nghĩa hình học.
+- Điều tìm thấy là H1, góc lõm. Ô `g` lộ sườn +x; `g+z` và `g+x+z` đặc, cùng cao. Mặt trên của `g+z` bị bo lõm quanh đỉnh góc (x = 7, z = 7). Đây là cạnh lồi rẽ góc lõm, sâu tới ~R = 0,125 ngay tại trục góc, đo được 0,057 ở cách 0,02/0,02.
+- Vùng lõm là góc phần tư x ∈ [7−R, 7], z ∈ [7, 7+R], tức phía trong của góc lõm. Dải +x của `g` chỉ phủ tới z = 7 (nắp phẳng, `BlockMesher.cs:796-819`). Dải −z của `g+x+z` chỉ phủ từ x = 7. Không dải nào phủ góc phần tư này. `AddGrassLip` (`:719-731`) chỉ có mảnh góc lồi.
+- Nhìn từ trên xiên xuống, vết lõm này hiện thành mảnh tam giác nhỏ tối: pháp tuyến nghiêng, AO góc lõm, màu cỏ tối, kẹp giữa hai nắp dải. Rất có thể đây là "khe tam giác tối" user thấy. Không thấy dấu hiệu nào khác cho H2/H3.
+
+**Phương án:**
+- **A (đề xuất):**
+  - Tiêu chí test bước 1 đổi thành: tia từ trên xuống (thẳng + xiên) vào mặt trên ô cỏ phải chạm ở y ≥ mặt trên − 0,02. Không lộ lõm bo cạnh ở chỗ mép cỏ.
+  - Sửa: thêm mảnh "góc lõm" trong `AddGrassLip`. Điều kiện: ô cỏ `g` có sườn `s` lộ, ô `g+e` (dọc cạnh) đặc, ô `g+s+e` đặc, và trên `g+e` không đặc.
+  - Mảnh là quạt phẳng ở y = top phủ góc phần tư [−R, 0] × [0, R] quanh trục góc. Có thể kéo nắp/mặt trên dải thêm R qua đầu dải.
+  - Không đổi mặt cắt, độ nhô, lượn sóng. Tăng ~2–4 tam giác mỗi góc lõm.
+  - Kiểm DIAG về 0. Kiểm thêm không có z-fighting: mảnh nằm ở y = top, trùng mặt trên phẳng của ô ngoài vùng lõm.
+- **B:** sửa bảng bo cạnh: cạnh lồi rẽ góc lõm thì không bo phần mặt trên trong góc lõm. Rủi ro đổi hình khối đã duyệt, ảnh hưởng mọi vật liệu → không đề xuất.
+- **C:** Planner xem ảnh gốc / chụp Editor trước để xác nhận đúng chỗ lõm này. Bước 2 tuỳ chọn chưa làm (tiết kiệm lượt).
+
 
 ---
 <!-- PLANNER ghi khi review. -->
