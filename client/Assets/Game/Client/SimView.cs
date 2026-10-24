@@ -533,10 +533,19 @@ namespace Game.Client
             return go;
         }
 
-        public static float StatusTop(float hudBottom) => Mathf.Max(100f, hudBottom + 4f);
-
         /// <summary>World-space labels (creature status, red "!" markers) are hidden while the Settings panel is open so they do not draw over it.</summary>
         public static bool WorldLabelsVisible => !SettingsView.IsAnyOpen;
+
+        GUIStyle statsStyle;
+
+        /// <summary>Thông số trên cùng giữa: FPS đo / mục tiêu, nhịp sim, dựng lại chunk (khi có).</summary>
+        public string StatsText()
+        {
+            var text = Format("hud.fps", TargetFps, 1f / smoothedDt, Sim.State.Tick);
+            if (view.LastRebuildFrame >= 0)
+                text += Format("hud.rebuild", view.LastRebuildChunks, view.LastMeshMs, view.LastWriteMs, view.LastBakeMs);
+            return text;
+        }
 
         void OnGUI()
         {
@@ -549,16 +558,14 @@ namespace Game.Client
                 labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, richText = true };
                 hudStyle = new GUIStyle(GUI.skin.label) { richText = true };
             }
-            float y0 = StatusTop(TerrainEditInput.HudBottom);
-            GUI.Label(new Rect(10, y0, 1000, 24),
-                Format("hud.fps", TargetFps, 1f / smoothedDt, Sim.State.Tick), hudStyle);
-            int line = 1;
-            GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.StorageText(GameSettings.Text, Sim.State.Stock), hudStyle);
-            if (Meter == null)
-                foreach (var p in Sim.State.Plots)
-                    GUI.Label(new Rect(10, y0 + 24 * line++, 1000, 24), SiteStatus.PlotText(GameSettings.Text, p, Sim.State.Tick, Sim.Config.GrowTicks(p.CurrentCrop >= 0 ? p.CurrentCrop : 0)), hudStyle);
-            if (Meter != null && Meter.LastLine != null)
-                GUI.Label(new Rect(10, y0 + 24 * line++, 1400, 24), Meter.LastLine, hudStyle);
+            if (!MinimapView.IsAnyOpen)
+            {
+                float gw = Screen.width / scale;
+                statsStyle ??= new GUIStyle(hudStyle) { alignment = TextAnchor.UpperCenter };
+                GUI.Label(new Rect(gw * 0.5f - 400f, 4f, 800f, 22f), StatsText(), statsStyle);
+                if (Meter != null && Meter.LastLine != null)
+                    GUI.Label(new Rect(gw * 0.5f - 700f, 26f, 1400f, 22f), Meter.LastLine, statsStyle);
+            }
 
             if (!MinimapView.IsAnyOpen)
                 DrawFarmGui(scale);

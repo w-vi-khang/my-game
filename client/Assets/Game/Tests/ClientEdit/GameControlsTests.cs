@@ -44,7 +44,7 @@ namespace Game.Client.EditTests
             ["Player/Hotbar10"] = B("<Keyboard>/0"),
             ["Player/ToggleHotbar"] = B("<Keyboard>/p"),
             ["Player/ToggleMap"] = B("<Keyboard>/m"),
-            ["Player/ToggleTimeDial"] = B("<Keyboard>/t"),
+            ["Player/ToggleSpellMenu"] = B("<Keyboard>/g"),
             ["Player/ToggleSettings"] = B("<Keyboard>/o"),
             ["Player/RotateCamera"] = B("<Mouse>/middleButton"),
             ["Player/Look"] = E(InputActionType.Value, "Vector2", "<Mouse>/delta"),

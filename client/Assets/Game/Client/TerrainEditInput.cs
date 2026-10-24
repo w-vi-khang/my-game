@@ -85,6 +85,8 @@ namespace Game.Client
 
         void Update()
         {
+            message.Seconds = PlayerMotion.HudMessageSeconds;
+            message.Update(MessageText(), Time.time);
             AimedDrop = null;
             AimedHarvest = -1;
             var player = PlayerCharacter.Active;
@@ -495,77 +497,84 @@ namespace Game.Client
             _ => r.ToString(),
         };
 
-        static string HelpText()
+        /// <summary>Dòng chế độ / vật cầm: "" khi chế độ Mặc định và không cầm gì.</summary>
+        public string ModeLine()
         {
-            var player = PlayerCharacter.Active;
-            if (player == null)
-                return T("hud.help_idle");
-            if (player.FlyMode)
-                return Format("hud.help_fly", PlayerRules.TargetReach, PlayerRules.CollectReach);
-            return Format("hud.help_walk", PlayerRules.TargetReach, PlayerRules.ActReach, PlayerRules.CollectReach);
-        }
-
-        /// <summary>Chữ HUD góc trái (tách khỏi OnGUI để test); "" nếu chưa có túi.</summary>
-        public string HudText()
-        {
-            if (view.Bag == null) return "";
-            var text = Format("hud.mode", T(Control.Mode switch { ControlMode.Dig => "hud.mode_dig", ControlMode.Till => "hud.mode_till", ControlMode.Rain => "hud.mode_rain", _ => "hud.mode_default" }))
-                + (Control.HasHeld ? Format("hud.held", ItemLabel(Control.Held)) : "")
-                + HelpText();
-            if (Control.Mode == ControlMode.Till)
-                text += T("hud.till_help");
-            if (Control.HasHeld && Control.Held.Kind == ItemKind.Tool) text += T("hud.camera_help");
-            var cam = Camera.main;
-            if (cam != null)
-                text += Format("hud.elevation", FlyCameraBounds.FormatElevation(FlyCameraBounds.ElevationDegrees(cam.transform.forward.y)));
-            if (AimedDrop != null) text += Format("hud.aimed_drop", DropLabel(AimedDrop));
-            if (Farming != null) text += "\n" + Farming.HudLines();
-            if (AimedHarvest >= 0) text += Format("hud.aimed_harvest", Game.Core.View.SiteStatus.CropName(GameSettings.Text, Farm.Sim.Config, Farm.Sim.State.Plots[AimedHarvest].CurrentCrop));
-            text += $"\n{lastResult}";
-            if (view.LastRebuildFrame >= 0)
-                text += Format("hud.rebuild", view.LastRebuildChunks, view.LastMeshMs, view.LastWriteMs, view.LastBakeMs);
+            string text = "";
+            if (Control.Mode != ControlMode.Default)
+                text = Format("hud.mode", T(Control.Mode switch { ControlMode.Dig => "hud.mode_dig", ControlMode.Till => "hud.mode_till", ControlMode.Rain => "hud.mode_rain", _ => "hud.mode_default" }));
+            if (Control.HasHeld)
+            {
+                var held = Format("hud.held", ItemLabel(Control.Held));
+                text += text == "" ? held.TrimStart(' ', '·') : held;
+            }
             return text;
         }
 
-        GUIStyle hudStyle;
+        /// <summary>Các dòng thông báo (trạng thái trồng trọt, kết quả thao tác) nối bằng \n, bỏ dòng rỗng.</summary>
+        public string MessageText()
+        {
+            var farm = Farming != null ? Farming.HudLines() : "";
+            if (farm == "") return lastResult;
+            return lastResult == "" ? farm : farm + "\n" + lastResult;
+        }
 
-        /// <summary>Đáy HUD trái (đơn vị GUI) ở khung vẽ gần nhất; 0 khi không vẽ — SimView đặt chữ trạng thái dưới mốc này (brief 0043).</summary>
-        public static float HudBottom { get; private set; }
+        /// <summary>Chữ HUD góc trái (tách khỏi OnGUI để test): dòng chế độ + thông báo; "" nếu chưa có túi.</summary>
+        public string HudText()
+        {
+            if (view.Bag == null) return "";
+            var mode = ModeLine();
+            var msg = MessageText();
+            return mode == "" ? msg : msg == "" ? mode : mode + "\n" + msg;
+        }
+
+        readonly HudMessage message = new HudMessage(4f);
+        public bool MessageVisible => message.Visible(Time.time);
+
+        GUIStyle hudStyle, avatarStyle;
 
         void OnGUI()
         {
             if (view.Bag == null || MinimapView.IsAnyOpen)
-            {
-                HudBottom = 0f;
                 return;
-            }
-            var text = HudText();
             // Phóng chữ theo chiều cao màn hình (mốc 720p) — màn Retina chữ mặc định quá nhỏ.
             float scale = UiScale.Gui;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
             hudStyle ??= new GUIStyle(GUI.skin.label) { richText = true };
+            avatarStyle ??= new GUIStyle(GUI.skin.label) { richText = true, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, fontSize = 22 };
             var pc = PlayerCharacter.Active;
-            float top = 10f;
             if (pc != null)
             {
                 var v = pc.Vitals;
-                Bar(10f, v.Hp, v.HpMax, new Color(0.85f, 0.2f, 0.2f, 1f), false);
-                Bar(26f, v.Mana, v.ManaMax, new Color(0.25f, 0.5f, 1f, 1f), pc.ManaFlashing);
-                GUI.Label(new Rect(176f, 8f, 200f, 16f), Format("vitals.hp", v.Hp, v.HpMax), hudStyle);
-                GUI.Label(new Rect(176f, 24f, 200f, 16f), Format("vitals.mana", v.Mana, v.ManaMax), hudStyle);
-                top = 44f;
+                var av = new Rect(10f, 10f, 44f, 44f);
+                GUI.DrawTexture(av, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, new Color(0.30f, 0.55f, 0.45f, 0.95f), 0f, 8f);
+                GUI.Label(av, T("hud.avatar_letter"), avatarStyle);
+                Bar(60f, 14f, v.Hp, v.HpMax, new Color(0.85f, 0.2f, 0.2f, 1f), false);
+                Bar(60f, 32f, v.Mana, v.ManaMax, new Color(0.25f, 0.5f, 1f, 1f), pc.ManaFlashing);
+                GUI.Label(new Rect(226f, 12f, 200f, 16f), Format("vitals.hp", v.Hp, v.HpMax), hudStyle);
+                GUI.Label(new Rect(226f, 30f, 200f, 16f), Format("vitals.mana", v.Mana, v.ManaMax), hudStyle);
             }
-            float h = hudStyle.CalcHeight(new GUIContent(text), 1000f);
-            GUI.Label(new Rect(10f, top, 1000f, h), text, hudStyle);
-            HudBottom = top + h;
+            float y = 60f;
+            var mode = ModeLine();
+            if (mode != "")
+            {
+                float h = hudStyle.CalcHeight(new GUIContent(mode), 600f);
+                GUI.Label(new Rect(10f, y, 600f, h), mode, hudStyle);
+                y += h;
+            }
+            if (MessageVisible)
+            {
+                var msg = MessageText();
+                GUI.Label(new Rect(10f, y, 600f, hudStyle.CalcHeight(new GUIContent(msg), 600f)), msg, hudStyle);
+            }
         }
 
-        static void Bar(float y, int value, int max, Color fill, bool flash)
+        static void Bar(float x, float y, int value, int max, Color fill, bool flash)
         {
             var bg = flash && Mathf.FloorToInt(Time.time * 10f) % 2 == 0 ? new Color(1f, 1f, 1f, 0.8f) : new Color(0f, 0f, 0f, 0.5f);
-            GUI.DrawTexture(new Rect(10f, y, 160f, 12f), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, bg, 0f, 3f);
+            GUI.DrawTexture(new Rect(x, y, 160f, 12f), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, bg, 0f, 3f);
             float w = max > 0 ? 160f * Mathf.Clamp01((float)value / max) : 0f;
-            if (w > 0f) GUI.DrawTexture(new Rect(10f, y, w, 12f), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, fill, 0f, 3f);
+            if (w > 0f) GUI.DrawTexture(new Rect(x, y, w, 12f), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, fill, 0f, 3f);
         }
 
         static Mesh CubeMesh()

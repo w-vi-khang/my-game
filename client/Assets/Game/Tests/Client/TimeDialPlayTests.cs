@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 
 namespace Game.Client.Tests
 {
-    /// <summary>World-tech bước 7f-3 (brief 0024): vòng chọn 4 mốc + dòng "Đang ở buổi" — dựng, mở/đóng, thứ tự, chọn mốc, mờ khi xoay, chặn con trỏ, ẩn khi bản đồ mở.</summary>
+    /// <summary>World-tech bước 7f-3 (brief 0024): vòng chọn 4 mốc + menu phép (brief 0064) — dựng, mở/đóng, thứ tự, chọn mốc, mờ khi xoay, chặn con trỏ, ẩn khi bản đồ mở.</summary>
     public class TimeDialPlayTests
     {
         const int H = 3_600_000;
@@ -47,35 +47,76 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator BuildsClosedWithPeriodText()
+        public IEnumerator BuildsClosedWithSpellButton()
         {
             Assert.IsFalse(dial.IsOpen);
+            Assert.IsFalse(dial.MenuOpen);
             Assert.IsFalse(dial.RingActive);
             Assert.IsTrue(dial.CanvasActive);
-            Assert.AreEqual("Đang ở buổi: Ban ngày", dial.PeriodText); // vi-text
-            Assert.AreEqual(TimeDialShape.Sun, dial.ButtonShape);
+            Assert.AreEqual(TimeDialShape.Star, dial.ButtonShape);
+            Assert.AreEqual(TimeDialShape.Sun, dial.MenuTimeShape);
             now = 0;
             yield return null;
-            Assert.AreEqual("Đang ở buổi: Ban đêm", dial.PeriodText); // vi-text
-            Assert.AreEqual(TimeDialShape.Moon, dial.ButtonShape);
+            Assert.AreEqual(TimeDialShape.Moon, dial.MenuTimeShape);
             now = 5 * H;
             yield return null;
-            Assert.AreEqual("Đang ở buổi: Bình minh", dial.PeriodText); // vi-text
-            Assert.AreEqual(TimeDialShape.Moon, dial.ButtonShape);
+            Assert.AreEqual(TimeDialShape.Moon, dial.MenuTimeShape);
         }
 
         [UnityTest]
-        public IEnumerator ButtonTogglesRing()
+        public IEnumerator ButtonOpensMenuThenTimeOpensRing()
         {
             dial.PointerDown(dial.ButtonScreenCenter);
             yield return null;
+            Assert.IsTrue(dial.MenuOpen);
+            Assert.IsFalse(dial.IsOpen);
+            Assert.IsTrue(TimeDial.IsAnyOpen);
+            dial.PointerDown(dial.MenuTimeScreenCenter);
+            yield return null;
+            Assert.IsFalse(dial.MenuOpen);
             Assert.IsTrue(dial.IsOpen);
             Assert.IsTrue(dial.RingActive);
-            Assert.IsTrue(TimeDial.IsAnyOpen);
             dial.PointerDown(dial.ButtonScreenCenter);
             yield return null;
             Assert.IsFalse(dial.IsOpen);
+            Assert.IsFalse(dial.MenuOpen);
             Assert.IsFalse(dial.RingActive);
+        }
+
+        [UnityTest]
+        public IEnumerator ToggleMenuClosesAll()
+        {
+            dial.ToggleMenu();
+            Assert.IsTrue(dial.MenuOpen);
+            dial.ToggleMenu();
+            Assert.IsFalse(dial.MenuOpen);
+            dial.ChooseTime();
+            Assert.IsTrue(dial.IsOpen);
+            dial.ToggleMenu();
+            Assert.IsFalse(dial.IsOpen);
+            Assert.IsFalse(dial.MenuOpen);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator MenuBlocksPointerAndOutsideCloses()
+        {
+            var outside = new Vector2(5, 5);
+            dial.SetMenuOpen(true);
+            Canvas.ForceUpdateCanvases();
+            Assert.IsTrue(TimeDial.BlocksPointer(dial.MenuRainScreenCenter));
+            dial.PointerDown(outside);
+            Assert.IsFalse(dial.MenuOpen);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator RainWithoutInputReturnsFalse()
+        {
+            dial.SetMenuOpen(true);
+            Assert.IsFalse(dial.ChooseRain());
+            Assert.IsFalse(dial.MenuOpen);
+            yield return null;
         }
 
         [UnityTest]

@@ -50,7 +50,7 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 | Ẩn/hiện túi phụ | P | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
 | Chuyển đồ (túi / túi phụ / kho đang mở) | Kéo thả; hoặc click chọn ô → Tab đổi đích → 1 / 2 / 3 | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
 | Bảng kho | Chuột phải khối kho (đi tới 2 ô) (trước: K) | _(chưa có)_ | _(chưa có)_ | M1 |
-| Menu phép (đổi buổi, phép Mưa) | G [Planner] (thay T) | _(chưa có)_ | _(chưa có)_ | M1 (0034, [0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)) |
+| Menu phép (đổi buổi, phép Mưa) | G (thay T; 7l e1, brief 0064) | _(chưa có)_ | _(chưa có)_ | M1 (0034, [0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)) |
 | Xem camera quan sát / quay về | V (đặt camera: cầm vật phẩm "Camera quan sát" + chuột phải lên khối; đang xem: giữ chuột giữa xoay — 0035) | _(chưa có)_ | _(chưa có)_ | M1 ([0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), world 7j → 7l) |
 | Bản đồ | M; bấm ô minimap góc trên-phải | Chạm ô minimap | Select | M1 ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)) |
 | Cài đặt (gồm Hướng dẫn, Điều khiển = đổi phím) | O; Esc khi không có bảng nào mở | _(chưa có)_ | _(chưa có)_ | M1 ([0032](../decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md), 0034) |

@@ -151,14 +151,6 @@
       "text": "Thu hoạch {0}: +{1} nông sản, +{2} hạt"
     },
     {
-      "key": "farm.hud_produce",
-      "text": "\nNông sản {0}: {1}"
-    },
-    {
-      "key": "farm.hud_seeds",
-      "text": "\nTúi hạt {0}: {1}"
-    },
-    {
       "key": "farm.hud_tilling",
       "text": "\nĐang xới ô {0}: {1}/{2} giây"
     },
@@ -179,16 +171,8 @@
       "text": "Mưa: ô đất {0} thành cỏ"
     },
     {
-      "key": "farm.rain_hud_cooldown",
-      "text": "Mưa (R): {0} giây"
-    },
-    {
       "key": "farm.rain_no_effect",
       "text": "Mưa: không có tác dụng — chỉ ô ruộng chờ tưới hoặc ô đất phía trên trống"
-    },
-    {
-      "key": "farm.rain_ready",
-      "text": "Mưa (R): sẵn sàng"
     },
     {
       "key": "farm.rain_watered",
@@ -259,52 +243,72 @@
       "text": "Không tới được ô này"
     },
     {
+      "key": "guide.bag",
+      "text": "B: túi (kèm túi phụ) · P: ẩn / hiện túi phụ · 1–0: cầm vật ở ô túi phụ · chuột phải ô: cầm · click trái ô: thông tin · Esc / D: thôi cầm"
+    },
+    {
+      "key": "guide.camera",
+      "text": "Camera: giữ chuột giữa + di chuột để xoay · lăn chuột: gần / xa · Space: về sau lưng · X: góc nhìn thứ nhất"
+    },
+    {
+      "key": "guide.collect",
+      "text": "F: thu vật rơi trong {0:0.#} ô"
+    },
+    {
+      "key": "guide.debug",
+      "text": "Phím debug: F1 khoá 30 FPS · F2 khoá 60 FPS · F3 camera bay (WASD, Q/E, giữ chuột giữa; phím chế độ tắt khi bay)"
+    },
+    {
+      "key": "guide.modes",
+      "text": "Chế độ: D mặc định · Q đào · E xới · R tưới (bấm lại = tắt). Chuột phải: làm việc của chế độ / thu hoạch / mở kho / nhặt — chọn trong {0:0.#} ô, nhân vật tự đi tới {1:0.#} ô rồi làm"
+    },
+    {
+      "key": "guide.move",
+      "text": "Di chuyển: chuột trái lên chỗ muốn tới (giữ để đi theo con trỏ) · A: nhảy · Shift: lướt"
+    },
+    {
+      "key": "guide.observe",
+      "text": "Camera quan sát: cầm vật phẩm Camera quan sát + chuột phải lên khối = đặt (cao hơn khối 2 ô) · V: xem / quay về · đang xem: giữ chuột giữa để xoay"
+    },
+    {
+      "key": "guide.other",
+      "text": "M: bản đồ · O hoặc Esc (khi không có bảng nào mở): cài đặt"
+    },
+    {
+      "key": "guide.spells",
+      "text": "G: menu phép — Đổi buổi (chọn mốc trên vòng 4 mốc) · Mưa (vào chế độ tưới, như R)"
+    },
+    {
+      "key": "guide.till",
+      "text": "Xới: chuột phải lên đất / cỏ = đánh dấu · lên biển = tự đi tới xới · lên ô ruộng = chọn giống. Click trái ô ruộng: bảng ô ruộng (nút Bỏ đánh dấu)"
+    },
+    {
+      "key": "guide.transfer",
+      "text": "Chuyển đồ giữa túi / túi phụ / kho đang mở: kéo thả cả chồng; hoặc click chọn ô → Tab đổi đích → 1: tất cả · 2: một nửa · 3: một phần ba"
+    },
+    {
       "key": "hold.empty",
       "text": " · hết {0}, thôi cầm"
     },
     {
-      "key": "hud.aimed_drop",
-      "text": "\nNhặt (chuột phải): {0}"
-    },
-    {
-      "key": "hud.aimed_harvest",
-      "text": "\nThu hoạch (chuột phải): {0}"
-    },
-    {
-      "key": "hud.camera_help",
-      "text": "Camera: chuột phải lên khối = đặt camera quan sát cao hơn khối 2 ô, hướng theo camera đang nhìn (đặt lại thì thay chỗ cũ) · V hoặc nút Xem camera: xem / quay về · đang xem: giữ chuột giữa để xoay\n"
-    },
-    {
-      "key": "hud.elevation",
-      "text": "Góc nhìn: {0} (0° = ngang mặt biển, + nhìn lên, - nhìn xuống)\n"
+      "key": "hud.avatar_letter",
+      "text": "B"
     },
     {
       "key": "hud.fps",
-      "text": "F1: 30 FPS · F2: 60 FPS — mục tiêu {0} · đo {1:F1} FPS · nhịp {2}"
+      "text": "{1:F1} FPS · mục tiêu {0} · nhịp {2}"
     },
     {
       "key": "hud.held",
-      "text": " · Cầm: <b><color=yellow>{0}</color></b> (Esc / D: thôi cầm)"
+      "text": " · Cầm: <b><color=yellow>{0}</color></b>"
     },
     {
       "key": "hud.held_camera",
       "text": "Camera quan sát"
     },
     {
-      "key": "hud.help_fly",
-      "text": " · Chuột phải: làm việc của chế độ (trong {0:0.#} ô quanh nhân vật, làm ngay không đi tới) · F: thu vật rơi (trong {1:0.#} ô) · 1–4 / Alt + lăn chuột: chọn loại khối · Camera bay: WASD, Q/E, giữ chuột giữa (phím chế độ tắt khi bay) · dừng bay mới đào/đặt được · F3: về nhân vật\n"
-    },
-    {
-      "key": "hud.help_idle",
-      "text": " · Không có nhân vật: phím chế độ tắt · 1–4 / Alt + lăn chuột: chọn loại khối · WASD, Q/E, giữ chuột giữa: camera · dừng bay mới đào/đặt được\n"
-    },
-    {
-      "key": "hud.help_walk",
-      "text": " · Chuột trái: đi tới chỗ click (giữ để đi theo con trỏ) · click trái ô ruộng: xem bảng · A: nhảy · Shift: lướt · Chuột phải: làm việc của chế độ / thu hoạch / mở kho / nhặt (chọn trong {0:0.#} ô, tự đi tới {1:0.#} ô rồi làm) · F: thu vật rơi (trong {2:0.#} ô) · B: túi (bấm vật phẩm để cầm) · 1–4 / Alt + lăn chuột: chọn loại khối · giữ chuột giữa: xoay · lăn chuột: gần/xa · Space: camera về sau lưng · X: góc nhìn thứ nhất · F3: camera bay\n"
-    },
-    {
       "key": "hud.mode",
-      "text": "Chế độ: <b><color=yellow>{0}</color></b> (D mặc định · Q đào · E xới · R tưới)"
+      "text": "Chế độ: <b><color=yellow>{0}</color></b>"
     },
     {
       "key": "hud.mode_default",
@@ -324,11 +328,7 @@
     },
     {
       "key": "hud.rebuild",
-      "text": "\nDựng lại {0} chunk: mesh {1:F1} ms, ghi {2:F1} ms, bake {3:F1} ms"
-    },
-    {
-      "key": "hud.till_help",
-      "text": "Xới: chuột phải lên đất/cỏ = đánh dấu · lên biển = tự đi tới xới · lên ô ruộng = chọn giống · click trái ô ruộng: bảng (nút Bỏ đánh dấu) · K: kho\n"
+      "text": " · dựng lại {0} chunk: mesh {1:F1} ms, ghi {2:F1} ms, bake {3:F1} ms"
     },
     {
       "key": "inv.bag_hint",
@@ -575,6 +575,14 @@
       "text": "Tốc độ xoay chuột: {0:F2}"
     },
     {
+      "key": "settings.tab_general",
+      "text": "Chung"
+    },
+    {
+      "key": "settings.tab_guide",
+      "text": "Hướng dẫn"
+    },
+    {
       "key": "settings.title",
       "text": "Cài đặt"
     },
@@ -627,12 +635,24 @@
       "text": "Kho · nông sản {0} · hạt {1} · {2}/{3}"
     },
     {
-      "key": "time.current",
-      "text": "Đang ở buổi: {0}"
+      "key": "spell.button",
+      "text": "Phép (G)"
+    },
+    {
+      "key": "spell.rain",
+      "text": "Mưa"
+    },
+    {
+      "key": "spell.rain_cooldown",
+      "text": "{0} giây"
+    },
+    {
+      "key": "spell.time",
+      "text": "Đổi buổi"
     },
     {
       "key": "time.hint",
-      "text": "Chọn mốc · T / Esc: đóng"
+      "text": "Chọn mốc · G / Esc: đóng"
     },
     {
       "key": "time.landmark_dawn",

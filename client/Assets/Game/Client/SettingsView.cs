@@ -12,7 +12,7 @@ namespace Game.Client
         {
             "settings.button", "settings.title", "settings.camera_distance", "settings.camera_pitch", "settings.camera_default", "settings.look_sensitivity", "settings.invert_y",
             "settings.ui_scale", "settings.fps", "settings.language", "settings.lang_error", "settings.export",
-            "settings.exported", "settings.lang_dir", "settings.close",
+            "settings.exported", "settings.lang_dir", "settings.close", "settings.tab_general", "settings.tab_guide",
         };
 
         static SettingsView active;
@@ -23,9 +23,13 @@ namespace Game.Client
         TerrainEditInput editInput;
         GUIStyle labelStyle;
         string lastExport;
+        int tab;
+        Vector2 scroll;
 
         public bool IsOpen { get; private set; }
         public SimView Sim => sim;
+        /// <summary>0 = Chung, 1 = Hướng dẫn; giữ khi đóng/mở lại bảng.</summary>
+        public int Tab { get => tab; set => tab = value; }
 
         public static Rect ButtonRect(float gw, float gh) => new Rect(gw - 240f, gh - 46f, 110f, 36f);
         public static Rect PanelRect(float gw, float gh) => new Rect(gw * 0.5f - 230f, gh * 0.5f - 240f, 460f, 480f);
@@ -115,6 +119,16 @@ namespace Game.Client
         static string T(string k) => GameSettings.Text.Get(k);
         static string Format(string k, params object[] a) => GameSettings.Text.Format(k, a);
 
+        /// <summary>Chữ tab Hướng dẫn: phím và thao tác hiện hành (0034).</summary>
+        public static string GuideText() => string.Join("\n\n", new[]
+        {
+            T("guide.move"), T("guide.camera"),
+            Format("guide.modes", PlayerRules.TargetReach, PlayerRules.ActReach),
+            T("guide.till"),
+            Format("guide.collect", PlayerRules.CollectReach),
+            T("guide.bag"), T("guide.transfer"), T("guide.observe"), T("guide.spells"), T("guide.other"), T("guide.debug"),
+        });
+
         void OnGUI()
         {
             if (MinimapView.IsAnyOpen) return;
@@ -131,6 +145,20 @@ namespace Game.Client
             const float row = 30f;
             GUI.Label(new Rect(x, y, w, row), "<b>" + T("settings.title") + "</b>", labelStyle);
             y += row;
+
+            tab = GUI.Toolbar(new Rect(x, y, 240f, row - 4f), tab, new[] { T("settings.tab_general"), T("settings.tab_guide") });
+            y += row;
+
+            if (tab == 1)
+            {
+                string guide = GuideText();
+                float h = WrapStyle().CalcHeight(new GUIContent(guide), w - 20f);
+                scroll = GUI.BeginScrollView(new Rect(x, y, w, p.yMax - 48f - y), scroll, new Rect(0f, 0f, w - 20f, h));
+                GUI.Label(new Rect(0f, 0f, w - 20f, h), guide, WrapStyle());
+                GUI.EndScrollView();
+                if (GUI.Button(new Rect(x, p.yMax - 40f, 140f, 30f), T("settings.close"))) SetOpen(false);
+                return;
+            }
 
             var s = GameSettings.Current.Clone();
             bool changed = false;

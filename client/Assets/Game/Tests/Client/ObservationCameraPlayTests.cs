@@ -125,8 +125,8 @@ namespace Game.Client.Tests
             follow.enabled = false;
             Assert.IsTrue(tei.HoldItem(ItemId.Tool(ToolItem.ObservationCamera)));
             Assert.AreEqual(ItemKind.Tool, tei.Control.Held.Kind);
-            StringAssert.Contains("<color=yellow>Camera quan sát</color>", tei.HudText()); // vi-text
-            StringAssert.Contains("chuột phải lên khối = đặt camera quan sát", tei.HudText()); // vi-text
+            StringAssert.Contains("<color=yellow>Camera quan sát</color>", tei.ModeLine()); // vi-text
+            StringAssert.Contains("chuột phải lên khối = đặt", SettingsView.GuideText()); // vi-text
             var r1 = Quaternion.Euler(30f, 45f, 0f);
             camGo.transform.SetPositionAndRotation(new Vector3(150.25f, 45.5f, 140.75f), r1);
             var c = GroundAhead(2);

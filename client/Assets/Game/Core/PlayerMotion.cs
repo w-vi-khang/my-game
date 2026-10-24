@@ -19,6 +19,8 @@ namespace Game.Core
         public static float CollectFlySeconds { get; private set; } = 0.3f;
         /// <summary>Thanh mana nháy chừng này giây khi không đủ mana (0034 mục 5, số tạm).</summary>
         public static float ManaFlashSeconds { get; private set; } = 0.6f;
+        /// <summary>Dòng thông báo HUD tự ẩn sau chừng này giây (0034 mục 7, số tạm).</summary>
+        public static float HudMessageSeconds { get; private set; } = 4f;
         public static float CameraPitch { get; private set; } = 10f;
         public static float CameraDistance { get; private set; } = 9f;
         public static float FirstPersonPitch { get; private set; } = 15f;
@@ -42,6 +44,7 @@ namespace Game.Core
             CollectShowSeconds = p.collectShowMs / 1000f;
             CollectFlySeconds = p.collectFlyMs / 1000f;
             ManaFlashSeconds = p.manaFlashMs / 1000f;
+            HudMessageSeconds = p.hudMessageMs / 1000f;
             CameraPitch = p.cameraPitch;
             CameraDistance = p.cameraDistance;
             FirstPersonPitch = p.firstPersonPitch;

@@ -36,6 +36,22 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
+        public IEnumerator StatsTextOnTop()
+        {
+            var go = new GameObject("Terrain");
+            go.AddComponent<TerrainChunkView>();
+            var sv = go.AddComponent<SimView>();
+            yield return null;
+            yield return null;
+            var t = sv.StatsText();
+            StringAssert.Contains("FPS", t);
+            StringAssert.Contains("nhịp", t); // vi-text
+            StringAssert.DoesNotContain("F1", t);
+            Object.Destroy(go);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator TilledPlotBecomesFarmlandAndRebuildsChunk()
         {
             var go = new GameObject("Terrain");

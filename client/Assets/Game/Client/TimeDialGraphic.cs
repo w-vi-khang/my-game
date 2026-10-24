@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace Game.Client
 {
-    public enum TimeDialShape : byte { Disk, Moon, Sun, Dawn, Dusk }
+    public enum TimeDialShape : byte { Disk, Moon, Sun, Dawn, Dusk, Star, Drop }
 
     /// <summary>Hình vẽ bằng code cho vòng chọn thời điểm (brief 0024): đĩa tròn, trăng khuyết, mặt trời có tia, mọc/lặn (nửa đĩa + chân trời + mũi tên). Một màu = `color`.</summary>
     [RequireComponent(typeof(CanvasRenderer))]
@@ -53,6 +53,20 @@ namespace Game.Client
                     }
                     break;
                 }
+                case TimeDialShape.Star:
+                    Fan(vh, o, 0.25f * r, 0f, 360f, 16, c);
+                    for (int k = 0; k < 4; k++)
+                    {
+                        float a = k * 90f * Mathf.Deg2Rad;
+                        var d = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                        var p = new Vector2(-Mathf.Sin(a), Mathf.Cos(a));
+                        Tri(vh, o + d * 0.95f * r, o + p * 0.15f * r, o - p * 0.15f * r, c);
+                    }
+                    break;
+                case TimeDialShape.Drop:
+                    Fan(vh, o + new Vector2(0f, -0.25f * r), 0.55f * r, 0f, 360f, 24, c);
+                    Tri(vh, o + new Vector2(0f, 0.95f * r), o + new Vector2(-0.5f * r, -0.1f * r), o + new Vector2(0.5f * r, -0.1f * r), c);
+                    break;
                 case TimeDialShape.Dawn:
                 case TimeDialShape.Dusk:
                     Quad(vh, o + new Vector2(-0.9f * r, -0.35f * r), o + new Vector2(0.9f * r, -0.35f * r),

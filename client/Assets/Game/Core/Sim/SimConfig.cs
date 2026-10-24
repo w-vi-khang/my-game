@@ -159,6 +159,7 @@ namespace Game.Core.Sim
         public int collectShowMs = 500;
         public int collectFlyMs = 300;
         public int manaFlashMs = 600;
+        public int hudMessageMs = 4000;
         public float cameraPitch = 10f;
         public float cameraDistance = 9f;
         public float firstPersonPitch = 15f;

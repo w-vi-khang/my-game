@@ -256,27 +256,16 @@ namespace Game.Client
             return true;
         }
 
-        /// <summary>Các dòng HUD của trồng trọt (bước 5).</summary>
+        /// <summary>Các dòng HUD của trồng trọt: đang xới / đi tới + dòng trạng thái ("" khi không có gì). Mưa: menu phép (brief 0064).</summary>
         public string HudLines()
         {
-            var text = RainCooldown.Ready ? T("farm.rain_ready") : Format("farm.rain_hud_cooldown", RainCooldown.RemainingWholeSeconds);
+            var text = "";
             if (TillState == SelfTillState.Tilling)
-                text += Format("farm.hud_tilling", PlotSoil(), (int)TillTimer.Elapsed, (int)TillTimer.Duration);
+                text = Format("farm.hud_tilling", PlotSoil(), (int)TillTimer.Elapsed, (int)TillTimer.Duration);
             else if (TillState == SelfTillState.Walking)
-                text += Format("farm.hud_walking", PlotSoil());
-            if (StatusLine != "") text += "\n" + StatusLine;
-            var sim = Sim;
-            if (sim != null && view.Bag != null)
-            {
-                for (int i = 0; i < sim.Config.crops.Length; i++)
-                {
-                    int n = view.Bag.GetProduce(i);
-                    if (n > 0) text += Format("farm.hud_produce", CropN(i), n);
-                    int s = view.Bag.GetSeeds(i);
-                    if (i != StarterBag.Crop && s > 0) text += Format("farm.hud_seeds", CropN(i), s);
-                }
-            }
-            return text;
+                text = Format("farm.hud_walking", PlotSoil());
+            if (StatusLine != "") text += (text != "" ? "\n" : "") + StatusLine;
+            return text.TrimStart('\n');
         }
     }
 }

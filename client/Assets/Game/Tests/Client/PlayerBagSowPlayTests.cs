@@ -344,13 +344,6 @@ namespace Game.Client.Tests
             Assert.IsFalse(input.Inventory.StockOpen);
         }
 
-        [Test]
-        public void StatusTopBelowHud()
-        {
-            Assert.AreEqual(100f, SimView.StatusTop(0f));
-            Assert.AreEqual(254f, SimView.StatusTop(250f));
-        }
-
         [UnityTest]
         public IEnumerator ArrivedClearsWalkingLine()
         {

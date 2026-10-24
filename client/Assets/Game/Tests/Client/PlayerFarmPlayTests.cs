@@ -321,7 +321,7 @@ namespace Game.Client.Tests
             Assert.AreEqual(RainResult.Grassed, farming.CastRain(dirt));
             Assert.AreEqual(BlockMaterial.Grass, view.World.GetMaterial(dirt.x, dirt.y, dirt.z));
             Assert.IsFalse(farming.RainCooldown.Ready);
-            StringAssert.Contains("Mưa (R): 10 giây", farming.HudLines()); // vi-text
+            Assert.AreEqual(10, farming.RainCooldown.RemainingWholeSeconds);
             Assert.IsTrue(farming.RainBox.activeSelf);
 
             Assert.AreEqual(RainResult.NoEffect, farming.CastRain(dirt));
@@ -360,7 +360,8 @@ namespace Game.Client.Tests
             Assert.IsTrue(farming.Harvest(id));
             Assert.AreEqual(p0 + cd.producePerHarvest, view.Bag.GetProduce(0));
             Assert.AreEqual(s0 + cd.seedsPerHarvest, view.Bag.GetSeeds(0));
-            StringAssert.Contains("Nông sản Cây A: " + view.Bag.GetProduce(0), input.HudText()); // vi-text
+            Assert.Greater(view.Bag.GetProduce(0), 0);
+            StringAssert.DoesNotContain("Nông sản Cây A", input.HudText()); // vi-text
             StringAssert.Contains("Thu hoạch Cây A", farming.StatusLine); // vi-text
 
             // ô chín ngoài tầm → -1: dịch nhân vật ra xa
@@ -372,14 +373,16 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
-        public IEnumerator HudInitial()
+        public IEnumerator HudCompact()
         {
+            Assert.AreEqual("", input.ModeLine());
             var t = input.HudText();
-            StringAssert.Contains("Mưa (R): sẵn sàng", t); // vi-text
-            StringAssert.Contains("Chế độ:", t); // vi-text
-            StringAssert.Contains("Mặc định", t); // vi-text
+            StringAssert.DoesNotContain("Chuột trái", t); // vi-text
+            StringAssert.DoesNotContain("WASD", t);
+            StringAssert.DoesNotContain("Mưa (R)", t); // vi-text
             ToTill();
-            StringAssert.Contains("lên biển = tự đi tới xới", input.HudText()); // vi-text
+            StringAssert.Contains("Xới", input.ModeLine()); // vi-text
+            StringAssert.Contains("lên biển = tự đi tới xới", SettingsView.GuideText()); // vi-text
             yield return null;
         }
     }

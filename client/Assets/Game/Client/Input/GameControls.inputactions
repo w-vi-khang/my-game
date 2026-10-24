@@ -114,7 +114,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ToggleTimeDial",
+                    "name": "ToggleSpellMenu",
                     "type": "Button",
                     "id": "4470c984-e425-5ff1-bcd7-3e73fd3f9f11",
                     "expectedControlType": "Button",
@@ -421,11 +421,11 @@
                 {
                     "name": "",
                     "id": "487b9444-a306-5f95-ab25-3538eb95fb69",
-                    "path": "<Keyboard>/t",
+                    "path": "<Keyboard>/g",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleTimeDial",
+                    "action": "ToggleSpellMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

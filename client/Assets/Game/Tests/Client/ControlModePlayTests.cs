@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Game.Core;
+using Game.Core.DayCycle;
 using Game.Core.Sim;
 using NUnit.Framework;
 using UnityEngine;
@@ -69,6 +70,31 @@ namespace Game.Client.Tests
             UnityEngine.Object.Destroy(go);
             UnityEngine.Object.Destroy(camGo);
             yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator SpellMenuRainEntersRainMode()
+        {
+            var dial = UnityEngine.Object.FindAnyObjectByType<TimeDial>();
+            if (dial == null)
+            {
+                var lightGo = new GameObject("Light");
+                var light = lightGo.AddComponent<Light>();
+                light.type = LightType.Directional;
+                var day = camGo.AddComponent<DayCycleView>();
+                day.sun = light;
+                dial = camGo.AddComponent<TimeDial>();
+            }
+            for (int i = 0; i < 600 && !dial.IsReady; i++) yield return null;
+            Assert.IsTrue(dial.IsReady, "Dial not built");
+            Assert.IsTrue(dial.ChooseRain());
+            Assert.AreEqual(ControlMode.Rain, input.Control.Mode);
+            Assert.IsTrue(dial.ChooseRain());
+            Assert.AreEqual(ControlMode.Rain, input.Control.Mode);
+            farming.RainCooldown.Start();
+            yield return null;
+            yield return null;
+            Assert.AreEqual("10 giây", dial.RainCooldownText); // vi-text
         }
 
         bool Plain(int x, int z, int h)

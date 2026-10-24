@@ -249,6 +249,32 @@ namespace Game.Client.Tests
             yield return null;
         }
         [UnityTest]
+        public IEnumerator GuideTabShowsNewKeys()
+        {
+            var g = SettingsView.GuideText();
+            StringAssert.Contains("Tab đổi đích", g); // vi-text
+            StringAssert.Contains("P: ẩn / hiện túi phụ", g); // vi-text
+            StringAssert.Contains("G: menu phép", g); // vi-text
+            StringAssert.Contains("kéo thả cả chồng", g); // vi-text
+            StringAssert.DoesNotContain("1–4", g);
+            StringAssert.DoesNotContain("K:", g);
+            StringAssert.DoesNotContain("Alt", g);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator TabPersistsAcrossReopen()
+        {
+            settings.Tab = 1;
+            settings.SetOpen(true);
+            settings.SetOpen(false);
+            settings.SetOpen(true);
+            Assert.AreEqual(1, settings.Tab);
+            settings.SetOpen(false);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator WorldLabels_HiddenWhileSettingsOpen()
         {
             Assert.IsFalse(SettingsView.IsAnyOpen);
