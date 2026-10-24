@@ -1,6 +1,6 @@
 # Brief 0070 — World 7k: thử GPU Resident Drawer + GPU occlusion culling (đo trên Mac; APK sẵn cho điện thoại)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24 (Planner trả lời vướng mắc)
@@ -190,3 +190,11 @@ Ghi cho Planner: Mobile_Renderer bị reserialize (AssetVersion 3) mỗi lần b
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Đối chiếu Model thực thi: Sonnet · medium = `Chạy bằng` claude-sonnet-5-5 · medium (cả 2 vòng). Đạt.
+- Diff code (`050d905` + `f166e41`): `WalkBench.cs` chèn đoạn `gpuMsAvg … occ` trước `pass30fps`, trường cũ giữ nguyên thứ tự; `WalkBenchBuild.cs` thêm `WithGpuVariant` (khôi phục mọi giá trị trong `finally`, gồm `runInBackground` mới ở vòng 2), `BuildMac`, `BuildMacGpuVariant` + 3 hàm cho `-executeMethod`, 2 menu; `BuildAndroid` cũ không đổi. Trong Phạm vi. QĐ 7 (SerializedObject + reflection) đã chấp nhận.
+- Tiêu chí xong: 4 dòng `WALKBENCH` Mac có `gpuMsAvg`, `grd`/`occ` đúng biến thể — đạt; 3 APK có, không track — đạt; `git diff --stat 69696d0 HEAD -- client/Assets/Settings client/ProjectSettings` rỗng [run] — đạt; EditMode 596 + PlayMode 267 — đạt (theo Kết quả, không chạy lại).
+- Lệch quy trình chấp nhận được: build Mac bằng `-batchmode -executeMethod` khi Editor tắt (cùng code, cùng `WithGpuVariant`).
+- Kết luận Mac (ghi ở world-tech dòng 7k): GPU 9,8–10,6 ms ở cả A/B/C, FPS bị vsync chặn ~60; chênh nằm trong nhiễu → không thấy lợi trên Mac. Quyết định cuối (0029 mục 4) chờ đo điện thoại 3 APK `walkbench-gpu-{a,b,c}.apk`.
+- Ghi nhận: build APK reserialize `Mobile_Renderer.asset` (AssetVersion 2→3) — hành vi Unity, đã checkout; không cần sửa.
+- Giờ: Executor ~41 phút (2 vòng); world-tech + roadmap đã ghi.
+- Kết luận: đã duyệt
