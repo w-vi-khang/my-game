@@ -1,6 +1,6 @@
 # Brief 0067 — sim 7g: sinh vật chỉ làm công đoạn được giao (vụ tự làm, nút Tiếp tục, xới lại khi được giao)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -234,3 +234,22 @@ Lệch brief: không (một lần sửa test `CanContinue_FalseCases`: `Unmark` 
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+**Kết luận (Planner, 2026-10-24): đã duyệt — code ok, chờ user xem gộp cuối** (user 2026-10-24).
+
+Đối chiếu diff `467b3b1` với Các bước 1–5: khớp từng dòng.
+- `SelfMade` chỉ bật trong khối `Phase == Idle` của `PlayerSow` (`Simulation.cs:1070-1072`).
+- `Granted` tắt đầu `OnStageDone` (`:757`).
+- `CancelPlot` / `CancelCurrent` tắt cả hai cờ (`:421-423`, `:943-945`).
+- `Held` thay `TillPaused` trong `AssignPhase`; `NeedsRetill` dùng cho `CanPlayerTill` / `PlayerTill` / `CanContinue` / `Continue`.
+- Băm chỉ trộn khi khác mặc định: mã băm test tất định cũ không đổi (EditMode 582/582).
+- `SimView`: hành vi cũ giữ nguyên (nút Tiếp tục xới khi `TillPaused`; x khi `busy`). Vụ tự làm chờ tưới / thu: hiện cả x (góc phải) và Tiếp tục (giữa ô); ô đứng yên chưa xới lại: chỉ Tiếp tục.
+- Lệch duy nhất: test `CanContinue_FalseCases` dùng `Layout` mới cho trường hợp `Removed` vì `Unmark` chỉ áp dụng ô chưa xới. Hợp lý, không đổi code.
+- `Game.Core` không thêm `using UnityEngine`.
+
+Test [run, theo Kết quả]:
+- EditMode 582/582: gồm 12 test `AssignedWorkTests`, test Sim cũ, `HardcodedTextScanTests`.
+- PlayMode 266/267: hỏng `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` — lỗi đã biết, chỉ hỏng khi chạy cả bộ (từ 0064); chạy riêng qua.
+
+Giờ: Executor ~51 phút (09:34–10:25, phần lớn chờ test) so với ước lượng 1–2 ngày.
+
