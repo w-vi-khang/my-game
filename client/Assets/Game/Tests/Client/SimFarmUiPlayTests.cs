@@ -235,6 +235,50 @@ namespace Game.Client.Tests
         }
 
         [UnityTest]
+        public IEnumerator ContinueRetillsIdlePlot()
+        {
+            OpenPlot0();
+            var p = sv.Sim.State.Plots[0];
+            for (int i = 0; i < 3000 && p.Phase != PlotPhase.Water && p.Phase != PlotPhase.Growing; i++) sv.Sim.Tick();
+            Assert.IsTrue(sv.ProgressAction());
+            Assert.AreEqual(PlotPhase.Idle, p.Phase);
+            Assert.IsFalse(p.SoilReady);
+            Assert.AreEqual(0, p.Slots.Count);
+            Assert.IsTrue(sv.CanContinueOpenPlot);
+            Assert.IsTrue(sv.ContinueOpenPlot());
+            Assert.AreEqual(PlotPhase.Till, p.Phase);
+            for (int i = 0; i < 3000 && !p.SoilReady; i++) sv.Sim.Tick();
+            Assert.IsTrue(p.SoilReady);
+            Assert.AreEqual(PlotPhase.Idle, p.Phase);
+            Assert.IsFalse(sv.CanContinueOpenPlot);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator ContinueGrantsSelfMadeWater()
+        {
+            OpenPlot0();
+            var p = sv.Sim.State.Plots[0];
+            for (int i = 0; i < 3000 && p.Phase != PlotPhase.Water && p.Phase != PlotPhase.Growing; i++) sv.Sim.Tick();
+            Assert.IsTrue(sv.ProgressAction());
+            Assert.IsTrue(sv.ContinueOpenPlot());
+            for (int i = 0; i < 3000 && !p.SoilReady; i++) sv.Sim.Tick();
+            Assert.AreEqual(PlotPhase.Idle, p.Phase);
+            var bag = new PlayerBag();
+            bag.AddSeeds(0, 1);
+            Assert.AreEqual(PlayerSowResult.Ok, sv.Sim.PlayerSow(0, 0, bag));
+            Assert.IsTrue(p.SelfMade);
+            for (int i = 0; i < 600; i++) sv.Sim.Tick();
+            Assert.AreEqual(AssigneeKind.None, sv.Sim.State.Stages[p.StageId].AssigneeKind);
+            Assert.IsTrue(sv.CanContinueOpenPlot);
+            Assert.IsTrue(sv.ContinueOpenPlot());
+            Assert.IsTrue(p.Granted);
+            for (int i = 0; i < 3000 && p.Phase != PlotPhase.Growing; i++) sv.Sim.Tick();
+            Assert.AreEqual(PlotPhase.Growing, p.Phase);
+            yield break;
+        }
+
+        [UnityTest]
         public IEnumerator PlotPanelBlocksPointer()
         {
             float s = Mathf.Max(1, Screen.height / 720f);

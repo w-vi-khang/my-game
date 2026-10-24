@@ -119,6 +119,7 @@ namespace Game.Core.Sim
                 h = MixInt(h, p.Tilled ? 1 : 0);
                 h = MixInt(h, p.Removed ? 1 : 0);
                 h = MixInt(h, p.SoilReady ? 1 : 0);
+                if (p.SelfMade || p.Granted) h = MixInt(h, (p.SelfMade ? 1 : 0) | (p.Granted ? 2 : 0)); // 0036: chỉ trộn khi khác mặc định — giữ mã băm kịch bản cũ
             }
 
             h = MixInt(h, s.Houses.Count);

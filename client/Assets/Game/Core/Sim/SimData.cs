@@ -249,6 +249,10 @@ namespace Game.Core.Sim
         public bool Tilled;
         /// <summary>Trạng thái "đã xới" (0025): xới xong bật, thu hoạch xong tắt. Vụ bắt đầu khi bật → gieo, tắt → xới.</summary>
         public bool SoilReady;
+        /// <summary>Vụ tự làm (0036 mục 2): người chơi tự gieo ô đứng yên; công đoạn của vụ chỉ giao sinh vật khi Granted.</summary>
+        public bool SelfMade;
+        /// <summary>Tiếp tục (0036 mục 1): giao đúng 1 công đoạn kế; tắt khi một công đoạn của ô xong.</summary>
+        public bool Granted;
         /// <summary>Đã rời lệnh sau khi huỷ vụ (0020) — không còn công đoạn, không nhận vụ mới.</summary>
         public bool Removed;
 

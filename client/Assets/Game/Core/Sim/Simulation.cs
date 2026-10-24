@@ -368,6 +368,12 @@ namespace Game.Core.Sim
         }
 
         /// <summary>Ô ruộng còn nguyên: ô trên rỗng; chưa xới → đất/cỏ, đã xới → ô ruộng (0020).</summary>
+        /// <summary>Công đoạn của ô không giao cho sinh vật: tạm dừng xới (0027) hoặc vụ tự làm chưa bấm Tiếp tục (0036).</summary>
+        static bool Held(FarmPlot p) => p.TillPaused || (p.SelfMade && !p.Granted);
+
+        /// <summary>Ô ruộng đứng yên chưa xới lại (sau thu hoạch / huỷ vụ, hàng đợi trống) — 0036 mục 2.</summary>
+        static bool NeedsRetill(FarmPlot p) => p.Tilled && !p.Removed && p.Phase == PlotPhase.Idle && !p.SoilReady && p.CurrentCrop < 0;
+
         bool PlotIntact(FarmPlot p)
         {
             if (World.GetMaterial(p.Site.X, p.Site.Y, p.Site.Z) != BlockMaterial.Empty) return false;
@@ -413,6 +419,8 @@ namespace Game.Core.Sim
             p.Removed = true;
             p.Slots.Clear();
             p.CurrentCrop = -1;
+            p.SelfMade = false;
+            p.Granted = false;
             p.TillPaused = false;
             p.Phase = PlotPhase.Idle;
             p.StageId = -1;
@@ -746,6 +754,7 @@ namespace Game.Core.Sim
             if (s.PlotId >= 0)
             {
                 var p = State.Plots[s.PlotId];
+                p.Granted = false;
                 switch (s.Ability)
                 {
                     case WorkAbility.Till:
@@ -790,6 +799,7 @@ namespace Game.Core.Sim
                         }
                         p.SoilReady = false;
                         p.CurrentCrop = -1;
+                        p.SelfMade = false;
                         if (p.Slots.Count > 0)
                         {
                             StartCrop(p);
@@ -931,6 +941,8 @@ namespace Game.Core.Sim
             var phase = p.Phase;
             AbortActive(p, out _, out _);
             p.CurrentCrop = -1;
+            p.SelfMade = false;
+            p.Granted = false;
             p.StageId = -1;
             if (phase == PlotPhase.Water || phase == PlotPhase.Growing || phase == PlotPhase.Harvest) p.SoilReady = false;
             if (p.Slots.Count > 0) StartCrop(p);
@@ -955,6 +967,30 @@ namespace Game.Core.Sim
             var p = State.Plots[plotId];
             if (p.Removed || !p.TillPaused) return false;
             p.TillPaused = false;
+            return true;
+        }
+
+        /// <summary>Nút Tiếp tục dùng được không (0036 mục 1–2): vụ tự làm đang chờ tưới / thu hoạch chưa giao, hoặc ô đứng yên chưa xới lại.</summary>
+        public bool CanContinue(int plotId)
+        {
+            if (!ValidPlot(plotId)) return false;
+            var p = State.Plots[plotId];
+            if (p.Granted) return false;
+            if (p.SelfMade && p.StageId >= 0 && (p.Phase == PlotPhase.Water || p.Phase == PlotPhase.Harvest)) return true;
+            return NeedsRetill(p);
+        }
+
+        /// <summary>Tiếp tục (0036 mục 1): giao sinh vật đúng 1 công đoạn kế; ô đứng yên chưa xới lại → mở công đoạn xới. false nếu !CanContinue.</summary>
+        public bool Continue(int plotId)
+        {
+            if (!CanContinue(plotId)) return false;
+            var p = State.Plots[plotId];
+            if (NeedsRetill(p))
+            {
+                p.Phase = PlotPhase.Till;
+                AddPlotStage(p, WorkAbility.Till);
+            }
+            p.Granted = true;
             return true;
         }
 
@@ -988,12 +1024,12 @@ namespace Game.Core.Sim
                 throw new ArgumentException("Crop not in config: " + cropId);
         }
 
-        /// <summary>Người chơi tự xới được ô plotId không: ô còn, đang ở pha xới (lần đầu hoặc xới lại), có công đoạn.</summary>
+        /// <summary>Người chơi tự xới được ô plotId không: ô còn, đang ở pha xới (lần đầu hoặc xới lại) có công đoạn, hoặc ô đứng yên chưa xới lại (0036).</summary>
         public bool CanPlayerTill(int plotId)
         {
             if (!ValidPlot(plotId)) return false;
             var p = State.Plots[plotId];
-            return p.Phase == PlotPhase.Till && p.StageId >= 0;
+            return (p.Phase == PlotPhase.Till && p.StageId >= 0) || NeedsRetill(p);
         }
 
         /// <summary>Người chơi xới xong (0028 mục 7): bỏ tạm dừng, hoàn thành công đoạn xới. false nếu !CanPlayerTill.</summary>
@@ -1001,6 +1037,7 @@ namespace Game.Core.Sim
         {
             if (!CanPlayerTill(plotId)) return false;
             var p = State.Plots[plotId];
+            if (p.Phase == PlotPhase.Idle) { p.Phase = PlotPhase.Till; AddPlotStage(p, WorkAbility.Till); }
             p.TillPaused = false;
             CompleteByPlayer(State.Stages[p.StageId]);
             return true;
@@ -1032,6 +1069,7 @@ namespace Game.Core.Sim
             bag.TryTakeSeeds(cropId, 1);
             if (p.Phase == PlotPhase.Idle)
             {
+                p.SelfMade = true;
                 p.CurrentCrop = cropId;
                 p.Phase = PlotPhase.Sow;
                 AddPlotStage(p, WorkAbility.Sow);
@@ -1427,7 +1465,7 @@ namespace Game.Core.Sim
             {
                 var g2 = stages[i];
                 if (g2.Status == StageStatus.Open && g2.AssigneeKind == AssigneeKind.None
-                    && !(g2.PlotId >= 0 && State.Plots[g2.PlotId].TillPaused)) open.Add(g2);
+                    && !(g2.PlotId >= 0 && Held(State.Plots[g2.PlotId]))) open.Add(g2);
             }
             if (open.Count == 0) return;
             open.Sort((a, b) =>

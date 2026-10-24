@@ -631,6 +631,10 @@
       "text": "Đóng (Esc)"
     },
     {
+      "key": "plot.continue",
+      "text": "Tiếp tục"
+    },
+    {
       "key": "plot.empty",
       "text": "trống"
     },

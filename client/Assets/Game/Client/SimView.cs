@@ -352,6 +352,10 @@ namespace Game.Client
             return Sim.CancelCurrent(OpenPlotId);
         }
 
+        /// <summary>Nút Tiếp tục trên ô tiến trình (0036): giao sinh vật đúng 1 công đoạn kế.</summary>
+        public bool CanContinueOpenPlot => OpenPlotId >= 0 && Sim.CanContinue(OpenPlotId);
+        public bool ContinueOpenPlot() => OpenPlotId >= 0 && Sim.Continue(OpenPlotId);
+
         /// <summary>Đóng bảng; ô đang tạm dừng xới → tiếp tục (0027 mục 2).</summary>
         public void ClosePlotPanel()
         {
@@ -433,13 +437,14 @@ namespace Game.Client
             bool busy = p.Phase != PlotPhase.Idle;
             string cropText = p.CurrentCrop >= 0 ? cfg.crops[p.CurrentCrop].id : (busy ? T("plot.till_tile") : "");
             Tile(cr, p.CurrentCrop >= 0 ? CropColor(p.CurrentCrop) : EmptyColor, cropText, 1f);
-            if (busy)
+            if (p.TillPaused)
             {
-                if (p.TillPaused)
-                {
-                    if (GUI.Button(new Rect(cr.x + 4f, cr.y + 25f, 64f, 22f), T("plot.resume"))) ProgressAction();
-                }
-                else if (GUI.Button(new Rect(cr.xMax - 18f, cr.y, 18f, 18f), "x")) ProgressAction();
+                if (GUI.Button(new Rect(cr.x + 4f, cr.y + 25f, 64f, 22f), T("plot.resume"))) ProgressAction();
+            }
+            else
+            {
+                if (busy && GUI.Button(new Rect(cr.xMax - 18f, cr.y, 18f, 18f), "x")) ProgressAction();
+                else if (CanContinueOpenPlot && GUI.Button(new Rect(cr.x + 4f, cr.y + 25f, 64f, 22f), T("plot.continue"))) ContinueOpenPlot();
             }
             var bar = new Rect(cr.x, cr.yMax + 4f, 72f, 8f);
             Tile(bar, EmptyColor, "", 1f, 3f);
