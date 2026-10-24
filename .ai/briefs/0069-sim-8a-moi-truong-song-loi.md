@@ -1,9 +1,9 @@
 # Brief 0069 — Sim 8a: môi trường sống, lõi (đếm yêu cầu theo sự kiện, loài trở lại)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 10:40
+> Cập nhật: 2026-10-24 10:35
 
 Task contract: [m1-sim-8-moi-truong-song](../tasks/m1-sim-8-moi-truong-song.md) (phần 8a).
 
@@ -214,8 +214,24 @@ Không (8a không có phần nhìn thấy; user xem ở 8b).
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 98fec3c
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ: bắt đầu 10:21, kết thúc 10:35 (~14 phút, gồm chờ chạy cả bộ).
+Commit: 26b9201. File: `Core/Habitat/HabitatConfig.cs`, `HabitatTracker.cs`; test `Tests/Core/Habitat/HabitatConfigTests.cs`, `HabitatTrackerTests.cs`, `Tests/World/HabitatWorldTests.cs`; `design/data/habitat_m1.json` + bản sao client; `ConfigLoader.cs` (+`HabitatM1Path`, `LoadHabitatConfig`); `ConfigTests.cs` (+1 test). Không đụng Simulation/SimData/SimHash/WorldEditor.
+Lệch brief (ghi để Planner biết):
+- `DigPlaceUpdatesImmediately`: brief ghi "đặt đá lên ô đá lộ thiên → số đá lộ thiên giảm 1", nhưng ô đá mới đặt cũng lộ thiên nên số đếm giữ nguyên (ô cũ −1, ô mới +1). Test kiểm: đặt **đất** lên đá lộ thiên → −1; đặt đá → giữ nguyên; đào lại → khớp. Hành vi tracker đúng theo QĐ 4.
+- Nhà `AddHouse((2,2,2))` đặt được trên `Flat(1)`, dùng trong `NonCellRequirements`.
 
 ## Kết quả test
+- Cấu hình + bản sao: đạt — `ConfigFileMatchesDefaults`, `ValidateRejectsBadConfig` (19 ca), `ConfigTests.HabitatClientCopyMatchesDesignData`.
+- Quét đầu: đạt — `InitialScanCountsCells`, `RegionLimitsCounting`.
+- Đếm theo sự kiện: đạt — `DigPlaceUpdatesImmediately`, `TilledGrassNotCounted`, `WaterSpreadUpdatesNearWater` (nước lan >10 ô, khớp quét lại), `IncrementalMatchesFullRescan` (300 sửa, 10 lần so, world sinh thật).
+- Yêu cầu từ mô phỏng: đạt — `NonCellRequirements`.
+- Loài trở lại: đạt — `UnlockOnceInConfigOrder`, `UnlockedAtStartRespected`.
+- Tất định: đạt — `Deterministic`.
+- Hiệu năng: đạt — `ScanTimeOnM1World`: **156 ms** trên 384×48×384 (seed 20261013, config mặc định). Số đếm ban đầu: L1[cỏ]=48077/20, L1[vụ gieo]=0/1, L2[cỏ cạnh nước]=0/10, L3[đá lộ thiên]=0/15, L3[kho]=0/1. Lưu ý cho câu (a): trên world M1 mới sinh có rất nhiều cỏ nhưng **0 ô cỏ cạnh nước** và **0 ô đá lộ thiên** theo định nghĩa hiện tại (cạnh nước = 8 ô quanh, đá lộ thiên = ô trên là Empty) — L2/L3 sẽ không đạt cho tới khi người chơi tạo ra, hoặc cần chỉnh ngưỡng/định nghĩa.
+- 22 test mới/chạm tới qua (4 lớp lọc). Regression: EditMode cả bộ 596/596 (582 + 14 mới, 284 s); PlayMode cả bộ 267/267 (171 s); console 0 Error.
+- `grep UnityEngine Core/Habitat`: rỗng. Dọn: `git checkout -- EditorSettings.asset`; không có InitTestScene*.
 
 ## Vướng mắc
 
