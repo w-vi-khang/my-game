@@ -1,9 +1,9 @@
 # Brief 0068 — Ổn định 3 test chỉ hỏng khi chạy cả bộ
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 10:17
+> Cập nhật: 2026-10-24 — Planner duyệt
 
 <!-- Không có task contract riêng: việc sửa test, không đổi hành vi game. Nguồn: .ai/handoff.md mục "Việc treo — test chỉ hỏng khi chạy cả bộ". -->
 
@@ -138,3 +138,18 @@ Không. Lưu ý: cầu MCP mất kết nối khi vào Play, `get_test_job` vẫn
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner, 2026-10-24 — review đầy đủ.
+- Chạy bằng `claude-sonnet-5-5 · medium` = Model thực thi.
+- Diff `4478ba7`: 4 file, đều trong `client/Assets/Game/Tests/`.
+  - `ControlModePlayTests.cs` được sửa theo Phạm vi: bước 2.3 chỉ ra test này để lại Light.
+- Quyết định đã chốt:
+  - QĐ1 không nới ngưỡng nào.
+  - QĐ2: so mỗi 40 lần sửa, assert 5 lần so, không thêm `[Timeout]`.
+  - QĐ3: `timeScale = 0` ở 2 test, lưu/khôi phục trong SetUp/TearDown.
+  - QĐ4: nguyên nhân rõ (Light Directional thừa từ `SpellMenuRainEntersRainMode`). Sửa ở cả nguồn (TearDown huỷ) lẫn SetUp của `SeaSkyTintPlayTests` (tắt Light đang có, bật lại khi TearDown).
+- Không còn `[0068diag]`.
+- Tiêu chí xong: đạt. EditMode 582/582 ×2 (không timeout; `IncrementalRebuildMatchesFullRebuild` 9,6 s khi Editor không focus), PlayMode 267/267 ×2, console 0 Error.
+- Thiếu nhỏ, chấp nhận: chưa chạy riêng `WorldIconsPlayTests`, `ControlModePlayTests` và `SeaSkyTintPlayTests` sau khi sửa. Hai lần chạy cả bộ đều qua và mạnh hơn chạy riêng. Không chạy lại.
+- Giờ: Executor ~25 phút. Việc sửa test, không thuộc hạng mục ước lượng của roadmap → chỉ ghi ở handoff.
+- Kết luận: đã duyệt
+
