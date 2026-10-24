@@ -1,6 +1,6 @@
 # Brief 0067 — sim 7g: sinh vật chỉ làm công đoạn được giao (vụ tự làm, nút Tiếp tục, xới lại khi được giao)
 
-> Trạng thái: chờ làm
+> Trạng thái: đang làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -212,7 +212,10 @@ Bước **sim 7g** (brief duy nhất) của task [m1-sim-7g-sinh-vat-chi-lam-vie
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-<!-- Base commit · Chạy bằng: <model id> · <effort> · giờ bắt đầu / kết thúc · commit · file đã đổi · lệch so với brief (kèm lý do). -->
+Base commit: 71ad5b9
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-24 09:34
+
 
 ## Kết quả test
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt + bằng chứng. Mỗi lệnh → kết quả thật. -->
