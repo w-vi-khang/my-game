@@ -1,6 +1,6 @@
 # Brief 0066 — 7l f: bảng đổi phím trong Cài đặt → Điều khiển (đổi lúc chạy, lưu settings.json, trùng → Đổi chỗ / Huỷ, Mặc định, Esc cố định)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -255,11 +255,18 @@ Bước **7l f** (brief duy nhất, bước cuối) của task [m1-world-7l-dieu
 ## Kết quả
 Base commit: c9c3b6b
 Chạy bằng: claude-sonnet-5-5 · medium
-Bắt đầu: 2026-10-24 07:52
+Bắt đầu: 2026-10-24 07:52 (tiếp tục sau khi Planner trả lời vướng mắc) · Kết thúc: 2026-10-24 ~08:15 (giờ máy; phần lớn là chờ test unfocused)
+Commit: 3ff3873
+File đổi: Client/KeyRebind.cs (mới), GameSettings.cs, SettingsView.cs, Core/PlayerSettings.cs, Resources/Lang/vi.json, Tests/ClientEdit/KeyRebindTests.cs (mới), GameControlsTests.cs, Game.Client.EditTests.asmdef (thêm ref Game.Client — Planner cho phép, c90fc4d), Tests/Core/PlayerSettingsTests.cs, Tests/Client/KeyRebindPlayTests.cs (mới).
+Lệch brief: (1) asmdef ClientEdit thêm `Game.Client` (đã được duyệt). (2) KeyRebindPlayTests.SetUp gọi thêm `GameSettings.Load()` sau ResetForTests: nếu không, lần đầu truy cập `Current` sẽ `Load()` → `ApplyBindings` xoá override test vừa đặt (View_Conflict_SwapSwaps hỏng). Code production không đổi vì lý do này (trong game `Current` đã nạp lúc khởi động).
 
 
 ## Kết quả test
-Chưa kiểm được: EditMode không biên dịch (asmdef ClientEdit thiếu Game.Client, xem Vướng mắc), nên chưa chạy EditMode/PlayMode; Unity Editor đang mở nên `tools/unity_test.py` cũng không chạy được. Code production biên dịch 0 lỗi.
+- Biên dịch: `read_console` Error = 0.
+- PlayerSettings / KeyRebind / chữ / regression EditMode: đạt — run_tests EditMode toàn bộ: 570 test, 569 qua, 1 hỏng = `Game.World.Tests.IncrementalRebuildTests.IncrementalRebuildMatchesFullRebuild` (Timeout 180000 ms, 194 s; editor không focus; assembly World, không liên quan thay đổi này). Mọi test mới (`KeyRebindTests`, `PlayerSettingsTests.BindingOverrides_*`) + `GameControlsTests` qua.
+- PlayMode: lần 1 toàn bộ 265: 263 qua; hỏng `KeyRebindPlayTests.View_Conflict_SwapSwaps` (đã sửa, xem Lệch brief) + `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged`. Chạy lại toàn bộ 265 sau sửa: 263 qua, hỏng `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` (0.055 > 0.002) và `WorldIconsPlayTests.CreatureIconMatchesState`. Chạy riêng `KeyRebindPlayTests`+`SeaSkyTintPlayTests` (17 test) → 17/17 qua; `WorldIconsPlayTests` riêng → 5/5 qua. Toàn bộ `KeyRebindPlayTests` (11) + `SettingsPlayTests` + `GameControlsPlayTests` + `InventoryPlayTests` + `ControlModePlayTests` + `FlyCameraMoveKeyPlayTests` qua trong lần toàn bộ. Hai hỏng còn lại chỉ rớt khi chạy cả bộ (phụ thuộc thứ tự/thời gian), tôi chưa xác minh chúng có từ trước thay đổi này hay không → Planner xem.
+- Dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset` đã chạy.
+- Phần "đổi → lưu → nạp lại đúng", "trùng → hỏi, Đổi chỗ/Huỷ", "Mặc định": đạt (SaveAndReload, View_Conflict_*, View_ResetBindings_*). Đổi chuột trái↔phải bằng tay, hiển thị tab: chờ user — gộp cuối.
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt + bằng chứng. Mỗi lệnh → kết quả thật. -->
 
 ## Vướng mắc
