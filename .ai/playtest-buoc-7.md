@@ -5,7 +5,7 @@
 > Số tạm chỉnh trong `design/data/sim_m1.json` (+ bản sao `client/Assets/Game/Client/Resources/Config/sim_m1.json`).
 
 ## Còn treo, cần bạn
-- **Đo FPS điện thoại (7l e, brief 0065):** ≥ 30 FPS với 20 ô ruộng có icon. Đêm qua `adb devices` không thấy máy → cắm điện thoại (USB dev mode) rồi bảo AI đo.
+- ~~Đo FPS điện thoại (7l e)~~ xong 2026-10-24 (brief 0071–0072: khung có ≥ 10 icon ~59 FPS).
 
 ## A. Túi / túi phụ / kho (7l d — 0061, 0062, 0063)
 1. Đào tới khi túi đầy (10 ô túi + 2 ô túi phụ; camera quan sát chiếm 1 ô) → F không nhặt nữa, dòng `Túi đầy`, khối còn dưới đất.
@@ -52,3 +52,6 @@
 34. Cây chín → không ai thu. Tiếp tục → sinh vật thu, chở về kho. Ô đứng yên → Tiếp tục (hoặc "Tự xới") → xới lại.
 35. Ô có hạt trong hàng đợi: sinh vật làm đủ chuỗi như cũ. Tự thu / Mưa giữa chừng → sinh vật làm tiếp các bước sau.
 36. Đánh giá: vị trí / chữ nút Tiếp tục; có cần chữ "chờ Tiếp tục" trên ô tiến trình không.
+
+## F. Mép cỏ ở góc lõm (sửa lỗi — 0073)
+37. Đi quanh bậc thang cỏ và các góc lõm chữ L (PC và điện thoại): không còn tam giác tối nhỏ ở chỗ hai khối cỏ gặp nhau; mặt cỏ góc lõm không nhấp nháy khi nhìn sát.

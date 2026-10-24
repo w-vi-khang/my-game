@@ -6,7 +6,7 @@
 - Phiên hiện dùng (từ 2026-10-24 chiều): phiên điều phối mới tự làm Planner (phiên Planner/Executor cũ không nhận tin được); Executor [exec-0070](#local_90d07a05-1772-4d2c-a99e-6da3dd1fe9fa). 0070 vòng 1 bị chặn → Planner trả lời QĐ 7–11 (commit `cb506a8`: màn hình Mac tắt khi AFK → `caffeinate`; B crash → build lại riêng B một lần). Phiên mới chỉ mở được trong lượt user gõ (lượt do sự kiện phiên khác bị từ chối start_session).
 - Executor hay kết thúc lượt khi PlayMode đang chạy (MCP rớt khi vào Play) → nhắc "sleep 60 rồi get_test_job, chỉ dừng khi chờ review / cần Opus".
 - Danh sách chơi thử gộp bước 7: [playtest-buoc-7.md](playtest-buoc-7.md).
-- Đã duyệt: 0068 (ổn định test), 0069 (sim 8a lõi), **0070–0072** (world 7k **xong**: Mac không lợi; điện thoại C occlusion 29,7 FPS < A 44, B GRD không vẽ world → tắt cả hai. 7l e đo điện thoại **đạt**: khung có ≥ 10 icon ~59 FPS, 20 ô 44 FPS). **Hết hạng mục M1 làm được mà không cần user** → đang dừng, chờ user (xem "Bước tiếp" mục 5).
+- Đã duyệt: 0068 (ổn định test), 0069 (sim 8a lõi), **0070–0072** (world 7k **xong**: Mac không lợi; điện thoại C occlusion 29,7 FPS < A 44, B GRD không vẽ world → tắt cả hai. 7l e đo điện thoại **đạt**: khung có ≥ 10 icon ~59 FPS, 20 ô 44 FPS). **0073** (user báo lỗi mép cỏ hở ở góc lõm → mảnh phủ vết lõm bo cạnh) đã duyệt; Executor: [exec-0073](#local_94b77a78-7831-42fd-9ee6-c496f232323b) (Opus), [exec-0070](#local_90d07a05-1772-4d2c-a99e-6da3dd1fe9fa) (Sonnet). **Hết hạng mục M1 làm được mà không cần user** → đang dừng, chờ user (xem "Bước tiếp" mục 5).
 
 ## Đang làm
 Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)).

@@ -1,6 +1,6 @@
 # Brief 0073 — Sửa lỗ hổng mép cỏ ở góc giao nhau (bug, user 2026-10-24)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-24
@@ -194,3 +194,10 @@ _(Vòng 1 — đã trả lời: QĐ 5–6, phương án A.)_
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Model: Opus · medium khớp. Diff `b739d0a`: `AddLipConcave` (6 đỉnh / 4 tam giác, nâng 0,002, chồm 0,01 không sang ô chéo), gọi từ `AddGrassLip` cho 4 góc; dải, mảnh góc lồi, collider không đổi → QĐ 1–2, 4 đạt. Trong Phạm vi.
+- Lệch QĐ 5 chấp nhận: điều kiện xét từ ô có vết lõm (vẫn chỉ ô cỏ hở trên) thay vì từ ô có dải — phủ thêm 2 dạng H4 (khối cao đè ô bên kia, hốc giữa hai vách); mỗi trục góc đúng một lần.
+- Tiêu chí: test mới đỏ trước (H1 13, H4 136 tia) → xanh sau; test nhìn xuyên 0 cả trước/sau (hồi quy); test mép cỏ cũ qua; 608 + 268; cấu hình sạch; số đỉnh +0,78% (< 5%). Ảnh Editor trước/sau + điện thoại không còn khe, không z-fighting.
+- FPS điện thoại 41,3 / 44,5 (lần 1 nghi nhiệt, Thermal 2); +0,47% tam giác không đủ giải thích 2,7 FPS → chấp nhận, theo dõi ở lần đo sau.
+- "measuring… 32 s" là số giây **còn lại** (`WalkBench.cs:212`: `warmupSeconds + measureSeconds − t`), không phải thời gian đã chạy — không lỗi; `plots=4` đúng với `walkbench.apk` (không phải bản 20 ô).
+- User xem: thêm mục F vào `.ai/playtest-buoc-7.md`.
+- Kết luận: đã duyệt
