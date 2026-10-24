@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
@@ -14,6 +15,15 @@ namespace Game.Client.Editor
     /// </summary>
     public static class WalkBenchBuild
     {
+        // World 7k (brief 0070): GPU Resident Drawer / occlusion culling variants A (off), B (GRD), C (GRD + occlusion).
+        // The URP assets are edited through SerializedObject (Game.Client.Editor does not reference the URP assembly) and restored in finally.
+        const string GraphicsSettingsPath = "ProjectSettings/GraphicsSettings.asset";
+        const string PcRpAssetPath = "Assets/Settings/PC_RPAsset.asset";
+        const string MobileRpAssetPath = "Assets/Settings/Mobile_RPAsset.asset";
+        const string MobileRendererPath = "Assets/Settings/Mobile_Renderer.asset";
+        static int GrdInstancedDrawing => EnumValue("GPUResidentDrawerMode", "InstancedDrawing");
+        static int BrgKeepAll => EnumValue("BatchRendererGroupStrippingMode", "KeepAll");
+        const int RenderingModeForwardPlus = 2;    // UniversalRendererData RenderingMode.ForwardPlus (PC_Renderer uses 2)
         const string SourceScene = "Assets/Game/Client/Scenes/SimView.unity";
         const string ScenePath = "Assets/Game/Client/Scenes/WalkBench.unity";
         const string OutputPath = "Builds/walkbench.apk";
@@ -100,6 +110,100 @@ namespace Game.Client.Editor
                 PlayerSettings.SetApplicationIdentifier(android, oldId);
                 AssetDatabase.SaveAssets();
             }
+        }
+
+        /// <summary>Integer value of an enum member found by type name in the loaded assemblies (the enum assemblies are not referenced by Game.Client.Editor).</summary>
+        static int EnumValue(string typeName, string member)
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var t in asm.GetTypes())
+                    if (t.IsEnum && t.Name == typeName)
+                        return Convert.ToInt32(Enum.Parse(t, member));
+            throw new Exception($"Enum {typeName} not found");
+        }
+
+        /// <summary>Sets one int property on a serialized asset, returning an action that restores the old value.</summary>
+        static Action SetInt(SerializedObject so, string prop, int value)
+        {
+            var p = so.FindProperty(prop);
+            if (p == null) throw new Exception($"Property {prop} not found on {so.targetObject}");
+            int old = p.intValue;
+            p.intValue = value;
+            so.ApplyModifiedProperties();
+            return () =>
+            {
+                so.Update();
+                so.FindProperty(prop).intValue = old;
+                so.ApplyModifiedProperties();
+            };
+        }
+
+        static SerializedObject Load(string path)
+        {
+            var obj = path.EndsWith("GraphicsSettings.asset")
+                ? AssetDatabase.LoadAllAssetsAtPath(path)[0]
+                : AssetDatabase.LoadMainAssetAtPath(path);
+            if (obj == null) throw new Exception("Asset not found: " + path);
+            return new SerializedObject(obj);
+        }
+
+        /// <summary>Applies variant A/B/C only for the duration of <paramref name="build"/>; every changed value is restored in finally.</summary>
+        static void WithGpuVariant(char variant, bool android, Action build)
+        {
+            var restore = new List<Action>();
+            bool oldStats = PlayerSettings.enableFrameTimingStats;
+            try
+            {
+                PlayerSettings.enableFrameTimingStats = true;
+                if (variant == 'B' || variant == 'C')
+                {
+                    restore.Add(SetInt(Load(GraphicsSettingsPath), "m_BrgStripping", BrgKeepAll));
+                    var rp = Load(android ? MobileRpAssetPath : PcRpAssetPath);
+                    restore.Add(SetInt(rp, "m_GPUResidentDrawerMode", GrdInstancedDrawing));
+                    if (variant == 'C')
+                        restore.Add(SetInt(rp, "m_GPUResidentDrawerEnableOcclusionCullingInCameras", 1));
+                    if (android)
+                        restore.Add(SetInt(Load(MobileRendererPath), "m_RenderingMode", RenderingModeForwardPlus));
+                }
+                AssetDatabase.SaveAssets();
+                build();
+            }
+            finally
+            {
+                PlayerSettings.enableFrameTimingStats = oldStats;
+                for (int k = restore.Count - 1; k >= 0; k--) restore[k]();
+                AssetDatabase.SaveAssets();
+            }
+        }
+
+        static void BuildMac(string outputPath)
+        {
+            EnsureScene(false);
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = new[] { ScenePath },
+                locationPathName = outputPath,
+                target = BuildTarget.StandaloneOSX,
+                options = BuildOptions.None,
+            });
+            Debug.Log($"WalkBench build: {report.summary.result}, {report.summary.totalSize} byte, {report.summary.totalTime} → {outputPath}");
+            if (report.summary.result != BuildResult.Succeeded)
+                throw new Exception($"Build failed: {report.summary.result}");
+        }
+
+        [MenuItem("Game/Build Mac WalkBench GPU A-B-C")]
+        public static void BuildMacGpuVariants()
+        {
+            foreach (char v in new[] { 'A', 'B', 'C' })
+                WithGpuVariant(v, false, () => BuildMac($"Builds/walkbench-mac-{char.ToLower(v)}.app"));
+        }
+
+        [MenuItem("Game/Build APK WalkBench GPU A-B-C")]
+        public static void BuildAndroidGpuVariants()
+        {
+            foreach (char v in new[] { 'A', 'B', 'C' })
+                WithGpuVariant(v, true, () => Build(false, $"Builds/walkbench-gpu-{char.ToLower(v)}.apk"));
         }
     }
 }

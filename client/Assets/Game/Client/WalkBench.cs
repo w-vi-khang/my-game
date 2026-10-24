@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using Unity.Profiling;
 using Game.Core;
 using Game.Core.Sim;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Game.Client
 {
@@ -44,6 +46,8 @@ namespace Game.Client
         FollowCamera follow;
         ProfilerRecorder systemMem, gcMem;
         readonly List<double> frameMs = new List<double>();
+        readonly List<double> gpuMs = new List<double>();
+        readonly FrameTiming[] ftBuf = new FrameTiming[1];
         long visiblePlotIconSum;
         WorldIconsView icons;
         bool started;
@@ -188,6 +192,12 @@ namespace Game.Client
             if (t >= warmupSeconds)
             {
                 frameMs.Add(Time.unscaledDeltaTime * 1000.0);
+                if (FrameTimingManager.IsFeatureEnabled())
+                {
+                    FrameTimingManager.CaptureFrameTimings();
+                    if (FrameTimingManager.GetLatestTimings(1, ftBuf) == 1 && ftBuf[0].gpuFrameTime > 0)
+                        gpuMs.Add(ftBuf[0].gpuFrameTime);
+                }
                 if (icons != null) visiblePlotIconSum += icons.VisiblePlotIcons;
                 Distance += Vector2.Distance(feet, lastPos);
                 int missing = view.MissingColumnsWithin(HoleRadius);
@@ -225,6 +235,32 @@ namespace Game.Client
             Debug.Log($"WALKBENCH plots: {sv.Sim.State.Plots.Count} (target {count})");
         }
 
+        /// <summary>GPU time from FrameTimingManager + GPU Resident Drawer state of the running URP asset (world 7k, brief 0070). Read by reflection: Game.Client does not reference the URP assembly.</summary>
+        string GpuSummary()
+        {
+            string grd = "?", occ = "?";
+            var rp = GraphicsSettings.currentRenderPipeline;
+            if (rp != null)
+            {
+                var t = rp.GetType();
+                var m = t.GetProperty("gpuResidentDrawerMode", BindingFlags.Public | BindingFlags.Instance);
+                var o = t.GetProperty("gpuResidentDrawerEnableOcclusionCullingInCameras", BindingFlags.Public | BindingFlags.Instance);
+                if (m != null) grd = m.GetValue(rp)?.ToString() ?? "?";
+                if (o != null) occ = o.GetValue(rp)?.ToString() ?? "?";
+            }
+            double avg = -1, p99 = -1;
+            if (FrameTimingManager.IsFeatureEnabled() && gpuMs.Count > 0)
+            {
+                var sorted = new List<double>(gpuMs);
+                sorted.Sort();
+                double sum = 0;
+                foreach (var x in gpuMs) sum += x;
+                avg = sum / gpuMs.Count;
+                p99 = SimBenchMeter.Percentile(sorted, 0.99);
+            }
+            return $"gpuMsAvg={avg:F2} gpuMsP99={p99:F2} gpuSamples={gpuMs.Count} grd={grd} occ={occ}";
+        }
+
         void Finish()
         {
             Done = true;
@@ -245,6 +281,7 @@ namespace Game.Client
             sb.Append($"holeFrames={holeFrames} secondHoleFrames={secondHoleFrames} maxMissing={maxMissing} loadedColumnsMax={maxLoadedColumns} loadedChunksMax={maxLoadedChunks} | ");
             sb.Append($"sysMemMaxMB={maxSystemMem / 1048576.0:F1} gcReservedMaxMB={maxGcMem / 1048576.0:F1} | creatures={(sv.Sim != null ? sv.Sim.State.Creatures.Count : 0)} | ");
             sb.Append($"plots={(sv.Sim != null ? sv.Sim.State.Plots.Count : 0)} plotIconsVisibleAvg={(icons != null && frameMs.Count > 0 ? (double)visiblePlotIconSum / frameMs.Count : -1.0):F1} | ");
+            sb.Append(GpuSummary()).Append(" | ");
             sb.Append($"pass30fps={avgFps >= 30.0} passNoHole={holeFrames == 0 && secondHoleFrames == 0}");
             Summary = sb.ToString();
             result = Summary.Replace(" | ", "\n");
