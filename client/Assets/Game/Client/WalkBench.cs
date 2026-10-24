@@ -49,6 +49,10 @@ namespace Game.Client
         readonly List<double> gpuMs = new List<double>();
         readonly FrameTiming[] ftBuf = new FrameTiming[1];
         long visiblePlotIconSum;
+        int maxPlotIcons, iconFrames;
+        double iconFramesMsSum;
+        public const float PlotsAheadCells = 15f, PlotArcSpacing = 2f;
+        public static readonly int[] PlotRowInsets = { 3, 5 };
         WorldIconsView icons;
         bool started;
         float startTime, nextStuckCheck, detourUntil;
@@ -198,7 +202,13 @@ namespace Game.Client
                     if (FrameTimingManager.GetLatestTimings(1, ftBuf) == 1 && ftBuf[0].gpuFrameTime > 0)
                         gpuMs.Add(ftBuf[0].gpuFrameTime);
                 }
-                if (icons != null) visiblePlotIconSum += icons.VisiblePlotIcons;
+                if (icons != null)
+                {
+                    int vis = icons.VisiblePlotIcons;
+                    visiblePlotIconSum += vis;
+                    maxPlotIcons = Mathf.Max(maxPlotIcons, vis);
+                    if (vis >= 10) { iconFrames++; iconFramesMsSum += Time.unscaledDeltaTime * 1000.0; }
+                }
                 Distance += Vector2.Distance(feet, lastPos);
                 int missing = view.MissingColumnsWithin(HoleRadius);
                 if (missing > 0) holeFrames++;
@@ -215,23 +225,29 @@ namespace Game.Client
             lastPos = feet;
         }
 
-        /// <summary>Marks tilling on ring-shaped columns (step 2) around the camp until the sim has count plots.</summary>
+        /// <summary>Marks tilling on two rows of columns just inside the route (radius R-3 and R-5), starting ~15 cells ahead of the start position along the walking direction (Carrot goes toward increasing angle), every ~2 cells of arc, until the sim has count plots. Columns that are sea/empty are skipped. Not on the route itself, so walking is unchanged.</summary>
         void AddPlots(int count)
         {
-            var c = DemoPlain.CampCenter(sv.Plain.Value);
-            int cx = Mathf.FloorToInt(c.x), cz = Mathf.FloorToInt(c.z);
             var world = view.World;
-            for (int k = 3; k <= 16 && sv.Sim.State.Plots.Count < count; k++)
-                for (int dz = -k; dz <= k && sv.Sim.State.Plots.Count < count; dz += 2)
-                    for (int dx = -k; dx <= k && sv.Sim.State.Plots.Count < count; dx += 2)
-                    {
-                        if (Mathf.Abs(dx) != k && Mathf.Abs(dz) != k) continue;
-                        int x = cx + dx, z = cz + dz;
-                        if (!world.Size.InBounds(x, 0, z)) continue;
-                        int y = world.Size.Y - 2;
-                        while (y > 0 && world.GetMaterial(x, y, z) == BlockMaterial.Empty) y--;
-                        sv.Sim.MarkTill(new CellPos(x, y, z));
-                    }
+            var f0 = player.FeetLocal;
+            float theta0 = Mathf.Atan2(f0.x - RouteCenter.x, f0.z - RouteCenter.y);
+            for (int step = 0; step < 80 && sv.Sim.State.Plots.Count < count; step++)
+            {
+                float theta = theta0 + (PlotsAheadCells + PlotArcSpacing * step) / RouteRadius;
+                foreach (int inset in PlotRowInsets)
+                {
+                    if (sv.Sim.State.Plots.Count >= count) break;
+                    float r = RouteRadius - inset;
+                    int x = Mathf.FloorToInt(RouteCenter.x + r * Mathf.Sin(theta));
+                    int z = Mathf.FloorToInt(RouteCenter.y + r * Mathf.Cos(theta));
+                    if (!world.Size.InBounds(x, 0, z)) continue;
+                    MinimapImage.ColumnInfo(world, x, z, out int surface, out int waterDepth);
+                    if (surface < 0 || waterDepth > 0) continue;
+                    int y = world.Size.Y - 2;
+                    while (y > 0 && world.GetMaterial(x, y, z) == BlockMaterial.Empty) y--;
+                    sv.Sim.MarkTill(new CellPos(x, y, z));
+                }
+            }
             Debug.Log($"WALKBENCH plots: {sv.Sim.State.Plots.Count} (target {count})");
         }
 
@@ -280,7 +296,7 @@ namespace Game.Client
             sb.Append($"viewpoints={view.ViewpointCount} secondCenter={(SecondViewpoint != null ? $"({SecondCenter.x:F1};{SecondCenter.y:F1})" : "none")} | ");
             sb.Append($"holeFrames={holeFrames} secondHoleFrames={secondHoleFrames} maxMissing={maxMissing} loadedColumnsMax={maxLoadedColumns} loadedChunksMax={maxLoadedChunks} | ");
             sb.Append($"sysMemMaxMB={maxSystemMem / 1048576.0:F1} gcReservedMaxMB={maxGcMem / 1048576.0:F1} | creatures={(sv.Sim != null ? sv.Sim.State.Creatures.Count : 0)} | ");
-            sb.Append($"plots={(sv.Sim != null ? sv.Sim.State.Plots.Count : 0)} plotIconsVisibleAvg={(icons != null && frameMs.Count > 0 ? (double)visiblePlotIconSum / frameMs.Count : -1.0):F1} | ");
+            sb.Append($"plots={(sv.Sim != null ? sv.Sim.State.Plots.Count : 0)} plotIconsVisibleAvg={(icons != null && frameMs.Count > 0 ? (double)visiblePlotIconSum / frameMs.Count : -1.0):F1} plotIconsVisibleMax={maxPlotIcons} iconFrames={iconFrames} iconFramesAvgMs={(iconFrames > 0 ? iconFramesMsSum / iconFrames : -1.0):F2} | ");
             sb.Append(GpuSummary()).Append(" | ");
             sb.Append($"pass30fps={avgFps >= 30.0} passNoHole={holeFrames == 0 && secondHoleFrames == 0}");
             Summary = sb.ToString();

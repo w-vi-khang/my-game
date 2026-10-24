@@ -38,7 +38,7 @@ namespace Game.Client.Tests
             player.readKeyboard = false;
             playerGo.SetActive(true);
             wb.secondViewpoint = TestContext.CurrentContext.Test.Name == nameof(SecondViewpointWalkLogsSummary);
-            wb.targetPlots = TestContext.CurrentContext.Test.Name == nameof(TargetPlotsMarksTwenty) ? 20 : 0;
+            wb.targetPlots = TestContext.CurrentContext.Test.Name == nameof(TargetPlotsMarksTwenty) || TestContext.CurrentContext.Test.Name == nameof(TargetPlotsAheadOnRoute) ? 20 : 0;
             go.SetActive(true);
             yield return null;
             yield return null;
@@ -110,6 +110,25 @@ namespace Game.Client.Tests
             Assert.GreaterOrEqual(sv.Sim.State.Plots.Count, 20);
             StringAssert.Contains("plots=", wb.Summary);
             StringAssert.Contains("plotIconsVisibleAvg=", wb.Summary);
+            StringAssert.Contains("plotIconsVisibleMax=", wb.Summary);
+            StringAssert.Contains("iconFrames=", wb.Summary);
+            StringAssert.Contains("iconFramesAvgMs=", wb.Summary);
+        }
+
+        [UnityTest]
+        public IEnumerator TargetPlotsAheadOnRoute()
+        {
+            for (int i = 0; i < 300 && sv.Sim.State.Plots.Count < 20; i++)
+                yield return null;
+            Assert.GreaterOrEqual(sv.Sim.State.Plots.Count, 20);
+            // The sim starts with a few demo plots near the camp; the bench only adds plots up to the target.
+            int ahead = 0;
+            foreach (var plot in sv.Sim.State.Plots)
+            {
+                float d = Vector2.Distance(new Vector2(plot.Soil.X + 0.5f, plot.Soil.Z + 0.5f), wb.RouteCenter);
+                if (d >= wb.RouteRadius - 6f && d <= wb.RouteRadius - 2f) ahead++;
+            }
+            Assert.GreaterOrEqual(ahead, 16, $"plots={sv.Sim.State.Plots.Count}");
         }
 
         [UnityTest]
