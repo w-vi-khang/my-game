@@ -21,9 +21,17 @@
 | Danh sách yêu cầu của loài | Danh sách yêu cầu mỗi loài (user gọi là "list nhiệm vụ theo loài", "bảng nhiệm vụ loài"); quyết định cả cấp độ sinh vật ngoài tự nhiên: đạt phần mở khoá → loài trở lại; đạt thêm → mức đáp ứng tăng. Khác "nhiệm vụ" (cốt truyện) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Rút thưởng gói | Rút phần thưởng ngẫu nhiên từ gói trong cửa hàng (gói sinh vật, gói sách phép, gói trang bị...) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Bảo hiểm | Đảm bảo ra phần thưởng được bảo hiểm khi rút gói đủ nhiều lần (gói sinh vật: cá thể vượt trội; gói sách phép: phép bậc cao hơn; gói trang bị: trang bị bậc cao hơn); công khai; ưu tiên hơn chặn quá may | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Trang bị | Đồ gắn cho sinh vật (mỗi sinh vật 3 trang bị, không chia loại ô), cộng chỉ số chiến đấu, tính trong PvP; không ngẫu nhiên, không vượt trội | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Bậc trang bị | Mức của trang bị; khác "bậc" (tiến hoá) của sinh vật | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Ghép trang bị | Ghép các trang bị cùng loại, cùng bậc trang bị thành một trang bị bậc cao hơn | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Trang bị | Đồ gắn cho sinh vật hoặc nhân vật; chỉ số cố định, không ngẫu nhiên, không vượt trội. Hai họ tách biệt: trang bị sinh vật và trang bị nhân vật | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Họ trang bị | Nhóm trang bị dùng chung phôi và nguyên liệu ghép: họ nhân vật, họ sinh vật — hai họ không trộn với nhau | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Trang bị sinh vật | Trang bị của sinh vật: 3 ô không chia loại; món lớn ghép từ 2 mảnh trang bị (8 loại mảnh → 36 món); cộng chỉ số chiến đấu, tính trong PvP | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Mảnh trang bị | Mảnh nhỏ của trang bị sinh vật (8 loại); 2 mảnh ghép thành một món lớn. Khác "mảnh ký ức" | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Trang bị nhân vật | Trang bị của nhân vật người chơi: 6 ô (mũ, áo, giày, găng tay, quyền trượng, nhẫn); chỉ số du hành (tốc độ di chuyển, mana, máu...); không tác dụng khi chiến đấu, bỏ trong PvP sinh vật | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Quyền trượng | Ô trang bị nhân vật thứ năm (trước gọi tạm "sách phép"; đổi để khỏi trùng "gói sách phép") | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Bậc trang bị | Mức của trang bị: C, B, A0, A1, A2, S0, S1 (cao nhất); khác "bậc" (tiến hoá) của sinh vật | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Ghép trang bị | Nâng bậc trang bị: B = 3 C, A0 = 3 B (cùng loại); từ A1 = món gốc + phôi cùng bậc (A2 + phôi A2 → S0) | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Món gốc | Món trang bị được nâng cấp khi ghép; giữ nguyên loại | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Phôi | Nguyên liệu ghép từ A1: phôi bậc An hoặc một trang bị bậc An bất kỳ loại cùng họ; không thuộc loại nào, không gắn được, không làm món gốc, không ghép với nhau | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
+| Tách trang bị | Làm ngược bước ghép cho món từ A1 (vd A1 → A0 cùng loại + phôi A0); tốn phí bằng tiền trong game | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Rèn | Làm trang bị ở lò rèn từ nguyên liệu, cần sinh vật phù hợp | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Ma năng | Tài nguyên nhận khi rút gói sách phép ra phép đã sở hữu; đổi phép trong cửa hàng hoặc chế tác một số trang bị. Khác "mana" (năng lượng dùng phép) — tên dễ nhầm, xem [naming](01-story/naming.md) | [02-gameplay/economy.md](02-gameplay/economy.md) |
 | Biến thể hiển thị | Khác biệt nhỏ về hình ảnh giữa mọi cá thể/vật thể cùng loại (kích thước, màu, hoa văn), sinh theo seed riêng | [03-art-audio/art-style.md](03-art-audio/art-style.md) |

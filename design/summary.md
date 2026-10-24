@@ -47,7 +47,7 @@ Khám phá, thu thập → cải tạo địa hình → hoàn thành **danh sác
 **Phép, chiến đấu, trang bị**
 - Hai bộ sưu tầm: **phép của pháp sư** (khám phá, phát triển) và **phép sinh vật** (chiến đấu). **Nhóm phép**: phổ biến, tộc, nguyên tố, loài. **Ô phép**: 3 (bậc 1) / 4 (bậc 2+, có **ô đặc biệt**). **Mana** dùng chung.
 - **Nhập hồn**: người chơi nhập vào sinh vật, dùng bộ phép của nó.
-- **Trang bị**: 3 món mỗi sinh vật; **bậc trang bị**; **ghép trang bị** cùng loại cùng bậc → bậc cao hơn; **rèn** ở **lò rèn**.
+- **Trang bị** ([0038](decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md)): hai họ tách biệt. **Trang bị sinh vật**: 3 ô; món lớn ghép từ 2 **mảnh** (8 loại mảnh → 36 món); tính trong PvP. **Trang bị nhân vật**: 6 ô (mũ, áo, giày, găng tay, **quyền trượng**, nhẫn); chỉ số du hành, không tác dụng khi chiến đấu. Chung: **bậc trang bị** C–S1; **ghép trang bị** (3 món cùng loại tới A0, từ A1 thêm **phôi**); **tách trang bị** có phí; **rèn** ở **lò rèn**.
 
 **PvP & kinh tế**
 - PvP 1v1 thời gian thực (sau phát hành), 3–5 sinh vật theo **thể thức**; ghép theo **hạng** rồi **cấp độ trung bình**. Trong PvP bỏ điểm cộng cá thể (vượt trội) — ở mức tối đa mọi người như nhau.
@@ -96,6 +96,6 @@ Khám phá, thu thập → cải tạo địa hình → hoàn thành **danh sác
 |---|---|---|---|
 | Tiền trong game, tiền nạp | Hai loại tiền | 2 | Tự tạo (≤ 10) |
 | Gói cửa hàng | Gói sinh vật, gói sách phép, gói trang bị | 3 | Dịch |
-| Trang bị | Tên chung, các bậc trang bị, từng trang bị | Chưa định | Dịch |
+| Trang bị | Tên chung, các bậc trang bị, 8 mảnh + 36 món sinh vật, trang bị nhân vật theo 6 ô | 44+ | Dịch |
 | Biến thể | Dạng đặc biệt về màu, hình thái của từng loài | Vài mỗi loài | Dịch (tên loài + tính từ) |
 | Hạng PvP | Các hạng xếp hạng | Chưa định | Dịch hoặc tự tạo |

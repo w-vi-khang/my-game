@@ -1,0 +1,74 @@
+{
+  "_comment": "Mẫu danh mục địa hình cho tools/terrain_catalog.py (skill local-terrain-gen). Chỉ để minh hoạ cấu trúc + test công cụ — KHÔNG phải thiết kế. Danh mục thật: design/data/terrain_catalog.json.",
+  "version": 1,
+  "legend": {
+    ".": "air",
+    "G": "grass",
+    "D": "dirt",
+    "S": "stone",
+    "A": "sand",
+    "W": "water",
+    "B": "bedrock",
+    "N": "snow",
+    "/": "slope",
+    "\\": "slope",
+    "w": "water_top"
+  },
+  "blocks": [
+    { "id": "grass", "material": "Grass", "exists": true },
+    { "id": "dirt", "material": "Dirt", "exists": true },
+    { "id": "stone", "material": "Stone", "exists": true },
+    { "id": "sand", "material": "Sand", "exists": true },
+    { "id": "water", "material": "Water", "exists": true },
+    { "id": "bedrock", "material": "Bedrock", "exists": true },
+    { "id": "snow", "exists": false, "note": "vật liệu mới" }
+  ],
+  "shapes": [
+    { "id": "cube", "exists": true },
+    { "id": "slope", "kind": "wedge", "exists": false, "rotations": 4, "walkable": true, "collider": "wedge", "dig_result": "1 khối vật liệu", "needs": ["slope_outer", "slope_inner"] },
+    { "id": "slope_outer", "kind": "wedge_corner_outer", "exists": false, "rotations": 4, "walkable": true, "collider": "wedge", "dig_result": "1 khối vật liệu" },
+    { "id": "slope_inner", "kind": "wedge_corner_inner", "exists": false, "rotations": 4, "walkable": true, "collider": "wedge", "dig_result": "1 khối vật liệu" },
+    { "id": "water_top", "kind": "water_top", "exists": false, "water_fraction": [0.2, 0.333], "walkable": true, "collider": "cube thấp", "dig_result": "1 khối vật liệu, nước giữ nguyên/loang",
+      "params": { "water_fraction": { "value": 0.25, "tmp": true } } }
+  ],
+  "landforms": [
+    {
+      "id": "beach", "name": "Bờ biển cát", "status": "ý tưởng", "pillars": ["P?"],
+      "layers": [ { "depth": 3, "block": "sand" }, { "block": "stone" }, { "block": "bedrock", "depth": 2, "from": "bottom" } ],
+      "shapes": ["slope", "water_top"],
+      "rules": ["cát trong dải quanh mực nước biển", "mép nước dùng water_top", "dốc thoải xuống nước"],
+      "params": { "sand_band": { "value": 3, "tmp": true }, "max_step": { "value": 1, "tmp": true } },
+      "section": [
+        "GGGG............",
+        "DDDDGG\\.........",
+        "DDDDDDAA\\.......",
+        "SSSSDDAAAAwWWWWW",
+        "SSSSSSSSAAAAAAAA",
+        "BBBBBBBBBBBBBBBB"
+      ]
+    },
+    {
+      "id": "mountain_snow", "name": "Núi đỉnh tuyết", "status": "ý tưởng", "pillars": ["P?"],
+      "layers": [ { "depth": 1, "block": "snow", "when": "trên đường tuyết, mặt dốc ≤ 1" }, { "block": "stone" } ],
+      "shapes": ["slope", "slope_outer"],
+      "rules": ["tuyết chỉ phủ mặt gần phẳng trên đường tuyết", "sườn dốc lộ đá", "đường tuyết lệch theo noise"],
+      "params": { "snow_line": { "value": 36, "tmp": true }, "snow_line_jitter": { "value": 3, "tmp": true } },
+      "section": [
+        "....../NN\\......",
+        ".....SSSSS\\.....",
+        "...GSSSSSSS\\....",
+        ".GGDDSSSSSSSG\\..",
+        "GDDDSSSSSSSSDDGG",
+        "BBBBBBBBBBBBBBBB"
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "id": "beach_mountain", "a": "beach", "b": "mountain_snow",
+      "rule": "trộn theo độ cao: dưới mực nước + 2 là cát, trên là cỏ/đá theo độ dốc",
+      "blocks": ["sand", "grass", "stone"], "shapes": ["slope"],
+      "params": { "width": { "value": 8, "tmp": true } }
+    }
+  ]
+}

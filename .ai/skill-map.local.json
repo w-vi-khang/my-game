@@ -126,7 +126,32 @@
       "related": [
         "local-gdd-section",
         "local-game-story",
-        "game-balance"
+        "game-balance",
+        "local-terrain-gen"
+      ]
+    },
+    {
+      "name": "local-terrain-gen",
+      "status": "active",
+      "summary": "Thiết kế dạng địa hình, khối + cách xếp, chuyển tiếp cảnh quan, khối trung gian (dốc, nước mặt); chỉnh và kiểm bộ sinh world theo seed",
+      "keywords": [
+        "sinh dia hinh",
+        "dang dia hinh",
+        "canh quan",
+        "khoi trung gian",
+        "khoi doc",
+        "chuyen tiep",
+        "bo sinh world",
+        "nui tuyet",
+        "do doc",
+        "mat cat",
+        "~dia hinh",
+        "~noise",
+        "~seed"
+      ],
+      "related": [
+        "local-level-design",
+        "local-gdd-section"
       ]
     }
   ]

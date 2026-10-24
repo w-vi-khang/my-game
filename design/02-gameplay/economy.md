@@ -12,7 +12,9 @@ Mới liệt kê các dòng chảy đã biết từ cơ chế; số liệu, gi�
 | Tài nguyên thế giới (khối, vật liệu) | Khám phá, thu thập; loại tài nguyên theo vùng của từng map ([levels](levels.md)) [ý tưởng] | Cải tạo môi trường sống, xây dựng | _(?)_ |
 | Sản lượng nông trại | Lệnh làm việc, tua nhanh | _(chưa có)_ | Sức chứa kho |
 | Sinh vật (cá thể) | Hồi sinh loài, bắt, ấp nở, rút thưởng (chỉ loài đã hồi sinh; backend quyết định kết quả) | Nhân công lệnh làm việc, chiến đấu; thả đi | Giới hạn sinh vật hoạt động theo cấp độ người chơi và công trình (+10% nếu nạp; tối đa 54, nạp 60); dư cất vào kho sinh vật |
-| Trang bị | Rèn ở lò rèn, ghép trang bị, gói trang bị | Gắn cho sinh vật; ghép lên bậc cao hơn (tiêu trang bị bậc thấp) | Bậc tối đa người không nạp đạt được |
+| Trang bị (nhân vật, sinh vật) | Rèn ở lò rèn, thu thập, gói trang bị; tách trang bị ra phôi | Gắn cho sinh vật (3 ô) hoặc nhân vật (6 ô); ghép lên bậc cao hơn (tiêu trang bị bậc thấp, phôi) — [0038](../decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md) | Bậc S1, người không nạp đạt được |
+| Phôi (theo họ trang bị) | Tách trang bị từ A1; nguồn khác _(chưa có)_ | Nguyên liệu ghép từ A1 lên | _(?)_ |
+| Tiền trong game — phí tách | — | Phí mỗi lần tách trang bị [số tạm] | _(?)_ |
 | Thẻ bài (bậc 1–4) | _(chưa có)_ | Bắt sinh vật: mất khi bắt không thành, tỉ lệ nhỏ mất khi ném hụt; thành công thì thẻ chứa cá thể | Bậc 4 chắc chắn bắt + vượt trội; bậc cao bán được bằng tiền nạp (0004 điểm 4 sửa 2026-10-12) |
 | Mảnh ký ức | Nhiệm vụ chính mỗi map, mốc hồi sinh | Nâng cấp tinh linh ([ý tưởng] tính theo số đã thu thập, không tiêu) | Theo số map |
 | Ma năng | Rút gói sách phép ra phép đã sở hữu | Đổi phép trong cửa hàng; chế tác một số trang bị | _(?)_ |

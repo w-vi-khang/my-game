@@ -36,7 +36,8 @@
 | Đặt tên sinh vật | Người chơi đặt tên cho từng cá thể; các cá thể cùng loài của một người chơi không được trùng tên | P2 | Client + Backend (lưu tên, kiểm trùng) | Nên có | 1–2 [ý tưởng] | M2 |
 | Thẻ bài & bắt sinh vật | Mỗi cá thể gắn một thẻ bài, thẻ cất trong kho sinh vật; ném thẻ để bắt (ném hụt: tỉ lệ nhỏ mất thẻ; bắt không thành: mất thẻ); tỉ lệ bắt theo chênh lệch cấp độ, bậc sinh vật, bậc thẻ; 4 bậc thẻ khác nhau tỉ lệ bắt và tỉ lệ vượt trội; bậc 4 chắc chắn bắt, chắc chắn vượt trội, có hiệu ứng | P1, P2 | Client + Backend (kết quả bắt, sinh chỉ số cá thể) | Phải có | 8–14 + art hiệu ứng mỗi loại thẻ | M2 [ý tưởng] |
 | Giới hạn sinh vật & kho sinh vật | Giới hạn số sinh vật hoạt động (làm việc + chiến đấu) theo cấp độ người chơi và công trình; dư thì thả hoặc cất vào kho sinh vật | P2 | Client + Backend (sở hữu sinh vật) | Phải có | 3–6 | M2 |
-| Trang bị | Trang bị cho sinh vật, nhiều bậc trang bị; ghép trang bị cùng loại cùng bậc lên bậc cao hơn; rèn ở lò rèn (nguyên liệu + sinh vật phù hợp); cộng chỉ số chiến đấu, tính trong PvP | P2, P4 | Client + Backend (sở hữu, ghép, kết quả rèn) | Phải có | 13–23 | M3 [ý tưởng] |
+| Trang bị sinh vật | 3 ô đồng cấp; 8 loại mảnh → 36 món lớn (2 mảnh/món); bậc trang bị C–S1; ghép (cùng loại tới A0, phôi từ A1), tách có phí; rèn ở lò rèn (nguyên liệu + sinh vật phù hợp); cộng chỉ số chiến đấu, tính trong PvP ([0038](../decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md)) | P2, P4 | Client + Backend (sở hữu, ghép, tách, kết quả rèn) | Phải có | [ý tưởng] 23–42 (gồm luật bậc/ghép/tách dùng chung; chưa tính art) | M3 [ý tưởng] |
+| Trang bị nhân vật | 6 ô: mũ, áo, giày, găng tay, quyền trượng, nhẫn; chỉ số du hành cố định (tốc độ di chuyển, mana, máu...); không tác dụng khi chiến đấu, bỏ trong PvP sinh vật; dùng chung luật bậc/ghép/tách, phôi riêng ([0038](../decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md)) | P1, P3 | Client + Backend (sở hữu, ghép, tách) | Nên có | [ý tưởng] 4–7 (chưa tính art) | M3 [ý tưởng] |
 | Tiến hoá | Tăng bậc → mở ô phép thứ 4, mở rộng phạm vi phép mang được | P2, P4 | Client | Nên có | 10–15 | M3 |
 | Nghiên cứu | Một nguồn phép mới; chi tiết _(chưa có)_ | P2 | Client | Nên có | [ý tưởng] 10–20 (chưa có thiết kế) | M3 |
 | Tinh linh hỗ trợ | Tinh linh đi theo người chơi, hỗ trợ bằng thông tin; nâng cấp bằng mảnh ký ức → thông tin nhiều hơn | P1, P3 | Client | Nên có | 5–10 | M2 [ý tưởng] |
@@ -353,17 +354,60 @@ flowchart LR
 - Danh sách đầy đủ chỉ số chiến đấu và chỉ số đặc trưng loài; giá trị hệ số quy đổi, trần.
 
 ### Trang bị
-Mô tả của user (2026-10-12). Công thức để sau.
-- Trang bị dành cho **sinh vật**; ảnh hưởng chỉ số chiến đấu và **tính trong PvP**.
-- Mỗi sinh vật mang **3 trang bị**; không chia loại ô, không giới hạn theo nguyên tố (user, 2026-10-12).
-- Trang bị **không có chỉ số ngẫu nhiên, không có vượt trội** — cùng loại, cùng bậc trang bị thì như nhau (user, 2026-10-12).
-- Có nhiều **bậc trang bị** (khác "bậc" tiến hoá của sinh vật).
-- **Ghép trang bị:** ghép các trang bị cùng loại, cùng bậc → một trang bị bậc cao hơn. Số lượng cần ghép: _(chưa có)_
+Mô tả của user (2026-10-12; bổ sung 2026-10-24 — [0038](../decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md)). Có hai **họ trang bị** tách biệt: **trang bị nhân vật** và **trang bị sinh vật**. Hai họ dùng chung luật bậc, ghép và tách bên dưới, nhưng phôi và nguyên liệu ghép của họ nào chỉ dùng cho họ đó.
+
+#### Luật chung (user, 2026-10-24)
+- Trang bị **không có chỉ số ngẫu nhiên, không có vượt trội**. Cùng loại, cùng bậc trang bị thì như nhau (user, 2026-10-12; áp cho cả trang bị nhân vật — 2026-10-24).
+- **Bậc trang bị** (khác "bậc" tiến hoá của sinh vật): C, B, A0, A1, A2, S0, S1. **S1 là bậc cao nhất.**
+- **Ghép trang bị:**
+
+| Bậc | Công thức | Giá tương đương C (coi phôi An = 1 món An) |
+|---|---|---|
+| C | — | 1 |
+| B | 3 C cùng loại | 3 |
+| A0 | 3 B cùng loại | 9 |
+| A1 | A0 + phôi A0 | 18 |
+| A2 | A1 + phôi A1 | 36 |
+| S0 | A2 + phôi A2 | 72 |
+| S1 | S0 + phôi S0 | 144 |
+
+```mermaid
+flowchart LR
+  C -- "×3 cùng loại" --> B -- "×3 cùng loại" --> A0
+  A0 -- "+ phôi A0" --> A1 -- "+ phôi A1" --> A2 -- "+ phôi A2" --> S0 -- "+ phôi S0" --> S1
+```
+
+- **Món gốc và phôi:**
+  - Món gốc là món được nâng cấp. Món gốc giữ nguyên loại khi lên bậc.
+  - **Phôi An** là một phôi bậc An, hoặc một món trang bị bậc An bất kỳ loại nào, miễn cùng họ.
+  - Phôi không thuộc loại trang bị nào: không gắn được, không làm món gốc, chỉ làm nguyên liệu ghép.
+  - **Phôi không ghép với nhau** (vd 2 phôi A0 không thành phôi A1).
+- **Tách trang bị:** chỉ tách được món từ A1 trở lên. Tách là làm ngược bước ghép: A1 → A0 cùng loại + phôi A0; A2 → A1 + phôi A1; S0 → A2 + phôi A2; S1 → S0 + phôi S0.
+  - **Phí tách:** mỗi lần tách tốn một ít **tiền trong game**, không tốn trang bị. Mức phí [số tạm], chưa chốt, đặt trong JSON `design/data/` khi làm.
+  - Hệ quả: từ A1 trở lên, phần đã bỏ vào món chuyển được sang loại khác (tách ra phôi rồi ghép với món gốc của loại khác). Chỉ món gốc A0 và phí tách là mất. Người chơi đổi build mà ít bị thiệt (P4). Phí tách là chỗ tiêu tiền trong game ([economy](economy.md)).
 - **Rèn:** làm trang bị ở công trình **lò rèn**, cần nguyên liệu và sinh vật phù hợp. Một số loại trang bị chế tác bằng **ma năng** (xem Rút thưởng gói).
-  - [ý tưởng] Rèn là một lệnh làm việc tại lò rèn; "sinh vật phù hợp" = sinh vật có năng lực làm việc rèn → độ thuần thục ảnh hưởng thời gian/kết quả. Nối nông trại (P2) với chiến đấu (P4).
-- Nguồn: rèn, gói trang bị (rút thưởng gói), các nguồn khác _(chưa có)_.
-- [ý tưởng] Trang bị chỉ cộng vào các chỉ số phân bổ được, có trần chung như chỉ số (không vượt trần) → giữ cân bằng bằng `game-balance` (kit).
-- Câu hỏi mở: trang bị có giới hạn theo loài/tộc không; một sinh vật mang được 2–3 trang bị giống nhau không; công thức rèn và ghép; công trình lò rèn mở khi nào.
+  - [ý tưởng] Rèn là một lệnh làm việc tại lò rèn. "Sinh vật phù hợp" là sinh vật có năng lực làm việc rèn; độ thuần thục ảnh hưởng thời gian và kết quả. Nối nông trại (P2) với chiến đấu (P4).
+- **Nguồn:** rèn, thu thập trong world, gói trang bị (rút thưởng gói; user 2026-10-24 cho trang bị nhân vật). Nguồn khác _(chưa có)_.
+  - [ý tưởng] Chia nguồn theo bậc: rèn ra C; thu thập trong world, rương ra C–B; nhiệm vụ và boss cho phôi A0; gói ra C/B/A0 có bảo hiểm. Gói chỉ giúp đi nhanh hơn, không vượt mức tối đa ([0004](../decisions/0004-tien-nap.md)).
+- [ý tưởng] Luật bậc, ghép, tách viết một lần trong `Game.Core`, tham số hoá theo họ. Backend xác thực ghép, tách.
+
+#### Trang bị sinh vật
+- Trang bị sinh vật ảnh hưởng chỉ số chiến đấu và **tính trong PvP**.
+- Mỗi sinh vật mang **3 trang bị**; không chia loại ô, không giới hạn theo nguyên tố (user, 2026-10-12).
+- **Mảnh và món lớn** (user, 2026-10-24): món lớn ghép từ **2 mảnh nhỏ**. Có **8 loại mảnh** và **36 món lớn**: 28 cặp hai mảnh khác nhau + 8 cặp hai mảnh giống nhau, không tính thứ tự.
+  - Tham khảo: Teamfight Tactics. Lấy: mảnh cơ bản ghép được với mọi mảnh khác và với chính nó ([PC Gamer](https://pcgamer.com/teamfight-tactics-items-guide), [Magic Game World](https://www.magicgameworld.com/teamfight-tactics-tft-combining-items-for-true-power/)). Không lấy: đồ chỉ dùng trong một ván. Trang bị ở đây giữ lâu dài, có bậc.
+  - [ý tưởng] Mảnh không có bậc. 2 mảnh → món lớn bậc C; bậc chỉ có ở món lớn. Giá tính bằng mảnh = 2 × giá tương đương C (S1 = 288 mảnh).
+- [ý tưởng] Trang bị chỉ cộng vào các chỉ số phân bổ được, có trần chung như chỉ số (không vượt trần). Giữ cân bằng bằng `game-balance` (kit).
+- Câu hỏi mở: mảnh có bậc không, gắn trực tiếp vào ô được không; trang bị có giới hạn theo loài/tộc không; một sinh vật mang được 2–3 trang bị giống nhau không; công thức rèn; lò rèn mở khi nào.
+
+#### Trang bị nhân vật
+- **6 ô:** mũ, áo, giày, găng tay, **quyền trượng**, nhẫn (user, 2026-10-24). "Quyền trượng" thay cho "sách phép" để khỏi trùng với gói sách phép.
+- Chỉ giúp nhân vật **du hành** tốt hơn: tốc độ di chuyển, mana tối đa, hồi mana, một ít máu tối đa, hồi máu... Mỗi loại cho chỉ số khác nhau.
+- **Không có tác dụng trong chiến đấu.** Chiến đấu vẫn dùng sinh vật ([P4](../00-vision.md#pillars-35-trụ-cột)); trong **PvP sinh vật** trang bị nhân vật bị bỏ.
+- Có cộng chỉ số trong **một mode chơi khác**. User chưa mô tả mode này: _(chưa có)_.
+- Nguồn: rèn, thu thập, rút gói trong cửa hàng.
+- [ý tưởng] Gợi ý chỉ số chính theo ô: giày → tốc độ di chuyển; nhẫn → mana tối đa; quyền trượng → hồi mana; áo → máu tối đa; mũ → hồi máu; găng tay → giảm mana tốn khi đào/đặt khối. Số [số tạm] trong JSON `design/data/` khi làm.
+- Câu hỏi mở: mỗi ô có một hay nhiều loại trang bị (vd nhiều loại giày khác chỉ số); có trần chỉ số du hành không; mode chơi khác là mode gì.
 
 ### Phép
 Hai loại, **hai bộ sưu tầm riêng** — pháp sư không mang được phép sinh vật:
@@ -425,7 +469,7 @@ Mô tả của user (2026-10-13). Nhân vật: [characters](../01-story/characte
 - **Chỉ số trong PvP** (user, 2026-10-12 — thay quy tắc cũ "phát triển sau ngưỡng không ảnh hưởng PvP" và ý tưởng chuẩn hoá về ngưỡng):
   - Điểm chỉ số từ cấp độ và bậc **vẫn tính**, vì người chơi nào rồi cũng đạt được.
   - Chỉ **bỏ phần điểm vượt trội** → cá thể cùng loài, cùng cấp độ và bậc có cùng tổng điểm, chỉ khác cách phân bố (xem [Chỉ số sinh vật](#chỉ-số-sinh-vật)).
-  - **Trang bị tính trong PvP** (user, 2026-10-12). Bậc trang bị cao nhất người không nạp cũng đạt được bằng ghép/rèn ([0004](../decisions/0004-tien-nap.md)).
+  - **Trang bị sinh vật tính trong PvP** (user, 2026-10-12); trang bị nhân vật bị bỏ (user, 2026-10-24 — [0038](../decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md)). Bậc trang bị cao nhất người không nạp cũng đạt được bằng ghép/rèn ([0004](../decisions/0004-tien-nap.md)).
   - **Tiền nạp và PvP** (user, 2026-10-12): tiền nạp luôn ảnh hưởng **tốc độ** tiến trình theo cách này hay cách khác — không tránh được. Thứ chặn được là **mức tối đa**: ở mức tối đa mọi người như nhau (vượt trội bị bỏ, không mua được thứ người không nạp không đạt được).
   - Chênh lệch cấp độ/bậc giữa người mới qua ngưỡng và người chơi lâu năm được giảm bằng ghép trận theo hạng và cấp độ trung bình.
 - Co-op đảo sandbox: spin-off, tạm bỏ qua — xem [ideas](../ideas.md).
