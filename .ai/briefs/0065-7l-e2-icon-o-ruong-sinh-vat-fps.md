@@ -1,6 +1,6 @@
 # Brief 0065 — 7l e2: icon + vòng tiến trình trên ô ruộng, icon trạng thái sinh vật / đình trệ (thay nhãn chữ), đo ≥ 30 FPS điện thoại với 20 ô ruộng
 
-> Trạng thái: cần Opus
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -289,3 +289,14 @@ Từ 0065:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner (Opus · medium), 2026-10-24, review đầy đủ — `git show --stat 74ec39c` + diff `WorldIcons`, `WorldIconsView`, `SimView`.
+- Chạy bằng Sonnet · medium = Model thực thi. Mọi dòng "Phần cần test" có kết quả trừ hiệu năng điện thoại (chưa đo — xem dưới).
+- Quyết định 1–3: icon + vòng trên ô ruộng (`ForPlot` đúng bảng bước 2), icon sinh vật (`ForCreature`), "!" đình trệ tại ô; nhãn chữ + `DrawLabel` đã xoá khỏi `SimView`. Đạt.
+- Đề xuất 7–12: một canvas Overlay `sortingOrder` 4, pool, `Apply` chỉ đổi hình khi `WorldIcon` đổi; ẩn khi Cài đặt / bản đồ mở, xa > `IconMaxCells`, sau camera, ngoài màn hình; 3 số tạm trong JSON (+ bản sao client); mầm / biển giữ. Đạt.
+- `WorldIcons` (Core) C# thuần, không UnityEngine. Đạt.
+- Lệch chấp nhận: 12 test EditMode thay vì 13 (brief đếm thừa); `HiddenWhileSettingsOpen` nằm trong `WorldIconsPlayTests` thay vì sửa `SettingsPlayTests`.
+- Test: 560/560 EditMode, 253/254 PlayMode — `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` cùng lỗi phụ thuộc thứ tự như 0064, không liên quan (theo dõi ở handoff). Không chạy lại.
+- **Đo FPS điện thoại (bước 9.4) chưa làm:** adb không thấy máy, user AFK (user dặn bỏ qua phần cần user). Theo phiên điều phối: kết luận code, việc đo còn treo — làm khi user cắm máy, dùng 2 APK đã build từ `74ec39c`. Tiêu chí "≥ 30 FPS điện thoại với 20 ô ruộng" của dòng 7l e **chưa đạt / chưa kiểm**.
+- Giờ: Executor ~17 phút (07:25 → commit 07:42; brief không ghi giờ kết thúc — lấy giờ commit); tổng 7l e ~38 phút so với ước lượng 2–3 ngày. Đã ghi world-tech + roadmap.
+- User xem: gộp cuối task (mục "User tự test gộp 7l e" ở trên).
+- Kết luận: đã duyệt (code ok; đo FPS điện thoại ≥ 30 FPS với 20 ô ruộng có icon chờ user cắm máy — gộp cuối)
