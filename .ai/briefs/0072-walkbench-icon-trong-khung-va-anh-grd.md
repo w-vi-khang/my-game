@@ -1,6 +1,6 @@
 # Brief 0072 — Đo lại 7l e với icon trong khung + chụp màn hình kiểm bản GRD (7k B) trên điện thoại
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -109,10 +109,42 @@ Không (Planner xem ảnh).
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 4c1cc53 · Commit code: f215796
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ: bắt đầu 14:12, kết thúc ~14:29. Máy 24095PCADG qua `192.168.1.6:35093`, Thermal 2 mọi lần, không khoá màn hình. Đã gỡ app.
+File đổi: `WalkBench.cs` (AddPlots mới + 3 số đo), `WalkBenchPlayTests.cs` (+`TargetPlotsAheadOnRoute`, assert trường mới ở `TargetPlotsMarksTwenty`).
+
+### Ảnh A/B (`client/Builds/0072-{a,b}-{20,40}.png`, không commit)
+- **A (GRD tắt)**: ở 20 s có địa hình bậc thang cỏ/đất, bầu trời + mây, minimap, HUD "42,3 FPS", dòng WALKBENCH measuring; nhân vật hầu như ngoài khung (chỉ vòng tròn dưới chân). 40 s: ảnh `a-40` chưa xem chi tiết (cùng cảnh đang chạy).
+- **B (GRD Instanced Drawing, Forward+)**: ảnh 20 s là **toàn màn hình đen** (không địa hình, không HUD); ảnh 40 s là **màn hình splash "Made with Unity" mờ** trên nền đen. Tức là ở 20 s và 40 s sau khi mở, B **không hiển thị world** (cũng không có HUD) trong khi log vẫn ra `WALKBENCH device=` 60,0 FPS (2398 khung, gpuMs ~0,2). Gợi ý mạnh: số 60,9/60,0 FPS của B là khung gần rỗng (app đứng ở splash/đen), không phải render world nhanh hơn. Không kết luận bật/tắt GRD. (Chưa kiểm vì sao: có thể GRD/Forward+ không vẽ gì trên Mali Vulkan, hoặc app kẹt ở splash — cần Planner quyết bước kiểm tiếp.)
+
+### 7l e — walkbench-plots.apk mới, 2 lần
+```
+lần 1: WALKBENCH plots: 20 (target 20)
+lần 1: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1755 avgFps=43,9 avgMs=22,80 p50Ms=24,96 p99Ms=33,31 maxMs=58,24 | distance=164,0 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1096,1 gcReservedMaxMB=171,3 | creatures=3 | plots=20 plotIconsVisibleAvg=0,9 plotIconsVisibleMax=16 iconFrames=84 iconFramesAvgMs=16,84 | gpuMsAvg=-1,00 gpuMsP99=-1,00 gpuSamples=0 grd=Disabled occ=False | pass30fps=True passNoHole=True
+lần 2: WALKBENCH plots: 20 (target 20)
+lần 2: WALKBENCH device=Xiaomi 24095PCADG | gpu=Mali-G615 MC2 (Vulkan) | screen=2712x1220 | frames=1768 avgFps=44,2 avgMs=22,62 p50Ms=24,95 p99Ms=33,31 maxMs=49,90 | distance=163,8 stuck=0 waterFrames=0 routeR=32 routeDry=True | viewpoints=1 secondCenter=none | holeFrames=0 secondHoleFrames=0 maxMissing=0 loadedColumnsMax=287 loadedChunksMax=861 | sysMemMaxMB=1113,2 gcReservedMaxMB=171,3 | creatures=3 | plots=20 plotIconsVisibleAvg=0,9 plotIconsVisibleMax=16 iconFrames=91 iconFramesAvgMs=16,83 | gpuMsAvg=-1,00 gpuMsP99=-1,00 gpuSamples=0 grd=Disabled occ=False | pass30fps=True passNoHole=True
+```
+| | 0052 (42,0–49,4) | lần 1 | lần 2 |
+|---|---|---|---|
+| avgFps | | 43,9 | 44,2 |
+| p99Ms | | 33,31 | 33,31 |
+| plots | | 20 | 20 |
+| plotIconsVisibleAvg | | 0,9 | 0,9 |
+| plotIconsVisibleMax | | 16 | 16 |
+| iconFrames (≥10 icon) | | 84 | 91 |
+| iconFramesAvgMs → FPS | | 16,84 → 59,4 | 16,83 → 59,4 |
+| Thermal | | 2 | 2 |
+- Tiêu chí QĐ 3 của brief: `plotIconsVisibleMax ≥ 10` đạt (16), `iconFrames > 0` đạt. Tiêu chí 7l e QĐ 4 (Planner xét): `iconFrames ≥ 100` **chưa đạt** (84, 91 < 100); `1000/iconFramesAvgMs` = 59,4 ≥ 30 đạt. Lưu ý: các khung có ≥10 icon chỉ là phần nhỏ của vòng đi (~85–90 khung / 1768); avgMs 16,8 ms của nhóm này cao hơn nhóm chung có vẻ do cảnh lúc đó (hướng nhìn) nhẹ hơn — số đo FPS trung bình chung vẫn 44.
+- Ảnh `0072-plots-30.png` (lần 1, ~30 s): thấy địa hình, nhân vật (ngoài khung), minimap; **không thấy icon ô ruộng** trong ảnh (chỉ một khối hồng nhỏ ở xa, không rõ có phải icon). Ảnh chụp đúng lúc không có icon trong khung (iconFrames chỉ ~5% số khung).
 
 ## Kết quả test
+- TargetPlotsAheadOnRoute + TargetPlotsMarksTwenty + WalkBench cũ: đạt (WalkBenchPlayTests 8/8). Lệch brief: sim có sẵn vài ô ruộng demo gần trại (cách tâm ~6,7 ô), nên test kiểm "≥16 ô nằm trong [R−6, R−2]" thay vì "mọi ô".
+- EditMode 596/596 đạt; PlayMode 268/268 đạt (267 + 1 mới); console 0 Error.
+- Cấu hình: `git diff --stat client/Assets/Settings client/ProjectSettings` rỗng; `WalkBench.unity` `targetPlots: 0`; `.apk`/`.png` không track. Đã `git checkout` UnityConnectSettings.asset, WalkBench.unity.meta, EditorSettings.asset.
 
 ## Vướng mắc
+Không chặn. Câu hỏi cho Planner: B không hiển thị world (xem trên) — cần quyết định kiểm thêm (vd chụp B ở nhiều thời điểm / logcat Vulkan) hay ghi "GRD không chạy được trên điện thoại → tắt" theo 0029 mục 4.
 
 ---
 <!-- PLANNER ghi khi review. -->
