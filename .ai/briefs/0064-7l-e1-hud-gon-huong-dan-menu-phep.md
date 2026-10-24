@@ -1,6 +1,6 @@
 # Brief 0064 — 7l e1: HUD gọn (avatar + máu + mana, thông số trên cùng, bỏ chữ hướng dẫn → Cài đặt → Hướng dẫn) + menu phép G
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -316,3 +316,15 @@ Từ 0034 (user, 2026-10-23) và task contract:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner (Opus · medium), 2026-10-24, review đầy đủ — `git show --stat dedb9ea` + diff `TerrainEditInput`, `TimeDial`, `SettingsView`, `SimView`, `HudMessage`.
+- Chạy bằng Sonnet · medium = Model thực thi. Mọi dòng "Phần cần test" có kết quả (Esc + menu phép: bỏ qua có lý do — chấp nhận).
+- Quyết định 1–4: chữ hướng dẫn bỏ, chuyển vào `SettingsView.GuideText()` (tab Hướng dẫn, chữ đúng bước 6); dòng buổi + `PeriodText` + T bỏ; G = `Player/ToggleSpellMenu`; menu phép 2 mục (Đổi buổi → `ChooseTime` mở vòng; Mưa → `ChooseRain` giữ chế độ Tưới); số `hudMessageMs` trong JSON. Đạt.
+- Đề xuất 6–11 làm đúng: avatar 44×44 + thanh ở x = 60, `ModeLine` rỗng khi Mặc định + không cầm, thông báo ẩn theo `HudMessage`, thông số trên cùng giữa (`StatsText`), tab Chung | Hướng dẫn giữ tab.
+- `HudMessage` (Core) C# thuần, không UnityEngine. Đạt.
+- Ngoài Phạm vi: `Resources/Config/sim_m1.json` (bản sao client, `ConfigTests.SimClientCopyMatchesDesignData` bắt buộc) — chấp nhận; brief sau ghi sẵn file này.
+- Lệch nhỏ chấp nhận: `HudMessage.Update` đặt đầu `Update()` (có return sớm); `time.period_*` còn trong vi.json không dùng (dọn khi tiện).
+- Test: 548 EditMode (3 lỗi lần đầu đã sửa / timeout chạy lại qua) + 248 PlayMode (247 qua; `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` lỗi khi chạy cả bộ, chạy riêng qua — không liên quan HUD, ghi theo dõi ở handoff). Không chạy lại (kết quả đủ, Executor đã chạy riêng).
+- Điểm cần xem khi chơi thử: Esc khi menu phép mở — `TimeDial` đóng menu và `SettingsView` có thể mở Cài đặt cùng khung (thứ tự Update; hành vi cũ của vòng buổi giống vậy). Thêm vào danh sách chơi thử cuối.
+- Giờ: Executor 21 phút (07:04–07:25) so với ước lượng 1–1,5 ngày; đã ghi world-tech dòng 7l e + roadmap bảng giờ.
+- User xem: gộp cuối task (mục "User tự test" của brief này + điểm Esc ở trên).
+- Kết luận: đã duyệt (code ok, chờ user xem gộp cuối)
