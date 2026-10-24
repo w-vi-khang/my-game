@@ -1,6 +1,6 @@
 # Brief 0066 — 7l f: bảng đổi phím trong Cài đặt → Điều khiển (đổi lúc chạy, lưu settings.json, trùng → Đổi chỗ / Huỷ, Mặc định, Esc cố định)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -54,6 +54,7 @@ Bước **7l f** (brief duy nhất, bước cuối) của task [m1-world-7l-dieu
   - `client/Assets/Game/Tests/ClientEdit/KeyRebindTests.cs` (mới), `client/Assets/Game/Tests/ClientEdit/GameControlsTests.cs` (chỉ thêm `"KeyRebind.cs"` vào mảng `files` của `NoDirectInputReadsInScope`)
   - `client/Assets/Game/Tests/Core/PlayerSettingsTests.cs`
   - `client/Assets/Game/Tests/Client/KeyRebindPlayTests.cs` (mới)
+  - `client/Assets/Game/Tests/ClientEdit/Game.Client.EditTests.asmdef` — chỉ thêm `"Game.Client"` vào `references` (trả lời Vướng mắc 2026-10-24)
   - `.ai/briefs/0066-7l-f-bang-doi-phim.md` (mục Kết quả trở xuống)
 - Không được sửa: `GameControls.inputactions` (phím mặc định giữ nguyên), `GameInput.cs`, `loc/*` (dịch làm sau), `design/*`, mọi file đang có thay đổi chưa commit của phiên khác (`design/decisions/0038-*`, `design/02-gameplay/*`, `design/05-roadmap.md`, `design/summary.md`, `design/glossary.md`, `design/ideas.md`, `design/decisions/README.md`, `tools/terrain_catalog*`, `.claude/skills/local-terrain-gen/`, `.ai/skill-map.local.json`).
 
@@ -267,6 +268,9 @@ Chưa kiểm được: EditMode không biên dịch (asmdef ClientEdit thiếu G
 - Lỗi duy nhất: `KeyRebindTests.cs` (EditMode) báo CS0103 "KeyRebind does not exist": `client/Assets/Game/Tests/ClientEdit/Game.Client.EditTests.asmdef` chỉ tham chiếu `UnityEngine.TestRunner, UnityEditor.TestRunner, Unity.InputSystem` — thiếu `Game.Client`. `KeyRebind` nằm ở `Game.Client` (cần `GameSettings.Text`).
 - Câu hỏi: được phép thêm `"Game.Client"` vào `references` của asmdef đó (file ngoài Phạm vi) không? `Game.Client` asmdef không giới hạn platform nên Editor dùng được.
 - Phương án A (đề xuất): thêm `"Game.Client"` (+ `Game.Client.EditTests.asmdef` vào Phạm vi). Phương án B: chuyển `KeyRebindTests` sang PlayMode (`Game.Client.Tests`, đã tham chiếu Game.Client) — lệch brief "EditMode".
+
+
+**Trả lời (Planner, 2026-10-24): chọn A.** Thêm `"Game.Client"` vào `references` của `client/Assets/Game/Tests/ClientEdit/Game.Client.EditTests.asmdef` (đã thêm file này vào Phạm vi; không đổi trường nào khác). Lý do: brief chốt `KeyRebindTests` là EditMode (đọc asset từ file, không cần Play); `Game.Client` không giới hạn platform nên Editor dùng được. Giữ nguyên phần đã làm trong working tree, làm tiếp từ "Lệnh executor chạy" bước 1. Nếu thêm reference gây lỗi biên dịch khác (vòng tham chiếu, thiếu `Game.Core`/`Game.World` do `overrideReferences`) → thêm đúng asmdef còn thiếu vào `references`; lỗi khác nữa → dừng `cần Opus`.
 
 ---
 <!-- PLANNER ghi khi review. -->
