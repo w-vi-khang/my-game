@@ -1,6 +1,6 @@
 # Brief 0064 — 7l e1: HUD gọn (avatar + máu + mana, thông số trên cùng, bỏ chữ hướng dẫn → Cài đặt → Hướng dẫn) + menu phép G
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -287,8 +287,28 @@ Từ 0034 (user, 2026-10-23) và task contract:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: d78524f
+- Chạy bằng: Sonnet 5.5 (claude-sonnet-5-5) · medium
+- Bắt đầu: 2026-10-24 07:04 · Kết thúc: 07:25 (đồng hồ máy; gồm ~20 phút chờ test EditMode/PlayMode)
+- Commit code: dedb9ea
+- File đổi: Client/{TerrainEditInput,PlayerFarmActions,SimView,SettingsView,TimeDial,TimeDialGraphic,GameInput}.cs, Input/GameControls.inputactions, Resources/Lang/vi.json, **Resources/Config/sim_m1.json (bản sao client, ngoài Phạm vi nhưng `ConfigTests.SimClientCopyMatchesDesignData` bắt buộc)**; Core/{HudMessage (mới),PlayerMotion,Sim/SimConfig}.cs; design/data/sim_m1.json; controls-ui.md (dòng Menu phép); test: HudMessageTests (mới), TimeDialPlayTests, PlayerFarmPlayTests, PlayerBagSowPlayTests, ObservationCameraPlayTests, SettingsPlayTests, SimViewPlayTests, ControlModePlayTests, GameControlsTests.
+- Test sửa/xoá: `StatusTopBelowHud` xoá (StatusTop đã bỏ); `PlayerFarmPlayTests` RainRules (:324 → kiểm `RainCooldown.RemainingWholeSeconds == 10`), nông sản (→ `GetProduce>0` + HudText không chứa), `HudInitial` → `HudCompact`; ObservationCamera → `ModeLine()` + `GuideText()`; TimeDialPlayTests: `BuildsClosedWithPeriodText` → `BuildsClosedWithSpellButton`, `ButtonTogglesRing` → `ButtonOpensMenuThenTimeOpensRing`, thêm `ToggleMenuClosesAll`, `MenuBlocksPointerAndOutsideCloses`, `RainWithoutInputReturnsFalse`; mới: `SpellMenuRainEntersRainMode` (ControlModePlayTests), `GuideTabShowsNewKeys`, `TabPersistsAcrossReopen`, `StatsTextOnTop` (SimViewPlayTests; không kiểm HudText vì fixture không có TerrainEditInput). Các test của TimeDialPlayTests khác mở vòng bằng `SetOpen(true)` sẵn có nên không cần helper.
+- vi.json: xoá 13 khoá (hud.help_fly/idle/walk, till_help, camera_help, elevation, aimed_drop, aimed_harvest, farm.hud_produce/seeds, rain_ready, rain_hud_cooldown, time.current); không khoá nào còn được dùng. Thêm 21 khoá (hud.avatar_letter, settings.tab_*, spell.*, guide.*); sửa hud.mode/held/fps/rebuild, time.hint. File ghi lại bằng json.dump sắp xếp theo key.
+- Lệch brief: ModeLine bỏ " · " đầu của hud.held bằng `TrimStart(' ', '·')`; `HudMessage` cập nhật ở đầu `Update()` của TerrainEditInput (không phải cuối, vì Update có `return` sớm); không thêm assert Esc vào test Settings (không có test Esc với TimeDial); khoá `time.period_*` + `PeriodName` giữ/bỏ: `PeriodName` xoá, khoá `time.period_*` còn trong vi.json (không dùng, vô hại).
 
 ## Kết quả test
+- HudMessage (b2): đạt — `HudMessageTests` 5 test.
+- hudMessageMs (b1): đạt — `ConfigTests` (kể cả SimClientCopyMatchesDesignData sau khi chép bản client).
+- HUD gọn (b3–4): đạt — `HudCompact`, `ObservationCameraPlayTests.HoldCameraAndRightClickPlaces`.
+- Thông báo cũ: đạt — các test `HudText()` cũ không sửa vẫn qua.
+- Thông số trên (b5): đạt — `StatsTextOnTop`.
+- Chữ (b6): đạt — `HardcodedTextScanTests` (sau bỏ 6 marker `// vi-text` thừa).
+- Tab Hướng dẫn (b7): đạt — `GuideTabShowsNewKeys`, `TabPersistsAcrossReopen`.
+- Menu phép (b8): đạt — `TimeDialPlayTests`, `SpellMenuRainEntersRainMode` ("10 giây").
+- Phím: đạt — `GameControlsTests` (43 action, G); grep `<Keyboard>/t"` = 0, `/g"` = 1.
+- Esc khi menu phép mở: bỏ qua (không có test Esc sẵn kèm TimeDial).
+- Lệnh: `refresh_unity` + console Error = 0. EditMode toàn bộ: 548 test, lần đầu 545 qua / 3 lỗi (vi-text thừa, bản sao sim_m1.json — đã sửa; `IncrementalRebuildMatchesFullRebuild` timeout 180s do Editor chạy nền chậm) → chạy lại 3 test: 3/3 qua. PlayMode toàn bộ: 248 test, 247 qua; `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` lỗi khi chạy cả bộ (0,079 > 0,002), chạy riêng qua → có vẻ phụ thuộc thứ tự/flaky, không liên quan HUD (Planner xem lại). Đã `git checkout -- client/ProjectSettings/EditorSettings.asset`. `check_design.py` exit 0.
+- User xem: chờ user — gộp cuối.
 
 ## Vướng mắc
 
