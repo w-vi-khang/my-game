@@ -1,0 +1,21 @@
+{
+    "configVersion": 1,
+    "regionX0": -1,
+    "regionZ0": -1,
+    "regionX1": -1,
+    "regionZ1": -1,
+    "unlockedAtStart": ["L1", "L2", "L3"],
+    "species": [
+        { "id": "L1", "requirements": [
+            { "kind": "cells", "min": 20, "material": "Grass", "exposed": false, "nearWater": false, "minY": 0, "cropId": -1, "structure": "", "species": "", "periods": [] },
+            { "kind": "crops", "min": 1, "material": "", "exposed": false, "nearWater": false, "minY": 0, "cropId": -1, "structure": "", "species": "", "periods": [] }
+        ] },
+        { "id": "L2", "requirements": [
+            { "kind": "cells", "min": 10, "material": "Grass", "exposed": false, "nearWater": true, "minY": 0, "cropId": -1, "structure": "", "species": "", "periods": [] }
+        ] },
+        { "id": "L3", "requirements": [
+            { "kind": "cells", "min": 15, "material": "Stone", "exposed": true, "nearWater": false, "minY": 0, "cropId": -1, "structure": "", "species": "", "periods": [] },
+            { "kind": "structures", "min": 1, "material": "", "exposed": false, "nearWater": false, "minY": 0, "cropId": -1, "structure": "storage", "species": "", "periods": [] }
+        ] }
+    ]
+}
