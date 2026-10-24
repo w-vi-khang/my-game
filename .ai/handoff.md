@@ -3,10 +3,10 @@
 ## Điều phối (phiên Opus điều phối, user AFK)
 - User 2026-10-24: "Hãy hoàn thành mục 7 một lượt" → 7l d, e, f + sim 7g, "user xem" gộp cuối; rồi "làm tiếp các phần khác, bỏ qua các phần cần user, nếu không thể dùng lại phiên hãy mở phiên mới, không cần hỏi".
 - Vòng: Planner (Opus · medium) viết brief → Executor (Sonnet · medium) `/ai-workflow-kit:exec NNNN --child` → Planner `/ai-workflow-kit:review-brief NNNN` (kết luận "code ok, chờ user xem gộp cuối"). Unity Editor dùng chung → tuần tự.
-- Phiên hiện dùng: Planner [planner-m1-next](#local_9a715430-3dc2-4ff5-9bd9-201e02737e93), Executor [exec-m1-next](#local_1c06f7a6-b786-46b3-aaf4-ecdc45a3f589). Phiên mới chỉ mở được trong lượt user gõ (lượt do sự kiện phiên khác bị từ chối start_session).
+- Phiên hiện dùng (từ 2026-10-24 chiều): phiên điều phối mới tự làm Planner (phiên Planner/Executor cũ không nhận tin được); Executor [exec-0070](#local_90d07a05-1772-4d2c-a99e-6da3dd1fe9fa). 0070 vòng 1 bị chặn → Planner trả lời QĐ 7–11 (commit `cb506a8`: màn hình Mac tắt khi AFK → `caffeinate`; B crash → build lại riêng B một lần). Phiên mới chỉ mở được trong lượt user gõ (lượt do sự kiện phiên khác bị từ chối start_session).
 - Executor hay kết thúc lượt khi PlayMode đang chạy (MCP rớt khi vào Play) → nhắc "sleep 60 rồi get_test_job, chỉ dừng khi chờ review / cần Opus".
 - Danh sách chơi thử gộp bước 7: [playtest-buoc-7.md](playtest-buoc-7.md).
-- Đã duyệt: 0068 (ổn định test), 0069 (sim 8a lõi). **Chờ làm: brief [0070](briefs/0070-world-7k-thu-gpu-occlusion-culling.md)** (world 7k: đo Mac A/B/C + build sẵn 3 APK). Review 0070 xong thì **hết hạng mục M1 làm được mà không cần user** → dừng, chờ user (xem "Bước tiếp" mục 5).
+- Đã duyệt: 0068 (ổn định test), 0069 (sim 8a lõi), **0070** (world 7k: Mac đo xong — không thấy lợi, GPU ~10 ms cả A/B/C; 3 APK `walkbench-gpu-{a,b,c}.apk` sẵn). **Hết hạng mục M1 làm được mà không cần user** → đang dừng, chờ user (xem "Bước tiếp" mục 5).
 
 ## Đang làm
 Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)).
@@ -33,7 +33,7 @@ Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-p
      - (a) vùng đếm M1: cả Map 1 (theo text 2026-10-13, nhưng Map 1 có sẵn rất nhiều cỏ → L1 đạt ngay) hay vùng mô phỏng 48 × 48;
      - (b) demo bắt đầu với loài nào đã mở (hiện L1–L3 có sẵn);
      - (c) chỗ hiện danh sách yêu cầu trên PC, vì 0034 bỏ "loài ghim" khỏi HUD: bảng riêng mở bằng phím/nút?
-   - **world 7k** thử GPU occlusion culling (1–2 ngày): brief [0070](briefs/0070-world-7k-thu-gpu-occlusion-culling.md) đo Mac + build `client/Builds/walkbench-gpu-{a,b,c}.apk`; đo điện thoại chờ máy (adb trống lúc 09:3x và 11:00).
+   - **world 7k** thử GPU occlusion culling: brief [0070](briefs/0070-world-7k-thu-gpu-occlusion-culling.md) **đã duyệt** (Mac: không lợi; build sẵn `client/Builds/walkbench-gpu-{a,b,c}.apk`); đo điện thoại chờ máy (adb trống lúc 09:3x, 11:00, 13:42).
 5. **Chờ user** (sáng 2026-10-25), theo thứ tự đề xuất:
    1. **Chơi thử gộp bước 7**: [playtest-buoc-7.md](playtest-buoc-7.md) (7l d–f, sim 7g). Góp ý → brief sửa.
    2. **Trả lời 3 câu hỏi sim 8b** ([task contract m1-sim-8](tasks/m1-sim-8-moi-truong-song.md) mục Câu hỏi còn mở: vùng đếm, loài mở sẵn, chỗ hiện danh sách yêu cầu; số đo world M1: 48.077 cỏ, 0 cỏ cạnh nước, 0 đá lộ thiên) → Planner viết brief 8b.
