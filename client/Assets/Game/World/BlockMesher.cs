@@ -715,7 +715,7 @@ namespace Game.World
 
             // ---------------- Mép cỏ (bước 5.3) ----------------
 
-            /// <summary>Ô cỏ lộ mặt trên: mỗi sườn x/z lộ → một dải mép cỏ; góc lồi (hai sườn kề cùng lộ) → mảnh 1/4 vòng nối.</summary>
+            /// <summary>Ô cỏ lộ mặt trên: mỗi sườn x/z lộ → một dải mép cỏ; góc lồi (hai sườn kề cùng lộ) → mảnh 1/4 vòng nối; góc lõm → mảnh phẳng phủ vết lõm bo cạnh.</summary>
             void AddGrassLip(int3 c, int3 g, uint color)
             {
                 bool xp = !IsSolid(g + new int3(1, 0, 0)), xn = !IsSolid(g + new int3(-1, 0, 0));
@@ -728,6 +728,44 @@ namespace Game.World
                 if (xp && zn) AddLipCorner(c, g, 1, -1, color);
                 if (xn && zp) AddLipCorner(c, g, -1, 1, color);
                 if (xn && zn) AddLipCorner(c, g, -1, -1, color);
+                for (int sx = -1; sx <= 1; sx += 2)
+                    for (int sz = -1; sz <= 1; sz += 2)
+                        AddLipConcave(c, g, sx, sz, color);
+            }
+
+            /// <summary>Mảnh góc lõm được nâng lên khỏi mặt trên chừng này để không z-fighting với phần phẳng của mặt trên (brief 0073 QĐ 5).</summary>
+            const float LipConcaveLift = 0.002f;
+
+            /// <summary>Mảnh góc lõm chồm qua đường trục chừng này (cùng màu, cùng pháp tuyến với mặt trên dải bên cạnh → chồng lên không lộ).</summary>
+            const float LipConcaveOverlap = 0.01f;
+
+            /// <summary>
+            /// Mảnh góc lõm (brief 0073): ở góc (sx, sz) của mặt trên ô cỏ g, hai ô kề theo x và theo z đặc, ô chéo rỗng → mặt trên của g
+            /// bị bo lõm quanh trục góc (cạnh lồi rẽ góc lõm) mà mép cỏ không phủ: dải của hai ô kề dừng/bắt đầu ở trục, hoặc ô kề không có dải.
+            /// Phủ góc phần tư R × R của g quanh trục bằng một mảnh phẳng ở mặt trên (nâng LipConcaveLift). Ở một trục góc chỉ một
+            /// trong 4 ô quanh nó thoả điều kiện (hai ô kề của nó đặc, ô chéo rỗng) → mỗi góc thêm đúng một lần.
+            /// </summary>
+            void AddLipConcave(int3 c, int3 g, int sx, int sz, uint color)
+            {
+                if (!IsSolid(g + new int3(sx, 0, 0)) || !IsSolid(g + new int3(0, 0, sz)) || IsSolid(g + new int3(sx, 0, sz)))
+                    return;
+                // Toạ độ (u, v) = khoảng cách vào trong g theo −sx, −sz tính từ trục. Mảnh phủ [0, R]² và chồm qua hai đường trục
+                // LipConcaveOverlap (u < 0 hoặc v < 0, không cả hai — ô chéo rỗng) để không lọt khe pixel với mặt trên dải mép cỏ bên cạnh.
+                // Lục giác lõm ở trục → quạt từ đỉnh (R, R).
+                float3 n = new float3(0, 1, 0);
+                float3 axis = new float3(c.x + (sx > 0 ? 1 : 0), c.y + 1 + LipConcaveLift, c.z + (sz > 0 ? 1 : 0));
+                float3 du = new float3(-sx, 0, 0), dv = new float3(0, 0, -sz);
+                const float o = LipConcaveOverlap;
+                int far = AddVertex(axis + R * (du + dv), n, color);
+                int p0 = AddVertex(axis + R * du - o * dv, n, color);
+                int p1 = AddVertex(axis - o * dv, n, color);
+                int p2 = AddVertex(axis, n, color);
+                int p3 = AddVertex(axis - o * du, n, color);
+                int p4 = AddVertex(axis - o * du + R * dv, n, color);
+                AddOriented(far, p0, p1, n);
+                AddOriented(far, p1, p2, n);
+                AddOriented(far, p2, p3, n);
+                AddOriented(far, p3, p4, n);
             }
 
             /// <summary>Điểm trên mặt cắt mép cỏ: t = khoảng cách ra ngoài mặt sườn, dy = độ cao so với mặt trên, sigma = vị trí dọc cạnh 0..1.</summary>

@@ -520,6 +520,242 @@ namespace Game.World.Tests
                 Assert.AreEqual(2, kv.Value, "front-face points at the boundary must coincide between two adjacent strips (including across chunk edge x = 16) — 1 vertex per point per strip");
         }
 
+        // ---------------- Không nhìn xuyên ở góc giao nhau (brief 0073) ----------------
+
+        /// <summary>
+        /// Địa hình cột trong world 16³: ngoài vùng 2..12 cao 6; trong vùng cao h(x, z); ô trên cùng mỗi cột là <paramref name="top"/>(x, z), dưới là đất.
+        /// Cấu hình (brief 0073): H1 góc lõm chữ L cùng độ cao, H2 hai ô chéo nhau, H3 dải gặp bậc cao hơn, H3b dải gặp ô đá cùng độ cao,
+        /// H3c bậc thang dọc sườn, H4 địa hình ngẫu nhiên (seed cố định).
+        /// </summary>
+        static WorldData CornerWorld(string name)
+        {
+            var rng = new System.Random(73);
+            var rnd = new int[16, 16];
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+                rnd[x, z] = 6 + rng.Next(4);
+            int H(int x, int z)
+            {
+                if (x < 2 || x > 12 || z < 2 || z > 12)
+                    return 6;
+                return name switch
+                {
+                    "H1" => x <= 6 || z >= 7 ? 8 : 6,
+                    "H2" => (x <= 6 && z <= 6) || (x >= 7 && z >= 7) ? 8 : 6,
+                    "H3" => z <= 6 ? (x >= 7 ? 9 : 8) : 6,
+                    "H3b" => z <= 6 ? 8 : 6,
+                    "H3c" => z <= 6 ? 8 + (x >= 6 ? 1 : 0) + (x >= 8 ? 1 : 0) : 6,
+                    _ => rnd[x, z],
+                };
+            }
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+            {
+                int h = H(x, z);
+                var topMat = name == "H3b" && x >= 7 && z >= 2 && z <= 6 && x <= 12 ? BlockMaterial.Stone : BlockMaterial.Grass;
+                for (int y = 0; y < h; y++)
+                    w.Set(x, y, z, Cell.Make(y == h - 1 ? topMat : BlockMaterial.Dirt));
+            }
+            return w;
+        }
+
+        /// <summary>Mesh để bắn nhiều tia: lọc tam giác theo hộp bao của đoạn tia trước khi tính giao (Möller–Trumbore).</summary>
+        sealed class RayMesh
+        {
+            readonly ChunkMesh m;
+            readonly float3[] lo, hi;
+
+            public RayMesh(ChunkMesh mesh)
+            {
+                m = mesh;
+                int n = m.Indices.Length / 3;
+                lo = new float3[n];
+                hi = new float3[n];
+                for (int t = 0; t < n; t++)
+                {
+                    float3 a = m.Vertices[m.Indices[3 * t]], b = m.Vertices[m.Indices[3 * t + 1]], c = m.Vertices[m.Indices[3 * t + 2]];
+                    lo[t] = math.min(a, math.min(b, c));
+                    hi[t] = math.max(a, math.max(b, c));
+                }
+            }
+
+            /// <summary>Tam giác gần nhất trên đoạn (o, o + dir·maxDist); normal = mặt trước theo quy ước mesher.</summary>
+            public bool Hit(float3 o, float3 dir, float maxDist, out float dist, out float3 normal)
+            {
+                float3 end = o + dir * maxDist, slo = math.min(o, end) - 1e-3f, shi = math.max(o, end) + 1e-3f;
+                dist = float.MaxValue;
+                normal = 0;
+                for (int t = 0; t < lo.Length; t++)
+                {
+                    if (math.any(hi[t] < slo) || math.any(lo[t] > shi))
+                        continue;
+                    float3 a = m.Vertices[m.Indices[3 * t]], b = m.Vertices[m.Indices[3 * t + 1]], c = m.Vertices[m.Indices[3 * t + 2]];
+                    float3 e1 = b - a, e2 = c - a, pv = math.cross(dir, e2);
+                    float det = math.dot(e1, pv);
+                    if (math.abs(det) < 1e-9f)
+                        continue;
+                    float inv = 1f / det;
+                    float3 s = o - a;
+                    float u = math.dot(s, pv) * inv;
+                    if (u < 0f || u > 1f)
+                        continue;
+                    float3 q = math.cross(s, e1);
+                    float v = math.dot(dir, q) * inv;
+                    if (v < 0f || u + v > 1f)
+                        continue;
+                    float d = math.dot(e2, q) * inv;
+                    if (d > 1e-5f && d < dist)
+                    {
+                        dist = d;
+                        normal = math.cross(e1, e2);
+                    }
+                }
+                return dist <= maxDist;
+            }
+        }
+
+        static bool CornerSolid(WorldData w, int3 c)
+        {
+            if (c.y < 0) return true;
+            if (c.y >= 16) return false;
+            var mat = w.GetMaterial(math.clamp(c.x, 0, 15), c.y, math.clamp(c.z, 0, 15));
+            return mat != BlockMaterial.Empty && mat != BlockMaterial.Water;
+        }
+
+        /// <summary>Khoảng cách từ p tới ô đặc gần nhất (27 ô quanh p).</summary>
+        static float ClearanceToSolid(WorldData w, float3 p)
+        {
+            int3 c = (int3)math.floor(p);
+            float best = float.MaxValue;
+            for (int dz = -1; dz <= 1; dz++)
+            for (int dy = -1; dy <= 1; dy++)
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                int3 q = c + new int3(dx, dy, dz);
+                if (!CornerSolid(w, q))
+                    continue;
+                float3 d = math.max(0f, math.max(q - p, p - (q + 1)));
+                best = math.min(best, math.length(d));
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// Bắn tia nhìn từ trên xiên xuống (12 phương vị × độ cao 20°, 45°, 70°) vào điểm trong ô đặc cách mỗi mặt ô ≥ R + 0,05,
+        /// gần góc/cạnh mặt trên của mọi ô lộ mặt trên. Gốc tia cách đích 2,5 trong không khí, cách mọi ô đặc ≥ 0,4 (ngoài mép cỏ).
+        /// Tia phải chạm một mặt quay về phía nó trước khi tới đích; không chạm hoặc chạm mặt sau = lỗ. Trả số tia hở.
+        /// </summary>
+        static int SeeThroughRays(WorldData w, RayMesh rm, out int rays, out string sample)
+        {
+            const float L = 2.5f;
+            float[] offs = { 0.18f, 0.5f, 0.82f };
+            int holes = 0;
+            rays = 0;
+            sample = "";
+            for (int z = 2; z <= 12; z++)
+            for (int x = 2; x <= 12; x++)
+            for (int y = 1; y < 15; y++)
+            {
+                if (!CornerSolid(w, new int3(x, y, z)) || CornerSolid(w, new int3(x, y + 1, z)))
+                    continue;
+                foreach (float ox in offs)
+                foreach (float oz in offs)
+                {
+                    if (ox == 0.5f && oz == 0.5f)
+                        continue;
+                    float3 target = new float3(x + ox, y + 1 - 0.18f, z + oz);
+                    for (int az = 0; az < 12; az++)
+                    foreach (float elDeg in new[] { 20f, 45f, 70f })
+                    {
+                        float a = az * math.PI / 6f + 0.13f, el = math.radians(elDeg);
+                        float3 dir = new float3(math.cos(el) * math.cos(a), -math.sin(el), math.cos(el) * math.sin(a));
+                        float3 o = target - dir * L;
+                        if (ClearanceToSolid(w, o) < 0.4f)
+                            continue;
+                        rays++;
+                        bool hit = rm.Hit(o, dir, L - 1e-4f, out float dist, out float3 n);
+                        if (!hit || math.dot(n, dir) >= 0f)
+                        {
+                            holes++;
+                            if (holes <= 8)
+                                sample += $" [target {target} az {az} el {elDeg} {(!hit ? "no hit" : $"back face at {o + dir * dist}")}]";
+                        }
+                    }
+                }
+            }
+            return holes;
+        }
+
+        [TestCase("H1")]
+        [TestCase("H2")]
+        [TestCase("H3")]
+        [TestCase("H3b")]
+        [TestCase("H3c")]
+        [TestCase("H4")]
+        public void NoSeeThroughAtCorners(string config)
+        {
+            var w = CornerWorld(config);
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            int holes = SeeThroughRays(w, new RayMesh(mesh), out int rays, out string sample);
+            TestContext.WriteLine($"{config}: {holes}/{rays} see-through rays, {mesh.Vertices.Length} vertices{sample}");
+            Assert.Greater(rays, 1000, "enough rays");
+            Assert.AreEqual(0, holes, $"{config}: see-through rays{sample}");
+        }
+
+        [TestCase("H1")]
+        [TestCase("H2")]
+        [TestCase("H3")]
+        [TestCase("H3b")]
+        [TestCase("H3c")]
+        [TestCase("H4")]
+        public void NoBevelDentShowsAtGrassCornersFromAbove(string config)
+        {
+            // Brief 0073 QĐ 5: vết lõm bo cạnh ở góc lõm (cạnh lồi rẽ góc lõm) không được mép cỏ che → hiện thành tam giác tối.
+            // Tia từ trên xuống (thẳng đứng + xiên 45° theo 4 hướng chéo) vào điểm trên mặt trên ô cỏ trong vùng ≤ R quanh mỗi góc ô
+            // phải chạm mặt quay về phía tia ở y ≥ mặt trên − 0,02 (mặt trên ô, mặt trên mép cỏ, mảnh góc lõm, hoặc khối cao hơn).
+            var w = CornerWorld(config);
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            var rm = new RayMesh(mesh);
+            var dirs = new[]
+            {
+                new float3(0, -1, 0), math.normalize(new float3(1, -1, 1)), math.normalize(new float3(-1, -1, 1)),
+                math.normalize(new float3(1, -1, -1)), math.normalize(new float3(-1, -1, -1)),
+            };
+            var offs = new[] { new float2(0.02f, 0.02f), new float2(0.06f, 0.02f), new float2(0.02f, 0.06f), new float2(0.06f, 0.06f), new float2(0.1f, 0.02f), new float2(0.02f, 0.1f) };
+            int dents = 0, probes = 0;
+            string sample = "";
+            for (int z = 2; z <= 12; z++)
+            for (int x = 2; x <= 12; x++)
+            for (int y = 1; y < 15; y++)
+            {
+                if (w.GetMaterial(x, y, z) != BlockMaterial.Grass || CornerSolid(w, new int3(x, y + 1, z)))
+                    continue;
+                foreach (int sx in new[] { 0, 1 })
+                foreach (int sz in new[] { 0, 1 })
+                foreach (var o in offs)
+                foreach (var d in dirs)
+                {
+                    float3 t = new float3(x + sx + (sx == 0 ? o.x : -o.x), y + 1, z + sz + (sz == 0 ? o.y : -o.y));
+                    float3 origin = t - d * 0.6f;
+                    if (ClearanceToSolid(w, origin) < R)
+                        continue; // gốc sát vách khối cao hơn → có thể nằm trong phần bo của vách, không phải chỗ mép cỏ
+                    probes++;
+                    bool hit = rm.Hit(origin, d, 0.6f + 0.5f, out float dist, out float3 n);
+                    float3 at = origin + d * dist;
+                    if (!hit || math.dot(n, d) >= 0f || at.y < y + 1 - 0.02f)
+                    {
+                        dents++;
+                        if (dents <= 8)
+                            sample += $" [{t} dir {d} {(hit ? $"hit {at}" : "no hit")}]";
+                    }
+                }
+            }
+            TestContext.WriteLine($"{config}: {dents}/{probes} top probes show a dent, {mesh.Vertices.Length} vertices{sample}");
+            Assert.Greater(probes, 500, "enough probes");
+            Assert.AreEqual(0, dents, $"{config}: bevel dent visible from above{sample}");
+        }
+
         // ---------------- AO theo đỉnh + mã hoa văn (bước 5.4) ----------------
 
         [Test]
