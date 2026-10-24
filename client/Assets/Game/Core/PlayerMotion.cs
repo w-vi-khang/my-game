@@ -21,6 +21,10 @@ namespace Game.Core
         public static float ManaFlashSeconds { get; private set; } = 0.6f;
         /// <summary>Dòng thông báo HUD tự ẩn sau chừng này giây (0034 mục 7, số tạm).</summary>
         public static float HudMessageSeconds { get; private set; } = 4f;
+        /// <summary>Cỡ icon ô ruộng / sinh vật trên world (px ở 720p) và khoảng cách xa nhất còn hiện icon (ô) — 0034 mục 7, số tạm.</summary>
+        public static float PlotIconPx { get; private set; } = 40f;
+        public static float CreatureIconPx { get; private set; } = 28f;
+        public static float IconMaxCells { get; private set; } = 30f;
         public static float CameraPitch { get; private set; } = 10f;
         public static float CameraDistance { get; private set; } = 9f;
         public static float FirstPersonPitch { get; private set; } = 15f;
@@ -45,6 +49,9 @@ namespace Game.Core
             CollectFlySeconds = p.collectFlyMs / 1000f;
             ManaFlashSeconds = p.manaFlashMs / 1000f;
             HudMessageSeconds = p.hudMessageMs / 1000f;
+            PlotIconPx = p.plotIconPx;
+            CreatureIconPx = p.creatureIconPx;
+            IconMaxCells = p.iconMaxCells;
             CameraPitch = p.cameraPitch;
             CameraDistance = p.cameraDistance;
             FirstPersonPitch = p.firstPersonPitch;

@@ -14,7 +14,7 @@ namespace Game.Client
     /// <summary>
     /// Scene SimView (sim bước 6, user chọn 2026-10-16): mô phỏng M1 chạy trên map thật với bố trí SimDemo (2 nhà, 1 kho, 4 ô ruộng, L1–L3).
     /// Sinh vật = khối hộp theo khung chiếm chỗ, màu theo loài, mũi chỉ hướng đi; vị trí nội suy giữa 2 nhịp (trễ 1 nhịp).
-    /// Nhãn trên đầu = trạng thái; "!" đỏ = đình trệ tại ô. F1 / F2: khoá 30 / 60 FPS (chỉ Game view trong Editor).
+    /// Icon trạng thái trên đầu + icon ô ruộng + "!" đình trệ: WorldIconsView (brief 0065). F1 / F2: khoá 30 / 60 FPS (chỉ Game view trong Editor).
     /// HUD góc trái: kho + từng ô ruộng (giai đoạn, % lớn); mầm xanh cao theo %; hộp vàng trên lưng = đang mang hàng (sửa sau user xem 2026-10-16).
     /// Đào/đặt (TerrainEditInput) báo cho mô phỏng qua WorldEditor.CellChanged; ô có sinh vật/nhà/kho không đặt được.
     /// Xới (brief 0030): biển canh tác, bảng ô ruộng chọn giống/hàng đợi, kho mở bằng chuột phải khối kho (InventoryView, brief 0062); trại demo có 1 vụ Cây A ban đầu, sau đó người chơi tự chọn.
@@ -38,8 +38,8 @@ namespace Game.Client
         static readonly Color PostColor = new Color(0.45f, 0.30f, 0.15f);
         static readonly Color SignColor = new Color(0.90f, 0.80f, 0.55f);
         static readonly Color NoseColor = new Color(0.15f, 0.15f, 0.15f);
-        static readonly Color LoadColor = new Color(0.95f, 0.85f, 0.25f);
-        static readonly Color SproutColor = new Color(0.30f, 0.75f, 0.25f);
+        internal static readonly Color LoadColor = new Color(0.95f, 0.85f, 0.25f);
+        internal static readonly Color SproutColor = new Color(0.30f, 0.75f, 0.25f);
 
         static Color SpeciesColor(string id) => id switch
         {
@@ -67,6 +67,8 @@ namespace Game.Client
         UnityEngine.Material boxBase;
         public int TargetFps { get; private set; }
         public int BodyCount => bodies.Count;
+        internal StallMarkers Markers => markers;
+        internal Transform Body(int i) => bodies[i];
         public int SproutCount => sprouts.Count;
 
         void Awake()
@@ -77,6 +79,7 @@ namespace Game.Client
             savedTargetFps = Application.targetFrameRate;
             view.afterGenerate = OnAfterGenerate;
             if (GetComponent<SettingsView>() == null) gameObject.AddComponent<SettingsView>();
+            if (GetComponent<WorldIconsView>() == null) gameObject.AddComponent<WorldIconsView>();
         }
 
         public static Vector3 BenchCameraPos(StressPlain p) => new Vector3(p.X0 + p.Size * 0.5f, p.Ground + 34f, p.Z0 - 6f);
@@ -474,7 +477,7 @@ namespace Game.Client
         static readonly Color BarColor = new Color(0.35f, 0.80f, 0.35f);
 
         /// <summary>Màu tạm của loại cây (0027 mục 5 — art sau).</summary>
-        static Color CropColor(int cropId) =>
+        internal static Color CropColor(int cropId) =>
             cropId == 0 ? new Color(0.35f, 0.70f, 0.30f) : cropId == 1 ? new Color(0.85f, 0.55f, 0.20f) : new Color(0.6f, 0.6f, 0.6f);
 
         /// <summary>Ô màu bo góc + chữ giữa (hình tạm, OnGUI).</summary>
@@ -569,25 +572,6 @@ namespace Game.Client
 
             if (!MinimapView.IsAnyOpen)
                 DrawFarmGui(scale);
-
-            var cam = Camera.main;
-            if (cam == null || !WorldLabelsVisible)
-                return;
-            var cs = Sim.State.Creatures;
-            for (int i = 0; i < cs.Count && i < bodies.Count; i++)
-                DrawLabel(cam, bodies[i].position + Vector3.up * (cs[i].SizeY * 0.4f + 0.35f), CreatureStatus.Text(GameSettings.Text, Sim.State, cs[i]), scale);
-            foreach (var e in markers.Active)
-                DrawLabel(cam, transform.TransformPoint(new Vector3(e.Cell.X + 0.5f, e.Cell.Y + 1.3f, e.Cell.Z + 0.5f)),
-                    "<color=red><b>! " + CreatureStatus.ReasonText(GameSettings.Text, e.Reason) + "</b></color>", scale);
-        }
-
-        void DrawLabel(Camera cam, Vector3 world, string text, float scale)
-        {
-            var sp = cam.WorldToScreenPoint(world);
-            if (sp.z <= 0f)
-                return;
-            // WorldToScreenPoint gốc dưới trái; GUI gốc trên trái.
-            GUI.Label(new Rect(sp.x / scale - 100f, (Screen.height - sp.y) / scale - 11f, 200f, 22f), text, labelStyle);
         }
     }
 }

@@ -3,13 +3,24 @@ using UnityEngine.UI;
 
 namespace Game.Client
 {
-    public enum TimeDialShape : byte { Disk, Moon, Sun, Dawn, Dusk, Star, Drop }
+    public enum TimeDialShape : byte { Disk, Moon, Sun, Dawn, Dusk, Star, Drop, Ring, Hoe, Seed, Sprout, Crate, Bang, Dots }
 
     /// <summary>Hình vẽ bằng code cho vòng chọn thời điểm (brief 0024): đĩa tròn, trăng khuyết, mặt trời có tia, mọc/lặn (nửa đĩa + chân trời + mũi tên). Một màu = `color`.</summary>
     [RequireComponent(typeof(CanvasRenderer))]
     public class TimeDialGraphic : MaskableGraphic
     {
         public TimeDialShape shape;
+        /// <summary>Phần vòng được vẽ (0..1) — chỉ dùng cho Ring.</summary>
+        public float fill = 1f;
+
+        public void SetFill(float f)
+        {
+            f = Mathf.Clamp01(f);
+            if (fill == f)
+                return;
+            fill = f;
+            SetVerticesDirty();
+        }
 
         public void SetShape(TimeDialShape s)
         {
@@ -66,6 +77,55 @@ namespace Game.Client
                 case TimeDialShape.Drop:
                     Fan(vh, o + new Vector2(0f, -0.25f * r), 0.55f * r, 0f, 360f, 24, c);
                     Tri(vh, o + new Vector2(0f, 0.95f * r), o + new Vector2(-0.5f * r, -0.1f * r), o + new Vector2(0.5f * r, -0.1f * r), c);
+                    break;
+                case TimeDialShape.Ring:
+                {
+                    if (fill <= 0f)
+                        break;
+                    int n = Mathf.Max(1, Mathf.CeilToInt(48f * fill));
+                    for (int i = 0; i < n; i++)
+                    {
+                        float a0 = (90f - 360f * fill * i / n) * Mathf.Deg2Rad;
+                        float a1 = (90f - 360f * fill * (i + 1) / n) * Mathf.Deg2Rad;
+                        var d0 = new Vector2(Mathf.Cos(a0), Mathf.Sin(a0));
+                        var d1 = new Vector2(Mathf.Cos(a1), Mathf.Sin(a1));
+                        Quad(vh, o + d0 * 0.84f * r, o + d0 * r, o + d1 * r, o + d1 * 0.84f * r, c);
+                    }
+                    break;
+                }
+                case TimeDialShape.Hoe:
+                {
+                    var dir = new Vector2(1f, 1.3f).normalized;
+                    var p = new Vector2(-dir.y, dir.x) * 0.07f * r;
+                    var a = new Vector2(-0.6f * r, -0.7f * r);
+                    var b = new Vector2(0.4f * r, 0.6f * r);
+                    Quad(vh, o + a - p, o + b - p, o + b + p, o + a + p, c);
+                    Quad(vh, o + new Vector2(0.1f * r, 0.45f * r), o + new Vector2(0.8f * r, 0.45f * r),
+                        o + new Vector2(0.8f * r, 0.7f * r), o + new Vector2(0.1f * r, 0.7f * r), c);
+                    break;
+                }
+                case TimeDialShape.Seed:
+                    Fan(vh, o + new Vector2(0f, -0.1f * r), 0.45f * r, 0f, 360f, 20, c);
+                    Tri(vh, o + new Vector2(0f, 0.7f * r), o + new Vector2(-0.35f * r, 0.05f * r), o + new Vector2(0.35f * r, 0.05f * r), c);
+                    break;
+                case TimeDialShape.Sprout:
+                    Quad(vh, o + new Vector2(-0.06f * r, -0.8f * r), o + new Vector2(0.06f * r, -0.8f * r),
+                        o + new Vector2(0.06f * r, 0.3f * r), o + new Vector2(-0.06f * r, 0.3f * r), c);
+                    Fan(vh, o + new Vector2(-0.3f * r, 0.35f * r), 0.32f * r, 0f, 360f, 14, c);
+                    Fan(vh, o + new Vector2(0.3f * r, 0.35f * r), 0.32f * r, 0f, 360f, 14, c);
+                    break;
+                case TimeDialShape.Crate:
+                    Quad(vh, o + new Vector2(-0.6f * r, -0.6f * r), o + new Vector2(0.6f * r, -0.6f * r),
+                        o + new Vector2(0.6f * r, 0.6f * r), o + new Vector2(-0.6f * r, 0.6f * r), c);
+                    break;
+                case TimeDialShape.Bang:
+                    Quad(vh, o + new Vector2(-0.12f * r, -0.15f * r), o + new Vector2(0.12f * r, -0.15f * r),
+                        o + new Vector2(0.12f * r, 0.85f * r), o + new Vector2(-0.12f * r, 0.85f * r), c);
+                    Fan(vh, o + new Vector2(0f, -0.6f * r), 0.13f * r, 0f, 360f, 12, c);
+                    break;
+                case TimeDialShape.Dots:
+                    for (int k = -1; k <= 1; k++)
+                        Fan(vh, o + new Vector2(0.5f * k * r, 0f), 0.14f * r, 0f, 360f, 10, c);
                     break;
                 case TimeDialShape.Dawn:
                 case TimeDialShape.Dusk:

@@ -319,6 +319,11 @@ MonoBehaviour:
   invertY: 0
   pivotHeight: 1.6
   castRadius: 0.2
+  defaultPitch: 10
+  defaultDistance: 9
+  firstPersonPitch: 15
+  eyeHeight: 1.5
+  eyeForward: 0.25
 --- !u!1 &330232863
 GameObject:
   m_ObjectHideFlags: 0
@@ -475,7 +480,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Client::Game.Client.TerrainEditInput
   maxDistance: 200
-  outlinePixels: 3
 --- !u!114 &1663237070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -530,6 +534,7 @@ MonoBehaviour:
   stuckMinDistance: 1
   detourSeconds: 1.5
   secondViewpoint: 0
+  targetPlots: 0
 --- !u!1 &1694623654
 GameObject:
   m_ObjectHideFlags: 0

@@ -38,6 +38,7 @@ namespace Game.Client.Tests
             player.readKeyboard = false;
             playerGo.SetActive(true);
             wb.secondViewpoint = TestContext.CurrentContext.Test.Name == nameof(SecondViewpointWalkLogsSummary);
+            wb.targetPlots = TestContext.CurrentContext.Test.Name == nameof(TargetPlotsMarksTwenty) ? 20 : 0;
             go.SetActive(true);
             yield return null;
             yield return null;
@@ -97,6 +98,18 @@ namespace Game.Client.Tests
                 StringAssert.Contains(key, wb.Summary);
             Assert.AreEqual(Vector2.zero, player.MoveInput);
             Assert.IsNull(wb.SecondViewpoint);
+        }
+
+        [UnityTest]
+        public IEnumerator TargetPlotsMarksTwenty()
+        {
+            float t0 = Time.realtimeSinceStartup;
+            while (!wb.Done && Time.realtimeSinceStartup - t0 < 60f)
+                yield return null;
+            Assert.IsTrue(wb.Done);
+            Assert.GreaterOrEqual(sv.Sim.State.Plots.Count, 20);
+            StringAssert.Contains("plots=", wb.Summary);
+            StringAssert.Contains("plotIconsVisibleAvg=", wb.Summary);
         }
 
         [UnityTest]

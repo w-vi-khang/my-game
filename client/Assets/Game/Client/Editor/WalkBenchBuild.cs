@@ -18,13 +18,14 @@ namespace Game.Client.Editor
         const string ScenePath = "Assets/Game/Client/Scenes/WalkBench.unity";
         const string OutputPath = "Builds/walkbench.apk";
         const string OutputPath2 = "Builds/walkbench-2vp.apk";
+        const string OutputPath3 = "Builds/walkbench-plots.apk";
         const string TempAppId = "com.viventa.walkbench";
 
         [MenuItem("Game/Create Scene WalkBench")]
         public static void EnsureScene() => EnsureScene(false);
 
         /// <summary>Recreates the WalkBench scene from SimView and sets secondViewpoint on every WalkBench.</summary>
-        public static void EnsureScene(bool secondViewpoint)
+        public static void EnsureScene(bool secondViewpoint, int targetPlots = 0)
         {
             // Luôn tạo lại từ SimView để WalkBench dùng đúng ánh sáng/biển/trời hiện tại.
             var active = EditorSceneManager.GetActiveScene().path;
@@ -41,6 +42,7 @@ namespace Game.Client.Editor
                 var wb = sv.GetComponent<WalkBench>();
                 if (wb == null) wb = sv.gameObject.AddComponent<WalkBench>();
                 wb.secondViewpoint = secondViewpoint;
+                wb.targetPlots = targetPlots;
                 EditorUtility.SetDirty(sv.gameObject);
             }
             // Tắt đào/đặt (nhân vật tự đi).
@@ -62,9 +64,17 @@ namespace Game.Client.Editor
             finally { EnsureScene(false); }
         }
 
-        static void Build(bool secondViewpoint, string outputPath)
+        /// <summary>Same APK with 20 farm plots around the camp (world 7l e2, brief 0065) to measure plot icons; the saved scene goes back to defaults afterwards.</summary>
+        [MenuItem("Game/Build APK WalkBench 20 Plots")]
+        public static void BuildAndroidPlots()
         {
-            EnsureScene(secondViewpoint);
+            try { Build(false, OutputPath3, 20); }
+            finally { EnsureScene(false); }
+        }
+
+        static void Build(bool secondViewpoint, string outputPath, int targetPlots = 0)
+        {
+            EnsureScene(secondViewpoint, targetPlots);
             var android = NamedBuildTarget.Android;
             string oldId = PlayerSettings.GetApplicationIdentifier(android);
             try

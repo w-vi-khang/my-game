@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using Unity.Profiling;
 using Game.Core;
+using Game.Core.Sim;
 using UnityEngine;
 
 namespace Game.Client
@@ -30,6 +31,8 @@ namespace Game.Client
         public Vector2 RouteCenter { get; private set; }
         /// <summary>Adds a fixed second streaming viewpoint at the Map 2 centroid (task 7i, brief 0052). Read once when the walk starts.</summary>
         public bool secondViewpoint;
+        /// <summary>0 = giữ nguyên; &gt; 0 = đánh dấu xới quanh trại tới khi có chừng này ô ruộng (đo icon ô ruộng, brief 0065).</summary>
+        public int targetPlots;
         /// <summary>Map id of the second viewpoint (Map 2).</summary>
         public const int SecondMap = 1;
         public Transform SecondViewpoint { get; private set; }
@@ -41,6 +44,8 @@ namespace Game.Client
         FollowCamera follow;
         ProfilerRecorder systemMem, gcMem;
         readonly List<double> frameMs = new List<double>();
+        long visiblePlotIconSum;
+        WorldIconsView icons;
         bool started;
         float startTime, nextStuckCheck, detourUntil;
         Vector2 lastCheckPos, lastPos;
@@ -141,6 +146,8 @@ namespace Game.Client
                         Debug.Log($"WALKBENCH second viewpoint: map {SecondMap + 1} centroid ({SecondCenter.x:F1}, {SecondCenter.y:F1})");
                     }
                 }
+                if (targetPlots > 0) AddPlots(targetPlots);
+                icons = GetComponent<WorldIconsView>();
                 var f0 = player.FeetLocal;
                 lastPos = lastCheckPos = new Vector2(f0.x, f0.z);
                 startTime = Time.realtimeSinceStartup;
@@ -181,6 +188,7 @@ namespace Game.Client
             if (t >= warmupSeconds)
             {
                 frameMs.Add(Time.unscaledDeltaTime * 1000.0);
+                if (icons != null) visiblePlotIconSum += icons.VisiblePlotIcons;
                 Distance += Vector2.Distance(feet, lastPos);
                 int missing = view.MissingColumnsWithin(HoleRadius);
                 if (missing > 0) holeFrames++;
@@ -195,6 +203,26 @@ namespace Game.Client
             }
             else result = $"WALKBENCH warming up… {warmupSeconds - t:F0} s";
             lastPos = feet;
+        }
+
+        /// <summary>Marks tilling on ring-shaped columns (step 2) around the camp until the sim has count plots.</summary>
+        void AddPlots(int count)
+        {
+            var c = DemoPlain.CampCenter(sv.Plain.Value);
+            int cx = Mathf.FloorToInt(c.x), cz = Mathf.FloorToInt(c.z);
+            var world = view.World;
+            for (int k = 3; k <= 16 && sv.Sim.State.Plots.Count < count; k++)
+                for (int dz = -k; dz <= k && sv.Sim.State.Plots.Count < count; dz += 2)
+                    for (int dx = -k; dx <= k && sv.Sim.State.Plots.Count < count; dx += 2)
+                    {
+                        if (Mathf.Abs(dx) != k && Mathf.Abs(dz) != k) continue;
+                        int x = cx + dx, z = cz + dz;
+                        if (!world.Size.InBounds(x, 0, z)) continue;
+                        int y = world.Size.Y - 2;
+                        while (y > 0 && world.GetMaterial(x, y, z) == BlockMaterial.Empty) y--;
+                        sv.Sim.MarkTill(new CellPos(x, y, z));
+                    }
+            Debug.Log($"WALKBENCH plots: {sv.Sim.State.Plots.Count} (target {count})");
         }
 
         void Finish()
@@ -216,6 +244,7 @@ namespace Game.Client
             sb.Append($"viewpoints={view.ViewpointCount} secondCenter={(SecondViewpoint != null ? $"({SecondCenter.x:F1};{SecondCenter.y:F1})" : "none")} | ");
             sb.Append($"holeFrames={holeFrames} secondHoleFrames={secondHoleFrames} maxMissing={maxMissing} loadedColumnsMax={maxLoadedColumns} loadedChunksMax={maxLoadedChunks} | ");
             sb.Append($"sysMemMaxMB={maxSystemMem / 1048576.0:F1} gcReservedMaxMB={maxGcMem / 1048576.0:F1} | creatures={(sv.Sim != null ? sv.Sim.State.Creatures.Count : 0)} | ");
+            sb.Append($"plots={(sv.Sim != null ? sv.Sim.State.Plots.Count : 0)} plotIconsVisibleAvg={(icons != null && frameMs.Count > 0 ? (double)visiblePlotIconSum / frameMs.Count : -1.0):F1} | ");
             sb.Append($"pass30fps={avgFps >= 30.0} passNoHole={holeFrames == 0 && secondHoleFrames == 0}");
             Summary = sb.ToString();
             result = Summary.Replace(" | ", "\n");
