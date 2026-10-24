@@ -1,6 +1,6 @@
 # Brief 0065 — 7l e2: icon + vòng tiến trình trên ô ruộng, icon trạng thái sinh vật / đình trệ (thay nhãn chữ), đo ≥ 30 FPS điện thoại với 20 ô ruộng
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -248,10 +248,42 @@ Từ 0034 (user, 2026-10-23) và task contract:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: b85ffc8
+- Chạy bằng: Sonnet 5.5 (claude-sonnet-5-5) · medium
+- Bắt đầu: 2026-10-24 07:25
+- **Chưa đo điện thoại (bước 9.4): không thấy máy qua adb → mục `cần Opus` / chờ user cắm lại.** Mọi bước còn lại xong.
+- Commit code: 74ec39c
+- File đổi: Core/View/WorldIcons.cs (mới), Core/{PlayerMotion,Sim/SimConfig}.cs, Client/{WorldIconsView (mới),TimeDialGraphic,SimView,WalkBench,Editor/WalkBenchBuild}.cs, Scenes/WalkBench.unity(+.meta; diff 7 dòng: thêm trường targetPlots: 0 + component WorldIconsView), Resources/Config/sim_m1.json, design/data/sim_m1.json; test: Tests/Core/View/WorldIconsTests (12 test), Tests/Client/WorldIconsPlayTests (5), WalkBenchPlayTests (+TargetPlotsMarksTwenty; SetUp gán targetPlots theo tên test).
+- Lệch brief: `WorldIconsTests` có 12 test (brief ghi "13"); SettingsPlayTests không sửa (HiddenWhileSettingsOpen nằm trong WorldIconsPlayTests). `PlotIconMatchesStageAndProgress` chạy sim bằng `sv.Sim.Tick()` ×3000 (như SimFarmUiPlayTests) — ít nhất một icon ô ruộng đổi.
+- APK: `Builds/walkbench.apk` (07:41) và `Builds/walkbench-plots.apk` (07:42) đều `Succeeded` (860648547 / 860648555 byte). Không commit client/Builds/.
 
 ## Kết quả test
+- Số tạm: đạt — ConfigTests (kể cả SimClientCopyMatchesDesignData) trong EditMode toàn bộ.
+- Ánh xạ icon: đạt — `WorldIconsTests` 12/12.
+- Hình mới + lớp icon: đạt — `WorldIconsPlayTests` 5/5 (BuildsOneItemPerPlotAndCreature, PlotIconMatchesStageAndProgress, CreatureIconMatchesState, HiddenWhileSettingsOpen, FarIconsHidden).
+- Bỏ nhãn chữ: đạt — `grep -n "CreatureStatus.Text\|DrawLabel" Client/SimView.cs` rỗng.
+- WalkBench: đạt — `TargetPlotsMarksTwenty` + `WalksRouteAndLogsSummary`.
+- Hiệu năng điện thoại: **chưa đo** — `adb devices` rỗng; `adb connect 192.168.1.6:5555` bị từ chối; mdns rỗng; serial `PFQCRWVWR46HU4GQ` not found.
+- Lệnh: EditMode toàn bộ 560/560 qua. PlayMode toàn bộ 254 test, 253 qua; `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` lỗi (0,071 > 0,002) khi chạy cả bộ — cùng lỗi như lúc 0064 (chạy riêng thì qua) → có vẻ phụ thuộc thứ tự, không liên quan icon. Console Error = 0. Đã `git checkout` EditorSettings.asset + UnityConnectSettings.asset; `targetPlots: 20` = 0, `secondViewpoint: 1` = 0 trong WalkBench.unity. `check_design.py` exit 0.
+- User xem: chờ user — gộp cuối.
+
+## User tự test gộp 7l e
+Từ 0064:
+- Mở scene SimView, Play: góc trên-trái chỉ còn avatar ô vuông chữ "B" + thanh máu + thanh mana + số; không còn đoạn chữ hướng dẫn dài, không còn dòng kho / ô ruộng.
+- Bấm Q: hiện "Chế độ: Đào"; bấm D: dòng chế độ biến mất. Đào một khối: thông báo hiện rồi tự ẩn sau ~4 giây.
+- Trên cùng giữa: "xx FPS · mục tiêu 60 · nhịp N" (đọc được, không che minimap).
+- O → Cài đặt → tab Hướng dẫn: đọc chữ phím, đúng với phím đang dùng (B, P, 1–0, kéo thả, Tab, 1/2/3, G…); cuộn được nếu dài.
+- Không còn dòng "Đang ở buổi"; nút "Phép (G)" dưới minimap; G mở menu 2 mục; Đổi buổi → vòng 4 mốc như cũ; Mưa → vào chế độ Tưới, chuột phải ô ruộng tưới được; sau khi tưới, mở lại menu thấy "10 giây" đếm lùi. T không còn làm gì.
+- Đánh giá: vị trí / cỡ avatar, thanh, menu phép có dễ dùng không; 4 giây ẩn thông báo có hợp không.
+Từ 0065:
+- Scene SimView, Play: trên mỗi ô ruộng có một icon tròn nền tối + vòng xanh: ô đang xới = cuốc, gieo = hạt, tưới = giọt nước, đang lớn = mầm (vòng đầy dần), chín = đĩa màu cây; ô ruộng trống = "…". Vòng chạy mượt, không nhấp nháy.
+- Sinh vật: không còn chữ "L1 · …" trên đầu; có icon nhỏ: rảnh = "…", đang làm = icon công đoạn + vòng, đang đi tới việc = icon mờ; mang hàng = thùng vàng.
+- Đình trệ (vd kho đầy / không có đường): "!" đỏ tại chỗ, không còn chữ đỏ.
+- Icon nằm đúng trên ô / sinh vật khi xoay + thu phóng camera; không đè lên túi / menu phép / bản đồ; mở Cài đặt thì ẩn; đi xa trại thì icon ẩn.
+- Đánh giá: cỡ icon (40 / 28 px), khoảng cách ẩn 30 ô, hình giữ chỗ có đọc được giai đoạn không.
 
 ## Vướng mắc
+- Bước 9.4 (đo FPS điện thoại 24095PCADG) chưa làm được: adb không thấy máy nào (USB lẫn Wi‑Fi). Cần user cắm lại điện thoại (USB, bật debug, mở khoá màn hình). Khi có máy: chạy lại bước 9.4 với `Builds/walkbench.apk` rồi `Builds/walkbench-plots.apk` (hai APK đã build xong từ commit 74ec39c — không cần build lại).
 
 ---
 <!-- PLANNER ghi khi review. -->
