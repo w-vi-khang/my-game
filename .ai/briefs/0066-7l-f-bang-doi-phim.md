@@ -1,6 +1,6 @@
 # Brief 0066 — 7l f: bảng đổi phím trong Cài đặt → Điều khiển (đổi lúc chạy, lưu settings.json, trùng → Đổi chỗ / Huỷ, Mặc định, Esc cố định)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -283,3 +283,23 @@ Lệch brief: (1) asmdef ClientEdit thêm `Game.Client` (đã được duyệt).
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+**Kết luận (Planner, 2026-10-24): đã duyệt — code ok, chờ user xem gộp cuối** (user 2026-10-24).
+
+Đối chiếu diff `3ff3873`:
+- `KeyRebind` đúng chữ ký brief: `Rebindable` theo `Contexts`, bỏ Escape; `IsAllowedPath`, `SameControl` (shift/ctrl/alt chung ↔ trái/phải); `FindConflict` chỉ trong map; `SetPath` bỏ override khi về phím gốc. `Load` kiểm hợp lệ + trùng, sai thì về mặc định. `Start` tắt rồi bật lại đúng các map đã bật, `Dispose` ở một chỗ, Esc huỷ, kiểm `IsAllowedPath` sau khi chọn.
+- `GameSettings`: `ApplyBindings` trong `Load`, log `KEYS`; `SetBindingOverrides`; `ResetForTests` xoá override. `PlayerSettings.bindingOverrides`: `Clamp`, `Clone` đúng; không tăng `formatVersion`.
+- `SettingsView` tab 2: hỏi trùng → Đổi chỗ / Huỷ; đóng bảng → huỷ chờ / huỷ pending; Mặc định; `OnDestroy` huỷ thao tác đang chờ. `vi.json` +43 key (172 dòng); `SettingsView.Keys` +19.
+- Lệch 1 (asmdef ClientEdit +`Game.Client`): đã duyệt ở Vướng mắc. Lệch 2 (`KeyRebindPlayTests.SetUp` gọi `GameSettings.Load()`): hợp lý — trong game `Current` nạp lúc khởi động; chỉ ảnh hưởng test.
+- `GameControls.inputactions`, `GameInput.cs` không đổi. `Game.Core` chỉ thêm một trường string.
+
+Test [run, theo Kết quả]: test mới (EditMode `KeyRebindTests`, `PlayerSettingsTests.BindingOverrides_*`; PlayMode `KeyRebindPlayTests` 11) qua; EditMode 569/570, PlayMode 263/265 khi chạy cả bộ.
+
+3 test hỏng khi chạy cả bộ — **không do 0066**:
+- `IncrementalRebuildMatchesFullRebuild` (timeout khi Editor không focus): đã gặp ở 0061, 0063, 0064 [repo: `.ai/briefs/0061…:305`, `0063…:215`, `0064…:310`].
+- `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged`: đã gặp ở 0064, 0065 [repo: `0064…:326`, `0065…:267`].
+- `WorldIconsPlayTests.CreatureIconMatchesState`: mới gặp lần đầu (0065 chạy cả bộ thì qua), chạy riêng 5/5 qua. Diff 0066 không đụng sim / `WorldIconsView` / `SimView`. Test này chạy 500 tick, `yield return null` rồi so icon với `State` (`WorldIconsPlayTests.cs:102-116`); trong khung đó `SimView` có thể chạy thêm nhịp sau khi icon đã cập nhật (dễ xảy ra khi Editor không focus, khung dài) → nghi phụ thuộc thời gian [chưa xác minh — kiểm bằng cách chạy cả bộ khi Editor focus, hoặc dừng sim (`sv.Sim` không tự tick) trong test].
+- Cả 3 ghi vào việc treo trong handoff.
+
+Giờ: Executor ~23 phút (07:52–08:15, gồm lúc dừng chờ trả lời Vướng mắc), so với ước lượng 1,5–2,5 ngày.
+
