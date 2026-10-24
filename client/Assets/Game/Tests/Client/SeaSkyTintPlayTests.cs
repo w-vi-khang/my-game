@@ -29,6 +29,7 @@ namespace Game.Client.Tests
         bool oldFog;
         FogMode oldMode;
         float oldStart, oldEnd;
+        System.Collections.Generic.List<Light> disabledLights = new System.Collections.Generic.List<Light>();
         Color oldColor;
 
         [UnitySetUp]
@@ -49,6 +50,11 @@ namespace Game.Client.Tests
             RenderSettings.fogStartDistance = 64f;
             RenderSettings.fogEndDistance = 120f;
             Shader.SetGlobalFloat("_EdgeFogBlend", 0f);
+
+            // Light do test khác để lại sẽ thành đèn chính thứ hai và lệch màu biển — brief 0068.
+            disabledLights.Clear();
+            foreach (var l in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+                if (l.enabled) { l.enabled = false; disabledLights.Add(l); }
 
             lightGo = new GameObject("Light");
             lightGo.AddComponent<Light>().type = LightType.Directional;
@@ -88,6 +94,7 @@ namespace Game.Client.Tests
         [UnityTearDown]
         public IEnumerator TearDown()
         {
+            foreach (var l in disabledLights) if (l != null) l.enabled = true;
             Object.Destroy(camGo);
             Object.Destroy(lightGo);
             Object.Destroy(sea);

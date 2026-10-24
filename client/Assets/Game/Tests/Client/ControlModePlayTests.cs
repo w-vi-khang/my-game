@@ -63,9 +63,12 @@ namespace Game.Client.Tests
             sv.enabled = false;
         }
 
+        GameObject extraLightGo;
+
         [UnityTearDown]
         public IEnumerator TearDown()
         {
+            if (extraLightGo != null) UnityEngine.Object.Destroy(extraLightGo);
             UnityEngine.Object.Destroy(playerGo);
             UnityEngine.Object.Destroy(go);
             UnityEngine.Object.Destroy(camGo);
@@ -78,8 +81,8 @@ namespace Game.Client.Tests
             var dial = UnityEngine.Object.FindAnyObjectByType<TimeDial>();
             if (dial == null)
             {
-                var lightGo = new GameObject("Light");
-                var light = lightGo.AddComponent<Light>();
+                extraLightGo = new GameObject("Light"); // huỷ trong TearDown — brief 0068
+                var light = extraLightGo.AddComponent<Light>();
                 light.type = LightType.Directional;
                 var day = camGo.AddComponent<DayCycleView>();
                 day.sun = light;

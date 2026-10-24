@@ -15,10 +15,12 @@ namespace Game.Client.Tests
         TerrainChunkView view;
         SimView sv;
         WorldIconsView icons;
+        float savedTimeScale;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            savedTimeScale = Time.timeScale;
             camGo = new GameObject("Cam");
             camGo.tag = "MainCamera";
             camGo.AddComponent<Camera>();
@@ -38,6 +40,7 @@ namespace Game.Client.Tests
         [UnityTearDown]
         public IEnumerator TearDown()
         {
+            Time.timeScale = savedTimeScale;
             Object.Destroy(go);
             Object.Destroy(camGo);
             yield return null;
@@ -86,6 +89,7 @@ namespace Game.Client.Tests
         [UnityTest]
         public IEnumerator PlotIconMatchesStageAndProgress()
         {
+            Time.timeScale = 0f; // SimView không tự chạy nhịp giữa lúc icon cập nhật (LateUpdate) và lúc test đọc State — brief 0068
             yield return null;
             AssertPlotsMatch();
             var before = new WorldIcon[sv.Sim.State.Plots.Count];
@@ -101,6 +105,7 @@ namespace Game.Client.Tests
         [UnityTest]
         public IEnumerator CreatureIconMatchesState()
         {
+            Time.timeScale = 0f; // SimView không tự chạy nhịp giữa lúc icon cập nhật (LateUpdate) và lúc test đọc State — brief 0068
             for (int k = 0; k < 3; k++)
             {
                 for (int i = 0; i < 500; i++) sv.Sim.Tick();

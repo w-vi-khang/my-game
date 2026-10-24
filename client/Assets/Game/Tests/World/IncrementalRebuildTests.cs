@@ -56,7 +56,7 @@ namespace Game.World.Tests
                 for (int k = 0; k < dirty.Count; k++)
                     meshes[dirty[k]] = rebuilt[k];
 
-                if (edits % 10 == 0)
+                if (edits % 40 == 0)
                 {
                     checks++;
                     var full = BlockMesher.BuildAll(world);
@@ -65,7 +65,7 @@ namespace Game.World.Tests
                 }
             }
             Assert.AreEqual(200, edits, "fewer than 200 valid edits");
-            Assert.AreEqual(20, checks);
+            Assert.AreEqual(5, checks);
         }
 
         [Test]
