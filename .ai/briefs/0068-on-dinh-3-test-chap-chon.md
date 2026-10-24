@@ -1,9 +1,9 @@
 # Brief 0068 — Ổn định 3 test chỉ hỏng khi chạy cả bộ
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-24 09:30
+> Cập nhật: 2026-10-24 10:17
 
 <!-- Không có task contract riêng: việc sửa test, không đổi hành vi game. Nguồn: .ai/handoff.md mục "Việc treo — test chỉ hỏng khi chạy cả bộ". -->
 
@@ -115,10 +115,24 @@ Không.
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 6084ba3
+Chạy bằng: claude-sonnet-5-5 · medium
+Giờ: bắt đầu 09:52, kết thúc 10:17 (~25 phút; phần lớn là chờ chạy cả bộ).
+Commit: 4478ba7. File đổi: `IncrementalRebuildTests.cs`, `WorldIconsPlayTests.cs`, `SeaSkyTintPlayTests.cs`, `ControlModePlayTests.cs` (thêm — bước 2.3).
+- Test 1: so toàn bộ mỗi 40 lần sửa, assert 5 lần so.
+- Test 3: `Time.timeScale = 0f` đầu hai test, lưu/khôi phục trong SetUp/TearDown.
+- Test 2, nguyên nhân (`[0068diag]`): chạy riêng có 1 `Light`; chạy cả bộ có **2 `Light`** Directional (ambient, probe, fog, global đều giống hệt). Light thừa do `ControlModePlayTests.SpellMenuRainEntersRainMode` tạo cục bộ (`lightGo`) và không bao giờ huỷ → thành đèn chính thứ hai, màu biển lệch 0,0173. Sửa: ControlModePlayTests giữ `extraLightGo` và huỷ trong TearDown; `SeaSkyTintPlayTests.SetUp` tắt mọi Light đang có trước khi tạo Light của mình, TearDown bật lại (không dựa vào scene sạch). Đã xoá log `[0068diag]`.
+- Đã dọn: `git checkout -- client/ProjectSettings/EditorSettings.asset`; không có InitTestScene*.
 
 ## Kết quả test
+- Test 1: đạt — `IncrementalRebuildTests` 3/3, `IncrementalRebuildMatchesFullRebuild` 9,6 s (Editor không focus; trước ~40 s riêng, 194–205 s cả bộ); EditMode cả bộ ×2: 582/582, 582/582 (310 s, 304 s), không timeout.
+- Test 2: đạt — `DayCycleOffNearSeaUnchanged` qua trong cả bộ PlayMode ×2. Chạy riêng `SeaSkyTintPlayTests` 6/6 (trước khi sửa; sau sửa được phủ bởi cả bộ). Trước sửa: cả bộ 266/267, test này lệch 0,0173.
+- Test 3: đạt — `CreatureIconMatchesState`, `PlotIconMatchesStageAndProgress` qua trong cả bộ PlayMode ×2; test chạy sau không hỏng. Chưa chạy riêng `WorldIconsPlayTests` 5/5 sau sửa (chỉ trong cả bộ).
+- ControlModePlayTests: đạt trong cả bộ (không chạy riêng).
+- Regression: PlayMode cả bộ ×2: 267/267, 267/267 (170 s, 171 s); console 0 Error.
 
 ## Vướng mắc
+Không. Lưu ý: cầu MCP mất kết nối khi vào Play, `get_test_job` vẫn lấy được kết quả sau khi chờ.
 
 ---
 <!-- PLANNER ghi khi review. -->
