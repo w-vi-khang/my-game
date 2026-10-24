@@ -1,6 +1,6 @@
 # Brief 0066 — 7l f: bảng đổi phím trong Cài đặt → Điều khiển (đổi lúc chạy, lưu settings.json, trùng → Đổi chỗ / Huỷ, Mặc định, Esc cố định)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-24
@@ -252,12 +252,20 @@ Bước **7l f** (brief duy nhất, bước cuối) của task [m1-world-7l-dieu
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
-<!-- Base commit · Chạy bằng: <model id> · <effort> · giờ bắt đầu / kết thúc · commit · file đã đổi · lệch so với brief (kèm lý do). -->
+Base commit: c9c3b6b
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-24 07:52
+
 
 ## Kết quả test
 <!-- Mỗi dòng ở "Phần cần test" → đạt / không đạt + bằng chứng. Mỗi lệnh → kết quả thật. -->
 
 ## Vướng mắc
+(2026-10-24, Sonnet · medium) Dừng theo "Phải sửa file ngoài Phạm vi".
+- Đã làm xong, chưa commit (nằm trong working tree): bước 1–6 + toàn bộ test (KeyRebind.cs, GameSettings, SettingsView, PlayerSettings, vi.json, KeyRebindTests, KeyRebindPlayTests, PlayerSettingsTests, GameControlsTests). Code production biên dịch 0 lỗi.
+- Lỗi duy nhất: `KeyRebindTests.cs` (EditMode) báo CS0103 "KeyRebind does not exist": `client/Assets/Game/Tests/ClientEdit/Game.Client.EditTests.asmdef` chỉ tham chiếu `UnityEngine.TestRunner, UnityEditor.TestRunner, Unity.InputSystem` — thiếu `Game.Client`. `KeyRebind` nằm ở `Game.Client` (cần `GameSettings.Text`).
+- Câu hỏi: được phép thêm `"Game.Client"` vào `references` của asmdef đó (file ngoài Phạm vi) không? `Game.Client` asmdef không giới hạn platform nên Editor dùng được.
+- Phương án A (đề xuất): thêm `"Game.Client"` (+ `Game.Client.EditTests.asmdef` vào Phạm vi). Phương án B: chuyển `KeyRebindTests` sang PlayMode (`Game.Client.Tests`, đã tham chiếu Game.Client) — lệch brief "EditMode".
 
 ---
 <!-- PLANNER ghi khi review. -->
