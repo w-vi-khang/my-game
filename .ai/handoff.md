@@ -1,5 +1,13 @@
 # Handoff — 2026-10-24
 
+## Điều phối (phiên Opus điều phối, user AFK)
+- User 2026-10-24: "Hãy hoàn thành mục 7 một lượt" → 7l d, e, f + sim 7g, "user xem" gộp cuối; rồi "làm tiếp các phần khác, bỏ qua các phần cần user, nếu không thể dùng lại phiên hãy mở phiên mới, không cần hỏi".
+- Vòng: Planner (Opus · medium) viết brief → Executor (Sonnet · medium) `/ai-workflow-kit:exec NNNN --child` → Planner `/ai-workflow-kit:review-brief NNNN` (kết luận "code ok, chờ user xem gộp cuối"). Unity Editor dùng chung → tuần tự.
+- Phiên hiện dùng: Planner [planner-m1-next](#local_9a715430-3dc2-4ff5-9bd9-201e02737e93), Executor [exec-m1-next](#local_1c06f7a6-b786-46b3-aaf4-ecdc45a3f589). Phiên mới chỉ mở được trong lượt user gõ (lượt do sự kiện phiên khác bị từ chối start_session).
+- Executor hay kết thúc lượt khi PlayMode đang chạy (MCP rớt khi vào Play) → nhắc "sleep 60 rồi get_test_job, chỉ dừng khi chờ review / cần Opus".
+- Danh sách chơi thử gộp bước 7: [playtest-buoc-7.md](playtest-buoc-7.md).
+- Đang chạy: brief 0069 (sim 8a lõi). Kế tiếp: review 0069 → world 7k (phần Mac) → chờ user: 3 câu hỏi sim 8b (task contract sim 8), đo FPS điện thoại 7l e, chơi thử gộp.
+
 ## Đang làm
 Task `m1-world-7l-dieu-khien-pc` ([task contract](tasks/m1-world-7l-dieu-khien-pc.md)).
 - **7l c1** (brief 0058) đã duyệt 2026-10-24.
