@@ -7,6 +7,170 @@
       "text": "Túi đầy"
     },
     {
+      "key": "controls.bag",
+      "text": "Túi đồ"
+    },
+    {
+      "key": "controls.camera_reset",
+      "text": "Camera về mặc định"
+    },
+    {
+      "key": "controls.cancel",
+      "text": "Huỷ"
+    },
+    {
+      "key": "controls.change",
+      "text": "Đổi"
+    },
+    {
+      "key": "controls.collect",
+      "text": "Thu"
+    },
+    {
+      "key": "controls.conflict",
+      "text": "Phím {0} đã dùng cho \"{1}\". Đổi chỗ: \"{1}\" nhận phím {2}."
+    },
+    {
+      "key": "controls.ctx_map",
+      "text": "Bản đồ (khi đang mở)"
+    },
+    {
+      "key": "controls.ctx_panels",
+      "text": "Túi, túi phụ, kho (khi đang mở)"
+    },
+    {
+      "key": "controls.ctx_player",
+      "text": "Đi lại, công cụ, camera"
+    },
+    {
+      "key": "controls.ctx_timedial",
+      "text": "Vòng thời điểm (khi đang mở)"
+    },
+    {
+      "key": "controls.dash",
+      "text": "Lướt"
+    },
+    {
+      "key": "controls.defaults",
+      "text": "Mặc định"
+    },
+    {
+      "key": "controls.dial_press",
+      "text": "Chọn mốc trên vòng thời điểm"
+    },
+    {
+      "key": "controls.first_person",
+      "text": "Góc nhìn thứ nhất / thứ ba"
+    },
+    {
+      "key": "controls.fixed_note",
+      "text": "Esc cố định (đóng bảng / huỷ). Phím debug F1–F3 không đổi được."
+    },
+    {
+      "key": "controls.hotbar",
+      "text": "Túi phụ ô {0}"
+    },
+    {
+      "key": "controls.jump",
+      "text": "Nhảy"
+    },
+    {
+      "key": "controls.map",
+      "text": "Bản đồ"
+    },
+    {
+      "key": "controls.map_press",
+      "text": "Bấm trên bản đồ"
+    },
+    {
+      "key": "controls.mode_default",
+      "text": "Chế độ Mặc định"
+    },
+    {
+      "key": "controls.mode_dig",
+      "text": "Chế độ Đào"
+    },
+    {
+      "key": "controls.mode_rain",
+      "text": "Chế độ Tưới"
+    },
+    {
+      "key": "controls.mode_till",
+      "text": "Chế độ Xới"
+    },
+    {
+      "key": "controls.mouse_back",
+      "text": "Chuột lùi"
+    },
+    {
+      "key": "controls.mouse_forward",
+      "text": "Chuột tiến"
+    },
+    {
+      "key": "controls.mouse_left",
+      "text": "Chuột trái"
+    },
+    {
+      "key": "controls.mouse_middle",
+      "text": "Chuột giữa"
+    },
+    {
+      "key": "controls.mouse_right",
+      "text": "Chuột phải"
+    },
+    {
+      "key": "controls.move_click",
+      "text": "Đi tới chỗ click"
+    },
+    {
+      "key": "controls.next_target",
+      "text": "Đổi đích chuyển đồ"
+    },
+    {
+      "key": "controls.observe",
+      "text": "Xem camera quan sát"
+    },
+    {
+      "key": "controls.rotate_camera",
+      "text": "Xoay camera (giữ)"
+    },
+    {
+      "key": "controls.settings",
+      "text": "Cài đặt"
+    },
+    {
+      "key": "controls.spell_menu",
+      "text": "Menu phép"
+    },
+    {
+      "key": "controls.swap",
+      "text": "Đổi chỗ"
+    },
+    {
+      "key": "controls.toggle_hotbar",
+      "text": "Ẩn/hiện túi phụ"
+    },
+    {
+      "key": "controls.transfer_all",
+      "text": "Chuyển toàn bộ"
+    },
+    {
+      "key": "controls.transfer_half",
+      "text": "Chuyển một nửa"
+    },
+    {
+      "key": "controls.transfer_third",
+      "text": "Chuyển một phần ba"
+    },
+    {
+      "key": "controls.use_tool",
+      "text": "Thao tác chọn (chế độ / vật cầm)"
+    },
+    {
+      "key": "controls.waiting",
+      "text": "Bấm phím hoặc nút chuột mới cho \"{0}\"… (Esc: huỷ)"
+    },
+    {
       "key": "creature.ability_harvest",
       "text": "thu hoạch"
     },
@@ -257,6 +421,10 @@
     {
       "key": "guide.debug",
       "text": "Phím debug: F1 khoá 30 FPS · F2 khoá 60 FPS · F3 camera bay (WASD, Q/E, giữ chuột giữa; phím chế độ tắt khi bay)"
+    },
+    {
+      "key": "guide.keys_note",
+      "text": "Phím ghi trong hướng dẫn là phím mặc định; phím đang dùng xem ở tab Điều khiển."
     },
     {
       "key": "guide.modes",
@@ -573,6 +741,10 @@
     {
       "key": "settings.look_sensitivity",
       "text": "Tốc độ xoay chuột: {0:F2}"
+    },
+    {
+      "key": "settings.tab_controls",
+      "text": "Điều khiển"
     },
     {
       "key": "settings.tab_general",

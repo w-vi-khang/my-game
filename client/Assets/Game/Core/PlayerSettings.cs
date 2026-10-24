@@ -22,6 +22,8 @@ namespace Game.Core
         public float uiScale = 1f;
         public int targetFps = 60;
         public string language = DefaultLanguage;
+        /// <summary>Chuỗi SaveBindingOverridesAsJson (7l f, 0033 mục 2); "" = phím mặc định.</summary>
+        public string bindingOverrides = "";
 
         public void Clamp()
         {
@@ -32,6 +34,7 @@ namespace Game.Core
             uiScale = ClampF(uiScale, UiScaleMin, UiScaleMax, 1f);
             if (targetFps != 30 && targetFps != 60) targetFps = 60;
             if (!IsValidLanguage(language)) language = DefaultLanguage;
+            if (bindingOverrides == null) bindingOverrides = "";
         }
 
         public PlayerSettings Clone() => new PlayerSettings
@@ -44,6 +47,7 @@ namespace Game.Core
             uiScale = uiScale,
             targetFps = targetFps,
             language = language,
+            bindingOverrides = bindingOverrides,
         };
 
         /// <summary>1–32 ký tự, chỉ a-z, 0-9, '_' , '-'.</summary>

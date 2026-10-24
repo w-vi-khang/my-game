@@ -1,7 +1,7 @@
 {
     "name": "Game.Client.EditTests",
     "rootNamespace": "Game.Client.EditTests",
-    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Unity.InputSystem"],
+    "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "Unity.InputSystem", "Game.Client"],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

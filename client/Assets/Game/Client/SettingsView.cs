@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Game.Core;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Game.Client
 {
@@ -10,6 +11,7 @@ namespace Game.Client
     {
         public static readonly string[] Keys =
         {
+            "guide.keys_note", "settings.tab_controls", "controls.ctx_player", "controls.ctx_panels", "controls.ctx_map", "controls.ctx_timedial", "controls.change", "controls.waiting", "controls.conflict", "controls.swap", "controls.cancel", "controls.defaults", "controls.fixed_note", "controls.mouse_left", "controls.mouse_right", "controls.mouse_middle", "controls.mouse_forward", "controls.mouse_back", "controls.hotbar",
             "settings.button", "settings.title", "settings.camera_distance", "settings.camera_pitch", "settings.camera_default", "settings.look_sensitivity", "settings.invert_y",
             "settings.ui_scale", "settings.fps", "settings.language", "settings.lang_error", "settings.export",
             "settings.exported", "settings.lang_dir", "settings.close", "settings.tab_general", "settings.tab_guide",
@@ -28,7 +30,7 @@ namespace Game.Client
 
         public bool IsOpen { get; private set; }
         public SimView Sim => sim;
-        /// <summary>0 = Chung, 1 = Hướng dẫn; giữ khi đóng/mở lại bảng.</summary>
+        /// <summary>0 = Chung, 1 = Hướng dẫn, 2 = Điều khiển; giữ khi đóng/mở lại bảng.</summary>
         public int Tab { get => tab; set => tab = value; }
 
         public static Rect ButtonRect(float gw, float gh) => new Rect(gw - 240f, gh - 46f, 110f, 36f);
@@ -59,6 +61,7 @@ namespace Game.Client
 
         void OnDestroy()
         {
+            rebindOp?.Cancel();
             GameSettings.Changed -= ApplyToScene;
             if (active == this) active = null;
         }
@@ -81,8 +84,48 @@ namespace Game.Client
             }
         }
 
+        public bool IsWaiting => rebindOp != null;
+        public InputAction PendingAction { get; private set; }
+        public InputAction PendingConflict { get; private set; }
+        InputActionRebindingExtensions.RebindingOperation rebindOp;
+        InputAction rebinding;
+        string pendingOld;
+
+        public void BeginRebind(InputAction a)
+        {
+            if (IsWaiting || PendingConflict != null) return;
+            rebinding = a;
+            rebindOp = KeyRebind.Start(a, (ok, old) => { rebindOp = null; rebinding = null; if (ok) ApplyChosen(a, old); });
+        }
+
+        public void ApplyChosen(InputAction a, string oldPath)
+        {
+            var other = KeyRebind.FindConflict(a, a.bindings[0].effectivePath);
+            if (other == null) { SaveBindings(); return; }
+            PendingAction = a; PendingConflict = other; pendingOld = oldPath;
+        }
+
+        public void ResolveConflict(bool swap)
+        {
+            if (PendingConflict == null) return;
+            if (swap) { KeyRebind.SetPath(PendingConflict, pendingOld); SaveBindings(); }
+            else KeyRebind.SetPath(PendingAction, pendingOld);
+            PendingAction = null; PendingConflict = null; pendingOld = null;
+        }
+
+        public void ResetBindings()
+        {
+            rebindOp?.Cancel();
+            ResolveConflict(false);
+            InputSystem.actions.RemoveAllBindingOverrides();
+            SaveBindings();
+        }
+
+        void SaveBindings() => GameSettings.SetBindingOverrides(KeyRebind.Save(InputSystem.actions));
+
         public void SetOpen(bool open)
         {
+            if (!open) { rebindOp?.Cancel(); ResolveConflict(false); }
             if (!open && IsOpen && GameSettings.Dirty) GameSettings.Save();
             IsOpen = open;
         }
@@ -122,7 +165,7 @@ namespace Game.Client
         /// <summary>Chữ tab Hướng dẫn: phím và thao tác hiện hành (0034).</summary>
         public static string GuideText() => string.Join("\n\n", new[]
         {
-            T("guide.move"), T("guide.camera"),
+            T("guide.keys_note"), T("guide.move"), T("guide.camera"),
             Format("guide.modes", PlayerRules.TargetReach, PlayerRules.ActReach),
             T("guide.till"),
             Format("guide.collect", PlayerRules.CollectReach),
@@ -146,7 +189,7 @@ namespace Game.Client
             GUI.Label(new Rect(x, y, w, row), "<b>" + T("settings.title") + "</b>", labelStyle);
             y += row;
 
-            tab = GUI.Toolbar(new Rect(x, y, 240f, row - 4f), tab, new[] { T("settings.tab_general"), T("settings.tab_guide") });
+            tab = GUI.Toolbar(new Rect(x, y, 360f, row - 4f), tab, new[] { T("settings.tab_general"), T("settings.tab_guide"), T("settings.tab_controls") });
             y += row;
 
             if (tab == 1)
@@ -157,6 +200,12 @@ namespace Game.Client
                 GUI.Label(new Rect(0f, 0f, w - 20f, h), guide, WrapStyle());
                 GUI.EndScrollView();
                 if (GUI.Button(new Rect(x, p.yMax - 40f, 140f, 30f), T("settings.close"))) SetOpen(false);
+                return;
+            }
+
+            if (tab == 2)
+            {
+                DrawControls(p, x, y, w);
                 return;
             }
 
@@ -228,6 +277,57 @@ namespace Game.Client
             if (GUI.Button(new Rect(x, p.yMax - 40f, 140f, 30f), T("settings.close"))) SetOpen(false);
 
             if (changed) GameSettings.Apply(s);
+        }
+
+        static readonly string[] CtxKeys = { "controls.ctx_player", "controls.ctx_panels", "controls.ctx_map", "controls.ctx_timedial" };
+
+        void DrawControls(Rect p, float x, float y, float w)
+        {
+            GUI.Label(new Rect(x, y, w, 40f), T("controls.fixed_note"), WrapStyle());
+            y += 40f;
+            if (IsWaiting)
+            {
+                GUI.Label(new Rect(x, y, w, 40f), "<color=yellow>" + Format("controls.waiting", KeyRebind.DisplayName(rebinding)) + "</color>", WrapStyle());
+                y += 40f;
+            }
+            if (PendingConflict != null)
+            {
+                GUI.Label(new Rect(x, y, w, 56f), Format("controls.conflict", KeyRebind.DisplayKey(PendingAction), KeyRebind.DisplayName(PendingConflict), KeyRebind.DisplayPath(pendingOld)), WrapStyle());
+                y += 56f;
+                if (GUI.Button(new Rect(x, y, 120f, 28f), T("controls.swap"))) ResolveConflict(true);
+                if (GUI.Button(new Rect(x + 130f, y, 120f, 28f), T("controls.cancel"))) ResolveConflict(false);
+                y += 32f;
+            }
+
+            var actions = KeyRebind.Rebindable(InputSystem.actions);
+            const float rowH = 26f;
+            float contentH = 0f;
+            foreach (var ctx in KeyRebind.Contexts)
+            {
+                contentH += rowH;
+                foreach (var a in actions) if (a.actionMap.name == ctx) contentH += rowH;
+            }
+            scroll = GUI.BeginScrollView(new Rect(x, y, w, p.yMax - 48f - y), scroll, new Rect(0f, 0f, w - 20f, contentH));
+            float cy = 0f, cw = w - 20f;
+            for (int i = 0; i < KeyRebind.Contexts.Length; i++)
+            {
+                GUI.Label(new Rect(0f, cy, cw, rowH), "<b>" + T(CtxKeys[i]) + "</b>", labelStyle);
+                cy += rowH;
+                foreach (var a in actions)
+                {
+                    if (a.actionMap.name != KeyRebind.Contexts[i]) continue;
+                    GUI.Label(new Rect(0f, cy, cw * 0.55f, rowH), KeyRebind.DisplayName(a), labelStyle);
+                    GUI.Label(new Rect(cw * 0.55f, cy, cw * 0.25f, rowH), "<b>" + KeyRebind.DisplayKey(a) + "</b>", labelStyle);
+                    bool en = GUI.enabled;
+                    GUI.enabled = !IsWaiting && PendingConflict == null;
+                    if (GUI.Button(new Rect(cw - 60f, cy, 60f, rowH - 2f), T("controls.change"))) BeginRebind(a);
+                    GUI.enabled = en;
+                    cy += rowH;
+                }
+            }
+            GUI.EndScrollView();
+            if (GUI.Button(new Rect(x, p.yMax - 40f, 140f, 30f), T("settings.close"))) SetOpen(false);
+            if (GUI.Button(new Rect(x + 150f, p.yMax - 40f, 140f, 30f), T("controls.defaults"))) ResetBindings();
         }
 
         GUIStyle wrapStyle, btnStyle;

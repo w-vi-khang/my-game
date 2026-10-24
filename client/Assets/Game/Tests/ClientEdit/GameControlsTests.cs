@@ -107,7 +107,7 @@ namespace Game.Client.EditTests
         [Test]
         public void NoDirectInputReadsInScope()
         {
-            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "InventoryView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs", "ObservationCamera.cs", "MoveMarkers.cs" };
+            var files = new[] { "SimView.cs", "FollowCamera.cs", "TimeDial.cs", "MinimapView.cs", "SettingsView.cs", "InventoryView.cs", "TerrainEditInput.cs", "PlayerCharacter.cs", "PlayerFarmActions.cs", "ObservationCamera.cs", "MoveMarkers.cs", "KeyRebind.cs" };
             var banned = new Regex(@"Keyboard\.current|Mouse\.current|\bInput\.Get|\bkb\.|\bmouse\.");
             var hits = new List<string>();
             foreach (var f in files)

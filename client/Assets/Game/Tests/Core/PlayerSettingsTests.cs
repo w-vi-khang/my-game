@@ -120,5 +120,18 @@ namespace Game.Core.Tests
             Assert.AreEqual(0f, s.cameraDistance);
             Assert.AreEqual(0f, s.cameraPitch);
         }
+
+        [Test]
+        public void BindingOverrides_DefaultEmpty_CloneCopies_NullClamped()
+        {
+            var s = new PlayerSettings();
+            Assert.AreEqual("", s.bindingOverrides);
+            s.bindingOverrides = "{\"x\":1}";
+            Assert.AreEqual("{\"x\":1}", s.Clone().bindingOverrides);
+            s.bindingOverrides = null;
+            s.Clamp();
+            Assert.AreEqual("", s.bindingOverrides);
+            Assert.AreEqual("", JsonUtility.FromJson<PlayerSettings>("{\"uiScale\":1.5}").bindingOverrides);
+        }
     }
 }

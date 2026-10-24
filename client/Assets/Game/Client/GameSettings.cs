@@ -4,6 +4,7 @@ using System.IO;
 using Game.Core;
 using Game.Core.Text;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Game.Client
 {
@@ -63,7 +64,27 @@ namespace Game.Client
             s.Clamp();
             current = s;
             Dirty = false;
+            ApplyBindings();
             LoadLanguage();
+        }
+
+        static void ApplyBindings()
+        {
+            var asset = InputSystem.actions;
+            if (asset == null) return;
+            if (!KeyRebind.Load(asset, current.bindingOverrides))
+            {
+                Debug.LogWarning("KEYS invalid binding overrides in settings.json, using defaults");
+                current.bindingOverrides = "";
+            }
+        }
+
+        /// <summary>Lưu chuỗi override phím (asset đã đổi trước khi gọi; không áp lại).</summary>
+        public static void SetBindingOverrides(string json)
+        {
+            var s = Current.Clone();
+            s.bindingOverrides = json ?? "";
+            Apply(s);
         }
 
         static void LoadLanguage()
@@ -144,6 +165,7 @@ namespace Game.Client
         public static void ResetForTests(string root)
         {
             RootOverride = root;
+            InputSystem.actions?.RemoveAllBindingOverrides();
             current = null;
             text = null;
             baseText = null;
