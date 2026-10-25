@@ -14,7 +14,8 @@
   "permissions": {
     "allow": [
       "mcp__ccd_session_mgmt__clear_session",
-      "SendMessage"
+      "SendMessage",
+      "mcp__ccd_session_mgmt__send_message"
     ]
   }
 }
