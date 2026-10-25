@@ -8,6 +8,8 @@
 User 2026-10-25: "nước phải tràn ra… giới hạn lan… nước chảy vào hố cũng sẽ đầy, chảy từ cao xuống thấp" → user chọn **nguồn + lan giới hạn, làm ngay trong M1** → quyết định [0040](../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) (Chốt, đã ghi + commit `8de0b26`; README decisions đã thêm dòng).
 
 ## Bước tiếp
+**Cập nhật 2026-10-25 (phiên Planner sau):** bước 1–3 xong — tài liệu theo 0040 (commit `958c720`, M1 123,5–201), task `m1-world-nuoc-chay`, brief 0075 (`abae049`). Brief 0075 đã giao phiên con exec-0075 (local_6c0ab03f-9253-47b6-9631-26bdfb1af2e4, Sonnet · medium). Tiếp: review 0075 (`/ai-workflow-kit:review-brief 0075`), rồi user xem.
+
 1. ~~Commit 0040~~ (xong).
 2. Cập nhật tài liệu theo 0040 mục Hệ quả:
    - world-tech mục Nước chảy (dòng ~111–120) + thêm hạng mục vào kế hoạch prototype;
