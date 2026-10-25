@@ -28,7 +28,8 @@ namespace Game.Core
     /// (design/04-tech/world-tech.md "Chỉnh sửa"). Biển tràn + luật đặt khối theo design/decisions/0012: đặt vào ô rỗng hoặc ô
     /// nước kề mặt một khối đặc; đào ô ≤ mực nước biển kề nước (hoặc biển ngoài map) → nước lan qua các ô rỗng ≤ mực nước
     /// biển thông với nó (6 hướng) theo nhịp (design/decisions/0013): StepWater() một nhịp — rơi thẳng xuống ngay, lan ngang/dâng
-    /// 1 ô mỗi nhịp. Nước không tự rút.
+    /// 1 ô mỗi nhịp. Nước biển (nguồn) không tự rút. Nước chảy (design/decisions/0040): nguồn (ô nước có sẵn, ô biển loang) không cạn;
+    /// nước rơi thẳng xuống cả cột, lan ngang tối đa FlowMaxDistance ô (1 ô/nhịp) khi đứng trên khối đặc/nước; mất nguồn thì rút dần.
     /// </summary>
     public sealed class WorldEditor
     {
@@ -48,8 +49,26 @@ namespace Game.Core
         readonly List<(int x, int y, int z)> waterFront = new List<(int, int, int)>();
         readonly HashSet<(int, int, int)> waterFrontSet = new HashSet<(int, int, int)>();
 
-        /// <summary>Còn nước đang lan (gọi StepWater theo nhịp).</summary>
-        public bool HasPendingWater => waterFront.Count > 0;
+        /// <summary>Ô cần tính lại nước chảy ở nhịp sau (0040). Thứ tự chèn cố định → tất định.</summary>
+        readonly List<(int x, int y, int z)> flowQueue = new List<(int, int, int)>();
+        readonly HashSet<(int, int, int)> flowQueueSet = new HashSet<(int, int, int)>();
+
+        int flowMaxDistance = 7;
+
+        /// <summary>Số ô nước chảy lan ngang tối đa N (0040), hợp lệ 1–7.</summary>
+        public int FlowMaxDistance
+        {
+            get => flowMaxDistance;
+            set
+            {
+                if (value < 1 || value > Cell.MaxWaterLevel)
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "FlowMaxDistance must be in 1..7");
+                flowMaxDistance = value;
+            }
+        }
+
+        /// <summary>Còn nước đang lan hoặc đang rút (gọi StepWater theo nhịp).</summary>
+        public bool HasPendingWater => waterFront.Count > 0 || flowQueue.Count > 0;
 
         /// <summary>Móc kiểm tra ô bị chiếm (người chơi, sinh vật, cây, kho). M1 bước 4 chưa có vật thể → mặc định null.</summary>
         public Func<int, int, int, bool> IsOccupied;
@@ -90,6 +109,7 @@ namespace Game.Core
             CellChanged?.Invoke(x, y, z);
             if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
                 AddToFront(x, y, z);
+            AddFlowDependents(x, y, z);
             return EditResult.Ok;
         }
 
@@ -126,10 +146,11 @@ namespace Game.Core
                 return EditResult.NoMaterial;
             ushort cell = World.Get(x, y, z);
 
-            World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(cell, material), 0), true));
+            World.Set(x, y, z, Cell.SetModified(Cell.ClearFlow(Cell.SetWaterLevel(Cell.SetMaterial(cell, material), 0)), true));
             Drops.PushUp(x, y, z);
             CellChanged?.Invoke(x, y, z);
             RevertFarmlandBelow(x, y, z);
+            AddFlowDependents(x, y, z);
             return EditResult.Ok;
         }
 
@@ -212,7 +233,7 @@ namespace Game.Core
                 return false;
             if (x < 0 || z < 0 || x >= World.Size.X || z >= World.Size.Z)
                 return true;
-            return World.GetMaterial(x, y, z) == BlockMaterial.Water;
+            return World.GetMaterial(x, y, z) == BlockMaterial.Water && Cell.IsWaterSource(World.Get(x, y, z));
         }
 
         bool TouchesWater(int x, int y, int z)
@@ -238,6 +259,7 @@ namespace Game.Core
             World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(old, BlockMaterial.Water), Cell.MaxWaterLevel), true));
             CellChanged?.Invoke(x, y, z);
             RevertFarmlandBelow(x, y, z);
+            AddFlowDependents(x, y, z);
         }
 
         /// <summary>
@@ -245,7 +267,7 @@ namespace Game.Core
         /// ≤ SeaLevel ngay trong nhịp; ô rỗng ≤ SeaLevel kề ngang hoặc phía trên các ô vừa ngập vào mặt trước nhịp sau.
         /// Ô ở mặt trước đã bị đặt khối thì bỏ qua (khối chặn dòng nước). Trả về số ô ngập trong nhịp.
         /// </summary>
-        public int StepWater()
+        int StepSea()
         {
             if (waterFront.Count == 0)
                 return 0;
@@ -270,6 +292,151 @@ namespace Game.Core
                     if (dy >= 0 && IsFloodable(x + dx, y + dy, z + dz))
                         AddToFront(x + dx, y + dy, z + dz);
             return filled.Count;
+        }
+
+        /// <summary>Một nhịp nước: biển loang (0013) rồi nước chảy (0040). Trả tổng số ô đổi trong nhịp.</summary>
+        public int StepWater() => StepSea() + StepFlow();
+
+        void AddFlow(int x, int y, int z)
+        {
+            if (World.Size.InBounds(x, y, z) && flowQueueSet.Add((x, y, z)))
+                flowQueue.Add((x, y, z));
+        }
+
+        void AddFlowRing(int x, int y, int z)
+        {
+            AddFlow(x + 1, y, z);
+            AddFlow(x - 1, y, z);
+            AddFlow(x, y, z + 1);
+            AddFlow(x, y, z - 1);
+        }
+
+        /// <summary>Ô phụ thuộc của ô P vừa đổi (0040 QĐ 6): P, ô dưới, 4 ô ngang của P, của ô trên P và của ô cao hơn P hai ô.</summary>
+        void AddFlowDependents(int x, int y, int z)
+        {
+            AddFlow(x, y, z);
+            AddFlow(x, y - 1, z);
+            AddFlowRing(x, y, z);
+            AddFlowRing(x, y + 1, z);
+            AddFlowRing(x, y + 2, z);
+        }
+
+        static readonly (int dx, int dz)[] Sides = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+
+        bool IsWaterCell(int x, int y, int z) =>
+            World.Size.InBounds(x, y, z) && World.GetMaterial(x, y, z) == BlockMaterial.Water;
+
+        /// <summary>Ô nước là nguồn hoặc đang chảy ngang (cờ rơi tắt).</summary>
+        static bool IsStandingWater(ushort c) =>
+            Cell.GetMaterial(c) == BlockMaterial.Water && (Cell.IsWaterSource(c) || !Cell.IsFalling(c));
+
+        /// <summary>Mức nước ô nước (x, y, z) truyền sang ô ngang (0040 QĐ 3); 0 nếu không truyền.</summary>
+        int Emit(int x, int y, int z)
+        {
+            ushort c = World.Get(x, y, z);
+            bool falling = Cell.IsFalling(c) && !Cell.IsWaterSource(c);
+            int level = Cell.IsWaterSource(c) || falling ? flowMaxDistance : Cell.GetWaterLevel(c) - 1;
+            if (level < 1)
+                return 0;
+            if (IsSolidAt(World, x, y - 1, z))
+                return level;
+            ushort b = World.Get(x, y - 1, z);
+            if (Cell.GetMaterial(b) != BlockMaterial.Water)
+                return 0;
+            if (IsStandingWater(b))
+                return level;
+            // B đang rơi: chỉ đứng được khi ô này không rơi và B đã chạm đáy.
+            if (falling)
+                return 0;
+            if (y - 2 < 0 || IsSolidAt(World, x, y - 2, z))
+                return level;
+            return IsStandingWater(World.Get(x, y - 2, z)) ? level : 0;
+        }
+
+        /// <summary>Một nhịp nước chảy (0040): tính trạng thái mong muốn của các ô trong hàng chờ rồi ghi một lượt. Trả số ô đổi.</summary>
+        int StepFlow()
+        {
+            if (flowQueue.Count == 0)
+                return 0;
+            var snapshot = flowQueue.ToArray();
+            flowQueue.Clear();
+            flowQueueSet.Clear();
+
+            var writes = new List<(int x, int y, int z, ushort cell)>();
+            foreach (var (x, y, z) in snapshot)
+            {
+                ushort old = World.Get(x, y, z);
+                if (IsSolidAt(World, x, y, z) || Cell.IsWaterSource(old))
+                    continue;
+                ushort target;
+                if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
+                {
+                    // 0040 QĐ 7a: biển ưu tiên vùng ≤ SeaLevel chạm nguồn.
+                    if (Cell.GetMaterial(old) == BlockMaterial.Empty)
+                    {
+                        AddToFront(x, y, z);
+                        continue;
+                    }
+                    target = Cell.SetModified(Cell.ClearFlow(Cell.SetWaterLevel(old, Cell.MaxWaterLevel)), true);
+                }
+                else if (IsWaterCell(x, y + 1, z))
+                {
+                    target = Cell.SetModified(Cell.MakeFlowing(old, flowMaxDistance, true), true);
+                }
+                else
+                {
+                    int m = 0;
+                    foreach (var (dx, dz) in Sides)
+                    {
+                        if (!IsWaterCell(x + dx, y, z + dz)) continue;
+                        int e = Emit(x + dx, y, z + dz);
+                        if (e > m) m = e;
+                    }
+                    if (m >= 1)
+                        target = Cell.SetModified(Cell.MakeFlowing(old, m, false), true);
+                    else if (Cell.GetMaterial(old) == BlockMaterial.Water)
+                        target = Cell.ClearWater(old);
+                    else
+                        continue;
+                }
+                if (target != old)
+                    writes.Add((x, y, z, target));
+            }
+
+            var changed = new List<(int x, int y, int z, BlockMaterial oldMat, ushort cell)>();
+            var becameWater = new List<(int x, int y, int z)>();
+            foreach (var (x, y, z, cell) in writes)
+            {
+                var oldMat = World.GetMaterial(x, y, z);
+                World.Set(x, y, z, cell);
+                changed.Add((x, y, z, oldMat, cell));
+                if (oldMat != BlockMaterial.Water && Cell.GetMaterial(cell) == BlockMaterial.Water)
+                    becameWater.Add((x, y, z));
+            }
+            foreach (var (x, y0, z) in becameWater)
+            {
+                for (int fy = y0 - 1; fy >= 0 && World.GetMaterial(x, fy, z) == BlockMaterial.Empty; fy--)
+                {
+                    ushort cell = Cell.SetModified(Cell.MakeFlowing(World.Get(x, fy, z), flowMaxDistance, true), true);
+                    World.Set(x, fy, z, cell);
+                    changed.Add((x, fy, z, BlockMaterial.Empty, cell));
+                }
+            }
+
+            foreach (var (x, y, z, oldMat, cell) in changed)
+            {
+                var newMat = Cell.GetMaterial(cell);
+                if (oldMat != newMat)
+                {
+                    CellChanged?.Invoke(x, y, z);
+                    if (newMat == BlockMaterial.Water)
+                        RevertFarmlandBelow(x, y, z);
+                    else if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
+                        AddToFront(x, y, z);
+                }
+                AddFlowDependents(x, y, z);
+            }
+            return changed.Count;
         }
 
         /// <summary>Chạy StepWater tới khi hết nước đang lan (test, tua nhanh). Trả về tổng số ô ngập.</summary>

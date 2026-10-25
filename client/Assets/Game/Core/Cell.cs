@@ -17,7 +17,7 @@ namespace Game.Core
 
     /// <summary>
     /// Một ô gameplay = 2 byte (design/04-tech/world-tech.md "Dữ liệu world"):
-    /// bit 0–7 vật liệu · bit 8 cờ khối cốt truyện · bit 9 cờ đã sửa · bit 10–12 mực nước 0–7 · bit 13–15 dự phòng.
+    /// bit 0–7 vật liệu · bit 8 cờ khối cốt truyện · bit 9 cờ đã sửa · bit 10–12 mực nước 0–7 · bit 13 nước đang chảy · bit 14 nước đang rơi · bit 15 dự phòng.
     /// </summary>
     public static class Cell
     {
@@ -28,6 +28,8 @@ namespace Game.Core
         const ushort ModifiedFlag = 1 << 9;
         public const int WaterShift = 10;
         const ushort WaterMask = 0x7 << WaterShift;
+        const ushort FlowingFlag = 1 << 13; // nước đang chảy (tắt = nguồn) — 0040
+        const ushort FallingFlag = 1 << 14; // nước đang rơi — 0040
         const int ReservedShift = 13;
         const ushort ReservedMask = 0x7 << ReservedShift;
 
@@ -67,6 +69,34 @@ namespace Game.Core
             if (value < 0 || value > 7)
                 throw new System.ArgumentOutOfRangeException(nameof(value), value, "Reserved 3 bits");
             return (ushort)((cell & ~ReservedMask) | (value << ReservedShift));
+        }
+
+        public static bool IsFlowing(ushort cell) => (cell & FlowingFlag) != 0;
+
+        public static bool IsFalling(ushort cell) => (cell & FallingFlag) != 0;
+
+        /// <summary>Ô vật liệu Water và cờ đang chảy tắt (mực bất kỳ).</summary>
+        public static bool IsWaterSource(ushort cell) =>
+            GetMaterial(cell) == BlockMaterial.Water && (cell & FlowingFlag) == 0;
+
+        /// <summary>Ô nước đang chảy: Water, cờ chảy bật, mực = level (1–7), cờ rơi theo falling; giữ cờ cốt truyện/đã sửa của cell.</summary>
+        public static ushort MakeFlowing(ushort cell, int level, bool falling)
+        {
+            if (level < 1 || level > MaxWaterLevel)
+                throw new System.ArgumentOutOfRangeException(nameof(level), level, "Flowing water level 1–7");
+            cell = SetWaterLevel(SetMaterial(cell, BlockMaterial.Water), level);
+            cell = (ushort)(cell | FlowingFlag);
+            return falling ? (ushort)(cell | FallingFlag) : (ushort)(cell & ~FallingFlag);
+        }
+
+        /// <summary>Bỏ cờ chảy/rơi (khi ô nước bị đặt khối đè).</summary>
+        public static ushort ClearFlow(ushort cell) => (ushort)(cell & ~(FlowingFlag | FallingFlag));
+
+        /// <summary>Ô rỗng sau khi nước rút: bỏ vật liệu, mực, cờ chảy/rơi; cờ đã sửa bật.</summary>
+        public static ushort ClearWater(ushort cell)
+        {
+            cell = SetWaterLevel(SetMaterial(cell, BlockMaterial.Empty), 0);
+            return SetModified((ushort)(cell & ~(FlowingFlag | FallingFlag)), true);
         }
 
         /// <summary>Ô có thể đào: không rỗng, không phải nước, không phải đá đáy, không thuộc khối cốt truyện.</summary>

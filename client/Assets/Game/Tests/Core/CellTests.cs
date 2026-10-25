@@ -29,6 +29,32 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void FlowFlagsRoundTrip()
+        {
+            ushort source = Cell.Make(BlockMaterial.Water, 7);
+            Assert.IsTrue(Cell.IsWaterSource(source));
+            Assert.IsFalse(Cell.IsFlowing(source));
+            Assert.IsFalse(Cell.IsFalling(source));
+
+            ushort basis = Cell.SetModified(Cell.SetStory(Cell.Make(BlockMaterial.Empty), true), true);
+            ushort f = Cell.MakeFlowing(basis, 4, false);
+            Assert.AreEqual(BlockMaterial.Water, Cell.GetMaterial(f));
+            Assert.AreEqual(4, Cell.GetWaterLevel(f));
+            Assert.IsTrue(Cell.IsFlowing(f));
+            Assert.IsFalse(Cell.IsFalling(f));
+            Assert.IsFalse(Cell.IsWaterSource(f));
+            Assert.IsTrue(Cell.IsStory(f));
+            Assert.IsTrue(Cell.IsModified(f));
+
+            ushort fall = Cell.MakeFlowing(f, 7, true);
+            Assert.IsTrue(Cell.IsFalling(fall));
+            Assert.IsFalse(Cell.IsFalling(Cell.MakeFlowing(fall, 3, false)));
+
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => Cell.MakeFlowing(0, 0, false));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => Cell.MakeFlowing(0, 8, false));
+        }
+
+        [Test]
         public void LayoutMatchesWorldTech()
         {
             // world-tech: vật liệu 8 bit thấp, cờ cốt truyện bit 8, cờ đã sửa bit 9, mực nước bit 10–12, dự phòng 13–15.

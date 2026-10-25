@@ -21,7 +21,7 @@ namespace Game.Client
         public UnityEngine.Material material;
         /// <summary>Material mặt nước theo ô (submesh 1, 0012) — nên dùng cùng material với mặt biển nền để liền màu.</summary>
         public UnityEngine.Material waterMaterial;
-        /// <summary>Nhịp nước lan (design/decisions/0013): số lần WorldEditor.StepWater mỗi giây.</summary>
+        /// <summary>Nhịp nước (0013, 0040): số lần WorldEditor.StepWater mỗi giây — Build() ghi đè từ water_m1.json.</summary>
         public float waterStepsPerSecond = 8f;
         float waterTimer;
         public Color color = Color.white;
@@ -225,6 +225,9 @@ namespace Game.Client
             Bag = new PlayerBag();
             Bag.Add(ItemId.Tool(ToolItem.ObservationCamera), 1); // camera quan sát là vật phẩm trong túi (0034 mục 4, brief 0061)
             Editor = new WorldEditor(World, Bag, BlockMesher.CellMargin, waterLevel);
+            var waterCfg = ConfigLoader.LoadWaterConfig();
+            Editor.FlowMaxDistance = waterCfg.flowMaxDistance;
+            waterStepsPerSecond = waterCfg.stepsPerSecond;
             Editor.CellChanged += OnCellChanged;
             dirty.Clear();
 

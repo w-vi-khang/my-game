@@ -43,6 +43,17 @@ namespace Game.World.Tests
         }
 
         [Test]
+        public void WaterClientCopyMatchesDesignData()
+        {
+            var src = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "design", "data", "water_m1.json"));
+            var copy = Path.Combine(Application.dataPath, "Game", "Client", "Resources", "Config", "water_m1.json");
+            Assert.IsTrue(File.Exists(src), src);
+            Assert.IsTrue(File.Exists(copy), copy);
+            Assert.AreEqual(File.ReadAllText(src), File.ReadAllText(copy),
+                "Client copy differs from design/data/water_m1.json — copy it again from design/data");
+        }
+
+        [Test]
         public void TimeClientCopyMatchesDesignData()
         {
             var src = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "design", "data", "time_m1.json"));
