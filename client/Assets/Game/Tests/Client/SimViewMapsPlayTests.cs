@@ -59,6 +59,8 @@ namespace Game.Client.Tests
                 for (int x = plain.X0; x < plain.X0 + plain.Size; x++)
                 {
                     if (sv.habitat && x >= pondX0 - 1 && x <= pondX0 + SimDemo.PondSize && z >= pondZ0 - 1 && z <= pondZ0 + SimDemo.PondSize) continue; // ao + viền cát
+                    if (sv.habitat && x >= plain.X0 + plain.Size / 2 + 14 && x <= plain.X0 + plain.Size / 2 + 18
+                        && z >= plain.Z0 + plain.Size / 2 - 13 && z <= plain.Z0 + plain.Size / 2 - 9) continue; // thác nước demo (0041)
                     MinimapImage.ColumnInfo(view.World, x, z, out int surf, out int depth);
                     Assert.AreEqual(plain.Ground, surf, $"surface ({x},{z})");
                     Assert.AreEqual(0, depth, $"water ({x},{z})");
