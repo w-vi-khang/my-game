@@ -1,9 +1,9 @@
 # Brief 0074 — Sim 8b: môi trường sống phía client (vùng 48 × 48, chỉ mở L1, ao, bảng yêu cầu, loài trở lại)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25 — Planner review phần code, chờ user xem
+> Cập nhật: 2026-10-25 — Planner duyệt (user xem đạt)
 
 Task contract: [m1-sim-8-moi-truong-song](../tasks/m1-sim-8-moi-truong-song.md) (phần 8b). Quyết định: [0039](../../design/decisions/0039-moi-truong-song-m1-vung-dem-loai-mo-san.md).
 
@@ -359,3 +359,5 @@ Planner, 2026-10-25 — review đầy đủ (phần code). Phần user xem chưa
 - Tiêu chí xong: đạt. EditMode 615/615, PlayMode 272/272, console 0 Error, grep UnityEngine rỗng.
 - Giờ: Executor ~19 phút so với ước lượng 8b 1,5–3,5 ngày. Đã ghi ở simulation-tech dòng 8 + roadmap.
 - Còn lại: user chơi thử mục 1–8 (đã thêm vào [playtest-buoc-7.md](../playtest-buoc-7.md) mục G). Kết luận sau khi user phản hồi.
+- User 2026-10-25: mục G (38–45) đạt hết. Góp ý: nước phải tràn vào hố cạnh ao, chảy từ cao xuống thấp, có giới hạn lan → task mới (logic nước), không thuộc 0074.
+- Kết luận: đã duyệt
