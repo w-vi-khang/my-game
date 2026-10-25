@@ -1,9 +1,9 @@
 # Brief 0077 — World 5f: vẽ mặt bên / mặt đáy ô nước (thác nước nhìn thấy được)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25
+> Cập nhật: 2026-10-25 22:15
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md) (phần 5f). Quyết định: [0041](../../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) (có thác nước). Làm tiếp sau brief [0076](0076-world-5f-nuoc-ranh-hep-thac-nuoc.md) (code đã duyệt; thác đúng trong dữ liệu nhưng không hiển thị).
 
@@ -119,9 +119,24 @@ Scene **SimView** trên Mac, Play:
 
 ## Kết quả
 
+- Base commit: a8831a5 · Chạy bằng: Sonnet 5.5 (claude-sonnet-5-5) · medium
+- Giờ: bắt đầu 21:53, kết thúc 22:14 (2026-10-25), ~21 phút (nhiều phần là chờ test 6 + 3 phút).
+- Commit: 6fe5bfa — `BlockMesher.cs` (AddWaterSides + AddWaterQuad + AddWaterTri; AddWaterSurface giữ nguyên), `BlockMesherTests.cs` (sửa `WaterSurfaceOnlyWhereAirIsAbove`, thêm 4 test), `WaterFlowPlayTests.cs` (+`WaterfallColumnIsMeshed`).
+- Ảnh thác: scratchpad `waterfall0077b.png` (cột thác rơi vào ao, camera tắt FollowCamera/DebugFlyCamera thủ công; ảnh `waterfall0077.png` đầu là camera chưa dời, bỏ).
+- Lưu ý: lần chạy EditMode đầu 2 test mới fail (đếm 2 tam giác) do chạy khi assembly/Burst chưa nạp bản mới (sau lỗi biên dịch lần đầu ở test); sau khi biên dịch lại sạch thì qua, không đổi code mesher.
+
 ## Kết quả kiểm chứng
 
+- `FallingWaterColumnHasSideFaces`, PlayMode `WaterfallColumnIsMeshed`: đạt.
+- `EnclosedWaterHasOnlyTopFaces`, `WaterAtMapEdgeHasNoOuterWall`, `WaterSurfaceOnlyWhereAirIsAbove` (đã sửa): đạt.
+- `FloatingWaterCellHasBottomFace`: đạt.
+- EditMode toàn bộ: 644/644 đạt (gồm GoldenHashTests, SimDemoTests, SimDemoMapsTests, BlockMesherTests tất định). PlayMode toàn bộ: 276/276 đạt.
+- Console 0 Error; dọn EditorSettings.asset, không có InitTestScene; `git status` sạch sau commit.
+- Ảnh Play: thấy rõ cột thác — đạt (phần user tự xem: chờ user).
+
 ## Vướng mắc
+
+Không.
 
 ---
 
