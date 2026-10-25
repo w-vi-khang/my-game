@@ -1,9 +1,9 @@
 # Brief 0076 — World 5f: nước trong rãnh hẹp chảy hết, kiểm khối khi mất nguồn, thác nước demo
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25 21:32
+> Cập nhật: 2026-10-25 — Planner chọn phương án A (sửa SimViewMapsPlayTests)
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md) (phần 5f). Quyết định: [0041](../../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) (sửa mục 3 của [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md)). Làm tiếp trên code của brief [0075](0075-world-5e-nuoc-chay.md) (commit `db2a3bc`) — đọc mục "Quyết định đã chốt" của 0075 để hiểu luật hiện có.
 
@@ -100,7 +100,7 @@ Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md) (phần 5f).
   - `client/Assets/Game/Core/Cell.cs`, `WorldEditor.cs`, `WaterConfig.cs`, `Core/Sim/SimDemo.cs` (chỉ thêm `PlaceWaterfall`);
   - `client/Assets/Game/Client/TerrainChunkView.cs` (chỉ dòng gán cấu hình nước), `SimView.cs` (chỉ QĐ 9);
   - `design/data/water_m1.json` + bản sao client;
-  - test: `Tests/Core/WaterFlowTests.cs`, `Tests/Core/WaterConfigTests.cs`, `Tests/Core/CellTests.cs`, `Tests/Client/WaterFlowPlayTests.cs`;
+  - test: `Tests/Client/SimViewMapsPlayTests.cs` (chỉ thêm bỏ qua vùng thác — Planner 2026-10-25), `Tests/Core/WaterFlowTests.cs`, `Tests/Core/WaterConfigTests.cs`, `Tests/Core/CellTests.cs`, `Tests/Client/WaterFlowPlayTests.cs`;
   - brief này (Kết quả trở xuống).
 - Không được sửa: mọi file khác, kể cả `SeaFloodTests`, `HabitatDemoTests`, `HabitatPlayTests`, scene `.unity`, `design/*.md`.
 
@@ -195,6 +195,8 @@ Bắt đầu: Sun Oct 25 21:18 +07 2026
 - Kết thúc: Sun Oct 25 21:32 +07 2026 (~14 phút).
 
 ## Vướng mắc
+
+**Trả lời của Planner (2026-10-25): phương án A.** Trong `SimViewMapsPlayTests.SetsUpCampOnPlain`, cạnh dòng bỏ qua ao + viền cát, thêm: khi `sv.habitat`, bỏ qua cột x ∈ [cx + 14, cx + 18], z ∈ [cz − 13, cz − 9] (`cx = plain.X0 + plain.Size / 2`, `cz = plain.Z0 + plain.Size / 2`), comment `// thác nước demo (0041)`. Không đổi kỳ vọng nào khác. File này đã thêm vào Phạm vi.
 
 `SimViewMapsPlayTests.SetsUpCampOnPlain` (file ngoài Phạm vi, brief yêu cầu "qua không sửa") fail: `surface (138,199) Expected: 20 But was: 25`. Nguyên nhân: test quét **mọi** cột của đồng bằng 48×48, chỉ bỏ qua ao + viền cát, và đòi mặt = `plain.Ground`, cỏ, không nước. Khối đất thác (QĐ 9: x ∈ [cx+15, cx+18], z ∈ [cz−12, cz−10], cao tới G+5) nằm trên đồng bằng nên (138,199) = (cx+15, cz−12) có mặt y = 25. Không phải lỗi code thác.
 - Phương án A (đề xuất): sửa test, bỏ qua thêm vùng thác x ∈ [cx+14, cx+18], z ∈ [cz−13, cz−9] khi `sv.habitat` (thêm file `SimViewMapsPlayTests.cs` vào Phạm vi). Rủi ro thấp.
