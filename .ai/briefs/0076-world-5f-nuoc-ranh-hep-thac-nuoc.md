@@ -1,9 +1,9 @@
 # Brief 0076 — World 5f: nước trong rãnh hẹp chảy hết, kiểm khối khi mất nguồn, thác nước demo
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25
+> Cập nhật: 2026-10-25 21:32
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md) (phần 5f). Quyết định: [0041](../../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) (sửa mục 3 của [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md)). Làm tiếp trên code của brief [0075](0075-world-5e-nuoc-chay.md) (commit `db2a3bc`) — đọc mục "Quyết định đã chốt" của 0075 để hiểu luật hiện có.
 
@@ -181,9 +181,25 @@ Scene **SimView** trên Mac, Play:
 
 ## Kết quả
 
+Base commit: 7c258df
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: Sun Oct 25 21:18 +07 2026
+
 ## Kết quả kiểm chứng
 
+Đã làm xong bước 1–5 (lõi QĐ 1–9, test, demo + PlayMode). Code WIP đã commit riêng (`brief 0076: WIP ...`), chưa review.
+- EditMode toàn bộ: **640/640 qua** (trước 634) — gồm `WaterFlowTests`, `WaterConfigTests`, `CellTests` (mới/sửa), `SeaFloodTests`, Golden/SimDemo.
+- PlayMode toàn bộ: **274/275**; fail duy nhất `SimViewMapsPlayTests.SetsUpCampOnPlain` (xem Vướng mắc). `WaterFlowPlayTests` (`WaterSettlesAfterStart`, `WaterfallPoursIntoPond`, `DiggingSandNextToPondFillsHole`), `HabitatPlayTests`, `TerrainEditPlayTests`, `DayCycleWaterPlayTests` qua.
+- `grep UnityEngine` ở 4 file Core → rỗng. Console 0 Error. Đã dọn `EditorSettings.asset`.
+- Chưa làm: ảnh chụp Play (bước 7) — dừng trước khi chụp.
+- Kết thúc: Sun Oct 25 21:32 +07 2026 (~14 phút).
+
 ## Vướng mắc
+
+`SimViewMapsPlayTests.SetsUpCampOnPlain` (file ngoài Phạm vi, brief yêu cầu "qua không sửa") fail: `surface (138,199) Expected: 20 But was: 25`. Nguyên nhân: test quét **mọi** cột của đồng bằng 48×48, chỉ bỏ qua ao + viền cát, và đòi mặt = `plain.Ground`, cỏ, không nước. Khối đất thác (QĐ 9: x ∈ [cx+15, cx+18], z ∈ [cz−12, cz−10], cao tới G+5) nằm trên đồng bằng nên (138,199) = (cx+15, cz−12) có mặt y = 25. Không phải lỗi code thác.
+- Phương án A (đề xuất): sửa test, bỏ qua thêm vùng thác x ∈ [cx+14, cx+18], z ∈ [cz−13, cz−9] khi `sv.habitat` (thêm file `SimViewMapsPlayTests.cs` vào Phạm vi). Rủi ro thấp.
+- Phương án B: dời thác ra ngoài đồng bằng — cần đổi QĐ 9, ảnh hưởng ao/demo.
+Chờ Planner chọn; sau đó chỉ còn: sửa test, chạy lại PlayMode, bước 7 (ảnh), commit/báo.
 
 ---
 
