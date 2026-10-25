@@ -1,6 +1,6 @@
 # Brief 0075 — World 5e: nước chảy (nguồn + lan giới hạn, hố được lấp, mất nguồn thì rút)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 — Planner trả lời Vướng mắc A–C (QĐ 7a mới, sửa test B)
@@ -202,12 +202,18 @@ Scene **SimView** trên Mac, Play:
 
 ## Kết quả
 
+- Commit code: db2a3bc (Cell, WorldEditor, WaterConfig, ConfigLoader, TerrainChunkView, water_m1.json ×2, test mới + CellTests/ConfigTests).
+- Kết thúc: 2026-10-25 ~21:01 (+07); bắt đầu 20:41 (đồng hồ máy; phiên có chờ Planner).
 - Base commit: 46ad460
 - Chạy bằng: claude-sonnet-5-5 · medium
 - Bắt đầu: 2026-10-25 20:41 (+07)
 - Ghi chú: `GetReserved/SetReserved` chỉ test cũ dùng (CellTests, WorldMapGeneratorTests, TerrainGeneratorTests), không có code production → giữ nguyên, tiếp tục.
 
 ## Kết quả kiểm chứng
+Lần 2 (sau QĐ 7a): qua MCP — EditMode 634/634 qua (trước brief 615 + test mới), PlayMode 274/274 qua (272 + 2 mới). Console 0 Error. `grep UnityEngine` Core/Cell, WorldEditor, WaterConfig → rỗng. `check_design.py` ✓. SeaFloodTests, GoldenHash, test mã băm Sim không sửa, đều qua. Dọn: EditorSettings.asset đã checkout.
+- Không chạy qua `verify_run` (Editor đang mở qua MCP).
+- Chưa làm: ảnh chụp SimView có hố đầy nước (bỏ để tiết kiệm; PlayMode `DiggingSandNextToPondFillsHole` đã kiểm tự động) → user xem bằng "User tự test".
+- Checklist design: chưa đối chiếu (Planner cập nhật design khi review).
 Chưa kiểm được qua verify_run: `tools/unity_test.py` cần Unity Editor tắt, còn Editor đang mở qua MCP (dùng chung). Đã chạy qua MCP: EditMode 627/634 qua, 7 fail (xem Vướng mắc). PlayMode chưa chạy. Checklist chưa đối chiếu: brief dừng `cần Opus`, Planner cập nhật design khi review. Game.Core không tham chiếu UnityEngine: chưa chạy grep.
 
 ## Vướng mắc
