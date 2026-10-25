@@ -1,9 +1,9 @@
 # Brief 0075 — World 5e: nước chảy (nguồn + lan giới hạn, hố được lấp, mất nguồn thì rút)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25 20:45
+> Cập nhật: 2026-10-25 — Planner trả lời Vướng mắc A–C (QĐ 7a mới, sửa test B)
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md). Quyết định: [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md). Luật biển loang cũ: [0013](../../design/decisions/0013-nuoc-lan-theo-nhip.md).
 
@@ -87,6 +87,12 @@ Thêm nước chảy vào `WorldEditor`:
    - `FillWater` ghi nguồn như cũ (mực 7, không cờ).
    - `StepWater()` = phần biển loang hiện có (đổi tên thành `StepSea()` private, giữ nguyên thân) **rồi** `StepFlow()`; trả tổng hai số. Thứ tự này bảo đảm ô ≤ SeaLevel cạnh biển được biển loang lấp (thành nguồn) trước khi phần chảy xét tới.
    - `HasPendingWater => waterFront.Count > 0 || flowQueue.Count > 0`.
+   - **7a. Biển ưu tiên vùng ≤ SeaLevel** (Planner 2026-10-25, trả lời Vướng mắc A/C): trong `StepFlow` bước 2, với ô X có `SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z)` (sau khi `IsWaterSource` đã sửa ở trên — chỉ nguồn):
+     - X rỗng → **không** lấp bằng phần chảy; gọi `AddToFront(x, y, z)` (biển loang lấp X ở nhịp sau, thành nguồn, đúng 1 ô/nhịp như 0013). X giữ rỗng trong nhịp này, không tính vào số ô đổi.
+     - X là nước đang chảy → kết quả = nguồn (`Cell.Make` giữ cờ cốt truyện, vật liệu Water, mực 7, xoá cờ chảy/rơi, bật cờ đã sửa); chỉ đổi cờ/mực nên không phát `CellChanged`.
+     - Ngược lại tính theo QĐ 4 như thường.
+   - Lý do: ô biển vừa ngập ở `StepSea` đưa ô kề vào `flowQueue`, và `StepFlow` cùng nhịp xử lý chúng trước khi mặt trước biển tới → lệch 0013. Với 7a, trong world chỉ có biển, phần chảy không đổi ô nào → `SeaFloodTests` giữ nguyên số. Ô ≤ SeaLevel không chạm nguồn (vd `FlowingWaterBelowSeaLevelDoesNotStartSeaFlood`) vẫn do phần chảy lấp.
+   - Không đổi giá trị trả của `StepWater()` (vẫn tổng hai phần).
    - `SettleWater` giữ nguyên.
 8. **JSON** `design/data/water_m1.json` + bản sao byte-giống `client/Assets/Game/Client/Resources/Config/water_m1.json`, nội dung đúng:
    ```json
@@ -120,7 +126,7 @@ Thêm nước chảy vào `WorldEditor`:
    - **Hành lang** (dùng cho nhiều test): nền đá y 1..5 toàn map; tường đá ở y = 6 tại z = 7 và z = 9, x = 0..15; nguồn đặt tay `w.Set(0, 6, 8, Cell.Make(Water, 7))`; đá đặt tay ở (1, 6, 8); các ô (x, 6, 8) với x ≥ 2 rỗng. Bắt đầu bằng `TryDig(1, 6, 8)`.
    - `SpreadStopsAfterN`: hành lang, N = 7, `Settle` → (x, 6, 8) với x = 1..7 là nước đang chảy, mực `8 − x`; x = 8 rỗng. Lặp lại trên world mới với `FlowMaxDistance = 3` → x = 1..3 nước (mực 3, 2, 1), x = 4 rỗng.
    - `SpreadAdvancesOneCellPerTick`: hành lang, N = 7, sau `TryDig`: lần `StepWater()` thứ k (k = 1..7) → (k, 6, 8) là nước, (k + 1, 6, 8) rỗng.
-   - `FallsThenSpreadsFullAgain`: nền đá y = 1 toàn map (y = 0 đá đáy). Tháp đá x 0..2, z 0..2, y 2..10. Trên đỉnh tháp đặt tay: nguồn (1, 11, 1), đá (1, 11, 2). Tường đá y = 2 tại x = 0 và x = 2, z 3..15 (hành lang dưới chân tháp theo +z). `TryDig(1, 11, 2)` → `Settle`. Kỳ vọng:
+   - `FallsThenSpreadsFullAgain`: nền đá y = 1 toàn map (y = 0 đá đáy). Tháp đá x 0..2, z 0..2, y 2..10. Trên đỉnh tháp đặt tay: nguồn (1, 11, 1), đá (1, 11, 2), và **vành đá** y = 11 ở (0, 11, 0..2), (2, 11, 0..2), (1, 11, 0) để nước trên đỉnh chỉ thoát qua (1, 11, 3) (sửa 2026-10-25, Vướng mắc B). Tường đá y = 2 tại x = 0 và x = 2, z 3..15 (hành lang dưới chân tháp theo +z). `TryDig(1, 11, 2)` → `Settle`. Kỳ vọng:
      - (1, 11, 2) nước mực 7; (1, 11, 3) nước mực 6, cờ rơi tắt;
      - cột (1, y, 3) với y = 2..10 là nước đang rơi (`IsFalling`);
      - (0, y, 3) và (2, y, 3) với y = 4..10 rỗng (thác không lan ngang giữa không trung; y = 3 nằm trên tường nên được phép có nước);
@@ -205,6 +211,8 @@ Scene **SimView** trên Mac, Play:
 Chưa kiểm được qua verify_run: `tools/unity_test.py` cần Unity Editor tắt, còn Editor đang mở qua MCP (dùng chung). Đã chạy qua MCP: EditMode 627/634 qua, 7 fail (xem Vướng mắc). PlayMode chưa chạy. Checklist chưa đối chiếu: brief dừng `cần Opus`, Planner cập nhật design khi review. Game.Core không tham chiếu UnityEngine: chưa chạy grep.
 
 ## Vướng mắc
+
+**Trả lời của Planner (2026-10-25):** A + C → thêm QĐ 7a (biển ưu tiên ô ≤ SeaLevel chạm nguồn; phần chảy đưa ô rỗng đó vào mặt trước biển). Không chọn (a)/(b)/(c) của executor. B → sửa hình học test (vành đá quanh đỉnh tháp). Làm tiếp từ working tree hiện có; `SeaFloodTests` vẫn không được sửa.
 
 Code lõi + test mới đã viết (chưa commit, còn trong working tree: Cell.cs, WorldEditor.cs, WaterConfig.cs, ConfigLoader, TerrainChunkView, JSON ×2, test mới). Biên dịch OK, 0 Error. EditMode toàn bộ: 627/634 qua, **7 fail** [run]:
 
