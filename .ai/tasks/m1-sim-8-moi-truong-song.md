@@ -7,7 +7,7 @@
 > - Điều kiện "buổi": [0024](../../design/decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md) mục 7.
 > - Ô ruộng không tính là đất hay cỏ: [0020](../../design/decisions/0020-o-ruong-tao-khi-xoi-va-huy-vu.md), [0025](../../design/decisions/0025-nguoi-choi-xoi-dat-chon-giong-hang-doi.md).
 > - Ước lượng 3–6 ngày-người (roadmap), chia **8a lõi** 1,5–2,5 + **8b client** 1,5–3,5 [ước lượng Planner].
-> - Task contract do Planner lập 2026-10-24 khi user AFK. 8a chỉ dùng phần đã duyệt. **8b chờ user trả lời các câu hỏi bên dưới.**
+> - Task contract do Planner lập 2026-10-24 khi user AFK. 8a chỉ dùng phần đã duyệt. 8b: user trả lời 2026-10-25 → [0039](../../design/decisions/0039-moi-truong-song-m1-vung-dem-loai-mo-san.md), brief [0074](../briefs/0074-sim-8b-moi-truong-song-client.md).
 
 ## Mục tiêu
 - **8a (brief [0069](../briefs/0069-sim-8a-moi-truong-song-loi.md)):** lõi `Game.Core`:
@@ -16,8 +16,9 @@
   - xét yêu cầu (ô, cây trồng, công trình, loài đang ở, buổi);
   - loài đủ yêu cầu → đánh dấu đã trở lại và báo ra ngoài.
   - Client chưa đổi hành vi.
-- **8b (chưa viết brief):**
-  - sinh 2 cá thể ở rìa vùng, đi về phía người chơi, tự vào đội làm việc (luật M1);
+- **8b (brief [0074](../briefs/0074-sim-8b-moi-truong-song-client.md)):**
+  - sinh 2 cá thể ở ô rìa vùng gần người chơi, tự về nhà, vào đội làm việc (0039);
+  - ao 4 × 4 viền cát trong đồng bằng; demo bắt đầu chỉ có L1; nhà thứ ba;
   - bảng danh sách yêu cầu của loài trên PC;
   - nối tracker vào `SimView`.
 - **Pillar:** P1 (cải tạo thế giới để đưa loài trở lại) — mechanics bảng cơ chế dòng "Môi trường sống".
@@ -59,7 +60,10 @@
   - `unlockedAtStart` mặc định = cả L1–L3, để demo hiện tại không đổi tới khi user trả lời câu (b).
   - Vùng mặc định = cả world (theo text 2026-10-13). Hỗ trợ thêm hình chữ nhật cột để 8b chọn.
 
-## Câu hỏi còn mở (cho user — chặn 8b, không chặn 8a)
+## Câu hỏi đã trả lời (user 2026-10-25 → [0039](../../design/decisions/0039-moi-truong-song-m1-vung-dem-loai-mo-san.md))
+- (a) vùng 48 × 48 · (b) chỉ L1 · (c) bảng riêng mở bằng phím · thêm: ao 4 × 4 viền cát cho L2 · cá thể xuất hiện ở rìa gần người chơi rồi tự về nhà.
+
+### Nội dung câu hỏi lúc hỏi
 - **(a) Vùng đếm M1:** cả Map 1 / cả world (text duyệt 2026-10-13, lúc đó world chỉ có 1 map) hay vùng mô phỏng (đồng bằng 48 × 48 giữa Map 1)?
   - Map 1 có sẵn rất nhiều cỏ và đá → đếm cả map thì L1/L3 gần như đạt ngay, nên mở khoá không còn là thử thách.
   - Đề xuất Planner: vùng mô phỏng 48 × 48. Hoặc giữ cả map nhưng tăng ngưỡng.

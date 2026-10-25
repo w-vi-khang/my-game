@@ -86,6 +86,7 @@ Chốt (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong
 
 #### Sinh vật trở lại — luật M1
 - Loài đạt đủ yêu cầu mở khoá → **2 cá thể** xuất hiện ở rìa map, đi về phía người chơi và **tự vào đội làm việc** (chưa có thẻ bài — bắt bằng thẻ từ M2).
+  - Cụ thể ở M1 ([0039](../decisions/0039-moi-truong-song-m1-vung-dem-loai-mo-san.md), user 2026-10-25): vùng đếm = đồng bằng demo 48 × 48; xuất hiện ở ô rìa vùng gần người chơi nhất rồi tự về nhà, nhận việc; demo bắt đầu chỉ có L1; có ao 4 × 4 viền cát để cải tạo thành cỏ cạnh nước cho L2; danh sách yêu cầu ở bảng riêng mở bằng phím (mặc định H).
 - Chỉ số = base của loài (chưa có phân bố ngẫu nhiên). Chưa có giới hạn sinh vật (tối đa 3 loài × 2 = 6); đo hiệu năng dùng sinh vật giả.
 - Yêu cầu mở khoá (ví dụ để thử): L1 (xới, gieo): ≥ 20 ô cỏ + 1 cây · L2 (tưới, thu hoạch): ≥ 10 ô cỏ cạnh hồ · L3 (vận chuyển, thu hoạch): ≥ 15 ô đá lộ thiên + 1 kho đã đặt.
 

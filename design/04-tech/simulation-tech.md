@@ -83,7 +83,7 @@ Mô hình **nhảy sự kiện** thay vì chạy từng nhịp:
 User duyệt 2026-10-13 (cùng bước 8 của kế hoạch prototype). Phần kỹ thuật của [môi trường sống](../02-gameplay/mechanics.md#môi-trường-sống) — trước đây chưa có (rà soát 2026-10-13).
 - **Yêu cầu là dữ liệu:** mỗi yêu cầu thuộc một loại chung — số ô vật liệu X ≥ N, số cây loại Y ≥ N, số ô nước ≥ N, có điểm cao ≥ y, có công trình Z, có loài W đang ở. Thêm loài = thêm dữ liệu, không code ([levels](../02-gameplay/levels.md#nội-dung-tái-sử-dụng)).
 - **Đếm theo sự kiện:** world phát sự kiện "ô đổi" (đào/đặt), "cây mọc/bị thu", "công trình đặt/bỏ" → bộ đếm của vùng chứa ô đó cộng/trừ ngay. Không quét lại cả vùng mỗi nhịp → HUD cập nhật tức thì ([core loop](../02-gameplay/core-loop.md)).
-- **Vùng:** M1 = cả map; M2 = vùng của bố cục ([levels](../02-gameplay/levels.md#kích-thước--khung-chung)) — mỗi ô biết mình thuộc vùng nào (bảng theo cột chunk).
+- **Vùng:** ~~M1 = cả map~~ → M1 = đồng bằng demo 48 × 48 giữa Map 1, gán lúc chạy ([0039](../decisions/0039-moi-truong-song-m1-vung-dem-loai-mo-san.md), user 2026-10-25); M2 = vùng của bố cục ([levels](../02-gameplay/levels.md#kích-thước--khung-chung)) — mỗi ô biết mình thuộc vùng nào (bảng theo cột chunk).
 - **Đạt đủ yêu cầu mở khoá** → phát sự kiện "loài trở lại" → sinh cá thể theo [luật M1](../02-gameplay/mechanics.md#sinh-vật-trở-lại--luật-m1).
 - Khi nạp world: tính lại bộ đếm một lần bằng cách quét vùng (không lưu bộ đếm).
 
