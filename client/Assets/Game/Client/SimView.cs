@@ -33,6 +33,8 @@ namespace Game.Client
         public float benchSeconds = 240f;
         /// <summary>Đồng bằng đã san (world nhiều map, cả demo lẫn bench); null khi chạy đảo v2.</summary>
         public StressPlain? Plain { get; private set; }
+        /// <summary>Ô nguồn của thác nước demo (0041); null khi không có thác.</summary>
+        public CellPos? WaterfallSource { get; private set; }
         public SimBenchMeter Meter { get; private set; }
         /// <summary>Môi trường sống (sim 8b, 0039): chỉ ở world nhiều map, không phải cảnh đo. false = demo cũ (L1–L3, không ao, không tracker).</summary>
         public bool habitat = true;
@@ -114,7 +116,11 @@ namespace Game.Client
         {
             var kept = DemoPlain.Flatten(world, maps, p, lms, out var plain);
             Plain = plain;
-            if (!stressBench && habitat) SimDemo.PlacePond(world, plain);
+            if (!stressBench && habitat)
+            {
+                SimDemo.PlacePond(world, plain);
+                WaterfallSource = SimDemo.PlaceWaterfall(world, plain);
+            }
             if (stressBench) DemoPlain.PlaceCamera(BenchCameraPos(plain), 50f);
             else
             {
@@ -213,6 +219,7 @@ namespace Game.Client
                 Sim.AttachEditor(view.Editor);
                 if (habitat)
                 {
+                    if (WaterfallSource is CellPos ws) view.Editor.WakeWater(ws.X, ws.Y, ws.Z);
                     var hcfg = ConfigLoader.LoadHabitatConfig();
                     hcfg.regionX0 = plain.X0;
                     hcfg.regionZ0 = plain.Z0;

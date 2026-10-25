@@ -227,6 +227,8 @@ namespace Game.Client
             Editor = new WorldEditor(World, Bag, BlockMesher.CellMargin, waterLevel);
             var waterCfg = ConfigLoader.LoadWaterConfig();
             Editor.FlowMaxDistance = waterCfg.flowMaxDistance;
+            Editor.NarrowMaxOpenSides = waterCfg.narrowMaxOpenSides;
+            Editor.SupportCheckMaxCells = waterCfg.supportCheckMaxCells;
             waterStepsPerSecond = waterCfg.stepsPerSecond;
             Editor.CellChanged += OnCellChanged;
             dirty.Clear();

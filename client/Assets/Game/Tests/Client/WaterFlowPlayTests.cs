@@ -58,12 +58,37 @@ namespace Game.Client.Tests
             Assert.AreEqual(8f, view.waterStepsPerSecond);
         }
 
-        [UnityTest]
-        public IEnumerator NoFloodOnPlainWithoutEdits()
+        IEnumerator WaitSettled()
         {
-            for (int i = 0; i < 30; i++)
+            float t = 0f;
+            while (t < 5f && view.Editor.HasPendingWater)
+            {
+                t += Time.deltaTime;
                 yield return null;
+            }
             Assert.IsFalse(view.Editor.HasPendingWater);
+        }
+
+        [UnityTest]
+        public IEnumerator WaterSettlesAfterStart()
+        {
+            yield return WaitSettled();
+        }
+
+        [UnityTest]
+        public IEnumerator WaterfallPoursIntoPond()
+        {
+            yield return WaitSettled();
+            Assert.IsTrue(sv.WaterfallSource.HasValue);
+            var plain = sv.Plain.Value;
+            int cx = plain.X0 + plain.Size / 2, cz = plain.Z0 + plain.Size / 2, g = plain.Ground;
+            var w = view.World;
+            for (int y = g + 1; y <= g + 4; y++)
+                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(cx + 13, y, cz - 11), $"fall y={y}");
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(cx + 12, g + 1, cz - 11));
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(cx + 14, g + 1, cz - 11));
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(cx + 13, g + 1, cz - 12));
+            Assert.IsTrue(Cell.IsWaterSource(w.Get(cx + 10, g, cz - 12)));
         }
     }
 }

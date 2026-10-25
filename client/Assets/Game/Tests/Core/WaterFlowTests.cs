@@ -64,6 +64,15 @@ namespace Game.Core.Tests
             return w;
         }
 
+        /// <summary>Sàn rộng: nền đá y 1..5, nguồn (0,6,8), đá (1,6,8), không tường.</summary>
+        static WorldData OpenFloor()
+        {
+            var w = Flat(5);
+            w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
+            return w;
+        }
+
         [Test]
         public void PitNextToPondFills()
         {
@@ -102,7 +111,7 @@ namespace Game.Core.Tests
         [Test]
         public void SpreadStopsAfterN()
         {
-            var w = Corridor();
+            var w = OpenFloor();
             var e = Editor(w);
             Dig(e, 1, 6, 8);
             Settle(e);
@@ -114,7 +123,7 @@ namespace Game.Core.Tests
             }
             Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(8, 6, 8));
 
-            var w3 = Corridor();
+            var w3 = OpenFloor();
             var e3 = Editor(w3);
             e3.FlowMaxDistance = 3;
             Dig(e3, 1, 6, 8);
@@ -128,7 +137,7 @@ namespace Game.Core.Tests
         [Test]
         public void SpreadAdvancesOneCellPerTick()
         {
-            var w = Corridor();
+            var w = OpenFloor();
             var e = Editor(w);
             Dig(e, 1, 6, 8);
             for (int k = 1; k <= 7; k++)
@@ -155,11 +164,6 @@ namespace Game.Core.Tests
                 w.Set(2, 11, z, Cell.Make(BlockMaterial.Stone));
             }
             w.Set(1, 11, 0, Cell.Make(BlockMaterial.Stone));
-            for (int z = 3; z <= 15; z++)
-            {
-                w.Set(0, 2, z, Cell.Make(BlockMaterial.Stone));
-                w.Set(2, 2, z, Cell.Make(BlockMaterial.Stone));
-            }
             var e = Editor(w);
             Dig(e, 1, 11, 2);
             Settle(e);
@@ -167,7 +171,7 @@ namespace Game.Core.Tests
             Assert.IsTrue(IsWater(w, 1, 11, 2));
             Assert.AreEqual(7, Cell.GetWaterLevel(w.Get(1, 11, 2)));
             Assert.IsTrue(IsWater(w, 1, 11, 3));
-            Assert.AreEqual(6, Cell.GetWaterLevel(w.Get(1, 11, 3)));
+            Assert.AreEqual(7, Cell.GetWaterLevel(w.Get(1, 11, 3)));
             Assert.IsFalse(Cell.IsFalling(w.Get(1, 11, 3)));
             for (int y = 2; y <= 10; y++)
                 Assert.IsTrue(Cell.IsFalling(w.Get(1, y, 3)), $"falling y={y}");
@@ -182,17 +186,16 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void BlockingSourceDrains()
+        public void RemovingOpenSourceDrains()
         {
-            var w = Corridor();
+            var w = OpenFloor();
             var e = Editor(w);
             Dig(e, 1, 6, 8);
             Settle(e);
-            Place(e, 1, 6, 8);
+            Place(e, 0, 6, 8);
             Settle(e);
-            for (int x = 2; x <= 7; x++)
+            for (int x = 1; x < 16; x++)
                 Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 6, 8), $"x={x}");
-            Assert.IsTrue(IsWater(w, 0, 6, 8));
         }
 
         [Test]
@@ -214,14 +217,14 @@ namespace Game.Core.Tests
         [Test]
         public void DrainCountsDownGradually()
         {
-            var w = Corridor();
+            var w = OpenFloor();
             var e = Editor(w);
             Dig(e, 1, 6, 8);
             Settle(e);
-            Place(e, 1, 6, 8);
+            Place(e, 0, 6, 8);
             e.StepWater();
             int left = 0;
-            for (int x = 2; x <= 7; x++)
+            for (int x = 1; x <= 7; x++)
                 if (IsWater(w, x, 6, 8)) left++;
             Assert.GreaterOrEqual(left, 1);
         }
@@ -251,7 +254,126 @@ namespace Game.Core.Tests
             e.CellChanged += (x, y, z) => events++;
             Dig(e, 1, 6, 8);
             Settle(e);
-            Assert.AreEqual(1 + 7, events);
+            Assert.AreEqual(1 + 15, events);
+        }
+
+        [Test]
+        public void ChannelFlowsFullLength()
+        {
+            var w = Corridor();
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            for (int x = 1; x <= 15; x++)
+            {
+                Assert.IsTrue(IsWater(w, x, 6, 8), $"x={x}");
+                Assert.AreEqual(7, Cell.GetWaterLevel(w.Get(x, 6, 8)), $"level x={x}");
+            }
+        }
+
+        [Test]
+        public void ChannelOpensIntoWideArea()
+        {
+            var w = Flat(5);
+            for (int x = 0; x <= 5; x++)
+            {
+                w.Set(x, 6, 7, Cell.Make(BlockMaterial.Stone));
+                w.Set(x, 6, 9, Cell.Make(BlockMaterial.Stone));
+            }
+            w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            for (int x = 1; x <= 6; x++)
+                Assert.AreEqual(7, Cell.GetWaterLevel(w.Get(x, 6, 8)), $"narrow x={x}");
+            for (int x = 7; x <= 12; x++)
+                Assert.AreEqual(13 - x, Cell.GetWaterLevel(w.Get(x, 6, 8)), $"wide x={x}");
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(13, 6, 8));
+        }
+
+        [Test]
+        public void BlockingChannelDrainsDownstream()
+        {
+            var w = Corridor();
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            Place(e, 8, 6, 8);
+            Settle(e);
+            for (int x = 9; x <= 15; x++)
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 6, 8), $"x={x}");
+            for (int x = 1; x <= 7; x++)
+            {
+                Assert.IsTrue(IsWater(w, x, 6, 8), $"x={x}");
+                Assert.AreEqual(7, Cell.GetWaterLevel(w.Get(x, 6, 8)), $"level x={x}");
+            }
+        }
+
+        static bool OnLoop(int x, int z) =>
+            x >= 4 && x <= 8 && z >= 4 && z <= 8 && (x == 4 || x == 8 || z == 4 || z == 8);
+
+        [Test]
+        public void ChannelLoopDrainsWhenSourceRemoved()
+        {
+            var w = Flat(5);
+            for (int z = 2; z <= 10; z++)
+            for (int x = 0; x < 16; x++)
+                w.Set(x, 6, z, Cell.Make(BlockMaterial.Stone));
+            for (int z = 4; z <= 8; z++)
+            for (int x = 4; x <= 8; x++)
+                if (OnLoop(x, z) && !(x == 4 && z == 4))
+                    w.Set(x, 6, z, Cell.Make(BlockMaterial.Empty));
+            w.Set(4, 6, 3, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            var e = Editor(w);
+            Dig(e, 4, 6, 4);
+            Settle(e);
+            for (int z = 4; z <= 8; z++)
+            for (int x = 4; x <= 8; x++)
+                if (OnLoop(x, z))
+                    Assert.IsTrue(IsWater(w, x, 6, z), $"loop ({x},{z})");
+            Place(e, 4, 6, 3);
+            Settle(e);
+            for (int z = 4; z <= 8; z++)
+            for (int x = 4; x <= 8; x++)
+                if (OnLoop(x, z))
+                    Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 6, z), $"loop ({x},{z})");
+        }
+
+        [Test]
+        public void WaterfallIntoPondDoesNotSpill()
+        {
+            var w = PondWorld();
+            for (int y = 4; y <= 8; y++)
+            for (int z = 4; z <= 6; z++)
+            for (int x = 9; x <= 12; x++)
+                w.Set(x, y, z, Cell.Make(BlockMaterial.Stone));
+            w.Set(11, 8, 5, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(10, 8, 5, Cell.Make(BlockMaterial.Empty));
+            w.Set(8, 7, 5, Cell.Make(BlockMaterial.Stone));
+            w.Set(8, 8, 4, Cell.Make(BlockMaterial.Stone));
+            w.Set(8, 8, 6, Cell.Make(BlockMaterial.Stone));
+            var e = Editor(w);
+            Dig(e, 9, 8, 5);
+            Settle(e);
+            for (int y = 4; y <= 7; y++)
+            {
+                Assert.IsTrue(IsWater(w, 7, y, 5), $"fall y={y}");
+                Assert.IsTrue(Cell.IsFalling(w.Get(7, y, 5)), $"falling y={y}");
+            }
+            Assert.IsTrue(IsWater(w, 8, 8, 5));
+            Assert.IsTrue(IsWater(w, 7, 8, 5));
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+                if (!(x == 7 && z == 5) && !(x >= 4 && x <= 7 && z >= 4 && z <= 7) && !(x >= 9 && x <= 12 && z >= 4 && z <= 6))
+                    Assert.IsFalse(IsWater(w, x, 4, z), $"spill ({x},4,{z})");
+            Assert.IsFalse(IsWater(w, 6, 4, 5));
+            Assert.IsFalse(IsWater(w, 7, 4, 4));
+            Assert.IsFalse(IsWater(w, 7, 4, 6));
+            Assert.IsFalse(IsWater(w, 8, 4, 5));
+            for (int z = 4; z <= 7; z++)
+            for (int x = 4; x <= 7; x++)
+                Assert.IsTrue(Cell.IsWaterSource(w.Get(x, 3, z)), $"pond ({x},3,{z})");
         }
 
         static List<ushort> RandomEdits(WorldData w, WorldEditor e)

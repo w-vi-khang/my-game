@@ -17,6 +17,8 @@ namespace Game.Core.Tests
             Assert.DoesNotThrow(cfg.Validate);
             Assert.AreEqual(7, cfg.flowMaxDistance);
             Assert.AreEqual(8, cfg.stepsPerSecond);
+            Assert.AreEqual(2, cfg.narrowMaxOpenSides);
+            Assert.AreEqual(4096, cfg.supportCheckMaxCells);
         }
 
         [Test]
@@ -34,6 +36,10 @@ namespace Game.Core.Tests
             c = new WaterConfig(); c.flowMaxDistance = 8; Assert.Throws<ArgumentException>(c.Validate, "N=8");
             c = new WaterConfig(); c.stepsPerSecond = 0; Assert.Throws<ArgumentException>(c.Validate, "steps=0");
             c = new WaterConfig(); c.stepsPerSecond = 61; Assert.Throws<ArgumentException>(c.Validate, "steps=61");
+            c = new WaterConfig(); c.narrowMaxOpenSides = -1; Assert.Throws<ArgumentException>(c.Validate, "narrow=-1");
+            c = new WaterConfig(); c.narrowMaxOpenSides = 4; Assert.Throws<ArgumentException>(c.Validate, "narrow=4");
+            c = new WaterConfig(); c.supportCheckMaxCells = 63; Assert.Throws<ArgumentException>(c.Validate, "support=63");
+            c = new WaterConfig(); c.supportCheckMaxCells = 65537; Assert.Throws<ArgumentException>(c.Validate, "support=65537");
         }
     }
 }

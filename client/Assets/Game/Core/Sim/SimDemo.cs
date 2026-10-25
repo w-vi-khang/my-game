@@ -85,6 +85,26 @@ namespace Game.Core.Sim
                 }
         }
 
+        /// <summary>Thác nước demo cạnh ao (0041): khối đất, nguồn trên đỉnh, rãnh 1 ô ra mép nhô trên ao. Gọi sau PlacePond. Trả ô nguồn (toạ độ world) để gọi WorldEditor.WakeWater.</summary>
+        public static CellPos PlaceWaterfall(WorldData world, StressPlain plain)
+        {
+            int cx = plain.X0 + plain.Size / 2, cz = plain.Z0 + plain.Size / 2, g = plain.Ground;
+            ushort dirt = Cell.Make(BlockMaterial.Dirt);
+            for (int y = g + 1; y <= g + 5; y++)
+                for (int z = cz - 12; z <= cz - 10; z++)
+                    for (int x = cx + 15; x <= cx + 18; x++)
+                        world.Set(x, y, z, dirt);
+            var source = new CellPos(cx + 17, g + 5, cz - 11);
+            world.Set(source.X, source.Y, source.Z, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            world.Set(cx + 16, g + 5, cz - 11, Cell.Make(BlockMaterial.Empty));
+            world.Set(cx + 15, g + 5, cz - 11, Cell.Make(BlockMaterial.Empty));
+            world.Set(cx + 14, g + 4, cz - 11, dirt);
+            world.Set(cx + 14, g + 5, cz - 12, dirt);
+            world.Set(cx + 14, g + 5, cz - 10, dirt);
+            world.Set(cx + 14, g + 5, cz - 11, Cell.Make(BlockMaterial.Empty));
+            return source;
+        }
+
         /// <summary>Bố trí giãn + nhà C; chỉ tạo sinh vật cho loài trong startSpecies (theo thứ tự Species, ô PlainCreatureCells tương ứng); nhà = nhà đầu tiên (A, B, C) còn chỗ. 4 ô ruộng + vụ Cây A như Build. Trả id kho.</summary>
         public static int BuildHabitat(Simulation sim, StressPlain plain, IReadOnlyList<string> startSpecies)
         {
