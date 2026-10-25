@@ -1,9 +1,9 @@
 # Brief 0075 — World 5e: nước chảy (nguồn + lan giới hạn, hố được lấp, mất nguồn thì rút)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25
+> Cập nhật: 2026-10-25 20:45
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md). Quyết định: [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md). Luật biển loang cũ: [0013](../../design/decisions/0013-nuoc-lan-theo-nhip.md).
 
@@ -196,9 +196,26 @@ Scene **SimView** trên Mac, Play:
 
 ## Kết quả
 
+- Base commit: 46ad460
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-25 20:41 (+07)
+- Ghi chú: `GetReserved/SetReserved` chỉ test cũ dùng (CellTests, WorldMapGeneratorTests, TerrainGeneratorTests), không có code production → giữ nguyên, tiếp tục.
+
 ## Kết quả kiểm chứng
 
 ## Vướng mắc
+
+Code lõi + test mới đã viết (chưa commit, còn trong working tree: Cell.cs, WorldEditor.cs, WaterConfig.cs, ConfigLoader, TerrainChunkView, JSON ×2, test mới). Biên dịch OK, 0 Error. EditMode toàn bộ: 627/634 qua, **7 fail** [run]:
+
+**A. Test cũ `SeaFloodTests` fail (5) — không sửa được theo luật brief:** `BreakingSealedWallFloodsDryInside` (kỳ vọng 45, thực 11), `FloodFillsConnectedDryChamber` (29 → 12), `OpenUWallRefills` (45 → 33), `WallNotReachingFloorLeaksUnderneath` (45 → 27), `WaterSpreadsOneCellPerStepSideways` (1 ô/nhịp → 2).
+Nguyên nhân: `StepWater()` = `StepSea()` + `StepFlow()` trả tổng hai số, và `StepFlow` chạy trên các ô đã đào ≤ SeaLevel cạnh biển: ô được "nước chảy" lấp (không phải nguồn, tối đa N ô, có ô thành nước ngang cả khi biển chưa tới) → (1) số trả về lệch (test đếm bằng giá trị trả về), (2) ô thành nước chảy không phải nguồn nên không kích hoạt biển loang tiếp (`IsWaterSource` bỏ nước chảy) và nhịp loang đổi (2 ô/nhịp). QĐ 7 giả định "biển loang lấp trước" chỉ đúng với ô sát biển; ô thứ hai trong hành lang đào lấp bởi phần chảy trước khi front biển tới.
+Câu hỏi: biển loang ≤ SeaLevel phải loại trừ phần chảy thế nào? Phương án: (a) `StepFlow` bỏ qua ô `y <= SeaLevel` khi `SeaLevel >= 0` (biển độc quyền vùng ≤ SeaLevel; nước chảy chỉ trên mực biển) — nhưng test `FlowingWaterBelowSeaLevelDoesNotStartSeaFlood` trong brief lại cần nước chảy ở y = 4 < SeaLevel 5 → mâu thuẫn; (b) `StepWater()` trả riêng số ô biển loang, tách `StepFlow` khỏi giá trị trả (test cũ đếm đúng) + `StepFlow` không lấp ô đang nằm trong `waterFront`/ô mà `TouchesWater`-biển sẽ ngập; (c) cho `StepFlow` chỉ chạy khi `waterFront` rỗng (biển xong rồi mới chảy). Đề xuất: (b)+(c) kết hợp; cần Opus chọn và cập nhật QĐ 7.
+
+**B. `FallsThenSpreadsFullAgain` fail (hình học brief):** đỉnh tháp (y = 11) hở nên nước từ (1,11,2) cũng lan sang (0,11,2),(2,11,2) rồi rơi qua mép tháp thành cột thác ở x = 0 và x = 2 (z = 3), nên (0,y,3), (2,y,3) y = 4..10 có nước (cột rơi, đúng luật QĐ 3–4). Kỳ vọng "rỗng" trong brief mâu thuẫn với hình học. Cần Opus sửa test (vd bọc tường đá quanh đỉnh tháp, hoặc bỏ kỳ vọng đó). Phần còn lại của test (cột (1,y,3) rơi, lan d = 1..7 dưới chân) chưa kiểm vì assert dừng sớm.
+
+**C. `SeaFloodStillMakesSources` fail (thứ tự thao tác trong test brief):** đào 3 ô rồi mới `Settle`: ô (5,5,7) bị phần chảy lấp (mực 7 nhưng cờ chảy bật → không phải nguồn) trước khi front biển tới → kỳ vọng `IsWaterSource` sai. Gộp với A: cùng gốc (nước chảy lấp vùng ≤ SeaLevel trước biển). Nếu chọn (c) ở A thì có thể tự qua.
+
+Chưa chạy: PlayMode (chưa có ý nghĩa khi EditMode còn đỏ), ảnh chụp, bước dọn.
 
 ---
 
