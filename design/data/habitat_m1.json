@@ -4,7 +4,7 @@
     "regionZ0": -1,
     "regionX1": -1,
     "regionZ1": -1,
-    "unlockedAtStart": ["L1", "L2", "L3"],
+    "unlockedAtStart": ["L1"],
     "species": [
         { "id": "L1", "requirements": [
             { "kind": "cells", "min": 20, "material": "Grass", "exposed": false, "nearWater": false, "minY": 0, "cropId": -1, "structure": "", "species": "", "periods": [] },

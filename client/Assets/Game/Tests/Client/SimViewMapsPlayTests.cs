@@ -47,15 +47,18 @@ namespace Game.Client.Tests
             var plain = sv.Plain.Value;
             Assert.AreEqual(plain.Bounds, sv.Sim.Bounds);
             Assert.AreEqual(64 * 64 * view.World.Size.Y, sv.Sim.PathfinderCellCount);
-            Assert.AreEqual(3, sv.Sim.State.Creatures.Count);
-            Assert.AreEqual(3, sv.BodyCount);
+            Assert.AreEqual(1, sv.Sim.State.Creatures.Count);
+            Assert.AreEqual(1, sv.BodyCount);
+            Assert.AreEqual(3, sv.Sim.State.Houses.Count);
             Assert.AreEqual(4, sv.SproutCount);
             Assert.AreEqual(SimDemo.OnPlain(plain, SimDemo.PlainHouseA), sv.Sim.State.Houses[0].Cell);
             var k = SimDemo.OnPlain(plain, SimDemo.PlainStorage);
             Assert.IsTrue(view.Editor.IsOccupied(k.X, k.Y, k.Z));
+            int pondX0 = plain.X0 + plain.Size / 2 + SimDemo.PlainPondMin.X, pondZ0 = plain.Z0 + plain.Size / 2 + SimDemo.PlainPondMin.Z;
             for (int z = plain.Z0; z < plain.Z0 + plain.Size; z++)
                 for (int x = plain.X0; x < plain.X0 + plain.Size; x++)
                 {
+                    if (sv.habitat && x >= pondX0 - 1 && x <= pondX0 + SimDemo.PondSize && z >= pondZ0 - 1 && z <= pondZ0 + SimDemo.PondSize) continue; // ao + viền cát
                     MinimapImage.ColumnInfo(view.World, x, z, out int surf, out int depth);
                     Assert.AreEqual(plain.Ground, surf, $"surface ({x},{z})");
                     Assert.AreEqual(0, depth, $"water ({x},{z})");

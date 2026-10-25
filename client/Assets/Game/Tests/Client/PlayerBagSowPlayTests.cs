@@ -33,6 +33,7 @@ namespace Game.Client.Tests
             view.source = WorldSource.MapsV3;
             view.streaming = true;
             sv = go.AddComponent<SimView>();
+            sv.habitat = false;
             input = go.AddComponent<TerrainEditInput>();
             playerGo = new GameObject("Player");
             playerGo.SetActive(false);

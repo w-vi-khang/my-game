@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Game.Core;
+using Game.Core.DayCycle;
+using Game.Core.Habitat;
 using Game.Core.Sim;
 using Game.Core.View;
 using UnityEngine;
@@ -32,6 +34,29 @@ namespace Game.Client
         /// <summary>Đồng bằng đã san (world nhiều map, cả demo lẫn bench); null khi chạy đảo v2.</summary>
         public StressPlain? Plain { get; private set; }
         public SimBenchMeter Meter { get; private set; }
+        /// <summary>Môi trường sống (sim 8b, 0039): chỉ ở world nhiều map, không phải cảnh đo. false = demo cũ (L1–L3, không ao, không tracker).</summary>
+        public bool habitat = true;
+        public HabitatTracker Habitat { get; private set; }
+        public HabitatConfig HabitatConfig { get; private set; }
+        readonly List<string> returnedSpecies = new List<string>();
+        public IReadOnlyList<string> ReturnedSpecies => returnedSpecies;
+        readonly List<string> returnedNow = new List<string>();
+        DayCycleView dayView;
+        bool dayViewSearched;
+
+        /// <summary>Buổi hiện tại (DayCycleView) — Day khi không có view.</summary>
+        public DayPeriod CurrentPeriod
+        {
+            get
+            {
+                if (!dayViewSearched)
+                {
+                    dayView = FindAnyObjectByType<DayCycleView>();
+                    dayViewSearched = dayView != null;
+                }
+                return dayView != null && dayView.Day != null ? dayView.Day.Period : DayPeriod.Day;
+            }
+        }
 
         static readonly Color HouseColor = new Color(0.55f, 0.35f, 0.20f);
         static readonly Color StorageColor = new Color(0.60f, 0.60f, 0.60f);
@@ -80,6 +105,7 @@ namespace Game.Client
             view.afterGenerate = OnAfterGenerate;
             if (GetComponent<SettingsView>() == null) gameObject.AddComponent<SettingsView>();
             if (GetComponent<WorldIconsView>() == null) gameObject.AddComponent<WorldIconsView>();
+            if (GetComponent<HabitatPanelView>() == null) gameObject.AddComponent<HabitatPanelView>();
         }
 
         public static Vector3 BenchCameraPos(StressPlain p) => new Vector3(p.X0 + p.Size * 0.5f, p.Ground + 34f, p.Z0 - 6f);
@@ -88,6 +114,7 @@ namespace Game.Client
         {
             var kept = DemoPlain.Flatten(world, maps, p, lms, out var plain);
             Plain = plain;
+            if (!stressBench && habitat) SimDemo.PlacePond(world, plain);
             if (stressBench) DemoPlain.PlaceCamera(BenchCameraPos(plain), 50f);
             else
             {
@@ -107,6 +134,7 @@ namespace Game.Client
         void OnDestroy()
         {
             if (active == this) active = null;
+            if (Habitat != null && view != null && view.Editor != null) view.Editor.CellChanged -= Habitat.OnCellChanged;
             QualitySettings.vSyncCount = savedVSync;
             Application.targetFrameRate = savedTargetFps;
         }
@@ -130,6 +158,7 @@ namespace Game.Client
             for (int i = 0; i < n; i++)
             {
                 if (Meter != null) SimDemo.KeepFarming(Sim); // chỉ cảnh đo (brief 0028); demo: người chơi tự chọn giống (0025, brief 0030)
+                if (Habitat != null) UpdateHabitat();
                 long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
                 Sim.Tick();
                 Meter?.AddTick(System.Diagnostics.Stopwatch.GetTimestamp() - t0);
@@ -182,7 +211,24 @@ namespace Game.Client
                 var plain = Plain.Value;
                 Sim = new Simulation(cfg, view.World, plain.Bounds);
                 Sim.AttachEditor(view.Editor);
-                SimDemo.Build(Sim, plain);
+                if (habitat)
+                {
+                    var hcfg = ConfigLoader.LoadHabitatConfig();
+                    hcfg.regionX0 = plain.X0;
+                    hcfg.regionZ0 = plain.Z0;
+                    hcfg.regionX1 = plain.X0 + plain.Size;
+                    hcfg.regionZ1 = plain.Z0 + plain.Size;
+                    SimDemo.BuildHabitat(Sim, plain, hcfg.unlockedAtStart);
+                    HabitatConfig = hcfg;
+                    Habitat = new HabitatTracker(hcfg, view.World);
+                    view.Editor.CellChanged += Habitat.OnCellChanged;
+                    var counts = new List<string>();
+                    for (int hs = 0; hs < Habitat.SpeciesCount; hs++)
+                        for (int hr = 0; hr < Habitat.RequirementCount(hs); hr++)
+                            counts.Add($"{Habitat.SpeciesId(hs)}[{hr}]={Habitat.Current(hs, hr, Sim.State, CurrentPeriod)}/{Habitat.Target(hs, hr)}");
+                    Debug.Log($"HABITAT region ({hcfg.regionX0},{hcfg.regionZ0})-({hcfg.regionX1},{hcfg.regionZ1}), unlocked at start [{string.Join(",", hcfg.unlockedAtStart)}], counts: {string.Join(", ", counts)}");
+                }
+                else SimDemo.Build(Sim, plain);
                 Debug.Log($"SIMVIEW camp in the middle of {plain}, pathfinder array {Sim.PathfinderCellCount} cells");
             }
             boxBase = Resources.Load<UnityEngine.Material>("Materials/Landmark");
@@ -209,6 +255,33 @@ namespace Game.Client
             UpdateBodies();
             UpdatePlotSigns();
             SetFrameRate(GameSettings.Current.targetFps);
+        }
+
+        void UpdateHabitat()
+        {
+            returnedNow.Clear();
+            Habitat.Update(Sim.State, CurrentPeriod, returnedNow);
+            if (returnedNow.Count == 0) return;
+            var plain = Plain.Value;
+            int px = plain.X0 + plain.Size / 2, pz = plain.Z0 + plain.Size / 2;
+            var player = PlayerCharacter.Active;
+            if (player != null)
+            {
+                var f = player.FeetLocal;
+                px = Mathf.FloorToInt(f.x);
+                pz = Mathf.FloorToInt(f.z);
+            }
+            var created = new List<int>();
+            foreach (var id in returnedNow)
+            {
+                created.Clear();
+                int n = HabitatSpawn.SpawnAtEdge(Sim, HabitatConfig.regionX0, HabitatConfig.regionZ0, HabitatConfig.regionX1, HabitatConfig.regionZ1, px, pz, id, HabitatSpawn.CountPerSpecies, created);
+                returnedSpecies.Add(id);
+                HabitatPanelView.ShowReturned(id);
+                string cells = "";
+                foreach (int c in created) cells += " " + Sim.State.Creatures[c].Cell;
+                Debug.Log($"HABITAT returned {id}: {n} creatures at{cells}");
+            }
         }
 
         public void SetFrameRate(int fps)
@@ -390,7 +463,7 @@ namespace Game.Client
         static SimView active;
 
         /// <summary>Con trỏ (toạ độ màn hình, gốc dưới-trái) trên bảng ô ruộng → công cụ không dùng (brief 0030 mục 12).</summary>
-        public static bool BlocksPointer(Vector2 screen) => SettingsView.BlocksPointer(screen) || (active != null && active.Sim != null && active.Covers(screen));
+        public static bool BlocksPointer(Vector2 screen) => SettingsView.BlocksPointer(screen) || HabitatPanelView.BlocksPointer(screen) || (active != null && active.Sim != null && active.Covers(screen));
 
         /// <summary>Bảng ô ruộng, hoặc túi / kho / bảng thông tin (InventoryView) đang mở (Shift lướt bị bỏ qua, brief 0055).</summary>
         public static bool AnyPanelOpen => (active != null && active.OpenPlotId >= 0) || InventoryView.AnyOpen;

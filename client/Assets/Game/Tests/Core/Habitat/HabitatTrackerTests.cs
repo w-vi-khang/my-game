@@ -230,7 +230,9 @@ namespace Game.Core.Tests
         {
             var w = Layout();
             var t = new HabitatTracker(new HabitatConfig(), w);
-            for (int s = 0; s < 3; s++) Assert.IsTrue(t.IsUnlocked(s), "species " + s);
+            Assert.IsTrue(t.IsUnlocked(0), "L1 unlocked at start");
+            Assert.IsFalse(t.IsUnlocked(1));
+            Assert.IsFalse(t.IsUnlocked(2));
             var returned = new List<string>();
             Assert.AreEqual(0, t.Update(EmptyState(), DayPeriod.Day, returned));
             Assert.AreEqual(0, returned.Count);

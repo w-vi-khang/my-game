@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Game.Core.Sim
 {
@@ -58,6 +59,57 @@ namespace Game.Core.Sim
             {
                 int id = sim.MarkTill(soil[i]);
                 if (id < 0) throw new InvalidOperationException("Could not mark demo field cell " + soil[i]);
+                sim.EnqueueCrop(id, 0);
+            }
+            return storage;
+        }
+
+        /// <summary>Ao 4 × 4 viền cát (0039 mục 4): (dx, 0, dz) tính từ tâm đồng bằng. [số tạm]</summary>
+        public static readonly CellPos PlainPondMin = new CellPos(10, 0, -12);
+        public const int PondSize = 4;
+
+        /// <summary>Nhà thứ ba cho trại có môi trường sống (0039). [số tạm]</summary>
+        public static readonly CellPos PlainHouseC = new CellPos(6, 1, 4);
+
+        /// <summary>Ao 4 × 4 viền cát (0039 mục 4): nước ở y = plain.Ground, vòng cát 1 ô quanh ao cùng tầng. Gọi sau FlattenPlain, trước khi dựng mesh.</summary>
+        public static void PlacePond(WorldData world, StressPlain plain)
+        {
+            int cx = plain.X0 + plain.Size / 2, cz = plain.Z0 + plain.Size / 2;
+            int wx0 = cx + PlainPondMin.X, wz0 = cz + PlainPondMin.Z;
+            ushort water = Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel), sand = Cell.Make(BlockMaterial.Sand);
+            for (int z = wz0 - 1; z <= wz0 + PondSize; z++)
+                for (int x = wx0 - 1; x <= wx0 + PondSize; x++)
+                {
+                    bool inside = x >= wx0 && x < wx0 + PondSize && z >= wz0 && z < wz0 + PondSize;
+                    world.Set(x, plain.Ground, z, inside ? water : sand);
+                }
+        }
+
+        /// <summary>Bố trí giãn + nhà C; chỉ tạo sinh vật cho loài trong startSpecies (theo thứ tự Species, ô PlainCreatureCells tương ứng); nhà = nhà đầu tiên (A, B, C) còn chỗ. 4 ô ruộng + vụ Cây A như Build. Trả id kho.</summary>
+        public static int BuildHabitat(Simulation sim, StressPlain plain, IReadOnlyList<string> startSpecies)
+        {
+            CellPos At(CellPos c) => OnPlain(plain, c);
+            sim.AddHouse(At(PlainHouseA));
+            sim.AddHouse(At(PlainHouseB));
+            sim.AddHouse(At(PlainHouseC));
+            int storage = sim.AddStorage(At(PlainStorage));
+            for (int i = 0; i < Species.Length; i++)
+            {
+                bool start = false;
+                for (int k = 0; k < startSpecies.Count; k++) if (startSpecies[k] == Species[i]) start = true;
+                if (!start) continue;
+                int id = sim.AddCreature(Species[i], At(PlainCreatureCells[i]));
+                for (int h = 0; h < sim.State.Houses.Count; h++)
+                    if (sim.State.Houses[h].Residents.Count < sim.State.Houses[h].Capacity)
+                    {
+                        sim.AssignHome(id, h);
+                        break;
+                    }
+            }
+            for (int i = 0; i < PlainSoil.Length; i++)
+            {
+                int id = sim.MarkTill(At(PlainSoil[i]));
+                if (id < 0) throw new InvalidOperationException("Could not mark demo field cell " + At(PlainSoil[i]));
                 sim.EnqueueCrop(id, 0);
             }
             return storage;

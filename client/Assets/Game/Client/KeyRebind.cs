@@ -29,6 +29,7 @@ namespace Game.Client
             ["Player/ToggleBag"] = "controls.bag",
             ["Player/ToggleHotbar"] = "controls.toggle_hotbar",
             ["Player/ToggleSpellMenu"] = "controls.spell_menu",
+            ["Player/ToggleHabitat"] = "controls.habitat",
             ["Player/ToggleObservation"] = "controls.observe",
             ["Player/ToggleMap"] = "controls.map",
             ["Player/ToggleSettings"] = "controls.settings",

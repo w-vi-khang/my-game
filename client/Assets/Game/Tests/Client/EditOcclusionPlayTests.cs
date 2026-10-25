@@ -28,6 +28,7 @@ namespace Game.Client.Tests
             view.streaming = true;
             view.streamTarget = camGo.transform;
             sv = go.AddComponent<SimView>();
+            sv.habitat = false;
             input = go.AddComponent<TerrainEditInput>();
             yield return null;
             yield return null;

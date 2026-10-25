@@ -52,6 +52,19 @@ namespace Game.Core.Sim
         public static readonly string[] PhaseNames = { "Terrain", "Home", "Work", "Crop", "Move", "Assign", "Stuck", "Idle", "Report" };
         public readonly long[] PhaseTicks = new long[9];
 
+        /// <summary>AddCreature(speciesId, cell) có thành công không (sim 8b) — không đổi trạng thái.</summary>
+        public bool CanPlaceCreature(string speciesId, CellPos cell)
+        {
+            var sp = Config.FindSpecies(speciesId);
+            if (!pathfinder.CanStand(cell, sp.sizeX, sp.sizeZ, sp.sizeY)) return false;
+            for (int i = 0; i < State.Creatures.Count; i++)
+            {
+                var o = State.Creatures[i];
+                if (FramesOverlap(o.Cell, o.SizeX, o.SizeZ, o.SizeY, cell, sp.sizeX, sp.sizeZ, sp.sizeY)) return false;
+            }
+            return true;
+        }
+
         public int AddCreature(string speciesId, CellPos cell)
         {
             var sp = Config.FindSpecies(speciesId);

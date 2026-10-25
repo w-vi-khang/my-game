@@ -48,6 +48,7 @@ namespace Game.Client
         }
         public static InputAction ToggleMap => Get("Player/ToggleMap");
         public static InputAction ToggleSpellMenu => Get("Player/ToggleSpellMenu");
+        public static InputAction ToggleHabitat => Get("Player/ToggleHabitat");
         public static InputAction ToggleSettings => Get("Player/ToggleSettings");
         public static InputAction RotateCamera => Get("Player/RotateCamera");
         public static InputAction Look => Get("Player/Look");

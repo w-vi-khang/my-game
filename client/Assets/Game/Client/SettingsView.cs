@@ -70,7 +70,7 @@ namespace Game.Client
         {
             if (ObservationCamera.BlocksBack) return true;
             if (InventoryView.AnyOpen || (sim != null && sim.OpenPlotId >= 0)) return true;
-            if (MinimapView.IsAnyOpen || TimeDial.IsAnyOpen) return true;
+            if (MinimapView.IsAnyOpen || TimeDial.IsAnyOpen || HabitatPanelView.IsAnyOpen) return true;
             return editInput != null && editInput.Control.HasHeld;
         }
 
@@ -169,7 +169,7 @@ namespace Game.Client
             Format("guide.modes", PlayerRules.TargetReach, PlayerRules.ActReach),
             T("guide.till"),
             Format("guide.collect", PlayerRules.CollectReach),
-            T("guide.bag"), T("guide.transfer"), T("guide.observe"), T("guide.spells"), T("guide.other"), T("guide.debug"),
+            T("guide.bag"), T("guide.transfer"), T("guide.observe"), T("guide.spells"), T("guide.habitat"), T("guide.other"), T("guide.debug"),
         });
 
         void OnGUI()

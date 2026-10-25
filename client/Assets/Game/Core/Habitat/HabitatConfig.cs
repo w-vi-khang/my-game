@@ -95,7 +95,7 @@ namespace Game.Core.Habitat
         public int configVersion = 1;
         /// <summary>Vùng đếm: cột [regionX0, regionX1) × [regionZ0, regionZ1), đủ chiều cao. Cả 4 = -1 → cả world.</summary>
         public int regionX0 = -1, regionZ0 = -1, regionX1 = -1, regionZ1 = -1;
-        public string[] unlockedAtStart = { "L1", "L2", "L3" };
+        public string[] unlockedAtStart = { "L1" };
         public HabitatSpecies[] species =
         {
             new HabitatSpecies("L1",

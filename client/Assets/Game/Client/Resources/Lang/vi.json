@@ -67,6 +67,10 @@
       "text": "Esc cố định (đóng bảng / huỷ). Phím debug F1–F3 không đổi được."
     },
     {
+      "key": "controls.habitat",
+      "text": "Bảng môi trường sống"
+    },
+    {
       "key": "controls.hotbar",
       "text": "Túi phụ ô {0}"
     },
@@ -423,6 +427,10 @@
       "text": "Phím debug: F1 khoá 30 FPS · F2 khoá 60 FPS · F3 camera bay (WASD, Q/E, giữ chuột giữa; phím chế độ tắt khi bay)"
     },
     {
+      "key": "guide.habitat",
+      "text": "H: bảng môi trường sống — yêu cầu để từng loài trở lại"
+    },
+    {
       "key": "guide.keys_note",
       "text": "Phím ghi trong hướng dẫn là phím mặc định; phím đang dùng xem ở tab Điều khiển."
     },
@@ -453,6 +461,82 @@
     {
       "key": "guide.transfer",
       "text": "Chuyển đồ giữa túi / túi phụ / kho đang mở: kéo thả cả chồng; hoặc click chọn ô → Tab đổi đích → 1: tất cả · 2: một nửa · 3: một phần ba"
+    },
+    {
+      "key": "habitat.exposed",
+      "text": "lộ thiên"
+    },
+    {
+      "key": "habitat.mat_solid",
+      "text": "khối đặc"
+    },
+    {
+      "key": "habitat.mat_water",
+      "text": "nước"
+    },
+    {
+      "key": "habitat.met",
+      "text": "(đạt)"
+    },
+    {
+      "key": "habitat.min_y",
+      "text": "(cao ≥ {0})"
+    },
+    {
+      "key": "habitat.near_water",
+      "text": "cạnh nước"
+    },
+    {
+      "key": "habitat.req_cells",
+      "text": "Ô {0}"
+    },
+    {
+      "key": "habitat.req_crops",
+      "text": "Vụ đã gieo"
+    },
+    {
+      "key": "habitat.req_crops_n",
+      "text": "Vụ đã gieo loại {0}"
+    },
+    {
+      "key": "habitat.req_house",
+      "text": "Nhà"
+    },
+    {
+      "key": "habitat.req_period",
+      "text": "Buổi: {0}"
+    },
+    {
+      "key": "habitat.req_species",
+      "text": "Loài {0} đang ở"
+    },
+    {
+      "key": "habitat.req_storage",
+      "text": "Kho"
+    },
+    {
+      "key": "habitat.returned",
+      "text": "{0} đã trở lại!"
+    },
+    {
+      "key": "habitat.row",
+      "text": "{0}: {1}/{2}"
+    },
+    {
+      "key": "habitat.species",
+      "text": "{0} ({1})"
+    },
+    {
+      "key": "habitat.status_locked",
+      "text": "chưa trở lại"
+    },
+    {
+      "key": "habitat.status_unlocked",
+      "text": "đã ở trại"
+    },
+    {
+      "key": "habitat.title",
+      "text": "Môi trường sống"
     },
     {
       "key": "hold.empty",

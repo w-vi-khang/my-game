@@ -123,6 +123,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ToggleHabitat",
+                    "type": "Button",
+                    "id": "3e384c06-6493-4c7a-aa77-91f0033b4521",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ToggleSettings",
                     "type": "Button",
                     "id": "80deafa2-a48f-586b-8ab0-b8557bcb8e1b",
@@ -426,6 +435,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleSpellMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1c031e53-daec-4bad-9010-0e4d6eb60116",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleHabitat",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

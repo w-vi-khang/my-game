@@ -45,6 +45,7 @@ namespace Game.Client.EditTests
             ["Player/ToggleHotbar"] = B("<Keyboard>/p"),
             ["Player/ToggleMap"] = B("<Keyboard>/m"),
             ["Player/ToggleSpellMenu"] = B("<Keyboard>/g"),
+            ["Player/ToggleHabitat"] = B("<Keyboard>/h"),
             ["Player/ToggleSettings"] = B("<Keyboard>/o"),
             ["Player/RotateCamera"] = B("<Mouse>/middleButton"),
             ["Player/Look"] = E(InputActionType.Value, "Vector2", "<Mouse>/delta"),
@@ -71,7 +72,7 @@ namespace Game.Client.EditTests
         {
             var asset = Load();
             var exp = Expected();
-            Assert.AreEqual(43, exp.Count);
+            Assert.AreEqual(44, exp.Count);
             var actual = new HashSet<string>(asset.actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
             CollectionAssert.AreEquivalent(exp.Keys, actual);
             foreach (var kv in exp)
@@ -100,7 +101,7 @@ namespace Game.Client.EditTests
             var text = File.ReadAllText(Path_("Client", "GameInput.cs"));
             var found = new HashSet<string>(Regex.Matches(text, "Get\\(\"([A-Za-z]+/[A-Za-z0-9]+)\"\\)").Cast<Match>().Select(m => m.Groups[1].Value));
             var actual = new HashSet<string>(Load().actionMaps.SelectMany(m => m.actions).Select(a => a.actionMap.name + "/" + a.name));
-            Assert.AreEqual(43, actual.Count);
+            Assert.AreEqual(44, actual.Count);
             CollectionAssert.AreEquivalent(actual, found);
         }
 

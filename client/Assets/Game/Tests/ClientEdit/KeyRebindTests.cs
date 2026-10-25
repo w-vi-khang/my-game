@@ -13,11 +13,11 @@ namespace Game.Client.EditTests
         static string P(InputActionAsset a, string name) => a.FindAction(name, true).bindings[0].effectivePath;
 
         [Test]
-        public void Rebindable_Is34_ButtonsOnly_NoEscape()
+        public void Rebindable_Is35_ButtonsOnly_NoEscape()
         {
             var asset = Load();
             var list = KeyRebind.Rebindable(asset);
-            Assert.AreEqual(34, list.Count);
+            Assert.AreEqual(35, list.Count);
             Assert.IsTrue(list.All(a => a.type == InputActionType.Button));
             Assert.IsFalse(list.Any(a => a.bindings[0].path == "<Keyboard>/escape"));
             var names = list.Select(a => a.actionMap.name + "/" + a.name).ToList();
@@ -30,7 +30,7 @@ namespace Game.Client.EditTests
         {
             var list = KeyRebind.Rebindable(Load());
             foreach (var a in list) Assert.IsTrue(KeyRebind.NameKeys.ContainsKey(a.actionMap.name + "/" + a.name), a.name);
-            Assert.AreEqual(34, KeyRebind.NameKeys.Count);
+            Assert.AreEqual(35, KeyRebind.NameKeys.Count);
         }
 
         [Test]
