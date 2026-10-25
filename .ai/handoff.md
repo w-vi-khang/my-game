@@ -5,10 +5,10 @@
 - **0074 (sim 8b) đã duyệt** 2026-10-25: user xem mục G đạt hết. Sim 8 xong.
 
 ## Đang làm
-User 2026-10-25: "nước phải tràn ra… giới hạn lan… nước chảy vào hố cũng sẽ đầy, chảy từ cao xuống thấp" → user chọn **nguồn + lan giới hạn, làm ngay trong M1** → quyết định [0040](../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) (Chốt, đã ghi; README decisions đã thêm dòng; **chưa commit**).
+User 2026-10-25: "nước phải tràn ra… giới hạn lan… nước chảy vào hố cũng sẽ đầy, chảy từ cao xuống thấp" → user chọn **nguồn + lan giới hạn, làm ngay trong M1** → quyết định [0040](../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) (Chốt, đã ghi + commit `8de0b26`; README decisions đã thêm dòng).
 
 ## Bước tiếp
-1. Commit 0040 + README (`decision 0040: …`).
+1. ~~Commit 0040~~ (xong).
 2. Cập nhật tài liệu theo 0040 mục Hệ quả:
    - world-tech mục Nước chảy (dòng ~111–120) + thêm hạng mục vào kế hoạch prototype;
    - mechanics (luật biển tràn);
