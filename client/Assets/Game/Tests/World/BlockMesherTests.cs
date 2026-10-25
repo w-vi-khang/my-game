@@ -917,5 +917,82 @@ namespace Game.World.Tests
             var mesh = BlockMesher.Build(w, 0, 0, 0);
             Assert.AreEqual(2, mesh.WaterTriangleCount);
         }
+
+        static WorldData StoneFloor16()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+                w.Set(x, 4, z, Cell.Make(BlockMaterial.Stone));
+            return w;
+        }
+
+        static bool HasWaterVertex(ChunkMesh mesh, float3 normal, float3 pos)
+        {
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                int i = mesh.WaterIndices[t];
+                if (mesh.Normals[i].Equals(normal) && math.distance(mesh.Vertices[i], pos) < 1e-4f)
+                    return true;
+            }
+            return false;
+        }
+
+        [Test]
+        public void FlowingWaterSurfaceFollowsLevel()
+        {
+            var w = StoneFloor16();
+            w.Set(4, 5, 4, Cell.MakeFlowing(0, 5, false));
+            w.Set(5, 5, 4, Cell.MakeFlowing(0, 3, false));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(4, 5.9f, 4)));
+            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(5, 5.72f, 4)));
+            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(5, 5.72f, 5)));
+            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(6, 5.54f, 4)));
+            bool minusZ = false;
+            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
+            {
+                bool allX5 = true;
+                for (int k = 0; k < 3; k++)
+                {
+                    int i = mesh.WaterIndices[t + k];
+                    float3 n = mesh.Normals[i];
+                    float3 v = mesh.Vertices[i];
+                    if (math.abs(n.x) != 1f || math.abs(v.x - 5f) > 1e-4f)
+                        allX5 = false;
+                }
+                Assert.IsFalse(allX5, "wall between A and B");
+            }
+            var south = new float3(0, 0, -1);
+            minusZ = HasWaterVertex(mesh, south, new float3(4, 5.9f, 4)) && HasWaterVertex(mesh, south, new float3(5, 5.72f, 4));
+            Assert.IsTrue(minusZ);
+        }
+
+        [Test]
+        public void FallingAndSourceWaterStayFull()
+        {
+            var w = StoneFloor16();
+            w.Set(4, 5, 4, Cell.MakeFlowing(0, 2, true));
+            w.Set(6, 5, 4, Water());
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            int tops = 0;
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                int i = mesh.WaterIndices[t];
+                if (!mesh.Normals[i].Equals(new float3(0, 1, 0)))
+                    continue;
+                tops++;
+                Assert.AreEqual(5.9f, mesh.Vertices[i].y, 1e-4f);
+            }
+            Assert.Greater(tops, 0);
+        }
+
+        [Test]
+        public void BuildRejectsBadWaterFullLevel()
+        {
+            var w = StoneFloor16();
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => BlockMesher.Build(w, 0, 0, 0, true, 0));
+        }
     }
 }

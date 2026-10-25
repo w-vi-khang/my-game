@@ -231,6 +231,7 @@ namespace Game.Client
             Editor.SupportCheckMaxCells = waterCfg.supportCheckMaxCells;
             waterStepsPerSecond = waterCfg.stepsPerSecond;
             Editor.CellChanged += OnCellChanged;
+            Editor.WaterSurfaceChanged += OnCellChanged;
             dirty.Clear();
 
             // Mặc định: shader Game/Terrain (màu đỉnh theo vật liệu, nhám — decision 0011); color là sắc nhân thêm.
@@ -386,7 +387,7 @@ namespace Game.Client
         void Rebuild(List<int> chunkIndices)
         {
             var sw = Stopwatch.StartNew();
-            var built = BlockMesher.BuildChunks(World, chunkIndices);
+            var built = BlockMesher.BuildChunks(World, chunkIndices, true, Editor.FlowMaxDistance);
             LastMeshMs = sw.Elapsed.TotalMilliseconds;
 
             sw.Restart();

@@ -10,7 +10,7 @@ namespace Game.Core
     public class WaterConfig
     {
         public int configVersion = 1;
-        public int flowMaxDistance = 7;
+        public int flowMaxDistance = 5;
         public int stepsPerSecond = 8;
         public int narrowMaxOpenSides = 2;
         public int supportCheckMaxCells = 4096;

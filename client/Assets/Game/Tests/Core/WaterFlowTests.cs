@@ -480,5 +480,69 @@ namespace Game.Core.Tests
             Assert.IsTrue(Cell.IsFlowing(w.Get(6, 4, 4)));
             Assert.AreEqual(7, Cell.GetWaterLevel(w.Get(6, 4, 4)));
         }
+
+        static WorldEditor BridgeSetup(out WorldData w)
+        {
+            w = Flat(5);
+            w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
+            w.Set(6, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(5, 6, 8, Cell.Make(BlockMaterial.Stone));
+            var e = Editor(w);
+            e.FlowMaxDistance = 2;
+            Dig(e, 1, 6, 8);
+            Dig(e, 5, 6, 8);
+            Settle(e);
+            return e;
+        }
+
+        [Test]
+        public void BridgeFillsOneCellGap()
+        {
+            var e = BridgeSetup(out var w);
+            foreach (int x in new[] { 2, 3, 4 })
+            {
+                ushort c = w.Get(x, 6, 8);
+                Assert.IsTrue(IsWater(w, x, 6, 8), $"x={x}");
+                Assert.IsTrue(Cell.IsFlowing(c), $"x={x}");
+                Assert.AreEqual(1, Cell.GetWaterLevel(c), $"x={x}");
+            }
+            Assert.IsFalse(IsWater(w, 3, 6, 7));
+            Assert.IsFalse(IsWater(w, 3, 6, 9));
+        }
+
+        [Test]
+        public void BridgeDrainsWhenOneSideGone()
+        {
+            var e = BridgeSetup(out var w);
+            Place(e, 6, 6, 8);
+            Settle(e);
+            Assert.IsFalse(IsWater(w, 3, 6, 8));
+            Assert.IsFalse(IsWater(w, 4, 6, 8));
+            Assert.IsFalse(IsWater(w, 5, 6, 8));
+            Assert.IsTrue(IsWater(w, 1, 6, 8));
+            Assert.IsTrue(IsWater(w, 2, 6, 8));
+        }
+
+        [Test]
+        public void LevelChangeRaisesWaterSurfaceChanged()
+        {
+            var w = OpenFloor();
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            int surface = 0;
+            e.WaterSurfaceChanged += (x, y, z) =>
+            {
+                surface++;
+                Assert.AreEqual(BlockMaterial.Water, w.GetMaterial(x, y, z));
+            };
+            e.CellChanged += (x, y, z) =>
+                Assert.AreNotEqual(BlockMaterial.Water, w.GetMaterial(x, y, z), $"CellChanged on water ({x},{y},{z})");
+            Place(e, 0, 6, 8);
+            e.StepWater();
+            Assert.GreaterOrEqual(surface, 1);
+            Settle(e);
+        }
     }
 }

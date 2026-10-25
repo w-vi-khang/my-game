@@ -1,6 +1,6 @@
 {
     "configVersion": 1,
-    "flowMaxDistance": 7,
+    "flowMaxDistance": 5,
     "stepsPerSecond": 8,
     "narrowMaxOpenSides": 2,
     "supportCheckMaxCells": 4096

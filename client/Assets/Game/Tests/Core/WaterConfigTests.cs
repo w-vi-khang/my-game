@@ -15,7 +15,7 @@ namespace Game.Core.Tests
             Assert.IsTrue(File.Exists(SourcePath), SourcePath);
             var cfg = JsonUtility.FromJson<WaterConfig>(File.ReadAllText(SourcePath));
             Assert.DoesNotThrow(cfg.Validate);
-            Assert.AreEqual(7, cfg.flowMaxDistance);
+            Assert.AreEqual(5, cfg.flowMaxDistance);
             Assert.AreEqual(8, cfg.stepsPerSecond);
             Assert.AreEqual(2, cfg.narrowMaxOpenSides);
             Assert.AreEqual(4096, cfg.supportCheckMaxCells);

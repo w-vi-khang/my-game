@@ -251,21 +251,23 @@ namespace Game.World
         }
 
         /// <param name="grassLip">false → bỏ mép cỏ (để kiểm mesh khối kín; mép cỏ là bề mặt hở chồng lên khối).</param>
-        public static ChunkMesh Build(WorldData world, int chunkX, int chunkY, int chunkZ, bool grassLip = true) =>
-            BuildChunks(world, new[] { world.Size.ChunkIndex(chunkX * WorldSize.ChunkSize, chunkY * WorldSize.ChunkSize, chunkZ * WorldSize.ChunkSize) }, grassLip)[0];
+        public static ChunkMesh Build(WorldData world, int chunkX, int chunkY, int chunkZ, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel) =>
+            BuildChunks(world, new[] { world.Size.ChunkIndex(chunkX * WorldSize.ChunkSize, chunkY * WorldSize.ChunkSize, chunkZ * WorldSize.ChunkSize) }, grassLip, waterFullLevel)[0];
 
         /// <summary>Dựng mọi chunk song song (mỗi chunk một job, dùng chung mảng ô chỉ đọc). Thứ tự: x nhanh nhất, rồi z, rồi y.</summary>
-        public static ChunkMesh[] BuildAll(WorldData world, bool grassLip = true)
+        public static ChunkMesh[] BuildAll(WorldData world, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel)
         {
             var all = new int[world.Size.ChunkCount];
             for (int c = 0; c < all.Length; c++)
                 all[c] = c;
-            return BuildChunks(world, all, grassLip);
+            return BuildChunks(world, all, grassLip, waterFullLevel);
         }
 
         /// <summary>Dựng song song các chunk theo chỉ số (x nhanh nhất, rồi z, rồi y); kết quả cùng thứ tự với <paramref name="chunkIndices"/>. Mảng ô của world được ghim và đọc trực tiếp (không chép, brief 0010).</summary>
-        public static unsafe ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices, bool grassLip = true)
+        public static unsafe ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel)
         {
+            if (waterFullLevel < 1)
+                throw new System.ArgumentOutOfRangeException(nameof(waterFullLevel), waterFullLevel, "waterFullLevel must be >= 1");
             EnsureTable();
             var size = world.Size;
             int count = chunkIndices.Count;
@@ -300,6 +302,7 @@ namespace Game.World
                         TableOffset = offset, TableNormal = normal, TableMoved = moved,
                         R = BevelRadius,
                         GrassLip = grassLip,
+                        WaterFullLevel = waterFullLevel,
                         SizeX = size.X, SizeY = size.Y, SizeZ = size.Z,
                         Origin = new int3(cx, cy, cz) * WorldSize.ChunkSize,
                         Out = outputs[k],
@@ -380,6 +383,7 @@ namespace Game.World
             [ReadOnly] public NativeArray<byte> TableMoved;
             public float R;
             public bool GrassLip;
+            public int WaterFullLevel;
             public int SizeX, SizeY, SizeZ;
             public int3 Origin;
             public Output Out;
@@ -415,8 +419,8 @@ namespace Game.World
                     {
                         int above = MaterialAt(g + new int3(0, 1, 0));
                         if (above == (int)BlockMaterial.Empty)
-                            AddWaterSurface(new int3(x, y, z));
-                        AddWaterSides(new int3(x, y, z), g, above == (int)BlockMaterial.Empty);
+                            AddWaterSurface(new int3(x, y, z), g);
+                        AddWaterSides(new int3(x, y, z), g);
                         continue;
                     }
                     if (!IsSolidMaterial(m))
@@ -900,24 +904,22 @@ namespace Game.World
                     AddOriented(wCenter, c2 + k, c2 + k + 1, down);
             }
 
-            /// <summary>Mặt nước của ô nước có không khí phía trên (0012): tứ giác ngang ở y + 1 − WaterSurfaceDrop, submesh 1.</summary>
-            void AddWaterSurface(int3 c)
+            /// <summary>Mặt nước của ô nước có không khí phía trên (0012, 0042): tứ giác có độ cao từng góc theo CornerHeight, submesh 1.</summary>
+            void AddWaterSurface(int3 c, int3 g)
             {
-                float y = c.y + 1 - WaterSurfaceDrop;
                 float3 up = new float3(0, 1, 0);
-                int i0 = AddVertex(new float3(c.x, y, c.z), up, 0);
-                AddVertex(new float3(c.x + 1, y, c.z), up, 0);
-                AddVertex(new float3(c.x + 1, y, c.z + 1), up, 0);
-                AddVertex(new float3(c.x, y, c.z + 1), up, 0);
+                int i0 = AddVertex(new float3(c.x, c.y + CornerHeight(g, 0, 0), c.z), up, 0);
+                AddVertex(new float3(c.x + 1, c.y + CornerHeight(g, 1, 0), c.z), up, 0);
+                AddVertex(new float3(c.x + 1, c.y + CornerHeight(g, 1, 1), c.z + 1), up, 0);
+                AddVertex(new float3(c.x, c.y + CornerHeight(g, 0, 1), c.z + 1), up, 0);
                 // Mặt trên (pháp tuyến +y): cross(du, dv) với du = +z, dv = +x theo quy ước trục 1 → thứ tự (0, 3, 2)(0, 2, 1).
                 Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 3); Out.WaterIndices.Add(i0 + 2);
                 Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 2); Out.WaterIndices.Add(i0 + 1);
             }
 
-            /// <summary>Mặt bên (ô ngang Empty) và mặt đáy (ô dưới Empty) của ô nước (0041): thác nước, mép nước đang chảy.</summary>
-            void AddWaterSides(int3 c, int3 g, bool airAbove)
+            /// <summary>Mặt bên (ô ngang Empty) và mặt đáy (ô dưới Empty) của ô nước (0041, 0042): đỉnh trên theo độ cao hai góc của cạnh.</summary>
+            void AddWaterSides(int3 c, int3 g)
             {
-                float top = airAbove ? c.y + 1 - WaterSurfaceDrop : c.y + 1;
                 for (int axis = 0; axis < 3; axis += 2)
                 for (int sign = -1; sign <= 1; sign += 2)
                 {
@@ -926,16 +928,61 @@ namespace Game.World
                         continue;
                     float3 n = new float3(d.x, 0, d.z);
                     float plane = (axis == 0 ? c.x : c.z) + (sign > 0 ? 1 : 0);
+                    int s1 = sign > 0 ? 1 : 0;
                     if (axis == 0)
                         AddWaterQuad(new float3(plane, c.y, c.z), new float3(plane, c.y, c.z + 1),
-                            new float3(plane, top, c.z + 1), new float3(plane, top, c.z), n);
+                            new float3(plane, c.y + CornerHeight(g, s1, 1), c.z + 1), new float3(plane, c.y + CornerHeight(g, s1, 0), c.z), n);
                     else
                         AddWaterQuad(new float3(c.x, c.y, plane), new float3(c.x + 1, c.y, plane),
-                            new float3(c.x + 1, top, plane), new float3(c.x, top, plane), n);
+                            new float3(c.x + 1, c.y + CornerHeight(g, 1, s1), plane), new float3(c.x, c.y + CornerHeight(g, 0, s1), plane), n);
                 }
                 if (MaterialAt(g + new int3(0, -1, 0)) == (int)BlockMaterial.Empty)
                     AddWaterQuad(new float3(c.x, c.y, c.z), new float3(c.x + 1, c.y, c.z),
                         new float3(c.x + 1, c.y, c.z + 1), new float3(c.x, c.y, c.z + 1), new float3(0, -1, 0));
+            }
+
+            /// <summary>Ô nguyên như MaterialAt: y &lt; 0 → Bedrock, y ≥ SizeY → 0, x/z ngoài map kẹp về cột biên.</summary>
+            ushort CellAt(int3 p)
+            {
+                if (p.y < 0)
+                    return (ushort)BlockMaterial.Bedrock;
+                if (p.y >= SizeY)
+                    return 0;
+                int x = math.clamp(p.x, 0, SizeX - 1);
+                int z = math.clamp(p.z, 0, SizeZ - 1);
+                return Cells[x + SizeX * (z + SizeZ * p.y)];
+            }
+
+            /// <summary>Độ cao mặt nước của ô (0042 QĐ 2), tính từ đáy ô; ô không phải nước → −1.</summary>
+            float WaterHeight(int3 p)
+            {
+                ushort cell = CellAt(p);
+                if (Cell.GetMaterial(cell) != BlockMaterial.Water)
+                    return -1f;
+                if (Cell.GetMaterial(CellAt(p + new int3(0, 1, 0))) == BlockMaterial.Water)
+                    return 1f;
+                if (!Cell.IsFlowing(cell) || Cell.IsFalling(cell))
+                    return 1f - WaterSurfaceDrop;
+                return (1f - WaterSurfaceDrop) * math.min(Cell.GetWaterLevel(cell), WaterFullLevel) / WaterFullLevel;
+            }
+
+            /// <summary>Độ cao góc lưới (g.x + dx, g.z + dz) của ô g (0042 QĐ 3): có ô cao 1 → 1, ngược lại trung bình các ô nước quanh góc.</summary>
+            float CornerHeight(int3 g, int dx, int dz)
+            {
+                float sum = 0;
+                int n = 0;
+                for (int j = 0; j < 2; j++)
+                for (int i = 0; i < 2; i++)
+                {
+                    float h = WaterHeight(new int3(g.x + dx - 1 + i, g.y, g.z + dz - 1 + j));
+                    if (h < 0)
+                        continue;
+                    if (h >= 1f)
+                        return 1f;
+                    sum += h;
+                    n++;
+                }
+                return sum / n;
             }
 
             /// <summary>Tứ giác nước (0041): 4 đỉnh theo vòng p0→p1→p2→p3, 2 tam giác vào submesh nước, mặt trước quay theo n.</summary>

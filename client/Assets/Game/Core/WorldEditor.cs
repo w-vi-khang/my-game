@@ -111,6 +111,9 @@ namespace Game.Core
         /// <summary>Ô (x, y, z) vừa đổi — cho tìm đường, môi trường sống, hiển thị.</summary>
         public event Action<int, int, int> CellChanged;
 
+        /// <summary>Ô nước đổi mức/cờ mà vật liệu không đổi (0042) — client dựng lại mesh; mô phỏng không nghe.</summary>
+        public event Action<int, int, int> WaterSurfaceChanged;
+
         public WorldEditor(WorldData world, PlayerBag bag, int meshMargin, int seaLevel = -1)
         {
             SeaLevel = seaLevel;
@@ -462,6 +465,25 @@ namespace Game.Core
         static bool IsStandingWater(ushort c) =>
             Cell.GetMaterial(c) == BlockMaterial.Water && (Cell.IsWaterSource(c) || !Cell.IsFalling(c));
 
+        /// <summary>Nước đứng, không đang rút, tại (x, y, z) — neo của ô nối (0042).</summary>
+        bool IsBridgeAnchor(int x, int y, int z)
+        {
+            if (!IsWaterCell(x, y, z))
+                return false;
+            ushort c = World.Get(x, y, z);
+            return IsStandingWater(c) && !Cell.IsDraining(c);
+        }
+
+        /// <summary>Ô nối (0042): ô đứng được, có neo ở hai phía đối diện (x − 1 và x + 1, hoặc z − 1 và z + 1).</summary>
+        bool IsBridge(int x, int y, int z)
+        {
+            bool stand = IsSolidAt(World, x, y - 1, z) || (y - 1 >= 0 && IsStandingWater(World.Get(x, y - 1, z)));
+            if (!stand)
+                return false;
+            return (IsBridgeAnchor(x - 1, y, z) && IsBridgeAnchor(x + 1, y, z))
+                || (IsBridgeAnchor(x, y, z - 1) && IsBridgeAnchor(x, y, z + 1));
+        }
+
         /// <summary>Mức nước ô nước (x, y, z) truyền sang ô ngang (0040 QĐ 3); 0 nếu không truyền.</summary>
         int Emit(int x, int y, int z, out bool fromDraining)
         {
@@ -543,6 +565,8 @@ namespace Game.Core
                     }
                     if (m >= 1)
                         target = Cell.SetModified(Cell.MakeFlowing(old, m, false, allDraining), true);
+                    else if (IsBridge(x, y, z))
+                        target = Cell.SetModified(Cell.MakeFlowing(old, 1, false), true);
                     else if (Cell.GetMaterial(old) == BlockMaterial.Water)
                         target = Cell.ClearWater(old);
                     else
@@ -588,6 +612,8 @@ namespace Game.Core
                             AddToFront(x, y, z);
                     }
                 }
+                else if (newMat == BlockMaterial.Water)
+                    WaterSurfaceChanged?.Invoke(x, y, z);
                 AddFlowDependents(x, y, z);
             }
             return changed.Count;
