@@ -1,6 +1,6 @@
 # Brief 0078 — World 5g: mặt nước thấp dần theo mức, lan 5 ô, ô nối; tái hiện lỗi đứng trên mặt nước
 
-> Trạng thái: chờ review
+> Trạng thái: chờ user xem
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 22:57
@@ -202,3 +202,17 @@ Scene **SimView** trên Mac, Play:
 ---
 
 ## Review
+
+**2026-10-25 — Planner (Opus), review đầy đủ: code đạt; chờ user xem.**
+- Đối chiếu diff `341b974..8c35701` với QĐ 1–10:
+  - `CellAt`, `WaterHeight`, `CornerHeight` đúng QĐ 2, 3, 5;
+  - `AddWaterSurface` giữ thứ tự đỉnh/chỉ số; mặt bên dùng góc của đúng cạnh (`s1`);
+  - `waterFullLevel` có kiểm < 1, `TerrainChunkView` truyền `FlowMaxDistance`;
+  - `WaterSurfaceChanged` phát khi vật liệu giữ là nước, client đăng ký;
+  - `IsBridge`/`IsBridgeAnchor` đúng QĐ 9; JSON + `WaterConfig` N = 5.
+  - Chỉ file trong Phạm vi.
+- Test: EditMode 650/650, PlayMode 276/276, mã băm không đổi [executor chạy qua MCP; Planner đọc kết quả]. Số liệu lưới lan 5×5 cho thấy mức giảm dần về mép.
+- Ảnh `water0078.png` (scratchpad executor): thác + ao + vùng lan bên trái. Nhân vật đứng trong ao sâu 1 ô; phần dưới nhìn qua nước nên có màu xanh.
+- Lỗi đứng trên mặt nước: **không tái hiện được** (chân ở G, lệch ≤ 0,04, chạm collider địa hình ở 3 vị trí). Giả thuyết [chưa xác minh]: ao chỉ sâu 1 ô, mặt nước ở G + 0,9, nên nhân vật trông như đứng trên mặt nước. Nhờ user xem lại khi chơi thử gộp.
+- Giờ: executor 22:46–22:57 (~11 phút); đã ghi roadmap.
+

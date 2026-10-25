@@ -10,9 +10,10 @@
 - Brief 0076 (5f) code đạt review (EditMode 640, PlayMode 275), trạng thái `chờ review`. **Lỗi:** thác không hiển thị — `client/Assets/Game/World/BlockMesher.cs:414-419` chỉ vẽ mặt trên ô nước khi ô trên rỗng, nên cột nước rơi vô hình.
 
 ## Bước tiếp
-1. Brief 0077 (vẽ mặt bên/đáy ô nước) **review đạt**; thác hiện. 0076 + 0077 ở trạng thái `chờ user xem` → chờ user xem gộp (danh sách ở mục "User tự test" của brief 0077). Đạt → hai brief `đã duyệt`, world-tech 5e/5f "Xong".
-2. Còn chờ user: chơi thử gộp bước 7 mục A–F ([playtest-buoc-7.md](playtest-buoc-7.md)). Sau đó rà tiêu chí xong M1 (roadmap).
-3. Phiên con executor mới nhất: exec-0077 (local_11310cfa-10ce-4c6b-9d57-e158c43a3231).
+1. Brief 0076, 0077, 0078 (0041, 0042) đều **code đạt review**, trạng thái `chờ user xem`. Danh sách xem gộp: mục "User tự test" của brief 0078. Đạt → ba brief `đã duyệt`, world-tech 5e/5f/5g "Xong".
+2. Lỗi "đứng trên mặt nước ở chân thác" không tái hiện được qua MCP (0078 bước 6). User thấy lại → hỏi vị trí/thao tác cụ thể rồi brief sửa.
+3. Còn chờ user: chơi thử gộp bước 7 mục A–F ([playtest-buoc-7.md](playtest-buoc-7.md)). Sau đó rà tiêu chí xong M1 (roadmap).
+4. Phiên con executor: exec-0077 (local_11310cfa-10ce-4c6b-9d57-e158c43a3231) — clear trước khi giao brief mới.
 
 ## Model đề xuất
 Opus · medium.
