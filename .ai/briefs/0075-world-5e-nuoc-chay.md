@@ -1,9 +1,9 @@
 # Brief 0075 — World 5e: nước chảy (nguồn + lan giới hạn, hố được lấp, mất nguồn thì rút)
 
-> Trạng thái: chờ review (code đã duyệt, chờ user xem)
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25 — Planner review: code đạt, chờ user xem
+> Cập nhật: 2026-10-25 — Planner duyệt; user chơi thử → luật rãnh đổi (0041), làm tiếp ở brief 0076
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md). Quyết định: [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md). Luật biển loang cũ: [0013](../../design/decisions/0013-nuoc-lan-theo-nhip.md).
 
@@ -249,3 +249,4 @@ Chưa chạy: PlayMode (chưa có ý nghĩa khi EditMode còn đỏ), ảnh ch�
 - Giờ: executor 20:41–21:01 (~20 phút, gồm thời gian chờ Planner trả lời Vướng mắc) so với ước lượng 2–4 ngày-người → ghi vào roadmap.
 - **Còn:** user xem theo "User tự test" mục 1–6 → đạt thì chuyển `đã duyệt`.
 
+**2026-10-25 — user chơi thử:** nước trong rãnh dừng sau 7 ô. Code làm đúng brief, nhưng luật trong brief chưa đúng ý user: "Nước trong rãnh thì nó vẫn sẽ chảy… chỉ khi thoát ra không gian rộng thì mới tránh lan ra khắp nơi. Hãy làm một thác nước." → quyết định [0041](../../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md), brief [0076](0076-world-5f-nuoc-ranh-hep-thac-nuoc.md). Brief 0075 **đã duyệt** (code đúng brief); các mục user xem còn lại chuyển sang 0076.

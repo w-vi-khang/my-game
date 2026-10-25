@@ -4,7 +4,7 @@
 > Trạng thái:
 > - Luật: [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) (user chốt 2026-10-25); [mechanics "Nước chảy"](../../design/02-gameplay/mechanics.md#voxel-world--luật-m1); [world-tech "Nước chảy"](../../design/04-tech/world-tech.md#nước-chảy) + dòng 5e của kế hoạch prototype.
 > - Ước lượng 2–4 ngày-người (0040, roadmap M1).
-> - Task contract do Planner lập 2026-10-25 từ 0040 (user đã chọn phương án A, làm ngay ở M1). Một brief: [0075](../briefs/0075-world-5e-nuoc-chay.md).
+> - Task contract do Planner lập 2026-10-25 từ 0040 (user đã chọn phương án A, làm ngay ở M1). Brief [0075](../briefs/0075-world-5e-nuoc-chay.md) (5e, đã duyệt); sau chơi thử user đổi luật rãnh → [0041](../../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md), brief [0076](../briefs/0076-world-5f-nuoc-ranh-hep-thac-nuoc.md) (5f, +1–2 ngày-người).
 
 ## Mục tiêu
 - Nước chảy từ nguồn ra ô trống: rơi thẳng xuống, lan ngang tối đa N ô (mặc định 7), hố được lấp, mất nguồn thì rút dần.
@@ -40,3 +40,9 @@ Cột "Xong khi" dòng 5e của world-tech:
   - Biển loang 0013 giữ nguyên thuật toán, chạy trước phần nước chảy trong cùng nhịp; chỉ ô nguồn mới kích hoạt biển loang.
   - `CellChanged` chỉ phát khi vật liệu đổi (rỗng ↔ nước); đổi mức/cờ không phát.
   - `water_m1.json`: `flowMaxDistance` 7, `stepsPerSecond` 8 [số tạm, chưa chốt].
+
+## Cập nhật 2026-10-25 — 0041 (user, sau chơi thử 0075)
+- Nước trong rãnh hẹp chảy không giới hạn; giới hạn N ô chỉ ở chỗ rộng; có thác nước demo cạnh ao.
+- Đề xuất Planner (đổi được): ô hẹp = ≤ 2 phía ngang không đặc; mất nguồn → kiểm khối (≤ 4096 ô) rồi bật cờ đang rút (bit 15); rơi vào nước nguồn thì nhập vào; thác = khối đất cạnh ao, rãnh 1 ô ra mép nhô trên ao.
+- Tiêu chí thêm: rãnh hẹp đầy hết, ra chỗ rộng lan đúng N ô; chặn rãnh → phần sau rút; rãnh vòng kín mất nguồn → rút; thác đổ vào ao không tràn; user xem thác.
+

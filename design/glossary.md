@@ -50,6 +50,8 @@
 | Mực nước biển | Độ cao S = mực nước của world (`waterLevel`); ô ≤ S thông với biển thì ngập khi đào (biển loang) | [decisions/0012](decisions/0012-bien-tran-va-luat-dat-khoi-m1.md) |
 | Nguồn nước | Ô nước không bao giờ cạn: ô nước có sẵn khi sinh world (biển, hồ, ao) và ô biển loang (≤ mực nước biển, thông với biển) | [decisions/0040](decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) |
 | Nước đang chảy | Ô nước sinh ra khi nước từ nguồn lan/rơi tới; có mức lan, mất đường về nguồn thì rút | [decisions/0040](decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) |
+| Ô hẹp (nước) | Ô nước có ≤ 2 phía ngang không đặc (rãnh rộng 1 ô): truyền nguyên mức lan, nên nước chảy hết rãnh | [decisions/0041](decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) |
+| Thác nước | Nước rơi thẳng từ chỗ cao xuống; cột nước rơi không lan ngang giữa không trung | [decisions/0041](decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) |
 | Mép cỏ | Phần cỏ của ô cỏ nhô ra khỏi mặt trên và phủ xuống sườn, mép dưới lượn sóng (chỉ hiển thị, không ảnh hưởng luật chơi) | [decisions/0011](decisions/0011-dia-hinh-khoi-bo-canh.md) |
 | Phiên bản bộ sinh | Phiên bản thuật toán sinh world từ seed; lưu kèm dữ liệu để biết world gốc | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |
