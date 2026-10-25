@@ -8,6 +8,8 @@
 User 2026-10-25: "nước phải tràn ra… giới hạn lan… nước chảy vào hố cũng sẽ đầy, chảy từ cao xuống thấp" → user chọn **nguồn + lan giới hạn, làm ngay trong M1** → quyết định [0040](../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) (Chốt, đã ghi + commit `8de0b26`; README decisions đã thêm dòng).
 
 ## Bước tiếp
+**Cập nhật 2026-10-25 (muộn):** user chơi thử 0075 → nước trong rãnh phải chảy hết + làm thác nước → [0041](../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) (Chốt), tài liệu cập nhật (M1 124,5–203), 0075 đã duyệt, brief 0076 (`97bfa47`) đã giao phiên exec-0075 (local_6c0ab03f-…, clear rồi `/ai-workflow-kit:exec 0076 --child`). Tiếp: review 0076, user xem thác.
+
 **Cập nhật 2026-10-25 (phiên Planner sau):** bước 1–3 xong — tài liệu theo 0040 (commit `958c720`, M1 123,5–201), task `m1-world-nuoc-chay`, brief 0075 (`abae049`). Brief 0075 đã giao phiên con exec-0075 (local_6c0ab03f-9253-47b6-9631-26bdfb1af2e4, Sonnet · medium). **Review 0075 xong 2026-10-25: code đạt, chờ user xem** (brief mục User tự test 1–6). User xem đạt → brief `đã duyệt`, world-tech 5e "Xong", roadmap dòng 5e.
 
 1. ~~Commit 0040~~ (xong).
