@@ -10,9 +10,9 @@
 - Brief 0076 (5f) code đạt review (EditMode 640, PlayMode 275), trạng thái `chờ review`. **Lỗi:** thác không hiển thị — `client/Assets/Game/World/BlockMesher.cs:414-419` chỉ vẽ mặt trên ô nước khi ô trên rỗng, nên cột nước rơi vô hình.
 
 ## Bước tiếp
-1. Viết **brief 0077** (task `m1-world-nuoc-chay`, phần 5f, trong 1–2 ngày-người của 0041): vẽ mặt bên của ô nước khi ô ngang (trong map) là `Empty` (cùng submesh/material nước `Water.mat`; mặt bên tới đủ chiều cao ô vì M1 vẽ đầy ô). Cân nhắc mặt đáy khi ô dưới rỗng (hiếm). Đọc `AddWaterSurface` trong `BlockMesher.cs` để làm mặt bên cùng kiểu (đỉnh, UV, pháp tuyến). Test: BlockMesherTests (số mặt nước của một cột nước rơi 4 ô = 4 × 4 mặt bên + 1 mặt trên; mặt nước cạnh khối đặc không vẽ), mesh kín/không mặt thừa giữa hai ô nước; PlayMode chụp ảnh thác. Rủi ro: số tam giác chunk biển (mặt bên chỉ khi kề Empty nên biển nguyên vẹn không đổi — kiểm bằng test đếm tam giác hiện có/`TerrainBench` nếu có số chuẩn).
-2. Giao Executor, review, rồi **user xem gộp**: mục "User tự test" của brief 0076 (thác đổ vào ao không tràn; rãnh dài chảy hết; ra chỗ rộng lan 7 ô; chặn giữa rãnh → đoạn sau rút; lấp nguồn → rút; biển như cũ) + thác nhìn thấy được. Đạt → 0076 + 0077 `đã duyệt`, world-tech 5e/5f "Xong".
-3. Còn chờ user: chơi thử gộp bước 7 mục A–F ([playtest-buoc-7.md](playtest-buoc-7.md)). Sau đó rà tiêu chí xong M1 (roadmap).
+1. Brief 0077 (vẽ mặt bên/đáy ô nước) **review đạt**; thác hiện. 0076 + 0077 ở trạng thái `chờ user xem` → chờ user xem gộp (danh sách ở mục "User tự test" của brief 0077). Đạt → hai brief `đã duyệt`, world-tech 5e/5f "Xong".
+2. Còn chờ user: chơi thử gộp bước 7 mục A–F ([playtest-buoc-7.md](playtest-buoc-7.md)). Sau đó rà tiêu chí xong M1 (roadmap).
+3. Phiên con executor mới nhất: exec-0077 (local_11310cfa-10ce-4c6b-9d57-e158c43a3231).
 
 ## Model đề xuất
-Opus · medium (Planner: brief 0077 + review).
+Opus · medium.

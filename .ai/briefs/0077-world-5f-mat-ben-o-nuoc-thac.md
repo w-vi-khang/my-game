@@ -1,6 +1,6 @@
 # Brief 0077 — World 5f: vẽ mặt bên / mặt đáy ô nước (thác nước nhìn thấy được)
 
-> Trạng thái: chờ review
+> Trạng thái: chờ user xem
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 22:15
@@ -141,3 +141,10 @@ Không.
 ---
 
 ## Review
+
+**2026-10-25 — Planner (Opus), review đầy đủ: code đạt; chờ user xem.**
+- Diff `a8831a5..6fe5bfa`: `AddWaterSides` vẽ mặt bên khi ô ngang `Empty` (qua `MaterialAt` → mép map lấy cột biên, không vách), top hạ `WaterSurfaceDrop` khi trên là `Empty`, mặt đáy khi dưới `Empty`; `AddWaterQuad`/`AddWaterTri` ghi `WaterIndices`, đảo thứ tự theo `n`; `AddWaterSurface` không đổi — đúng QĐ 1–5. Chỉ 3 file trong Phạm vi.
+- Test: EditMode 644/644, PlayMode 276/276, mã băm không đổi [executor chạy qua MCP; Planner đọc kết quả].
+- Ảnh `waterfall0077b.png` (scratchpad phiên executor): thấy cột thác từ mép rơi vào ao. Thấy vạch ngang nhạt ở chỗ nối giữa các ô của cột (mỗi ô một tứ giác riêng, nước trong suốt) — chỉ ghi lại, user xem có khó chịu không.
+- Giờ: executor 21:53–22:14 (~21 phút); đã ghi roadmap.
+
