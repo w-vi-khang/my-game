@@ -14,7 +14,7 @@
 
 ## Ngoài phạm vi
 - Bảo toàn lượng nước, vùng động/ngủ, người chơi tạo nguồn (M2 — 0040).
-- Mặt nước thấp dần theo mực (M1 vẽ đầy ô — đề xuất Planner trong 0040).
+- ~~Mặt nước thấp dần theo mực (M1 vẽ đầy ô — đề xuất Planner trong 0040).~~ → làm ở M1 theo 0042.
 - Nước gặp vật thể chiếm chỗ (nhà, kho, cây): xử lý như biển loang hiện nay (bỏ qua chiếm chỗ). Sinh vật đứng trong ô bị ngập: luật 0015 có sẵn.
 - Hai nguồn kề nhau tạo nguồn mới, nước chảy ưu tiên về chỗ trũng gần nhất (kiểu Minecraft) — không làm.
 - Tua nhanh, lưu world.
@@ -45,4 +45,10 @@ Cột "Xong khi" dòng 5e của world-tech:
 - Nước trong rãnh hẹp chảy không giới hạn; giới hạn N ô chỉ ở chỗ rộng; có thác nước demo cạnh ao.
 - Đề xuất Planner (đổi được): ô hẹp = ≤ 2 phía ngang không đặc; mất nguồn → kiểm khối (≤ 4096 ô) rồi bật cờ đang rút (bit 15); rơi vào nước nguồn thì nhập vào; thác = khối đất cạnh ao, rãnh 1 ô ra mép nhô trên ao.
 - Tiêu chí thêm: rãnh hẹp đầy hết, ra chỗ rộng lan đúng N ô; chặn rãnh → phần sau rút; rãnh vòng kín mất nguồn → rút; thác đổ vào ao không tràn; user xem thác.
+
+## Cập nhật 2026-10-25 — 0042 (user, sau chơi thử 0076 + 0077)
+- Mặt nước ô đang chảy thấp dần theo mức (0,9 × L / N; nguồn/ô rơi 0,9; có nước trên 1); góc = trung bình ô nước chung góc; mặt bên chỉ giáp ô trống. Đổi mức → client dựng lại chunk (sự kiện riêng, `CellChanged` giữ nguyên).
+- N mặc định 7 → 5 (`water_m1.json`). Ô nối: ô trống đứng được có nước đứng không rút ở hai phía đối diện → nước mức 1.
+- Lỗi: nhân vật đứng trên mặt nước ở chân thác → tái hiện, sửa.
+- Tiêu chí thêm: mặt nước liền, mép mỏng dần; ao/biển kín không đổi mesh; ô nối lấp khe 1 ô; nhân vật ở chân thác không đứng trên mặt nước; user xem. Brief 0078 (+1,5–2 ngày-người).
 

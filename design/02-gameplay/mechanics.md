@@ -62,8 +62,10 @@ Viết sau rà soát 2026-10-13 để đủ luật cho prototype [0007](../decis
 - **Nước chảy** (user, 2026-10-25, [0040](../decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md)), áp dụng cả ô cao hơn S:
   - **Nguồn nước** (ô nước có sẵn khi sinh world — biển, hồ, ao — và ô biển loang ở trên) không bao giờ cạn.
   - Nước trên ô trống chảy thẳng xuống; chạm đáy thì lan lại đủ.
-  - Từ nguồn hoặc chỗ chạm đáy, nước lan sang 4 ô ngang trống, 1 ô mỗi nhịp; ở **chỗ rộng** đi tối đa **7 ô** [số tạm, chưa chốt] rồi dừng; trong **rãnh hẹp** (rộng 1 ô) chảy tiếp không giới hạn (user, 2026-10-25, [0041](../decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md)); không dâng lên. Đào ô cạnh ao → hố đầy nước.
+  - Từ nguồn hoặc chỗ chạm đáy, nước lan sang 4 ô ngang trống, 1 ô mỗi nhịp; ở **chỗ rộng** đi tối đa **5 ô** [số tạm, chưa chốt] (7 → 5, user 2026-10-25, [0042](../decisions/0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md)), mực nước giảm dần từng ô rồi dừng; trong **rãnh hẹp** (rộng 1 ô) chảy tiếp không giới hạn (user, 2026-10-25, [0041](../decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md)); không dâng lên. Đào ô cạnh ao → hố đầy nước.
   - Nước rơi xuống mặt ao/hồ/biển thì nhập vào, không tràn lên bờ (đề xuất Planner, 0041). Có thác nước demo cạnh ao (0041).
+  - Hai vùng nước cách nhau 1 ô trống thì ô đó thành nước, nối liền (**ô nối**, user 2026-10-25, 0042).
+  - Hiển thị: mặt nước ô đang chảy thấp dần theo mức, mép lan mỏng dần, không thành bậc hộp (0042).
   - Đặt khối vào chỗ nước sắp tới thì chặn được. Ô **nước đang chảy** mất đường về nguồn (chặn, lấp nguồn) thì rút dần theo nhịp.
 - **Đào** (cuốc): ô thành rỗng, ~~vật liệu +1 vào **kho vật liệu** của người chơi — một bộ đếm theo loại vật liệu, chưa giới hạn ở M1 (túi đồ đầy đủ là M2)~~ → **rơi ra vật rơi** (bản mini của khối), người chơi nhặt vào **túi đồ** (user, 2026-10-22, [0028](../decisions/0028-nhan-vat-tui-vat-roi-tu-trong-trot.md); xem [Nhân vật, túi đồ, tự trồng trọt — luật M1](#nhân-vật-túi-đồ-tự-trồng-trọt--luật-m1)).
 - **Đặt** (khối): chọn loại trên thanh công cụ, tiêu 1 từ ~~kho vật liệu~~ túi đồ (0028); hết thì không đặt được. Đặt vào ô **rỗng hoặc ô nước** (nước ô đó mất), ô phải **kề mặt ít nhất một khối đặc** (user, 2026-10-13, [0012](../decisions/0012-bien-tran-va-luat-dat-khoi-m1.md)). Không đặt vào ô đang có người chơi, sinh vật, cây, kho.
