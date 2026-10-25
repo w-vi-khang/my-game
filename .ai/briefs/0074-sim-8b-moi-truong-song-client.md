@@ -1,6 +1,6 @@
 # Brief 0074 — Sim 8b: môi trường sống phía client (vùng 48 × 48, chỉ mở L1, ao, bảng yêu cầu, loài trở lại)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 — Planner viết
@@ -306,7 +306,26 @@ Scene **SimView** trên Mac, Play:
 
 ## Kết quả
 
+- Base commit: 16281f1
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-25 14:02 · Kết thúc: 14:21 (~19 phút thực tế)
+
+- Test cũ thêm `habitat = false`: PlayerFarmPlayTests, ControlModePlayTests, PlayerBagSowPlayTests (QĐ 11) + **EditOcclusionPlayTests** (`HouseAndStorageBlockPick` hỏng vì đếm 3 collider → 4 do nhà C; chỉ vì số nhà).
+- `SimViewMapsPlayTests.SetsUpCampOnPlain`: 1 sinh vật/1 thân/3 nhà; vòng kiểm "mặt cỏ cả đồng bằng" bỏ qua ô ao + viền cát (nếu không thì hỏng vì ao).
+- Esc trong `ToggleKeyAndEscClose`: gọi `SettingsView.HandleKeys(false, true)` khi bảng mở (không giả phím thật); đóng bảng bằng `SetOpen(false)`.
+- File mới: HabitatSpawn.cs, HabitatPanelView.cs, 3 file test. Ảnh chụp (không commit): /private/tmp/claude-501/-Users-macvn-Documents-User-khang-Game-my-game/29d0b088-1c43-4a34-872c-30f0daede17c/scratchpad/habitat-panel.png (bảng H mở; ao nằm ngoài khung hình bên phải).
+- Commit: f1ef2e5
+
 ## Kết quả test
+- JSON + default, `UnlockedAtStartRespected`: đạt (EditMode 68/68 lọc).
+- `CanPlaceCreature` + `HabitatSpawn` 4 test: đạt. Ao + trại (`PondPlacedWithSandRing`, `BuildHabitatL1Only`): đạt. `L2ReturnsAndJoinsWork`: đạt.
+- PlayMode `StartsWithL1PondAndPanel`, `DigUpdatesRowSameFrame`, `SpeciesReturnsInScene`, `ToggleKeyAndEscClose`: đạt.
+- GameControlsTests / KeyRebindTests (35) / KeyRebindPlayTests / HardcodedTextScanTests / SettingsPlayTests: đạt.
+- Regression Golden/SimDemo/Sim/**, SimViewPlayTests, SimBenchPlayTests, WorldIcons, Inventory: đạt.
+- EditMode toàn bộ: **615/615** (trước 596). PlayMode toàn bộ: **272/272** (trước 267).
+- `refresh_unity` + console Error = 0. grep UnityEngine Core/Habitat + SimDemo.cs: rỗng. Dọn: EditorSettings.asset đã checkout; `git status` chỉ còn file brief.
+- Chơi Play + chụp 1 ảnh: đạt (bảng hiện đúng L1 đã ở trại, L2/L3 chưa trở lại, dòng yêu cầu + số đếm).
+- Phần "User tự test" 1–8: chờ user.
 
 ## Vướng mắc
 
