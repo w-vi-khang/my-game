@@ -810,6 +810,12 @@ namespace Game.World.Tests
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
             w.Set(8, 7, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
             w.Set(8, 8, 8, Cell.Make(BlockMaterial.Stone));
+            var stone = Cell.Make(BlockMaterial.Stone);
+            for (int y = 7; y <= 8; y++)
+            {
+                w.Set(3, y, 4, stone); w.Set(5, y, 4, stone); w.Set(4, y, 3, stone); w.Set(4, y, 5, stone);
+            }
+            w.Set(7, 7, 8, stone); w.Set(9, 7, 8, stone); w.Set(8, 7, 7, stone); w.Set(8, 7, 9, stone); w.Set(8, 6, 8, stone);
             var mesh = BlockMesher.Build(w, 0, 0, 0);
             Assert.AreEqual(2, mesh.WaterTriangleCount, "exactly one water quad");
             for (int k = 0; k < mesh.WaterIndices.Length; k++)
@@ -824,6 +830,92 @@ namespace Game.World.Tests
                 float3 a = mesh.Vertices[mesh.WaterIndices[t]], b = mesh.Vertices[mesh.WaterIndices[t + 1]], c = mesh.Vertices[mesh.WaterIndices[t + 2]];
                 Assert.Greater(math.cross(b - a, c - a).y, 0f, "water face points up (same convention as front face)");
             }
+        }
+
+        static ushort Water() => Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel);
+
+        [Test]
+        public void FallingWaterColumnHasSideFaces()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 3, 4, Cell.Make(BlockMaterial.Stone));
+            for (int y = 4; y <= 7; y++)
+                w.Set(4, y, 4, Water());
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            Assert.AreEqual(4 * 4 * 2 + 2, mesh.WaterTriangleCount);
+            float topY = 8f - BlockMesher.WaterSurfaceDrop;
+            bool hasLow = false, hasTop = false;
+            for (int k = 0; k < mesh.WaterIndices.Length; k++)
+            {
+                float3 p = mesh.Vertices[mesh.WaterIndices[k]];
+                Assert.That(p.x, Is.InRange(4f - 1e-5f, 5f + 1e-5f));
+                Assert.That(p.z, Is.InRange(4f - 1e-5f, 5f + 1e-5f));
+                Assert.That(p.y, Is.InRange(4f - 1e-5f, topY + 1e-5f));
+                if (math.abs(p.y - 4f) < 1e-5f) hasLow = true;
+                if (math.abs(p.y - topY) < 1e-5f) hasTop = true;
+            }
+            Assert.IsTrue(hasLow);
+            Assert.IsTrue(hasTop);
+            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
+            {
+                int ia = mesh.WaterIndices[t];
+                float3 a = mesh.Vertices[ia], b = mesh.Vertices[mesh.WaterIndices[t + 1]], c = mesh.Vertices[mesh.WaterIndices[t + 2]];
+                float3 n = mesh.Normals[ia];
+                Assert.Greater(math.dot(math.cross(b - a, c - a), n), 0f);
+                bool ok = n.Equals(new float3(0, 1, 0)) || n.Equals(new float3(1, 0, 0)) || n.Equals(new float3(-1, 0, 0))
+                    || n.Equals(new float3(0, 0, 1)) || n.Equals(new float3(0, 0, -1));
+                Assert.IsTrue(ok, $"normal {n}");
+            }
+        }
+
+        [Test]
+        public void EnclosedWaterHasOnlyTopFaces()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            var stone = Cell.Make(BlockMaterial.Stone);
+            for (int x = 2; x <= 6; x++)
+            for (int z = 2; z <= 5; z++)
+            {
+                w.Set(x, 4, z, stone);
+                if (x == 2 || x == 6 || z == 2 || z == 5)
+                    w.Set(x, 5, z, stone);
+            }
+            for (int x = 3; x <= 5; x++)
+            for (int z = 3; z <= 4; z++)
+                w.Set(x, 5, z, Water());
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            Assert.AreEqual(6 * 2, mesh.WaterTriangleCount);
+        }
+
+        [Test]
+        public void FloatingWaterCellHasBottomFace()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Water());
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            Assert.AreEqual(6 * 2, mesh.WaterTriangleCount);
+            int down = 0;
+            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
+            {
+                int ia = mesh.WaterIndices[t];
+                if (!mesh.Normals[ia].Equals(new float3(0, -1, 0)))
+                    continue;
+                down++;
+                for (int k = 0; k < 3; k++)
+                    Assert.AreEqual(8f, mesh.Vertices[mesh.WaterIndices[t + k]].y, 1e-5f);
+            }
+            Assert.AreEqual(2, down);
+        }
+
+        [Test]
+        public void WaterAtMapEdgeHasNoOuterWall()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            var stone = Cell.Make(BlockMaterial.Stone);
+            w.Set(0, 4, 0, stone); w.Set(1, 5, 0, stone); w.Set(0, 5, 1, stone);
+            w.Set(0, 5, 0, Water());
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            Assert.AreEqual(2, mesh.WaterTriangleCount);
         }
     }
 }

@@ -416,6 +416,7 @@ namespace Game.World
                         int above = MaterialAt(g + new int3(0, 1, 0));
                         if (above == (int)BlockMaterial.Empty)
                             AddWaterSurface(new int3(x, y, z));
+                        AddWaterSides(new int3(x, y, z), g, above == (int)BlockMaterial.Empty);
                         continue;
                     }
                     if (!IsSolidMaterial(m))
@@ -911,6 +912,50 @@ namespace Game.World
                 // Mặt trên (pháp tuyến +y): cross(du, dv) với du = +z, dv = +x theo quy ước trục 1 → thứ tự (0, 3, 2)(0, 2, 1).
                 Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 3); Out.WaterIndices.Add(i0 + 2);
                 Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 2); Out.WaterIndices.Add(i0 + 1);
+            }
+
+            /// <summary>Mặt bên (ô ngang Empty) và mặt đáy (ô dưới Empty) của ô nước (0041): thác nước, mép nước đang chảy.</summary>
+            void AddWaterSides(int3 c, int3 g, bool airAbove)
+            {
+                float top = airAbove ? c.y + 1 - WaterSurfaceDrop : c.y + 1;
+                for (int axis = 0; axis < 3; axis += 2)
+                for (int sign = -1; sign <= 1; sign += 2)
+                {
+                    int3 d = axis == 0 ? new int3(sign, 0, 0) : new int3(0, 0, sign);
+                    if (MaterialAt(g + d) != (int)BlockMaterial.Empty)
+                        continue;
+                    float3 n = new float3(d.x, 0, d.z);
+                    float plane = (axis == 0 ? c.x : c.z) + (sign > 0 ? 1 : 0);
+                    if (axis == 0)
+                        AddWaterQuad(new float3(plane, c.y, c.z), new float3(plane, c.y, c.z + 1),
+                            new float3(plane, top, c.z + 1), new float3(plane, top, c.z), n);
+                    else
+                        AddWaterQuad(new float3(c.x, c.y, plane), new float3(c.x + 1, c.y, plane),
+                            new float3(c.x + 1, top, plane), new float3(c.x, top, plane), n);
+                }
+                if (MaterialAt(g + new int3(0, -1, 0)) == (int)BlockMaterial.Empty)
+                    AddWaterQuad(new float3(c.x, c.y, c.z), new float3(c.x + 1, c.y, c.z),
+                        new float3(c.x + 1, c.y, c.z + 1), new float3(c.x, c.y, c.z + 1), new float3(0, -1, 0));
+            }
+
+            /// <summary>Tứ giác nước (0041): 4 đỉnh theo vòng p0→p1→p2→p3, 2 tam giác vào submesh nước, mặt trước quay theo n.</summary>
+            void AddWaterQuad(float3 p0, float3 p1, float3 p2, float3 p3, float3 n)
+            {
+                int i0 = AddVertex(p0, n, 0);
+                AddVertex(p1, n, 0);
+                AddVertex(p2, n, 0);
+                AddVertex(p3, n, 0);
+                AddWaterTri(i0, i0 + 1, i0 + 2, p0, p1, p2, n);
+                AddWaterTri(i0, i0 + 2, i0 + 3, p0, p2, p3, n);
+            }
+
+            void AddWaterTri(int a, int b, int c, float3 pa, float3 pb, float3 pc, float3 n)
+            {
+                if (math.dot(math.cross(pb - pa, pc - pa), n) < 0f)
+                {
+                    int t = b; b = c; c = t;
+                }
+                Out.WaterIndices.Add(a); Out.WaterIndices.Add(b); Out.WaterIndices.Add(c);
             }
 
             int AddVertex(float3 p, float3 n, uint color)

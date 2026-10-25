@@ -90,5 +90,35 @@ namespace Game.Client.Tests
             Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(cx + 13, g + 1, cz - 12));
             Assert.IsTrue(Cell.IsWaterSource(w.Get(cx + 10, g, cz - 12)));
         }
+
+        [UnityTest]
+        public IEnumerator WaterfallColumnIsMeshed()
+        {
+            yield return WaitSettled();
+            yield return null;
+            yield return null;
+            view.TotalTriangles(out int water);
+            Assert.Greater(water, 0);
+            var plain = sv.Plain.Value;
+            int wx = plain.X0 + plain.Size / 2 + 13, wy = plain.Ground + 2, wz = plain.Z0 + plain.Size / 2 - 11;
+            var m = Game.World.BlockMesher.Build(view.World, wx >> 4, wy >> 4, wz >> 4);
+            int lx = wx & 15, lz = wz & 15;
+            bool found = false;
+            for (int t = 0; t < m.WaterIndices.Length && !found; t += 3)
+            {
+                var n = m.Normals[m.WaterIndices[t]];
+                if (Mathf.Abs(n.x) != 1f || n.y != 0f || n.z != 0f)
+                    continue;
+                bool inside = true;
+                for (int k = 0; k < 3; k++)
+                {
+                    var p = m.Vertices[m.WaterIndices[t + k]];
+                    if (p.x < lx - 1e-4f || p.x > lx + 1 + 1e-4f || p.z < lz - 1e-4f || p.z > lz + 1 + 1e-4f)
+                        inside = false;
+                }
+                found = inside;
+            }
+            Assert.IsTrue(found, "side face of waterfall column");
+        }
     }
 }
