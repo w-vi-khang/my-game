@@ -1,9 +1,9 @@
 # Brief 0075 — World 5e: nước chảy (nguồn + lan giới hạn, hố được lấp, mất nguồn thì rút)
 
-> Trạng thái: chờ review
+> Trạng thái: chờ review (code đã duyệt, chờ user xem)
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25 — Planner trả lời Vướng mắc A–C (QĐ 7a mới, sửa test B)
+> Cập nhật: 2026-10-25 — Planner review: code đạt, chờ user xem
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md). Quyết định: [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md). Luật biển loang cũ: [0013](../../design/decisions/0013-nuoc-lan-theo-nhip.md).
 
@@ -235,3 +235,17 @@ Chưa chạy: PlayMode (chưa có ý nghĩa khi EditMode còn đỏ), ảnh ch�
 ---
 
 ## Review
+
+**2026-10-25 — Planner (Opus), review đầy đủ: code đạt, chờ user xem.**
+- Diff `db2a3bc` đối chiếu QĐ 1–10 + 7a:
+  - `Cell`: cờ bit 13/14, `MakeFlowing`, `ClearWater`, `ClearFlow` — đúng QĐ 1.
+  - `WorldEditor.Emit` đúng luật "đứng được" QĐ 3: cột thác không lan, ô rơi chạm đáy lan đủ N.
+  - `StepFlow` tính từ trạng thái đầu nhịp rồi mới ghi; rơi ngay cả cột; `CellChanged` chỉ khi đổi vật liệu; ô rút trở lại rỗng mà chạm nguồn ≤ SeaLevel thì vào mặt trước biển; QĐ 7a đúng.
+  - `AddFlowDependents` đúng QĐ 6 và được gọi ở `TryDig`, `TryPlace`, `FillWater`.
+- Test: `SeaFloodTests` không sửa; mã băm không đổi số; EditMode 634/634, PlayMode 274/274 [kết quả của executor qua MCP; Planner không chạy lại vì kết quả đầy đủ, không đáng ngờ].
+- Ghi chú nhỏ, không chặn:
+  - Rơi ngay cả cột chỉ áp dụng cho ô vừa thành nước. Ô nước đang chảy mà ô dưới vừa bị đào thì nước rơi 1 ô mỗi nhịp, vẫn đúng luật, chỉ chậm hơn.
+  - Không có ảnh chụp (executor bỏ để tiết kiệm). User xem trực tiếp.
+- Giờ: executor 20:41–21:01 (~20 phút, gồm thời gian chờ Planner trả lời Vướng mắc) so với ước lượng 2–4 ngày-người → ghi vào roadmap.
+- **Còn:** user xem theo "User tự test" mục 1–6 → đạt thì chuyển `đã duyệt`.
+
