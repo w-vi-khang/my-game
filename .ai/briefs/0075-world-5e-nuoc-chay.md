@@ -202,6 +202,7 @@ Scene **SimView** trên Mac, Play:
 - Ghi chú: `GetReserved/SetReserved` chỉ test cũ dùng (CellTests, WorldMapGeneratorTests, TerrainGeneratorTests), không có code production → giữ nguyên, tiếp tục.
 
 ## Kết quả kiểm chứng
+Chưa kiểm được qua verify_run: `tools/unity_test.py` cần Unity Editor tắt, còn Editor đang mở qua MCP (dùng chung). Đã chạy qua MCP: EditMode 627/634 qua, 7 fail (xem Vướng mắc). PlayMode chưa chạy. Checklist chưa đối chiếu: brief dừng `cần Opus`, Planner cập nhật design khi review. Game.Core không tham chiếu UnityEngine: chưa chạy grep.
 
 ## Vướng mắc
 
