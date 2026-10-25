@@ -1,6 +1,6 @@
 # Brief 0076 — World 5f: nước trong rãnh hẹp chảy hết, kiểm khối khi mất nguồn, thác nước demo
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 — Planner chọn phương án A (sửa SimViewMapsPlayTests)
@@ -187,12 +187,12 @@ Bắt đầu: Sun Oct 25 21:18 +07 2026
 
 ## Kết quả kiểm chứng
 
-Đã làm xong bước 1–5 (lõi QĐ 1–9, test, demo + PlayMode). Code WIP đã commit riêng (`brief 0076: WIP ...`), chưa review.
-- EditMode toàn bộ: **640/640 qua** (trước 634) — gồm `WaterFlowTests`, `WaterConfigTests`, `CellTests` (mới/sửa), `SeaFloodTests`, Golden/SimDemo.
-- PlayMode toàn bộ: **274/275**; fail duy nhất `SimViewMapsPlayTests.SetsUpCampOnPlain` (xem Vướng mắc). `WaterFlowPlayTests` (`WaterSettlesAfterStart`, `WaterfallPoursIntoPond`, `DiggingSandNextToPondFillsHole`), `HabitatPlayTests`, `TerrainEditPlayTests`, `DayCycleWaterPlayTests` qua.
-- `grep UnityEngine` ở 4 file Core → rỗng. Console 0 Error. Đã dọn `EditorSettings.asset`.
-- Chưa làm: ảnh chụp Play (bước 7) — dừng trước khi chụp.
-- Kết thúc: Sun Oct 25 21:32 +07 2026 (~14 phút).
+Commit code: `e6f932d` (lõi + test + demo), + commit sửa `SimViewMapsPlayTests` (QĐ Planner: phương án A). File đổi: Cell, WaterConfig, WorldEditor, SimDemo, SimView, TerrainChunkView, 2 JSON, WaterFlowTests, WaterConfigTests, CellTests, WaterFlowPlayTests, SimViewMapsPlayTests.
+- EditMode toàn bộ: **640/640 qua** (trước 634). Gồm `ChannelFlowsFullLength`, `ChannelOpensIntoWideArea`, `BlockingChannelDrainsDownstream`, `ChannelLoopDrainsWhenSourceRemoved`, `WaterfallIntoPondDoesNotSpill`, `DrainingFlagRoundTrip`, `RemovingOpenSourceDrains`, `DrainCountsDownGradually`, regression, `SeaFloodTests`, Golden/SimDemo — đạt.
+- PlayMode toàn bộ: **275/275 qua** (trước 274) sau khi sửa test: `WaterSettlesAfterStart`, `WaterfallPoursIntoPond`, `DiggingSandNextToPondFillsHole`, `SimViewMapsPlayTests`, `HabitatPlayTests`, `TerrainEditPlayTests`, `DayCycleWaterPlayTests` — đạt. Mã băm không đổi.
+- `grep UnityEngine` 4 file Core → rỗng; console 0 Error; đã dọn `EditorSettings.asset`, thư mục Captures tạm.
+- Ảnh Play (SimView, Mac): `/private/tmp/claude-501/-Users-macvn-Documents-User-khang-Game-my-game/17057056-2f13-4289-b1f5-0a1bad6ed731/scratchpad/waterfall0076_c.png` — thấy khối đất, nước ở đỉnh/mép cạnh ao, ao nguyên vẹn; cột nước rơi mảnh/trong nên khó thấy trong ảnh 640px (test PlayMode xác nhận cột nước y = G+1..G+4). Phần nhìn thác thật: **chờ user**.
+- Giờ: bắt đầu 21:18, xong 21:45 (~27 phút gồm một lần dừng chờ Planner).
 
 ## Vướng mắc
 
