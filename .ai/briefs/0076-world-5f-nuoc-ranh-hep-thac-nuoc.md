@@ -1,9 +1,9 @@
 # Brief 0076 — World 5f: nước trong rãnh hẹp chảy hết, kiểm khối khi mất nguồn, thác nước demo
 
-> Trạng thái: chờ review
+> Trạng thái: chờ review (code đã duyệt; thác chưa hiện — brief 0077)
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25 — Planner chọn phương án A (sửa SimViewMapsPlayTests)
+> Cập nhật: 2026-10-25 — Planner review: code đạt, phát hiện thác không hiển thị
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md) (phần 5f). Quyết định: [0041](../../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) (sửa mục 3 của [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md)). Làm tiếp trên code của brief [0075](0075-world-5e-nuoc-chay.md) (commit `db2a3bc`) — đọc mục "Quyết định đã chốt" của 0075 để hiểu luật hiện có.
 
@@ -206,3 +206,16 @@ Chờ Planner chọn; sau đó chỉ còn: sửa test, chạy lại PlayMode, b�
 ---
 
 ## Review
+
+**2026-10-25 — Planner (Opus), review đầy đủ: code đạt; còn lỗi hiển thị.**
+- Đối chiếu diff `97bfa47..ffafdc5` với QĐ 1–10:
+  - `IsNarrow`, `Emit` (nhập vào nguồn, ô hẹp không có cờ rút thì giữ mức), `allDraining`, `AddFlowRing2`, `ProcessSupport` (BFS 6 hướng, giới hạn ô, có nguồn ở trên/ngang, biển ngoài map) — đúng.
+  - `PlaceWaterfall` đúng toạ độ QĐ 9; `WakeWater` được gọi trong SimView.
+  - Sửa `SimViewMapsPlayTests` theo phương án A.
+- Test: EditMode 640/640, PlayMode 275/275, mã băm không đổi [executor chạy qua MCP; Planner chỉ đọc kết quả].
+- **Lỗi hiển thị (không do brief này gây ra):** trong ảnh của executor thấy khối đất, nước trên đỉnh và ở mép, nhưng **không thấy cột thác**.
+  - Nguyên nhân: `World/BlockMesher.cs:414-419` chỉ vẽ mặt trên của ô nước khi ô ngay trên là `Empty`. Ô nước rơi có ô nước ở trên nên không có mặt nào được vẽ.
+  - Cần brief **0077**: vẽ mặt bên của ô nước khi ô ngang là `Empty`, để thác và mép nước chảy nhìn thấy được. Đây vẫn là phạm vi "có thác nước" của 0041.
+- Giờ: executor 21:18–21:45 (~27 phút, gồm một lần dừng chờ Planner).
+- Còn: brief 0077 → user xem gộp mục User tự test của 0076 + thác.
+
