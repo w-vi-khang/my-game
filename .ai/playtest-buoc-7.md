@@ -1,4 +1,4 @@
-# Chơi thử gộp — bước 7 (7l d, e, f + sim 7g)
+# Chơi thử gộp — bước 7 (7l d, e, f + sim 7g) + sim 8b
 
 > Gom từ mục "User tự test" của brief 0061–0067 (user 2026-10-24: "user xem" gộp một lần ở cuối). Tất cả đã duyệt phần code; chưa user xem.
 > Scene **SimView** trên Mac, Play. Ghi đạt / lỗi theo số mục; góp ý → Planner viết brief sửa.
@@ -55,3 +55,22 @@
 
 ## F. Mép cỏ ở góc lõm (sửa lỗi — 0073)
 37. Đi quanh bậc thang cỏ và các góc lõm chữ L (PC và điện thoại): không còn tam giác tối nhỏ ở chỗ hai khối cỏ gặp nhau; mặt cỏ góc lõm không nhấp nháy khi nhìn sát.
+
+## G. Môi trường sống (sim 8b — 0074)
+38. Lúc đầu chỉ có 1 sinh vật cam (L1) và 3 nhà. Có ao 4 × 4 viền cát phía trước-phải trại.
+39. H → bảng "Môi trường sống" bên phải dưới minimap:
+    - L1 "đã ở trại"; L2 và L3 "chưa trở lại";
+    - các dòng `Ô cỏ cạnh nước: 0/10`, `Ô đá lộ thiên: 0/15`, `Kho: 1/1 (đạt)`.
+    - H hoặc Esc đóng bảng; Esc không mở Cài đặt.
+40. Bảng đang mở, đào một ô cỏ → số `Ô cỏ` của L1 giảm ngay.
+41. L1 xới, gieo, rồi ô đứng chờ tưới ("!" thiếu năng lực). Tự tưới (Mưa) / tự thu được như trước.
+42. Đào cát quanh ao, đặt đất, dùng Mưa cho đất thành cỏ (hoặc đặt khối cỏ) tới 10 ô cạnh nước → thông báo "L2 đã trở lại!". 2 sinh vật xanh xuất hiện ở rìa đồng bằng gần bạn, tự về trại, rồi tưới các ô đang chờ.
+43. Đào lộ đá (hoặc đặt khối đá lên mặt đất) đủ 15 ô → "L3 đã trở lại!", 2 sinh vật tím.
+44. Cài đặt → Điều khiển: có dòng "Bảng môi trường sống — H", đổi được phím. Tab Hướng dẫn có dòng H.
+45. Đánh giá:
+    - vị trí và cỡ bảng; vị trí ao;
+    - ngưỡng: 10 cỏ cạnh nước, 15 đá lộ thiên;
+    - 4 giây thông báo;
+    - có cần nút bấm mở bảng không;
+    - đào cát cạnh ao để lại hố trống, nước không chảy vào — có chấp nhận ở M1 không.
+

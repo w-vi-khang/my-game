@@ -3,7 +3,7 @@
 > Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25 — Planner viết
+> Cập nhật: 2026-10-25 — Planner review phần code, chờ user xem
 
 Task contract: [m1-sim-8-moi-truong-song](../tasks/m1-sim-8-moi-truong-song.md) (phần 8b). Quyết định: [0039](../../design/decisions/0039-moi-truong-song-m1-vung-dem-loai-mo-san.md).
 
@@ -333,3 +333,29 @@ Scene **SimView** trên Mac, Play:
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+Planner, 2026-10-25 — review đầy đủ (phần code). Phần user xem chưa có.
+- Chạy bằng `claude-sonnet-5-5 · medium` = Model thực thi. Mọi dòng ở "Phần cần test" đều có kết quả; mục 1–8 "User tự test" chờ user.
+- Diff `f1ef2e5`: 29 file, đều trong Phạm vi.
+  - `Simulation.cs` chỉ thêm `CanPlaceCreature` (đúng hai điều kiện của `AddCreature`).
+  - `SimDemo.Build` cũ không đổi; `GoldenHashTests` và `SimDemoMapsTests` qua.
+- Đọc code:
+  - `HabitatSpawn.SpawnAtEdge` đúng QĐ 6: ô rìa xếp theo khoảng cách rồi x, z; bỏ cột nước; vào nhà đầu tiên còn chỗ.
+  - `SimDemo.PlacePond` / `BuildHabitat` đúng QĐ 4–5.
+  - SimView đúng QĐ 1, 2, 7:
+    - ao chỉ đặt khi `habitat`;
+    - vùng gán từ đồng bằng;
+    - `Update` + sinh cá thể chạy trước `Tick`;
+    - gỡ đăng ký `CellChanged` trong `OnDestroy`;
+    - `BlocksPointer` có bảng.
+  - `HabitatPanelView` đúng QĐ 8:
+    - `RowText` đọc tracker ngay lúc gọi;
+    - ẩn khi bản đồ hoặc Cài đặt mở;
+    - Esc đóng bảng; `OtherPanelOpen` chặn Esc mở Cài đặt.
+  - Phím H + 21 chuỗi đúng QĐ 9–10.
+- Lệch được chấp nhận:
+  - `EditOcclusionPlayTests` có thêm `habitat = false`, vì đếm collider tăng do nhà C. Đúng trường hợp QĐ 11 cho phép.
+  - `SetsUpCampOnPlain` bỏ ô ao + viền cát khỏi vòng kiểm "mặt cỏ". Hợp lý.
+  - `ToggleKeyAndEscClose` gọi `HandleKeys(false, true)` thay cho giả phím. Vẫn kiểm đúng ý "Cài đặt không mở".
+- Tiêu chí xong: đạt. EditMode 615/615, PlayMode 272/272, console 0 Error, grep UnityEngine rỗng.
+- Giờ: Executor ~19 phút so với ước lượng 8b 1,5–3,5 ngày. Đã ghi ở simulation-tech dòng 8 + roadmap.
+- Còn lại: user chơi thử mục 1–8 (đã thêm vào [playtest-buoc-7.md](../playtest-buoc-7.md) mục G). Kết luận sau khi user phản hồi.
