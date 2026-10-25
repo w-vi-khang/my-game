@@ -1,9 +1,9 @@
 # Brief 0078 — World 5g: mặt nước thấp dần theo mức, lan 5 ô, ô nối; tái hiện lỗi đứng trên mặt nước
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-25
+> Cập nhật: 2026-10-25 22:57
 
 Task contract: [m1-world-nuoc-chay](../tasks/m1-world-nuoc-chay.md) (mục "Cập nhật 2026-10-25 — 0042"). Quyết định: [0042](../../design/decisions/0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md). Làm tiếp trên code của brief [0076](0076-world-5f-nuoc-ranh-hep-thac-nuoc.md) và [0077](0077-world-5f-mat-ben-o-nuoc-thac.md) (commit `6fe5bfa`).
 
@@ -172,7 +172,30 @@ Scene **SimView** trên Mac, Play:
 
 ## Kết quả
 
+- Base commit: 341b974
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-25 22:46 · Kết thúc: 2026-10-25 22:57 (~11 phút thực, phần lớn chờ test)
+- Commit: 8c35701
+- File đổi: BlockMesher.cs, WorldEditor.cs, WaterConfig.cs, TerrainChunkView.cs, water_m1.json (design + client), WaterConfigTests, WaterFlowTests, BlockMesherTests, WaterFlowPlayTests.
+- Ảnh: scratchpad/water0078.png (/private/tmp/claude-501/-Users-macvn-Documents-User-khang-Game-my-game/946cdd68-fb36-49d9-b07d-58eca071583f/scratchpad/water0078.png). Camera không nhận vị trí đặt tay (SimView điều khiển camera) nên ảnh là góc mặc định: thấy thác + ao + vùng nước lan mỏng dần bên trái, không phải góc chéo từ trên.
+
 ## Kết quả kiểm chứng
+
+- `refresh_unity` → console Error = 0: đạt.
+- EditMode toàn bộ: **650/650 qua** (trước 644; +6 test mới). Gồm mọi lớp trong danh sách lọc (lọc theo tên lớp qua MCP trả 0 test nên chạy toàn bộ). Mã băm (GoldenHash/SimDemo/SimDemoMaps) không đổi số.
+- PlayMode toàn bộ: **276/276 qua** (WaterFlowPlayTests, HabitatPlay, SimViewMaps, TerrainEdit, DayCycleWater, FlyCameraWater, OceanBackdrop đều nằm trong).
+- Phần cần test: độ cao/góc/không vách (`FlowingWaterSurfaceFollowsLevel`, `FallingAndSourceWaterStayFull`) đạt; `BuildRejectsBadWaterFullLevel` đạt; N = 5 (`WaterConfigTests`, `ConfigTests`, PlayMode `DiggingSandNextToPondFillsHole`) đạt; sự kiện dựng lại (`LevelChangeRaisesWaterSurfaceChanged`) đạt; ô nối (`BridgeFillsOneCellGap`, `BridgeDrainsWhenOneSideGone`) đạt; mép mỏng dần sau khi lan: ảnh + số liệu lưới bên dưới (chờ user xem).
+- Số liệu lan (Play, đào lưới 5×5 cát cạnh ao, mức nước theo hàng x, cột z): x=128: 1 1 2 1 1; x=129: 2 2 3 2 2; x=130: 3 3 4 3 3; x=131: 3 4 5 4 3; x=132: 5 — giảm dần tới mép.
+- `git diff --stat` chỉ file trong Phạm vi; `grep UnityEngine` ở WorldEditor.cs, WaterConfig.cs → rỗng; dọn: EditorSettings.asset đã checkout, không có InitTestScene.
+- **Bước 6 — tái hiện lỗi đứng trên mặt nước: KHÔNG tái hiện được.** (cx=123, cz=211, G=20, nguồn thác (140,25,200)):
+
+| Vị trí | feetY f1 | f30 | f90 | isGrounded | InWater | Raycast |
+|---|---|---|---|---|---|---|
+| P1 (cx+13,5, cz−10,5) | 20,000 | 20,040 | 20,040 | true | true | collider "chunk 8,1,12", y=20,000 |
+| P2 (cx+12,5, …) | 20,000 | 20,040 | 20,040 | true | true | như trên, y=20,000 |
+| P3 (cx+11,5, …) | 20,000 | 20,040 | 20,040 | true | true | như trên, y=20,000 |
+
+  Lệch tối đa 0,04 ≤ 0,1 → đạt. Lưu ý: test chạy trên mô phỏng bước tay (`EditorApplication.Step`); lỗi người dùng thấy có thể cần điều kiện khác (thác đang đổ đúng lúc, đứng sát cột thác).
 
 ## Vướng mắc
 
