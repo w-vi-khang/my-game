@@ -1,9 +1,9 @@
 # Brief 0079 — World 5h: nước theo cây cha–con (mức 0–5, tăng mức bởi tường, xoá dây chuyền + tái tạo)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ (user xem gộp sau brief mesh 5i)
 > Model thực thi: Sonnet · high
-> Cập nhật: 2026-10-27
+> Cập nhật: 2026-10-28 03:36
 
 ## Mục tiêu
 Thay toàn bộ logic nước chảy trong `WorldEditor` (0040 lan giới hạn, 0041 ô hẹp + kiểm khối + cờ rút, 0042 ô nối) bằng cây cha–con của [0043](../../design/decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md). Biển loang (0013) giữ nguyên. Mesh chỉ đổi công thức độ cao; mesh liền + bo góc làm ở brief sau (5i).
@@ -183,10 +183,23 @@ Không ở brief này — gộp sau brief mesh 5i. Ghi sẵn để Planner chuy�
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 981d167
+Chạy bằng: claude-sonnet-5-5 · high
+Bắt đầu: 2026-10-28 03:05 (+07) · Kết thúc: 2026-10-28 03:36 (+07) → ~0,5 giờ thực tế (gồm ~8 phút chờ EditMode toàn bộ ×2 và PlayMode).
+Commit: 0b638e1 — `Cell.cs`, `WaterConfig.cs`, `WorldEditor.cs`, `TerrainChunkView.cs`, `BlockMesher.cs` (WaterHeight), 2 file `water_m1.json`, test: `CellTests`, `WaterConfigTests`, `WaterFlowTests`, `BlockMesherTests`, `WaterFlowPlayTests`.
+Ghi chú: code làm đúng QĐ 1–13, không phải đổi kỳ vọng nào của brief; không dùng API Unity mới. Các test mới/sửa đạt ngay lần đầu.
 
 ## Kết quả test
+- `refresh_unity` → console Error = 0: đạt.
+- Phần cần test (WaterFlowTests 25/25): các test "cũ — sửa" (PitNextToPondFills, WideDeepPitFills, SpreadStopsAfterN, SpreadAdvancesOneCellPerTick, FallsThenSpreadsFullAgain, ChannelFlowsFullLength, ChannelOpensIntoWideArea, BlockingChannelDrainsDownstream, WaterfallIntoPondDoesNotSpill, FlowingWaterBelowSeaLevelDoesNotStartSeaFlood) đạt; "cũ — giữ nguyên" đạt; "mới" (DiamondLevelsOnOpenFloor, ChannelDrainsOneCellPerTick, RegenerateFromSecondSource, WallBoostOnPlaceAndPropagate, FallingCellCreatesChildBelowOnly, CascadeRemovesSubtreeOnly) đạt; mesh `FlowingWaterSurfaceFollowsLevel` đạt.
+- EditMode toàn bộ: **652/652 đạt** (gồm GoldenHashTests — mã băm không đổi). PlayMode toàn bộ: **276/276 đạt**.
+- Lưu ý chạy: lần EditMode đầu chỉ `FlowingWaterSurfaceFollowsLevel` fail (giá trị đỉnh cũ 5,72/5,54) do mã Burst/assembly Game.World chưa nạp bản mới; `refresh_unity` lại không đủ → thêm/bớt một dòng chú thích trong `BlockMesher.cs` để ép biên dịch lại thì qua (đã gỡ dòng thêm; có xoá `Library/BurstCache/JIT`, cache tự tái tạo). Không đổi logic mesher so với bản đã commit.
+- `grep` từ cũ (IsDraining… AddFlowRing2) → rỗng; `diff` hai `water_m1.json` → không khác; `grep UnityEngine` ở Core 3 file → rỗng.
+- Dọn: `git checkout -- EditorSettings.asset`; không có `InitTestScene*`; `git status` chỉ còn file trong Phạm vi.
+- "User tự test" (5 mục SimView/Play) không làm ở brief này — chuyển sang gộp sau brief 5i.
 
 ## Vướng mắc
+Không.
 
 ---
 <!-- PLANNER ghi khi review. -->
