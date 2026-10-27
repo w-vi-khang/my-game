@@ -1,6 +1,6 @@
 # Brief 0077 — World 5f: vẽ mặt bên / mặt đáy ô nước (thác nước nhìn thấy được)
 
-> Trạng thái: chờ user xem
+> Trạng thái: đã duyệt (user chơi thử gộp 0076–0078 đạt, 2026-10-27)
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 22:15

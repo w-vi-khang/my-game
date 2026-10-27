@@ -1,6 +1,6 @@
 # Brief 0078 — World 5g: mặt nước thấp dần theo mức, lan 5 ô, ô nối; tái hiện lỗi đứng trên mặt nước
 
-> Trạng thái: chờ user xem
+> Trạng thái: đã duyệt (user chơi thử gộp 0076–0078 đạt, 2026-10-27)
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 22:57
@@ -159,6 +159,8 @@ Scene **SimView** trên Mac, Play:
 6. Nước chảy xuống sườn bậc thang: mặt nước liền, không thành bậc hộp.
 7. Ao, biển nhìn như cũ. Đào bờ biển → biển loang như trước.
 8. (Lỗi đứng trên mặt nước: chờ kết quả bước 6 và brief sửa sau.)
+
+**Kết quả user xem (2026-10-27):** ổn hết [user]; không thấy lại lỗi đứng trên mặt nước.
 
 ## Dừng và chuyển lại Opus khi
 - Brief mơ hồ hoặc mâu thuẫn với code thật (số dòng lệch nhiều, chữ ký khác).

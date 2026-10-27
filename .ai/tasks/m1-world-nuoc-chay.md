@@ -1,7 +1,7 @@
 # Task: M1 world 5e — nước chảy: nguồn + lan giới hạn (cao → thấp, hố được lấp)
 
 > Model thực thi: Sonnet · medium (AGENTS.md §10.2).
-> Trạng thái:
+> Trạng thái: Xong 2026-10-27 — 5e/5f/5g user chơi thử đạt (briefs 0075–0078 đã duyệt).
 > - Luật: [0040](../../design/decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) (user chốt 2026-10-25); [mechanics "Nước chảy"](../../design/02-gameplay/mechanics.md#voxel-world--luật-m1); [world-tech "Nước chảy"](../../design/04-tech/world-tech.md#nước-chảy) + dòng 5e của kế hoạch prototype.
 > - Ước lượng 2–4 ngày-người (0040, roadmap M1).
 > - Task contract do Planner lập 2026-10-25 từ 0040 (user đã chọn phương án A, làm ngay ở M1). Brief [0075](../briefs/0075-world-5e-nuoc-chay.md) (5e, đã duyệt); sau chơi thử user đổi luật rãnh → [0041](../../design/decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md), brief [0076](../briefs/0076-world-5f-nuoc-ranh-hep-thac-nuoc.md) (5f, +1–2 ngày-người).

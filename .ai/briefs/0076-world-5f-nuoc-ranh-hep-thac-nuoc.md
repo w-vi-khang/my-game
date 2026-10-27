@@ -1,6 +1,6 @@
 # Brief 0076 — World 5f: nước trong rãnh hẹp chảy hết, kiểm khối khi mất nguồn, thác nước demo
 
-> Trạng thái: chờ user xem (code đã duyệt; thác hiện nhờ brief 0077)
+> Trạng thái: đã duyệt (user chơi thử gộp 0076–0078 đạt, 2026-10-27)
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-25 — Planner review: code đạt, phát hiện thác không hiển thị
