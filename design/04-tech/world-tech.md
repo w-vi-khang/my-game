@@ -132,7 +132,7 @@ User chọn nước **chảy được** (2026-10-13). [ý tưởng]
   - Chỉ tính lại ô quanh chỗ vừa đổi (hàng chờ), không quét cả world; world sinh ra đứng yên tới khi có đào/đặt gần đó.
 - **M1 — cây cha–con** ([0043](../decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md), user chốt 2026-10-27; bước 5h) — **thay** phần rơi/lan/ô hẹp/ô nối/rút ở trên:
   - Ô nước chảy có `id`, `parent_id`, mức `lv` 0–5 (`maxLevel` [số tạm]); nguồn gốc (ô nước có sẵn, biển loang) mức 5, không cha, không bị xoá dây chuyền. `id`/`parent_id` ở bảng phụ của `WorldEditor`; bit 15 (cờ rút) trả lại.
-  - Mỗi nhịp, ô được kích hoạt (theo `id` tăng dần): dưới trống → tạo con phía dưới mức 5, không lan ngang; dưới là nước → ô chảy không lan (nguồn gốc vẫn lan); dưới đặc và `lv > 0` → lan +z, +x, −z, −x vào ô trống, con mức `lv − 1`.
+  - Mỗi nhịp, ô được kích hoạt (theo `id` tăng dần): dưới trống → tạo con phía dưới mức 5, không lan ngang; dưới là nước → ô đang rơi không lan, ô không rơi lan nếu nước dưới đứng được (nguồn, ô chảy không rơi, ô rơi đã chạm đáy); dưới đặc và `lv > 0` → lan +z, +x, −z, −x vào ô trống, con mức `lv − 1`.
   - **Tăng mức bởi tường:** ô chảy kề ≥ 2 khối đặc ngang (`wallBoostMinSolid` [số tạm]) và mức 1–4 → mức 5, phát sóng mức (ô kề thấp hơn `L − 1` nâng lên `L − 1`; không phải cha/tổ tiên thì đổi cha). Rãnh rộng 1 ô giữ mức 5 → chảy hết rãnh.
   - **Xoá dây chuyền:** đặt khối đè ô chảy hoặc nguồn gốc có con → mỗi nhịp xoá một tầng con; ô vừa xoá tái tạo từ ô nước ngang không thuộc nhánh đang xoá (mức cao nhất, cha theo cha của ô đó; ô đó là nguồn thì cha = nguồn).
   - **Hiển thị:** độ cao ô chảy `0,9 × (lv + 1) / 6`; mesh nước liền + bo góc chỗ giao hướng (bước 5i, brief sau).

@@ -28,7 +28,10 @@ Phần user đưa [user]; phần Planner chuyển sang 3D ghi (đề xuất Plan
 ### 2. Lan (mỗi nhịp một bước, 8 nhịp/giây như hiện nay)
 Mỗi nhịp, xử lý các ô được kích hoạt ở nhịp trước theo `id` tăng dần (đề xuất Planner, để tất định khi hai ô cùng nhắm một ô trống — ô `id` nhỏ thắng):
 1. **Dưới là ô trống** → không lan ngang; tạo ô con phía dưới, `lv = maxLv` [user]. Áp dụng cả ô `lv = 0` (nước vẫn rơi — đề xuất Planner).
-2. **Dưới là nước** → ô nước chảy không lan, không tạo gì ("nước chảy xuống nước không lan") [user]. Riêng **nguồn gốc** đứng trên nước (lớp mặt ao/hồ sâu) vẫn lan ngang như đứng trên khối đặc (đề xuất Planner — nếu không, đào bờ hồ sâu sẽ không có nước chảy vào).
+2. **Dưới là nước:**
+   - ô **đang rơi** (sinh ra do rơi xuống) → không lan, không tạo gì ("nước chảy xuống nước không lan") [user];
+   - ô không rơi (nguồn gốc, ô chảy ngang) → lan ngang như đứng trên khối đặc, nếu nước bên dưới **đứng được**: là nguồn, ô chảy không rơi, hoặc ô rơi đã chạm đáy (dưới nó là khối đặc / nguồn / ô chảy không rơi). Nước bên dưới đang rơi giữa không trung → không lan (mép thác không tràn ngang). User chọn 2026-10-27: hố rộng cạnh ao đầy cả hai lớp, đào bờ hồ sâu có nước chảy vào.
+   - Ô vừa thành nước kích hoạt ô nước ngay phía trên nó (để ô trên xét lại).
 - Ô trống ≤ mực nước biển chạm nguồn: để biển loang (0013) lấp thành nguồn, không tạo ô chảy (giữ 0040 QĐ 7a).
 3. **Dưới là khối đặc** và `lv > 0` → lan sang 4 ô ngang còn trống theo thứ tự **+z, +x, −z, −x** (Trên, Phải, Dưới, Trái nhìn từ trên xuống, +z là "trên" của minimap — đề xuất Planner), ô con `lv − 1`, `parent_id` = ô này [user].
 - Không lan vào khối đặc hoặc ô đã có nước. Không dâng lên [user].
