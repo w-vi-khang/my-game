@@ -1,6 +1,6 @@
 # Brief 0080 — World 5i (phần 1): mesh nước liền (hàn đỉnh), cột nước rơi bo cạnh đứng, bo lồi mép tràn
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ (user xem gộp sau brief 0081 — bo lõm chân thác)
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-28 05:10
@@ -158,3 +158,11 @@ Không.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- `Chạy bằng` Sonnet · high khớp `Model thực thi`.
+- Phần cần test: 4 test mới + config + test cũ đều có kết quả đạt; EditMode 656/656, PlayMode 276/276; mã băm, `ChunkSeamTests` đạt; hai JSON giống nhau.
+- `git show --stat 9014a97`: 7 file, đều trong Phạm vi.
+- Diff `BlockMesher` đối chiếu QĐ: hàn đỉnh khoá vị trí + pháp tuyến ×1024 (3); ô cột = đang rơi hoặc trên ô đang rơi (4); mặt bên rút `t0/t1`, trụ φ = j·90°/S, đỉnh trụ `Hc` / `hc − rv` (5–7); mép tràn: mặt trên thu theo cạnh hở, cung, cầu góc (hàng i = 0 thành tam giác nhờ bỏ tam giác suy biến sau hàn), nắp có điều kiện láng giềng là mép tràn hở cùng hướng (8a–e). Đỉnh cuối cung / mặt bên / trụ φ = 0 trùng vị trí + pháp tuyến → hàn, kín.
+- Lệch brief chấp nhận: bảng `NativeHashMap` ở `Output` (TempJob, có `Dispose`) thay vì `Allocator.Temp` trong `Execute` — không đổi hành vi.
+- Thiếu so với brief: chưa chụp 1 ảnh thác (để user xem gộp sau 0081); giờ bắt đầu không ghi, Executor ghi ~15 phút.
+- Kết luận: đã duyệt
+
