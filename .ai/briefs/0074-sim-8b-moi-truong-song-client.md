@@ -325,7 +325,7 @@ Scene **SimView** trên Mac, Play:
 - EditMode toàn bộ: **615/615** (trước 596). PlayMode toàn bộ: **272/272** (trước 267).
 - `refresh_unity` + console Error = 0. grep UnityEngine Core/Habitat + SimDemo.cs: rỗng. Dọn: EditorSettings.asset đã checkout; `git status` chỉ còn file brief.
 - Chơi Play + chụp 1 ảnh: đạt (bảng hiện đúng L1 đã ở trại, L2/L3 chưa trở lại, dòng yêu cầu + số đếm).
-- Phần "User tự test" 1–8: chờ user.
+- Phần "User tự test" 1–8: user chơi thử đạt (2026-10-27) [user].
 
 ## Vướng mắc
 

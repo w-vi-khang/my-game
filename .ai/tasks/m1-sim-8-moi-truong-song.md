@@ -1,7 +1,7 @@
 # Task: M1 sim 8 — môi trường sống (đếm yêu cầu theo sự kiện, loài trở lại)
 
 > Model thực thi: Sonnet · medium (AGENTS.md §10.2).
-> Trạng thái:
+> Trạng thái: Xong 2026-10-27 — 8a + 8b (briefs 0069, 0074) đã duyệt, user chơi thử 8b đạt.
 > - Phần đã duyệt: [simulation-tech "Môi trường sống"](../../design/04-tech/simulation-tech.md#môi-trường-sống) (user duyệt 2026-10-13) và dòng 8 của kế hoạch prototype.
 > - Luật gameplay: [mechanics "Môi trường sống" + "Sinh vật trở lại — luật M1"](../../design/02-gameplay/mechanics.md#sinh-vật-trở-lại--luật-m1).
 > - Điều kiện "buổi": [0024](../../design/decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md) mục 7.

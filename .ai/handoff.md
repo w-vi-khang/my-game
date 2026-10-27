@@ -8,7 +8,7 @@
 - User chơi thử gộp 0076–0078: ổn hết (2026-10-27). Brief 0076, 0077, 0078 `đã duyệt`; world-tech 5e/5f/5g **Xong**; task `m1-world-nuoc-chay` Xong; roadmap ghi user xem đạt. Lỗi đứng trên mặt nước ở chân thác không thấy lại.
 
 ## Bước tiếp
-1. Còn chờ user xem: sim 8b (brief 0074 — môi trường sống client, SimView, phím H) và chơi thử gộp bước 7 mục A–F ([playtest-buoc-7.md](playtest-buoc-7.md)).
+1. Sim 8b user xem đạt 2026-10-27 (simulation-tech 8 Xong). Còn chờ user: chơi thử gộp bước 7 mục A–F ([playtest-buoc-7.md](playtest-buoc-7.md)).
 2. Sau đó rà tiêu chí xong M1 (roadmap) + tính lại hệ số giờ thực tế.
 
 ## Model đề xuất
