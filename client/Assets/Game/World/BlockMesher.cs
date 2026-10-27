@@ -953,7 +953,7 @@ namespace Game.World
                 return Cells[x + SizeX * (z + SizeZ * p.y)];
             }
 
-            /// <summary>Độ cao mặt nước của ô (0042 QĐ 2), tính từ đáy ô; ô không phải nước → −1.</summary>
+            /// <summary>Độ cao mặt nước của ô (0042 QĐ 2, 0043 QĐ 5), tính từ đáy ô; ô chảy không rơi cao (mức + 1)/(WaterFullLevel + 1) mặt trên (mức 0 vẫn có mặt); ô không phải nước → −1.</summary>
             float WaterHeight(int3 p)
             {
                 ushort cell = CellAt(p);
@@ -963,7 +963,7 @@ namespace Game.World
                     return 1f;
                 if (!Cell.IsFlowing(cell) || Cell.IsFalling(cell))
                     return 1f - WaterSurfaceDrop;
-                return (1f - WaterSurfaceDrop) * math.min(Cell.GetWaterLevel(cell), WaterFullLevel) / WaterFullLevel;
+                return (1f - WaterSurfaceDrop) * (math.min(Cell.GetWaterLevel(cell), WaterFullLevel) + 1f) / (WaterFullLevel + 1f);
             }
 
             /// <summary>Độ cao góc lưới (g.x + dx, g.z + dz) của ô g (0042 QĐ 3): có ô cao 1 → 1, ngược lại trung bình các ô nước quanh góc.</summary>

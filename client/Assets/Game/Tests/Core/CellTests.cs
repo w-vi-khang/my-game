@@ -50,7 +50,8 @@ namespace Game.Core.Tests
             Assert.IsTrue(Cell.IsFalling(fall));
             Assert.IsFalse(Cell.IsFalling(Cell.MakeFlowing(fall, 3, false)));
 
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => Cell.MakeFlowing(0, 0, false));
+            Assert.AreEqual(0, Cell.GetWaterLevel(Cell.MakeFlowing(0, 0, false)));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => Cell.MakeFlowing(0, -1, false));
             Assert.Throws<System.ArgumentOutOfRangeException>(() => Cell.MakeFlowing(0, 8, false));
         }
 
@@ -63,22 +64,6 @@ namespace Game.Core.Tests
             Assert.AreEqual(1 << 9, Cell.SetModified(0, true));
             Assert.AreEqual(7 << 10, Cell.SetWaterLevel(0, 7));
             Assert.AreEqual(7 << 13, Cell.SetReserved(0, 7));
-        }
-
-        [Test]
-        public void DrainingFlagRoundTrip()
-        {
-            ushort c = Cell.Make(BlockMaterial.Stone);
-            Assert.IsFalse(Cell.IsDraining(c));
-            c = Cell.SetDraining(c, true);
-            Assert.IsTrue(Cell.IsDraining(c));
-            Assert.AreEqual(1 << 15, c & (1 << 15));
-            Assert.IsFalse(Cell.IsDraining(Cell.SetDraining(c, false)));
-            ushort f = Cell.MakeFlowing(Cell.Make(BlockMaterial.Empty), 3, false, draining: true);
-            Assert.IsTrue(Cell.IsDraining(f));
-            Assert.IsFalse(Cell.IsDraining(Cell.MakeFlowing(f, 3, false)));
-            Assert.IsFalse(Cell.IsDraining(Cell.ClearFlow(f)));
-            Assert.IsFalse(Cell.IsDraining(Cell.ClearWater(f)));
         }
 
         [Test]

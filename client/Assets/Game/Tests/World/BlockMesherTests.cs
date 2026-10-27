@@ -947,9 +947,9 @@ namespace Game.World.Tests
             var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
             var up = new float3(0, 1, 0);
             Assert.IsTrue(HasWaterVertex(mesh, up, new float3(4, 5.9f, 4)));
-            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(5, 5.72f, 4)));
-            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(5, 5.72f, 5)));
-            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(6, 5.54f, 4)));
+            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(5, 5.75f, 4)));
+            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(5, 5.75f, 5)));
+            Assert.IsTrue(HasWaterVertex(mesh, up, new float3(6, 5.6f, 4)));
             bool minusZ = false;
             for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
             {
@@ -965,7 +965,7 @@ namespace Game.World.Tests
                 Assert.IsFalse(allX5, "wall between A and B");
             }
             var south = new float3(0, 0, -1);
-            minusZ = HasWaterVertex(mesh, south, new float3(4, 5.9f, 4)) && HasWaterVertex(mesh, south, new float3(5, 5.72f, 4));
+            minusZ = HasWaterVertex(mesh, south, new float3(4, 5.9f, 4)) && HasWaterVertex(mesh, south, new float3(5, 5.75f, 4));
             Assert.IsTrue(minusZ);
         }
 

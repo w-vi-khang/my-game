@@ -226,9 +226,8 @@ namespace Game.Client
             Bag.Add(ItemId.Tool(ToolItem.ObservationCamera), 1); // camera quan sát là vật phẩm trong túi (0034 mục 4, brief 0061)
             Editor = new WorldEditor(World, Bag, BlockMesher.CellMargin, waterLevel);
             var waterCfg = ConfigLoader.LoadWaterConfig();
-            Editor.FlowMaxDistance = waterCfg.flowMaxDistance;
-            Editor.NarrowMaxOpenSides = waterCfg.narrowMaxOpenSides;
-            Editor.SupportCheckMaxCells = waterCfg.supportCheckMaxCells;
+            Editor.MaxLevel = waterCfg.maxLevel;
+            Editor.WallBoostMinSolid = waterCfg.wallBoostMinSolid;
             waterStepsPerSecond = waterCfg.stepsPerSecond;
             Editor.CellChanged += OnCellChanged;
             Editor.WaterSurfaceChanged += OnCellChanged;
@@ -387,7 +386,7 @@ namespace Game.Client
         void Rebuild(List<int> chunkIndices)
         {
             var sw = Stopwatch.StartNew();
-            var built = BlockMesher.BuildChunks(World, chunkIndices, true, Editor.FlowMaxDistance);
+            var built = BlockMesher.BuildChunks(World, chunkIndices, true, Editor.MaxLevel);
             LastMeshMs = sw.Elapsed.TotalMilliseconds;
 
             sw.Restart();

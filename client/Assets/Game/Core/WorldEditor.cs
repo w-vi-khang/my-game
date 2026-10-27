@@ -25,11 +25,14 @@ namespace Game.Core
 
     /// <summary>
     /// Đào/đặt nguyên ô theo luật M1 (design/02-gameplay/mechanics.md "Voxel world — luật M1") và tính chunk cần dựng lại
-    /// (design/04-tech/world-tech.md "Chỉnh sửa"). Biển tràn + luật đặt khối theo design/decisions/0012: đặt vào ô rỗng hoặc ô
+    /// (design/04-tech/world-tech.md "Chỉnh sửa").
+    /// Biển tràn + luật đặt khối theo design/decisions/0012: đặt vào ô rỗng hoặc ô
     /// nước kề mặt một khối đặc; đào ô ≤ mực nước biển kề nước (hoặc biển ngoài map) → nước lan qua các ô rỗng ≤ mực nước
     /// biển thông với nó (6 hướng) theo nhịp (design/decisions/0013): StepWater() một nhịp — rơi thẳng xuống ngay, lan ngang/dâng
-    /// 1 ô mỗi nhịp. Nước biển (nguồn) không tự rút. Nước chảy (design/decisions/0040): nguồn (ô nước có sẵn, ô biển loang) không cạn;
-    /// nước rơi thẳng xuống cả cột, lan ngang tối đa FlowMaxDistance ô (1 ô/nhịp) khi đứng trên khối đặc/nước; mất nguồn thì rút dần.
+    /// 1 ô mỗi nhịp. Nước biển (nguồn) không tự rút. Nước chảy (design/decisions/0043): cây cha–con — nguồn (ô nước có sẵn, ô biển
+    /// loang) mức MaxLevel; ô chảy mức 0..MaxLevel, mỗi ô lan sang ô ngang mức − 1 (1 ô/nhịp), rơi xuống ô rỗng bên dưới mức MaxLevel;
+    /// ô có ≥ WallBoostMinSolid ô ngang đặc được tăng mức lên MaxLevel rồi phát sóng mức cho ô chảy kề. Mất ô cha thì cả nhánh
+    /// con bị xoá dây chuyền mỗi nhịp một lớp, rồi tái tạo từ nước kề còn nối với nguồn.
     /// </summary>
     public sealed class WorldEditor
     {
@@ -49,58 +52,60 @@ namespace Game.Core
         readonly List<(int x, int y, int z)> waterFront = new List<(int, int, int)>();
         readonly HashSet<(int, int, int)> waterFrontSet = new HashSet<(int, int, int)>();
 
-        /// <summary>Ô cần tính lại nước chảy ở nhịp sau (0040). Thứ tự chèn cố định → tất định.</summary>
-        readonly List<(int x, int y, int z)> flowQueue = new List<(int, int, int)>();
-        readonly HashSet<(int, int, int)> flowQueueSet = new HashSet<(int, int, int)>();
+        int maxLevel = 5;
 
-        int flowMaxDistance = 7;
-
-        /// <summary>Số ô nước chảy lan ngang tối đa N (0040), hợp lệ 1–7.</summary>
-        public int FlowMaxDistance
+        /// <summary>Mức nước tối đa của nguồn / ô rơi (0043), hợp lệ 1–7.</summary>
+        public int MaxLevel
         {
-            get => flowMaxDistance;
+            get => maxLevel;
             set
             {
                 if (value < 1 || value > Cell.MaxWaterLevel)
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "FlowMaxDistance must be in 1..7");
-                flowMaxDistance = value;
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxLevel must be in 1..7");
+                maxLevel = value;
             }
         }
 
-        int narrowMaxOpenSides = 2;
+        int wallBoostMinSolid = 2;
 
-        /// <summary>Ô nước hẹp khi số ô ngang không đặc ≤ giá trị này (0041), hợp lệ 0–3.</summary>
-        public int NarrowMaxOpenSides
+        /// <summary>Số ô ngang đặc tối thiểu để ô nước chảy được tăng mức lên MaxLevel (0043), hợp lệ 1–4.</summary>
+        public int WallBoostMinSolid
         {
-            get => narrowMaxOpenSides;
+            get => wallBoostMinSolid;
             set
             {
-                if (value < 0 || value > 3)
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "NarrowMaxOpenSides must be in 0..3");
-                narrowMaxOpenSides = value;
+                if (value < 1 || value > 4)
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "WallBoostMinSolid must be in 1..4");
+                wallBoostMinSolid = value;
             }
         }
 
-        int supportCheckMaxCells = 4096;
-
-        /// <summary>Khối nước lớn hơn số này thì bỏ kiểm nguồn (0041), hợp lệ 64–65536.</summary>
-        public int SupportCheckMaxCells
+        struct FlowNode
         {
-            get => supportCheckMaxCells;
-            set
-            {
-                if (value < 64 || value > 65536)
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "SupportCheckMaxCells must be in 64..65536");
-                supportCheckMaxCells = value;
-            }
+            public int X, Y, Z, Parent;
+            public bool Source;
         }
 
-        /// <summary>Ô cần kiểm khối nước còn nguồn không (0041): kề ô vừa từ nước thành không phải nước.</summary>
-        readonly List<(int x, int y, int z)> supportStarts = new List<(int, int, int)>();
-        readonly HashSet<(int, int, int)> supportStartSet = new HashSet<(int, int, int)>();
+        const int NoParent = -1;
+
+        /// <summary>Cây cha–con của nước chảy (0043): vị trí → id, id → nút, id cha → id con (thứ tự thêm).</summary>
+        readonly Dictionary<(int, int, int), int> nodeAt = new Dictionary<(int, int, int), int>();
+        readonly Dictionary<int, FlowNode> nodes = new Dictionary<int, FlowNode>();
+        readonly Dictionary<int, List<int>> children = new Dictionary<int, List<int>>();
+        int nextId;
+
+        /// <summary>Nút cần xét lan ở nhịp sau; xử lý theo id tăng dần → tất định.</summary>
+        readonly List<int> active = new List<int>();
+        readonly HashSet<int> activeSet = new HashSet<int>();
+
+        /// <summary>Hàng xoá dây chuyền: nút sẽ bị xoá ở nhịp sau.</summary>
+        readonly List<int> cascade = new List<int>();
+        readonly HashSet<int> cascadeSet = new HashSet<int>();
+
+        int stepChanged;
 
         /// <summary>Còn nước đang lan hoặc đang rút (gọi StepWater theo nhịp).</summary>
-        public bool HasPendingWater => waterFront.Count > 0 || flowQueue.Count > 0 || supportStarts.Count > 0;
+        public bool HasPendingWater => waterFront.Count > 0 || active.Count > 0 || cascade.Count > 0;
 
         /// <summary>Móc kiểm tra ô bị chiếm (người chơi, sinh vật, cây, kho). M1 bước 4 chưa có vật thể → mặc định null.</summary>
         public Func<int, int, int, bool> IsOccupied;
@@ -144,8 +149,7 @@ namespace Game.Core
             CellChanged?.Invoke(x, y, z);
             if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
                 AddToFront(x, y, z);
-            AddFlowDependents(x, y, z);
-            AddFlowRing2(x, y, z);
+            ActivateAround(x, y, z);
             return EditResult.Ok;
         }
 
@@ -187,10 +191,12 @@ namespace Game.Core
             Drops.PushUp(x, y, z);
             CellChanged?.Invoke(x, y, z);
             RevertFarmlandBelow(x, y, z);
-            AddFlowDependents(x, y, z);
-            AddFlowRing2(x, y, z);
-            if (wasWater)
-                AddSupportNeighbors(x, y, z);
+            if (wasWater && nodeAt.TryGetValue((x, y, z), out int removed))
+                RemoveNode(removed, true);
+            foreach (var (dx, dz) in D4)
+                if (TryFlowingNode(x + dx, y, z + dz, out int n))
+                    WallBoost(n);
+            Activate(x, y + 1, z);
             return EditResult.Ok;
         }
 
@@ -299,7 +305,7 @@ namespace Game.Core
             World.Set(x, y, z, Cell.SetModified(Cell.SetWaterLevel(Cell.SetMaterial(old, BlockMaterial.Water), Cell.MaxWaterLevel), true));
             CellChanged?.Invoke(x, y, z);
             RevertFarmlandBelow(x, y, z);
-            AddFlowDependents(x, y, z);
+            Activate(x, y + 1, z);
         }
 
         /// <summary>
@@ -334,289 +340,363 @@ namespace Game.Core
             return filled.Count;
         }
 
-        /// <summary>Một nhịp nước: biển loang (0013) rồi nước chảy (0040). Trả tổng số ô đổi trong nhịp.</summary>
+        /// <summary>Một nhịp nước: biển loang (0013) rồi nước chảy (0043). Trả tổng số ô đổi trong nhịp.</summary>
         public int StepWater() => StepSea() + StepFlow();
 
-        void AddFlow(int x, int y, int z)
+        static readonly (int dx, int dz)[] D4 = { (0, 1), (1, 0), (0, -1), (-1, 0) };
+
+        /// <summary>Đưa ô nước (x, y, z) vào hàng chờ xét lan ở nhịp sau (thác demo có sẵn khi sinh world).</summary>
+        public void WakeWater(int x, int y, int z) => Activate(x, y, z);
+
+        /// <summary>Có nút nước ở ô (x, y, z) không; nguồn → parentId = −1 (test).</summary>
+        public bool TryGetFlowNode(int x, int y, int z, out int id, out int parentId)
         {
-            if (World.Size.InBounds(x, y, z) && flowQueueSet.Add((x, y, z)))
-                flowQueue.Add((x, y, z));
+            parentId = NoParent;
+            if (!nodeAt.TryGetValue((x, y, z), out id))
+                return false;
+            parentId = nodes[id].Parent;
+            return true;
         }
 
-        void AddFlowRing(int x, int y, int z)
+        int LevelOf(int id)
         {
-            AddFlow(x + 1, y, z);
-            AddFlow(x - 1, y, z);
-            AddFlow(x, y, z + 1);
-            AddFlow(x, y, z - 1);
+            var n = nodes[id];
+            return n.Source ? maxLevel : Cell.GetWaterLevel(World.Get(n.X, n.Y, n.Z));
         }
 
-        /// <summary>Ô phụ thuộc của ô P vừa đổi (0040 QĐ 6): P, ô dưới, 4 ô ngang của P, của ô trên P và của ô cao hơn P hai ô.</summary>
-        void AddFlowDependents(int x, int y, int z)
+        /// <summary>Nút ở ô (x, y, z); ô nguồn chưa có nút thì tạo (lười). Ô không phải nước, hoặc ô chảy không có nút → −1.</summary>
+        int GetOrCreateNode(int x, int y, int z)
         {
-            AddFlow(x, y, z);
-            AddFlow(x, y - 1, z);
-            AddFlowRing(x, y, z);
-            AddFlowRing(x, y + 1, z);
-            AddFlowRing(x, y + 2, z);
+            if (!World.Size.InBounds(x, y, z))
+                return -1;
+            if (nodeAt.TryGetValue((x, y, z), out int id))
+                return id;
+            if (!Cell.IsWaterSource(World.Get(x, y, z)))
+                return -1;
+            id = nextId++;
+            nodes[id] = new FlowNode { X = x, Y = y, Z = z, Parent = NoParent, Source = true };
+            nodeAt[(x, y, z)] = id;
+            return id;
         }
 
-        static readonly (int dx, int dz)[] Ring2 = { (2, 0), (-2, 0), (0, 2), (0, -2), (1, 1), (1, -1), (-1, 1), (-1, -1) };
-
-        /// <summary>Độ hẹp của ô kề P phụ thuộc 8 ô cách P hai bước ngang (0041 QĐ 6).</summary>
-        void AddFlowRing2(int x, int y, int z)
+        /// <summary>Ô (x, y, z) là nước chảy có nút (không phải nguồn).</summary>
+        bool TryFlowingNode(int x, int y, int z, out int id)
         {
-            foreach (var (dx, dz) in Ring2)
-                AddFlow(x + dx, y, z + dz);
+            id = -1;
+            if (!World.Size.InBounds(x, y, z))
+                return false;
+            ushort c = World.Get(x, y, z);
+            return Cell.GetMaterial(c) == BlockMaterial.Water && Cell.IsFlowing(c) && nodeAt.TryGetValue((x, y, z), out id);
         }
 
-        /// <summary>Đưa ô (x, y, z) vào hàng chờ tính lại (thác demo có sẵn khi sinh world, 0041).</summary>
-        public void WakeWater(int x, int y, int z) => AddFlowDependents(x, y, z);
-
-        void AddSupportNeighbors(int x, int y, int z)
+        void ActivateId(int id)
         {
-            foreach (var (dx, dy, dz) in Faces)
-            {
-                var p = (x + dx, y + dy, z + dz);
-                if (supportStartSet.Add(p))
-                    supportStarts.Add(p);
-            }
+            if (activeSet.Add(id))
+                active.Add(id);
         }
 
-        bool IsNarrow(int x, int y, int z)
+        void Activate(int x, int y, int z)
         {
-            int open = 0;
-            foreach (var (dx, dz) in Sides)
-                if (!IsSolidAt(World, x + dx, y, z + dz))
-                    open++;
-            return open <= narrowMaxOpenSides;
-        }
-
-        /// <summary>Ô (x, y, z) là nguồn nuôi khối nước: ô nước nguồn trong map, hoặc biển ngoài map theo x/z ở y ≤ SeaLevel (chỉ xét ô ngang).</summary>
-        bool IsSupportSource(int x, int y, int z, bool horizontal)
-        {
-            if (World.Size.InBounds(x, y, z))
-                return Cell.IsWaterSource(World.Get(x, y, z));
-            return horizontal && SeaLevel >= 0 && y >= 0 && y <= SeaLevel
-                   && (x < 0 || z < 0 || x >= World.Size.X || z >= World.Size.Z) && y < World.Size.Y;
-        }
-
-        /// <summary>Kiểm các khối nước đang chảy kề ô vừa mất nước: khối không còn nguồn thì bật cờ rút (0041 QĐ 7).</summary>
-        void ProcessSupport()
-        {
-            if (supportStarts.Count == 0)
+            if (!World.Size.InBounds(x, y, z) || World.GetMaterial(x, y, z) != BlockMaterial.Water)
                 return;
-            var starts = supportStarts.ToArray();
-            supportStarts.Clear();
-            supportStartSet.Clear();
-            var visited = new HashSet<(int, int, int)>();
-            foreach (var start in starts)
-            {
-                if (!World.Size.InBounds(start.Item1, start.Item2, start.Item3)) continue;
-                if (!Cell.IsFlowing(World.Get(start.Item1, start.Item2, start.Item3))) continue;
-                if (visited.Contains(start)) continue;
+            int id = GetOrCreateNode(x, y, z);
+            if (id >= 0)
+                ActivateId(id);
+        }
 
-                var block = new List<(int x, int y, int z)>();
-                var queue = new Queue<(int x, int y, int z)>();
-                visited.Add(start);
-                queue.Enqueue(start);
-                bool supported = false;
-                while (queue.Count > 0 && !supported)
+        /// <summary>Kích hoạt 4 ô ngang (D4) rồi ô phía trên.</summary>
+        void ActivateAround(int x, int y, int z)
+        {
+            foreach (var (dx, dz) in D4)
+                Activate(x + dx, y, z + dz);
+            Activate(x, y + 1, z);
+        }
+
+        /// <summary>Gỡ nút khỏi bảng và khỏi danh sách con của cha; toCascade → con của nó (id tăng dần) vào hàng xoá.</summary>
+        void RemoveNode(int id, bool toCascade)
+        {
+            var node = nodes[id];
+            nodeAt.Remove((node.X, node.Y, node.Z));
+            nodes.Remove(id);
+            if (node.Parent != NoParent && children.TryGetValue(node.Parent, out var siblings))
+                siblings.Remove(id);
+            if (children.TryGetValue(id, out var list))
+            {
+                if (toCascade)
                 {
-                    var (x, y, z) = queue.Dequeue();
-                    block.Add((x, y, z));
-                    if (block.Count > supportCheckMaxCells || IsSupportSource(x, y + 1, z, false))
-                    {
-                        supported = true;
-                        break;
-                    }
-                    foreach (var (dx, dz) in Sides)
-                        if (IsSupportSource(x + dx, y, z + dz, true))
-                        {
-                            supported = true;
-                            break;
-                        }
-                    if (supported) break;
-                    foreach (var (dx, dy, dz) in Faces)
-                    {
-                        var n = (x + dx, y + dy, z + dz);
-                        if (!World.Size.InBounds(n.Item1, n.Item2, n.Item3) || visited.Contains(n)) continue;
-                        if (!Cell.IsFlowing(World.Get(n.Item1, n.Item2, n.Item3))) continue;
-                        visited.Add(n);
-                        queue.Enqueue(n);
-                    }
+                    var sorted = new List<int>(list);
+                    sorted.Sort();
+                    foreach (int c in sorted)
+                        if (cascadeSet.Add(c))
+                            cascade.Add(c);
                 }
-                if (supported)
+                children.Remove(id);
+            }
+        }
+
+        void SetLevel(int id, int level)
+        {
+            var n = nodes[id];
+            World.Set(n.X, n.Y, n.Z, Cell.SetWaterLevel(World.Get(n.X, n.Y, n.Z), level));
+            stepChanged++;
+            WaterSurfaceChanged?.Invoke(n.X, n.Y, n.Z);
+        }
+
+        void Reparent(int id, int parent)
+        {
+            var n = nodes[id];
+            if (n.Parent != NoParent && children.TryGetValue(n.Parent, out var old))
+                old.Remove(id);
+            n.Parent = parent;
+            nodes[id] = n;
+            if (!children.TryGetValue(parent, out var list))
+                children[parent] = list = new List<int>();
+            list.Add(id);
+        }
+
+        /// <summary>ancestor là tổ tiên (kể cả cha) của id.</summary>
+        bool IsAncestor(int ancestor, int id)
+        {
+            int cur = id;
+            for (int step = 0; step <= nodes.Count; step++)
+            {
+                if (!nodes.TryGetValue(cur, out var node))
+                    return false;
+                int p = node.Parent;
+                if (p == NoParent)
+                    return false;
+                if (p == ancestor)
+                    return true;
+                cur = p;
+            }
+            throw new InvalidOperationException("water parent cycle");
+        }
+
+        /// <summary>Nút thuộc nhánh đang xoá (0043 QĐ 10).</summary>
+        bool IsDoomed(int id)
+        {
+            int cur = id;
+            for (int step = 0; step <= nodes.Count + 1; step++)
+            {
+                if (cascadeSet.Contains(cur))
+                    return true;
+                if (!nodes.TryGetValue(cur, out var node))
+                    return true;
+                if (node.Source || node.Parent == NoParent)
+                    return false;
+                cur = node.Parent;
+            }
+            throw new InvalidOperationException("water parent cycle");
+        }
+
+        /// <summary>Ô chảy kề ≥ WallBoostMinSolid ô ngang đặc → mức MaxLevel rồi phát sóng mức (0043 QĐ 8).</summary>
+        void WallBoost(int id)
+        {
+            var n = nodes[id];
+            if (n.Source)
+                return;
+            int level = LevelOf(id);
+            if (level <= 0 || level >= maxLevel)
+                return;
+            int solid = 0;
+            foreach (var (dx, dz) in D4)
+                if (IsSolidAt(World, n.X + dx, n.Y, n.Z + dz))
+                    solid++;
+            if (solid < wallBoostMinSolid)
+                return;
+            SetLevel(id, maxLevel);
+            ActivateId(id);
+            Propagate(id);
+        }
+
+        /// <summary>Phát sóng mức: ô chảy kề thấp hơn mức − 1 được nâng lên mức − 1, đổi cha nếu không phải cha/tổ tiên (0043 QĐ 9).</summary>
+        void Propagate(int start)
+        {
+            var stack = new Stack<int>();
+            stack.Push(start);
+            while (stack.Count > 0)
+            {
+                int e = stack.Pop();
+                if (!nodes.TryGetValue(e, out var en))
                     continue;
-                foreach (var (x, y, z) in block)
+                int level = LevelOf(e);
+                foreach (var (dx, dz) in D4)
                 {
-                    World.Set(x, y, z, Cell.SetDraining(World.Get(x, y, z), true));
-                    AddFlowDependents(x, y, z);
+                    if (!TryFlowingNode(en.X + dx, en.Y, en.Z + dz, out int n))
+                        continue;
+                    if (nodes[n].Source || LevelOf(n) >= level - 1)
+                        continue;
+                    SetLevel(n, level - 1);
+                    ActivateId(n);
+                    if (nodes[e].Parent != n && !IsAncestor(n, e))
+                        Reparent(n, e);
+                    stack.Push(n);
                 }
             }
         }
 
-        static readonly (int dx, int dz)[] Sides = { (1, 0), (-1, 0), (0, 1), (0, -1) };
-
-        bool IsWaterCell(int x, int y, int z) =>
-            World.Size.InBounds(x, y, z) && World.GetMaterial(x, y, z) == BlockMaterial.Water;
-
-        /// <summary>Ô nước là nguồn hoặc đang chảy ngang (cờ rơi tắt).</summary>
-        static bool IsStandingWater(ushort c) =>
-            Cell.GetMaterial(c) == BlockMaterial.Water && (Cell.IsWaterSource(c) || !Cell.IsFalling(c));
-
-        /// <summary>Nước đứng, không đang rút, tại (x, y, z) — neo của ô nối (0042).</summary>
-        bool IsBridgeAnchor(int x, int y, int z)
+        /// <summary>Tạo nút nước chảy mới ở ô rỗng (x, y, z) dưới nút cha parent.</summary>
+        int CreateChild(int parent, int x, int y, int z, int level, bool falling)
         {
-            if (!IsWaterCell(x, y, z))
+            ushort old = World.Get(x, y, z);
+            World.Set(x, y, z, Cell.SetModified(Cell.MakeFlowing(old, level, falling), true));
+            int id = nextId++;
+            nodes[id] = new FlowNode { X = x, Y = y, Z = z, Parent = parent, Source = false };
+            nodeAt[(x, y, z)] = id;
+            if (!children.TryGetValue(parent, out var list))
+                children[parent] = list = new List<int>();
+            list.Add(id);
+            stepChanged++;
+            CellChanged?.Invoke(x, y, z);
+            RevertFarmlandBelow(x, y, z);
+            ActivateId(id);
+            Activate(x, y + 1, z);
+            WallBoost(id);
+            return id;
+        }
+
+        /// <summary>Ô nước đứng được: nguồn, hoặc ô chảy không rơi.</summary>
+        bool IsStandable(int x, int y, int z)
+        {
+            if (!World.Size.InBounds(x, y, z))
                 return false;
             ushort c = World.Get(x, y, z);
-            return IsStandingWater(c) && !Cell.IsDraining(c);
+            return Cell.GetMaterial(c) == BlockMaterial.Water && (Cell.IsWaterSource(c) || !Cell.IsFalling(c));
         }
 
-        /// <summary>Ô nối (0042): ô đứng được, có neo ở hai phía đối diện (x − 1 và x + 1, hoặc z − 1 và z + 1).</summary>
-        bool IsBridge(int x, int y, int z)
-        {
-            bool stand = IsSolidAt(World, x, y - 1, z) || (y - 1 >= 0 && IsStandingWater(World.Get(x, y - 1, z)));
-            if (!stand)
-                return false;
-            return (IsBridgeAnchor(x - 1, y, z) && IsBridgeAnchor(x + 1, y, z))
-                || (IsBridgeAnchor(x, y, z - 1) && IsBridgeAnchor(x, y, z + 1));
-        }
-
-        /// <summary>Mức nước ô nước (x, y, z) truyền sang ô ngang (0040 QĐ 3); 0 nếu không truyền.</summary>
-        int Emit(int x, int y, int z, out bool fromDraining)
-        {
-            fromDraining = false;
-            ushort c = World.Get(x, y, z);
-            bool source = Cell.IsWaterSource(c);
-            bool falling = Cell.IsFalling(c) && !source;
-            // 0041 QĐ 4: nước rơi xuống nguồn thì nhập vào, không lan.
-            if (falling && y - 1 >= 0 && Cell.IsWaterSource(World.Get(x, y - 1, z)))
-                return 0;
-            int level;
-            if (source || falling)
-                level = flowMaxDistance;
-            else
-            {
-                fromDraining = Cell.IsDraining(c);
-                int s = Cell.GetWaterLevel(c);
-                level = IsNarrow(x, y, z) && !fromDraining ? s : s - 1;
-            }
-            if (level < 1)
-                return 0;
-            if (IsSolidAt(World, x, y - 1, z))
-                return level;
-            ushort b = World.Get(x, y - 1, z);
-            if (Cell.GetMaterial(b) != BlockMaterial.Water)
-                return 0;
-            if (IsStandingWater(b))
-                return level;
-            // B đang rơi: chỉ đứng được khi ô này không rơi và B đã chạm đáy.
-            if (falling)
-                return 0;
-            if (y - 2 < 0 || IsSolidAt(World, x, y - 2, z))
-                return level;
-            return IsStandingWater(World.Get(x, y - 2, z)) ? level : 0;
-        }
-
-        /// <summary>Một nhịp nước chảy (0040): tính trạng thái mong muốn của các ô trong hàng chờ rồi ghi một lượt. Trả số ô đổi.</summary>
+        /// <summary>Một nhịp nước chảy (0043): A xoá dây chuyền + tái tạo, B lan. Trả số ô đổi (vật liệu hoặc mức).</summary>
         int StepFlow()
         {
-            ProcessSupport();
-            if (flowQueue.Count == 0)
-                return 0;
-            var snapshot = flowQueue.ToArray();
-            flowQueue.Clear();
-            flowQueueSet.Clear();
+            stepChanged = 0;
+            StepCascade();
+            StepSpread();
+            return stepChanged;
+        }
 
-            var writes = new List<(int x, int y, int z, ushort cell)>();
-            foreach (var (x, y, z) in snapshot)
+        void StepCascade()
+        {
+            if (cascade.Count == 0)
+                return;
+            var batch = new List<int>(cascade);
+            batch.Sort();
+            cascade.Clear();
+            cascadeSet.Clear();
+            var next = new List<int>();
+            var deleted = new List<(int x, int y, int z)>();
+            foreach (int id in batch)
             {
-                ushort old = World.Get(x, y, z);
-                if (IsSolidAt(World, x, y, z) || Cell.IsWaterSource(old))
+                if (!nodes.TryGetValue(id, out var node))
                     continue;
-                ushort target;
+                if (children.TryGetValue(id, out var kids))
+                    next.AddRange(kids);
+                RemoveNode(id, false);
+                World.Set(node.X, node.Y, node.Z, Cell.ClearWater(World.Get(node.X, node.Y, node.Z)));
+                stepChanged++;
+                CellChanged?.Invoke(node.X, node.Y, node.Z);
+                deleted.Add((node.X, node.Y, node.Z));
+            }
+            next.Sort();
+            int prev = -1;
+            foreach (int c in next)
+            {
+                if (c == prev || !nodes.ContainsKey(c))
+                    continue;
+                prev = c;
+                if (cascadeSet.Add(c))
+                    cascade.Add(c);
+            }
+
+            foreach (var (x, y, z) in deleted)
+            {
+                if (World.GetMaterial(x, y, z) != BlockMaterial.Empty)
+                    continue;
                 if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
                 {
-                    // 0040 QĐ 7a: biển ưu tiên vùng ≤ SeaLevel chạm nguồn.
-                    if (Cell.GetMaterial(old) == BlockMaterial.Empty)
-                    {
-                        AddToFront(x, y, z);
-                        continue;
-                    }
-                    target = Cell.SetModified(Cell.ClearFlow(Cell.SetWaterLevel(old, Cell.MaxWaterLevel)), true);
+                    AddToFront(x, y, z);
+                    continue;
                 }
-                else if (IsWaterCell(x, y + 1, z))
+                int bestLevel = -1, bestParent = NoParent;
+                foreach (var (dx, dz) in D4)
                 {
-                    target = Cell.SetModified(Cell.MakeFlowing(old, flowMaxDistance, true), true);
+                    int nx = x + dx, nz = z + dz;
+                    if (!World.Size.InBounds(nx, y, nz) || World.GetMaterial(nx, y, nz) != BlockMaterial.Water)
+                        continue;
+                    int level, parent;
+                    if (Cell.IsWaterSource(World.Get(nx, y, nz)))
+                    {
+                        level = maxLevel;
+                        parent = GetOrCreateNode(nx, y, nz);
+                    }
+                    else if (nodeAt.TryGetValue((nx, y, nz), out int nid) && !IsDoomed(nid))
+                    {
+                        level = Cell.GetWaterLevel(World.Get(nx, y, nz));
+                        parent = nodes[nid].Parent;
+                    }
+                    else
+                        continue;
+                    if (level > bestLevel)
+                    {
+                        bestLevel = level;
+                        bestParent = parent;
+                    }
                 }
+                if (bestLevel >= 0 && bestParent != NoParent && nodes.ContainsKey(bestParent))
+                    CreateChild(bestParent, x, y, z, bestLevel, false);
+            }
+
+            foreach (var (x, y, z) in deleted)
+                ActivateAround(x, y, z);
+        }
+
+        void StepSpread()
+        {
+            if (active.Count == 0)
+                return;
+            var batch = new List<int>(active);
+            batch.Sort();
+            active.Clear();
+            activeSet.Clear();
+            foreach (int id in batch)
+            {
+                if (!nodes.TryGetValue(id, out var node))
+                    continue;
+                ushort cell = World.Get(node.X, node.Y, node.Z);
+                if (Cell.GetMaterial(cell) != BlockMaterial.Water || IsDoomed(id))
+                    continue;
+                int level = LevelOf(id);
+                bool falling = !node.Source && Cell.IsFalling(cell);
+                int x = node.X, y = node.Y, z = node.Z;
+                bool spread;
+                if (y - 1 < 0 || IsSolidAt(World, x, y - 1, z))
+                    spread = true;
+                else if (World.GetMaterial(x, y - 1, z) == BlockMaterial.Empty)
+                {
+                    CreateChild(id, x, y - 1, z, maxLevel, true);
+                    continue;
+                }
+                else if (falling)
+                    continue;
                 else
                 {
-                    int m = 0;
-                    bool allDraining = true;
-                    foreach (var (dx, dz) in Sides)
-                    {
-                        if (!IsWaterCell(x + dx, y, z + dz)) continue;
-                        int e = Emit(x + dx, y, z + dz, out bool fd);
-                        if (e < 1) continue;
-                        if (e > m) m = e;
-                        if (!fd) allDraining = false;
-                    }
-                    if (m >= 1)
-                        target = Cell.SetModified(Cell.MakeFlowing(old, m, false, allDraining), true);
-                    else if (IsBridge(x, y, z))
-                        target = Cell.SetModified(Cell.MakeFlowing(old, 1, false), true);
-                    else if (Cell.GetMaterial(old) == BlockMaterial.Water)
-                        target = Cell.ClearWater(old);
+                    ushort b = World.Get(x, y - 1, z);
+                    if (Cell.IsWaterSource(b) || !Cell.IsFalling(b))
+                        spread = true;
                     else
+                        spread = y - 2 < 0 || IsSolidAt(World, x, y - 2, z) || IsStandable(x, y - 2, z);
+                }
+                if (!spread || level <= 0)
+                    continue;
+                foreach (var (dx, dz) in D4)
+                {
+                    int nx = x + dx, nz = z + dz;
+                    if (!World.Size.InBounds(nx, y, nz) || World.GetMaterial(nx, y, nz) != BlockMaterial.Empty)
                         continue;
-                }
-                if (target != old)
-                    writes.Add((x, y, z, target));
-            }
-
-            var changed = new List<(int x, int y, int z, BlockMaterial oldMat, ushort cell)>();
-            var becameWater = new List<(int x, int y, int z)>();
-            foreach (var (x, y, z, cell) in writes)
-            {
-                var oldMat = World.GetMaterial(x, y, z);
-                World.Set(x, y, z, cell);
-                changed.Add((x, y, z, oldMat, cell));
-                if (oldMat != BlockMaterial.Water && Cell.GetMaterial(cell) == BlockMaterial.Water)
-                    becameWater.Add((x, y, z));
-            }
-            foreach (var (x, y0, z) in becameWater)
-            {
-                for (int fy = y0 - 1; fy >= 0 && World.GetMaterial(x, fy, z) == BlockMaterial.Empty; fy--)
-                {
-                    ushort cell = Cell.SetModified(Cell.MakeFlowing(World.Get(x, fy, z), flowMaxDistance, true), true);
-                    World.Set(x, fy, z, cell);
-                    changed.Add((x, fy, z, BlockMaterial.Empty, cell));
-                }
-            }
-
-            foreach (var (x, y, z, oldMat, cell) in changed)
-            {
-                var newMat = Cell.GetMaterial(cell);
-                if (oldMat != newMat)
-                {
-                    CellChanged?.Invoke(x, y, z);
-                    if (newMat == BlockMaterial.Water)
-                        RevertFarmlandBelow(x, y, z);
+                    if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(nx, y, nz))
+                        AddToFront(nx, y, nz);
                     else
-                    {
-                        if (oldMat == BlockMaterial.Water)
-                            AddSupportNeighbors(x, y, z);
-                        if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
-                            AddToFront(x, y, z);
-                    }
+                        CreateChild(id, nx, y, nz, level - 1, false);
                 }
-                else if (newMat == BlockMaterial.Water)
-                    WaterSurfaceChanged?.Invoke(x, y, z);
-                AddFlowDependents(x, y, z);
             }
-            return changed.Count;
         }
 
         /// <summary>Chạy StepWater tới khi hết nước đang lan (test, tua nhanh). Trả về tổng số ô ngập.</summary>

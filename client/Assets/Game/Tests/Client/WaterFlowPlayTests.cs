@@ -54,7 +54,7 @@ namespace Game.Client.Tests
                 yield return null;
             }
             Assert.AreEqual(BlockMaterial.Water, view.World.GetMaterial(x, y, z));
-            Assert.AreEqual(5, view.Editor.FlowMaxDistance);
+            Assert.AreEqual(5, view.Editor.MaxLevel);
             Assert.AreEqual(8f, view.waterStepsPerSecond);
         }
 
