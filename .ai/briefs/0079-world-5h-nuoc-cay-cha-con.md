@@ -1,6 +1,6 @@
 # Brief 0079 — World 5h: nước theo cây cha–con (mức 0–5, tăng mức bởi tường, xoá dây chuyền + tái tạo)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ (user xem gộp sau brief mesh 5i)
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-28 03:36
@@ -205,3 +205,12 @@ Không.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- `Chạy bằng` claude-sonnet-5-5 · high khớp `Model thực thi` Sonnet · high.
+- Phần cần test: mọi dòng (cũ — sửa, cũ — giữ, mới, mesh, regression) có kết quả đạt; EditMode 652/652, PlayMode 276/276; mã băm không đổi.
+- `git show --stat 0b638e1`: 12 file, đều trong Phạm vi; `TerrainChunkView` chỉ đổi 2 chỗ cho phép.
+- Diff `WorldEditor` đối chiếu QĐ: D4 đúng thứ tự; nút nguồn lười (`GetOrCreateNode`); `TryPlace` gỡ nút + con vào hàng xoá, `WallBoost` ô kề, kích hoạt ô trên (6); `WallBoost` chỉ khi 0 < L < MaxLevel (8); `Propagate` ngăn xếp, đổi cha trừ cha/tổ tiên (9); `IsDoomed` ném khi vòng (10); `StepFlow` = cascade (con vào hàng xoá trước tái tạo, biển ≤ SeaLevel → `AddToFront`, ứng viên nguồn/nút không doomed, D4 bằng nhau giữ ô trước) rồi lan (rơi → con mức Max; rơi vào nước không lan; nước dưới đứng được → lan; L > 0) (11); `HasPendingWater`, `WakeWater` (12).
+- `BlockMesher.WaterHeight` = 0,9 × (L + 1) / 6 (13). Lưu ý cho 5i: Burst/Game.World có thể không nạp bản mới sau `refresh_unity` — Executor phải ép biên dịch lại; ghi vào brief 5i.
+- Giờ: ~0,5 giờ thực tế / ước lượng 2–3 ngày-người → cộng vào roadmap.
+- User xem: gộp sau brief 5i (5 mục ở "User tự test").
+- Kết luận: đã duyệt
+
