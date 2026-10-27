@@ -1,8 +1,8 @@
 # 0043 — Nước theo cây cha–con: mức lan, tăng mức bởi tường, xoá dây chuyền + tái tạo; mesh nước liền, bo góc chỗ giao hướng
 
-> Trạng thái: Đề xuất
-> Ngày: 2026-10-27
-> Thay đổi (khi Chốt):
+> Trạng thái: Chốt
+> Ngày: 2026-10-27 (user chốt 2026-10-27)
+> Thay đổi:
 > - [0041](0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md): ô hẹp, kiểm khối khi mất nguồn, cờ "đang rút" (bit 15) → thay bằng tăng mức bởi tường + xoá dây chuyền. Giữ thác nước demo.
 > - [0042](0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md): bỏ ô nối (chuyển vào [ideas](../ideas.md)); công thức độ cao mặt nước đổi theo mức 0–5.
 > - [0040](0040-nuoc-chay-nguon-lan-gioi-han-m1.md) mục 2, 3, 5: rơi, lan, rút viết lại theo luật dưới. Giữ mục 1 (nguồn), 4 (hố được lấp), 6 (nhịp).
@@ -27,8 +27,9 @@ Phần user đưa [user]; phần Planner chuyển sang 3D ghi (đề xuất Plan
 
 ### 2. Lan (mỗi nhịp một bước, 8 nhịp/giây như hiện nay)
 Mỗi nhịp, xử lý các ô được kích hoạt ở nhịp trước theo `id` tăng dần (đề xuất Planner, để tất định khi hai ô cùng nhắm một ô trống — ô `id` nhỏ thắng):
-1. **Dưới là ô trống** → không lan ngang; tạo ô con phía dưới, `lv = maxLv` [user].
-2. **Dưới là nước** → không lan, không tạo gì ("nước chảy xuống nước không lan") [user].
+1. **Dưới là ô trống** → không lan ngang; tạo ô con phía dưới, `lv = maxLv` [user]. Áp dụng cả ô `lv = 0` (nước vẫn rơi — đề xuất Planner).
+2. **Dưới là nước** → ô nước chảy không lan, không tạo gì ("nước chảy xuống nước không lan") [user]. Riêng **nguồn gốc** đứng trên nước (lớp mặt ao/hồ sâu) vẫn lan ngang như đứng trên khối đặc (đề xuất Planner — nếu không, đào bờ hồ sâu sẽ không có nước chảy vào).
+- Ô trống ≤ mực nước biển chạm nguồn: để biển loang (0013) lấp thành nguồn, không tạo ô chảy (giữ 0040 QĐ 7a).
 3. **Dưới là khối đặc** và `lv > 0` → lan sang 4 ô ngang còn trống theo thứ tự **+z, +x, −z, −x** (Trên, Phải, Dưới, Trái nhìn từ trên xuống, +z là "trên" của minimap — đề xuất Planner), ô con `lv − 1`, `parent_id` = ô này [user].
 - Không lan vào khối đặc hoặc ô đã có nước. Không dâng lên [user].
 - Ô mới, ô tái tạo, ô vừa tăng mức, và ô nước kề một ô vừa trống được kích hoạt cho nhịp sau (đề xuất Planner).
@@ -43,12 +44,14 @@ Mỗi nhịp, xử lý các ô được kích hoạt ở nhịp trước theo `i
 Ô có mức mới `L` xét 4 ô nước ngang. Ô kề có `lv < L − 1`:
 - không phải cha của ô phát → `lv = L − 1`, `parent_id` = ô phát;
 - là cha → `lv = L − 1`, giữ `parent_id`.
+- Ô kề là **tổ tiên** của ô phát (cha của cha…) cũng chỉ đổi mức, giữ `parent_id` (đề xuất Planner — đổi cha khi đó tạo vòng cha–con khép kín, vòng không còn nối về nguồn nên không bao giờ rút).
 Lặp tiếp từ ô vừa đổi. Phát sóng chạy hết trong cùng nhịp (đề xuất Planner: chỉ đổi mức, không sinh ô mới; ô đổi mức được kích hoạt để nhịp sau lan tiếp). Nguồn gốc không bị đổi.
 
 ### 5. Xoá dây chuyền và tái tạo [user]
 Khi một ô nước chảy bị xoá (đặt khối đè lên) hoặc mất cha:
 - **Nhịp 1:** xoá ô đó; con trực tiếp của nó vào Stack 1.
 - **Nhịp K + 1:** con của các ô trong Stack K vào Stack K + 1, rồi xoá các ô trong Stack K.
+- **Nhánh đang xoá:** ô có chuỗi cha đi tới một ô đã xoá hoặc đang chờ xoá. Ô thuộc nhánh đang xoá không lan, không làm nguồn tái tạo (đề xuất Planner).
 - **Tái tạo:** sau mỗi lần xoá, ở từng vị trí vừa xoá (không phải khối đặc), xét 4 ô nước ngang **không thuộc nhánh đang xoá** (mọi hậu duệ của ô bị xoá ban đầu) [user]. Có → tạo lại ô nước, `lv` lấy theo ô có `lv` cao nhất (bằng nhau → theo thứ tự +z, +x, −z, −x), `parent_id` lấy theo `parent_id` của ô đó; nếu ô đó là nguồn gốc thì `parent_id` = ô nguồn (đề xuất Planner — nếu chép `null` thì ô tái tạo thành nguồn không bao giờ cạn).
 - Ô tái tạo có `id` mới, được xét tăng mức bởi tường và kích hoạt để lan lại.
 - Ô ở chỗ đã đặt khối thì không tái tạo.

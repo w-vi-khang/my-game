@@ -50,9 +50,13 @@
 | Mực nước biển | Độ cao S = mực nước của world (`waterLevel`); ô ≤ S thông với biển thì ngập khi đào (biển loang) | [decisions/0012](decisions/0012-bien-tran-va-luat-dat-khoi-m1.md) |
 | Nguồn nước | Ô nước không bao giờ cạn: ô nước có sẵn khi sinh world (biển, hồ, ao) và ô biển loang (≤ mực nước biển, thông với biển) | [decisions/0040](decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) |
 | Nước đang chảy | Ô nước sinh ra khi nước từ nguồn lan/rơi tới; có mức lan, mất đường về nguồn thì rút | [decisions/0040](decisions/0040-nuoc-chay-nguon-lan-gioi-han-m1.md) |
-| Ô hẹp (nước) | Ô nước có ≤ 2 phía ngang không đặc (rãnh rộng 1 ô): truyền nguyên mức lan, nên nước chảy hết rãnh | [decisions/0041](decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) |
-| Ô nối (nước) | Ô trống có nước ở hai phía đối diện → thành nước mức 1, nối hai vùng nước cách nhau 1 ô | [decisions/0042](decisions/0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md) |
+| Ô hẹp (nước) | ~~Ô nước có ≤ 2 phía ngang không đặc (rãnh rộng 1 ô): truyền nguyên mức lan, nên nước chảy hết rãnh~~ → thay bởi tăng mức bởi tường (0043) | [decisions/0041](decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) |
+| Ô nối (nước) | ~~Ô trống có nước ở hai phía đối diện → thành nước mức 1, nối hai vùng nước cách nhau 1 ô~~ → bỏ (0043), chuyển vào ideas | [decisions/0042](decisions/0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md) |
 | Mặt nước theo mức | Mặt nước của ô đang chảy thấp dần theo mức lan (mức thấp → nước mỏng); góc mặt nước lấy trung bình các ô chung góc | [decisions/0042](decisions/0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md) |
+| Mức nước (lv) | Mức 0–5 của ô nước đang chảy: nguồn 5, mỗi ô lan ngang giảm 1, ô rơi xuống 5; mức 0 không lan tiếp | [decisions/0043](decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) |
+| Cha–con (nước) | Mỗi ô nước đang chảy nhớ ô đã sinh ra nó (`parent_id`); xoá một ô thì cả nhánh con bị xoá | [decisions/0043](decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) |
+| Tăng mức bởi tường | Ô nước đang chảy kề ≥ 2 khối đặc (4 ô ngang) và mức 1–4 → nâng lên mức tối đa, phát sóng mức sang ô kề | [decisions/0043](decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) |
+| Xoá dây chuyền | Ô nước chảy mất (đặt khối đè, mất cha) → mỗi nhịp xoá một tầng con; ô vừa xoá được tái tạo nếu kề nước ngoài nhánh đang xoá | [decisions/0043](decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) |
 | Thác nước | Nước rơi thẳng từ chỗ cao xuống; cột nước rơi không lan ngang giữa không trung | [decisions/0041](decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) |
 | Mép cỏ | Phần cỏ của ô cỏ nhô ra khỏi mặt trên và phủ xuống sườn, mép dưới lượn sóng (chỉ hiển thị, không ảnh hưởng luật chơi) | [decisions/0011](decisions/0011-dia-hinh-khoi-bo-canh.md) |
 | Phiên bản bộ sinh | Phiên bản thuật toán sinh world từ seed; lưu kèm dữ liệu để biết world gốc | [04-tech/world-tech.md](04-tech/world-tech.md) |

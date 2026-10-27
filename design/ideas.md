@@ -63,3 +63,6 @@
 | Trang bị nhân vật cộng cho phép pháp sư khi đánh PvE (không tính PvP) | AI (brainstorm trang bị 2026-10-24, I3) | P4 | loại | User: chiến đấu chỉ dùng sinh vật, trang bị nhân vật không tác dụng — [0038](decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md) |
 | S0 = A2 + phôi A1 (giữ giá 54C) | AI (brainstorm trang bị 2026-10-24) | P4 | loại | User chọn S0 = A2 + phôi A2 (72C) — [0038](decisions/0038-trang-bi-nhan-vat-sinh-vat-bac-ghep-tach.md) |
 | Mảnh trang bị sinh vật có bậc; bậc món lớn = bậc thấp hơn trong 2 mảnh | AI (brainstorm trang bị 2026-10-24, I5) | P4 | để sau | Gấp đôi số thứ cần quản lý; phương án đang đề xuất là mảnh không có bậc ([mechanics](02-gameplay/mechanics.md#trang-bị-sinh-vật)) — chờ user |
+
+## Nước — ô nối (bỏ khỏi M1 theo 0043, 2026-10-27)
+- [ý tưởng] Ô trống có nước ở hai phía đối diện thì thành nước, nối hai vùng nước cách nhau 1 ô ([0042](decisions/0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md) mục 3). Đã code ở brief 0078, gỡ ở brief 0079. Xem lại nếu chơi thử thấy khe 1 ô giữa hai vùng nước nhìn lạ.
