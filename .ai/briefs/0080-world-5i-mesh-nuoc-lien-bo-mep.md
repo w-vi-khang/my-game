@@ -1,6 +1,6 @@
 # Brief 0080 — World 5i (phần 1): mesh nước liền (hàn đỉnh), cột nước rơi bo cạnh đứng, bo lồi mép tràn
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ (user xem gộp sau brief 0081 — bo lõm chân thác)
 > Model thực thi: Sonnet · high
 > Cập nhật: 2026-10-28 05:10
@@ -135,10 +135,24 @@ Không ở brief này — gộp sau brief 0081. Ghi sẵn để Planner chuyển
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 84852b2
+Chạy bằng: Sonnet · high (claude-sonnet-5-5)
+Bắt đầu:Kết thúc: 2026-10-28 05:33 (~15 phút thực tế, gồm ~13 phút chạy test)
+Commit: 9014a97 — đổi: BlockMesher.cs (AddWaterCell/AddWaterColumn, hàn đỉnh, bảng WaterVerts trong Output), WaterConfig.cs, TerrainChunkView.cs, hai water_m1.json, BlockMesherTests.cs, WaterConfigTests.cs.
+Lệch brief: bảng `NativeHashMap` để trong `Output` (tạo TempJob ở `Output.Create`) thay vì tạo trong `Execute` bằng Allocator.Temp — field container của job phải hợp lệ lúc schedule. Không ảnh hưởng hành vi.
+Ảnh Game view thác demo: CHƯA chụp (bỏ để tiết kiệm; Planner/user xem khi test 0081).
 
 ## Kết quả test
+- Console Error sau refresh: 0 — đạt.
+- Phần cần test mới: `WaterVerticesAreWelded`, `FallingColumnIsRoundedAndContinuous`, `LipCapsMeetUpstreamCell`, `BuildRejectsBadFillet` — đạt lần chạy đầu (giá trị khớp mô tả, không phải sửa kỳ vọng). Config: `WaterConfigTests` đạt.
+- EditMode lọc (BlockMesherTests + WaterConfigTests): 48/48. EditMode toàn bộ: 656/656 đạt (gồm GoldenHashTests, ChunkSeamTests, WaterFlowTests, SeaFloodTests, các test cũ nước).
+- PlayMode toàn bộ: 276/276 đạt (gồm WaterFlowPlayTests, TerrainEditPlayTests, DayCycleWaterPlayTests, FlyCameraWaterPlayTests, OceanBackdropTests).
+- `diff` hai water_m1.json: giống nhau.
+- Dọn: EditorSettings.asset đã checkout; `git status` chỉ còn file trong Phạm vi.
+- User tự test: chờ user (gộp sau 0081, như mục "User tự test").
 
 ## Vướng mắc
+Không.
 
 ---
 <!-- PLANNER ghi khi review. -->
