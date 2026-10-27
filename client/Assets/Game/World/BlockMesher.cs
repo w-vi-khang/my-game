@@ -41,6 +41,9 @@ namespace Game.World
         public const int LipProfilePoints = 8;
         /// <summary>Mặt nước của ô nước có không khí phía trên nằm thấp hơn mặt trên ô chừng này (trùng mặt biển nền — OceanBackdrop).</summary>
         public const float WaterSurfaceDrop = 0.1f;
+        /// <summary>Bán kính bo (ô) và số đoạn cung mặc định của mặt nước (0043 mục 6, brief 0080).</summary>
+        public const float DefaultWaterFilletRadius = 0.3f;
+        public const int DefaultWaterFilletSegments = 3;
 
         /// <summary>Số đoạn dọc mỗi cạnh ô của váy cỏ / số đoạn của mảnh góc 1/4 vòng.</summary>
         public const int LipSegments = 4, LipCornerSegments = 3;
@@ -251,21 +254,28 @@ namespace Game.World
         }
 
         /// <param name="grassLip">false → bỏ mép cỏ (để kiểm mesh khối kín; mép cỏ là bề mặt hở chồng lên khối).</param>
-        public static ChunkMesh Build(WorldData world, int chunkX, int chunkY, int chunkZ, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel) =>
-            BuildChunks(world, new[] { world.Size.ChunkIndex(chunkX * WorldSize.ChunkSize, chunkY * WorldSize.ChunkSize, chunkZ * WorldSize.ChunkSize) }, grassLip, waterFullLevel)[0];
+        public static ChunkMesh Build(WorldData world, int chunkX, int chunkY, int chunkZ, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel,
+            float waterFilletRadius = DefaultWaterFilletRadius, int waterFilletSegments = DefaultWaterFilletSegments) =>
+            BuildChunks(world, new[] { world.Size.ChunkIndex(chunkX * WorldSize.ChunkSize, chunkY * WorldSize.ChunkSize, chunkZ * WorldSize.ChunkSize) }, grassLip, waterFullLevel, waterFilletRadius, waterFilletSegments)[0];
 
         /// <summary>Dựng mọi chunk song song (mỗi chunk một job, dùng chung mảng ô chỉ đọc). Thứ tự: x nhanh nhất, rồi z, rồi y.</summary>
-        public static ChunkMesh[] BuildAll(WorldData world, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel)
+        public static ChunkMesh[] BuildAll(WorldData world, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel,
+            float waterFilletRadius = DefaultWaterFilletRadius, int waterFilletSegments = DefaultWaterFilletSegments)
         {
             var all = new int[world.Size.ChunkCount];
             for (int c = 0; c < all.Length; c++)
                 all[c] = c;
-            return BuildChunks(world, all, grassLip, waterFullLevel);
+            return BuildChunks(world, all, grassLip, waterFullLevel, waterFilletRadius, waterFilletSegments);
         }
 
         /// <summary>Dựng song song các chunk theo chỉ số (x nhanh nhất, rồi z, rồi y); kết quả cùng thứ tự với <paramref name="chunkIndices"/>. Mảng ô của world được ghim và đọc trực tiếp (không chép, brief 0010).</summary>
-        public static unsafe ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel)
+        public static unsafe ChunkMesh[] BuildChunks(WorldData world, IReadOnlyList<int> chunkIndices, bool grassLip = true, int waterFullLevel = Cell.MaxWaterLevel,
+            float waterFilletRadius = DefaultWaterFilletRadius, int waterFilletSegments = DefaultWaterFilletSegments)
         {
+            if (!(waterFilletRadius >= 0.05f && waterFilletRadius <= 0.45f))
+                throw new System.ArgumentOutOfRangeException(nameof(waterFilletRadius), waterFilletRadius, "waterFilletRadius must be in 0.05..0.45");
+            if (waterFilletSegments < 1 || waterFilletSegments > 8)
+                throw new System.ArgumentOutOfRangeException(nameof(waterFilletSegments), waterFilletSegments, "waterFilletSegments must be in 1..8");
             if (waterFullLevel < 1)
                 throw new System.ArgumentOutOfRangeException(nameof(waterFullLevel), waterFullLevel, "waterFullLevel must be >= 1");
             EnsureTable();
@@ -303,6 +313,7 @@ namespace Game.World
                         R = BevelRadius,
                         GrassLip = grassLip,
                         WaterFullLevel = waterFullLevel,
+                        WaterFilletRadius = waterFilletRadius, WaterFilletSegments = waterFilletSegments,
                         SizeX = size.X, SizeY = size.Y, SizeZ = size.Z,
                         Origin = new int3(cx, cy, cz) * WorldSize.ChunkSize,
                         Out = outputs[k],
@@ -335,6 +346,8 @@ namespace Game.World
             public NativeList<float3> Vertices, Normals, ColliderVertices;
             public NativeList<uint> Colors;
             public NativeList<int> Indices, ColliderIndices, WaterIndices;
+            /// <summary>Bảng hàn đỉnh nước của chunk (brief 0080).</summary>
+            public NativeHashMap<WaterVertexKey, int> WaterVerts;
 
             public static Output Create() => new Output
             {
@@ -345,6 +358,7 @@ namespace Game.World
                 ColliderVertices = new NativeList<float3>(Allocator.TempJob),
                 ColliderIndices = new NativeList<int>(Allocator.TempJob),
                 WaterIndices = new NativeList<int>(Allocator.TempJob),
+                WaterVerts = new NativeHashMap<WaterVertexKey, int>(1024, Allocator.TempJob),
             };
 
             public ChunkMesh ToChunkMesh() => new ChunkMesh
@@ -367,7 +381,16 @@ namespace Game.World
                 if (ColliderVertices.IsCreated) ColliderVertices.Dispose();
                 if (ColliderIndices.IsCreated) ColliderIndices.Dispose();
                 if (WaterIndices.IsCreated) WaterIndices.Dispose();
+                if (WaterVerts.IsCreated) WaterVerts.Dispose();
             }
+        }
+
+        public struct WaterVertexKey : System.IEquatable<WaterVertexKey>
+        {
+            public int3 P, N;
+            public bool Equals(WaterVertexKey o) => P.Equals(o.P) && N.Equals(o.N);
+            public override bool Equals(object obj) => obj is WaterVertexKey o && Equals(o);
+            public override int GetHashCode() => (int)math.hash(new int4(P.x, P.y, P.z, N.x * 31 + N.y * 17 + N.z));
         }
 
         [BurstCompile(CompileSynchronously = true)]
@@ -384,6 +407,8 @@ namespace Game.World
             public float R;
             public bool GrassLip;
             public int WaterFullLevel;
+            public float WaterFilletRadius;
+            public int WaterFilletSegments;
             public int SizeX, SizeY, SizeZ;
             public int3 Origin;
             public Output Out;
@@ -418,9 +443,7 @@ namespace Game.World
                     if (m == (int)BlockMaterial.Water)
                     {
                         int above = MaterialAt(g + new int3(0, 1, 0));
-                        if (above == (int)BlockMaterial.Empty)
-                            AddWaterSurface(new int3(x, y, z), g);
-                        AddWaterSides(new int3(x, y, z), g);
+                        AddWaterCell(new int3(x, y, z), g, above == (int)BlockMaterial.Empty);
                         continue;
                     }
                     if (!IsSolidMaterial(m))
@@ -904,17 +927,202 @@ namespace Game.World
                     AddOriented(wCenter, c2 + k, c2 + k + 1, down);
             }
 
+            /// <summary>Ô nước (0012, 0041–0043): ô cột (đang rơi hoặc ngay trên ô đang rơi) vẽ liền + bo cạnh đứng / mép tràn; ô khác vẽ mặt trên (nếu thoáng), mặt bên, mặt đáy.</summary>
+            void AddWaterCell(int3 c, int3 g, bool airAbove)
+            {
+                bool column = IsFallingWater(g) || IsFallingWater(g - new int3(0, 1, 0));
+                if (!column)
+                {
+                    if (airAbove)
+                        AddWaterSurface(c, g);
+                    AddWaterSides(c, g);
+                    return;
+                }
+                int e = (int)BlockMaterial.Empty;
+                var col = new WaterCol
+                {
+                    c = c,
+                    h = new float4(CornerHeight(g, 0, 0), CornerHeight(g, 1, 0), CornerHeight(g, 0, 1), CornerHeight(g, 1, 1)),
+                    open = new bool4(MaterialAt(g + new int3(1, 0, 0)) == e, MaterialAt(g - new int3(1, 0, 0)) == e,
+                        MaterialAt(g + new int3(0, 0, 1)) == e, MaterialAt(g - new int3(0, 0, 1)) == e),
+                    lip = airAbove,
+                };
+                col.rv = math.min(WaterFilletRadius, math.cmin(col.h));
+                AddWaterColumn(g, col);
+            }
+
+            bool IsFallingWater(int3 p)
+            {
+                ushort cell = CellAt(p);
+                return Cell.GetMaterial(cell) == BlockMaterial.Water && Cell.IsFlowing(cell) && Cell.IsFalling(cell);
+            }
+
+            /// <summary>Ô cột có ô trên thoáng (mép tràn)?</summary>
+            bool IsLipCell(int3 p) =>
+                MaterialAt(p) == (int)BlockMaterial.Water && MaterialAt(p + new int3(0, 1, 0)) == (int)BlockMaterial.Empty
+                && (IsFallingWater(p) || IsFallingWater(p - new int3(0, 1, 0)));
+
+            struct WaterCol
+            {
+                public int3 c;
+                /// <summary>CornerHeight theo (sx + 2·sz).</summary>
+                public float4 h;
+                /// <summary>Mặt hở: +x, −x, +z, −z.</summary>
+                public bool4 open;
+                public bool lip;
+                public float rv;
+
+                public bool Rounded(int sx, int sz) => open[sx == 1 ? 0 : 1] && open[sz == 1 ? 2 : 3];
+                public float Hc(int sx, int sz) => h[sx + 2 * sz];
+                public float H(float u, float v) => (1 - u) * (1 - v) * h.x + u * (1 - v) * h.y + (1 - u) * v * h.z + u * v * h.w;
+                public float3 Pos(float u, float y, float v) => new float3(c.x + u, y, c.z + v);
+            }
+
+            float3 CircleDir(int sx, int sz, float phi) =>
+                math.cos(phi) * new float3(sx == 1 ? 1 : -1, 0, 0) + math.sin(phi) * new float3(0, 0, sz == 1 ? 1 : -1);
+
+            /// <summary>Hướng d: 0 = +x, 1 = −x, 2 = +z, 3 = −z → (trục x?, dấu).</summary>
+            static float3 DirVec(int d) => d < 2 ? new float3(d == 0 ? 1 : -1, 0, 0) : new float3(0, 0, d == 2 ? 1 : -1);
+
+            /// <summary>Điểm cung mép tràn tại điểm trong P (u, v) của mặt trên, cung k.</summary>
+            int WaterArcVertex(in WaterCol col, float2 puv, float3 outDir, int k, bool withOutNormal, float3 forcedNormal)
+            {
+                float R = WaterFilletRadius;
+                float th = k * math.PI * 0.5f / WaterFilletSegments;
+                float sn = math.sin(th), cs = math.cos(th);
+                float3 up = new float3(0, 1, 0);
+                float3 p = col.Pos(puv.x, col.c.y + col.H(puv.x, puv.y), puv.y) + outDir * (R * sn) - up * (col.rv * (1 - cs));
+                float3 n = withOutNormal ? math.normalize(outDir * (col.rv * sn) + up * (R * cs)) : forcedNormal;
+                return AddWaterVertex(p, n);
+            }
+
+            /// <summary>Ô cột (brief 0080, 0043 mục 6): mặt bên rút ngắn + trụ bo đứng; mép tràn thêm mặt trên, cung, cầu góc, nắp.</summary>
+            void AddWaterColumn(int3 g, in WaterCol col)
+            {
+                float R = WaterFilletRadius;
+                int S = WaterFilletSegments;
+                float3 up = new float3(0, 1, 0);
+                int3 c = col.c;
+
+                if (col.lip)
+                {
+                    float u0 = col.open.y ? R : 0, u1 = col.open.x ? 1 - R : 1;
+                    float v0 = col.open.w ? R : 0, v1 = col.open.z ? 1 - R : 1;
+                    int a = AddWaterVertex(col.Pos(u0, c.y + col.H(u0, v0), v0), up);
+                    int b = AddWaterVertex(col.Pos(u1, c.y + col.H(u1, v0), v0), up);
+                    int cc = AddWaterVertex(col.Pos(u1, c.y + col.H(u1, v1), v1), up);
+                    int dd = AddWaterVertex(col.Pos(u0, c.y + col.H(u0, v1), v1), up);
+                    AddWaterTri(a, b, cc); AddWaterTri(a, cc, dd);
+                }
+
+                // Mặt bên, cung và nắp trên từng cạnh hở.
+                for (int d = 0; d < 4; d++)
+                {
+                    if (!col.open[d])
+                        continue;
+                    bool axisX = d < 2;
+                    int cs = d == 0 || d == 2 ? 1 : 0;
+                    float3 outDir = DirVec(d);
+                    bool r0 = axisX ? col.Rounded(cs, 0) : col.Rounded(0, cs);
+                    bool r1 = axisX ? col.Rounded(cs, 1) : col.Rounded(1, cs);
+                    float t0 = r0 ? R : 0, t1 = r1 ? 1 - R : 1;
+                    float pe = cs == 1 ? 1 - R : R; // toạ độ mép mặt trên phía d
+                    float2 P0 = axisX ? new float2(pe, t0) : new float2(t0, pe);
+                    float2 P1 = axisX ? new float2(pe, t1) : new float2(t1, pe);
+                    float2 E0 = axisX ? new float2(cs, t0) : new float2(t0, cs); // điểm trên mặt phẳng cạnh
+                    float2 E1 = axisX ? new float2(cs, t1) : new float2(t1, cs);
+
+                    int b0 = AddWaterVertex(col.Pos(E0.x, c.y, E0.y), outDir);
+                    int b1 = AddWaterVertex(col.Pos(E1.x, c.y, E1.y), outDir);
+                    int s0, s1;
+                    if (col.lip)
+                    {
+                        s0 = WaterArcVertex(col, P0, outDir, S, true, default);
+                        s1 = WaterArcVertex(col, P1, outDir, S, true, default);
+                        for (int k = 0; k < S; k++)
+                        {
+                            int p0 = WaterArcVertex(col, P0, outDir, k, true, default), p1 = WaterArcVertex(col, P1, outDir, k, true, default);
+                            int q0 = WaterArcVertex(col, P0, outDir, k + 1, true, default), q1 = WaterArcVertex(col, P1, outDir, k + 1, true, default);
+                            AddWaterTri(p0, p1, q1); AddWaterTri(p0, q1, q0);
+                        }
+                    }
+                    else
+                    {
+                        float hA = axisX ? col.Hc(cs, 0) : col.Hc(0, cs), hB = axisX ? col.Hc(cs, 1) : col.Hc(1, cs);
+                        s0 = AddWaterVertex(col.Pos(E0.x, c.y + math.lerp(hA, hB, t0), E0.y), outDir);
+                        s1 = AddWaterVertex(col.Pos(E1.x, c.y + math.lerp(hA, hB, t1), E1.y), outDir);
+                    }
+                    AddWaterTri(b0, b1, s1); AddWaterTri(b0, s1, s0);
+
+                    if (!col.lip)
+                        continue;
+                    for (int end = 0; end < 2; end++)
+                    {
+                        if (end == 0 ? r0 : r1)
+                            continue;
+                        float3 eDir = axisX ? new float3(0, 0, end == 0 ? -1 : 1) : new float3(end == 0 ? -1 : 1, 0, 0);
+                        int3 nb = g + new int3((int)eDir.x, 0, (int)eDir.z);
+                        if (MaterialAt(nb) != (int)BlockMaterial.Water)
+                            continue;
+                        if (IsLipCell(nb) && MaterialAt(nb + new int3((int)outDir.x, 0, (int)outDir.z)) == (int)BlockMaterial.Empty)
+                            continue;
+                        float2 corner = end == 0 ? E0 : E1;
+                        float2 pp = end == 0 ? P0 : P1;
+                        float3 capN = -eDir;
+                        int csx = (int)corner.x, csz = (int)corner.y;
+                        int q = AddWaterVertex(col.Pos(corner.x, c.y + col.Hc(csx, csz), corner.y), capN);
+                        for (int k = 0; k < S; k++)
+                            AddWaterTri(q, WaterArcVertex(col, pp, outDir, k, false, capN), WaterArcVertex(col, pp, outDir, k + 1, false, capN));
+                    }
+                }
+
+                // Trụ bo đứng và cầu góc ở mỗi góc bo.
+                for (int sz = 0; sz < 2; sz++)
+                for (int sx = 0; sx < 2; sx++)
+                {
+                    if (!col.Rounded(sx, sz))
+                        continue;
+                    float2 ax = new float2(sx == 1 ? 1 - R : R, sz == 1 ? 1 - R : R);
+                    float hc = c.y + col.H(ax.x, ax.y);
+                    float yt = col.lip ? hc - col.rv : c.y + col.Hc(sx, sz);
+                    for (int j = 0; j < S; j++)
+                    {
+                        float3 d0 = CircleDir(sx, sz, j * math.PI * 0.5f / S), d1 = CircleDir(sx, sz, (j + 1) * math.PI * 0.5f / S);
+                        int a0 = AddWaterVertex(col.Pos(ax.x + R * d0.x, c.y, ax.y + R * d0.z), d0);
+                        int a1 = AddWaterVertex(col.Pos(ax.x + R * d1.x, c.y, ax.y + R * d1.z), d1);
+                        int t1v = AddWaterVertex(col.Pos(ax.x + R * d1.x, yt, ax.y + R * d1.z), d1);
+                        int t0v = AddWaterVertex(col.Pos(ax.x + R * d0.x, yt, ax.y + R * d0.z), d0);
+                        AddWaterTri(a0, a1, t1v); AddWaterTri(a0, t1v, t0v);
+                    }
+                    if (!col.lip)
+                        continue;
+                    for (int i = 0; i < S; i++)
+                    for (int j = 0; j < S; j++)
+                    {
+                        int v00 = WaterSphereVertex(col, sx, sz, ax, hc, i, j), v10 = WaterSphereVertex(col, sx, sz, ax, hc, i + 1, j);
+                        int v11 = WaterSphereVertex(col, sx, sz, ax, hc, i + 1, j + 1), v01 = WaterSphereVertex(col, sx, sz, ax, hc, i, j + 1);
+                        AddWaterTri(v00, v10, v11); AddWaterTri(v00, v11, v01);
+                    }
+                }
+            }
+
+            int WaterSphereVertex(in WaterCol col, int sx, int sz, float2 ax, float hc, int i, int j)
+            {
+                float R = WaterFilletRadius;
+                float th = i * math.PI * 0.5f / WaterFilletSegments;
+                float3 dir = CircleDir(sx, sz, j * math.PI * 0.5f / WaterFilletSegments);
+                float3 up = new float3(0, 1, 0);
+                float sn = math.sin(th), cs = math.cos(th);
+                float3 p = new float3(col.c.x + ax.x, hc, col.c.z + ax.y) + dir * (R * sn) - up * (col.rv * (1 - cs));
+                return AddWaterVertex(p, math.normalize(dir * (col.rv * sn) + up * (R * cs)));
+            }
+
             /// <summary>Mặt nước của ô nước có không khí phía trên (0012, 0042): tứ giác có độ cao từng góc theo CornerHeight, submesh 1.</summary>
             void AddWaterSurface(int3 c, int3 g)
             {
                 float3 up = new float3(0, 1, 0);
-                int i0 = AddVertex(new float3(c.x, c.y + CornerHeight(g, 0, 0), c.z), up, 0);
-                AddVertex(new float3(c.x + 1, c.y + CornerHeight(g, 1, 0), c.z), up, 0);
-                AddVertex(new float3(c.x + 1, c.y + CornerHeight(g, 1, 1), c.z + 1), up, 0);
-                AddVertex(new float3(c.x, c.y + CornerHeight(g, 0, 1), c.z + 1), up, 0);
-                // Mặt trên (pháp tuyến +y): cross(du, dv) với du = +z, dv = +x theo quy ước trục 1 → thứ tự (0, 3, 2)(0, 2, 1).
-                Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 3); Out.WaterIndices.Add(i0 + 2);
-                Out.WaterIndices.Add(i0); Out.WaterIndices.Add(i0 + 2); Out.WaterIndices.Add(i0 + 1);
+                AddWaterQuad(new float3(c.x, c.y + CornerHeight(g, 0, 0), c.z), new float3(c.x + 1, c.y + CornerHeight(g, 1, 0), c.z),
+                    new float3(c.x + 1, c.y + CornerHeight(g, 1, 1), c.z + 1), new float3(c.x, c.y + CornerHeight(g, 0, 1), c.z + 1), up);
             }
 
             /// <summary>Mặt bên (ô ngang Empty) và mặt đáy (ô dưới Empty) của ô nước (0041, 0042): đỉnh trên theo độ cao hai góc của cạnh.</summary>
@@ -985,24 +1193,37 @@ namespace Game.World
                 return sum / n;
             }
 
-            /// <summary>Tứ giác nước (0041): 4 đỉnh theo vòng p0→p1→p2→p3, 2 tam giác vào submesh nước, mặt trước quay theo n.</summary>
+            /// <summary>Tứ giác nước (0041): 4 đỉnh theo vòng p0→p1→p2→p3 (hàn đỉnh trùng), 2 tam giác vào submesh nước, mặt trước quay theo n.</summary>
             void AddWaterQuad(float3 p0, float3 p1, float3 p2, float3 p3, float3 n)
             {
-                int i0 = AddVertex(p0, n, 0);
-                AddVertex(p1, n, 0);
-                AddVertex(p2, n, 0);
-                AddVertex(p3, n, 0);
-                AddWaterTri(i0, i0 + 1, i0 + 2, p0, p1, p2, n);
-                AddWaterTri(i0, i0 + 2, i0 + 3, p0, p2, p3, n);
+                int i0 = AddWaterVertex(p0, n), i1 = AddWaterVertex(p1, n), i2 = AddWaterVertex(p2, n), i3 = AddWaterVertex(p3, n);
+                AddWaterTri(i0, i1, i2);
+                AddWaterTri(i0, i2, i3);
             }
 
-            void AddWaterTri(int a, int b, int c, float3 pa, float3 pb, float3 pc, float3 n)
+            /// <summary>Tam giác nước: mặt trước quay theo tổng pháp tuyến 3 đỉnh; bỏ tam giác suy biến (trùng chỉ số).</summary>
+            void AddWaterTri(int a, int b, int c)
             {
+                if (a == b || b == c || a == c)
+                    return;
+                float3 pa = Out.Vertices[a], pb = Out.Vertices[b], pc = Out.Vertices[c];
+                float3 n = Out.Normals[a] + Out.Normals[b] + Out.Normals[c];
                 if (math.dot(math.cross(pb - pa, pc - pa), n) < 0f)
                 {
                     int t = b; b = c; c = t;
                 }
                 Out.WaterIndices.Add(a); Out.WaterIndices.Add(b); Out.WaterIndices.Add(c);
+            }
+
+            /// <summary>Đỉnh nước dùng chung: cùng vị trí (1/1024) và pháp tuyến (1/1024) → cùng chỉ số (brief 0080).</summary>
+            int AddWaterVertex(float3 p, float3 n)
+            {
+                var key = new WaterVertexKey { P = (int3)math.round(p * 1024f), N = (int3)math.round(n * 1024f) };
+                if (Out.WaterVerts.TryGetValue(key, out int found))
+                    return found;
+                int i = AddVertex(p, n, 0);
+                Out.WaterVerts.Add(key, i);
+                return i;
             }
 
             int AddVertex(float3 p, float3 n, uint color)

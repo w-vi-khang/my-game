@@ -938,6 +938,129 @@ namespace Game.World.Tests
             return false;
         }
 
+        static bool HasWaterVertexNear(ChunkMesh mesh, float3 pos, float3 normal)
+        {
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                int i = mesh.WaterIndices[t];
+                if (math.distance(mesh.Normals[i], normal) < 1e-3f && math.distance(mesh.Vertices[i], pos) < 1e-3f)
+                    return true;
+            }
+            return false;
+        }
+
+        static void AssertNoDuplicateWaterVertices(ChunkMesh mesh)
+        {
+            var used = new System.Collections.Generic.SortedSet<int>(mesh.WaterIndices);
+            var list = new System.Collections.Generic.List<int>(used);
+            for (int a = 0; a < list.Count; a++)
+            for (int b = a + 1; b < list.Count; b++)
+                Assert.IsFalse(math.distance(mesh.Vertices[list[a]], mesh.Vertices[list[b]]) < 1e-4f
+                    && math.distance(mesh.Normals[list[a]], mesh.Normals[list[b]]) < 1e-4f,
+                    $"duplicate water vertex {mesh.Vertices[list[a]]} n {mesh.Normals[list[a]]}");
+        }
+
+        [Test]
+        public void WaterVerticesAreWelded()
+        {
+            var w = StoneFloor16();
+            w.Set(6, 5, 6, Water());
+            w.Set(7, 5, 6, Water());
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            Assert.AreEqual(16, mesh.WaterTriangleCount);
+            Assert.AreEqual(26, new System.Collections.Generic.HashSet<int>(mesh.WaterIndices).Count);
+            AssertNoDuplicateWaterVertices(mesh);
+        }
+
+        [Test]
+        public void FallingColumnIsRoundedAndContinuous()
+        {
+            var w = StoneFloor16();
+            for (int y = 5; y <= 8; y++)
+                w.Set(8, y, 8, Cell.MakeFlowing(0, 5, true));
+            w.Set(8, 9, 8, Water());
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            float[] cx = { 8, 9, 8, 9 }, cz = { 8, 8, 9, 9 };
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                float3 p = mesh.Vertices[mesh.WaterIndices[t]];
+                for (int k = 0; k < 4; k++)
+                    Assert.IsFalse(math.abs(p.x - cx[k]) < 1e-4f && math.abs(p.z - cz[k]) < 1e-4f && p.y >= 5 - 1e-4f && p.y <= 9.9f + 1e-4f,
+                        $"sharp column corner at {p}");
+                Assert.IsTrue(p.x >= 8 - 1e-4f && p.x <= 9 + 1e-4f && p.z >= 8 - 1e-4f && p.z <= 9 + 1e-4f && p.y >= 5 - 1e-4f && p.y <= 9.9f + 1e-4f, $"out of range {p}");
+            }
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(8.9598f, 7, 8.85f), new float3(0.8660f, 0, 0.5f)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(8.3f, 9.9f, 8.3f), up));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(8.85f, 9.8598f, 8.3f), new float3(0.5f, 0.8660f, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(9, 9.6f, 8.3f), new float3(1, 0, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(8.7f, 9.9f, 8.7f), up));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(9, 5, 8.3f), new float3(1, 0, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(9, 9.6f, 8.7f), new float3(1, 0, 0)));
+            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
+            {
+                int a = mesh.WaterIndices[t], b = mesh.WaterIndices[t + 1], c = mesh.WaterIndices[t + 2];
+                float3 na = mesh.Normals[a], pa = mesh.Vertices[a];
+                bool flat = math.abs(math.abs(na.y) - 1f) < 1e-4f && math.abs(na.x) < 1e-4f && math.abs(na.z) < 1e-4f;
+                bool mid = true;
+                foreach (int i in new[] { a, b, c })
+                {
+                    float y = mesh.Vertices[i].y;
+                    mid &= math.abs(y - 6) < 1e-4f || math.abs(y - 7) < 1e-4f || math.abs(y - 8) < 1e-4f || math.abs(y - 9) < 1e-4f;
+                }
+                Assert.IsFalse(flat && mid, $"horizontal face between column cells at {pa}");
+                float3 cr = math.cross(mesh.Vertices[b] - pa, mesh.Vertices[c] - pa);
+                Assert.Greater(math.dot(cr, na + mesh.Normals[b] + mesh.Normals[c]), 0f, $"triangle {t / 3} faces away");
+            }
+            AssertNoDuplicateWaterVertices(mesh);
+        }
+
+        [Test]
+        public void LipCapsMeetUpstreamCell()
+        {
+            var w = StoneFloor16();
+            for (int y = 5; y <= 8; y++)
+            {
+                w.Set(4, y, 4, Cell.Make(BlockMaterial.Stone));
+                w.Set(5, y, 4, Cell.MakeFlowing(0, 5, true));
+            }
+            w.Set(4, 9, 4, Cell.MakeFlowing(0, 5, false));
+            w.Set(5, 9, 4, Cell.MakeFlowing(0, 4, false));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            int caps = 0;
+            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
+            {
+                bool all = true;
+                for (int k = 0; k < 3; k++)
+                {
+                    int i = mesh.WaterIndices[t + k];
+                    all &= math.abs(mesh.Vertices[i].x - 5) < 1e-4f && math.distance(mesh.Normals[i], new float3(1, 0, 0)) < 1e-4f;
+                }
+                if (all)
+                    caps++;
+            }
+            Assert.AreEqual(6, caps);
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5, 9.825f, 4.3f), new float3(0, 1, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5, 9.825f, 4), new float3(1, 0, 0)));
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                float3 p = mesh.Vertices[mesh.WaterIndices[t]];
+                bool bad = math.abs(p.x - 6) < 1e-4f && (math.abs(p.z - 4) < 1e-4f || math.abs(p.z - 5) < 1e-4f) && p.y >= 5 - 1e-4f && p.y <= 9.9f + 1e-4f;
+                Assert.IsFalse(bad, $"sharp column corner at {p}");
+            }
+            AssertNoDuplicateWaterVertices(mesh);
+        }
+
+        [Test]
+        public void BuildRejectsBadFillet()
+        {
+            var w = StoneFloor16();
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => BlockMesher.Build(w, 0, 0, 0, true, 5, 0.04f, 3));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => BlockMesher.Build(w, 0, 0, 0, true, 5, 0.46f, 3));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => BlockMesher.Build(w, 0, 0, 0, true, 5, 0.3f, 0));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => BlockMesher.Build(w, 0, 0, 0, true, 5, 0.3f, 9));
+        }
+
         [Test]
         public void FlowingWaterSurfaceFollowsLevel()
         {

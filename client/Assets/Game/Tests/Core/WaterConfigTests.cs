@@ -15,10 +15,12 @@ namespace Game.Core.Tests
             Assert.IsTrue(File.Exists(SourcePath), SourcePath);
             var cfg = JsonUtility.FromJson<WaterConfig>(File.ReadAllText(SourcePath));
             Assert.DoesNotThrow(cfg.Validate);
-            Assert.AreEqual(2, cfg.configVersion);
+            Assert.AreEqual(3, cfg.configVersion);
             Assert.AreEqual(5, cfg.maxLevel);
             Assert.AreEqual(8, cfg.stepsPerSecond);
             Assert.AreEqual(2, cfg.wallBoostMinSolid);
+            Assert.AreEqual(0.3f, cfg.filletRadius, 1e-6f);
+            Assert.AreEqual(3, cfg.filletSegments);
         }
 
         [Test]
@@ -38,6 +40,10 @@ namespace Game.Core.Tests
             c = new WaterConfig(); c.stepsPerSecond = 61; Assert.Throws<ArgumentException>(c.Validate, "steps=61");
             c = new WaterConfig(); c.wallBoostMinSolid = 0; Assert.Throws<ArgumentException>(c.Validate, "wall=0");
             c = new WaterConfig(); c.wallBoostMinSolid = 5; Assert.Throws<ArgumentException>(c.Validate, "wall=5");
+            c = new WaterConfig(); c.filletRadius = 0.04f; Assert.Throws<ArgumentException>(c.Validate, "fillet=0.04");
+            c = new WaterConfig(); c.filletRadius = 0.46f; Assert.Throws<ArgumentException>(c.Validate, "fillet=0.46");
+            c = new WaterConfig(); c.filletSegments = 0; Assert.Throws<ArgumentException>(c.Validate, "seg=0");
+            c = new WaterConfig(); c.filletSegments = 9; Assert.Throws<ArgumentException>(c.Validate, "seg=9");
         }
     }
 }

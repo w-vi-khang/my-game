@@ -24,6 +24,8 @@ namespace Game.Client
         /// <summary>Nhịp nước (0013, 0040): số lần WorldEditor.StepWater mỗi giây — Build() ghi đè từ water_m1.json.</summary>
         public float waterStepsPerSecond = 8f;
         float waterTimer;
+        float waterFilletRadius = BlockMesher.DefaultWaterFilletRadius;
+        int waterFilletSegments = BlockMesher.DefaultWaterFilletSegments;
         public Color color = Color.white;
         /// <summary>Nguồn world (brief 0010). Mặc định đảo v2 — SimView và test cũ không đổi.</summary>
         public WorldSource source = WorldSource.IslandV2;
@@ -229,6 +231,8 @@ namespace Game.Client
             Editor.MaxLevel = waterCfg.maxLevel;
             Editor.WallBoostMinSolid = waterCfg.wallBoostMinSolid;
             waterStepsPerSecond = waterCfg.stepsPerSecond;
+            waterFilletRadius = waterCfg.filletRadius;
+            waterFilletSegments = waterCfg.filletSegments;
             Editor.CellChanged += OnCellChanged;
             Editor.WaterSurfaceChanged += OnCellChanged;
             dirty.Clear();
@@ -386,7 +390,7 @@ namespace Game.Client
         void Rebuild(List<int> chunkIndices)
         {
             var sw = Stopwatch.StartNew();
-            var built = BlockMesher.BuildChunks(World, chunkIndices, true, Editor.MaxLevel);
+            var built = BlockMesher.BuildChunks(World, chunkIndices, true, Editor.MaxLevel, waterFilletRadius, waterFilletSegments);
             LastMeshMs = sw.Elapsed.TotalMilliseconds;
 
             sw.Restart();
