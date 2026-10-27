@@ -1,5 +1,6 @@
 # Chơi thử gộp — bước 7 (7l d, e, f + sim 7g) + sim 8b
 
+> **Kết quả (2026-10-27):** A–F user chơi thử đạt hết; G (sim 8b) đạt [user].
 > Gom từ mục "User tự test" của brief 0061–0067 (user 2026-10-24: "user xem" gộp một lần ở cuối). Tất cả đã duyệt phần code; chưa user xem.
 > Scene **SimView** trên Mac, Play. Ghi đạt / lỗi theo số mục; góp ý → Planner viết brief sửa.
 > Số tạm chỉnh trong `design/data/sim_m1.json` (+ bản sao `client/Assets/Game/Client/Resources/Config/sim_m1.json`).
