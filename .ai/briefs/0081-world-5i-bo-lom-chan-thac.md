@@ -1,9 +1,9 @@
 # Brief 0081 — World 5i (phần 2): bo lõm chân thác, xén mặt ao quanh chân, vá góc chân cột
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem (gộp 0079, 0080, 0081)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-28 10:35
+> Cập nhật: 2026-10-28 10:50
 
 ## Mục tiêu
 Làm phần còn lại của [0043](../../design/decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) mục 6 trong `BlockMesher`: ở chân thác (cột nước rơi chạm mặt ao), góc giữa mặt đổ xuống và mặt ao được bo lõm theo cung tròn. Mặt ao của các ô quanh chân thác được xén để không chồng lên phần bo. Ngoài ra vá lỗ ở góc chân cột: sau 0080, góc bo đứng của ô rơi thấp nhất để hở một mảnh trên ô ao, không có mặt nước. User chọn "làm đủ" (2026-10-28).
@@ -61,6 +61,9 @@ Ký hiệu: `R` = `WaterFilletRadius`, `S` = `WaterFilletSegments` (mặc địn
    - Để nhanh: chỉ tính các luật trên khi ít nhất một trong 8 ô quanh `P` (cùng y) có `IsFallingWater(ô + up)`. Ngược lại vẽ như cũ.
 8. **Chunk:** chân `F` vẽ dải, xuyến, `Q` và nắp vào chunk của `F`, kể cả phần nằm trong ô thuộc chunk bên cạnh. Mặt ao bị xén do chunk của ô ao vẽ. Đỉnh được phép nằm ngoài [0, 16] của chunk.
 9. **Chấp nhận:** chỗ nối chữ T trên cạnh giữa ô ao bị xén (hoặc nắp) và ô ao không bị xén (chỉ sai số float, nằm ở biên vùng chân thác). Không xử lý thêm.
+11. **Trả lời vướng mắc (Planner, 2026-10-28):** cả hai lỗi của `FootFilletFullPond` là kỳ vọng test sai, code mesher đúng QĐ → chỉ sửa test, không đổi mesher.
+    - a. Cạnh hở trên z = 7 / z = 10 là chữ T của QĐ 9 (ô ao xén chéo góc ↔ ô ao không xén). Hộp `AssertWatertight` thu vào `(7.01, 5.5, 7.01)`–`(9.99, 6.5, 9.99)`.
+    - b. Trụ/xuyến là đa giác S cạnh nên dây cung lệch cung tròn tới R·(1 − cos(45°/S)) ≈ 0.0102. Ngưỡng bỏ điểm phủ kín của `FootFilletFullPond` là |d| < 0.014 (thay 0.003). `FootMixedCornerAndCaps`, `FootInnerCornerMiter` giữ nguyên.
 10. Không đổi: địa hình, mép cỏ, collider, `WaterHeight`, `CornerHeight`, ô cột không phải chân, mép tràn, ô nước không phải ao bị xén, `water_m1.json`, tham số `R`/`S`, bộ sinh world, `WorldEditor`.
 
 ## Phạm vi
@@ -76,6 +79,7 @@ Ký hiệu: `R` = `WaterFilletRadius`, `S` = `WaterFilletSegments` (mặc địn
    - `static int CountUpHits(ChunkMesh m, float x, float z, float yMin, float yMax)`: đếm tam giác nước có hình chiếu xz diện tích > 1e-9, chứa (x, z) theo toạ độ trọng tâm với sai số 1e-6, có y giao trong [yMin, yMax] và (tổng pháp tuyến 3 đỉnh).y > 0.
    - `static void AssertWatertight(ChunkMesh m, float3 lo, float3 hi)`: với mọi cạnh tam giác nước có cả hai đầu trong hộp [lo, hi] (sai số 1e-4), khoá vị trí là `round(p·10000)`. Mỗi cạnh vô hướng phải xuất hiện đúng 2 lần, một lần mỗi chiều. Lỗi in toạ độ cạnh.
 6. Chạy "Lệnh executor chạy".
+7. (sau vướng mắc) Code bước 1–5 đã có trong working tree: không viết lại. Sửa 2 dòng test của `FootFilletFullPond` theo QĐ 11 (hộp watertight, ngưỡng |d|), rồi chạy "Lệnh executor chạy" từ bước 1 tới 5. Thêm vào Kết quả/Kết quả test, giữ ghi chép lần trước.
 
 ## Tiêu chí xong
 - `refresh_unity` → console 0 Error.
@@ -94,8 +98,8 @@ Mọi test dùng `StoneFloor16()` (đá ở y = 4) và `BlockMesher.Build(w, 0, 
   - xuyến góc (1,1): (i 1, j 1) `(8.9946, 6.15, 8.8701)` pháp tuyến (0.75, 0.5, 0.4330); (i 2, j 1) `(9.0897, 6.0312, 8.925)` pháp tuyến (0.4330, 0.8660, 0.25); (i 3, j 1) `(9.2196, 5.9780, 9.0)` pháp tuyến (0, 1, 0);
   - `Q` góc (1,1): `Qf (9.3, 5.949, 9.3)`, `M1 (9.3, 5.97, 9.0)`, `M2 (9.0, 5.97, 9.3)`, đều pháp tuyến (0, 1, 0);
   - ô ao bị xén (9,5,8): tâm hình chữ nhật `(9.65, 5.935, 8.5)` pháp tuyến (0, 1, 0);
-  - phủ kín: điểm mẫu x = 7.0131 + 0.05·i, z = 7.0077 + 0.05·j (i, j = 0..59). `d` = khoảng cách có dấu tới chân cột (hình vuông [8, 9]² bo 4 góc bán kính 0,3; âm là bên trong): `q = abs((x, z) − (8.5, 8.5)) − 0.2`, `d = length(max(q, 0)) + min(max(q.x, q.y), 0) − 0.3`. Bỏ qua điểm có |d| < 0.003. Kỳ vọng `CountUpHits(m, x, z, 5.5, 6.5)` = 1 khi d > 0 và = 0 khi d < 0;
-  - `AssertWatertight(m, (7, 5.5, 7), (10, 6.5, 10))`;
+  - phủ kín: điểm mẫu x = 7.0131 + 0.05·i, z = 7.0077 + 0.05·j (i, j = 0..59). `d` = khoảng cách có dấu tới chân cột (hình vuông [8, 9]² bo 4 góc bán kính 0,3; âm là bên trong): `q = abs((x, z) − (8.5, 8.5)) − 0.2`, `d = length(max(q, 0)) + min(max(q.x, q.y), 0) − 0.3`. Bỏ qua điểm có |d| < 0.014 (QĐ 11b). Kỳ vọng `CountUpHits(m, x, z, 5.5, 6.5)` = 1 khi d > 0 và = 0 khi d < 0;
+  - `AssertWatertight(m, (7.01, 5.5, 7.01), (9.99, 6.5, 9.99))` (QĐ 11a);
   - `AssertNoDuplicateWaterVertices`.
 - `FootMixedCornerAndCaps` (góc lửng, vá góc, nắp ở góc không bo, đầu dải lửng) · ao, trong đó (7,5,8) và (9,5,9) là Stone; thêm Stone ở (7, y, 8) với y = 6..9 và ở (9,6,9); cột tại (8, 8) ·
   - vá góc lửng (1,1): đỉnh `(9, 6, 9)` pháp tuyến (0, 1, 0); đáy trụ góc (1,1) φ = 30°: `(8.9598, 6, 8.85)` pháp tuyến (0.8660, 0, 0.5);
