@@ -3,7 +3,7 @@
 > Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp 0079, 0080, 0081)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-28 10:58
+> Cập nhật: 2026-10-28 10:35
 
 ## Mục tiêu
 Làm phần còn lại của [0043](../../design/decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) mục 6 trong `BlockMesher`: ở chân thác (cột nước rơi chạm mặt ao), góc giữa mặt đổ xuống và mặt ao được bo lõm theo cung tròn. Mặt ao của các ô quanh chân thác được xén để không chồng lên phần bo. Ngoài ra vá lỗ ở góc chân cột: sau 0080, góc bo đứng của ô rơi thấp nhất để hở một mảnh trên ô ao, không có mặt nước. User chọn "làm đủ" (2026-10-28).
@@ -145,7 +145,7 @@ SimView, Play (gộp 0079 + 0080 + 0081):
 ## Kết quả
 - Base commit: e3f7749
 - Chạy bằng: claude-opus-5-5 · medium
-- Bắt đầu: 2026-10-28 10:25 · dừng (cần Opus): 10:58
+- Bắt đầu: 2026-10-28 10:25 · dừng (cần Opus): 10:35
 - Code bước 1–5 đã viết, **chưa commit** (working tree): `BlockMesher.cs` (IsPondSurface, IsFootBase, FootFillet, FootCorner, PondY/PondH, WaterCol.foot/fillet/fc, đáy mặt bên + đáy trụ + vá góc lửng trong AddWaterColumn, AddFootFillets/FilletVertex/TorusVertex/QVertex, AddPondSurface/AddPondRect/PondDropMask); `BlockMesherTests.cs` (CountUpHits, AssertWatertight, 3 test mới; vòng phủ kín gom mọi điểm lỗi rồi assert một lần, AssertWatertight chạy trước assert phủ kín để lấy đủ dữ liệu).
 
 ## Kết quả test
