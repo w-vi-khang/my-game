@@ -1051,6 +1051,191 @@ namespace Game.World.Tests
             AssertNoDuplicateWaterVertices(mesh);
         }
 
+        /// <summary>Số tam giác nước hướng lên (tổng pháp tuyến .y &gt; 0) có hình chiếu xz chứa (x, z) và độ cao tại đó trong [yMin, yMax].</summary>
+        static int CountUpHits(ChunkMesh m, float x, float z, float yMin, float yMax)
+        {
+            int hits = 0;
+            for (int t = 0; t < m.WaterIndices.Length; t += 3)
+            {
+                int ia = m.WaterIndices[t], ib = m.WaterIndices[t + 1], ic = m.WaterIndices[t + 2];
+                float3 a = m.Vertices[ia], b = m.Vertices[ib], c = m.Vertices[ic];
+                if ((m.Normals[ia] + m.Normals[ib] + m.Normals[ic]).y <= 0)
+                    continue;
+                float det = (b.x - a.x) * (c.z - a.z) - (c.x - a.x) * (b.z - a.z);
+                if (math.abs(det) * 0.5f <= 1e-9f)
+                    continue;
+                float l1 = ((x - a.x) * (c.z - a.z) - (c.x - a.x) * (z - a.z)) / det;
+                float l2 = ((b.x - a.x) * (z - a.z) - (x - a.x) * (b.z - a.z)) / det;
+                float l0 = 1 - l1 - l2;
+                if (l0 < -1e-6f || l1 < -1e-6f || l2 < -1e-6f)
+                    continue;
+                float y = l0 * a.y + l1 * b.y + l2 * c.y;
+                if (y >= yMin && y <= yMax)
+                    hits++;
+            }
+            return hits;
+        }
+
+        /// <summary>Mọi cạnh tam giác nước nằm trong hộp [lo, hi] xuất hiện đúng 2 lần, mỗi chiều một lần.</summary>
+        static void AssertWatertight(ChunkMesh m, float3 lo, float3 hi)
+        {
+            var edges = new System.Collections.Generic.Dictionary<(int3, int3), int>();
+            bool In(float3 p) => math.all(p >= lo - 1e-4f) && math.all(p <= hi + 1e-4f);
+            for (int t = 0; t < m.WaterIndices.Length; t += 3)
+                for (int k = 0; k < 3; k++)
+                {
+                    float3 a = m.Vertices[m.WaterIndices[t + k]], b = m.Vertices[m.WaterIndices[t + (k + 1) % 3]];
+                    if (!In(a) || !In(b))
+                        continue;
+                    var key = ((int3)math.round(a * 10000f), (int3)math.round(b * 10000f));
+                    edges.TryGetValue(key, out int n);
+                    edges[key] = n + 1;
+                }
+            var errors = new System.Collections.Generic.List<string>();
+            foreach (var kv in edges)
+            {
+                edges.TryGetValue((kv.Key.Item2, kv.Key.Item1), out int back);
+                if (kv.Value != 1 || back != 1)
+                    errors.Add($"{(float3)kv.Key.Item1 / 10000f}→{(float3)kv.Key.Item2 / 10000f} x{kv.Value} back x{back}");
+            }
+            Assert.IsEmpty(errors, string.Join("\n", errors));
+        }
+
+        static WorldData FootPond()
+        {
+            var w = StoneFloor16();
+            for (int z = 5; z <= 11; z++)
+            for (int x = 5; x <= 11; x++)
+                w.Set(x, 5, z, Water());
+            return w;
+        }
+
+        static void SetFallingColumn(WorldData w, int x, int z)
+        {
+            for (int y = 6; y <= 8; y++)
+                w.Set(x, y, z, Cell.MakeFlowing(0, 5, true));
+            w.Set(x, 9, z, Water());
+        }
+
+        static bool InBox(float x, float z, float x0, float x1, float z0, float z1) => x >= x0 && x <= x1 && z >= z0 && z <= z1;
+
+        static bool NearBoxEdge(float x, float z, float x0, float x1, float z0, float z1) =>
+            InBox(x, z, x0 - 0.003f, x1 + 0.003f, z0 - 0.003f, z1 + 0.003f)
+            && (math.abs(x - x0) < 0.003f || math.abs(x - x1) < 0.003f || math.abs(z - z0) < 0.003f || math.abs(z - z1) < 0.003f);
+
+        static float FootSdf(float x, float z)
+        {
+            float2 q = math.abs(new float2(x, z) - 8.5f) - 0.2f;
+            return math.length(math.max(q, 0)) + math.min(math.max(q.x, q.y), 0) - 0.3f;
+        }
+
+        [Test]
+        public void FootFilletFullPond()
+        {
+            var w = FootPond();
+            SetFallingColumn(w, 8, 8);
+            var m = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9, 6.3f, 8.3f), new float3(1, 0, 0)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9, 6.3f, 8.7f), new float3(1, 0, 0)));
+            for (int t = 0; t < m.WaterIndices.Length; t++)
+            {
+                float3 p = m.Vertices[m.WaterIndices[t]];
+                Assert.IsFalse(math.abs(p.x - 9) < 1e-4f && p.z >= 8.3f && p.z <= 8.7f && p.y >= 6 && p.y <= 6.29f, $"wall below fillet at {p}");
+            }
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.0402f, 6.1460f, 8.3f), new float3(0.8660f, 0.5f, 0)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.15f, 6.0252f, 8.3f), new float3(0.5f, 0.8660f, 0)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.3f, 5.97f, 8.3f), up));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(8.9598f, 6.3f, 8.85f), new float3(0.8660f, 0, 0.5f)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(8.9946f, 6.15f, 8.8701f), new float3(0.75f, 0.5f, 0.4330f)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.0897f, 6.0312f, 8.925f), new float3(0.4330f, 0.8660f, 0.25f)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.2196f, 5.9780f, 9.0f), up));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.3f, 5.949f, 9.3f), up));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.3f, 5.97f, 9.0f), up));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.0f, 5.97f, 9.3f), up));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.65f, 5.935f, 8.5f), up));
+            var misses = new System.Collections.Generic.List<string>();
+            for (int j = 0; j < 60; j++)
+            for (int i = 0; i < 60; i++)
+            {
+                float x = 7.0131f + 0.05f * i, z = 7.0077f + 0.05f * j;
+                float d = FootSdf(x, z);
+                if (math.abs(d) < 0.014f)
+                    continue;
+                int hits = CountUpHits(m, x, z, 5.5f, 6.5f);
+                if (hits != (d > 0 ? 1 : 0))
+                    misses.Add($"({x}, {z}) d {d} hits {hits}");
+            }
+            AssertWatertight(m, new float3(7.01f, 5.5f, 7.01f), new float3(9.99f, 6.5f, 9.99f));
+            Assert.IsEmpty(misses, string.Join("\n", misses));
+            AssertNoDuplicateWaterVertices(m);
+        }
+
+        [Test]
+        public void FootMixedCornerAndCaps()
+        {
+            var w = FootPond();
+            var stone = Cell.Make(BlockMaterial.Stone);
+            w.Set(7, 5, 8, stone);
+            w.Set(9, 5, 9, stone);
+            for (int y = 6; y <= 9; y++)
+                w.Set(7, y, 8, stone);
+            w.Set(9, 6, 9, stone);
+            SetFallingColumn(w, 8, 8);
+            var m = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9, 6, 9), up));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(8.9598f, 6, 8.85f), new float3(0.8660f, 0, 0.5f)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(8.9598f, 6.3f, 8.15f), new float3(0.8660f, 0, -0.5f)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9, 6, 8.7f), new float3(0, 0, 1)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.0402f, 6.1460f, 8.7f), new float3(0, 0, 1)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(8, 6, 9), new float3(-1, 0, 0)));
+            Assert.IsTrue(HasWaterVertexNear(m, new float3(9.15f, 5.985f, 8.85f), up));
+            for (int j = 0; j < 60; j++)
+            for (int i = 0; i < 60; i++)
+            {
+                float x = 7.0131f + 0.05f * i, z = 7.0077f + 0.05f * j;
+                if (InBox(x, z, 7, 8, 8, 9) || InBox(x, z, 9, 10, 9, 10) || NearBoxEdge(x, z, 7, 8, 8, 9)
+                    || NearBoxEdge(x, z, 9, 10, 9, 10) || NearBoxEdge(x, z, 8, 9, 8, 9))
+                    continue;
+                bool inSquare = InBox(x, z, 8, 9, 8, 9);
+                bool inFoot = inSquare;
+                if (inSquare && x > 8.7f)
+                {
+                    float2 axis = z < 8.3f ? new float2(8.7f, 8.3f) : z > 8.7f ? new float2(8.7f, 8.7f) : new float2(float.NaN);
+                    if (!float.IsNaN(axis.x))
+                    {
+                        float r = math.distance(new float2(x, z), axis);
+                        if (math.abs(r - 0.3f) < 0.003f)
+                            continue;
+                        inFoot = r < 0.3f;
+                    }
+                }
+                Assert.AreEqual(inFoot ? 0 : 1, CountUpHits(m, x, z, 5.5f, 6.5f), $"coverage at ({x}, {z})");
+            }
+            AssertNoDuplicateWaterVertices(m);
+        }
+
+        [Test]
+        public void FootInnerCornerMiter()
+        {
+            var w = FootPond();
+            SetFallingColumn(w, 8, 8);
+            SetFallingColumn(w, 8, 9);
+            SetFallingColumn(w, 9, 8);
+            var m = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var p = new float3(9.0402f, 6.1498f, 9.0402f);
+            Assert.IsTrue(HasWaterVertexNear(m, p, new float3(0.8660f, 0.5f, 0)));
+            Assert.IsTrue(HasWaterVertexNear(m, p, new float3(0, 0.5f, 0.8660f)));
+            for (int j = 0; j < 6; j++)
+            for (int i = 0; i < 6; i++)
+            {
+                float x = 9.0131f + 0.05f * i, z = 9.0077f + 0.05f * j;
+                Assert.AreEqual(1, CountUpHits(m, x, z, 5.5f, 6.5f), $"coverage at ({x}, {z})");
+            }
+            AssertNoDuplicateWaterVertices(m);
+        }
+
         [Test]
         public void BuildRejectsBadFillet()
         {

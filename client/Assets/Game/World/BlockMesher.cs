@@ -934,7 +934,7 @@ namespace Game.World
                 if (!column)
                 {
                     if (airAbove)
-                        AddWaterSurface(c, g);
+                        AddPondSurface(c, g);
                     AddWaterSides(c, g);
                     return;
                 }
@@ -948,8 +948,59 @@ namespace Game.World
                     lip = airAbove,
                 };
                 col.rv = math.min(WaterFilletRadius, math.cmin(col.h));
+                int3 b = g - new int3(0, 1, 0);
+                if (IsFootBase(b))
+                {
+                    col.foot = true;
+                    col.fillet = new bool4(FootFillet(b, DirI(0)), FootFillet(b, DirI(1)), FootFillet(b, DirI(2)), FootFillet(b, DirI(3)));
+                    col.fc = new int4(FootCorner(b, 0, 0), FootCorner(b, 1, 0), FootCorner(b, 0, 1), FootCorner(b, 1, 1));
+                }
                 AddWaterColumn(g, col);
             }
+
+            const int FootNone = 0, FootFull = 1, FootPartial = 2;
+
+            /// <summary>Ô ao (brief 0081 QĐ 1): nước trong map, trên thoáng, không phải ô cột.</summary>
+            bool IsPondSurface(int3 p) =>
+                p.x >= 0 && p.x < SizeX && p.y >= 0 && p.y < SizeY && p.z >= 0 && p.z < SizeZ
+                && MaterialAt(p) == (int)BlockMaterial.Water && MaterialAt(p + new int3(0, 1, 0)) == (int)BlockMaterial.Empty
+                && !IsFallingWater(p) && !IsFallingWater(p - new int3(0, 1, 0));
+
+            /// <summary>Ô nước nằm ngay dưới chân thác (ô cột thấp nhất), bản thân không thuộc cột.</summary>
+            bool IsFootBase(int3 b) =>
+                MaterialAt(b) == (int)BlockMaterial.Water && !IsFallingWater(b) && !IsFallingWater(b - new int3(0, 1, 0))
+                && IsFallingWater(b + new int3(0, 1, 0));
+
+            /// <summary>Cạnh d của chân thác trên b được bo lõm xuống ô ao b + d.</summary>
+            bool FootFillet(int3 b, int3 d) =>
+                IsFootBase(b) && MaterialAt(b + new int3(0, 1, 0) + d) == (int)BlockMaterial.Empty && IsPondSurface(b + d);
+
+            /// <summary>Loại góc (sx, sz) của chân thác trên b: không bo / đủ / lửng (QĐ 1).</summary>
+            int FootCorner(int3 b, int sx, int sz)
+            {
+                int3 dA = new int3(sx == 1 ? 1 : -1, 0, 0), dB = new int3(0, 0, sz == 1 ? 1 : -1);
+                int3 f = b + new int3(0, 1, 0);
+                if (MaterialAt(f + dA) != (int)BlockMaterial.Empty || MaterialAt(f + dB) != (int)BlockMaterial.Empty)
+                    return FootNone;
+                return FootFillet(b, dA) && FootFillet(b, dB) && IsPondSurface(b + dA + dB) ? FootFull : FootPartial;
+            }
+
+            /// <summary>Độ cao mặt ao tại (x, z) world trên lớp yb (QĐ 1): song tuyến CornerHeight của ô chứa điểm; ô không phải nước → yb + 1.</summary>
+            float PondY(float x, float z, int yb)
+            {
+                int3 cell = new int3((int)math.floor(x), yb, (int)math.floor(z));
+                if (MaterialAt(cell) != (int)BlockMaterial.Water)
+                    return yb + 1;
+                return yb + PondH(cell, x - cell.x, z - cell.z);
+            }
+
+            float PondH(int3 g, float u, float v) =>
+                (1 - u) * (1 - v) * CornerHeight(g, 0, 0) + u * (1 - v) * CornerHeight(g, 1, 0)
+                + (1 - u) * v * CornerHeight(g, 0, 1) + u * v * CornerHeight(g, 1, 1);
+
+            static int3 DirI(int d) => d < 2 ? new int3(d == 0 ? 1 : -1, 0, 0) : new int3(0, 0, d == 2 ? 1 : -1);
+
+            int WaterVertexWorld(float3 p, float3 n) => AddWaterVertex(p - (float3)Origin, n);
 
             bool IsFallingWater(int3 p)
             {
@@ -971,6 +1022,12 @@ namespace Game.World
                 public bool4 open;
                 public bool lip;
                 public float rv;
+                /// <summary>Chân thác (brief 0081): ô dưới là IsFootBase.</summary>
+                public bool foot;
+                /// <summary>FootFillet theo hướng +x, −x, +z, −z.</summary>
+                public bool4 fillet;
+                /// <summary>FootCorner theo (sx + 2·sz).</summary>
+                public int4 fc;
 
                 public bool Rounded(int sx, int sz) => open[sx == 1 ? 0 : 1] && open[sz == 1 ? 2 : 3];
                 public float Hc(int sx, int sz) => h[sx + 2 * sz];
@@ -1032,8 +1089,9 @@ namespace Game.World
                     float2 E0 = axisX ? new float2(cs, t0) : new float2(t0, cs); // điểm trên mặt phẳng cạnh
                     float2 E1 = axisX ? new float2(cs, t1) : new float2(t1, cs);
 
-                    int b0 = AddWaterVertex(col.Pos(E0.x, c.y, E0.y), outDir);
-                    int b1 = AddWaterVertex(col.Pos(E1.x, c.y, E1.y), outDir);
+                    float yb = c.y + (col.foot && col.fillet[d] ? R : 0); // cạnh bo lõm: mặt bên dừng ở đỉnh cung
+                    int b0 = AddWaterVertex(col.Pos(E0.x, yb, E0.y), outDir);
+                    int b1 = AddWaterVertex(col.Pos(E1.x, yb, E1.y), outDir);
                     int s0, s1;
                     if (col.lip)
                     {
@@ -1085,14 +1143,21 @@ namespace Game.World
                     float2 ax = new float2(sx == 1 ? 1 - R : R, sz == 1 ? 1 - R : R);
                     float hc = c.y + col.H(ax.x, ax.y);
                     float yt = col.lip ? hc - col.rv : c.y + col.Hc(sx, sz);
+                    int fc = col.foot ? col.fc[sx + 2 * sz] : FootNone;
+                    float yb = c.y + (fc == FootFull ? R : 0);
+                    // Góc lửng: vá phần ô chân ngoài trụ bằng quạt phẳng ở đáy ô.
+                    int patch = fc == FootPartial ? AddWaterVertex(col.Pos(sx, c.y, sz), up) : -1;
                     for (int j = 0; j < S; j++)
                     {
                         float3 d0 = CircleDir(sx, sz, j * math.PI * 0.5f / S), d1 = CircleDir(sx, sz, (j + 1) * math.PI * 0.5f / S);
-                        int a0 = AddWaterVertex(col.Pos(ax.x + R * d0.x, c.y, ax.y + R * d0.z), d0);
-                        int a1 = AddWaterVertex(col.Pos(ax.x + R * d1.x, c.y, ax.y + R * d1.z), d1);
+                        int a0 = AddWaterVertex(col.Pos(ax.x + R * d0.x, yb, ax.y + R * d0.z), d0);
+                        int a1 = AddWaterVertex(col.Pos(ax.x + R * d1.x, yb, ax.y + R * d1.z), d1);
                         int t1v = AddWaterVertex(col.Pos(ax.x + R * d1.x, yt, ax.y + R * d1.z), d1);
                         int t0v = AddWaterVertex(col.Pos(ax.x + R * d0.x, yt, ax.y + R * d0.z), d0);
                         AddWaterTri(a0, a1, t1v); AddWaterTri(a0, t1v, t0v);
+                        if (patch >= 0)
+                            AddWaterTri(patch, AddWaterVertex(col.Pos(ax.x + R * d0.x, c.y, ax.y + R * d0.z), up),
+                                AddWaterVertex(col.Pos(ax.x + R * d1.x, c.y, ax.y + R * d1.z), up));
                     }
                     if (!col.lip)
                         continue;
@@ -1104,7 +1169,246 @@ namespace Game.World
                         AddWaterTri(v00, v10, v11); AddWaterTri(v00, v11, v01);
                     }
                 }
+
+                if (col.foot)
+                    AddFootFillets(g, col);
             }
+
+            /// <summary>Bo lõm chân thác (brief 0081 QĐ 4–6): dải bo trên cạnh bo lõm (nắp / đầu vát), xuyến và ô vuông Q ở góc đủ.</summary>
+            void AddFootFillets(int3 g, in WaterCol col)
+            {
+                float R = WaterFilletRadius;
+                int S = WaterFilletSegments;
+                int3 b = g - new int3(0, 1, 0);
+                for (int d = 0; d < 4; d++)
+                {
+                    if (!col.fillet[d])
+                        continue;
+                    bool axisX = d < 2;
+                    int cs = d == 0 || d == 2 ? 1 : 0;
+                    int3 di = DirI(d);
+                    // Hai đầu dải: t và loại (0 nối tiếp, 1 nắp, 2 vát).
+                    float2 te = default;
+                    int2 kind = default;
+                    for (int end = 0; end < 2; end++)
+                    {
+                        int fc = col.fc[axisX ? cs + 2 * end : end + 2 * cs];
+                        int3 e = axisX ? new int3(0, 0, end == 0 ? -1 : 1) : new int3(end == 0 ? -1 : 1, 0, 0);
+                        if (fc != FootNone)
+                        {
+                            te[end] = end == 0 ? R : 1 - R;
+                            kind[end] = fc == FootFull ? 0 : 1;
+                        }
+                        else
+                        {
+                            te[end] = end;
+                            kind[end] = FootFillet(b + e, di) ? 0 : FootFillet(b + di + e, -e) ? 2 : 1;
+                        }
+                    }
+                    // Profile tại hai đầu và tại R, 1 − R nằm giữa.
+                    float4 ts = default;
+                    int n = 0;
+                    ts[n++] = te.x;
+                    if (R > te.x && R < te.y) ts[n++] = R;
+                    if (1 - R > te.x && 1 - R < te.y) ts[n++] = 1 - R;
+                    ts[n++] = te.y;
+                    for (int q = 0; q + 1 < n; q++)
+                    {
+                        float sa = q == 0 && kind.x == 2 ? 1 : 0, sb = q + 2 == n && kind.y == 2 ? -1 : 0;
+                        for (int k = 0; k < S; k++)
+                        {
+                            int a0 = FilletVertex(g, d, ts[q], sa, k, false, default), a1 = FilletVertex(g, d, ts[q], sa, k + 1, false, default);
+                            int b0 = FilletVertex(g, d, ts[q + 1], sb, k, false, default), b1 = FilletVertex(g, d, ts[q + 1], sb, k + 1, false, default);
+                            AddWaterTri(a0, b0, b1); AddWaterTri(a0, b1, a1);
+                        }
+                    }
+                    // Nắp: quạt trong mặt phẳng t = t_đầu từ điểm cạnh ở đáy ô chân.
+                    for (int end = 0; end < 2; end++)
+                    {
+                        if (kind[end] != 1)
+                            continue;
+                        float3 capN = axisX ? new float3(0, 0, end == 0 ? -1 : 1) : new float3(end == 0 ? -1 : 1, 0, 0);
+                        float t = te[end];
+                        float3 qc = axisX ? new float3(g.x + cs, g.y, g.z + t) : new float3(g.x + t, g.y, g.z + cs);
+                        int qi = WaterVertexWorld(qc, capN);
+                        for (int k = 0; k < S; k++)
+                            AddWaterTri(qi, FilletVertex(g, d, t, 0, k, true, capN), FilletVertex(g, d, t, 0, k + 1, true, capN));
+                    }
+                }
+
+                // Xuyến và ô vuông Q ở góc đủ.
+                for (int sz = 0; sz < 2; sz++)
+                for (int sx = 0; sx < 2; sx++)
+                {
+                    if (col.fc[sx + 2 * sz] != FootFull)
+                        continue;
+                    float2 A = new float2(g.x + (sx == 1 ? 1 - R : R), g.z + (sz == 1 ? 1 - R : R));
+                    for (int i = 0; i < S; i++)
+                    for (int j = 0; j < S; j++)
+                    {
+                        int v00 = TorusVertex(A, sx, sz, b.y, i, j), v10 = TorusVertex(A, sx, sz, b.y, i + 1, j);
+                        int v11 = TorusVertex(A, sx, sz, b.y, i + 1, j + 1), v01 = TorusVertex(A, sx, sz, b.y, i, j + 1);
+                        AddWaterTri(v00, v10, v11); AddWaterTri(v00, v11, v01);
+                    }
+                    int qf = QVertex(A, sx, sz, b.y, 2 * R, 2 * R), m1 = QVertex(A, sx, sz, b.y, 2 * R, R), m2 = QVertex(A, sx, sz, b.y, R, 2 * R);
+                    if (S == 1)
+                    {
+                        int p0 = TorusVertex(A, sx, sz, b.y, 1, 0), p1 = TorusVertex(A, sx, sz, b.y, 1, 1);
+                        AddWaterTri(m1, p0, p1); AddWaterTri(m1, p1, m2); AddWaterTri(m1, m2, qf);
+                        continue;
+                    }
+                    AddWaterTri(m1, TorusVertex(A, sx, sz, b.y, S, 0), TorusVertex(A, sx, sz, b.y, S, 1));
+                    AddWaterTri(qf, m1, TorusVertex(A, sx, sz, b.y, S, 1));
+                    for (int j = 1; j <= S - 2; j++)
+                        AddWaterTri(qf, TorusVertex(A, sx, sz, b.y, S, j), TorusVertex(A, sx, sz, b.y, S, j + 1));
+                    AddWaterTri(qf, TorusVertex(A, sx, sz, b.y, S, S - 1), m2);
+                    AddWaterTri(m2, TorusVertex(A, sx, sz, b.y, S, S - 1), TorusVertex(A, sx, sz, b.y, S, S));
+                }
+            }
+
+            /// <summary>Điểm k của profile bo lõm trên cạnh d của chân g, tại t (dịch σ·s_k khi vát) — QĐ 2, 4.</summary>
+            int FilletVertex(int3 g, int d, float t, float sigma, int k, bool forceN, float3 fn)
+            {
+                float R = WaterFilletRadius;
+                float th = k * math.PI * 0.5f / WaterFilletSegments;
+                float s = R * (1 - math.cos(th));
+                float tt = t + sigma * s;
+                bool axisX = d < 2;
+                int cs = d == 0 || d == 2 ? 1 : 0;
+                float3 sh = DirVec(d);
+                float3 p = (axisX ? new float3(g.x + cs, 0, g.z + tt) : new float3(g.x + tt, 0, g.z + cs)) + sh * s;
+                p.y = PondY(p.x, p.z, g.y - 1) + R * (1 - math.sin(th));
+                return WaterVertexWorld(p, forceN ? fn : math.cos(th) * sh + math.sin(th) * new float3(0, 1, 0));
+            }
+
+            /// <summary>Điểm (i, j) của xuyến góc đủ (QĐ 5).</summary>
+            int TorusVertex(float2 A, int sx, int sz, int yb, int i, int j)
+            {
+                float R = WaterFilletRadius;
+                float th = i * math.PI * 0.5f / WaterFilletSegments;
+                float3 dir = CircleDir(sx, sz, j * math.PI * 0.5f / WaterFilletSegments);
+                float rr = R * (2 - math.cos(th));
+                float3 p = new float3(A.x + rr * dir.x, 0, A.y + rr * dir.z);
+                p.y = PondY(p.x, p.z, yb) + R * (1 - math.sin(th));
+                return WaterVertexWorld(p, math.cos(th) * dir + math.sin(th) * new float3(0, 1, 0));
+            }
+
+            /// <summary>Đỉnh của ô vuông Q (QĐ 6) tại (a, b) tính từ trục A theo hướng góc.</summary>
+            int QVertex(float2 A, int sx, int sz, int yb, float a, float b)
+            {
+                float3 p = new float3(A.x + (sx == 1 ? a : -a), 0, A.y + (sz == 1 ? b : -b));
+                p.y = PondY(p.x, p.z, yb);
+                return WaterVertexWorld(p, new float3(0, 1, 0));
+            }
+
+            /// <summary>Mặt trên ô ao (QĐ 7): gần chân thác thì bỏ các ô phụ do phần bo lõm phủ, vẽ phần còn lại; ngược lại như AddWaterSurface.</summary>
+            void AddPondSurface(int3 c, int3 g)
+            {
+                int drop = PondDropMask(g);
+                if (drop == 0)
+                {
+                    AddWaterSurface(c, g);
+                    return;
+                }
+                int keep = ~drop & 0x1FF;
+                int ua = 0;
+                while (ua < 3)
+                {
+                    int m = SubColumn(keep, ua), ub = ua;
+                    while (ub + 1 < 3 && SubColumn(keep, ub + 1) == m)
+                        ub++;
+                    int va = 0;
+                    while (va < 3)
+                    {
+                        if ((m >> va & 1) == 0)
+                        {
+                            va++;
+                            continue;
+                        }
+                        int vb = va;
+                        while (vb + 1 < 3 && (m >> (vb + 1) & 1) != 0)
+                            vb++;
+                        AddPondRect(c, g, new int4(ua, ub + 1, va, vb + 1));
+                        va = vb + 1;
+                    }
+                    ua = ub + 1;
+                }
+            }
+
+            static int SubColumn(int mask, int ui) => (mask >> ui & 1) | (mask >> (ui + 3) & 1) << 1 | (mask >> (ui + 6) & 1) << 2;
+
+            float SubGrid(int i) => i == 0 ? 0 : i == 1 ? WaterFilletRadius : i == 2 ? 1 - WaterFilletRadius : 1;
+
+            /// <summary>Hình chữ nhật lưới phụ [r.x, r.y] × [r.z, r.w] (chỉ số lưới 0..3): quạt từ tâm qua các điểm lưới trên biên (QĐ 7b).</summary>
+            void AddPondRect(int3 c, int3 g, int4 r)
+            {
+                float3 up = new float3(0, 1, 0);
+                float uc = (SubGrid(r.x) + SubGrid(r.y)) * 0.5f, vc = (SubGrid(r.z) + SubGrid(r.w)) * 0.5f;
+                int center = AddWaterVertex(new float3(c.x + uc, c.y + PondH(g, uc, vc), c.z + vc), up);
+                int w = r.y - r.x, h = r.w - r.z, count = 2 * (w + h);
+                int first = -1, prev = -1;
+                for (int q = 0; q < count; q++)
+                {
+                    int i, j;
+                    if (q < w) { i = r.x + q; j = r.z; }
+                    else if (q < w + h) { i = r.y; j = r.z + q - w; }
+                    else if (q < 2 * w + h) { i = r.y - (q - w - h); j = r.w; }
+                    else { i = r.x; j = r.w - (q - 2 * w - h); }
+                    bool corner = (i == r.x || i == r.y) && (j == r.z || j == r.w);
+                    if (!corner && (i == 0 || i == 3 || j == 0 || j == 3))
+                    {
+                        int3 nb = g + (i == 0 ? new int3(-1, 0, 0) : i == 3 ? new int3(1, 0, 0) : j == 0 ? new int3(0, 0, -1) : new int3(0, 0, 1));
+                        if (PondDropMask(nb) == 0 && !IsFootBase(nb))
+                            continue;
+                    }
+                    float u = SubGrid(i), v = SubGrid(j);
+                    int vi = AddWaterVertex(new float3(c.x + u, c.y + PondH(g, u, v), c.z + v), up);
+                    if (prev >= 0)
+                        AddWaterTri(center, prev, vi);
+                    else
+                        first = vi;
+                    prev = vi;
+                }
+                AddWaterTri(center, prev, first);
+            }
+
+            /// <summary>Bit (ui + 3·vi) = ô phụ của ô ao p bị bỏ (QĐ 7); 0 khi p không phải ô ao hoặc không gần thác.</summary>
+            int PondDropMask(int3 p)
+            {
+                if (!IsPondSurface(p))
+                    return 0;
+                bool near = false;
+                for (int dz = -1; dz <= 1 && !near; dz++)
+                for (int dx = -1; dx <= 1; dx++)
+                    if ((dx != 0 || dz != 0) && IsFallingWater(p + new int3(dx, 1, dz)))
+                    {
+                        near = true;
+                        break;
+                    }
+                if (!near)
+                    return 0;
+                int mask = 0;
+                // Ô phụ cạnh: +x (2,1), −x (0,1), +z (1,2), −z (1,0).
+                if (FootFillet(p + DirI(0), DirI(1))) mask |= 1 << 5;
+                if (FootFillet(p + DirI(1), DirI(0))) mask |= 1 << 3;
+                if (FootFillet(p + DirI(2), DirI(3))) mask |= 1 << 7;
+                if (FootFillet(p + DirI(3), DirI(2))) mask |= 1 << 1;
+                for (int vi = 0; vi <= 2; vi += 2)
+                for (int ui = 0; ui <= 2; ui += 2)
+                {
+                    int3 e1 = new int3(ui == 2 ? 1 : -1, 0, 0), e2 = new int3(0, 0, vi == 2 ? 1 : -1);
+                    int2 X = new int2(p.x + ui / 2, p.z + vi / 2);
+                    bool drop = EdgeFootCovers(p + e1, -e1, X) || EdgeFootCovers(p + e2, -e2, X)
+                        || IsFootBase(p + e1 + e2) && FootCornerAt(p + e1 + e2, X) == FootFull;
+                    if (drop)
+                        mask |= 1 << (ui + 3 * vi);
+                }
+                return mask;
+            }
+
+            bool EdgeFootCovers(int3 f, int3 back, int2 X) => FootFillet(f, back) && FootCornerAt(f, X) != FootPartial;
+
+            int FootCornerAt(int3 b, int2 X) => FootCorner(b, X.x - b.x, X.y - b.z);
 
             int WaterSphereVertex(in WaterCol col, int sx, int sz, float2 ax, float hc, int i, int j)
             {
