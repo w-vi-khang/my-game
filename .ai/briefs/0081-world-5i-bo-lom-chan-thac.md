@@ -1,9 +1,9 @@
 # Brief 0081 — World 5i (phần 2): bo lõm chân thác, xén mặt ao quanh chân, vá góc chân cột
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp 0079, 0080, 0081)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-28 10:17
+> Cập nhật: 2026-10-28 10:58
 
 ## Mục tiêu
 Làm phần còn lại của [0043](../../design/decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) mục 6 trong `BlockMesher`: ở chân thác (cột nước rơi chạm mặt ao), góc giữa mặt đổ xuống và mặt ao được bo lõm theo cung tròn. Mặt ao của các ô quanh chân thác được xén để không chồng lên phần bo. Ngoài ra vá lỗ ở góc chân cột: sau 0080, góc bo đứng của ô rơi thấp nhất để hở một mảnh trên ô ao, không có mặt nước. User chọn "làm đủ" (2026-10-28).
@@ -143,10 +143,29 @@ SimView, Play (gộp 0079 + 0080 + 0081):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: e3f7749
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-10-28 10:25 · dừng (cần Opus): 10:58
+- Code bước 1–5 đã viết, **chưa commit** (working tree): `BlockMesher.cs` (IsPondSurface, IsFootBase, FootFillet, FootCorner, PondY/PondH, WaterCol.foot/fillet/fc, đáy mặt bên + đáy trụ + vá góc lửng trong AddWaterColumn, AddFootFillets/FilletVertex/TorusVertex/QVertex, AddPondSurface/AddPondRect/PondDropMask); `BlockMesherTests.cs` (CountUpHits, AssertWatertight, 3 test mới; vòng phủ kín gom mọi điểm lỗi rồi assert một lần, AssertWatertight chạy trước assert phủ kín để lấy đủ dữ liệu).
 
 ## Kết quả test
+- `refresh_unity` → console Error: 0.
+- EditMode `BlockMesherTests`: 48 test, 47 đạt, 1 không đạt (`FootFilletFullPond`). Mọi test cũ của `BlockMesherTests` đạt (lần chạy đầu, trước khi đổi thứ tự assert).
+- `FootMixedCornerAndCaps`: đạt. `FootInnerCornerMiter`: đạt.
+- `FootFilletFullPond`: mọi đỉnh kỳ vọng (tường, dải k=1..3, đáy trụ, xuyến, Q, tâm ô ao bị xén) đạt; không đạt ở phủ kín (2 điểm) và AssertWatertight (12 cạnh) — chi tiết ở Vướng mắc.
+- Chưa chạy: ChunkSeam/GoldenHash/WaterFlow/SeaFlood, EditMode + PlayMode toàn bộ, ảnh Game view (dừng trước bước 2–5 của "Lệnh executor chạy").
 
 ## Vướng mắc
+Hai kỳ vọng của `FootFilletFullPond` mâu thuẫn với chính QĐ của brief (code theo QĐ 1–9; không tự đổi kỳ vọng):
+
+1. **AssertWatertight hộp (7,5.5,7)–(10,6.5,10) chứa chỗ nối chữ T mà QĐ 9 cho phép.** Theo QĐ 7a (gộp theo cột u trước), 4 ô ao chéo góc (7|9, 5, 7|9) bị xén một ô phụ góc → tách thành 2 hình chữ nhật, góc hình chữ nhật nằm trên cạnh ngoài z = 7 / z = 10 tại x = 7.7 và 9.3; ô bên kia (z = 6 / z = 10) không gần thác → vẽ như cũ → chữ T. Lỗi thật [run]: chỉ 12 cạnh, tất cả ở y 5.9, z = 7 hoặc z = 10: `(7,7)→(8,7)` ×1 back 0, `(7.7,7)→(7,7)`, `(8,7)→(7.7,7)`, `(9,7)→(10,7)`, `(9.3,7)→(9,7)`, `(10,7)→(9.3,7)`, và đối xứng ở z = 10 (`(7,10)→(7.7,10)`, `(7.7,10)→(8,10)`, `(8,10)→(7,10)`, `(9,10)→(9.3,10)`, `(9.3,10)→(10,10)`, `(10,10)→(9,10)`). Không có cạnh hở nào khác trong hộp (dải, xuyến, Q, trụ, tường, ô ao xén bên trong đều kín).
+   - Phương án A (đề xuất): thu hộp vào trong biên vùng xén, vd `AssertWatertight(m, (7.01, 5.5, 7.01), (9.99, 6.5, 9.99))` — vẫn kiểm mọi chỗ nối bo/ao bên trong, bỏ cạnh biên ngoài mà QĐ 9 chấp nhận.
+   - Phương án B: đổi QĐ 7a sang gộp sao cho góc hình chữ nhật không rơi lên cạnh ngoài (vd thêm điểm R/1−R cho ô không xén bên cạnh) — đổi phạm vi QĐ 10 (ô nước không xén), không đề xuất.
+2. **Phủ kín dùng SDF tròn đúng, nhưng trụ/xuyến là đa giác S = 3 (QĐ 5, 0080).** Dây cung giữa φ_j và φ_{j+1} lệch cung tối đa R·(1 − cos 15°) ≈ 0.0102 > ngưỡng bỏ 0.003, nên điểm nằm giữa dây cung và cung tròn (trong chân theo SDF) bị xuyến phủ. Lỗi thật [run]: `(8.263101, 8.0077) d −0.00538 hits 1`, `(8.013101, 8.7577) d −0.00736 hits 1` (cả hai |d| < 0.0102, cạnh góc (0,0) và (0,1)).
+   - Phương án A (đề xuất): nới ngưỡng bỏ thành |d| < R·(1 − cos(45°/S)) + 0.003 ≈ 0.0133 cho điểm thuộc ô góc (hoặc mọi điểm).
+   - Phương án B: tính d theo đa giác (khoảng cách tới dây cung) thay cho cung tròn.
+
+Câu hỏi: chọn phương án nào cho 1 và 2? Đề xuất A + A (chỉ đổi kỳ vọng test, không đổi code mesher). Sau khi Planner chốt, executor sửa 2 dòng test rồi chạy tiếp "Lệnh executor chạy" bước 2–5.
 
 ---
 <!-- PLANNER ghi khi review. -->
