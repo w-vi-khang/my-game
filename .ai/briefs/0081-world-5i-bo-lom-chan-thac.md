@@ -1,9 +1,9 @@
 # Brief 0081 — World 5i (phần 2): bo lõm chân thác, xén mặt ao quanh chân, vá góc chân cột
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp 0079, 0080, 0081)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-28 10:50
+> Cập nhật: 2026-10-28 10:51
 
 ## Mục tiêu
 Làm phần còn lại của [0043](../../design/decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) mục 6 trong `BlockMesher`: ở chân thác (cột nước rơi chạm mặt ao), góc giữa mặt đổ xuống và mặt ao được bo lõm theo cung tròn. Mặt ao của các ô quanh chân thác được xén để không chồng lên phần bo. Ngoài ra vá lỗ ở góc chân cột: sau 0080, góc bo đứng của ô rơi thấp nhất để hở một mảnh trên ô ao, không có mặt nước. User chọn "làm đủ" (2026-10-28).
@@ -152,12 +152,29 @@ SimView, Play (gộp 0079 + 0080 + 0081):
 - Bắt đầu: 2026-10-28 10:25 · dừng (cần Opus): 10:35
 - Code bước 1–5 đã viết, **chưa commit** (working tree): `BlockMesher.cs` (IsPondSurface, IsFootBase, FootFillet, FootCorner, PondY/PondH, WaterCol.foot/fillet/fc, đáy mặt bên + đáy trụ + vá góc lửng trong AddWaterColumn, AddFootFillets/FilletVertex/TorusVertex/QVertex, AddPondSurface/AddPondRect/PondDropMask); `BlockMesherTests.cs` (CountUpHits, AssertWatertight, 3 test mới; vòng phủ kín gom mọi điểm lỗi rồi assert một lần, AssertWatertight chạy trước assert phủ kín để lấy đủ dữ liệu).
 
+### Lần 2 (sau QĐ 11)
+- Base commit: d66035a · Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-10-28 10:38 · kết thúc: 10:51 (tổng 2 lần ≈ 23 phút)
+- Sửa đúng 2 dòng test `FootFilletFullPond` theo QĐ 11: ngưỡng bỏ phủ kín |d| < 0.014 (`BlockMesherTests.cs:1163`); hộp `AssertWatertight` (7.01, 5.5, 7.01)–(9.99, 6.5, 9.99) (`:1169`). Code mesher không đổi so với lần 1.
+- Commit: `9177617` — `client/Assets/Game/World/BlockMesher.cs`, `client/Assets/Game/Tests/World/BlockMesherTests.cs`.
+- Ảnh Game view (SimView, Play, chân thác demo chếch từ trên): `~/Documents/User/khang/Game/art-test/shots/brief0081_foot.png` (ngoài repo). Chụp 2 lần vì lần đầu góc máy không thấy chân thác; đã xoá ảnh thừa và `client/Assets/Screenshots`.
+
 ## Kết quả test
 - `refresh_unity` → console Error: 0.
 - EditMode `BlockMesherTests`: 48 test, 47 đạt, 1 không đạt (`FootFilletFullPond`). Mọi test cũ của `BlockMesherTests` đạt (lần chạy đầu, trước khi đổi thứ tự assert).
 - `FootMixedCornerAndCaps`: đạt. `FootInnerCornerMiter`: đạt.
 - `FootFilletFullPond`: mọi đỉnh kỳ vọng (tường, dải k=1..3, đáy trụ, xuyến, Q, tâm ô ao bị xén) đạt; không đạt ở phủ kín (2 điểm) và AssertWatertight (12 cạnh) — chi tiết ở Vướng mắc.
 - Chưa chạy: ChunkSeam/GoldenHash/WaterFlow/SeaFlood, EditMode + PlayMode toàn bộ, ảnh Game view (dừng trước bước 2–5 của "Lệnh executor chạy").
+
+### Lần 2 (sau QĐ 11) [run]
+- `refresh_unity` (force, compile) → `read_console` Error: 0 entries.
+- EditMode lọc BlockMesher/ChunkSeam/GoldenHash/WaterFlow/SeaFlood: total 97, passed 97, failed 0 (Burst ra giá trị mới ngay, không cần thủ thuật).
+  - `FootFilletFullPond`: đạt. `FootMixedCornerAndCaps`: đạt. `FootInnerCornerMiter`: đạt.
+  - Test cũ `BlockMesherTests` (gồm FallingColumnIsRoundedAndContinuous, LipCapsMeetUpstreamCell, WaterVerticesAreWelded, FallingWaterColumnHasSideFaces, WaterSurfaceOnlyWhereAirIsAbove, FlowingWaterSurfaceFollowsLevel), ChunkSeamTests, GoldenHashTests (mã băm không đổi), WaterFlowTests, SeaFloodTests: đạt.
+- EditMode toàn bộ: total 659, passed 659, failed 0 (355 s).
+- PlayMode toàn bộ: total 276, passed 276, failed 0 (174 s; MCP rớt 1 lần giữa chừng, `get_test_job` lại → succeeded). Gồm WaterFlowPlayTests, TerrainEditPlayTests, DayCycleWaterPlayTests, FlyCameraWaterPlayTests, OceanBackdropTests.
+- Dọn: thoát Play; `git checkout -- client/ProjectSettings/EditorSettings.asset`; không có InitTestScene*; `git status --short` chỉ còn file trong Phạm vi.
+- User tự test (SimView, Play, gộp 0079 + 0080 + 0081, 7 mục): **chờ user**.
 
 ## Vướng mắc
 Hai kỳ vọng của `FootFilletFullPond` mâu thuẫn với chính QĐ của brief (code theo QĐ 1–9; không tự đổi kỳ vọng):
@@ -170,6 +187,8 @@ Hai kỳ vọng của `FootFilletFullPond` mâu thuẫn với chính QĐ của b
    - Phương án B: tính d theo đa giác (khoảng cách tới dây cung) thay cho cung tròn.
 
 Câu hỏi: chọn phương án nào cho 1 và 2? Đề xuất A + A (chỉ đổi kỳ vọng test, không đổi code mesher). Sau khi Planner chốt, executor sửa 2 dòng test rồi chạy tiếp "Lệnh executor chạy" bước 2–5.
+
+_Đã trả lời ở QĐ 11; lần 2 đạt._
 
 ---
 <!-- PLANNER ghi khi review. -->
