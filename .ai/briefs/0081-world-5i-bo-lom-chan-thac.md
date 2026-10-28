@@ -194,3 +194,9 @@ _Đã trả lời ở QĐ 11; lần 2 đạt._
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng `claude-opus-5-5 · medium` khớp Model thực thi (cả 2 lần).
+- Phần cần test: 3 test mới + test cũ đều có kết quả, đạt [run trong brief]; EditMode 659/659, PlayMode 276/276; GoldenHash không đổi.
+- `git show --stat 9177617`: chỉ `BlockMesher.cs`, `BlockMesherTests.cs` — đúng Phạm vi. Diff mesher: `IsPondSurface`/`IsFootBase`/`FootFillet`/`FootCorner`/`PondY` theo QĐ 1; đáy mặt bên/trụ + vá góc lửng theo QĐ 3; `AddFootFillets` (dải, nắp, đầu vát, xuyến, `Q`) theo QĐ 4–6; `AddPondSurface` thay `AddWaterSurface` ở nhánh không phải ô cột (QĐ 7). Không đụng địa hình/collider.
+- Giờ thực tế: ≈ 23 phút (2 lần).
+- Ảnh `brief0081_foot.png`: chân thác bo vào mặt ao; mép trái cột nước có răng cưa (có thể do sắp xếp mặt trong suốt hoặc lỗi hình) → nhờ user xem kỹ.
+- Chờ user tự test (7 mục, gộp 0079–0081) trước khi kết luận.
