@@ -133,3 +133,8 @@ Commit: 482eeab — Ocean.shader, Ocean.mat, WaterLayerPlayTests.cs(+.meta).
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng Sonnet · medium khớp Model thực thi. ~9 phút (18:07–18:16).
+- Mọi dòng Phần cần test có kết quả: test mới không đạt trước sửa (diffAB = diffCB = 0.376, tái hiện lỗi), đạt sau sửa; EditMode 659/659, PlayMode 277/277 [run trong brief].
+- `git show --stat 482eeab`: chỉ Ocean.shader, Ocean.mat, WaterLayerPlayTests.cs(+meta) — đúng Phạm vi. Pass mới chép đúng QĐ 1, đặt trước ForwardLit; Ocean.mat tắt `SRPDefaultUnlit` (QĐ 2). Test assert đúng 3 điều kiện bước 1 (`WaterLayerPlayTests.cs:123-125`).
+- Lệch brief: không chụp ảnh lệnh 6, không ghi số đo sau sửa (chỉ Passed). Chấp nhận — assert đã chặn diffAB ≤ 0.005; ảnh thay bằng user xem.
+- Chờ user tự test (4 mục) trước khi kết luận.
