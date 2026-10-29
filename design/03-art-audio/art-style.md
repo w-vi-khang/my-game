@@ -23,6 +23,7 @@ Hệ quả cho thiết kế [ý tưởng]:
 - Model mịn tách khỏi khung chiếm chỗ → đổi model không ảnh hưởng luật chơi ([kiến trúc](../04-tech/architecture.md#client-unity)).
 - Biến thể hiển thị: mỗi cá thể/vật thể có một seed riêng → chọn trong khoảng cho phép: tỉ lệ kích thước (vd ±10%), sắc màu, hoa văn/texture phụ, hình dạng phụ (blend shape). Ngoài ra có **biến thể** (user, 2026-10-12): dạng khác của loài, đặc biệt về màu sắc, hình thái — cần art riêng (màu/texture khác, có thể model khác), tách riêng với vượt trội ([cơ chế](../02-gameplay/mechanics.md#nhận-sinh-vật)).
 - Câu hỏi mở: bảng màu, độ bão hoà, ánh sáng; góc camera — đã trả lời: góc 3, xoay tự do (user, 2026-10-13, [controls-ui](../02-gameplay/controls-ui.md)).
+- [ý tưởng] **Nước thể hiện dòng chảy** (user đồng ý hướng 2026-10-29, ảnh game tham khảo user gửi, không lưu vào repo): nước xanh ngọc trong; vệt/chấm sáng trôi theo hướng chảy, thác có vệt dọc; bọt trắng tròn mềm ở chân thác và mỗi bậc đổ; gần bờ nhạt hơn, viền sáng chỗ chạm bờ. Màu và hình theo hướng phong cách ở trên, không chép game tham khảo. Kỹ thuật: [world-tech](../04-tech/world-tech.md) bước 5k.
 
 ## Đọc hình sinh vật
 Những gì người chơi phải nhận ra từ hình sinh vật mà không cần mở UI (user, 2026-10-24 — [0037](../decisions/0037-phong-cach-sinh-vat-do-hiem-nguyen-to-bac.md)):
