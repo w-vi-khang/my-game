@@ -1,6 +1,6 @@
 # Brief 0085 — World 5j (lỗi 2): cài luật 0044, ô thấp hơn nguồn gốc thì đầy
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-29 19:48
@@ -213,3 +213,9 @@ Gộp cuối 5j; Planner chuyển sang danh sách chơi thử. Play, scene SimVi
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng Sonnet · medium khớp Model thực thi; ~24 phút.
+- Mọi dòng Phần cần test có kết quả: 5 test mục tiêu đạt; EditMode 666/666 (gồm SeaFlood, GoldenHash, WaterConfig); PlayMode 3 lớp 18/18 [run trong brief]. Hai file `water_m1.json` giống hệt (`diff` rỗng, Planner chạy lại [run]).
+- `git show --stat 181acbd`: đúng Phạm vi (TerrainChunkView 1 dòng gán `BasinFillRadius`).
+- Lệch: không chạy test hố rộng trên code cũ (Lệnh 1). Chấp nhận — brief 0084 đã ghi hành vi cũ [run]: lớp dưới x 14, 15 trống, nên `WideHoleLowerLayerFills` sẽ fail trên code cũ.
+- Nhìn hố đầy trong Play: user xem gộp cuối 5j.
+- Kết luận: đã duyệt

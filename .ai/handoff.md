@@ -10,7 +10,7 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md): sử
 
 ## Việc tiếp (theo thứ tự, mỗi lúc một phiên dùng Unity)
 1. ~~Review 0084~~ (đã duyệt).
-2. Brief 0085: cài luật 0044 (`WorldEditor`, `WaterConfig`, `water_m1.json`), đổi kỳ vọng `WideHolePastLevelRadiusStaysEmpty` → hố rộng lớp dưới đầy. Planner con viết, Executor con chạy.
+2. ~~Brief 0085~~ (đã duyệt 2026-10-29, code `181acbd`): cài luật 0044 (`WorldEditor`, `WaterConfig`, `water_m1.json`), đổi kỳ vọng `WideHolePastLevelRadiusStaysEmpty` → hố rộng lớp dưới đầy. Planner con viết, Executor con chạy.
 3. Brief lỗi 4: đứng dưới chân thác bị đẩy nổi 1 ô (`PlayerRules.InWater` có thể coi ô nước rơi là nước bơi [chưa xác minh]; ảnh `~/Documents/User/khang/Game/art-test/shots/user0081_under_fall.webp`).
 4. Brief lỗi 5: vật rơi nằm trên mặt đất, không lơ lửng/xoay; rơi ngẫu nhiên gần khối bị phá (bán kính [số tạm] trong JSON). Code liên quan: `client/Assets/Game/Client/DropView.cs`.
 5. Xong hết → gửi user một danh sách chơi thử gộp (các mục "User tự test" của 0082–0087, gồm lỗi 7 gờ đầu cột) + ghi giờ thực tế vào roadmap.
