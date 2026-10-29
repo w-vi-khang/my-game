@@ -22,5 +22,5 @@ Sửa 5 lỗi user thấy khi chơi thử, mỗi lỗi một brief (hoặc gộp
 - Phá/đặt khối dưới chân player: giữ như hiện tại (user 2026-10-29).
 
 ## Tiêu chí chấp nhận
-- [ ] Mỗi lỗi có test tái hiện (fail trước, đạt sau) hoặc ghi rõ vì sao chỉ kiểm được bằng mắt.
+- [x] Mỗi lỗi có test tái hiện (fail trước, đạt sau) hoặc ghi rõ vì sao chỉ kiểm được bằng mắt — brief 0082–0087 đã duyệt 2026-10-29 (lỗi 7 chỉ kiểm bằng mắt).
 - [ ] User chơi thử lại: không còn 5 lỗi trên.

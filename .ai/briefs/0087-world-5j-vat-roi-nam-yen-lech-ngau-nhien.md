@@ -1,6 +1,6 @@
 # Brief 0087 — World 5j (lỗi 5): vật rơi nằm yên trên mặt đất, lệch ngẫu nhiên trong ô
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-29 20:45
@@ -254,3 +254,8 @@ Commit: 5706a55 — DropScatter.cs(+meta), DropPick.cs, PlayerMotion.cs, SimConf
 ---
 
 ## Review
+- Chạy bằng Sonnet · medium khớp Model thực thi; ~27 phút.
+- Mọi dòng Phần cần test có kết quả: EditMode 680/680 (DropScatter, DropPick, SimConfig, GoldenHash); PlayMode 3 lớp 53/53; hai `sim_m1.json` giống hệt; không còn `SpinDegreesPerSecond` [run trong brief].
+- `git show --stat 5706a55`: 13 file, đúng Phạm vi.
+- Lệch: test mới không chạy được trên code cũ (không biên dịch vì `DropScatter` chưa có) — chấp nhận, hành vi cũ (vật ở tâm, xoay) thấy trực tiếp trong code bị thay.
+- Kết luận: đã duyệt

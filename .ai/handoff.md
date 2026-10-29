@@ -18,3 +18,6 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md): sử
 ## Ghi chú
 - Phá/đặt khối dưới chân player: giữ như hiện tại (user). Hiệu ứng bọt chân thác + hiển thị dòng chảy = bước 5k [ý tưởng], làm sau 5j.
 - Phiên con có effort cao hơn phiên cha bị app hạ → ghi `Model thực thi` ≤ effort phiên cha (medium).
+
+## Cập nhật 2026-10-29 tối
+- 0084–0087 đã duyệt. Code 5j xong hết. Còn: user chơi thử gộp (danh sách trong trả lời cuối của phiên Planner), rồi kết luận task 5j; sau đó bước 5k [ý tưởng].
