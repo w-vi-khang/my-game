@@ -20,8 +20,8 @@
 
 ## Tiêu chí chấp nhận
 - [x] 5h (0079, 2026-10-28; user xem gộp sau 5i): cột "Xong khi" dòng 5h của world-tech (test EditMode) + PlayMode nước cũ vẫn đạt.
-- [ ] 5i: cột "Xong khi" dòng 5i.
-- [ ] User xem: đào bờ ao, đào rãnh 1 ô, đổ nước từ trên cao, lấp nguồn, thác demo — nước chảy/rút đúng luật, nhìn liền, có bo góc.
+- [x] 5i (0080 + 0081, đã duyệt 2026-10-29): cột "Xong khi" dòng 5i.
+- [x] User xem (2026-10-29): đã chơi thử; lỗi phát hiện chuyển sang task [m1-world-5j-sua-loi-choi-thu](m1-world-5j-sua-loi-choi-thu.md). User xem:  đào bờ ao, đào rãnh 1 ô, đổ nước từ trên cao, lấp nguồn, thác demo — nước chảy/rút đúng luật, nhìn liền, có bo góc.
 
 ## Ràng buộc
 - Tất định: xử lý theo `id` tăng dần, thứ tự hướng +z, +x, −z, −x.
