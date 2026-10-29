@@ -31,7 +31,7 @@ namespace Game.Core
     /// biển thông với nó (6 hướng) theo nhịp (design/decisions/0013): StepWater() một nhịp — rơi thẳng xuống ngay, lan ngang/dâng
     /// 1 ô mỗi nhịp. Nước biển (nguồn) không tự rút. Nước chảy (design/decisions/0043): cây cha–con — nguồn (ô nước có sẵn, ô biển
     /// loang) mức MaxLevel; ô chảy mức 0..MaxLevel, mỗi ô lan sang ô ngang mức − 1 (1 ô/nhịp), rơi xuống ô rỗng bên dưới mức MaxLevel;
-    /// ô có ≥ WallBoostMinSolid ô ngang đặc được tăng mức lên MaxLevel rồi phát sóng mức cho ô chảy kề. Mất ô cha thì cả nhánh
+    /// ô có ≥ WallBoostMinSolid ô ngang đặc được tăng mức lên MaxLevel rồi phát sóng mức cho ô chảy kề. Ô chảy thấp hơn nguồn gốc của cây, trong BasinFillRadius ô ngang, cũng lên MaxLevel (0044). Mất ô cha thì cả nhánh
     /// con bị xoá dây chuyền mỗi nhịp một lớp, rồi tái tạo từ nước kề còn nối với nguồn.
     /// </summary>
     public sealed class WorldEditor
@@ -77,6 +77,20 @@ namespace Game.Core
                 if (value < 1 || value > 4)
                     throw new ArgumentOutOfRangeException(nameof(value), value, "WallBoostMinSolid must be in 1..4");
                 wallBoostMinSolid = value;
+            }
+        }
+
+        int basinFillRadius = 16;
+
+        /// <summary>Bán kính ngang (Chebyshev) quanh nguồn gốc mà ô chảy thấp hơn nguồn lên mức MaxLevel (0044), hợp lệ 0–64.</summary>
+        public int BasinFillRadius
+        {
+            get => basinFillRadius;
+            set
+            {
+                if (value < 0 || value > 64)
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "BasinFillRadius must be in 0..64");
+                basinFillRadius = value;
             }
         }
 
@@ -489,21 +503,56 @@ namespace Game.Core
             throw new InvalidOperationException("water parent cycle");
         }
 
-        /// <summary>Ô chảy kề ≥ WallBoostMinSolid ô ngang đặc → mức MaxLevel rồi phát sóng mức (0043 QĐ 8).</summary>
+        /// <summary>Nguồn gốc của cây chứa id (đi theo Parent tới nút Source); không có thì −1.</summary>
+        int RootSourceOf(int id)
+        {
+            int cur = id;
+            for (int step = 0; step <= nodes.Count; step++)
+            {
+                if (!nodes.TryGetValue(cur, out var node))
+                    return -1;
+                if (node.Source)
+                    return cur;
+                if (node.Parent == NoParent)
+                    return -1;
+                cur = node.Parent;
+            }
+            throw new InvalidOperationException("water parent cycle");
+        }
+
+        /// <summary>Ô chảy thấp hơn nguồn gốc và trong BasinFillRadius ô ngang (Chebyshev) từ nguồn (0044).</summary>
+        bool InBasin(int id)
+        {
+            var n = nodes[id];
+            if (n.Source)
+                return false;
+            int s = RootSourceOf(id);
+            if (s < 0)
+                return false;
+            var src = nodes[s];
+            return n.Y < src.Y && Math.Max(Math.Abs(n.X - src.X), Math.Abs(n.Z - src.Z)) <= basinFillRadius;
+        }
+
+        /// <summary>Ô chảy trong vùng lấp (0044) hoặc kề ≥ WallBoostMinSolid ô ngang đặc (0043 QĐ 8) → mức MaxLevel rồi phát sóng mức.</summary>
         void WallBoost(int id)
         {
             var n = nodes[id];
             if (n.Source)
                 return;
             int level = LevelOf(id);
-            if (level <= 0 || level >= maxLevel)
+            if (level >= maxLevel)
                 return;
-            int solid = 0;
-            foreach (var (dx, dz) in D4)
-                if (IsSolidAt(World, n.X + dx, n.Y, n.Z + dz))
-                    solid++;
-            if (solid < wallBoostMinSolid)
-                return;
+            if (!InBasin(id))
+            {
+                if (level <= 0)
+                    return;
+                int solid = 0;
+                foreach (var (dx, dz) in D4)
+                    if (IsSolidAt(World, n.X + dx, n.Y, n.Z + dz))
+                        solid++;
+                if (solid < wallBoostMinSolid)
+                    return;
+            }
             SetLevel(id, maxLevel);
             ActivateId(id);
             Propagate(id);
@@ -530,6 +579,8 @@ namespace Game.Core
                     ActivateId(n);
                     if (nodes[e].Parent != n && !IsAncestor(n, e))
                         Reparent(n, e);
+                    if (InBasin(n))
+                        SetLevel(n, maxLevel);
                     stack.Push(n);
                 }
             }

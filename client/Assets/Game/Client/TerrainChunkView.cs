@@ -230,6 +230,7 @@ namespace Game.Client
             var waterCfg = ConfigLoader.LoadWaterConfig();
             Editor.MaxLevel = waterCfg.maxLevel;
             Editor.WallBoostMinSolid = waterCfg.wallBoostMinSolid;
+            Editor.BasinFillRadius = waterCfg.basinFillRadius;
             waterStepsPerSecond = waterCfg.stepsPerSecond;
             waterFilletRadius = waterCfg.filletRadius;
             waterFilletSegments = waterCfg.filletSegments;

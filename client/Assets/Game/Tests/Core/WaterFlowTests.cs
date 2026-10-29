@@ -108,9 +108,9 @@ namespace Game.Core.Tests
                 Assert.IsTrue(IsWater(w, x, y, z), $"({x},{y},{z})");
         }
 
-        /// <summary>0043 hiện tại: hố rộng chỉ có nước trong bán kính mức (lan giảm 1 mức/ô). Đổi kỳ vọng khi user chốt luật lấp hố (task 5j lỗi 2).</summary>
+        /// <summary>0044: hố rộng 2 lớp cạnh ao — lớp dưới (thấp hơn mặt ao) đầy mức 5, lớp ngang mặt ao vẫn lan giảm 1 mức/ô (0043), không dâng.</summary>
         [Test]
-        public void WideHolePastLevelRadiusStaysEmpty()
+        public void WideHoleLowerLayerFills()
         {
             var w = PondWorld();
             var e = Editor(w);
@@ -123,15 +123,16 @@ namespace Game.Core.Tests
             {
                 Assert.IsTrue(IsWater(w, 8 + i, 3, 5), $"top x={8 + i}");
                 Assert.AreEqual(4 - i, Cell.GetWaterLevel(w.Get(8 + i, 3, 5)), $"top level x={8 + i}");
-                Assert.IsTrue(IsWater(w, 9 + i, 2, 5), $"low x={9 + i}");
-                Assert.AreEqual(4 - i, Cell.GetWaterLevel(w.Get(9 + i, 2, 5)), $"low level x={9 + i}");
             }
             for (int x = 13; x <= 15; x++)
                 Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 3, 5), $"top empty x={x}");
-            Assert.IsTrue(IsWater(w, 8, 2, 5));
+            for (int z = 2; z <= 9; z++)
+            for (int x = 8; x <= 15; x++)
+            {
+                Assert.IsTrue(IsWater(w, x, 2, z), $"low ({x},{z})");
+                Assert.AreEqual(5, Lv(w, x, 2, z), $"low level ({x},{z})");
+            }
             Assert.IsTrue(Cell.IsFalling(w.Get(8, 2, 5)));
-            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(14, 2, 5));
-            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(15, 2, 5));
         }
 
         [Test]
@@ -206,9 +207,13 @@ namespace Game.Core.Tests
                 Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(0, y, 3), $"(0,{y},3)");
                 Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(2, y, 3), $"(2,{y},3)");
             }
-            for (int d = 1; d <= 5; d++)
-                Assert.IsTrue(IsWater(w, 1, 2, 3 + d), $"d={d}");
-            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(1, 2, 3 + 6));
+            // 0044: sàn y = 2 thấp hơn nguồn, trong basinFillRadius → đầy mức 5.
+            for (int z = 3; z <= 15; z++)
+            for (int x = 0; x <= 15; x++)
+            {
+                Assert.IsTrue(IsWater(w, x, 2, z), $"floor ({x},{z})");
+                Assert.AreEqual(5, Lv(w, x, 2, z), $"floor level ({x},{z})");
+            }
         }
 
         [Test]
@@ -521,6 +526,88 @@ namespace Game.Core.Tests
         }
 
         static int Lv(WorldData w, int x, int y, int z) => Cell.GetWaterLevel(w.Get(x, y, z));
+
+        /// <summary>World 32×16×16: đá y 0..1 (y = 0 Bedrock), cột đá (0, 2..8, 8), nguồn (0, 9, 8) — nước tràn 3 hướng rồi rơi xuống sàn y = 2.</summary>
+        static WorldData BasinWorld()
+        {
+            var w = new WorldData(new WorldSize(32, 16, 16));
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 32; x++)
+            {
+                w.Set(x, 0, z, Cell.Make(BlockMaterial.Bedrock));
+                w.Set(x, 1, z, Cell.Make(BlockMaterial.Stone));
+            }
+            for (int y = 2; y <= 8; y++)
+                w.Set(0, y, 8, Cell.Make(BlockMaterial.Stone));
+            w.Set(0, 9, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            return w;
+        }
+
+        static void AssertBasin(WorldData w, int r)
+        {
+            for (int z = System.Math.Max(0, 8 - r); z <= System.Math.Min(15, 8 + r); z++)
+            for (int x = 0; x <= System.Math.Min(r, 31); x++)
+            {
+                if (x == 0 && z == 8) continue;
+                Assert.IsTrue(IsWater(w, x, 2, z), $"in ({x},{z})");
+                Assert.AreEqual(5, Lv(w, x, 2, z), $"in level ({x},{z})");
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                int x = r + 1 + i;
+                if (x > 31) break;
+                Assert.IsTrue(IsWater(w, x, 2, 8), $"edge x={x}");
+                Assert.IsFalse(Cell.IsFalling(w.Get(x, 2, 8)), $"edge falling x={x}");
+                Assert.AreEqual(4 - i, Lv(w, x, 2, 8), $"edge level x={x}");
+            }
+            for (int z = 0; z < 16; z++)
+            for (int x = r + 6; x < 32; x++)
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 2, z), $"out ({x},{z})");
+        }
+
+        /// <summary>0044: vùng thấp rộng dưới thác chỉ ngập mức 5 trong basinFillRadius = 16 ô ngang từ nguồn; ngoài đó lan giảm như 0043.</summary>
+        [Test]
+        public void BasinFillsWithinRadius()
+        {
+            var w = BasinWorld();
+            var e = Editor(w);
+            e.WakeWater(0, 9, 8);
+            Settle(e);
+            AssertBasin(w, 16);
+        }
+
+        [Test]
+        public void BasinFillRadiusIsTunable()
+        {
+            var w = BasinWorld();
+            var e = Editor(w);
+            e.BasinFillRadius = 4;
+            e.WakeWater(0, 9, 8);
+            Settle(e);
+            AssertBasin(w, 4);
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => e.BasinFillRadius = -1);
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => e.BasinFillRadius = 65);
+        }
+
+        static List<ushort> RunBasin()
+        {
+            var w = BasinWorld();
+            var e = Editor(w);
+            e.WakeWater(0, 9, 8);
+            Settle(e);
+            var all = new List<ushort>();
+            for (int z = 0; z < 16; z++)
+            for (int y = 0; y < 16; y++)
+            for (int x = 0; x < 32; x++)
+                all.Add(w.Get(x, y, z));
+            return all;
+        }
+
+        [Test]
+        public void BasinFillIsDeterministic()
+        {
+            CollectionAssert.AreEqual(RunBasin(), RunBasin());
+        }
 
         [Test]
         public void DiamondLevelsOnOpenFloor()

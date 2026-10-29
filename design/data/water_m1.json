@@ -1,8 +1,9 @@
 {
-    "configVersion": 3,
+    "configVersion": 4,
     "maxLevel": 5,
     "stepsPerSecond": 8,
     "wallBoostMinSolid": 2,
+    "basinFillRadius": 16,
     "filletRadius": 0.3,
     "filletSegments": 3
 }
