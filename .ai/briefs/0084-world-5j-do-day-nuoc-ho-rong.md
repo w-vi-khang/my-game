@@ -1,6 +1,6 @@
 # Brief 0084 — World 5j (lỗi 2–3): mặt nước đậm/nhạt theo độ dày; test ghi lại hành vi hố rộng của 0043
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-29 20:10
@@ -187,3 +187,8 @@ Ghi chú: không gặp A = 0 sau khi sửa (không cần ép biên dịch lại)
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng Sonnet · medium khớp Model thực thi (đã hạ từ high, commit `89eef6b`). ~46 phút, phần lớn chờ test.
+- Mọi dòng Phần cần test có kết quả: 2 test độ dày fail trước sửa (alpha 0), đạt sau; `WideHolePastLevelRadiusStaysEmpty` đạt (ghi hành vi 0043, sẽ đổi ở brief cài 0044); EditMode 663/663; PlayMode 4 lớp nước 8/8 đúng lệnh 5 [run trong brief].
+- `git show --stat 60c980d`: 6 file, đúng Phạm vi; `Ocean.mat` không đổi.
+- Hình đậm/nhạt theo mức: user xem gộp cuối 5j.
+- Kết luận: đã duyệt
