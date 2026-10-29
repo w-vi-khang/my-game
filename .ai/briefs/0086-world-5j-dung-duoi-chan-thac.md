@@ -1,6 +1,6 @@
 # Brief 0086 — World 5j (lỗi 4): đứng dưới chân thác không bị đẩy lên 1 ô
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-29 20:25
@@ -247,3 +247,8 @@ Gộp cuối 5j (user chơi thử một lượt). SimView, Play:
 ---
 
 ## Review
+- Chạy bằng Sonnet · medium khớp Model thực thi; ~19 phút.
+- Mọi dòng Phần cần test có kết quả: 2/3 test chân thác fail trên code cũ (maxY 21,25; đích click x = 137), 3/3 đạt sau sửa; WaterRay + PlayerMotion 13/13; EditMode toàn bộ đạt; PlayMode 5 lớp liên quan 51/51 [run trong brief].
+- `git show --stat b79e34d`: đúng Phạm vi.
+- Lệch: executor tự đổi kỳ vọng `HitsFromAbove` t = 6 → 6,5. Planner kiểm lại: tia từ y = 10,5 xuống mặt trên ô y = 3 (y = 4) đi 6,5 → brief tính sai, giá trị mới đúng. Chấp nhận; lần sau executor nên dừng hỏi theo brief.
+- Kết luận: đã duyệt
