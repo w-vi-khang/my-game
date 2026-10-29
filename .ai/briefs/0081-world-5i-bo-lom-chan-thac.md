@@ -1,6 +1,6 @@
 # Brief 0081 — World 5i (phần 2): bo lõm chân thác, xén mặt ao quanh chân, vá góc chân cột
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp 0079, 0080, 0081)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-28 10:51
@@ -200,3 +200,13 @@ _Đã trả lời ở QĐ 11; lần 2 đạt._
 - Giờ thực tế: ≈ 23 phút (2 lần).
 - Ảnh `brief0081_foot.png`: chân thác bo vào mặt ao; mép trái cột nước có răng cưa (có thể do sắp xếp mặt trong suốt hoặc lỗi hình) → nhờ user xem kỹ.
 - Chờ user tự test (7 mục, gộp 0079–0081) trước khi kết luận.
+- User tự test (2026-10-29, 3 ảnh) [user]:
+  - Chân thác bo lõm: không báo lỗi. User muốn thêm hiệu ứng nước bắn / sủi bọt ở chân thác (việc mới, VFX).
+  - Mục 1 (0080): cột thác "đứt khúc", thấy từng mảng giữa các ô cột → **lỗi**, ngoài phạm vi code 0081.
+  - Mục 7 (0079): nước không lấp đầy hố đào → **lỗi**.
+  - Mục 3 (0079): chỉ thấy mỏng dần từ mức 1 xuống 0; mức 2 trở lên trông như nhau → **lỗi**.
+  - Đứng dưới chân thác bị đẩy nổi lên 1 ô (`PlayerRules.InWater` coi ô nước rơi là nước bơi được [chưa xác minh]).
+  - Vật phẩm rơi: nên nằm trên mặt đất (không lơ lửng, xoay), rơi ngẫu nhiên gần khối bị phá thay vì ở tâm khối (việc mới).
+  - Phá khối dưới chân → rơi; đặt khối dưới chân → player bị nâng 1 ô (chờ user xác nhận là lỗi hay đúng ý).
+- Code và test của 0081 đạt QĐ 1–11. Các lỗi trên thuộc 0079/0080 hoặc phần khác (player, vật phẩm), cần chẩn đoán và brief mới; không sửa trong phạm vi 0081.
+- Kết luận: đã duyệt
