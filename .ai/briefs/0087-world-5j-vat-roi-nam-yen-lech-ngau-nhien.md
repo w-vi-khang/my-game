@@ -1,9 +1,9 @@
 # Brief 0087 — World 5j (lỗi 5): vật rơi nằm yên trên mặt đất, lệch ngẫu nhiên trong ô
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-29 20:02
+> Cập nhật: 2026-10-29 20:45
 
 ## Mục tiêu
 Lỗi 5 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md), theo user (2026-10-29): vật rơi khi phá khối phải nằm yên trên mặt đất, không xoay tròn, và nằm ở vị trí ngẫu nhiên gần khối bị phá thay vì đúng tâm ô.
@@ -237,7 +237,17 @@ Gộp cuối 5j (user chơi thử một lượt). SimView, Play:
 
 ## Kết quả
 
+Base commit: 6c63a5c
+Chạy bằng: Sonnet · medium (claude-sonnet-5-5)
+Bắt đầu: 2026-10-29 20:18 · Kết thúc: ~20:45 (≈ 0,5 giờ)
+Commit: 5706a55 — DropScatter.cs(+meta), DropPick.cs, PlayerMotion.cs, SimConfig.cs, DropView.cs, 2 file sim_m1.json, DropScatterTests(+meta), DropPickTests, SimConfigTests, DropPlayTests.
+
 ## Kết quả test
+- Test trên code cũ (bước 8 trước): KHÔNG chạy được fail kiểu khẳng định — test mới tham chiếu `DropScatter`/`RestRotation` chưa tồn tại nên trên code cũ không biên dịch (fail ở mức biên dịch). Không chạy PlayMode trên code cũ để tránh lặp reload.
+- DropScatterTests (4), DropPickTests (cũ + BoxFollowsScatter), SimConfigTests: đạt (EditMode 680/680, 0 fail, GoldenHashTests + DropFieldTests nằm trong đó).
+- PlayMode DropPlayTests + ControlModePlayTests + InventoryPlayTests: 53/53 đạt (gồm DropViewDrawsGroupsWithInstancedMaterials, ClickPicksOnlyInReachAndFarDoesNotBlockDig). Không gặp vấn đề eulerAngles 360.
+- read_console Error: 0. `diff` hai sim_m1.json rỗng. `grep SpinDegreesPerSecond` rỗng. Đã `git checkout` EditorSettings.asset; git status chỉ file trong Phạm vi.
+- Phần nhìn bằng mắt: chờ user (gộp cuối 5j).
 
 ## Vướng mắc
 
