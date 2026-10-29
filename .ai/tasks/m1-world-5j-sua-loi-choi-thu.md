@@ -8,7 +8,7 @@
 ## Mục tiêu
 Sửa 5 lỗi user thấy khi chơi thử, mỗi lỗi một brief (hoặc gộp khi cùng file):
 1. Cột thác "đứt khúc", thấy từng mảng (shader nước trong suốt vẽ chồng lớp không theo thứ tự) — brief 0082.
-2. Nước không lấp đầy hố đào.
+2. Nước không lấp đầy hố đào. → user chọn luật [0044](../../design/decisions/0044-ho-thap-hon-mat-nguon-thi-day.md) (2026-10-29): ô thấp hơn mặt nguồn thì đầy; brief sau 0084.
 3. Mặt nước mức ≥ 2 trông như nhau (chỉ thấy mỏng dần từ mức 1 về 0).
 4. Đứng dưới chân thác bị đẩy nổi 1 ô.
 5. Vật rơi nằm trên mặt đất, không lơ lửng/xoay; rơi ngẫu nhiên gần khối bị phá.
