@@ -127,6 +127,8 @@ namespace Game.Client
             CurrentDistance = distance;
             if (Physics.SphereCast(pivot, castRadius, back, out var hit, distance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
                 CurrentDistance = Mathf.Max(hit.distance - 0.1f, 0.3f);
+            bool hide = CurrentDistance < PlayerMotion.CameraHideBodyDistance;
+            if (target.BodyVisible == hide) target.SetBodyVisible(!hide);
             transform.SetPositionAndRotation(pivot + back * CurrentDistance, rot);
         }
     }

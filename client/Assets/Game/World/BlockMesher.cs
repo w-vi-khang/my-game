@@ -1053,26 +1053,76 @@ namespace Game.World
                 return AddWaterVertex(p, n);
             }
 
-            /// <summary>Ô cột (brief 0080, 0043 mục 6): mặt bên rút ngắn + trụ bo đứng; mép tràn thêm mặt trên, cung, cầu góc, nắp.</summary>
+            /// <summary>Đầu end (0 = t nhỏ, 1 = t lớn) của dải cung cạnh hở d thon vào ô nước kề (brief 0083; trước đây vẽ nắp).</summary>
+            bool LipTaper(int3 g, in WaterCol col, int d, int end)
+            {
+                if (!col.lip || !col.open[d])
+                    return false;
+                bool axisX = d < 2;
+                int cs = d == 0 || d == 2 ? 1 : 0;
+                if (axisX ? col.Rounded(cs, end) : col.Rounded(end, cs))
+                    return false;
+                int3 nb = g + (axisX ? new int3(0, 0, end == 0 ? -1 : 1) : new int3(end == 0 ? -1 : 1, 0, 0));
+                if (MaterialAt(nb) != (int)BlockMaterial.Water)
+                    return false;
+                float3 outDir = DirVec(d);
+                return !(IsLipCell(nb) && MaterialAt(nb + new int3((int)outDir.x, 0, (int)outDir.z)) == (int)BlockMaterial.Empty);
+            }
+
+            /// <summary>Ô cột (brief 0080, 0043 mục 6): mặt bên rút ngắn + trụ bo đứng; mép tràn thêm mặt trên, cung, cầu góc, đoạn thon (brief 0083).</summary>
             void AddWaterColumn(int3 g, in WaterCol col)
             {
                 float R = WaterFilletRadius;
                 int S = WaterFilletSegments;
                 float3 up = new float3(0, 1, 0);
                 int3 c = col.c;
+                bool4 tp0 = false, tp1 = false;
+                for (int d = 0; d < 4; d++)
+                {
+                    tp0[d] = LipTaper(g, col, d, 0);
+                    tp1[d] = LipTaper(g, col, d, 1);
+                }
 
                 if (col.lip)
                 {
                     float u0 = col.open.y ? R : 0, u1 = col.open.x ? 1 - R : 1;
                     float v0 = col.open.w ? R : 0, v1 = col.open.z ? 1 - R : 1;
-                    int a = AddWaterVertex(col.Pos(u0, c.y + col.H(u0, v0), v0), up);
-                    int b = AddWaterVertex(col.Pos(u1, c.y + col.H(u1, v0), v0), up);
-                    int cc = AddWaterVertex(col.Pos(u1, c.y + col.H(u1, v1), v1), up);
-                    int dd = AddWaterVertex(col.Pos(u0, c.y + col.H(u0, v1), v1), up);
-                    AddWaterTri(a, b, cc); AddWaterTri(a, cc, dd);
+                    if (!math.any(tp0 | tp1))
+                    {
+                        int a = AddWaterVertex(col.Pos(u0, c.y + col.H(u0, v0), v0), up);
+                        int b = AddWaterVertex(col.Pos(u1, c.y + col.H(u1, v0), v0), up);
+                        int cc = AddWaterVertex(col.Pos(u1, c.y + col.H(u1, v1), v1), up);
+                        int dd = AddWaterVertex(col.Pos(u0, c.y + col.H(u0, v1), v1), up);
+                        AddWaterTri(a, b, cc); AddWaterTri(a, cc, dd);
+                    }
+                    else
+                    {
+                        // Đa giác lồi: hình chữ nhật + điểm P(tR) của mỗi đầu thon trên cạnh tương ứng, đi vòng −z, +x, +z, −x.
+                        var ring = new FixedList128Bytes<float2>();
+                        ring.Add(new float2(u0, v0));
+                        if (tp0[3]) ring.Add(new float2(R, v0));
+                        if (tp1[3]) ring.Add(new float2(1 - R, v0));
+                        ring.Add(new float2(u1, v0));
+                        if (tp0[0]) ring.Add(new float2(u1, R));
+                        if (tp1[0]) ring.Add(new float2(u1, 1 - R));
+                        ring.Add(new float2(u1, v1));
+                        if (tp1[2]) ring.Add(new float2(1 - R, v1));
+                        if (tp0[2]) ring.Add(new float2(R, v1));
+                        ring.Add(new float2(u0, v1));
+                        if (tp1[1]) ring.Add(new float2(u0, 1 - R));
+                        if (tp0[1]) ring.Add(new float2(u0, R));
+                        float2 m = new float2((u0 + u1) * 0.5f, (v0 + v1) * 0.5f);
+                        int ctr = AddWaterVertex(col.Pos(m.x, c.y + col.H(m.x, m.y), m.y), up);
+                        for (int i = 0; i < ring.Length; i++)
+                        {
+                            float2 pa = ring[i], pb = ring[(i + 1) % ring.Length];
+                            AddWaterTri(ctr, AddWaterVertex(col.Pos(pa.x, c.y + col.H(pa.x, pa.y), pa.y), up),
+                                AddWaterVertex(col.Pos(pb.x, c.y + col.H(pb.x, pb.y), pb.y), up));
+                        }
+                    }
                 }
 
-                // Mặt bên, cung và nắp trên từng cạnh hở.
+                // Mặt bên, cung và đoạn thon trên từng cạnh hở.
                 for (int d = 0; d < 4; d++)
                 {
                     if (!col.open[d])
@@ -1083,9 +1133,10 @@ namespace Game.World
                     bool r0 = axisX ? col.Rounded(cs, 0) : col.Rounded(0, cs);
                     bool r1 = axisX ? col.Rounded(cs, 1) : col.Rounded(1, cs);
                     float t0 = r0 ? R : 0, t1 = r1 ? 1 - R : 1;
+                    float pt0 = r0 || tp0[d] ? R : 0, pt1 = r1 || tp1[d] ? 1 - R : 1; // dải cung chính bắt đầu sau đoạn thon
                     float pe = cs == 1 ? 1 - R : R; // toạ độ mép mặt trên phía d
-                    float2 P0 = axisX ? new float2(pe, t0) : new float2(t0, pe);
-                    float2 P1 = axisX ? new float2(pe, t1) : new float2(t1, pe);
+                    float2 P0 = axisX ? new float2(pe, pt0) : new float2(pt0, pe);
+                    float2 P1 = axisX ? new float2(pe, pt1) : new float2(pt1, pe);
                     float2 E0 = axisX ? new float2(cs, t0) : new float2(t0, cs); // điểm trên mặt phẳng cạnh
                     float2 E1 = axisX ? new float2(cs, t1) : new float2(t1, cs);
 
@@ -1112,25 +1163,23 @@ namespace Game.World
                     }
                     AddWaterTri(b0, b1, s1); AddWaterTri(b0, s1, s0);
 
-                    if (!col.lip)
-                        continue;
+                    // Đoạn thon (brief 0083): quạt từ mũi V ở góc ô tới cột cung đầy đủ tại tR; mặt bên và mặt trên lấp phần còn lại.
                     for (int end = 0; end < 2; end++)
                     {
-                        if (end == 0 ? r0 : r1)
+                        if (!(end == 0 ? tp0[d] : tp1[d]))
                             continue;
-                        float3 eDir = axisX ? new float3(0, 0, end == 0 ? -1 : 1) : new float3(end == 0 ? -1 : 1, 0, 0);
-                        int3 nb = g + new int3((int)eDir.x, 0, (int)eDir.z);
-                        if (MaterialAt(nb) != (int)BlockMaterial.Water)
-                            continue;
-                        if (IsLipCell(nb) && MaterialAt(nb + new int3((int)outDir.x, 0, (int)outDir.z)) == (int)BlockMaterial.Empty)
-                            continue;
-                        float2 corner = end == 0 ? E0 : E1;
+                        float2 e = end == 0 ? E0 : E1;
                         float2 pp = end == 0 ? P0 : P1;
-                        float3 capN = -eDir;
-                        int csx = (int)corner.x, csz = (int)corner.y;
-                        int q = AddWaterVertex(col.Pos(corner.x, c.y + col.Hc(csx, csz), corner.y), capN);
+                        float ve = c.y + col.Hc((int)e.x, (int)e.y);
+                        int v = AddWaterVertex(col.Pos(e.x, ve, e.y), math.normalize(outDir + up));
                         for (int k = 0; k < S; k++)
-                            AddWaterTri(q, WaterArcVertex(col, pp, outDir, k, false, capN), WaterArcVertex(col, pp, outDir, k + 1, false, capN));
+                            AddWaterTri(v, WaterArcVertex(col, pp, outDir, k, true, default), WaterArcVertex(col, pp, outDir, k + 1, true, default));
+                        int sv = AddWaterVertex(col.Pos(e.x, ve, e.y), outDir);
+                        if (end == 0) AddWaterTri(b0, s0, sv);
+                        else AddWaterTri(b1, sv, s1);
+                        float2 kc = axisX ? new float2(pe, e.y) : new float2(e.x, pe);
+                        AddWaterTri(AddWaterVertex(col.Pos(e.x, ve, e.y), up), AddWaterVertex(col.Pos(pp.x, c.y + col.H(pp.x, pp.y), pp.y), up),
+                            AddWaterVertex(col.Pos(kc.x, c.y + col.H(kc.x, kc.y), kc.y), up));
                     }
                 }
 

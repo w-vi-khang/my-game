@@ -10,7 +10,7 @@ namespace Game.Client.Tests
     /// <summary>World 7l b2 (brief 0056): camera PC — mặc định chéo cao, Space về sau lưng, X góc nhìn thứ nhất.</summary>
     public class CameraPcPlayTests
     {
-        GameObject camGo, go, playerGo;
+        GameObject camGo, go, playerGo, cube;
         TerrainChunkView view;
         DemoPlain dp;
         PlayerCharacter player;
@@ -61,6 +61,7 @@ namespace Game.Client.Tests
             Object.Destroy(playerGo);
             Object.Destroy(go);
             Object.Destroy(camGo);
+            if (cube != null) Object.Destroy(cube);
             yield return null;
         }
 
@@ -197,6 +198,29 @@ namespace Game.Client.Tests
             player.SetFlyMode(true);
             yield return null;
             Assert.IsFalse(follow.FirstPerson);
+            Assert.IsTrue(player.BodyVisible);
+        }
+
+        [UnityTest]
+        public IEnumerator CameraHidesBodyWhenClose()
+        {
+            yield return Teleport(Spot);
+            follow.SetAngles(0f, 10f);
+            yield return null;
+            Assert.IsTrue(player.BodyVisible);
+            Assert.Greater(follow.CurrentDistance, 1f);
+            var rot = Quaternion.Euler(10f, 0f, 0f);
+            var pivot = player.transform.position + Vector3.up * follow.pivotHeight;
+            cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.position = pivot + rot * Vector3.back * 0.8f;
+            cube.transform.localScale = Vector3.one * 0.5f;
+            Physics.SyncTransforms(); // truy vấn vật lý không tự đồng bộ transform vừa đặt
+            yield return null;
+            Assert.Less(follow.CurrentDistance, 1f);
+            Assert.IsFalse(player.BodyVisible);
+            Object.Destroy(cube);
+            yield return null;
+            yield return null;
             Assert.IsTrue(player.BodyVisible);
         }
 

@@ -6,7 +6,7 @@
 Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), không gắn pillar riêng. Onboarding gắn P3 (tinh linh dẫn dắt trong khung truyện) và P1 (bài học đầu tiên là hồi sinh một loài). Mọi đề xuất của AI (2026-10-13) đánh dấu `[ý tưởng]`.
 
 **Đã quyết (user, 2026-10-13):**
-- **Camera góc 3, xoay tự do** quanh nhân vật (bỏ ý tưởng B3 "góc nghiêng cố định" — [ideas](../ideas.md)). **PC từ 2026-10-23** ([0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md)): góc mặc định nhìn chéo từ trên cao như LoL, bám nhân vật, vẫn xoay được bằng chuột giữa, Space về mặc định; X = góc nhìn thứ nhất.
+- **Camera góc 3, xoay tự do** quanh nhân vật (bỏ ý tưởng B3 "góc nghiêng cố định" — [ideas](../ideas.md)). **PC từ 2026-10-23** ([0034](../decisions/0034-dieu-khien-pc-click-di-chuyen.md)): góc mặc định nhìn chéo từ trên cao như LoL, bám nhân vật, vẫn xoay được bằng chuột giữa, Space về mặc định; X = góc nhìn thứ nhất. Camera bị khối đẩy sát nhân vật (< 1 m [số tạm], sim_m1.json `cameraHideBodyDistance`) thì ẩn thân nhân vật (brief 0083).
 - **Tay cầm để sau phát hành.** User lo tay cầm khó nhắm phép định hướng → cách nhắm dưới đây làm chung cho chuột, cảm ứng và tay cầm, để thêm tay cầm sau không phải làm lại.
 
 ## Điều khiển

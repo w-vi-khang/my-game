@@ -1015,8 +1015,62 @@ namespace Game.World.Tests
             AssertNoDuplicateWaterVertices(mesh);
         }
 
+        /// <summary>Số tam giác nước có cả 3 đỉnh thoả <paramref name="pred"/>.</summary>
+        static int CountWaterTris(ChunkMesh mesh, System.Func<float3, bool> pred)
+        {
+            int n = 0;
+            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
+                if (pred(mesh.Vertices[mesh.WaterIndices[t]]) && pred(mesh.Vertices[mesh.WaterIndices[t + 1]]) && pred(mesh.Vertices[mesh.WaterIndices[t + 2]]))
+                    n++;
+            return n;
+        }
+
         [Test]
-        public void LipCapsMeetUpstreamCell()
+        public void LipTapersAtChannelSpill()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+            {
+                w.Set(x, 0, z, Cell.Make(BlockMaterial.Bedrock));
+                w.Set(x, 1, z, Cell.Make(BlockMaterial.Stone));
+                if (z <= 6)
+                    for (int y = 2; y <= 11; y++)
+                        w.Set(x, y, z, Cell.Make(BlockMaterial.Stone));
+            }
+            for (int z = 1; z <= 5; z++)
+            for (int x = 5; x <= 9; x++)
+                w.Set(x, 11, z, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            var bag = new PlayerBag();
+            bag.Add(BlockMaterial.Stone, 1000);
+            var e = new WorldEditor(w, bag, 1, -1);
+            Assert.AreEqual(EditResult.Ok, e.TryDig(7, 11, 6));
+            e.SettleWater(10000);
+            Assert.IsFalse(e.HasPendingWater);
+            ushort lip = w.Get(7, 11, 7);
+            Assert.AreEqual(BlockMaterial.Water, Cell.GetMaterial(lip));
+            Assert.AreEqual(4, Cell.GetWaterLevel(lip));
+            Assert.IsFalse(Cell.IsFalling(lip));
+            Assert.IsTrue(Cell.IsFalling(w.Get(7, 10, 7)));
+
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            Assert.AreEqual(0, CountWaterTris(mesh, p => math.abs(p.z - 7) < 1e-4f && p.x >= 7 - 1e-4f && p.x <= 8 + 1e-4f && p.y > 11 + 1e-4f), "lip cap");
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(8, 11.825f, 7), new float3(0.7071f, 0.7071f, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(7, 11.825f, 7), new float3(-0.7071f, 0.7071f, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(8, 11.5025f, 7.3f), new float3(1, 0, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(7.7f, 11.8025f, 7.3f), new float3(0, 1, 0)));
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                float3 p = mesh.Vertices[mesh.WaterIndices[t]];
+                if (math.abs(p.x - 8) < 1e-4f && p.z >= 7 - 1e-4f && p.z <= 7.3f + 1e-4f)
+                    Assert.LessOrEqual(p.y, 11.825f - (11.825f - 11.5025f) * (p.z - 7) / 0.3f + 1e-3f, $"taper bulges at {p}");
+            }
+            AssertWatertight(mesh, new float3(7, 11, 7.001f), new float3(8, 12, 8));
+            AssertNoDuplicateWaterVertices(mesh);
+        }
+
+        [Test]
+        public void LipTapersIntoUpstreamCell()
         {
             var w = StoneFloor16();
             for (int y = 5; y <= 8; y++)
@@ -1027,21 +1081,14 @@ namespace Game.World.Tests
             w.Set(4, 9, 4, Cell.MakeFlowing(0, 5, false));
             w.Set(5, 9, 4, Cell.MakeFlowing(0, 4, false));
             var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
-            int caps = 0;
-            for (int t = 0; t < mesh.WaterIndices.Length; t += 3)
-            {
-                bool all = true;
-                for (int k = 0; k < 3; k++)
-                {
-                    int i = mesh.WaterIndices[t + k];
-                    all &= math.abs(mesh.Vertices[i].x - 5) < 1e-4f && math.distance(mesh.Normals[i], new float3(1, 0, 0)) < 1e-4f;
-                }
-                if (all)
-                    caps++;
-            }
-            Assert.AreEqual(6, caps);
-            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5, 9.825f, 4.3f), new float3(0, 1, 0)));
-            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5, 9.825f, 4), new float3(1, 0, 0)));
+            Assert.AreEqual(0, CountWaterTris(mesh, p => math.abs(p.x - 5) < 1e-4f && p.y > 9 + 1e-4f), "lip cap");
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5, 9.825f, 4), new float3(0, 0.7071f, -0.7071f)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5, 9.825f, 5), new float3(0, 0.7071f, 0.7071f)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5.3f, 9.5025f, 4), new float3(0, 0, -1)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5.3f, 9.5025f, 5), new float3(0, 0, 1)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5.3f, 9.8025f, 4.3f), new float3(0, 1, 0)));
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5.3f, 9.8025f, 4.7f), new float3(0, 1, 0)));
+            AssertWatertight(mesh, new float3(5.001f, 9, 4), new float3(6, 10, 5));
             for (int t = 0; t < mesh.WaterIndices.Length; t++)
             {
                 float3 p = mesh.Vertices[mesh.WaterIndices[t]];
