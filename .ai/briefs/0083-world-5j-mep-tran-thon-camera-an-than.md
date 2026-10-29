@@ -1,6 +1,6 @@
 # Brief 0083 — World 5j (lỗi 6–8): mép tràn thon vào ô thượng nguồn thay cho nắp; ẩn thân khi camera quá gần
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-29 18:54
@@ -216,3 +216,8 @@ Gộp vào lần chơi thử cuối 5j. SimView, Play (Mac):
 ---
 
 ## Review
+- Chạy bằng Opus · medium khớp Model thực thi; ~17 phút.
+- Mọi dòng Phần cần test có kết quả: 2 test mép tràn fail với code cũ (6 tam giác nắp), đạt sau sửa; `CameraHidesBodyWhenClose` đạt; EditMode 660/660, PlayMode 278/278 [run trong brief].
+- `git show --stat ec4dd3b`: 10 file, đều trong Phạm vi. Lệch nhỏ (thêm `Physics.SyncTransforms()` trong test, đổi tên `LipCapsMeetUpstreamCell` theo bước 3) hợp lý, không đổi QĐ.
+- Lỗi 7, hình mép tràn, cảm giác ẩn thân: user xem gộp cuối 5j (user 2026-10-29).
+- Kết luận: đã duyệt
