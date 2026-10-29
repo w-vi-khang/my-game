@@ -207,6 +207,7 @@ _Đã trả lời ở QĐ 11; lần 2 đạt._
   - Mục 3 (0079): chỉ thấy mỏng dần từ mức 1 xuống 0; mức 2 trở lên trông như nhau → **lỗi**.
   - Đứng dưới chân thác bị đẩy nổi lên 1 ô (`PlayerRules.InWater` coi ô nước rơi là nước bơi được [chưa xác minh]).
   - Vật phẩm rơi: nên nằm trên mặt đất (không lơ lửng, xoay), rơi ngẫu nhiên gần khối bị phá thay vì ở tâm khối (việc mới).
-  - Phá khối dưới chân → rơi; đặt khối dưới chân → player bị nâng 1 ô (chờ user xác nhận là lỗi hay đúng ý).
+  - Phá khối dưới chân → rơi; đặt khối dưới chân → player bị nâng 1 ô: user chọn giữ như hiện tại.
+  - Hiệu ứng chân thác: user chọn để sau → `design/ideas.md`.
 - Code và test của 0081 đạt QĐ 1–11. Các lỗi trên thuộc 0079/0080 hoặc phần khác (player, vật phẩm), cần chẩn đoán và brief mới; không sửa trong phạm vi 0081.
 - Kết luận: đã duyệt
