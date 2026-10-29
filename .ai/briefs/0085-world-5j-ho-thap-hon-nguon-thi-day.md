@@ -1,9 +1,9 @@
 # Brief 0085 — World 5j (lỗi 2): cài luật 0044, ô thấp hơn nguồn gốc thì đầy
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-29
+> Cập nhật: 2026-10-29 19:48
 
 ## Mục tiêu
 Lỗi 2 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md): đào hố rộng 2 lớp cạnh ao thì nước không lấp đầy. User đã chọn luật [0044](../../design/decisions/0044-ho-thap-hon-mat-nguon-thi-day.md) (2026-10-29). Brief này cài luật đó vào `WorldEditor`, thêm tham số `basinFillRadius` vào cấu hình nước, rồi đổi/thêm test.
@@ -193,7 +193,19 @@ Gộp cuối 5j; Planner chuyển sang danh sách chơi thử. Play, scene SimVi
 
 ## Kết quả
 
+- Base commit: 3cff735
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 19:46 · kết thúc: ~20:10 (phần lớn là chờ EditMode toàn bộ ~7,5 phút)
+- Commit: 181acbd
+- File đổi: WorldEditor.cs, WaterConfig.cs, TerrainChunkView.cs, 2 water_m1.json (v4, giống hệt), WaterFlowTests.cs, WaterConfigTests.cs, world-tech.md:138
+
 ## Kết quả test
+- `WideHoleLowerLayerFills`, `FallsThenSpreadsFullAgain` (đã đổi), `BasinFillsWithinRadius`, `BasinFillRadiusIsTunable`, `BasinFillIsDeterministic`: đạt (chạy riêng, 5/5).
+- WaterConfigTests, SeaFloodTests, GoldenHashTests, toàn bộ WaterFlowTests: đạt trong EditMode toàn bộ 666/666, 0 fail.
+- PlayMode WaterFlowPlayTests + WaterLayerPlayTests + TerrainEditPlayTests: 18/18 đạt.
+- Console Error = 0 sau refresh. `diff` 2 file JSON rỗng. Đã `git checkout` EditorSettings.asset + ProjectSettings.asset; `git status` chỉ file trong Phạm vi, không có InitTestScene.
+- **Chưa làm:** bước "chạy test hố rộng trên code cũ để ghi output fail" (Lệnh 1) — tôi viết code mới trước khi chạy, không có output fail; không dùng stash/reset vì phiên dùng chung thư mục. Planner quyết định có cần.
+- User tự test (a)–(d): chờ user (gộp cuối 5j).
 
 ## Vướng mắc
 
