@@ -2,7 +2,7 @@
 
 > Trạng thái: chờ làm
 > Review: đầy đủ + user xem (gộp cuối 5j)
-> Model thực thi: Sonnet · high
+> Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-29 19:10
 
 ## Mục tiêu
