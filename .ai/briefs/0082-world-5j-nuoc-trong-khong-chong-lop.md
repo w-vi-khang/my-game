@@ -1,6 +1,6 @@
 # Brief 0082 — World 5j (phần 1): nước trong suốt chỉ hiện lớp gần nhất (cột thác hết "đứt khúc")
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-10-29 18:17
@@ -138,3 +138,5 @@ Commit: 482eeab — Ocean.shader, Ocean.mat, WaterLayerPlayTests.cs(+.meta).
 - `git show --stat 482eeab`: chỉ Ocean.shader, Ocean.mat, WaterLayerPlayTests.cs(+meta) — đúng Phạm vi. Pass mới chép đúng QĐ 1, đặt trước ForwardLit; Ocean.mat tắt `SRPDefaultUnlit` (QĐ 2). Test assert đúng 3 điều kiện bước 1 (`WaterLayerPlayTests.cs:123-125`).
 - Lệch brief: không chụp ảnh lệnh 6, không ghi số đo sau sửa (chỉ Passed). Chấp nhận — assert đã chặn diffAB ≤ 0.005; ảnh thay bằng user xem.
 - Chờ user tự test (4 mục) trước khi kết luận.
+- User xem (2026-10-29, 3 ảnh, lưu ngoài repo `~/Documents/User/khang/Game/art-test/shots/user0082_*`) [user]: cột thác hết mảng chồng lớp (ảnh 1 liền màu). Còn lỗi mesh khác: gai nước nhô ra ở chỗ mép tràn nối cột (ảnh 1), gờ mỏng ở đầu cột dưới mép tràn (ảnh 2), dưới nước nhìn lên thấy một mảng xanh đậm phẳng (ảnh 3) → task 5j lỗi 6–8, brief sau. User muốn làm xong hết 5j rồi chơi thử một lượt.
+- Kết luận: đã duyệt
