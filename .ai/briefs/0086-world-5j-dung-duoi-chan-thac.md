@@ -1,9 +1,9 @@
 # Brief 0086 — World 5j (lỗi 4): đứng dưới chân thác không bị đẩy lên 1 ô
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-29 20:02
+> Cập nhật: 2026-10-29 20:25
 
 ## Mục tiêu
 Lỗi 4 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md): user click để đi tới dưới chân thác, nhưng nhân vật bị đẩy lên 1 ô thay vì đứng trên đáy ao (ảnh `~/Documents/User/khang/Game/art-test/shots/user0081_under_fall.webp`, ngoài repo; vòng dấu click nằm ở chân cột thác).
@@ -227,8 +227,20 @@ Gộp cuối 5j (user chơi thử một lượt). SimView, Play:
 ---
 
 ## Kết quả
+- Base commit: a298026
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 2026-10-29 20:06 · Kết thúc: 2026-10-29 20:25
+- Commit: b79e34d — WaterRay.cs(+meta) mới; PlayerMotion.cs (ShouldStepUpToward); PlayerCharacter.cs (PointOnWorld + dòng nhảy bậc); WaterRayTests.cs, UnderFallPlayTests.cs (+meta), PlayerMotionTests.cs.
+- Lệch brief: bước 8 `HitsFromAbove` brief ghi t = 6, nhưng tia từ y=10,5 xuống mặt trên ô y=3 (y=4) là t = 6,5 → test đặt 6,5 (brief sai số học, code đúng).
 
 ## Kết quả test
+**Trước sửa (code cũ)**: `UnderFallStandStill` đạt; `UnderFallClickMoveNoStepUp` fail (maxY 21,25 > 20,3; log `UNDERFALL move feet=(136.46, 20.40, 200.50) vy=6.75 grounded=False inWater=True click=Walking target=(136.50, 20.04, 200.50) below=Water at=Water`; `UNDERFALL move maxY=21.25 ... state=Arrived`); `UnderFallClickThroughColumn` fail (ClickTargetLocal.x = 137,0, ngoài ô chân thác 136). Cổng QĐ 5 qua.
+**Sau sửa**: `UnderFallPlayTests` 3/3 đạt.
+- `WaterRayTests` (8) + `PlayerMotionTests` (gồm `ShouldStepUpTowardSkipsNearOpenTarget`): 13/13 đạt.
+- EditMode toàn bộ: 675 test, 674 đạt lần đầu, 1 fail (`HitsFromAbove`, lỗi số học brief, đã sửa) → chạy lại 2 lớp liên quan đạt; phần còn lại 674 đạt.
+- PlayMode `ClickMovePlayTests`, `ControlModePlayTests`, `WaterFlowPlayTests`, `DropPlayTests`, `UnderFallPlayTests`: 51/51 đạt.
+- Console Error: 0. Đã `git checkout` EditorSettings.asset; `git status` chỉ file trong Phạm vi.
+- Chờ user xem: 3 mục "User tự test" (gộp cuối 5j).
 
 ## Vướng mắc
 
