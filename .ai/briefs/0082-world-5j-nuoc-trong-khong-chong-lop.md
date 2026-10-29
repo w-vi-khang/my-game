@@ -1,9 +1,9 @@
 # Brief 0082 — World 5j (phần 1): nước trong suốt chỉ hiện lớp gần nhất (cột thác hết "đứt khúc")
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-29 10:00
+> Cập nhật: 2026-10-29 18:17
 
 ## Mục tiêu
 User chơi thử (brief 0081, mục Review) thấy cột thác "đứt khúc", thấy từng mảng. Nguyên nhân khả dĩ [repo]: `Water.mat` trong suốt với `ZWrite Off` + `Cull Off`, nên mặt sau và mặt trong của cùng mesh nước được vẽ chồng lên mặt trước theo thứ tự tam giác, không theo độ sâu. Brief này thêm **depth prepass** cho shader `Game/Ocean`: một pass chỉ ghi độ sâu chạy trước pass màu, nên mỗi điểm ảnh chỉ còn hiện mặt nước gần camera nhất. Task contract: [m1-world-5j-sua-loi-choi-thu](../tasks/m1-world-5j-sua-loi-choi-thu.md), lỗi 1.
@@ -114,8 +114,18 @@ SimView, Play (trên Mac):
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 10f032b
+Chạy bằng: Sonnet 5.5 (claude-sonnet-5-5) · medium
+Bắt đầu: 2026-10-29 18:07 · Kết thúc: 2026-10-29 18:16 (~9 phút)
+Commit: 482eeab — Ocean.shader, Ocean.mat, WaterLayerPlayTests.cs(+.meta).
+Ảnh Game view (lệnh 6): KHÔNG chụp (tiết kiệm usage; user tự xem ở mục User tự test).
 
 ## Kết quả test
+- Mới `TransparentWaterShowsOnlyNearestLayer`: TRƯỚC sửa không đạt — `covered=2591 diffCB=0.37604 diffAB=0.37604` (đúng kỳ vọng, A = C). SAU sửa đạt (cả 3 assert; dòng log `WaterLayer…` sau sửa không được MCP trả về, chỉ có kết quả Passed).
+- `refresh_unity` + `read_console` Error = 0 (trước và sau sửa shader).
+- EditMode toàn bộ: 659/659 đạt. PlayMode toàn bộ: 277/277 đạt (gồm FlyCameraWater, DayCycleWater, SeaSkyTint, HorizonFogMatch, OceanBackdrop, WaterFlow, BlockMesher, GoldenHash).
+- Dọn: EditorSettings.asset đã checkout; không có InitTestScene; git status chỉ còn file trong Phạm vi.
+- Phần nhìn bằng mắt (cột thác liền khối, nhìn từ dưới nước, biển nền): chờ user.
 
 ## Vướng mắc
 
