@@ -41,6 +41,12 @@ namespace Game.World
         public const int LipProfilePoints = 8;
         /// <summary>Mặt nước của ô nước có không khí phía trên nằm thấp hơn mặt trên ô chừng này (trùng mặt biển nền — OceanBackdrop).</summary>
         public const float WaterSurfaceDrop = 0.1f;
+        /// <summary>Độ dày nước (ô) ứng với alpha 255 trong màu đỉnh mặt nước (brief 0084) — bằng hằng cùng tên trong Ocean.shader.</summary>
+        public const float WaterDepthEncodeMax = 4f;
+
+        /// <summary>Màu đỉnh nước: RGB trắng, alpha = độ dày / WaterDepthEncodeMax (brief 0084).</summary>
+        static uint WaterDepthColor(float depth) =>
+            0x00FFFFFFu | ((uint)math.round(255f * math.saturate(depth / WaterDepthEncodeMax)) << 24);
         /// <summary>Bán kính bo (ô) và số đoạn cung mặc định của mặt nước (0043 mục 6, brief 0080).</summary>
         public const float DefaultWaterFilletRadius = 0.3f;
         public const int DefaultWaterFilletSegments = 3;
@@ -1546,6 +1552,29 @@ namespace Game.World
                 return sum / n;
             }
 
+            /// <summary>Độ dày nước tại đỉnh mặt trên p (toạ độ chunk): từ p tới đáy cột nước chạm điểm đó, trung bình các cột, tối đa WaterDepthEncodeMax ô mỗi cột; không có cột nước → tối đa (brief 0084 QĐ 1).</summary>
+            float WaterDepthAt(float3 p)
+            {
+                float3 wp = p + (float3)Origin;
+                int ly = (int)math.floor(wp.y - 1e-3f);
+                int x0 = (int)math.floor(wp.x - 1e-3f), x1 = (int)math.floor(wp.x + 1e-3f);
+                int z0 = (int)math.floor(wp.z - 1e-3f), z1 = (int)math.floor(wp.z + 1e-3f);
+                float sum = 0;
+                int n = 0;
+                for (int z = z0; z <= z1; z++)
+                for (int x = x0; x <= x1; x++)
+                {
+                    if (Cell.GetMaterial(CellAt(new int3(x, ly, z))) != BlockMaterial.Water)
+                        continue;
+                    int k = 0;
+                    while (k < (int)WaterDepthEncodeMax && Cell.GetMaterial(CellAt(new int3(x, ly - 1 - k, z))) == BlockMaterial.Water)
+                        k++;
+                    sum += ly - k;
+                    n++;
+                }
+                return n == 0 ? WaterDepthEncodeMax : wp.y - sum / n;
+            }
+
             /// <summary>Tứ giác nước (0041): 4 đỉnh theo vòng p0→p1→p2→p3 (hàn đỉnh trùng), 2 tam giác vào submesh nước, mặt trước quay theo n.</summary>
             void AddWaterQuad(float3 p0, float3 p1, float3 p2, float3 p3, float3 n)
             {
@@ -1574,7 +1603,7 @@ namespace Game.World
                 var key = new WaterVertexKey { P = (int3)math.round(p * 1024f), N = (int3)math.round(n * 1024f) };
                 if (Out.WaterVerts.TryGetValue(key, out int found))
                     return found;
-                int i = AddVertex(p, n, 0);
+                int i = AddVertex(p, n, WaterDepthColor(n.y > 0.999f ? WaterDepthAt(p) : WaterDepthEncodeMax));
                 Out.WaterVerts.Add(key, i);
                 return i;
             }

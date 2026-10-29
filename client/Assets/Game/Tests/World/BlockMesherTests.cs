@@ -938,6 +938,63 @@ namespace Game.World.Tests
             return false;
         }
 
+        static uint WaterVertexColor(ChunkMesh mesh, float3 normal, float3 pos)
+        {
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                int i = mesh.WaterIndices[t];
+                if (mesh.Normals[i].Equals(normal) && math.distance(mesh.Vertices[i], pos) < 1e-4f)
+                    return mesh.Colors[i];
+            }
+            Assert.Fail($"no water vertex at {pos} n {normal}");
+            return 0;
+        }
+
+        [Test]
+        public void WaterSurfaceDepthEncodesLevel()
+        {
+            var w = StoneFloor16();
+            int[] levels = { 5, 4, 3, 2, 1, 0 };
+            for (int k = 0; k < levels.Length; k++)
+                w.Set(3 + k, 5, 4, Cell.MakeFlowing(0, levels[k], false));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            float[] h = { 0.9f, 0.825f, 0.675f, 0.525f, 0.375f, 0.225f, 0.15f };
+            int[] want = { 57, 53, 43, 33, 24, 14, 10 };
+            int prev = 256;
+            for (int k = 0; k < h.Length; k++)
+            {
+                uint c = WaterVertexColor(mesh, up, new float3(3 + k, 5 + h[k], 4));
+                int a = (int)(c >> 24);
+                Assert.AreEqual(want[k], a, 1, $"alpha x={3 + k}");
+                Assert.Less(a, prev, $"decreasing x={3 + k}");
+                prev = a;
+                Assert.AreEqual(0xFFFFFFu, c & 0xFFFFFFu, $"rgb x={3 + k}");
+            }
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                int i = mesh.WaterIndices[t];
+                if (mesh.Normals[i].y <= 0.999f)
+                    Assert.AreEqual(255, (int)(mesh.Colors[i] >> 24), $"non-up vertex {mesh.Vertices[i]}");
+            }
+            AssertNoDuplicateWaterVertices(mesh);
+        }
+
+        [Test]
+        public void WaterSurfaceDepthCountsWaterBelow()
+        {
+            var w = StoneFloor16();
+            w.Set(4, 5, 4, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(4, 6, 4, Cell.MakeFlowing(0, 3, false));
+            w.Set(10, 5, 10, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            foreach (int x in new[] { 4, 5 })
+            foreach (int z in new[] { 4, 5 })
+                Assert.AreEqual(102, (int)(WaterVertexColor(mesh, up, new float3(x, 6.6f, z)) >> 24), 1, $"({x},{z})");
+            Assert.AreEqual(57, (int)(WaterVertexColor(mesh, up, new float3(10, 5.9f, 10)) >> 24), 1);
+        }
+
         static bool HasWaterVertexNear(ChunkMesh mesh, float3 pos, float3 normal)
         {
             for (int t = 0; t < mesh.WaterIndices.Length; t++)

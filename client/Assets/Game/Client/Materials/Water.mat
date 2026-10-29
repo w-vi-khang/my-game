@@ -27,11 +27,14 @@ Material:
     m_Floats:
     - _Alpha: 0.45
     - _Cull: 0
+    - _DepthFull: 1
     - _DstBlend: 10
     - _Glint: 0.6
     - _RippleScale: 0.45
     - _RippleStrength: 0.25
     - _SrcBlend: 5
+    - _ThinAlpha: 0.25
+    - _VertexDepth: 1
     - _ZWrite: 0
     m_Colors:
     - _DeepColor: {r: 0.09999997, g: 0.45, b: 0.65999997, a: 1}

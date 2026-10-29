@@ -108,6 +108,32 @@ namespace Game.Core.Tests
                 Assert.IsTrue(IsWater(w, x, y, z), $"({x},{y},{z})");
         }
 
+        /// <summary>0043 hiện tại: hố rộng chỉ có nước trong bán kính mức (lan giảm 1 mức/ô). Đổi kỳ vọng khi user chốt luật lấp hố (task 5j lỗi 2).</summary>
+        [Test]
+        public void WideHolePastLevelRadiusStaysEmpty()
+        {
+            var w = PondWorld();
+            var e = Editor(w);
+            for (int y = 3; y >= 2; y--)
+            for (int z = 2; z <= 9; z++)
+            for (int x = 8; x <= 15; x++)
+                Dig(e, x, y, z);
+            Settle(e);
+            for (int i = 0; i < 5; i++)
+            {
+                Assert.IsTrue(IsWater(w, 8 + i, 3, 5), $"top x={8 + i}");
+                Assert.AreEqual(4 - i, Cell.GetWaterLevel(w.Get(8 + i, 3, 5)), $"top level x={8 + i}");
+                Assert.IsTrue(IsWater(w, 9 + i, 2, 5), $"low x={9 + i}");
+                Assert.AreEqual(4 - i, Cell.GetWaterLevel(w.Get(9 + i, 2, 5)), $"low level x={9 + i}");
+            }
+            for (int x = 13; x <= 15; x++)
+                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 3, 5), $"top empty x={x}");
+            Assert.IsTrue(IsWater(w, 8, 2, 5));
+            Assert.IsTrue(Cell.IsFalling(w.Get(8, 2, 5)));
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(14, 2, 5));
+            Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(15, 2, 5));
+        }
+
         [Test]
         public void SpreadStopsAfterN()
         {
