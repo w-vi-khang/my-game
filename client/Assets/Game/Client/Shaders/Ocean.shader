@@ -3,6 +3,7 @@
 // nhận bóng của địa hình, sương mù để tan vào chân trời.
 // Brief 0011: material Water.mat bật trong suốt (Blend SrcAlpha/OneMinusSrcAlpha, ZWrite Off, Cull Off) — mặc định vẫn đục như cũ.
 // Task m1-bien-nhuom-mau-troi (brief 0034): mặt trên nhuộm dần sang màu chân trời theo buổi; sương chuyển mềm (SoftFogFactor).
+// Brief 0082: pass "WaterDepthPrepass" (SRPDefaultUnlit) ghi độ sâu trước ForwardLit — nước trong suốt chỉ hiện mặt gần nhất; Ocean.mat (đục) tắt pass này.
 Shader "Game/Ocean"
 {
     Properties
@@ -31,6 +32,28 @@ Shader "Game/Ocean"
             half _RippleStrength, _Glint, _Alpha;
         CBUFFER_END
         ENDHLSL
+
+        // Brief 0082: depth prepass — nước trong suốt chỉ hiện mặt gần camera nhất (không chồng mặt sau/mặt trong theo thứ tự tam giác).
+        Pass
+        {
+            Name "WaterDepthPrepass"
+            Tags { "LightMode" = "SRPDefaultUnlit" }
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            float4 vert(float4 positionOS : POSITION) : SV_POSITION
+            {
+                return GetVertexPositionInputs(positionOS.xyz).positionCS; // cùng phép biến đổi với ForwardLit để độ sâu trùng khít
+            }
+
+            half4 frag() : SV_Target { return 0; }
+            ENDHLSL
+        }
 
         Pass
         {
