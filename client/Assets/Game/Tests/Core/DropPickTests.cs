@@ -13,6 +13,7 @@ namespace Game.Core.Tests
         [SetUp]
         public void SetUp()
         {
+            PlayerMotion.Configure(new Game.Core.Sim.PlayerConfig { dropScatterRadius = 0f });
             var world = new WorldData(new WorldSize(32, 16, 32));
             for (int z = 0; z < 32; z++)
             for (int x = 0; x < 32; x++)
@@ -20,6 +21,20 @@ namespace Game.Core.Tests
             field = new DropField(world);
             dirt = field.Add(5, 1, 5, ItemId.Block(BlockMaterial.Dirt), 1);
             stone = field.Add(8, 1, 5, ItemId.Block(BlockMaterial.Stone), 1);
+        }
+
+        [TearDown]
+        public void TearDown() => PlayerMotion.Configure(new Game.Core.Sim.PlayerConfig());
+
+        [Test]
+        public void BoxFollowsScatter()
+        {
+            PlayerMotion.Configure(new Game.Core.Sim.PlayerConfig());
+            DropScatter.Offset(dirt.Id, 0.15f, out float dx, out float dz, out _);
+            var hit = DropPick.Pick(field.Stacks, 5.5f + dx, 5f, 5.5f + dz, 0, -1, 0, 100f, 5.5f, 1f, 5.5f, out _);
+            Assert.AreSame(dirt, hit);
+            var miss = DropPick.Pick(field.Stacks, 5.5f + dx + 0.3f * Math.Sign(dx == 0 ? 1 : dx), 5f, 5.5f + dz, 0, -1, 0, 100f, 5.5f, 1f, 5.5f, out _);
+            Assert.IsNull(miss);
         }
 
         [Test]

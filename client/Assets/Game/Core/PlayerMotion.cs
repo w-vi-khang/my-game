@@ -32,6 +32,8 @@ namespace Game.Core
         public static float ObservationHeight { get; private set; } = 2f;
         /// <summary>Camera góc 3 gần tâm xoay hơn chừng này (m) thì ẩn thân nhân vật (brief 0083, số tạm).</summary>
         public static float CameraHideBodyDistance { get; private set; } = 1f;
+        /// <summary>Vật rơi lệch ngẫu nhiên trong ô tối đa chừng này (ô) quanh tâm (brief 0087, số tạm).</summary>
+        public static float DropScatterRadius { get; private set; } = 0.15f;
         /// <summary>Tới đích khi khoảng cách ngang ≤ chừng này (ô).</summary>
         public const float ArriveDistance = 0.05f;
         /// <summary>Nhìn trước chừng này (ô) theo hướng đi khi xét tự nhảy bậc.</summary>
@@ -59,6 +61,7 @@ namespace Game.Core
             FirstPersonPitch = p.firstPersonPitch;
             ObservationHeight = p.observationHeight;
             CameraHideBodyDistance = p.cameraHideBodyDistance;
+            DropScatterRadius = p.dropScatterRadius;
         }
 
         /// <summary>Tự nhảy bậc 1 ô: ô phía trước ở tầng chân đặc và hai ô phía trên nó không đặc.</summary>

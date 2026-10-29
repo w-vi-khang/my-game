@@ -168,6 +168,7 @@ namespace Game.Core.Sim
         public float firstPersonPitch = 15f;
         public float observationHeight = 2f;
         public float cameraHideBodyDistance = 1f;
+        public float dropScatterRadius = 0.15f;
     }
 
     /// <summary>
@@ -426,6 +427,8 @@ namespace Game.Core.Sim
                 throw new ArgumentException("player.observationHeight must be in [1, 10].");
             if (!(player.cameraHideBodyDistance >= 0.3f && player.cameraHideBodyDistance <= 3f))
                 throw new ArgumentException("player.cameraHideBodyDistance must be in [0.3, 3].");
+            if (!(player.dropScatterRadius >= 0f && player.dropScatterRadius <= 0.16f))
+                throw new ArgumentException("player.dropScatterRadius must be in [0, 0.16].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
                 throw new ArgumentException("farm.queueSlots must be in [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)

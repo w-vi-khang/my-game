@@ -65,7 +65,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(9f, cfg.player.cameraDistance);
             Assert.AreEqual(15f, cfg.player.firstPersonPitch);
             Assert.AreEqual(2f, cfg.player.observationHeight);
+            Assert.AreEqual(0.15f, cfg.player.dropScatterRadius, 1e-6f);
             Assert.AreEqual(1f, cfg.player.cameraHideBodyDistance);
+            Assert.AreEqual(0.15f, cfg.player.dropScatterRadius, 1e-6f);
             Assert.AreEqual(6f, cfg.PlayerTillSeconds);
             Assert.AreEqual(10f, cfg.RainCooldownSeconds);
         }
@@ -112,6 +114,8 @@ namespace Game.Core.Tests
             Bad(c => c.player.observationHeight = 0.5f, "observationHeight 0.5");
             Bad(c => c.player.observationHeight = 11f, "observationHeight 11");
             Bad(c => c.player.cameraHideBodyDistance = 0.2f, "cameraHideBodyDistance 0.2");
+            Bad(c => c.player.dropScatterRadius = -0.01f, "dropScatterRadius -0.01");
+            Bad(c => c.player.dropScatterRadius = 0.2f, "dropScatterRadius 0.2");
             Bad(c => c.player = null, "player null");
         }
 

@@ -194,10 +194,17 @@ namespace Game.Client.Tests
             Assert.AreEqual(want.b, got.b, 1e-3f);
             Assert.AreEqual(want.a, got.a, 1e-3f);
             var lc = DropView.LocalCenter(d);
-            Assert.AreEqual(A.x + 2.5f, lc.x, 1e-4f);
+            DropScatter.Offset(d.Id, PlayerMotion.DropScatterRadius, out float sdx, out float sdz, out float syaw);
+            Assert.AreEqual(A.x + 2.5f + sdx, lc.x, 1e-4f);
             Assert.AreEqual(G + 1.15f, lc.y, 1e-4f);
-            Assert.AreEqual(A.z + 0.5f, lc.z, 1e-4f);
+            Assert.AreEqual(A.z + 0.5f + sdz, lc.z, 1e-4f);
+            Assert.LessOrEqual(new Vector2(lc.x - (A.x + 2.5f), lc.z - (A.z + 0.5f)).magnitude, PlayerMotion.DropScatterRadius + 1e-4f);
+            var r0 = DropView.RestRotation(d);
+            Assert.AreEqual(syaw, r0.eulerAngles.y, 0.01f);
             Assert.AreEqual(G + 1.2f, DropView.LocalCenter(s).y, 1e-4f);
+            yield return new WaitForSeconds(0.5f);
+            Assert.AreEqual(0f, Quaternion.Angle(r0, DropView.RestRotation(d)), 1e-4f); // nằm yên, không xoay theo thời gian
+            Assert.AreEqual(lc, DropView.LocalCenter(d));
             Assert.AreEqual("Đất × 3", TerrainEditInput.DropLabel(d)); // vi-text
             Assert.AreEqual("Túi hạt Cây A", TerrainEditInput.ItemLabel(ItemId.SeedBag(0))); // vi-text
         }

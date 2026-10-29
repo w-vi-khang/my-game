@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Game.Core
 {
-    /// <summary>Chọn chồng vật rơi bằng tia (task contract 7e, brief 0037): hộp cạnh BoxSize, đáy ở mặt ô, giữa ô theo x/z; chỉ chồng trong tầm thao tác.</summary>
+    /// <summary>Chọn chồng vật rơi bằng tia (task contract 7e, brief 0037): hộp cạnh BoxSize, đáy ở mặt ô, giữa ô + độ lệch DropScatter theo x/z (brief 0087); chỉ chồng trong tầm thao tác.</summary>
     public static class DropPick
     {
         public const float BoxSize = 0.5f;
@@ -23,8 +23,9 @@ namespace Game.Core
             {
                 var s = stacks[i];
                 if (!PlayerRules.InTargetReach(feetX, feetY, feetZ, s.X, s.Y, s.Z)) continue;
+                DropScatter.Offset(s.Id, PlayerMotion.DropScatterRadius, out float ox2, out float oz2, out _);
                 if (!RayBox(ox, oy, oz, dx, dy, dz,
-                        s.X + 0.5f - h, s.Y, s.Z + 0.5f - h, s.X + 0.5f + h, s.Y + BoxSize, s.Z + 0.5f + h, out float t)) continue;
+                        s.X + 0.5f + ox2 - h, s.Y, s.Z + 0.5f + oz2 - h, s.X + 0.5f + ox2 + h, s.Y + BoxSize, s.Z + 0.5f + oz2 + h, out float t)) continue;
                 if (t > maxDistance) continue;
                 if (t < bestT) { bestT = t; best = s; }
             }

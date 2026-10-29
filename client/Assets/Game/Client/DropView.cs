@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 namespace Game.Client
 {
     /// <summary>
-    /// Vẽ vật rơi (task contract sim 7e, brief 0037): mỗi chồng một khối mini cạnh 0,3 ô màu như khối (túi hạt: hộp 0,3 × 0,4 × 0,3 màu nâu), xoay chậm;
+    /// Vẽ vật rơi (task contract sim 7e, brief 0037): mỗi chồng một khối mini cạnh 0,3 ô màu như khối (túi hạt: hộp 0,3 × 0,4 × 0,3 màu nâu), nằm yên trên mặt ô, lệch ngẫu nhiên trong ô và quay một góc cố định theo Id chồng (DropScatter, brief 0087);
     /// vẽ gộp theo loại bằng Graphics.RenderMeshInstanced, không tạo GameObject cho từng chồng. Chồng vừa nhặt bay về nhân vật PlayerMotion.CollectFlySeconds (0036 mục 6; chỉ hiển thị).
     /// TerrainEditInput tự thêm component này.
     /// </summary>
@@ -16,7 +16,6 @@ namespace Game.Client
         public const float BlockSize = 0.3f;
         public static readonly Vector3 SeedBagSize = new Vector3(0.3f, 0.4f, 0.3f);
         public static readonly Color SeedBagColor = new Color(0.55f, 0.40f, 0.20f);
-        public const float SpinDegreesPerSecond = 45f;
         /// <summary>Số thể hiện mỗi lần vẽ: ≤ 511 khi mỗi thể hiện là Matrix4x4 (docs RenderMeshInstanced).</summary>
         const int Batch = 500;
 
@@ -35,8 +34,19 @@ namespace Game.Client
         public int FlyingCount => flying.Count;
 
         public static Vector3 SizeOf(ItemId item) => item.Kind == ItemKind.SeedBag ? SeedBagSize : Vector3.one * BlockSize;
-        /// <summary>Tâm hình của chồng (toạ độ terrain): giữa ô theo x/z, đáy ở mặt ô.</summary>
-        public static Vector3 LocalCenter(DropStack s) => new Vector3(s.X + 0.5f, s.Y + SizeOf(s.Item).y * 0.5f, s.Z + 0.5f);
+        /// <summary>Tâm hình của chồng (toạ độ terrain): tâm ô + độ lệch DropScatter theo x/z, đáy ở mặt ô.</summary>
+        public static Vector3 LocalCenter(DropStack s)
+        {
+            DropScatter.Offset(s.Id, PlayerMotion.DropScatterRadius, out float dx, out float dz, out _);
+            return new Vector3(s.X + 0.5f + dx, s.Y + SizeOf(s.Item).y * 0.5f, s.Z + 0.5f + dz);
+        }
+
+        /// <summary>Góc nằm yên của chồng (quanh trục Y, cố định theo Id — brief 0087).</summary>
+        public static Quaternion RestRotation(DropStack s)
+        {
+            DropScatter.Offset(s.Id, PlayerMotion.DropScatterRadius, out _, out _, out float yaw);
+            return Quaternion.Euler(0f, yaw, 0f);
+        }
         public static Color ColorOf(ItemId item)
         {
             if (item.Kind == ItemKind.SeedBag) return SeedBagColor;
@@ -92,7 +102,7 @@ namespace Game.Client
             var toWorld = view.transform.localToWorldMatrix;
             float now = Time.time;
             foreach (var s in editor.Drops.Stacks)
-                AddInstance(s.Item, toWorld * Matrix4x4.TRS(LocalCenter(s), Quaternion.Euler(0f, now * SpinDegreesPerSecond + s.Id * 37f, 0f), SizeOf(s.Item)));
+                AddInstance(s.Item, toWorld * Matrix4x4.TRS(LocalCenter(s), RestRotation(s), SizeOf(s.Item)));
             var player = PlayerCharacter.Active;
             for (int i = flying.Count - 1; i >= 0; i--)
             {
