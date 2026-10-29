@@ -1,9 +1,9 @@
 # Brief 0083 — World 5j (lỗi 6–8): mép tràn thon vào ô thượng nguồn thay cho nắp; ẩn thân khi camera quá gần
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-29 18:40
+> Cập nhật: 2026-10-29 18:54
 
 ## Mục tiêu
 Sửa lỗi 6–8 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md):
@@ -189,8 +189,27 @@ Gộp vào lần chơi thử cuối 5j. SimView, Play (Mac):
 ---
 
 ## Kết quả
+- Base commit: 9c90e8e
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-10-29 18:37 · Kết thúc: 2026-10-29 18:54 (~17 phút)
+- Commit code: `ec4dd3b` — file: `BlockMesher.cs`, `BlockMesherTests.cs`, `FollowCamera.cs`, `SimConfig.cs`, `PlayerMotion.cs`, 2 × `sim_m1.json`, `SimConfigTests.cs`, `CameraPcPlayTests.cs`, `design/02-gameplay/controls-ui.md`.
+- Bước 1 (lỗi 8): SimView Play, nhân vật ở (137.6, 20.05, 200.5) trong ao chân thác demo sát vách đất x = 138, `SetAngles(-90, -20)` → `CurrentDistance` = 0.3, camera (137.88, 21.55, 200.50). Ảnh trước có khối tối phẳng cạnh thẳng ở giữa dưới khung; ẩn thân → khối đó mất [run]. Lưu ý: ao demo chỉ sâu 1 ô nên camera không nằm dưới mặt nước như ảnh user; xác minh được "thân che camera" chứ không tái hiện đúng góc dưới nước.
+  - `~/Documents/User/khang/Game/art-test/shots/brief0083_cam_before.png`, `brief0083_cam_hidden.png`.
+- BlockMesher: thêm `LipTaper`; tính `tp0/tp1` (bool4) trước mặt trên; mặt trên có đầu thon → quạt từ tâm qua `FixedList128Bytes<float2>` (không đầu thon → 2 tam giác như cũ); đoạn thon = quạt V→cung tại tR + `(b0, s0, sV)` / `(b1, sV, s1)` + tam giác mặt trên `(E, P(tR), K)`; xoá khối nắp; sửa summary.
+- Lệch brief (nhỏ, trong phạm vi):
+  - `CameraHidesBodyWhenClose`: thêm `Physics.SyncTransforms()` sau khi đặt khối (không có thì SphereCast chưa thấy khối mới, `CurrentDistance` = 6.30 → fail); khối thành field `cube`, `TearDown` huỷ nếu còn (lần fail đầu khối sót lại làm `ToggleAndResetFromFirstPerson` fail theo).
+  - `LipCapsMeetUpstreamCell` đổi tên + thay assert như bước 3; thêm helper `CountWaterTris`.
+  - controls-ui.md: câu mới thêm vào cuối dòng mục camera (sau "X = góc nhìn thứ nhất."), không chèn giữa dòng.
+- Ảnh lệnh 8: `~/Documents/User/khang/Game/art-test/shots/brief0083_lip_front.png`, `brief0083_lip_side.png` — nhìn qua không thấy gai/gờ ở chỗ mép tràn nối kênh và vách (chờ user xác nhận).
 
 ## Kết quả test
+- Mép tràn thon (lỗi 6) · `LipTapersAtChannelSpill` code cũ fail: `lip cap Expected: 0 But was: 6` (BlockMesherTests.cs:1057); `LipTapersIntoUpstreamCell` code cũ cũng fail `Expected: 0 But was: 6`. Sau sửa cả hai đạt, không chỉnh số kỳ vọng nào · **đạt**.
+- Cột rơi / mép tràn bốn phía bo, chân thác, mặt nước thường · `BlockMesherTests` 49/49 Passed, không sửa kỳ vọng test cũ · **đạt**.
+- Nước không chồng lớp (0082) · `WaterLayerPlayTests` trong PlayMode toàn bộ · **đạt**.
+- Ẩn thân khi camera gần (lỗi 8) · `CameraHidesBodyWhenClose` · **đạt**; `CameraPcPlayTests` 8/8 (gồm `FirstPersonAtEyes`, `ToggleAndResetFromFirstPerson`, `BodyVisibilityOnDisableAndFly`) · **đạt**.
+- Cấu hình · `SimConfigTests`, `ConfigTests` trong EditMode toàn bộ · **đạt**; `cmp` hai `sim_m1.json` giống hệt.
+- Lệnh: `refresh_unity` + `read_console` Error = 0 sau mỗi lần sửa; EditMode toàn bộ **660/660 Passed**; PlayMode toàn bộ **278/278 Passed**; `python3 tools/check_design.py` exit 0; dọn: EditorSettings.asset checkout, không còn InitTestScene, `git status --short` sạch ngoài brief.
+- Lỗi 7, hình mép tràn/cảm giác ẩn thân, ngưỡng 1 m · **chờ user** (gộp cuối 5j).
 
 ## Vướng mắc
 
