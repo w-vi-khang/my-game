@@ -1,9 +1,9 @@
 # Brief 0084 — World 5j (lỗi 2–3): mặt nước đậm/nhạt theo độ dày; test ghi lại hành vi hố rộng của 0043
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-10-29 19:10
+> Cập nhật: 2026-10-29 20:10
 
 ## Mục tiêu
 Lỗi 2 và 3 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md):
@@ -164,8 +164,22 @@ Gộp cuối 5j. Planner chuyển sang danh sách chơi thử. Play, scene SimVi
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 89eef6b
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-10-29 19:24 · Kết thúc: ~20:10 (phần lớn là chờ chạy test EditMode ~6 phút/lượt)
+Commit: 60c980d
+File đổi: BlockMesher.cs (hằng WaterDepthEncodeMax, WaterDepthColor, WaterDepthAt, AddWaterVertex), Ocean.shader, Water.mat, BlockMesherTests.cs (+2 test), WaterFlowTests.cs (+1 test), design/04-tech/world-tech.md:139.
+Ghi chú: không gặp A = 0 sau khi sửa (không cần ép biên dịch lại). PlayMode/MCP làm ProjectSettings.asset đổi `runInBackground` 0→1 và EditorSettings.asset → đã `git checkout` hoàn lại cả hai.
 
 ## Kết quả test
+- Mã hoá độ dày theo mức: đạt (`WaterSurfaceDepthEncodesLevel`). Trước khi sửa code fail: `alpha x=3 Expected: 57.0d +/- 1.0d But was: 0.0d`.
+- Độ dày cộng ô nước dưới: đạt (`WaterSurfaceDepthCountsWaterBelow`). Trước khi sửa fail: `(4,4) Expected: 102.0d +/- 1.0d But was: 0.0d`.
+- Hố rộng 0043: đạt ngay (`WaterFlowTests.WideHolePastLevelRadiusStaysEmpty`), đúng giá trị brief.
+- EditMode toàn bộ: 663/663 đạt (gồm GoldenHashTests, BlockMesherTests, WaterFlowTests, SeaFloodTests).
+- Shader/console: `refresh_unity` + `read_console` Error = 0; `Ocean.mat` không đổi (git status).
+- PlayMode `Game.Client.Tests.{WaterFlow,WaterLayer,DayCycleWater,FlyCameraWater}PlayTests`: 8/8 đạt.
+- User tự test (a)–(d): chờ user (gộp cuối 5j).
+- git status: chỉ file trong Phạm vi.
 
 ## Vướng mắc
 
