@@ -115,13 +115,26 @@ namespace Game.Client
             if (ClickMove == ClickMoveState.Walking) ClickMove = ClickMoveState.None;
         }
 
-        /// <summary>Điểm world dưới tia: trúng collider, không thì mặt phẳng ngang qua chân; còn lại false.</summary>
+        /// <summary>Điểm world dưới tia: ô nước đầu tiên tia đi vào trước collider (brief 0086), không thì điểm trúng collider, không thì mặt phẳng ngang qua chân; còn lại false.</summary>
         public bool PointOnWorld(Ray ray, out Vector3 pointWorld, out Vector3 normalWorld)
         {
-            if (Physics.Raycast(ray, out var hit, ClickRayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            bool hit = Physics.Raycast(ray, out var hitInfo, ClickRayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            float limit = hit ? hitInfo.distance : ClickRayDistance;
+            if (terrain != null && terrain.World != null)
             {
-                pointWorld = hit.point;
-                normalWorld = hit.normal;
+                var o = terrain.transform.InverseTransformPoint(ray.origin);
+                var d = terrain.transform.InverseTransformDirection(ray.direction);
+                if (WaterRay.FirstWater(terrain.World, o.x, o.y, o.z, d.x, d.y, d.z, limit, out float t, out int nx, out int ny, out int nz))
+                {
+                    pointWorld = terrain.transform.TransformPoint(o + d * t);
+                    normalWorld = terrain.transform.TransformDirection(new Vector3(nx, ny, nz));
+                    return true;
+                }
+            }
+            if (hit)
+            {
+                pointWorld = hitInfo.point;
+                normalWorld = hitInfo.normal;
                 return true;
             }
             if (new Plane(Vector3.up, transform.position).Raycast(ray, out float enter) && enter > 0f)
@@ -440,7 +453,7 @@ namespace Game.Client
                 {
                     dir = terrain.transform.TransformDirection(new Vector3(dx / dist, 0f, dz / dist));
                     step = Mathf.Min(step, dist);
-                    autoJump = Controller.isGrounded && PlayerMotion.ShouldStepUp(terrain.World, f.x, f.y, f.z, dx / dist, dz / dist);
+                    autoJump = Controller.isGrounded && PlayerMotion.ShouldStepUpToward(terrain.World, f.x, f.y, f.z, ClickTargetLocal.x, ClickTargetLocal.z);
                 }
             }
             var h = dir * step;

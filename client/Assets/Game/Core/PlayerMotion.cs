@@ -73,6 +73,19 @@ namespace Game.Core
                 && !WorldEditor.IsSolidAt(world, px, py + 1, pz)
                 && !WorldEditor.IsSolidAt(world, px, py + 2, pz);
         }
+
+        /// <summary>Tự nhảy bậc khi đi tới đích (tx, tz): như ShouldStepUp theo hướng tới đích, nhưng không nhảy khi đích gần hơn StepLookAhead và ô chứa đích ở tầng chân không đặc (brief 0086). Đích trùng chân → false.</summary>
+        public static bool ShouldStepUpToward(WorldData world, float feetX, float feetY, float feetZ, float targetX, float targetZ)
+        {
+            if (world == null) throw new ArgumentNullException(nameof(world));
+            float dx = targetX - feetX, dz = targetZ - feetZ;
+            float dist = (float)Math.Sqrt(dx * dx + dz * dz);
+            if (dist < 1e-4f) return false;
+            if (dist < StepLookAhead
+                && !WorldEditor.IsSolidAt(world, (int)Math.Floor(targetX), (int)Math.Floor(feetY + 0.05f), (int)Math.Floor(targetZ)))
+                return false;
+            return ShouldStepUp(world, feetX, feetY, feetZ, dx / dist, dz / dist);
+        }
     }
 
     /// <summary>Đếm thời gian liền không tiến được (kẹt).</summary>

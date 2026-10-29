@@ -61,6 +61,18 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void ShouldStepUpTowardSkipsNearOpenTarget()
+        {
+            var w = Flat();
+            Solid(w, 5, 1, 6);
+            Assert.IsFalse(PlayerMotion.ShouldStepUpToward(w, 5.5f, 1f, 5.5f, 5.5f, 5.8f));
+            Assert.IsTrue(PlayerMotion.ShouldStepUpToward(w, 5.5f, 1f, 5.5f, 5.5f, 6.5f));
+            Assert.IsTrue(PlayerMotion.ShouldStepUpToward(w, 5.5f, 1f, 5.5f, 5.5f, 9.5f));
+            Assert.IsFalse(PlayerMotion.ShouldStepUpToward(w, 5.5f, 1f, 5.5f, 5.5f, 5.5f));
+            Assert.Throws<ArgumentNullException>(() => PlayerMotion.ShouldStepUpToward(null, 5.5f, 1f, 5.5f, 5.5f, 6.5f));
+        }
+
+        [Test]
         public void StuckTimer()
         {
             var t = new StuckTimer(0.3f);
