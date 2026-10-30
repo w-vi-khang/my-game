@@ -134,5 +134,28 @@ namespace Game.Client.Tests
             yield return Track(4f, "ray");
             Assert.Less(lastMaxY, g + 0.3f);
         }
+
+        IEnumerator ClickRay(Vector3 feet, Vector3 o, Vector3 target, float minX, float maxX, string tag)
+        {
+            yield return PlaceAt(feet);
+            var ray = new Ray(view.transform.TransformPoint(o), view.transform.TransformDirection((target - o).normalized));
+            Assert.IsTrue(player.ClickMoveRay(ray, false));
+            Debug.Log($"UNDERFALL {tag} target={player.ClickTargetLocal:F2}");
+            Assert.That(player.ClickTargetLocal.x, Is.InRange(minX, maxX));
+        }
+
+        [UnityTest]
+        public IEnumerator ClickThroughPondSurfaceTargetsBottom()
+        {
+            yield return ClickRay(new Vector3(cx + 8.5f, g + 1f, cz - 10.5f), new Vector3(cx + 8.5f, g + 4f, cz - 10.5f),
+                new Vector3(cx + 11.5f, g, cz - 10.5f), cx + 11.3f, cx + 11.7f, "surface");
+        }
+
+        [UnityTest]
+        public IEnumerator ClickFromUnderwaterTargetsBottom()
+        {
+            yield return ClickRay(new Vector3(cx + 11.5f, g, cz - 10.5f), new Vector3(cx + 11.5f, g + 0.5f, cz - 10.5f),
+                new Vector3(cx + 12.7f, g, cz - 10.5f), cx + 12.5f, cx + 12.9f, "underwater");
+        }
     }
 }

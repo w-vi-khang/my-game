@@ -115,7 +115,7 @@ namespace Game.Client
             if (ClickMove == ClickMoveState.Walking) ClickMove = ClickMoveState.None;
         }
 
-        /// <summary>Điểm world dưới tia: ô nước đầu tiên tia đi vào trước collider (brief 0086), không thì điểm trúng collider, không thì mặt phẳng ngang qua chân; còn lại false.</summary>
+        /// <summary>Điểm world dưới tia: ô nước đầu tiên tia đi vào trước collider (brief 0086) — trừ khi tia đi liền trong nước tới collider thì lấy điểm collider, trúng mặt bên thì lùi 0,5 ô theo pháp tuyến (brief 0089); không thì điểm trúng collider, không thì mặt phẳng ngang qua chân; còn lại false.</summary>
         public bool PointOnWorld(Ray ray, out Vector3 pointWorld, out Vector3 normalWorld)
         {
             bool hit = Physics.Raycast(ray, out var hitInfo, ClickRayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
@@ -124,8 +124,18 @@ namespace Game.Client
             {
                 var o = terrain.transform.InverseTransformPoint(ray.origin);
                 var d = terrain.transform.InverseTransformDirection(ray.direction);
-                if (WaterRay.FirstWater(terrain.World, o.x, o.y, o.z, d.x, d.y, d.z, limit, out float t, out int nx, out int ny, out int nz))
+                if (WaterRay.FirstWater(terrain.World, o.x, o.y, o.z, d.x, d.y, d.z, limit, out float t, out int nx, out int ny, out int nz, out bool reachesEnd))
                 {
+                    if (hit && reachesEnd)
+                    {
+                        var nLocal = terrain.transform.InverseTransformDirection(hitInfo.normal);
+                        var pLocal = terrain.transform.InverseTransformPoint(hitInfo.point);
+                        if (Mathf.Abs(nLocal.y) < 0.5f)
+                            pLocal += nLocal.normalized * 0.5f;
+                        pointWorld = terrain.transform.TransformPoint(pLocal);
+                        normalWorld = hitInfo.normal;
+                        return true;
+                    }
                     pointWorld = terrain.transform.TransformPoint(o + d * t);
                     normalWorld = terrain.transform.TransformDirection(new Vector3(nx, ny, nz));
                     return true;

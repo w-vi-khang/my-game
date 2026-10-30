@@ -86,5 +86,61 @@ namespace Game.Core.Tests
             Assert.IsFalse(WaterRay.FirstWater(w, 0.5f, 3.5f, 5.5f, 0, 0, 0, 100f, out _, out _, out _, out _));
             Assert.Throws<ArgumentNullException>(() => WaterRay.FirstWater(null, 0, 0, 0, 1, 0, 0, 10f, out _, out _, out _, out _));
         }
+
+        static WorldData Row(int x0, int x1)
+        {
+            var w = Empty();
+            for (int x = x0; x <= x1; x++)
+                w.Set(x, 3, 5, Water);
+            return w;
+        }
+
+        [Test]
+        public void ReachesEndThroughWaterToSolid()
+        {
+            var w = Row(5, 7);
+            w.Set(8, 3, 5, Cell.Make(BlockMaterial.Stone));
+            Assert.IsTrue(WaterRay.FirstWater(w, 0.5f, 3.5f, 5.5f, 1, 0, 0, 7.5f, out float t, out _, out _, out _, out bool reachesEnd));
+            Assert.AreEqual(4.5f, t, 1e-5f);
+            Assert.IsTrue(reachesEnd);
+        }
+
+        [Test]
+        public void AirGapBreaksRun()
+        {
+            var w = Row(5, 5);
+            w.Set(7, 3, 5, Cell.Make(BlockMaterial.Stone));
+            Assert.IsTrue(WaterRay.FirstWater(w, 0.5f, 3.5f, 5.5f, 1, 0, 0, 6.5f, out float t, out _, out _, out _, out bool reachesEnd));
+            Assert.AreEqual(4.5f, t, 1e-5f);
+            Assert.IsFalse(reachesEnd);
+        }
+
+        [Test]
+        public void OriginInWaterReachesFloor()
+        {
+            var w = Empty();
+            for (int y = 2; y <= 4; y++)
+                w.Set(5, y, 5, Water);
+            w.Set(5, 1, 5, Cell.Make(BlockMaterial.Stone));
+            Assert.IsTrue(WaterRay.FirstWater(w, 5.5f, 4.5f, 5.5f, 0, -1, 0, 2.5f, out float t, out _, out _, out _, out bool reachesEnd));
+            Assert.AreEqual(0f, t, 1e-6f);
+            Assert.IsTrue(reachesEnd);
+        }
+
+        [Test]
+        public void WaterToMaxTOnlyReachesEnd()
+        {
+            var w = Row(5, 9);
+            Assert.IsTrue(WaterRay.FirstWater(w, 0.5f, 3.5f, 5.5f, 1, 0, 0, 7f, out _, out _, out _, out _, out bool reachesEnd));
+            Assert.IsTrue(reachesEnd);
+        }
+
+        [Test]
+        public void OutOfWorldBreaksRun()
+        {
+            var w = Row(14, 15);
+            Assert.IsTrue(WaterRay.FirstWater(w, 12.5f, 3.5f, 5.5f, 1, 0, 0, 10f, out _, out _, out _, out _, out bool reachesEnd));
+            Assert.IsFalse(reachesEnd);
+        }
     }
 }
