@@ -1,6 +1,6 @@
 # Brief 0090 — World 5j (lỗi 9): vá chỗ cột thác đổi từ góc vuông sang góc bo
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-30 22:20
@@ -127,3 +127,8 @@ Gộp cuối 5j: đứng gần chân thác demo, nhìn lên chỗ đáy khối �
 ---
 
 ## Review
+- 2026-10-31 (Planner, review đầy đủ): `Chạy bằng` claude-opus-5-5 · medium khớp `Model thực thi`; mọi dòng "Phần cần test" có kết quả (user tự test gộp cuối 5j).
+- `git show --stat 3ad4dda`: 2 file trong Phạm vi, chỉ thêm (69 dòng). Diff: `ColumnCornerRounded` đúng QĐ 4; nắp chỉ ở góc `!col.Rounded`, quạt từ `Pos(sx, y, sz)` tới cung `ax + R·CircleDir` ở y = c.y (n −y) / c.y + 1 (n +y) — đúng QĐ 1–3; không đụng code khác.
+- Test: `ColumnCornerStepCapped` fail trên code cũ (0 tam giác) → đạt; BlockMesherTests 52/52, EditMode 692/692, PlayMode `WaterFlowPlayTests` 4/4, console 0 lỗi. Không chạy lại.
+- Ghi chú: giờ bắt đầu/kết thúc ghi 2026-10-30 22:14–22:20, lệch đồng hồ so với các brief trước (0089 kết thúc 23:55) — lấy thời lượng ~6 phút cho roadmap.
+- Kết luận: đã duyệt
