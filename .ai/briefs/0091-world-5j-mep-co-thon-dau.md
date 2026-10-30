@@ -1,9 +1,9 @@
 # Brief 0091 — World 5j (lỗi 10): đầu dải mép cỏ thon dần vào vách thay vì cắt phẳng
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-30 22:26
+> Cập nhật: 2026-10-30 22:38
 
 ## Mục tiêu
 Lỗi 10 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). Ảnh lỗi: `~/Documents/User/khang/Game/art-test/shots/user5j_grass_cap_end.png` (ngoài repo). Ở bậc thang, dải mép cỏ (váy cỏ rủ) chạy tới chỗ ô bên cạnh dọc cạnh là khối đặc (vách bậc cao hơn) thì bị cắt phẳng: hiện "nắp" mặt cắt, trông cụt.
@@ -104,14 +104,22 @@ Gộp cuối 5j: tới bậc thang như ảnh `user5j_grass_cap_end.png`, nhìn 
 ## Kết quả
 - Base commit: eb14624
 - Chạy bằng: claude-opus-5-5 · medium
-- Bắt đầu: 2026-10-30 22:24
+- Bắt đầu: 2026-10-30 22:24 · Kết thúc: 2026-10-30 22:38 (gồm thời gian chờ Planner trả lời Vướng mắc; làm thực ~25 phút, chạy EditMode toàn bộ ~7 phút)
+- Commit: `146dec2` — `client/Assets/Game/World/BlockMesher.cs` (hằng `LipTaperLength` 0,5 [số tạm]; `AddLipEdge`: `taper0/taper1`, `TaperAt` smoothstep, `p *= TaperAt(sigma)`, bỏ tam giác suy biến ở cột thon (QĐ 7), xoá nắp hai đầu), `client/Assets/Game/Tests/World/BlockMesherTests.cs` (`LipEndCapMatchesClosedCrossSection` → `LipEndTapersIntoSolidNeighbour`).
 
 ## Kết quả test
 - Bước 2 (`run_tests` EditMode `Game.World.Tests.BlockMesherTests`, code bước 1, chưa sửa test): 50/52 đạt, 2 fail [run]:
   - `LipEndCapMatchesClosedCrossSection` — "Expected: 20, But was: 0" (được phép fail: hết nắp).
   - `TrianglesFaceTheirNormals` — "triangle 961, Expected: greater than 0.0f, But was: 0.0f" (BlockMesherTests.cs:262) → **ngoài danh sách được fail → dừng**.
 - Biên dịch: `read_console` Error 0 [run].
-- Bước 3–4: chưa làm.
+- Lượt 2 (sau bước 1b + 3), `run_tests` EditMode `Game.World.Tests.BlockMesherTests`: 52/52 đạt [run] (gồm `TrianglesFaceTheirNormals`).
+- Đầu thon, không nắp · `LipEndTapersIntoSolidNeighbour` (chạy riêng theo tên) · **đạt** [run].
+- Mép cỏ regression · `LipDepthStaysInRange`, `LipProfileIsRoundedPillow`, `LipOnlyOnGrassWithOpenTopAndSide`, `LipIsClosedFromBelowAndUnchangedFromAbove`, `LipIsDeterministicAndContinuousAcrossCellsAndChunks` · **đạt** không đổi kỳ vọng (trong 52/52).
+- `BlockMesherTests` toàn bộ · **đạt** 52/52.
+- EditMode toàn bộ · **đạt** — total 692, passed 692, failed 0, resultState Passed [run].
+- `read_console` Error: 0 [run].
+- Dọn: `git status` chỉ còn file trong Phạm vi; `EditorSettings.asset` không đổi (không chạy PlayMode).
+- User tự test (gộp cuối 5j): **chờ user** — đầu dải cỏ rủ chạm vách bậc cao thon dần, không khe/mảng lạ, độ dài thon 0,5 ô.
 
 ## Vướng mắc
 Code bước 1 đã sửa trong working tree (chưa commit): `client/Assets/Game/World/BlockMesher.cs` (`LipTaperLength`, `taper0/taper1`, `TaperAt`, `p *= TaperAt(sigma)`, xoá nắp).
@@ -124,6 +132,7 @@ Code bước 1 đã sửa trong working tree (chưa commit): `client/Assets/Game
 - C. Sửa `TrianglesFaceTheirNormals` bỏ qua tam giác diện tích 0 — đổi kỳ vọng test cũ.
 
 **Đề xuất:** A (đúng QĐ 3, không đổi test cũ, không tam giác thừa).
+→ Planner chọn A (commit 73e5d09); đã làm ở bước 1b.
 
 ---
 
