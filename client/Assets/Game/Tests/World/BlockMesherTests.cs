@@ -463,25 +463,34 @@ namespace Game.World.Tests
         }
 
         [Test]
-        public void LipEndCapMatchesClosedCrossSection()
+        public void LipEndTapersIntoSolidNeighbour()
         {
-            // Ô cỏ (4, 8, 4) kề ô đá (4, 8, 5) → dải mép sườn +x và −x có nắp ở đầu z = 5 (pháp tuyến (0, 0, 1)).
-            // Nắp là đa giác mặt cắt kín (brief 0014): LipProfilePoints + 2 đỉnh mỗi nắp; dưới độ sâu LipFloor chỉ có cuộn dưới (t ≥ LipOverhang − LipBottomRound).
+            // brief 0091: đầu dải chạm khối đặc thon về 0, không nắp.
+            // Ô cỏ (4, 8, 4) kề ô đá (4, 8, 5) → dải mép sườn +x và −x thon ở đầu z = 5 (LipTaperLength 0,5: f(z 4,75) = 0,5, f(z 4,5) = 1).
             var w = new WorldData(new WorldSize(16, 16, 16));
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
             w.Set(4, 8, 5, Cell.Make(BlockMaterial.Stone));
             var mesh = BlockMesher.Build(w, 0, 0, 0);
-            int cap = 0;
+            float maxMid = float.MinValue, minMid = float.MaxValue, maxQuarter = float.MinValue;
             for (int i = 0; i < mesh.Vertices.Length; i++)
             {
                 float3 p = mesh.Vertices[i];
-                if (!mesh.Normals[i].Equals(new float3(0, 0, 1)) || math.abs(p.z - 5f) > 1e-4f)
-                    continue;
-                cap++;
-                if (p.y < 9f - BlockMesher.LipFloor - 1e-4f)
-                    Assert.IsTrue(p.x >= 5f + BlockMesher.LipOverhang - BlockMesher.LipBottomRound - 1e-4f || p.x <= 4f - BlockMesher.LipOverhang + BlockMesher.LipBottomRound + 1e-4f, $"cap pokes out under the bottom at {p}");
+                if (math.abs(p.z - 5f) < 1e-4f)
+                {
+                    Assert.IsFalse(mesh.Normals[i].Equals(new float3(0, 0, 1)), $"end cap vertex at {p}");
+                    Assert.That(p.x, Is.InRange(4f - 1e-4f, 5f + 1e-4f), $"lip end pokes out of the side at {p}");
+                }
+                if (math.abs(p.z - 4.5f) < 1e-4f)
+                {
+                    maxMid = math.max(maxMid, p.x);
+                    minMid = math.min(minMid, p.x);
+                }
+                if (math.abs(p.z - 4.75f) < 1e-4f)
+                    maxQuarter = math.max(maxQuarter, p.x);
             }
-            Assert.AreEqual(2 * (BlockMesher.LipProfilePoints + 2), cap, "2 caps x (LipProfilePoints + 2) vertices");
+            Assert.GreaterOrEqual(maxMid, 5f + BlockMesher.LipOverhang - 1e-3f, "+x lip at full size mid-edge");
+            Assert.LessOrEqual(minMid, 4f - BlockMesher.LipOverhang + 1e-3f, "-x lip at full size mid-edge");
+            Assert.That(maxQuarter, Is.EqualTo(5f + 0.5f * BlockMesher.LipOverhang).Within(1e-3f), "+x lip half size at z 4.75");
         }
 
         [Test]
