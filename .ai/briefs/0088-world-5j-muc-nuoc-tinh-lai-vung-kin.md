@@ -1,6 +1,6 @@
 # Brief 0088 — World 5j (lỗi 12): mức nước tính lại theo hình dạng + vùng kín ngang mặt nguồn thì đầy (0045)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-30 22:55
@@ -154,3 +154,11 @@ Gộp cuối 5j: đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùn
 ## Review
 - 2026-10-30 (Planner, trả lời Vướng mắc): chọn C — giữ 0045 (ô ngoài world = vách), đổi thiết lập 5 test cũ (bước 0), `OpenFloorAtSourceLevelStillDecreases` dùng world 40. Điểm phụ 1–3 chấp nhận đúng đề xuất của Executor (ghi vào Quyết định đã chốt / bước 1). Trạng thái → chờ làm.
 - 2026-10-30 (Planner, trả lời Vướng mắc 2): chọn A — cho sửa thiết lập `LipTapersAtChannelSpill` (bán kính 4, bước 8a). Chấp nhận lệch 1 (world 48, `WorldSize` phải chia hết 16 — `WorldData.cs:19`), lệch 2 (tái tạo `max(kề) − 1` — đúng 0045 mục 2 gạch 1, `design/decisions/0045-…:19`), lệch 3. Ghi chú đặt khối không kích hoạt: thuộc 0045 mục 2 gạch 3 → thêm bước 8b + test. Trạng thái → chờ làm.
+- 2026-10-30 (Planner, review đầy đủ): `Chạy bằng` claude-opus-5-5 · medium khớp `Model thực thi`. Mọi dòng "Phần cần test" có kết quả; dòng user tự test gộp cuối 5j (chưa làm).
+- `git show --stat e0d1d67`: 3 file, đều trong Phạm vi (`BlockMesherTests.cs` chỉ +1 dòng thiết lập, bước 8a). Không có `using UnityEngine` trong `WorldEditor.cs`.
+- Diff `WorldEditor.cs` đối chiếu Quyết định đã chốt: đánh dấu bẩn ở `TryDig`/`TryPlace`/`FillWater`/`CreateChild`/`StepCascade` (bước 1, 8b); `Relevel` sau `StepSpread`, sắp (y, z, x), thành phần ngang bỏ ô đang xoá; điểm bất động bằng hàng đợi, mức chỉ tăng; tăng mức theo `WallBoost` (lấp hố/vùng kín cả khi L = 0, tường khi L > 0); vùng kín: BFS tầng nguồn qua ô rỗng/nước chảy, ngoài world = vách (0045 mục 1); cha kiểu Prim (mức cao trước, id nhỏ trước, giữ cha khi bằng); ô không đạt được vào `cascade` khi cha không phải ô không-đạt-được trong C. Khớp.
+- Lệch 1–3 đã chấp nhận ở lượt trả lời 2. Ghi chú "đặt khối không kích hoạt" trong Kết quả đã xử lý ở 8b (`PlacingWallEnclosesAndFills` đạt).
+- Kết quả test: 102/102 nhóm nước/biển/mesher, 686/686 EditMode, 7/7 PlayMode, console 0 lỗi — đạt Tiêu chí xong. Không chạy lại (kết quả đủ, không đáng ngờ).
+- Giờ: ~70 phút qua 3 lượt → cộng vào dòng 5j ở `design/05-roadmap.md`.
+- User xem (gộp cuối 5j): đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùng tầng mặt ao, đào lung tung thứ tự → nước đầy, mặt phẳng ngang ao; đào thông phòng ra đất trống rộng → nước hạ dần đều; đặt khối bịt lại → đầy lại.
+- Kết luận: đã duyệt
