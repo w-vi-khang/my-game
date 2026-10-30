@@ -1,9 +1,9 @@
 # Brief 0088 — World 5j (lỗi 12): mức nước tính lại theo hình dạng + vùng kín ngang mặt nguồn thì đầy (0045)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-30
+> Cập nhật: 2026-10-30 21:25
 
 ## Mục tiêu
 Cài [0045](../../design/decisions/0045-ho-ngang-mat-nguon-thi-day-muc-tinh-lai.md) trong `WorldEditor`: (1) mức nước chảy là hàm của hình dạng hiện tại — đào theo thứ tự nào cũng ra cùng kết quả, hai ô kề không lệch quá 1 mức; (2) lớp ngang mặt nguồn đầy mức MaxLevel khi là vùng kín trong `BasinFillRadius`.
@@ -92,10 +92,30 @@ Gộp cuối 5j: đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùn
 ---
 
 ## Kết quả
+- Base commit: a4fe6bb
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu 2026-10-30 21:15, dừng 21:25 (đọc brief/0045/code/test; chưa sửa code).
 
 ## Kết quả test
+- Chưa chạy (dừng trước bước 1).
 
 ## Vướng mắc
+**Mâu thuẫn: world test 16×16 + "ô ngoài world = vách" (0045 mục 1) → mọi sàn trống ngang mặt nguồn trong test cũ thành vùng kín với `BasinFillRadius` 16.**
+- [repo] `Flat()` tạo world 16×16×16 (`WaterFlowTests.cs:12`); `OpenFloor()` nguồn (0,6,8) (`:71`). Chebyshev xa nhất từ (0,8) trong 16×16 là 15 ≤ 16, ô ngoài world là vách → BFS vùng kín không bao giờ gặp ô > 16 → lớp y = 6 là vùng kín → mọi ô chảy lên mức 5 (không còn hình thoi).
+- Test cũ sẽ phải đổi kỳ vọng (điều kiện dừng): `DiamondLevelsOnOpenFloor` (:613, mong 5 − d), `SpreadStopsAfterN` (:139, mong 4..0), `ChannelOpensIntoWideArea` (:306, mong 4..0 ở x 6–10), `WallBoostOnPlaceAndPropagate` (:681, mong (2,6,8) = 3), `FallsThenSpreadsFullAgain` (:179, lớp y = 11 trống 16×16 quanh nguồn (1,11,1) → (1,11,3) thành 5, test mong 4). Bước 7 của brief ("`OpenFloorAtSourceLevelStillDecreases` với `BasinFillRadius` = 16 mặc định — khẳng định như `DiamondLevelsOnOpenFloor`") không thể đạt.
+- `FallsThenSpreadsFullAgain` không sửa được chỉ bằng hạ bán kính: phần 0044 của nó (sàn y = 2 đầy mức 5 trên cả 16×16, :211) cần bán kính ≥ 14.
+
+**Phương án**
+- A. Giữ 0045; sửa *thiết lập* (không đổi kỳ vọng) của các test trên: `DiamondLevelsOnOpenFloor`, `SpreadStopsAfterN`, `ChannelOpensIntoWideArea`, `WallBoostOnPlaceAndPropagate` đặt `e.BasinFillRadius = 4` trước `Dig`; `FallsThenSpreadsFullAgain` dùng world rộng hơn (vd 40×16×40, toạ độ giữ nguyên — lớp y = 11 trống tới x/z = 39 → hở; sàn y = 2 trong 0..15 vẫn ≤ 16 từ nguồn). `OpenFloorAtSourceLevelStillDecreases` dùng world rộng 40 với bán kính 16 mặc định.
+- B. Đổi luật: BFS chạm ô ngoài world (theo x/z) → coi là **hở**. Không phải sửa test cũ, nhưng trái 0045 mục 1 (Chốt) → cần quyết định mới của user; ở game thật, hồ sát mép map sẽ không đầy.
+- C. Như A nhưng thêm tham số helper `Flat(solidTop, m, size)` dùng chung cho các world rộng.
+
+**Đề xuất:** A (hoặc C — cùng nội dung, gọn hơn). Không đổi luật đã chốt; chỉ đổi thiết lập test cho đúng ý "vùng hở". Planner cập nhật brief (Phạm vi cho phép đổi thiết lập các test trên; mục "Test cũ phải đổi kỳ vọng" ghi rõ danh sách).
+
+**Điểm phụ (cần Planner xác nhận khi sửa brief):**
+1. Brief ghi tăng mức chỉ khi `L(c) > 0` cho cả lấp hố, nhưng `WallBoost` hiện tại lấp hố 0044 cả khi mức 0 (`WorldEditor.cs:545–548`). Đề xuất: `Relevel` theo `WallBoost` (lấp hố/vùng kín không cần `L > 0`; tường cần `L > 0`) để hai đường cho cùng kết quả như bước 4 yêu cầu.
+2. Ô cha không phải ô kề (tái tạo trong `StepCascade` lấy `nodes[nid].Parent` của ô kề, `:684`) có thể là nguồn không kề → ô không đạt được nhưng cha là nguồn → theo quy tắc cascade của brief sẽ không bao giờ rút. Đề xuất: ô không đạt được vào `cascade` khi cha **không** là ô không-đạt-được trong C (gồm cả cha ngoài C bất kỳ).
+3. `FillWater` (biển loang tạo nguồn mới) nên đánh dấu bẩn 4 ô ngang (bước 1 chưa liệt kê).
 
 ---
 
