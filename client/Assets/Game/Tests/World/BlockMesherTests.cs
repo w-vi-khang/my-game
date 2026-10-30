@@ -1101,6 +1101,7 @@ namespace Game.World.Tests
             var bag = new PlayerBag();
             bag.Add(BlockMaterial.Stone, 1000);
             var e = new WorldEditor(w, bag, 1, -1);
+            e.BasinFillRadius = 4;
             Assert.AreEqual(EditResult.Ok, e.TryDig(7, 11, 6));
             e.SettleWater(10000);
             Assert.IsFalse(e.HasPendingWater);

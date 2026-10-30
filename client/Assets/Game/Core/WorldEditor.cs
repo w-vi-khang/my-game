@@ -33,6 +33,7 @@ namespace Game.Core
     /// loang) mức MaxLevel; ô chảy mức 0..MaxLevel, mỗi ô lan sang ô ngang mức − 1 (1 ô/nhịp), rơi xuống ô rỗng bên dưới mức MaxLevel;
     /// ô có ≥ WallBoostMinSolid ô ngang đặc được tăng mức lên MaxLevel rồi phát sóng mức cho ô chảy kề. Ô chảy thấp hơn nguồn gốc của cây, trong BasinFillRadius ô ngang, cũng lên MaxLevel (0044). Mất ô cha thì cả nhánh
     /// con bị xoá dây chuyền mỗi nhịp một lớp, rồi tái tạo từ nước kề còn nối với nguồn.
+    /// Mức tính lại theo hình dạng mỗi nhịp (0045): điểm bất động trên thành phần ngang; lớp ngang mặt nguồn đầy khi vùng kín trong BasinFillRadius.
     /// </summary>
     public sealed class WorldEditor
     {
@@ -116,10 +117,14 @@ namespace Game.Core
         readonly List<int> cascade = new List<int>();
         readonly HashSet<int> cascadeSet = new HashSet<int>();
 
+        /// <summary>Vị trí cần tính lại mức (0045) ở cuối nhịp; List giữ thứ tự chèn → tất định.</summary>
+        readonly List<(int x, int y, int z)> relevelDirty = new List<(int, int, int)>();
+        readonly HashSet<(int, int, int)> relevelDirtySet = new HashSet<(int, int, int)>();
+
         int stepChanged;
 
-        /// <summary>Còn nước đang lan hoặc đang rút (gọi StepWater theo nhịp).</summary>
-        public bool HasPendingWater => waterFront.Count > 0 || active.Count > 0 || cascade.Count > 0;
+        /// <summary>Còn nước đang lan, đang rút hoặc chờ tính lại mức (0045) — gọi StepWater theo nhịp.</summary>
+        public bool HasPendingWater => waterFront.Count > 0 || active.Count > 0 || cascade.Count > 0 || relevelDirty.Count > 0;
 
         /// <summary>Móc kiểm tra ô bị chiếm (người chơi, sinh vật, cây, kho). M1 bước 4 chưa có vật thể → mặc định null.</summary>
         public Func<int, int, int, bool> IsOccupied;
@@ -164,6 +169,7 @@ namespace Game.Core
             if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
                 AddToFront(x, y, z);
             ActivateAround(x, y, z);
+            MarkDirtyAround(x, y, z);
             return EditResult.Ok;
         }
 
@@ -211,6 +217,7 @@ namespace Game.Core
                 if (TryFlowingNode(x + dx, y, z + dz, out int n))
                     WallBoost(n);
             Activate(x, y + 1, z);
+            MarkDirtyAround(x, y, z);
             return EditResult.Ok;
         }
 
@@ -320,6 +327,7 @@ namespace Game.Core
             CellChanged?.Invoke(x, y, z);
             RevertFarmlandBelow(x, y, z);
             Activate(x, y + 1, z);
+            MarkDirtyAround(x, y, z);
         }
 
         /// <summary>
@@ -426,6 +434,19 @@ namespace Game.Core
             Activate(x, y + 1, z);
         }
 
+        void MarkDirty(int x, int y, int z)
+        {
+            if (relevelDirtySet.Add((x, y, z)))
+                relevelDirty.Add((x, y, z));
+        }
+
+        /// <summary>Đánh dấu 4 ô ngang (D4) cần tính lại mức.</summary>
+        void MarkDirtyAround(int x, int y, int z)
+        {
+            foreach (var (dx, dz) in D4)
+                MarkDirty(x + dx, y, z + dz);
+        }
+
         /// <summary>Gỡ nút khỏi bảng và khỏi danh sách con của cha; toCascade → con của nó (id tăng dần) vào hàng xoá.</summary>
         void RemoveNode(int id, bool toCascade)
         {
@@ -520,12 +541,14 @@ namespace Game.Core
             throw new InvalidOperationException("water parent cycle");
         }
 
-        /// <summary>Ô chảy thấp hơn nguồn gốc và trong BasinFillRadius ô ngang (Chebyshev) từ nguồn (0044).</summary>
-        bool InBasin(int id)
+        /// <summary>Ô chảy thấp hơn nguồn gốc và trong BasinFillRadius ô ngang (Chebyshev) từ nguồn (0044); enclosed = thành phần ngang của ô là vùng kín ngang mặt nguồn (0045, Relevel tính).</summary>
+        bool InBasin(int id, bool enclosed = false)
         {
             var n = nodes[id];
             if (n.Source)
                 return false;
+            if (enclosed)
+                return true;
             int s = RootSourceOf(id);
             if (s < 0)
                 return false;
@@ -602,6 +625,7 @@ namespace Game.Core
             RevertFarmlandBelow(x, y, z);
             ActivateId(id);
             Activate(x, y + 1, z);
+            MarkDirty(x, y, z);
             WallBoost(id);
             return id;
         }
@@ -621,6 +645,7 @@ namespace Game.Core
             stepChanged = 0;
             StepCascade();
             StepSpread();
+            Relevel();
             return stepChanged;
         }
 
@@ -645,6 +670,8 @@ namespace Game.Core
                 stepChanged++;
                 CellChanged?.Invoke(node.X, node.Y, node.Z);
                 deleted.Add((node.X, node.Y, node.Z));
+                MarkDirty(node.X, node.Y, node.Z);
+                MarkDirtyAround(node.X, node.Y, node.Z);
             }
             next.Sort();
             int prev = -1;
@@ -691,8 +718,9 @@ namespace Game.Core
                         bestParent = parent;
                     }
                 }
-                if (bestLevel >= 0 && bestParent != NoParent && nodes.ContainsKey(bestParent))
-                    CreateChild(bestParent, x, y, z, bestLevel, false);
+                // 0045 mục 2: ô tái tạo nhận mức max(ô kề) − 1 (như lan) — ô kề mức 0 không tái tạo, khớp Relevel.
+                if (bestLevel >= 1 && bestParent != NoParent && nodes.ContainsKey(bestParent))
+                    CreateChild(bestParent, x, y, z, bestLevel - 1, false);
             }
 
             foreach (var (x, y, z) in deleted)
@@ -748,6 +776,255 @@ namespace Game.Core
                         CreateChild(id, nx, y, nz, level - 1, false);
                 }
             }
+        }
+
+        /// <summary>
+        /// Tính lại mức theo hình dạng (0045) cho mọi thành phần ngang (nút chảy cùng tầng, 4 hướng, không thuộc nhánh đang xoá)
+        /// chứa một vị trí bẩn; xử lý theo (y, z, x) tăng → tất định.
+        /// </summary>
+        void Relevel()
+        {
+            if (relevelDirty.Count == 0)
+                return;
+            var positions = new List<(int x, int y, int z)>(relevelDirty);
+            relevelDirty.Clear();
+            relevelDirtySet.Clear();
+            positions.Sort((a, b) => a.y != b.y ? a.y.CompareTo(b.y) : a.z != b.z ? a.z.CompareTo(b.z) : a.x.CompareTo(b.x));
+            var done = new HashSet<int>();
+            foreach (var (x, y, z) in positions)
+            {
+                if (!TryFlowingNode(x, y, z, out int id) || done.Contains(id) || IsDoomed(id))
+                    continue;
+                RelevelComponent(HorizontalComponent(id, done));
+            }
+        }
+
+        /// <summary>BFS 4 hướng cùng tầng qua nút chảy không thuộc nhánh đang xoá; thêm vào done.</summary>
+        List<int> HorizontalComponent(int start, HashSet<int> done)
+        {
+            var comp = new List<int> { start };
+            done.Add(start);
+            for (int i = 0; i < comp.Count; i++)
+            {
+                var n = nodes[comp[i]];
+                foreach (var (dx, dz) in D4)
+                    if (TryFlowingNode(n.X + dx, n.Y, n.Z + dz, out int nb) && !done.Contains(nb) && !IsDoomed(nb))
+                    {
+                        done.Add(nb);
+                        comp.Add(nb);
+                    }
+            }
+            return comp;
+        }
+
+        /// <summary>
+        /// Vùng kín (0045 mục 1): BFS 4 hướng ở tầng của thành phần qua ô rỗng / nước chảy (không qua nguồn, ô đặc; ngoài world = vách)
+        /// không gặp ô nào cách nguồn src quá BasinFillRadius (Chebyshev).
+        /// </summary>
+        bool IsEnclosed(List<int> comp, FlowNode src)
+        {
+            int y = src.Y;
+            var seen = new HashSet<(int, int)>();
+            var queue = new Queue<(int x, int z)>();
+            foreach (int id in comp)
+            {
+                var n = nodes[id];
+                if (seen.Add((n.X, n.Z)))
+                    queue.Enqueue((n.X, n.Z));
+            }
+            while (queue.Count > 0)
+            {
+                var (x, z) = queue.Dequeue();
+                if (Math.Max(Math.Abs(x - src.X), Math.Abs(z - src.Z)) > basinFillRadius)
+                    return false;
+                foreach (var (dx, dz) in D4)
+                {
+                    int nx = x + dx, nz = z + dz;
+                    if (!World.Size.InBounds(nx, y, nz) || seen.Contains((nx, nz)))
+                        continue;
+                    ushort c = World.Get(nx, y, nz);
+                    var m = Cell.GetMaterial(c);
+                    if (m != BlockMaterial.Empty && !(m == BlockMaterial.Water && !Cell.IsWaterSource(c)))
+                        continue;
+                    seen.Add((nx, nz));
+                    queue.Enqueue((nx, nz));
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Mức = điểm bất động nhỏ nhất trên thành phần C (0045): L(c) = max(seed, L(kề) − 1, MaxLevel − 1 nếu kề nguồn), rồi tăng
+        /// lên MaxLevel khi lấp hố (0044) / vùng kín, hoặc L &gt; 0 và ≥ WallBoostMinSolid ô ngang đặc (như WallBoost). Cha dựng kiểu Prim
+        /// từ nguồn + ô rơi; ô không đạt được rút theo dây chuyền 0043.
+        /// </summary>
+        void RelevelComponent(List<int> comp)
+        {
+            int count = comp.Count;
+            var index = new Dictionary<(int, int), int>(count);
+            int y = nodes[comp[0]].Y, minId = comp[0];
+            for (int i = 0; i < count; i++)
+            {
+                var n = nodes[comp[i]];
+                index[(n.X, n.Z)] = i;
+                minId = Math.Min(minId, comp[i]);
+            }
+            int srcId = RootSourceOf(minId);
+            bool enclosed = srcId >= 0 && nodes[srcId].Y == y && IsEnclosed(comp, nodes[srcId]);
+
+            var basin = new bool[count];
+            var walled = new bool[count];
+            var falling = new bool[count];
+            var level = new int[count];
+            var queue = new Queue<int>();
+            for (int i = 0; i < count; i++)
+            {
+                var n = nodes[comp[i]];
+                basin[i] = InBasin(comp[i], enclosed);
+                int solid = 0;
+                foreach (var (dx, dz) in D4)
+                    if (IsSolidAt(World, n.X + dx, y, n.Z + dz))
+                        solid++;
+                walled[i] = solid >= wallBoostMinSolid;
+                falling[i] = Cell.IsFalling(World.Get(n.X, y, n.Z));
+                level[i] = -1;
+                int seed = falling[i] ? maxLevel : (TouchesSource(n.X, y, n.Z) ? maxLevel - 1 : -1);
+                if (seed >= 0)
+                {
+                    level[i] = Boosted(i, seed);
+                    queue.Enqueue(i);
+                }
+            }
+
+            int Boosted(int i, int l)
+            {
+                if (l >= maxLevel)
+                    return l;
+                if (basin[i] || (l > 0 && walled[i]))
+                    return maxLevel;
+                return l;
+            }
+
+            while (queue.Count > 0)
+            {
+                int i = queue.Dequeue();
+                int cand = level[i] - 1;
+                if (cand < 0)
+                    continue;
+                var n = nodes[comp[i]];
+                foreach (var (dx, dz) in D4)
+                {
+                    if (!index.TryGetValue((n.X + dx, n.Z + dz), out int j))
+                        continue;
+                    int l = Boosted(j, cand);
+                    if (l > level[j])
+                    {
+                        level[j] = l;
+                        queue.Enqueue(j);
+                    }
+                }
+            }
+
+            // Cha kiểu Prim: ô rơi giữ cha tầng trên; ô khác gắn (mức cao trước, bằng nhau → id nhỏ trước) vào ô kề đã gắn mức cao nhất.
+            var attached = new bool[count];
+            var frontier = new SortedSet<(int negLevel, int id)>();
+            void AddNeighbours(int i)
+            {
+                var n = nodes[comp[i]];
+                foreach (var (dx, dz) in D4)
+                    if (index.TryGetValue((n.X + dx, n.Z + dz), out int j) && !attached[j] && level[j] >= 0)
+                        frontier.Add((-level[j], comp[j]));
+            }
+            for (int i = 0; i < count; i++)
+            {
+                if (level[i] < 0)
+                    continue;
+                if (falling[i])
+                    attached[i] = true;
+                else if (TouchesSource(nodes[comp[i]].X, y, nodes[comp[i]].Z))
+                    frontier.Add((-level[i], comp[i]));
+            }
+            for (int i = 0; i < count; i++)
+                if (attached[i])
+                    AddNeighbours(i);
+            while (frontier.Count > 0)
+            {
+                var top = frontier.Min;
+                frontier.Remove(top);
+                int id = top.id;
+                var n = nodes[id];
+                int i = index[(n.X, n.Z)];
+                if (attached[i])
+                    continue;
+                int bestLevel = -1, bestParent = NoParent;
+                bool keep = false;
+                foreach (var (dx, dz) in D4)
+                {
+                    int nx = n.X + dx, nz = n.Z + dz, l, p;
+                    if (index.TryGetValue((nx, nz), out int j))
+                    {
+                        if (!attached[j])
+                            continue;
+                        l = level[j];
+                        p = comp[j];
+                    }
+                    else if (World.Size.InBounds(nx, y, nz) && World.GetMaterial(nx, y, nz) == BlockMaterial.Water &&
+                             Cell.IsWaterSource(World.Get(nx, y, nz)))
+                    {
+                        l = maxLevel;
+                        p = GetOrCreateNode(nx, y, nz);
+                    }
+                    else
+                        continue;
+                    if (l > bestLevel)
+                    {
+                        bestLevel = l;
+                        bestParent = p;
+                        keep = p == n.Parent;
+                    }
+                    else if (l == bestLevel && p == n.Parent)
+                        keep = true;
+                }
+                if (bestParent == NoParent)
+                    continue;
+                attached[i] = true;
+                if (!keep && bestParent != n.Parent)
+                    Reparent(id, bestParent);
+                AddNeighbours(i);
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                int id = comp[i];
+                if (level[i] >= 0)
+                {
+                    if (level[i] != LevelOf(id))
+                    {
+                        SetLevel(id, level[i]);
+                        ActivateId(id);
+                    }
+                    continue;
+                }
+                // Không đạt được: vào hàng xoá khi cha không phải ô không-đạt-được khác trong C; còn lại rút theo dây chuyền.
+                var pn = nodes[id];
+                bool parentUnreached = pn.Parent != NoParent && nodes.TryGetValue(pn.Parent, out var par) && par.Y == y &&
+                                       index.TryGetValue((par.X, par.Z), out int pi) && comp[pi] == pn.Parent && level[pi] < 0;
+                if (!parentUnreached && cascadeSet.Add(id))
+                    cascade.Add(id);
+            }
+        }
+
+        /// <summary>Có ô nguồn trong map kề ngang (x, y, z).</summary>
+        bool TouchesSource(int x, int y, int z)
+        {
+            foreach (var (dx, dz) in D4)
+            {
+                int nx = x + dx, nz = z + dz;
+                if (World.Size.InBounds(nx, y, nz) && World.GetMaterial(nx, y, nz) == BlockMaterial.Water &&
+                    Cell.IsWaterSource(World.Get(nx, y, nz)))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>Chạy StepWater tới khi hết nước đang lan (test, tua nhanh). Trả về tổng số ô ngập.</summary>

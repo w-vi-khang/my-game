@@ -7,11 +7,11 @@ namespace Game.Core.Tests
     /// <summary>Nước chảy theo cây cha–con: mức 0–5, tăng mức bởi tường, xoá dây chuyền + tái tạo (design/decisions/0043, bước 5h).</summary>
     public class WaterFlowTests
     {
-        static WorldData Flat(int solidTop, BlockMaterial m = BlockMaterial.Stone)
+        static WorldData Flat(int solidTop, BlockMaterial m = BlockMaterial.Stone, int size = 16)
         {
-            var w = new WorldData(new WorldSize(16, 16, 16));
-            for (int z = 0; z < 16; z++)
-            for (int x = 0; x < 16; x++)
+            var w = new WorldData(new WorldSize(size, 16, size));
+            for (int z = 0; z < size; z++)
+            for (int x = 0; x < size; x++)
             {
                 w.Set(x, 0, z, Cell.Make(BlockMaterial.Bedrock));
                 for (int y = 1; y <= solidTop; y++)
@@ -65,9 +65,9 @@ namespace Game.Core.Tests
         }
 
         /// <summary>Sàn rộng: nền đá y 1..5, nguồn (0,6,8), đá (1,6,8), không tường.</summary>
-        static WorldData OpenFloor()
+        static WorldData OpenFloor(int size = 16)
         {
-            var w = Flat(5);
+            var w = Flat(5, size: size);
             w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
             w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
             return w;
@@ -108,9 +108,9 @@ namespace Game.Core.Tests
                 Assert.IsTrue(IsWater(w, x, y, z), $"({x},{y},{z})");
         }
 
-        /// <summary>0044: hố rộng 2 lớp cạnh ao — lớp dưới (thấp hơn mặt ao) đầy mức 5, lớp ngang mặt ao vẫn lan giảm 1 mức/ô (0043), không dâng.</summary>
+        /// <summary>0044 + 0045: hố rộng 2 lớp cạnh ao — lớp dưới (thấp hơn mặt ao) đầy mức 5; lớp ngang mặt ao là vùng kín trong BasinFillRadius → cũng đầy mức 5, không dâng.</summary>
         [Test]
-        public void WideHoleLowerLayerFills()
+        public void WideHoleBothLayersFill()
         {
             var w = PondWorld();
             var e = Editor(w);
@@ -119,18 +119,12 @@ namespace Game.Core.Tests
             for (int x = 8; x <= 15; x++)
                 Dig(e, x, y, z);
             Settle(e);
-            for (int i = 0; i < 5; i++)
-            {
-                Assert.IsTrue(IsWater(w, 8 + i, 3, 5), $"top x={8 + i}");
-                Assert.AreEqual(4 - i, Cell.GetWaterLevel(w.Get(8 + i, 3, 5)), $"top level x={8 + i}");
-            }
-            for (int x = 13; x <= 15; x++)
-                Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 3, 5), $"top empty x={x}");
+            for (int y = 2; y <= 3; y++)
             for (int z = 2; z <= 9; z++)
             for (int x = 8; x <= 15; x++)
             {
-                Assert.IsTrue(IsWater(w, x, 2, z), $"low ({x},{z})");
-                Assert.AreEqual(5, Lv(w, x, 2, z), $"low level ({x},{z})");
+                Assert.IsTrue(IsWater(w, x, y, z), $"({x},{y},{z})");
+                Assert.AreEqual(5, Lv(w, x, y, z), $"level ({x},{y},{z})");
             }
             Assert.IsTrue(Cell.IsFalling(w.Get(8, 2, 5)));
         }
@@ -140,6 +134,7 @@ namespace Game.Core.Tests
         {
             var w = OpenFloor();
             var e = Editor(w);
+            e.BasinFillRadius = 4;
             Dig(e, 1, 6, 8);
             Settle(e);
             for (int x = 1; x <= 5; x++)
@@ -153,6 +148,7 @@ namespace Game.Core.Tests
             var w3 = OpenFloor();
             var e3 = Editor(w3);
             e3.MaxLevel = 3;
+            e3.BasinFillRadius = 4;
             Dig(e3, 1, 6, 8);
             Settle(e3);
             for (int x = 1; x <= 3; x++)
@@ -178,7 +174,7 @@ namespace Game.Core.Tests
         [Test]
         public void FallsThenSpreadsFullAgain()
         {
-            var w = Flat(1);
+            var w = Flat(1, size: 48);
             for (int z = 0; z <= 2; z++)
             for (int x = 0; x <= 2; x++)
             for (int y = 2; y <= 10; y++)
@@ -314,6 +310,7 @@ namespace Game.Core.Tests
             w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
             w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
             var e = Editor(w);
+            e.BasinFillRadius = 4;
             Dig(e, 1, 6, 8);
             Settle(e);
             for (int x = 1; x <= 5; x++)
@@ -614,6 +611,7 @@ namespace Game.Core.Tests
         {
             var w = OpenFloor();
             var e = Editor(w);
+            e.BasinFillRadius = 4;
             Dig(e, 1, 6, 8);
             Settle(e);
             for (int z = 0; z < 16; z++)
@@ -687,6 +685,7 @@ namespace Game.Core.Tests
             w.Set(0, 6, 9, Cell.Make(BlockMaterial.Stone));
             w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
             var e = Editor(w);
+            e.BasinFillRadius = 4;
             Dig(e, 1, 6, 8);
             Settle(e);
             Assert.AreEqual(3, Lv(w, 2, 6, 8));
@@ -761,6 +760,198 @@ namespace Game.Core.Tests
                 Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 6, 8), $"x={x}");
             for (int x = 1; x <= 2; x++)
                 Assert.IsTrue(IsWater(w, x, 6, 8), $"x={x}");
+        }
+
+        /// <summary>Mọi cặp ô nước kề ngang ở tầng y lệch mức ≤ 1 (nguồn tính MaxLevel = 5).</summary>
+        static void AssertSmooth(WorldData w, int y)
+        {
+            int Level(int x, int z)
+            {
+                ushort c = w.Get(x, y, z);
+                return Cell.IsWaterSource(c) ? 5 : Cell.GetWaterLevel(c);
+            }
+            for (int z = 0; z < w.Size.Z; z++)
+            for (int x = 0; x < w.Size.X; x++)
+            {
+                if (!IsWater(w, x, y, z)) continue;
+                if (x + 1 < w.Size.X && IsWater(w, x + 1, y, z))
+                    Assert.LessOrEqual(System.Math.Abs(Level(x, z) - Level(x + 1, z)), 1, $"({x},{y},{z})-({x + 1},{y},{z})");
+                if (z + 1 < w.Size.Z && IsWater(w, x, y, z + 1))
+                    Assert.LessOrEqual(System.Math.Abs(Level(x, z) - Level(x, z + 1)), 1, $"({x},{y},{z})-({x},{y},{z + 1})");
+            }
+        }
+
+        static List<ushort> Layer(WorldData w, int y)
+        {
+            var all = new List<ushort>();
+            for (int z = 0; z < w.Size.Z; z++)
+            for (int x = 0; x < w.Size.X; x++)
+                all.Add(w.Get(x, y, z));
+            return all;
+        }
+
+        static (WorldData, WorldEditor) DigOrderWorld()
+        {
+            var w = Flat(3);
+            w.Set(1, 3, 1, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            var e = Editor(w);
+            e.BasinFillRadius = 2;
+            return (w, e);
+        }
+
+        /// <summary>0045 mục 2: cùng một hố, 40 thứ tự đào → cùng mức từng ô sau khi lắng.</summary>
+        [Test]
+        public void DigOrderDoesNotChangeLevels()
+        {
+            var cells = new List<(int x, int z)>();
+            for (int z = 1; z <= 6; z++)
+            for (int x = 1; x <= 7; x++)
+                if (!(x == 1 && z == 1))
+                    cells.Add((x, z));
+            var (rw, re) = DigOrderWorld();
+            foreach (var (x, z) in cells)
+                Dig(re, x, 3, z);
+            Settle(re);
+            var reference = Layer(rw, 3);
+            AssertSmooth(rw, 3);
+            for (int seed = 0; seed < 40; seed++)
+            {
+                var order = new List<(int x, int z)>(cells);
+                var rng = new System.Random(seed);
+                for (int i = order.Count - 1; i > 0; i--)
+                {
+                    int j = rng.Next(i + 1);
+                    (order[i], order[j]) = (order[j], order[i]);
+                }
+                var (w, e) = DigOrderWorld();
+                foreach (var (x, z) in order)
+                {
+                    Dig(e, x, 3, z);
+                    Settle(e);
+                }
+                CollectionAssert.AreEqual(reference, Layer(w, 3), $"seed {seed}");
+                AssertSmooth(w, 3);
+            }
+        }
+
+        static void DigTrenchAndRoom(WorldEditor e)
+        {
+            Dig(e, 8, 3, 5);
+            for (int z = 3; z <= 7; z++)
+            for (int x = 9; x <= 13; x++)
+                Dig(e, x, 3, z);
+        }
+
+        static void AssertTrenchAndRoomFull(WorldData w)
+        {
+            Assert.IsTrue(IsWater(w, 8, 3, 5));
+            Assert.AreEqual(5, Lv(w, 8, 3, 5), "trench");
+            for (int z = 3; z <= 7; z++)
+            for (int x = 9; x <= 13; x++)
+            {
+                Assert.IsTrue(IsWater(w, x, 3, z), $"({x},{z})");
+                Assert.AreEqual(5, Lv(w, x, 3, z), $"level ({x},{z})");
+            }
+        }
+
+        /// <summary>0045 mục 1: rãnh + phòng ngang mặt ao, kín trong BasinFillRadius → đầy mức 5.</summary>
+        [Test]
+        public void TrenchAtSourceLevelFillsWhenEnclosed()
+        {
+            var w = PondWorld();
+            var e = Editor(w);
+            DigTrenchAndRoom(e);
+            Settle(e);
+            AssertTrenchAndRoomFull(w);
+        }
+
+        /// <summary>0045: sàn trống ngang mặt nguồn lan ra ngoài BasinFillRadius (world 48) → vẫn lan giảm 5 − d như 0043.</summary>
+        [Test]
+        public void OpenFloorAtSourceLevelStillDecreases()
+        {
+            var w = OpenFloor(48);
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            for (int z = 0; z < 48; z++)
+            for (int x = 0; x < 48; x++)
+            {
+                int d = x + System.Math.Abs(z - 8);
+                if (d == 0) continue;
+                if (d <= 5)
+                {
+                    Assert.IsTrue(IsWater(w, x, 6, z), $"({x},{z})");
+                    Assert.AreEqual(5 - d, Lv(w, x, 6, z), $"level ({x},{z})");
+                }
+                else
+                    Assert.AreEqual(BlockMaterial.Empty, w.GetMaterial(x, 6, z), $"({x},{z})");
+            }
+        }
+
+        /// <summary>0045: phòng kín đầy mức 5; đào thông ra dải trống xa hơn BasinFillRadius → hở, mức hạ đều.</summary>
+        [Test]
+        public void OpeningEnclosureLowersLevels()
+        {
+            var w = PondWorld();
+            for (int z = 0; z < 16; z++)
+                w.Set(15, 3, z, Cell.Make(BlockMaterial.Empty));
+            var e = Editor(w);
+            e.BasinFillRadius = 6;
+            DigTrenchAndRoom(e);
+            Settle(e);
+            AssertTrenchAndRoomFull(w);
+            Dig(e, 14, 3, 5);
+            Settle(e);
+            AssertSmooth(w, 3);
+            Assert.IsTrue(IsWater(w, 10, 3, 5));
+            Assert.Less(Lv(w, 10, 3, 5), 5);
+            Assert.IsFalse(e.HasPendingWater);
+        }
+
+        /// <summary>0045 mục 2: đặt khối bịt lối ra làm phòng thành kín → tính lại, phòng đầy mức 5.</summary>
+        [Test]
+        public void PlacingWallEnclosesAndFills()
+        {
+            var w = PondWorld();
+            for (int z = 0; z < 16; z++)
+                w.Set(15, 3, z, Cell.Make(BlockMaterial.Empty));
+            var e = Editor(w);
+            e.BasinFillRadius = 6;
+            DigTrenchAndRoom(e);
+            Dig(e, 14, 3, 5);
+            Settle(e);
+            Assert.Less(Lv(w, 10, 3, 5), 5);
+            Place(e, 14, 3, 5);
+            Settle(e);
+            AssertTrenchAndRoomFull(w);
+            Assert.IsFalse(e.HasPendingWater);
+        }
+
+        /// <summary>0045: mất vách → ô được tăng mức bởi tường hạ về mức tính từ ô kề; kết quả như khi đào vách trước.</summary>
+        [Test]
+        public void LosingWallLowersBoostedCell()
+        {
+            var w = Corridor();
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            for (int x = 1; x <= 15; x++)
+                Assert.AreEqual(5, Lv(w, x, 6, 8), $"level x={x}");
+            e.BasinFillRadius = 2;
+            Dig(e, 8, 6, 9);
+            Dig(e, 8, 6, 7);
+            Settle(e);
+            Assert.IsTrue(IsWater(w, 8, 6, 8));
+            AssertSmooth(w, 6);
+
+            var w2 = Corridor();
+            var e2 = Editor(w2);
+            e2.BasinFillRadius = 2;
+            Dig(e2, 8, 6, 9);
+            Dig(e2, 8, 6, 7);
+            Dig(e2, 1, 6, 8);
+            Settle(e2);
+            CollectionAssert.AreEqual(Layer(w2, 6), Layer(w, 6));
         }
     }
 }
