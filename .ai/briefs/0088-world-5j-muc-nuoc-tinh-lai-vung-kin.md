@@ -1,9 +1,9 @@
 # Brief 0088 — World 5j (lỗi 12): mức nước tính lại theo hình dạng + vùng kín ngang mặt nguồn thì đầy (0045)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-30 21:40
+> Cập nhật: 2026-10-30 22:30
 
 ## Mục tiêu
 Cài [0045](../../design/decisions/0045-ho-ngang-mat-nguon-thi-day-muc-tinh-lai.md) trong `WorldEditor`: (1) mức nước chảy là hàm của hình dạng hiện tại — đào theo thứ tự nào cũng ra cùng kết quả, hai ô kề không lệch quá 1 mức; (2) lớp ngang mặt nguồn đầy mức MaxLevel khi là vùng kín trong `BasinFillRadius`.
@@ -96,12 +96,22 @@ Gộp cuối 5j: đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùn
 ---
 
 ## Kết quả
-- Base commit: a4fe6bb
+- Base commit: 2ba7005 (lượt 1: a4fe6bb)
 - Chạy bằng: claude-opus-5-5 · medium
-- Bắt đầu 2026-10-30 21:15, dừng 21:25 (đọc brief/0045/code/test; chưa sửa code).
+- Lượt 1: 2026-10-30 21:15–21:25 (dừng, Vướng mắc). Lượt 2: 2026-10-30 22:00–22:30 (dừng, Vướng mắc 2).
+- Code bước 0–7 đã viết, **chưa commit** (để trong working tree): `client/Assets/Game/Core/WorldEditor.cs`, `client/Assets/Game/Tests/Core/WaterFlowTests.cs`.
+- Lệch brief (cần Planner xác nhận khi review):
+  1. `WorldSize` bắt buộc chia hết cho 16 (`WorldData.cs:19`, [run] `ArgumentException: Size must be positive and divisible by 16: 40x16x40`) → world rộng dùng **48** thay 40 (`FallsThenSpreadsFullAgain`, `OpenFloorAtSourceLevelStillDecreases`).
+  2. Tái tạo trong `StepCascade` đổi thành mức `max(ô kề) − 1`, chỉ khi ô kề mức ≥ 1 (trước: mức = ô kề, kể cả 0) — theo 0045 mục 2 ("ô mới tạo/tái tạo nhận lv = max(ô kề) − 1"). Lý do: giữ như cũ thì ô tái tạo cạnh ô mức 0 không đạt được trong `Relevel` → vào hàng xoá → bị xoá → tái tạo lại → không bao giờ lắng.
+  3. Vùng kín áp cho cả thành phần C (tâm = `RootSourceOf` nút id nhỏ nhất), qua tham số `InBasin(id, enclosed)`.
+- Ghi chú (ngoài phạm vi, chưa làm): đặt khối vào ô rỗng làm phòng thành kín không kích hoạt nước (`HasPendingWater` có thể false) → `Relevel` chỉ chạy khi có nước đang lan/rút; `WallBoost` ở `TryPlace` chỉ xét 0044 + tường, không xét vùng kín.
 
 ## Kết quả test
-- Chưa chạy (dừng trước bước 1).
+- Bước 0 (code cũ): 5 test đổi thiết lập đạt [run MCP, 5/5 sau khi đổi 40 → 48].
+- EditMode `WaterFlowTests` + `SeaFloodTests`: **50/50 đạt** (gồm 5 test mới + `WideHoleBothLayersFill`) [run MCP].
+- EditMode toàn bộ: **684/685** — fail `Game.World.Tests.BlockMesherTests.LipTapersAtChannelSpill` (`BlockMesherTests.cs:1109`): `Expected: 4 But was: 5` (mức ô mép `(7,11,7)`).
+- PlayMode `WaterFlowPlayTests` + `UnderFallPlayTests`: 7/7 đạt.
+- `read_console` Error: 0. Không có `using UnityEngine` trong `WorldEditor.cs`. Đã dọn `EditorSettings.asset`.
 
 ## Vướng mắc
 **Mâu thuẫn: world test 16×16 + "ô ngoài world = vách" (0045 mục 1) → mọi sàn trống ngang mặt nguồn trong test cũ thành vùng kín với `BasinFillRadius` 16.**
@@ -120,6 +130,12 @@ Gộp cuối 5j: đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùn
 1. Brief ghi tăng mức chỉ khi `L(c) > 0` cho cả lấp hố, nhưng `WallBoost` hiện tại lấp hố 0044 cả khi mức 0 (`WorldEditor.cs:545–548`). Đề xuất: `Relevel` theo `WallBoost` (lấp hố/vùng kín không cần `L > 0`; tường cần `L > 0`) để hai đường cho cùng kết quả như bước 4 yêu cầu.
 2. Ô cha không phải ô kề (tái tạo trong `StepCascade` lấy `nodes[nid].Parent` của ô kề, `:684`) có thể là nguồn không kề → ô không đạt được nhưng cha là nguồn → theo quy tắc cascade của brief sẽ không bao giờ rút. Đề xuất: ô không đạt được vào `cascade` khi cha **không** là ô không-đạt-được trong C (gồm cả cha ngoài C bất kỳ).
 3. `FillWater` (biển loang tạo nguồn mới) nên đánh dấu bẩn 4 ô ngang (bước 1 chưa liệt kê).
+
+**Vướng mắc 2 (lượt 2): `BlockMesherTests.LipTapersAtChannelSpill` phải đổi kỳ vọng hoặc thiết lập — file ngoài Phạm vi.**
+- [repo] `BlockMesherTests.cs:1080–1111`: world 16×16×16, ao nguồn y = 11 (x 5–9, z 1–5), đá z ≤ 6 tới y = 11, z ≥ 7 trống; đào `(7,11,6)` → mép `(7,11,7)` rơi xuống. Test mong mép mức 4.
+- [run] Lớp y = 11 = mặt nguồn; BFS vùng kín qua ô trống z 7–15 (ngoài world = vách): xa nhất Chebyshev 10 từ nguồn ≤ 16 → **kín** → mép lên 5. Đúng 0045 mục 1 nguyên văn — cùng loại với 5 test ở bước 0.
+- Phương án: A. Đổi thiết lập: `e.BasinFillRadius = 4` sau khi tạo editor (vùng trống lan tới Chebyshev 10 > 4 → hở → mép 4; mép không phải lấp 0044 vì cùng tầng nguồn). B. World 32×16×32 (vùng trống lan xa > 16) — đổi thêm vòng dựng world và chỗ build mesh chunk 0 vẫn đúng. C. Đổi kỳ vọng thành 5 + sửa các khẳng định mesh (taper 11.825/11.5025 theo mức 4) — nhiều việc, đổi ý nghĩa test.
+- **Đề xuất: A** (1 dòng, giữ kỳ vọng). Planner cho phép sửa `client/Assets/Game/Tests/World/BlockMesherTests.cs` (chỉ thiết lập test này).
 
 ---
 
