@@ -28,7 +28,8 @@ Sửa 5 lỗi user thấy khi chơi thử, mỗi lỗi một brief (hoặc gộp
 
 ## Tiêu chí chấp nhận
 - [x] Mỗi lỗi có test tái hiện (fail trước, đạt sau) hoặc ghi rõ vì sao chỉ kiểm được bằng mắt — brief 0082–0087 đã duyệt 2026-10-29 (lỗi 7 chỉ kiểm bằng mắt).
-- [ ] User chơi thử lại: không còn 5 lỗi trên.
+- [x] Lỗi 9–12 có brief đã duyệt (0088–0091, 2026-10-31).
+- [ ] User chơi thử lại: không còn lỗi 1–12.
 
 ## Kiểm chứng
 - 2026-10-30 (Planner): thêm lỗi 9–12 — đọc lại, số liệu khớp dump/thử [run]; checklist: pillar P1, client Unity, thuật ngữ glossary, chỉ M1 (5j) đạt; quyết định 0045 ghi sau khi user đồng ý; `check_design.py` hợp lệ [run]; code/test/giờ: chưa áp dụng.

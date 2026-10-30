@@ -1,6 +1,6 @@
 # Brief 0091 — World 5j (lỗi 10): đầu dải mép cỏ thon dần vào vách thay vì cắt phẳng
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-30 22:38
@@ -138,3 +138,8 @@ Code bước 1 đã sửa trong working tree (chưa commit): `client/Assets/Game
 
 ## Review
 - 2026-10-31 (Planner, trả lời Vướng mắc): chọn A — bỏ 2 tam giác diện tích 0 ở cột thon (QĐ 7, bước 1b); hình không đổi, đúng QĐ 3, không đổi test cũ. Trạng thái → chờ làm.
+- 2026-10-31 (Planner, review đầy đủ): `Chạy bằng` claude-opus-5-5 · medium khớp; mọi dòng "Phần cần test" có kết quả (user tự test gộp cuối 5j).
+- `git show --stat 146dec2`: 2 file trong Phạm vi. Diff: `taper0/taper1` đúng điều kiện nắp cũ (QĐ 1); `TaperAt` = smoothstep(0, LipTaperLength, min khoảng cách tới đầu thon) (QĐ 2); `p *= f` (QĐ 3); bỏ đúng 2 tam giác suy biến ở cột k = 0 / LipSegments − 1 (QĐ 7); khối nắp xoá hẳn (QĐ 5).
+- Test: BlockMesherTests 52/52 (gồm `TrianglesFaceTheirNormals`, `LipEndTapersIntoSolidNeighbour`), EditMode 692/692, console 0 lỗi. Chỉ test nắp cũ đổi kỳ vọng — được phép. Không chạy lại.
+- Giờ: ~25 phút → roadmap dòng 5j.
+- Kết luận: đã duyệt
