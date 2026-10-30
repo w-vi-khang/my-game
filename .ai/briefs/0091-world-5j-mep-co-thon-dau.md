@@ -1,9 +1,9 @@
 # Brief 0091 — World 5j (lỗi 10): đầu dải mép cỏ thon dần vào vách thay vì cắt phẳng
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-31 00:45
+> Cập nhật: 2026-10-30 22:26
 
 ## Mục tiêu
 Lỗi 10 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). Ảnh lỗi: `~/Documents/User/khang/Game/art-test/shots/user5j_grass_cap_end.png` (ngoài repo). Ở bậc thang, dải mép cỏ (váy cỏ rủ) chạy tới chỗ ô bên cạnh dọc cạnh là khối đặc (vách bậc cao hơn) thì bị cắt phẳng: hiện "nắp" mặt cắt, trông cụt.
@@ -100,10 +100,28 @@ Gộp cuối 5j: tới bậc thang như ảnh `user5j_grass_cap_end.png`, nhìn 
 ---
 
 ## Kết quả
+- Base commit: eb14624
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-10-30 22:24
 
 ## Kết quả test
+- Bước 2 (`run_tests` EditMode `Game.World.Tests.BlockMesherTests`, code bước 1, chưa sửa test): 50/52 đạt, 2 fail [run]:
+  - `LipEndCapMatchesClosedCrossSection` — "Expected: 20, But was: 0" (được phép fail: hết nắp).
+  - `TrianglesFaceTheirNormals` — "triangle 961, Expected: greater than 0.0f, But was: 0.0f" (BlockMesherTests.cs:262) → **ngoài danh sách được fail → dừng**.
+- Biên dịch: `read_console` Error 0 [run].
+- Bước 3–4: chưa làm.
 
 ## Vướng mắc
+Code bước 1 đã sửa trong working tree (chưa commit): `client/Assets/Game/World/BlockMesher.cs` (`LipTaperLength`, `taper0/taper1`, `TaperAt`, `p *= TaperAt(sigma)`, xoá nắp).
+
+**Vấn đề:** QĐ 3 cho f = 0 ở đầu thon → cả cột k = 0 (hoặc k = LipSegments) của lưới mặt cắt trùng một điểm (0, 0). Mặt cong vẽ mỗi tứ giác (a, b, b2) + (a, b2, a2); ở cột thon đầu 0 thì a ≡ a2 → tam giác (a, b2, a2) diện tích 0; đầu 1 thì b ≡ b2 → (a, b, b2) diện tích 0. `TrianglesFaceTheirNormals` yêu cầu dot(pháp tuyến hình học, pháp tuyến đỉnh) > 0 nên fail với tam giác suy biến (thấy trên địa hình sinh mặc định, chunk (1,0,1)). Mặt trên (quạt p0a) và đáy trong (quạt f0) không suy biến vì P0/F0 ở t = −R ≠ 0.
+
+**Câu hỏi:** xử lý tam giác suy biến ở cột thon thế nào?
+- A. Trong vòng mặt cong, bỏ tam giác suy biến: cột k = 0 khi `taper0` → bỏ (a, b2, a2); cột k = LipSegments − 1 khi `taper1` → bỏ (a, b, b2). Hình không đổi, không đổi test cũ. ~5 dòng.
+- B. Kẹp f tối thiểu nhỏ (vd 0,02) → không suy biến nhưng đầu dải còn mặt cắt rất nhỏ, có khe hở hở (không nắp) — lệch QĐ 3.
+- C. Sửa `TrianglesFaceTheirNormals` bỏ qua tam giác diện tích 0 — đổi kỳ vọng test cũ.
+
+**Đề xuất:** A (đúng QĐ 3, không đổi test cũ, không tam giác thừa).
 
 ---
 
