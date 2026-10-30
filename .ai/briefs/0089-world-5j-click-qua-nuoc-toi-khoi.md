@@ -1,9 +1,9 @@
 # Brief 0089 — World 5j (lỗi 11): click qua nước liền tới khối đặc thì đích là khối
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-30 23:20
+> Cập nhật: 2026-10-30 23:55
 
 ## Mục tiêu
 Lỗi 11 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). Khi click qua mặt ao, click lúc camera ở dưới nước, hay click vào khối đặt trong cột thác, đích đi hiện là chỗ tia **đi vào nước**. Gốc tia trong nước thì đích là gốc tia (t = 0). Sửa để đích là **mặt khối đặc** khi tia đi trong nước liền một mạch tới khối đó. Giữ cách sửa lỗi 4 (brief 0086): click xuyên cột thác có khoảng không phía sau thì vẫn lấy chỗ vào nước.
@@ -116,8 +116,25 @@ Gộp cuối 5j:
 ---
 
 ## Kết quả
+- Base commit: 0a6a779
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu 2026-10-30 23:25, xong 23:55 (gồm ~5 phút chờ Editor thoát Play Mode).
+- Commit: `8cc61fe` — `client/Assets/Game/Core/WaterRay.cs` (overload `FirstWater(..., out bool reachesEnd)`, `WaterRunReachesEnd`; overload cũ gọi overload mới), `client/Assets/Game/Client/PlayerCharacter.cs` (`PointOnWorld` nhánh QĐ 2–3 + `<summary>`), `client/Assets/Game/Tests/Core/WaterRayTests.cs` (5 test), `client/Assets/Game/Tests/Client/UnderFallPlayTests.cs` (helper `ClickRay` + 2 test).
+- Không lệch brief.
 
 ## Kết quả test
+- Đoạn nước liền · `ReachesEndThroughWaterToSolid`, `OriginInWaterReachesFloor`, `WaterToMaxTOnlyReachesEnd` · đạt.
+- Khoảng không / ngoài world cắt đoạn · `AirGapBreaksRun`, `OutOfWorldBreaksRun` · đạt.
+- Overload cũ không đổi · `WaterRayTests` cũ · đạt.
+- Click qua mặt ao · `ClickThroughPondSurfaceTargetsBottom` · đạt (log `UNDERFALL surface target=(134.50, …)` = cx+11,5).
+- Click dưới nước · `ClickFromUnderwaterTargetsBottom` · đạt (`UNDERFALL underwater target=(135.70, …)` = cx+12,7).
+- Lỗi 4 regression · `UnderFallClickThroughColumn`, `UnderFallClickMoveNoStepUp`, `UnderFallStandStill` · đạt (`ray target=(136.50, …)` = cx+13,5).
+- Lệnh 1: EditMode `WaterRayTests` 13/13 đạt.
+- Lệnh 2: PlayMode `UnderFallPlayTests` + `ClickMovePlayTests` 13/13 đạt.
+- Lệnh 3: EditMode toàn bộ 691/691 đạt (329 s).
+- Lệnh 4: `read_console` Error 0.
+- Lệnh 5: đã dọn `EditorSettings.asset`; `git status` sạch ngoài brief. `WaterRay.cs` không có `using UnityEngine`.
+- User tự test (gộp cuối 5j): chờ user.
 
 ## Vướng mắc
 
