@@ -1,6 +1,6 @@
 # Brief 0088 — World 5j (lỗi 12): mức nước tính lại theo hình dạng + vùng kín ngang mặt nguồn thì đầy (0045)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-30 22:30
@@ -38,6 +38,7 @@ Cài [0045](../../design/decisions/0045-ho-ngang-mat-nguon-thi-day-muc-tinh-lai.
 
 ## Phạm vi
 - Được sửa/tạo: `client/Assets/Game/Core/WorldEditor.cs`; `client/Assets/Game/Tests/Core/WaterFlowTests.cs` (gồm đổi *thiết lập* — không đổi kỳ vọng — của `DiamondLevelsOnOpenFloor`, `SpreadStopsAfterN`, `ChannelOpensIntoWideArea`, `WallBoostOnPlaceAndPropagate`, `FallsThenSpreadsFullAgain` theo bước 0); mục Kết quả của brief này.
+- `client/Assets/Game/Tests/World/BlockMesherTests.cs`: chỉ thêm `e.BasinFillRadius = 4` sau khi tạo editor trong `LipTapersAtChannelSpill` (Planner 2026-10-30, lượt 3).
 - Không được sửa: file khác (mesher, shader, client, JSON, design/).
 
 ## Các bước
@@ -54,6 +55,8 @@ Cài [0045](../../design/decisions/0045-ho-ngang-mat-nguon-thi-day-muc-tinh-lai.
    - `OpenFloorAtSourceLevelStillDecreases`: kịch bản `DiamondLevelsOnOpenFloor` (cùng toạ độ, cùng khẳng định 5 − d) trên world `Flat(..., size: 40)`, `BasinFillRadius` 16 mặc định (sàn lan tới x/z 39 → hở). Test mới, bắt buộc.
    - `OpeningEnclosureLowersLevels`: `PondWorld()`; trước khi tạo editor, `w.Set((15,3,z), Cell.Make(BlockMaterial.Empty))` với z 0–15 (dải trống x = 15, ngăn với phòng bởi đá x = 14). `e.BasinFillRadius = 6`. Đào rãnh `(8,3,5)` + phòng x 9–13, z 3–7 như test trên, `Settle` → mọi ô đào mức 5 (phòng kín, xa nhất Chebyshev 6 từ ao). Rồi `Dig(14,3,5)` (phòng thông ra dải x = 15, có ô cách ao > 6 → hở), `Settle` → mọi cặp nước kề ngang lệch ≤ 1 mức; `(10,3,5)` mức < 5; `HasPendingWater` false.
    - `LosingWallLowersBoostedCell`: `Corridor()` (tường z = 7 và 9), `Dig(1,6,8)`, `Settle` → x 1–15 mức 5 (như `ChannelFlowsFullLength`). `BasinFillRadius = 2`. Đào tường `(8,6,9)` và `(8,6,7)` (mở hai bên) rồi `Settle` → `(8,6,8)` vẫn là nước, mọi cặp nước kề ngang lệch ≤ 1, và kết quả bằng kết quả khi các ô đó được đào trước khi nước chảy tới (thế giới mới, đào trước, `Dig(1,6,8)`, `Settle`, so tầng y = 6).
+8a. (lượt 3) `BlockMesherTests.LipTapersAtChannelSpill`: thêm `e.BasinFillRadius = 4` ngay sau khi tạo editor; kỳ vọng giữ nguyên.
+8b. (lượt 3) Đặt khối làm phòng thành kín phải kích hoạt tính lại (0045 mục 2 gạch 3): `HasPendingWater` thêm `|| relevelDirty.Count > 0` (đổi định nghĩa được phép); `Relevel` xoá tập bẩn nên vẫn lắng. Thêm test `PlacingWallEnclosesAndFills`: `PondWorld()` + dải trống x = 15 như `OpeningEnclosureLowersLevels`, `BasinFillRadius = 6`, đào rãnh + phòng + `(14,3,5)`, `Settle` (hở, `(10,3,5)` < 5); `Place(14,3,5)` đá, `Settle` → mọi ô trong phòng mức 5, `HasPendingWater` false.
 8. Chạy toàn bộ `WaterFlowTests` + `SeaFloodTests`. Test nào khác ngoài `WideHoleLowerLayerFills` phải đổi kỳ vọng (đổi thiết lập ở bước 0 không tính) → **dừng, cần Opus** (ghi assertion fail, giá trị mong/đã thấy).
 
 ## Tiêu chí xong
@@ -141,3 +144,4 @@ Gộp cuối 5j: đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùn
 
 ## Review
 - 2026-10-30 (Planner, trả lời Vướng mắc): chọn C — giữ 0045 (ô ngoài world = vách), đổi thiết lập 5 test cũ (bước 0), `OpenFloorAtSourceLevelStillDecreases` dùng world 40. Điểm phụ 1–3 chấp nhận đúng đề xuất của Executor (ghi vào Quyết định đã chốt / bước 1). Trạng thái → chờ làm.
+- 2026-10-30 (Planner, trả lời Vướng mắc 2): chọn A — cho sửa thiết lập `LipTapersAtChannelSpill` (bán kính 4, bước 8a). Chấp nhận lệch 1 (world 48, `WorldSize` phải chia hết 16 — `WorldData.cs:19`), lệch 2 (tái tạo `max(kề) − 1` — đúng 0045 mục 2 gạch 1, `design/decisions/0045-…:19`), lệch 3. Ghi chú đặt khối không kích hoạt: thuộc 0045 mục 2 gạch 3 → thêm bước 8b + test. Trạng thái → chờ làm.
