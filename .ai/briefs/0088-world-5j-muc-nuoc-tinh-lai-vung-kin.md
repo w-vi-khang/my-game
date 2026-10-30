@@ -1,9 +1,9 @@
 # Brief 0088 — World 5j (lỗi 12): mức nước tính lại theo hình dạng + vùng kín ngang mặt nguồn thì đầy (0045)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-30 22:30
+> Cập nhật: 2026-10-30 22:55
 
 ## Mục tiêu
 Cài [0045](../../design/decisions/0045-ho-ngang-mat-nguon-thi-day-muc-tinh-lai.md) trong `WorldEditor`: (1) mức nước chảy là hàm của hình dạng hiện tại — đào theo thứ tự nào cũng ra cùng kết quả, hai ô kề không lệch quá 1 mức; (2) lớp ngang mặt nguồn đầy mức MaxLevel khi là vùng kín trong `BasinFillRadius`.
@@ -102,7 +102,8 @@ Gộp cuối 5j: đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùn
 - Base commit: 2ba7005 (lượt 1: a4fe6bb)
 - Chạy bằng: claude-opus-5-5 · medium
 - Lượt 1: 2026-10-30 21:15–21:25 (dừng, Vướng mắc). Lượt 2: 2026-10-30 22:00–22:30 (dừng, Vướng mắc 2).
-- Code bước 0–7 đã viết, **chưa commit** (để trong working tree): `client/Assets/Game/Core/WorldEditor.cs`, `client/Assets/Game/Tests/Core/WaterFlowTests.cs`.
+- Lượt 3: 2026-10-30 22:35–22:55 (bước 8a, 8b, chạy test). Tổng thực tế 3 lượt ≈ 1 giờ 10 phút.
+- Commit: `e0d1d67` — `client/Assets/Game/Core/WorldEditor.cs` (`Relevel`, `HorizontalComponent`, `IsEnclosed`, `RelevelComponent`, `TouchesSource`, đánh dấu bẩn, `InBasin(id, enclosed)`, tái tạo `max(kề) − 1`, `HasPendingWater` + tập bẩn), `client/Assets/Game/Tests/Core/WaterFlowTests.cs` (bước 0, `WideHoleBothLayersFill`, 6 test mới), `client/Assets/Game/Tests/World/BlockMesherTests.cs` (8a).
 - Lệch brief (cần Planner xác nhận khi review):
   1. `WorldSize` bắt buộc chia hết cho 16 (`WorldData.cs:19`, [run] `ArgumentException: Size must be positive and divisible by 16: 40x16x40`) → world rộng dùng **48** thay 40 (`FallsThenSpreadsFullAgain`, `OpenFloorAtSourceLevelStillDecreases`).
   2. Tái tạo trong `StepCascade` đổi thành mức `max(ô kề) − 1`, chỉ khi ô kề mức ≥ 1 (trước: mức = ô kề, kể cả 0) — theo 0045 mục 2 ("ô mới tạo/tái tạo nhận lv = max(ô kề) − 1"). Lý do: giữ như cũ thì ô tái tạo cạnh ô mức 0 không đạt được trong `Relevel` → vào hàng xoá → bị xoá → tái tạo lại → không bao giờ lắng.
@@ -110,11 +111,19 @@ Gộp cuối 5j: đào rãnh 1 ô từ ao rồi mở phòng rộng 3–5 ô cùn
 - Ghi chú (ngoài phạm vi, chưa làm): đặt khối vào ô rỗng làm phòng thành kín không kích hoạt nước (`HasPendingWater` có thể false) → `Relevel` chỉ chạy khi có nước đang lan/rút; `WallBoost` ở `TryPlace` chỉ xét 0044 + tường, không xét vùng kín.
 
 ## Kết quả test
-- Bước 0 (code cũ): 5 test đổi thiết lập đạt [run MCP, 5/5 sau khi đổi 40 → 48].
-- EditMode `WaterFlowTests` + `SeaFloodTests`: **50/50 đạt** (gồm 5 test mới + `WideHoleBothLayersFill`) [run MCP].
-- EditMode toàn bộ: **684/685** — fail `Game.World.Tests.BlockMesherTests.LipTapersAtChannelSpill` (`BlockMesherTests.cs:1109`): `Expected: 4 But was: 5` (mức ô mép `(7,11,7)`).
-- PlayMode `WaterFlowPlayTests` + `UnderFallPlayTests`: 7/7 đạt.
-- `read_console` Error: 0. Không có `using UnityEngine` trong `WorldEditor.cs`. Đã dọn `EditorSettings.asset`.
+- Bước 0 (code cũ): 5 test đổi thiết lập đạt [run MCP].
+- Relevel độc lập thứ tự · `DigOrderDoesNotChangeLevels` · đạt.
+- Vùng kín ngang mặt nguồn đầy · `TrenchAtSourceLevelFillsWhenEnclosed`, `WideHoleBothLayersFill`, `PlacingWallEnclosesAndFills` (8b) · đạt.
+- Vùng hở giữ 0043 · `DiamondLevelsOnOpenFloor`, `SpreadStopsAfterN`, `ChannelOpensIntoWideArea`, `OpenFloorAtSourceLevelStillDecreases` · đạt.
+- Hạ mức khi mất kín/mất vách · `OpeningEnclosureLowersLevels`, `LosingWallLowersBoostedCell` · đạt.
+- Tăng mức ngay khi đặt khối · `WallBoostOnPlaceAndPropagate` · đạt.
+- Regression rút/tái tạo, 0044, tất định, biển · đạt (trong nhóm dưới).
+- Lệnh 1: EditMode `WaterFlowTests` + `SeaFloodTests` + `BlockMesherTests`: 102/102 đạt.
+- Lệnh 2: EditMode toàn bộ: 686/686 đạt (357 s).
+- Lệnh 3: PlayMode `WaterFlowPlayTests` + `UnderFallPlayTests`: 7/7 đạt.
+- Lệnh 4: `read_console` Error: 0.
+- Lệnh 5: đã `git checkout -- client/ProjectSettings/EditorSettings.asset`; `git status` chỉ còn file trong Phạm vi. Không có `using UnityEngine` trong `WorldEditor.cs`.
+- User tự test (gộp cuối 5j): chờ user.
 
 ## Vướng mắc
 **Mâu thuẫn: world test 16×16 + "ô ngoài world = vách" (0045 mục 1) → mọi sàn trống ngang mặt nguồn trong test cũ thành vùng kín với `BasinFillRadius` 16.**
