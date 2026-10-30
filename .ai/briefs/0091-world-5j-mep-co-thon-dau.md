@@ -1,6 +1,6 @@
 # Brief 0091 — World 5j (lỗi 10): đầu dải mép cỏ thon dần vào vách thay vì cắt phẳng
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-30 22:26
@@ -39,7 +39,8 @@ Sửa theo lựa chọn của user (2026-10-31, "Thon dần"): ở những đầ
 4. Hằng mới: `public const float LipTaperLength = 0.5f;` [số tạm, chưa chốt], kèm `<summary>`: "Độ dài đoạn thon ở đầu dải mép cỏ chạm khối đặc dọc cạnh (brief 0091, lỗi 10) [số tạm]." Hằng này là hằng hình học mesh như `LipOverhang`, không đưa vào JSON.
 5. **Xoá hẳn code nắp hai đầu** trong `AddLipEdge`. Mặt trên (quạt `p0a/p0b`) và đáy trong (quạt `f0/f1`) giữ cách vẽ. Đỉnh hàng A0 và hàng W dùng điểm đã nhân `f`.
 6. Lưới dọc cạnh giữ `LipSegments` = 4 đoạn. Không thêm đỉnh: thon lấy mẫu tại sigma 0; 0,25; 0,5; 0,75; 1. Với `LipTaperLength` 0,5: f(0) = 0, f(0,25) = 0,5, f(0,5) = 1.
-7. Không đổi: góc lồi, góc lõm, collider, shader, mép cỏ khi không có đầu thon.
+7. **(Planner 2026-10-31, trả lời Vướng mắc — phương án A)** Mặt cong: bỏ tam giác suy biến ở cột thon — cột k = 0 khi `taper0` bỏ `(a, b2, a2)`; cột k = LipSegments − 1 khi `taper1` bỏ `(a, b, b2)`. Không kẹp f, không sửa `TrianglesFaceTheirNormals`.
+8. Không đổi: góc lồi, góc lõm, collider, shader, mép cỏ khi không có đầu thon.
 
 ## Phạm vi
 - Được sửa/tạo:
@@ -55,6 +56,7 @@ Sửa theo lựa chọn của user (2026-10-31, "Thon dần"): ở những đầ
    - Trong vòng lưới nhân `p` với `f` (QĐ 3). Xoá khối "Nắp hai đầu" (QĐ 5). Sửa comment của khối đó thành 1 dòng: `// Đầu chạm khối đặc dọc cạnh: mặt cắt thon về 0 (brief 0091, lỗi 10) — không vẽ nắp.`
    - `<summary>` của `AddGrassLip` không nhắc nắp → giữ.
    - Xong khi: biên dịch.
+1b. (lượt 2) `AddLipEdge` — bỏ tam giác suy biến theo QĐ 7. Xong khi: `TrianglesFaceTheirNormals` đạt.
 2. Chạy `BlockMesherTests` trên code mới **trước khi** sửa test. Ghi vào Kết quả test nào fail. Chỉ `LipEndCapMatchesClosedCrossSection` được phép fail. Test khác fail → dừng, cần Opus.
 3. `BlockMesherTests.cs` — thay `LipEndCapMatchesClosedCrossSection` bằng `[Test] LipEndTapersIntoSolidNeighbour` (cùng world: cỏ (4,8,4), đá (4,8,5); `BlockMesher.Build(w, 0, 0, 0)`):
    - không còn đỉnh nào có pháp tuyến (0, 0, 1) ở z = 5 (`math.abs(p.z − 5) < 1e-4`), tức hết nắp;
@@ -126,3 +128,4 @@ Code bước 1 đã sửa trong working tree (chưa commit): `client/Assets/Game
 ---
 
 ## Review
+- 2026-10-31 (Planner, trả lời Vướng mắc): chọn A — bỏ 2 tam giác diện tích 0 ở cột thon (QĐ 7, bước 1b); hình không đổi, đúng QĐ 3, không đổi test cũ. Trạng thái → chờ làm.
