@@ -1019,6 +1019,12 @@ namespace Game.World
                 MaterialAt(p) == (int)BlockMaterial.Water && MaterialAt(p + new int3(0, 1, 0)) == (int)BlockMaterial.Empty
                 && (IsFallingWater(p) || IsFallingWater(p - new int3(0, 1, 0)));
 
+            /// <summary>Ô p là ô cột có góc (sx, sz) bo — hai mặt ngang của góc đều thoáng (brief 0090 QĐ 4).</summary>
+            bool ColumnCornerRounded(int3 p, int sx, int sz) =>
+                MaterialAt(p) == (int)BlockMaterial.Water && (IsFallingWater(p) || IsFallingWater(p - new int3(0, 1, 0)))
+                && MaterialAt(p + new int3(sx == 1 ? 1 : -1, 0, 0)) == (int)BlockMaterial.Empty
+                && MaterialAt(p + new int3(0, 0, sz == 1 ? 1 : -1)) == (int)BlockMaterial.Empty;
+
             struct WaterCol
             {
                 public int3 c;
@@ -1222,6 +1228,29 @@ namespace Game.World
                         int v00 = WaterSphereVertex(col, sx, sz, ax, hc, i, j), v10 = WaterSphereVertex(col, sx, sz, ax, hc, i + 1, j);
                         int v11 = WaterSphereVertex(col, sx, sz, ax, hc, i + 1, j + 1), v01 = WaterSphereVertex(col, sx, sz, ax, hc, i, j + 1);
                         AddWaterTri(v00, v10, v11); AddWaterTri(v00, v11, v01);
+                    }
+                }
+
+                // Nắp vá chỗ góc vuông nối góc bo của ô cột trên/dưới (brief 0090, lỗi 9).
+                for (int sz = 0; sz < 2; sz++)
+                for (int sx = 0; sx < 2; sx++)
+                {
+                    if (col.Rounded(sx, sz))
+                        continue;
+                    float2 ax = new float2(sx == 1 ? 1 - R : R, sz == 1 ? 1 - R : R);
+                    for (int side = 0; side < 2; side++)
+                    {
+                        if (!ColumnCornerRounded(g + new int3(0, side == 0 ? -1 : 1, 0), sx, sz))
+                            continue;
+                        float y = c.y + side;
+                        float3 n = new float3(0, side == 0 ? -1 : 1, 0);
+                        int k = AddWaterVertex(col.Pos(sx, y, sz), n);
+                        for (int j = 0; j < S; j++)
+                        {
+                            float3 d0 = CircleDir(sx, sz, j * math.PI * 0.5f / S), d1 = CircleDir(sx, sz, (j + 1) * math.PI * 0.5f / S);
+                            AddWaterTri(k, AddWaterVertex(col.Pos(ax.x + R * d0.x, y, ax.y + R * d0.z), n),
+                                AddWaterVertex(col.Pos(ax.x + R * d1.x, y, ax.y + R * d1.z), n));
+                        }
                     }
                 }
 
