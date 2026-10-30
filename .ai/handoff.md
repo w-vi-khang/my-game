@@ -1,23 +1,14 @@
-# Handoff — 2026-10-29 (Planner, task 5j)
+# Handoff — 2026-10-31 (Planner, task 5j)
 
 ## Đang làm
-Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md): sửa lỗi sau chơi thử nước 0079–0081. User muốn **làm xong hết 5j rồi chơi thử một lượt** (gộp mọi mục "User tự test" vào một danh sách ở cuối). Chạy nối tiếp: Planner con Opus · medium viết brief → Executor con chạy `/ai-workflow-kit:exec NNNN --child` → phiên cha review.
+Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). **Code lỗi 1–12 xong**, mọi brief 0082–0091 đã duyệt (cuối: 0091 commit `f29af90`). Còn lại: user chơi thử gộp một lượt.
 
-## Trạng thái
-- Đã duyệt: 0081 (bo lõm chân thác), 0082 (depth prepass, lỗi 1), 0083 (mép tràn thon + ẩn thân khi camera gần, lỗi 6, 8; lỗi 7 chờ user).
-- **Đã duyệt 2026-10-29:** brief 0084 (lỗi 3: mặt nước đậm/nhạt theo độ dày; thêm test `WideHolePastLevelRadiusStaysEmpty` ghi hành vi 0043) ở phiên con `child-sonnet-high` = `local_8a548148-62c8-47bd-a761-325e821e9f93` (thực chất Sonnet · medium; brief đã hạ effort xuống medium, commit `89eef6b`). Xong → review đầy đủ (`/ai-workflow-kit:review-brief 0084`), user xem gộp cuối.
-- **Quyết định mới:** [0044](../design/decisions/0044-ho-thap-hon-mat-nguon-thi-day.md) (user 2026-10-29): ô nước chảy thấp hơn nguồn gốc của cây → mức 5 + phát sóng, trong `basinFillRadius` = 16 ô ngang [số tạm]. Commit `7bdf0ea`.
-
-## Việc tiếp (theo thứ tự, mỗi lúc một phiên dùng Unity)
-1. ~~Review 0084~~ (đã duyệt).
-2. ~~Brief 0085~~ (đã duyệt 2026-10-29, code `181acbd`): cài luật 0044 (`WorldEditor`, `WaterConfig`, `water_m1.json`), đổi kỳ vọng `WideHolePastLevelRadiusStaysEmpty` → hố rộng lớp dưới đầy. Planner con viết, Executor con chạy.
-3. Brief lỗi 4: đứng dưới chân thác bị đẩy nổi 1 ô (`PlayerRules.InWater` có thể coi ô nước rơi là nước bơi [chưa xác minh]; ảnh `~/Documents/User/khang/Game/art-test/shots/user0081_under_fall.webp`).
-4. Brief lỗi 5: vật rơi nằm trên mặt đất, không lơ lửng/xoay; rơi ngẫu nhiên gần khối bị phá (bán kính [số tạm] trong JSON). Code liên quan: `client/Assets/Game/Client/DropView.cs`.
-5. Xong hết → gửi user một danh sách chơi thử gộp (các mục "User tự test" của 0082–0087, gồm lỗi 7 gờ đầu cột) + ghi giờ thực tế vào roadmap.
+## Việc tiếp
+1. Gửi user danh sách chơi thử gộp cuối 5j — gom mục "User tự test" của brief 0082–0091 (gồm lỗi 7 gờ đầu cột, có thể đã hết nhờ 0090). Mỗi mục: thao tác + điều cần thấy.
+2. User báo lỗi → thêm vào task (lỗi 13+), brief mới; user báo đạt → tích tiêu chí "User chơi thử lại", đóng task, cập nhật world-tech dòng 5j + roadmap.
+3. Sau 5j: bước 5k (hiển thị dòng chảy) [ý tưởng], cần task contract mới.
 
 ## Ghi chú
-- Phá/đặt khối dưới chân player: giữ như hiện tại (user). Hiệu ứng bọt chân thác + hiển thị dòng chảy = bước 5k [ý tưởng], làm sau 5j.
-- Phiên con có effort cao hơn phiên cha bị app hạ → ghi `Model thực thi` ≤ effort phiên cha (medium).
-
-## Cập nhật 2026-10-29 tối
-- 0084–0087 đã duyệt. Code 5j xong hết. Còn: user chơi thử gộp (danh sách trong trả lời cuối của phiên Planner), rồi kết luận task 5j; sau đó bước 5k [ý tưởng].
+- Executor dùng phiên `exec-0088` = `local_b7728311-1023-4b48-a428-fa77c2f00dbe` (Opus · medium); dọn bằng `clear_session` trước mỗi brief mới.
+- Số tạm mới: `basinFillRadius` 16 (0045), `LipTaperLength` 0,5 (0091) — user chỉnh sau khi chơi thử.
+- Quyết định mới: [0045](../design/decisions/0045-ho-ngang-mat-nguon-thi-day-muc-tinh-lai.md) (vùng kín ngang mặt nguồn thì đầy; ngoài world = vách).
