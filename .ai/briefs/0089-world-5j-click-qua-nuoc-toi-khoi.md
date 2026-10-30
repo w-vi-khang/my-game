@@ -1,6 +1,6 @@
 # Brief 0089 — World 5j (lỗi 11): click qua nước liền tới khối đặc thì đích là khối
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-10-30 23:55
@@ -141,3 +141,9 @@ Gộp cuối 5j:
 ---
 
 ## Review
+- 2026-10-30 (Planner, review đầy đủ): `Chạy bằng` claude-opus-5-5 · medium khớp `Model thực thi`; mọi dòng "Phần cần test" có kết quả (user tự test gộp cuối 5j).
+- `git show --stat 8cc61fe`: 4 file, đúng Phạm vi. `WaterRay.cs` không `using UnityEngine`; overload cũ giữ chữ ký, gọi overload mới.
+- Diff đối chiếu Quyết định đã chốt: `WaterRunReachesEnd` — ô vào ≥ maxT − 1e-3 → true, ngoài world / Empty → false, ô đặc → true (QĐ 1); `PointOnWorld` chỉ lấy điểm collider khi `hit && reachesEnd`, mặt bên `|n.y| < 0,5` lùi 0,5 ô theo pháp tuyến terrain (QĐ 2–3). Khớp.
+- Kết quả: 13/13 WaterRay, 13/13 PlayMode UnderFall + ClickMove (log khớp số Planner tính: cx+11,5 / cx+12,7 / cx+13,5), 691/691 EditMode, console 0 lỗi. Không chạy lại.
+- Giờ: ~30 phút → roadmap dòng 5j.
+- Kết luận: đã duyệt
