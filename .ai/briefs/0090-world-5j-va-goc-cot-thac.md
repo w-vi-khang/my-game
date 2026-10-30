@@ -35,7 +35,7 @@ Lỗi 9 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md): gai nước v
 - `R` = `WaterFilletRadius` (0,3), `S` = `WaterFilletSegments` (3) (`:51–52`).
 
 **Test** — `client/Assets/Game/Tests/World/BlockMesherTests.cs`:
-- helper `CountWaterTris(mesh, pred)` (`:1076`, đếm tam giác có cả 3 đỉnh thoả `pred`), `HasWaterVertexNear(mesh, pos, normal)` (`:941`);
+- helper `CountWaterTris(mesh, pred)` (`:1076`, đếm tam giác có cả 3 đỉnh thoả `pred`), `HasWaterVertexNear(mesh, pos, normal)` (`:998`), `AssertNoDuplicateWaterVertices(mesh)` (`:1009`);
 - mẫu dựng world + `WorldEditor` + `SettleWater` + `BlockMesher.Build(w, 0, 0, 0, true, 5)`: `LipTapersAtChannelSpill` (`:1086`).
 
 ## Quyết định đã chốt (không được đổi)
