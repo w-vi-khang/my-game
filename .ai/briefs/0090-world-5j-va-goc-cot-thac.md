@@ -1,9 +1,9 @@
 # Brief 0090 — World 5j (lỗi 9): vá chỗ cột thác đổi từ góc vuông sang góc bo
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-10-31 00:20
+> Cập nhật: 2026-10-30 22:20
 
 ## Mục tiêu
 Lỗi 9 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md): gai nước vẫn còn chỗ mép tràn nối cột thác (ảnh `~/Documents/User/khang/Game/art-test/shots/user5j_lip_spike_again.webp`, ngoài repo). Gai nằm ở đáy khối đất nhô, sát cột. Sửa bằng một "nắp" phẳng vá chỗ một ô cột có góc vuông nằm ngay trên (hoặc dưới) một ô cột có góc bo.
@@ -103,8 +103,24 @@ Gộp cuối 5j: đứng gần chân thác demo, nhìn lên chỗ đáy khối �
 ---
 
 ## Kết quả
+- Base commit: e0937c3
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-10-30 22:14 · Kết thúc: 2026-10-30 22:20 (~6 phút, không tính thời gian chạy test chờ)
+- Commit: 3ad4dda
+- File đã đổi:
+  - `client/Assets/Game/World/BlockMesher.cs`: thêm `ColumnCornerRounded` (cạnh `IsLipCell`); trong `AddWaterColumn`, sau vòng trụ bo, vẽ quạt nắp đáy (y = c.y, n = (0,−1,0)) / nắp đỉnh (y = c.y + 1, n = (0,1,0)) ở góc không bo khi ô cột dưới/trên có góc đó bo (QĐ 2–4).
+  - `client/Assets/Game/Tests/World/BlockMesherTests.cs`: thêm `ColumnCornerStepCapped`.
+- Mesh khớp chẩn đoán: trạng thái nước sau lắng đúng như Bối cảnh (assert `(5,6,3)`, `(5,5,3)` rơi; `(6,6,3)` Dirt đều đạt trên code cũ).
 
 ## Kết quả test
+- Nắp đáy (QĐ 2) · `ColumnCornerStepCapped` · **đạt**. Code cũ: fail `cap (+x, -z) Expected: greater than or equal to 3 But was: 0` (BlockMesherTests 51/52) [run]. Code mới: đạt.
+- Nắp đỉnh (QĐ 3) · chỉ có code; toàn bộ test đạt, `AssertNoDuplicateWaterVertices` trong test cũ đạt · **đạt**.
+- Mép tràn, đoạn thon, trụ bo, cầu góc, bo lõm chân thác (regression) · BlockMesherTests 52/52 đạt, không đổi kỳ vọng · **đạt**.
+- Thác demo trong Play · PlayMode `WaterFlowPlayTests` 4/4 đạt · **đạt**.
+- Toàn bộ EditMode · 692/692 đạt (Passed, 187 s) · **đạt**.
+- Lệnh: (1) `run_tests` EditMode BlockMesherTests trước sửa → 51 đạt / 1 fail (chỉ `ColumnCornerStepCapped`); (2) EditMode toàn bộ → total 692, passed 692, failed 0; (3) PlayMode `WaterFlowPlayTests` → 4/4 Passed; (4) `read_console` Error → 0 mục; (5) `git checkout -- client/ProjectSettings/EditorSettings.asset`, `git status` chỉ còn 2 file trong Phạm vi + brief. `verify_run design` exit 0.
+- `client_test` qua `tools/unity_test.py`: Chưa kiểm được — Editor đang mở (dùng MCP theo AGENTS.local).
+- User tự test (gộp cuối 5j): **chờ user** — đứng gần chân thác demo nhìn lên đáy khối đất nhô sát cột (ảnh `user5j_lip_spike_again.webp`) → không còn gai; nhìn nghiêng dưới mép tràn → không còn gờ mỏng (lỗi 7).
 
 ## Vướng mắc
 
