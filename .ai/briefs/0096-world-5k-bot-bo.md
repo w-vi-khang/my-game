@@ -190,3 +190,8 @@ Bắt đầu: 2026-11-01 22:38 (+07) · dừng: 22:47 (cần Opus)
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+- design: `check_design.py` exit 0 (70 file hợp lệ) [run, qua verify_run].
+- Chưa kiểm được: `client_test` / `client_test_play` bằng `tools/unity_test.py` — Unity Editor đang mở (dùng chung qua MCP, 0010), script đòi Editor tắt. Thay bằng `run_tests` MCP: EditMode 703 test, 701 đạt, 1 fail đang chờ Planner (xem Vướng mắc), 1 đã sửa và đạt khi chạy lại; PlayMode chưa chạy.
+- Checklist: mục pillar/thành phần/nguồn/phạm vi M1/Game.Core không tham chiếu UnityEngine (chỉ thêm trường số vào `WaterConfig.cs`, Game.Core) → đạt; mục thuật ngữ/glossary, ghi giờ thực tế M1 → chưa đạt/chưa làm, brief dừng ở `cần Opus` (glossary + giờ do Planner xử lý khi review).
