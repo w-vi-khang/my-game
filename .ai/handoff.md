@@ -1,4 +1,4 @@
-# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật sau khi duyệt brief 0095)
+# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật sau khi duyệt brief 0096)
 
 ## Đang làm
 Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01: **phần nước đạt**. Lỗi 13 (cột thác bo góc kề khối đặc) đã xong qua brief 0092, review đạt ở commit `263509e`. Còn lỗi 14–16, ghi trong task ở commit `b1101d3`.
@@ -12,8 +12,9 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User
    - (a) đúng bản nháp; (b) cắt phần 5 (bọt chân thác + mép tràn) sang M2, còn 4 phần 5–9 ngày; (c) "nét mềm" đúng như Planner hiểu, chỉ ở shader.
    - Đã sửa roadmap (5k 5–9, M1 136,5–223,5), world-tech `:141`/`:200`, ideas `:71`, glossary (+5 thuật ngữ).
    - **Brief [0095](briefs/0095-world-5k-mau-theo-do-sau-vien-bo.md) (phần 1) đã duyệt** (code `57d63af` + `038fce4`, ~20 phút). User xem (a)–(e) gộp cuối 5k.
-   - **Brief [0096](briefs/0096-world-5k-bot-bo.md) (phần 2, bọt bờ, Sonnet · medium) chờ Executor.** Dải bọt theo `shoreD`, độ thoáng (ô không đặc 9×9) ở kênh G tắt bọt chỗ hẹp, tham số `foam*` trong "look". Kênh B để dành phần 4.
-   - Sau 0096: đo FPS điện thoại (bọt thêm 1 ValueNoise/pixel), rồi phần 3 (lấp lánh), phần 4 (vệt chảy: chốt cách ghi hướng — B + kênh khác/UV).
+   - **Brief [0096](briefs/0096-world-5k-bot-bo.md) (phần 2, bọt bờ) đã duyệt** (code `4e8c10d`, ~16 phút). User xem (a)–(d) gộp cuối 5k.
+   - Tiếp: **đo FPS điện thoại** (AI tự build APK + cài + đọc logcat, cảnh bờ biển + ao). Sau đó brief phần 3 (lấp lánh), phần 4 (vệt chảy: chốt cách ghi hướng — B + kênh khác/UV).
+   - Ảnh Executor chụp SimView chỉ có góc mặc định → khi user chơi thử nên tự xem bờ biển; hoặc brief sau thêm cách đặt camera.
    - Phiên Executor `exec-0095` = `local_0ec3ce58-e317-4e1d-a15a-196acea4f127` (Sonnet · medium).
 
 ## Ghi chú

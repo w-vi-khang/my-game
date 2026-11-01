@@ -1,6 +1,6 @@
 # Brief 0096 — World 5k phần 2: bọt bờ (vệt bọt song song bờ, trôi vào/ra; độ thoáng ghi vào đỉnh)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -201,3 +201,16 @@ Chọn biến thể A: trong `IncrementalRebuildTests.IncrementalRebuildMatchesF
 - design: `check_design.py` exit 0 (70 file hợp lệ) [run, qua verify_run].
 - Chưa kiểm được: `client_test` / `client_test_play` bằng `tools/unity_test.py` — Unity Editor đang mở (dùng chung qua MCP, 0010), script đòi Editor tắt. Thay bằng `run_tests` MCP: EditMode 703 test, 701 đạt, 1 fail đang chờ Planner (xem Vướng mắc), 1 đã sửa và đạt khi chạy lại; PlayMode chưa chạy.
 - Checklist: mục pillar/thành phần/nguồn/phạm vi M1/Game.Core không tham chiếu UnityEngine (chỉ thêm trường số vào `WaterConfig.cs`, Game.Core) → đạt; mục thuật ngữ/glossary, ghi giờ thực tế M1 → chưa đạt/chưa làm, brief dừng ở `cần Opus` (glossary + giờ do Planner xử lý khi review).
+- Chạy bằng Sonnet · medium, khớp Model thực thi. 22:38 → 22:54 (~16 phút, gồm chờ Planner).
+- Mọi dòng Phần cần test có kết quả [run trong brief]:
+  - 2 test mesh fail trên code cũ (G 255), đạt sau khi sửa.
+  - EditMode 703/703 đạt; PlayMode 6 lớp 16/16 đạt; `SeaSkyTintPlayTests` không đổi baseline.
+- Vướng mắc `IncrementalRebuildTests`: Planner cho sửa 1 dòng để test dựng lại theo lề `WaterShoreMargin` khi đào/đặt, giống `TerrainChunkView.OnSolidChanged`. Executor sửa đúng. Mục Vướng mắc chưa ghi "Planner trả lời"; ghi bổ sung ở đây.
+  - Ghi chú: brief 0095 cũng có rủi ro này (khoảng cách tới bờ, lề 4), nhưng test không bắt được vì giá trị bão hoà. Từ giờ test đã phủ.
+- Đọc diff `e10f5f9..4e8c10d` (11 file, đúng Phạm vi + `IncrementalRebuildTests`):
+  - `WaterShoreAt` gộp một vòng lặp; G = độ thoáng; đỉnh không hướng lên G = 255;
+  - `ShoreFoam` đúng QĐ 3; `lightTerm` tách đúng; `_FoamStrength` mặc định 0;
+  - JSON `configVersion` 6, default trong `WaterConfig.cs` cũng 6.
+- Ảnh SimView chỉ có góc mặc định (đêm, đồng cỏ), không thấy bờ → hình bọt để user xem (a)–(d), gộp cuối 5k.
+- Kết luận: đã duyệt.
+
