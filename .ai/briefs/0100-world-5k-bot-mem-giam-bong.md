@@ -1,6 +1,6 @@
 # Brief 0100 — World 5k sửa lỗi chơi thử: bọt bờ trơn 1 dải mềm, giảm độ bóng
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -96,7 +96,8 @@ Sửa 2 lỗi user thấy khi chơi thử 5k ngày 2026-11-02. Lỗi ghi ở m�
   - `Tests/World/BlockMesherTests.cs`: test mới, cộng đúng 4 dòng kiểm B ở `:1222`, `:1247`, `:1253`, `:1258`;
   - `Tests/Core/WaterConfigTests.cs`: 5 dòng `:60`, `:61`, `:63`, `:64`, `:67`;
   - `design/04-tech/world-tech.md`: 1 câu ở `:141`.
-- Không được sửa: `WaterConfig.cs`, `WaterLook.cs`, `Water.mat`, `Ocean.mat`, pass `WaterDepthPrepass`/`DepthOnly`, hàm `ShoreFoam`, `WorldEditor.cs`, `TerrainChunkView.cs`, `OceanBackdrop.cs`, mọi test khác.
+  - `client/Assets/Game/Core/WaterConfig.cs`: chỉ giá trị mặc định của 10 trường ở QĐ 4 (bước 4b, Planner thêm 2026-11-02).
+- Không được sửa: phần khác của `WaterConfig.cs` (khoảng hợp lệ, `configVersion`), `WaterLook.cs`, `Water.mat`, `Ocean.mat`, pass `WaterDepthPrepass`/`DepthOnly`, hàm `ShoreFoam`, `WorldEditor.cs`, `TerrainChunkView.cs`, `OceanBackdrop.cs`, mọi test khác.
 
 ## Các bước
 1. **Viết test mesh trước.** Các test này phải fail trên code cũ.
@@ -119,6 +120,8 @@ Sửa 2 lỗi user thấy khi chơi thử 5k ngày 2026-11-02. Lỗi ghi ở m�
 4. **Đổi số JSON** theo QĐ 4 ở cả 2 file. Sửa `WaterConfigTests.LookParsesAndValidates` cho khớp:
    - `:60` → 1.6f; `:61` → 1f; `:63` → 0.3f; `:64` → 0.25f; `:67` → 0.18f.
    - Xong khi: `WaterConfigTests` và `ConfigTests.WaterClientCopyMatchesDesignData` đạt.
+4b. **(Planner thêm 2026-11-02, trả lời Vướng mắc.)** `client/Assets/Game/Core/WaterConfig.cs`: đổi giá trị mặc định của đúng 10 trường trong bảng QĐ 4 thành cột "Mới" (`ConfigFileMatchesDefaults` so JSON với `new WaterConfig()`). Không đổi trường khác, khoảng hợp lệ hay `configVersion`.
+   - Xong khi: `WaterConfigTests` (gồm `ConfigFileMatchesDefaults`) đạt.
 5. **Kiểm tổng** theo mục "Lệnh executor chạy".
 6. **`design/04-tech/world-tech.md:141`**: thêm câu sau vào cuối dòng, sau câu "Hướng này lưu ở … chưa chốt.":
    ` Sửa lỗi chơi thử (brief 0100, user 2026-11-02 chọn "giảm mạnh, giữ nhẹ"): bọt dùng khoảng cách tới bờ đã làm mềm (soft-min, k = 0,5 [số tạm], ghi kênh B màu đỉnh) để đường bọt trơn ở bờ bậc thang, còn 1 dải mềm; phản chiếu/quầng/lấp lánh và vệt chảy giảm mạnh trong water_m1.json "look" [số tạm], chưa chốt.`
@@ -208,6 +211,7 @@ Gộp với danh sách chơi thử 5k. Play scene SimView, ban ngày, rồi ban 
 - Phương án A (đề xuất): cho phép sửa default trong `WaterConfig.cs` (`:56 glint`, `:58 foamWidth`, `:59 foamBands`, foamLine, foamSoft, foamStrength, `:69 glintHalo`, sparkleStrength, sparkleDensity, `:79 flowStreakStrength`) khớp bảng QĐ 4; thêm `WaterConfig.cs` vào Phạm vi.
 - Phương án B: sửa test để bỏ so sánh — không nên.
 - Sau khi Planner duyệt: Executor đổi default, chạy lại EditMode + PlayMode, commit.
+- **Planner trả lời (2026-11-02): chọn A.** Brief thiếu sót: không biết `ConfigFileMatchesDefaults` so với default. Đã thêm bước 4b và đưa `WaterConfig.cs` (chỉ default 10 trường) vào Phạm vi. Làm tiếp từ bước 4b, rồi bước 5 (đủ lệnh 2–7).
 
 ---
 <!-- PLANNER ghi khi review. -->
