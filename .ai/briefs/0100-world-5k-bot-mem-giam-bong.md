@@ -1,6 +1,6 @@
 # Brief 0100 — World 5k sửa lỗi chơi thử: bọt bờ trơn 1 dải mềm, giảm độ bóng
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -220,6 +220,17 @@ Gộp với danh sách chơi thử 5k. Play scene SimView, ban ngày, rồi ban 
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` (Sonnet · medium).
+- Phần cần test: 7/7 dòng có kết quả. Test-first: 3 test fail đúng trên code cũ (B = 255). EditMode toàn bộ 714/714 (sau 4b), PlayMode toàn bộ 291/291, console Error = 0. Hình ảnh (a)–(e): chờ user.
+- Diff `eec15c7`: 8 file, tất cả trong Phạm vi (gồm `WaterConfig.cs` chỉ default 10 trường — bước 4b). `cmp` hai `water_m1.json`: giống hệt. `configVersion` không đổi.
+- QĐ 1 (`WaterShoreAt`): hằng `WaterFoamSoftK` 0.5f, `acc`, `exp(-d/k)`, `foamDist = clamp(-k·log(acc))`, `dist`/`open` không đổi — đúng nguyên văn.
+- QĐ 2: `WaterVertexColor(..., foam)` ghi B; 2 chỗ gọi đúng; đỉnh không hướng lên vẫn `0xFFFFFFFF` (foam = EncodeMax → B 255).
+- QĐ 3 (shader): `half2 open : TEXCOORD3`, `vert` lerp theo `_VertexDepth`, `frag` gọi `ShoreFoam(xz, open.y, open.x)`, viền bờ vẫn theo `shoreD`, `ShoreFoam` không đổi, chú thích đầu file — đúng.
+- QĐ 4: 10 trường JSON + default `WaterConfig.cs` khớp bảng; `WaterConfigTests` 5 dòng khớp. Test mesh đúng số kỳ vọng bước 1. world-tech `:141` đúng câu.
+- Nhỏ, không chặn: ảnh SimView chưa chụp (brief cho phép). Mục "Kiểm chứng" bên dưới viết trước bước 4b — số mới ở dòng Kết quả test.
+- Giờ thực tế ~27 phút (05:23–05:50, gồm chờ Editor).
+- User xem (a)–(e) ở mục "User tự test" **gộp cuối 5k**, cùng 0095–0099.
+- Kết luận: đã duyệt
 
 ## Kiểm chứng
 - design (verify_run): đạt, exit 0 — `design/ hợp lệ: 70 file`.
