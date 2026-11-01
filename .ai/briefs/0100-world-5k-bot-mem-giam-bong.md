@@ -1,6 +1,6 @@
 # Brief 0100 — World 5k sửa lỗi chơi thử: bọt bờ trơn 1 dải mềm, giảm độ bóng
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -199,12 +199,15 @@ Gộp với danh sách chơi thử 5k. Play scene SimView, ban ngày, rồi ban 
 - Chạy bằng: claude-sonnet-5-5 · medium
 - Bắt đầu: 05:23 (2026-11-02)
 
-- Đã làm (CHƯA commit code, đang ở working tree): bước 1–4 + 6 (BlockMesher, Ocean.shader, 2 JSON, test, world-tech.md:141). Console Error = 0.
+- Commit code: eec15c7. File: BlockMesher.cs, Ocean.shader, WaterConfig.cs (default 10 trường, bước 4b), 2 water_m1.json, BlockMesherTests.cs, WaterConfigTests.cs, world-tech.md:141.
+- Kết thúc: ~05:50 (bắt đầu 05:23; gồm thời gian chờ Editor không focus). Ước lượng: không ghi trong brief.
+- Ảnh SimView (không chặn brief): chưa chụp.
 
 ## Kết quả test
 - Bước 1 trên code cũ: 3 test fail đúng (B = 255): FoamDistanceRoundsConcaveCorner "B corner Expected 60 But was 255"; OpennessEncoded "B x=8 Expected 0 But was 255"; ShoreDistanceEncoded "B x=4 Expected 0 But was 255".
-- EditMode toàn bộ sau sửa: 713/714 đạt. 1 fail: `WaterConfigTests.ConfigFileMatchesDefaults` ("glint":1.0 (default) vs 0.3 (file)).
-- PlayMode: chưa chạy (dừng trước).
+- Phần test: khoảng cách mềm ở B (3 test mesh) — đạt; regression BlockMesherTests — đạt; JSON/WaterConfigTests/ConfigFileMatchesDefaults — đạt; WaterLookTests — đạt; shader biên dịch, console Error = 0 — đạt; PlayMode nước — đạt; cảm nhận hình ảnh (a–e) — chờ user.
+- EditMode toàn bộ (sau bước 4b): 714/714 đạt. (Lần đầu 713/714 do ConfigFileMatchesDefaults, đã xử lý bằng 4b.)
+- PlayMode toàn bộ: 291/291 đạt. Đã `git checkout` EditorSettings.asset; git status chỉ file trong Phạm vi.
 
 ## Vướng mắc
 - `ConfigFileMatchesDefaults` (`WaterConfigTests.cs:28-32`) so JSON với `new WaterConfig()`, tức giá trị mặc định trong `WaterConfig.cs`. Brief nói không cần sửa `WaterConfig.cs`, nhưng 10 số mới lệch default → test fail.
