@@ -1,6 +1,6 @@
 # Brief 0095 — World 5k phần 1: màu theo độ sâu, thấy đáy, viền bờ mềm (khoảng cách tới bờ ghi vào đỉnh)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -212,3 +212,16 @@ Code commit: 57d63af (bước 1–5 + world-tech; file: BlockMesher, Ocean.shade
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Chạy bằng Sonnet · medium, khớp Model thực thi. Thời gian theo commit: 22:10 (brief) → 22:29 (kết quả), ~20 phút. Brief ghi "dừng ~22:50" lệch với giờ commit, nên lấy theo git.
+- Mọi dòng Phần cần test có kết quả [run trong brief]:
+  - `WaterSurfaceShoreDistanceEncoded` fail trên code cũ (R 255), đạt sau khi sửa.
+  - EditMode 701/701 đạt. Chạy trước lần đổi baseline, nhưng lần đổi đó chỉ chạm file PlayMode.
+  - PlayMode 6 lớp 16/16 đạt sau khi đổi baseline.
+- Vướng mắc 1: Executor chẩn đoán sai nguyên nhân. `SeaSkyTintPlayTests` dùng `Plane` + material mặc định, không dùng `OceanBackdrop`. Lệch màu là do QĐ 4 bỏ trộn fresnel trong `baseCol`, đúng chủ đích. Planner cho đổi đúng 1 hằng (`038fce4`).
+- Vướng mắc 2: asmdef EditTests thêm `Game.Core` — chấp nhận.
+- Đọc diff `90a96c4..c07e41c` (19 file, đúng Phạm vi + 2 file trên):
+  - `WaterShoreDistanceAt`, `WaterVertexColor`, `SolidChanged` (chỉ `TryDig`/`TryPlace`), `OnSolidChanged` lề 4, shader `dT`/`shoreD`, `WaterLook.Apply` 9 thuộc tính: đúng QĐ 1–6.
+  - `Water.mat`, `Ocean.mat` không đổi.
+- Ảnh bước 7 chụp world thử 16³, không phải SimView. Ảnh 2 không thấy nước. Không đủ để đánh giá hình → để user xem trong SimView (gộp cuối 5k, mục User tự test a–e).
+- Kết luận: đã duyệt.
+

@@ -1,4 +1,4 @@
-# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật sau khi viết brief 0095)
+# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật sau khi duyệt brief 0095)
 
 ## Đang làm
 Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01: **phần nước đạt**. Lỗi 13 (cột thác bo góc kề khối đặc) đã xong qua brief 0092, review đạt ở commit `263509e`. Còn lỗi 14–16, ghi trong task ở commit `b1101d3`.
@@ -11,8 +11,9 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User
 2. **5k** — task contract [.ai/tasks/m1-world-5k-nuoc-kieu-anh-tham-khao.md](tasks/m1-world-5k-nuoc-kieu-anh-tham-khao.md) **đã xác nhận** (user 2026-11-01):
    - (a) đúng bản nháp; (b) cắt phần 5 (bọt chân thác + mép tràn) sang M2, còn 4 phần 5–9 ngày; (c) "nét mềm" đúng như Planner hiểu, chỉ ở shader.
    - Đã sửa roadmap (5k 5–9, M1 136,5–223,5), world-tech `:141`/`:200`, ideas `:71`, glossary (+5 thuật ngữ).
-   - **Brief [0095](briefs/0095-world-5k-mau-theo-do-sau-vien-bo.md) (phần 1, Sonnet · medium) chờ Executor.** Khoảng cách tới bờ ở kênh R màu đỉnh, lề 4 khi đào/đặt (`SolidChanged`), shader smoothstep + viền mờ, tham số `water_m1.json` "look".
-   - Tiếp: Executor làm 0095 → Planner review → brief phần 2 (bọt bờ, dùng `shoreD`). FPS điện thoại đo gộp cuối 5k (hoặc sau phần 2).
+   - **Brief [0095](briefs/0095-world-5k-mau-theo-do-sau-vien-bo.md) (phần 1) đã duyệt** (code `57d63af` + `038fce4`, ~20 phút). User xem (a)–(e) gộp cuối 5k.
+   - Tiếp: Planner Opus thiết kế + viết brief **phần 2 (bọt bờ)**, dùng `shoreD` (kênh R, ≤ 4 ô) trong `Ocean.shader`; thêm tham số vào `water_m1.json` "look". Sau phần 2 (hoặc cuối 5k): đo FPS điện thoại.
+   - Phiên Executor `exec-0095` = `local_0ec3ce58-e317-4e1d-a15a-196acea4f127` (Sonnet · medium).
 
 ## Ghi chú
 - Phiên Executor `exec-0088` = `local_b7728311-1023-4b48-a428-fa77c2f00dbe` (Opus · medium). Dọn bằng `clear_session` trước mỗi brief mới.
