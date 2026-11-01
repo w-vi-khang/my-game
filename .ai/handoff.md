@@ -1,22 +1,18 @@
-# Handoff — 2026-11-01 (Planner, task 5j, cập nhật 21:30)
+# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật 22:30)
 
 ## Đang làm
 Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01: **phần nước đạt**. Lỗi 13 (cột thác bo góc kề khối đặc) đã xong qua brief 0092, review đạt ở commit `263509e`. Còn lỗi 14–16, ghi trong task ở commit `b1101d3`.
 
 ## Việc tiếp
-1. ~~Lỗi 16~~ **xong**: brief 0093 đã duyệt (`945b006`). Play Mode sót lại đã dừng.
-2. **Lỗi 14 + 15**: đã dựng lại, chụp và user đã chọn hướng sửa (ghi trong task, mục 14–15).
-   - **Việc tiếp: viết brief.**
-     - (a) Đầu thon dạng 1/4 elip, độ dài 0,3 [số tạm]: `TaperAt` trong `AddLipEdge`, `BlockMesher.cs:841`, hằng `LipTaperLength` `:57`.
-     - (b) Đỉnh mép cỏ (`AddLipEdge` + `AddLipConcave`) nhận AO bằng mức AO mặt trên khối ở hai đầu cạnh, nội suy dọc cạnh. Xem `AoLevel` `:660`, `Shade(color, AoBrightness[ao])` `:651`.
-   - Brief phải trích chữ ký `Shade`/`AoBrightness` (chưa đọc). Phải chọn cách tính AO đỉnh mặt trên ở đầu cạnh từ ô lân cận y+1.
-   - Test 0091 `LipTaper*` cần đổi kỳ vọng f(0,25).
-   - Mẫu dựng world thử + chụp (codedom, C# 6, không dùng tuple): thế giới 16³, cột `hh`, `BlockMesher.Build`, `ChunkMeshWriter.Write`, material `Game/Terrain` + `TerrainChunkView.waterMaterial`, camera `CopyFrom(Camera.main)`, RenderTexture → PNG.
-3. Lỗi 14–16 đạt + user xem → đóng task 5j, cập nhật world-tech dòng 5j + roadmap.
-4. **5k — nước kiểu ảnh tham khảo** (user 2026-11-01: "tôi muốn nước giống như ảnh 3"):
-   - Ảnh lưu ngoài repo: `art-test/shots/ref_water_style_5k.webp`. Bãi cát nhìn từ trên; nước đổi màu theo độ sâu (xanh ngọc nhạt sát bờ → xanh đậm ngoài xa); nhiều vệt bọt trắng song song bờ; đáy thấy rõ qua nước; lấp lánh mặt trời.
-   - Khớp mục "Hiển thị dòng chảy" [ý tưởng] ở world-tech (5k, ước lượng 4–8).
-   - Cần task contract mới, chốt với user: phạm vi (màu theo độ sâu, bọt bờ, caustic, vệt chảy), thứ tự, FPS điện thoại. Không lưu ảnh tham khảo vào repo.
+1. **5j:** lỗi 14–16 đã duyệt (0093 `945b006`, 0094 `b87d5df`).
+   - Còn: **user chơi thử gộp** mép cỏ / mesh nhọn (lỗi 10, 14, 15). Danh sách cần xem ở mục "User tự test" của brief 0094.
+   - Review 0094 lưu ý: mấu nhọn nhỏ tối ở chỗ dải ô hẹp gặp vách (`art-test/shots/b0094_after_2.png`). Có từ trước 0094; nếu user còn thấy thì ghi thành lỗi mới.
+   - User đạt → đóng task 5j, cập nhật world-tech dòng 5j + roadmap (giờ thực tế).
+2. **5k — task contract** [.ai/tasks/m1-world-5k-nuoc-kieu-anh-tham-khao.md](tasks/m1-world-5k-nuoc-kieu-anh-tham-khao.md): **bản nháp, chưa commit, chờ user trả lời 3 câu.**
+   - (a) Xác nhận task.
+   - (b) Giữ đủ 5 phần hay cắt phần 5 (bọt thác) / phần 4 (vệt chảy). Tổng 6–11, roadmap ghi 4–8, vượt +2–3.
+   - (c) "Nét mềm mại" Planner hiểu là chuyển màu êm, viền bờ mờ, bọt mép mềm — đúng không.
+   - Sau khi xác nhận: Planner Opus · high thiết kế kỹ thuật phần 1 rồi viết brief. Cần chốt cách lấy khoảng cách tới bờ cho nước trong map và biển nền; biển nền chưa có đáy; xem có cần depth texture URP không, đo FPS điện thoại. Cập nhật world-tech `:141`/`:200`, roadmap, glossary.
 
 ## Ghi chú
 - Phiên Executor `exec-0088` = `local_b7728311-1023-4b48-a428-fa77c2f00dbe` (Opus · medium). Dọn bằng `clear_session` trước mỗi brief mới.

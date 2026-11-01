@@ -42,7 +42,7 @@ Sửa 5 lỗi user thấy khi chơi thử, mỗi lỗi một brief (hoặc gộp
 - [x] Mỗi lỗi có test tái hiện (fail trước, đạt sau) hoặc ghi rõ vì sao chỉ kiểm được bằng mắt — brief 0082–0087 đã duyệt 2026-10-29 (lỗi 7 chỉ kiểm bằng mắt).
 - [x] Lỗi 9–12 có brief đã duyệt (0088–0091, 2026-10-31).
 - [x] Lỗi 13 có brief đã duyệt (0092, 2026-11-01).
-- [ ] Lỗi 14–16 có brief đã duyệt.
+- [x] Lỗi 14–16 có brief đã duyệt (0093, 0094 — 2026-11-01).
 - [ ] User chơi thử lại: nước (lỗi 1–9, 11–13) **đạt** (user 2026-11-01: "Phần nước feed back đã ổn"); còn mép cỏ / mesh nhọn (10, 14, 15).
 
 ## Kiểm chứng
