@@ -18,7 +18,7 @@ namespace Game.Client.Tests
         static readonly float[] BeforeDev90 = { 0.47318f, 0.27425f, 0.47318f, 0.02406f };      // theo thứ tự Phases
         static readonly float[] BeforeKinkSea = { 0.03123f, 0.01790f, 0.03123f, 0.00167f };    // theo thứ tự Phases
         const float BeforeKinkTerrain = 0.02230f;                           // trưa
-        static readonly Color BeforeOffNear40 = new Color(0.03095f, 0.27051f, 0.46851f, 1f);
+        static readonly Color BeforeOffNear40 = new Color(0.00985f, 0.17151f, 0.40503f, 1f); // đo lại ở brief 0095: baseCol = lerp(Shallow, Deep, smoothstep(depthT)), bỏ trộn fresnel
 
         GameObject lightGo, camGo, sea, ground;
         Material skyMat, seaMat, groundMat;
