@@ -1,9 +1,9 @@
 # Brief 0093 — World 5j (lỗi 16): đổi tên object "Người chơi" → "Player", quét tên object trong scene
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · low
-> Cập nhật: 2026-11-01 20:50
+> Cập nhật: 2026-11-01 21:05
 
 ## Mục tiêu
 Lỗi 16 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). Ba scene còn GameObject tên tiếng Việt "Người chơi". Đổi tên thành `Player`. Thêm test quét `m_Name` trong file `.unity`/`.prefab` để lỗi này không lặp lại. Task `m1-code-tieng-anh` trước đây chỉ quét `.cs` nên sót scene.
@@ -164,3 +164,7 @@ Chưa kiểm được: client_test/client_test_play (tools/unity_test.py) cần 
 ---
 
 ## Review
+- Kết luận: đã duyệt (Planner, 2026-11-01). Review tại phiên Planner vì diff nhỏ (4 file, 30 dòng).
+- Diff `b0e4678` khớp nguyên văn bước 2–3. Mỗi scene đổi đúng 1 dòng. Không file ngoài Phạm vi.
+- "Chạy bằng" claude-sonnet-5-5 · low khớp "Model thực thi". Mọi dòng "Phần cần test" có kết quả đạt: test mới fail 3 dòng trên scene cũ, EditMode 694/694.
+- Mục "## Kiểm chứng" còn dòng cũ của lần bị chặn. Kết quả test thật nằm ở trên. Thiếu giờ bắt đầu/kết thúc: việc nhỏ (< 0,1 ngày), không cộng vào roadmap riêng.
