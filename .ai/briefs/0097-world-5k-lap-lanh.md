@@ -1,6 +1,6 @@
 # Brief 0097 — World 5k phần 3: lấp lánh (đốm mặt trời có quầng + chấm lấp lánh nhỏ)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -247,8 +247,22 @@ Gộp cuối 5k. Play, scene SimView, ban ngày, xem cạnh ảnh tham khảo:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 4e0fdc7
+Chạy bằng: claude-sonnet-5-5 · medium
+Commit: 41c40ad
+File đổi: Ocean.shader, WaterConfig.cs, WaterLook.cs, 2 water_m1.json, WaterConfigTests, WaterLookTests, WaterGlintPlayTests(+.meta), world-tech.md.
+Ảnh b0097_after_1.png: bỏ qua (không chặn brief, tiết kiệm usage).
+Bắt đầu: 23:41 2026-11-01
 
 ## Kết quả test
+- Config lấp lánh: đạt (EditMode toàn bộ 704/704 gồm WaterConfigTests, ConfigTests, GoldenHashTests, IncrementalRebuildTests).
+- WaterLook + mặc định tắt: đạt (WaterLookTests, GlintExtrasOffByDefault trong 704/704).
+- Shader biên dịch: đạt — console Error = 0, chỉ cảnh báo CS0618 cũ, không cảnh báo shader.
+- Quầng: đạt — `[0097] halo: mid d=0.9994, corner d=0.0000`.
+- Chấm lấp lánh: đạt — `sparkle: n=3753` (200 < n < 16384); mờ xa `sparkle far: n=0`. WaterGlintPlayTests 3/3.
+- Regression PlayMode (OceanBackdropTests, WaterFlowPlayTests, WaterLayerPlayTests, DayCycleWaterPlayTests, FlyCameraWaterPlayTests, SeaSkyTintPlayTests): 16/16 đạt.
+- Dọn: checkout EditorSettings.asset; git status chỉ file trong Phạm vi.
+- Phần user tự xem (a–e): chờ user (gộp cuối 5k).
 
 ## Vướng mắc
 
