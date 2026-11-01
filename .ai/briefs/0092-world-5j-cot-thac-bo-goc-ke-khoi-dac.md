@@ -1,9 +1,9 @@
 # Brief 0092 — World 5j (lỗi 13): ô nước rơi bo góc cả khi kề khối đặc
 
-> Trạng thái: chờ làm
+> Trạng thái: đang làm
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-11-01 20:12
+> Cập nhật: 2026-11-01 20:20
 
 ## Mục tiêu
 Lỗi 13 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01 và thấy: chỗ cột thác đi qua khối đất nhô, tiết diện cột đổi từ góc vuông sang góc bo, nhìn thành bậc. Đổi luật bo góc của **ô nước rơi** cho tiết diện cột đồng đều suốt chiều cao. Luật mới: ô rơi bo góc cả khi phía bên là khối đặc, chỉ không bo khi phía bên là nước. User chọn 2026-11-01.
@@ -135,7 +135,7 @@ Gộp cuối 5j. SimView, Play:
 ## Kết quả
 - Base commit: c52d99b
 - Chạy bằng: claude-opus-5-5 · medium
-- Bắt đầu: 2026-11-01 19:56 · dừng (cần Opus): 20:12
+- Bắt đầu: 2026-11-01 19:56 · dừng (cần Opus): 20:12 · tiếp: 20:20
 - Đã làm bước 1–3 (chưa commit, còn trong working tree): `BlockMesher.cs` (`WaterCol.round`, `Rounded` mới, `ColumnRound`, `ColumnCornerRounded` viết lại, gán `col.round` trong `AddWaterCell`); `BlockMesherTests.cs` (thêm `FallingColumnRoundsBesideSolid`, đổi `ColumnCornerStepCapped` theo bước 3).
 
 ## Kết quả test
