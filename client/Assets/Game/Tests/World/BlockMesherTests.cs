@@ -1136,6 +1136,7 @@ namespace Game.World.Tests
             AssertNoDuplicateWaterVertices(mesh);
         }
 
+        // Brief 0092: ô thân cột bo cả khi kề đất → nắp chuyển lên đáy mép tràn.
         [Test]
         public void ColumnCornerStepCapped()
         {
@@ -1168,12 +1169,50 @@ namespace Game.World.Tests
             Assert.AreEqual(BlockMaterial.Dirt, Cell.GetMaterial(w.Get(6, 6, 3)));
 
             var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
-            Assert.GreaterOrEqual(CountWaterTris(mesh, p => math.abs(p.y - 6) < 1e-4f && p.x > 5.7f - 1e-4f && p.x < 6 + 1e-4f
-                && p.z > 3 - 1e-4f && p.z < 3.3f + 1e-4f), 3, "cap (+x, -z)");
-            Assert.GreaterOrEqual(CountWaterTris(mesh, p => math.abs(p.y - 6) < 1e-4f && p.x > 5.7f - 1e-4f && p.x < 6 + 1e-4f
-                && p.z > 3.7f - 1e-4f && p.z < 4 + 1e-4f), 3, "cap (+x, +z)");
-            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(6, 6, 3), new float3(0, -1, 0)));
-            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(6, 6, 4), new float3(0, -1, 0)));
+            Assert.AreEqual(0, CountWaterTris(mesh, p => math.abs(p.y - 6) < 1e-4f && p.x > 5.7f - 1e-4f && p.x < 6 + 1e-4f
+                && p.z > 3 - 1e-4f && p.z < 3.3f + 1e-4f), "no cap at y 6");
+            Assert.GreaterOrEqual(CountWaterTris(mesh, p => math.abs(p.y - 7) < 1e-4f && p.x > 5.7f - 1e-4f && p.x < 6 + 1e-4f
+                && p.z > 3 - 1e-4f && p.z < 3.3f + 1e-4f), 3, "cap under lip (+x, -z)");
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(6, 7, 3), new float3(0, -1, 0)));
+            AssertWatertight(mesh, new float3(5, 3.5f, 3), new float3(5.999f, 8, 4));
+        }
+
+        [Test]
+        public void FallingColumnRoundsBesideSolid()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+            for (int y = 0; y <= 2; y++)
+                w.Set(x, y, z, Cell.Make(BlockMaterial.Stone));
+            for (int z = 1; z <= 6; z++)
+            for (int x = 1; x <= 6; x++)
+                w.Set(x, 2, z, x >= 2 && x <= 5 && z >= 2 && z <= 5
+                    ? Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel) : Cell.Make(BlockMaterial.Sand));
+            for (int z = 2; z <= 4; z++)
+            for (int y = 3; y <= 7; y++)
+            for (int x = 7; x <= 10; x++)
+                w.Set(x, y, z, Cell.Make(BlockMaterial.Dirt));
+            w.Set(9, 7, 3, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(8, 7, 3, Cell.Make(BlockMaterial.Empty));
+            w.Set(7, 7, 3, Cell.Make(BlockMaterial.Empty));
+            w.Set(6, 7, 3, Cell.Make(BlockMaterial.Empty));
+            w.Set(6, 6, 3, Cell.Make(BlockMaterial.Dirt));
+            w.Set(6, 7, 2, Cell.Make(BlockMaterial.Dirt));
+            w.Set(6, 7, 4, Cell.Make(BlockMaterial.Dirt));
+            var e = new WorldEditor(w, new PlayerBag(), 1, -1);
+            e.WakeWater(9, 7, 3);
+            e.SettleWater(20000);
+            Assert.IsFalse(e.HasPendingWater);
+            Assert.IsTrue(Cell.IsFalling(w.Get(5, 6, 3)));
+            Assert.IsTrue(Cell.IsFalling(w.Get(5, 5, 3)));
+            Assert.AreEqual(BlockMaterial.Dirt, Cell.GetMaterial(w.Get(6, 6, 3)));
+
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(6, 7, 3.3f), new float3(1, 0, 0)), "fillet top (+x, -z)");
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(6, 7, 3.7f), new float3(1, 0, 0)), "fillet top (+x, +z)");
+            Assert.IsTrue(HasWaterVertexNear(mesh, new float3(5.7f, 7, 3), new float3(0, 0, -1)), "-z face ends at arc");
+            AssertWatertight(mesh, new float3(5, 3.5f, 3), new float3(5.999f, 8, 4));
         }
 
         [Test]

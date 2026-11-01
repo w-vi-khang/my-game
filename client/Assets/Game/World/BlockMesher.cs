@@ -948,6 +948,7 @@ namespace Game.World
                         MaterialAt(g + new int3(0, 0, 1)) == e, MaterialAt(g - new int3(0, 0, 1)) == e),
                     lip = airAbove,
                 };
+                col.round = ColumnRound(g, col.open);
                 col.rv = math.min(WaterFilletRadius, math.cmin(col.h));
                 int3 b = g - new int3(0, 1, 0);
                 if (IsFootBase(b))
@@ -1014,11 +1015,28 @@ namespace Game.World
                 MaterialAt(p) == (int)BlockMaterial.Water && MaterialAt(p + new int3(0, 1, 0)) == (int)BlockMaterial.Empty
                 && (IsFallingWater(p) || IsFallingWater(p - new int3(0, 1, 0)));
 
-            /// <summary>Ô p là ô cột có góc (sx, sz) bo — hai mặt ngang của góc đều thoáng (brief 0090 QĐ 4).</summary>
-            bool ColumnCornerRounded(int3 p, int sx, int sz) =>
-                MaterialAt(p) == (int)BlockMaterial.Water && (IsFallingWater(p) || IsFallingWater(p - new int3(0, 1, 0)))
-                && MaterialAt(p + new int3(sx == 1 ? 1 : -1, 0, 0)) == (int)BlockMaterial.Empty
-                && MaterialAt(p + new int3(0, 0, sz == 1 ? 1 : -1)) == (int)BlockMaterial.Empty;
+            /// <summary>Phía bo được của ô cột p (brief 0092 QĐ 1–2): ô thân cột (rơi, ô trên không thoáng) bo cả phía khối đặc, chỉ không bo phía nước; ô cột khác bo phía thoáng.</summary>
+            bool4 ColumnRound(int3 p, bool4 open)
+            {
+                if (!IsFallingWater(p) || MaterialAt(p + new int3(0, 1, 0)) == (int)BlockMaterial.Empty)
+                    return open;
+                int w = (int)BlockMaterial.Water;
+                return new bool4(MaterialAt(p + new int3(1, 0, 0)) != w, MaterialAt(p - new int3(1, 0, 0)) != w,
+                    MaterialAt(p + new int3(0, 0, 1)) != w, MaterialAt(p - new int3(0, 0, 1)) != w);
+            }
+
+            /// <summary>Ô p là ô cột có góc (sx, sz) bo — cùng luật WaterCol.Rounded (brief 0090 QĐ 4, 0092 QĐ 5).</summary>
+            bool ColumnCornerRounded(int3 p, int sx, int sz)
+            {
+                if (MaterialAt(p) != (int)BlockMaterial.Water || !(IsFallingWater(p) || IsFallingWater(p - new int3(0, 1, 0))))
+                    return false;
+                int e = (int)BlockMaterial.Empty;
+                var open = new bool4(MaterialAt(p + new int3(1, 0, 0)) == e, MaterialAt(p - new int3(1, 0, 0)) == e,
+                    MaterialAt(p + new int3(0, 0, 1)) == e, MaterialAt(p - new int3(0, 0, 1)) == e);
+                bool4 round = ColumnRound(p, open);
+                int a = sx == 1 ? 0 : 1, b = sz == 1 ? 2 : 3;
+                return round[a] && round[b] && (open[a] || open[b]);
+            }
 
             struct WaterCol
             {
@@ -1027,6 +1045,8 @@ namespace Game.World
                 public float4 h;
                 /// <summary>Mặt hở: +x, −x, +z, −z.</summary>
                 public bool4 open;
+                /// <summary>Phía bo được (brief 0092): +x, −x, +z, −z.</summary>
+                public bool4 round;
                 public bool lip;
                 public float rv;
                 /// <summary>Chân thác (brief 0081): ô dưới là IsFootBase.</summary>
@@ -1036,11 +1056,19 @@ namespace Game.World
                 /// <summary>FootCorner theo (sx + 2·sz).</summary>
                 public int4 fc;
 
-                public bool Rounded(int sx, int sz) => open[sx == 1 ? 0 : 1] && open[sz == 1 ? 2 : 3];
+                public bool Rounded(int sx, int sz)
+                {
+                    int a = sx == 1 ? 0 : 1, b = sz == 1 ? 2 : 3;
+                    return round[a] && round[b] && (open[a] || open[b]);
+                }
                 public float Hc(int sx, int sz) => h[sx + 2 * sz];
                 public float H(float u, float v) => (1 - u) * (1 - v) * h.x + u * (1 - v) * h.y + (1 - u) * v * h.z + u * v * h.w;
                 public float3 Pos(float u, float y, float v) => new float3(c.x + u, y, c.z + v);
             }
+
+            /// <summary>Điểm trên mặt phẳng cạnh của mặt bên (trục x?, cs) tại tham số t, độ cao y.</summary>
+            static float3 SidePos(bool axisX, int cs, int3 c, float t, float y) =>
+                axisX ? new float3(c.x + cs, y, c.z + t) : new float3(c.x + t, y, c.z + cs);
 
             float3 CircleDir(int sx, int sz, float phi) =>
                 math.cos(phi) * new float3(sx == 1 ? 1 : -1, 0, 0) + math.sin(phi) * new float3(0, 0, sz == 1 ? 1 : -1);
@@ -1150,6 +1178,11 @@ namespace Game.World
                     float yb = c.y + (col.foot && col.fillet[d] ? R : 0); // cạnh bo lõm: mặt bên dừng ở đỉnh cung
                     int b0 = AddWaterVertex(col.Pos(E0.x, yb, E0.y), outDir);
                     int b1 = AddWaterVertex(col.Pos(E1.x, yb, E1.y), outDir);
+                    // Đầu vuông nối góc bo của ô cột dưới / trên: tách cạnh tại R / 1 − R cho lưới kín (brief 0092 QĐ 7).
+                    int2 k0 = axisX ? new int2(cs, 0) : new int2(0, cs), k1 = axisX ? new int2(cs, 1) : new int2(1, cs);
+                    int3 dn = g - new int3(0, 1, 0), upc = g + new int3(0, 1, 0);
+                    bool bs0 = !r0 && ColumnCornerRounded(dn, k0.x, k0.y), bs1 = !r1 && ColumnCornerRounded(dn, k1.x, k1.y);
+                    bool ts0 = !col.lip && !r0 && ColumnCornerRounded(upc, k0.x, k0.y), ts1 = !col.lip && !r1 && ColumnCornerRounded(upc, k1.x, k1.y);
                     int s0, s1;
                     if (col.lip)
                     {
@@ -1168,7 +1201,39 @@ namespace Game.World
                         s0 = AddWaterVertex(col.Pos(E0.x, c.y + math.lerp(hA, hB, t0), E0.y), outDir);
                         s1 = AddWaterVertex(col.Pos(E1.x, c.y + math.lerp(hA, hB, t1), E1.y), outDir);
                     }
-                    AddWaterTri(b0, b1, s1); AddWaterTri(b0, s1, s0);
+                    if (!(bs0 || bs1 || ts0 || ts1))
+                    {
+                        AddWaterTri(b0, b1, s1); AddWaterTri(b0, s1, s0);
+                    }
+                    else
+                    {
+                        // Hai chuỗi đỉnh theo t (đáy, đỉnh), nối kiểu khoá kéo.
+                        var bt = new FixedList64Bytes<float>(); var bv = new FixedList64Bytes<int>();
+                        var tt = new FixedList64Bytes<float>(); var tv = new FixedList64Bytes<int>();
+                        float hA = axisX ? col.Hc(cs, 0) : col.Hc(0, cs), hB = axisX ? col.Hc(cs, 1) : col.Hc(1, cs);
+                        bt.Add(t0); bv.Add(b0);
+                        if (bs0) { bt.Add(R); bv.Add(AddWaterVertex(SidePos(axisX, cs, c, R, yb), outDir)); }
+                        if (bs1) { bt.Add(1 - R); bv.Add(AddWaterVertex(SidePos(axisX, cs, c, 1 - R, yb), outDir)); }
+                        bt.Add(t1); bv.Add(b1);
+                        tt.Add(t0); tv.Add(s0);
+                        if (ts0) { tt.Add(R); tv.Add(AddWaterVertex(SidePos(axisX, cs, c, R, c.y + math.lerp(hA, hB, R)), outDir)); }
+                        if (ts1) { tt.Add(1 - R); tv.Add(AddWaterVertex(SidePos(axisX, cs, c, 1 - R, c.y + math.lerp(hA, hB, 1 - R)), outDir)); }
+                        tt.Add(t1); tv.Add(s1);
+                        int i = 0, j = 0;
+                        while (i < bt.Length - 1 || j < tt.Length - 1)
+                        {
+                            if (j == tt.Length - 1 || (i < bt.Length - 1 && bt[i + 1] <= tt[j + 1]))
+                            {
+                                AddWaterTri(bv[i], bv[i + 1], tv[j]);
+                                i++;
+                            }
+                            else
+                            {
+                                AddWaterTri(bv[i], tv[j + 1], tv[j]);
+                                j++;
+                            }
+                        }
+                    }
 
                     // Đoạn thon (brief 0083): quạt từ mũi V ở góc ô tới cột cung đầy đủ tại tR; mặt bên và mặt trên lấp phần còn lại.
                     for (int end = 0; end < 2; end++)
