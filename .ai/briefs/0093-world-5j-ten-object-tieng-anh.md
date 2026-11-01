@@ -145,6 +145,8 @@ Bước 1: scene đang mở SimView, isDirty=false.
 Bước 2: đã sửa HardcodedTextScanTests.cs (chưa commit, đúng như brief). refresh_unity compile OK.
 
 ## Kết quả test
+## Kiểm chứng
+Chưa kiểm được: client_test/client_test_play (tools/unity_test.py) cần Editor tắt, nhưng Editor đang mở và ở Play Mode (dùng chung qua MCP, 0010); run_tests MCP bị từ chối. Checklist chưa đối chiếu: brief đang bị chặn, test chưa chạy.
 
 ## Vướng mắc
 `run_tests` EditMode lỗi 2 lần: "Cannot start a test run while the Editor is in or entering Play Mode". Editor đang ở Play Mode (không phải do phiên này). Brief không nói được stop Play Mode; Editor dùng chung nên không tự dừng. Đề xuất: Planner/user dừng Play Mode (hoặc cho phép executor `manage_editor stop`), rồi chạy lại từ bước 2 (chạy test trên scene cũ). Chưa đổi scene nào.
