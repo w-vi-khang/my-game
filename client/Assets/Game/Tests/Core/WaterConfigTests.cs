@@ -15,7 +15,7 @@ namespace Game.Core.Tests
             Assert.IsTrue(File.Exists(SourcePath), SourcePath);
             var cfg = JsonUtility.FromJson<WaterConfig>(File.ReadAllText(SourcePath));
             Assert.DoesNotThrow(cfg.Validate);
-            Assert.AreEqual(6, cfg.configVersion);
+            Assert.AreEqual(7, cfg.configVersion);
             Assert.AreEqual(5, cfg.maxLevel);
             Assert.AreEqual(8, cfg.stepsPerSecond);
             Assert.AreEqual(2, cfg.wallBoostMinSolid);
@@ -60,6 +60,10 @@ namespace Game.Core.Tests
             Assert.AreEqual(2f, cfg.look.foamWidth, 1e-6f);
             Assert.AreEqual(3f, cfg.look.foamBands, 1e-6f);
             Assert.AreEqual(0.2f, cfg.look.foamOpenMin, 1e-6f);
+            Assert.AreEqual(1f, cfg.look.glint, 1e-6f);
+            Assert.AreEqual(0.8f, cfg.look.glintHalo, 1e-6f);
+            Assert.AreEqual(1.5f, cfg.look.sparkleScale, 1e-6f);
+            Assert.AreEqual(60f, cfg.look.sparkleFadeEnd, 1e-6f);
         }
 
         [Test]
@@ -70,6 +74,9 @@ namespace Game.Core.Tests
             c = new WaterConfig(); c.look.deepAlpha = 1.5f; Assert.Throws<ArgumentException>(c.Validate, "deepAlpha=1.5");
             c = new WaterConfig(); c.look.foamWidth = 5f; Assert.Throws<ArgumentException>(c.Validate, "foamWidth=5");
             c = new WaterConfig(); c.look.foamLine = 0.9f; c.look.foamSoft = 0.2f; Assert.Throws<ArgumentException>(c.Validate, "foamLine+foamSoft>1");
+            c = new WaterConfig(); c.look.glintHaloPower = 4f; Assert.Throws<ArgumentException>(c.Validate, "glintHaloPower=4");
+            c = new WaterConfig(); c.look.sparkleSize = 0.5f; Assert.Throws<ArgumentException>(c.Validate, "sparkleSize=0.5");
+            c = new WaterConfig(); c.look.sparkleFadeStart = 60f; c.look.sparkleFadeEnd = 60f; Assert.Throws<ArgumentException>(c.Validate, "sparkleFadeEnd<=Start");
         }
     }
 }

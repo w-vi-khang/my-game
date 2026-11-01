@@ -7,6 +7,7 @@
 // Brief 0084: mặt nước nhạt + trong hơn khi mỏng (độ dày từ alpha màu đỉnh do BlockMesher ghi; _VertexDepth = 0 cho Ocean.mat).
 // Brief 0095: màu nông→sâu theo smoothstep độ dày; viền bờ mờ theo khoảng cách tới bờ (kênh R màu đỉnh); tham số từ water_m1.json "look" (WaterLook).
 // Brief 0096: bọt bờ — dải theo khoảng cách tới bờ (R), tắt ở chỗ hẹp theo độ thoáng (G màu đỉnh); _FoamStrength mặc định 0.
+// Brief 0097: lấp lánh — quầng mặt trời (pháp tuyến phẳng) + chấm lấp lánh theo lưới ô, mờ theo khoảng cách; _GlintHalo, _SparkleStrength mặc định 0.
 Shader "Game/Ocean"
 {
     Properties
@@ -32,6 +33,16 @@ Shader "Game/Ocean"
         _FoamNoiseScale("Foam noise scale", Float) = 1.2
         _FoamOpenMin("Foam open min", Float) = 0.2
         _FoamStrength("Foam strength", Float) = 0
+        _GlintPower("Glint power (brief 0097)", Float) = 160
+        _GlintHalo("Sun halo", Float) = 0
+        _GlintHaloPower("Sun halo power", Float) = 300
+        _SparkleStrength("Sparkle strength", Float) = 0
+        _SparkleScale("Sparkle cells per m", Float) = 1.5
+        _SparkleDensity("Sparkle density", Float) = 0.35
+        _SparkleSize("Sparkle radius (cell)", Float) = 0.15
+        _SparkleSpeed("Sparkle speed", Float) = 3
+        _SparkleFadeStart("Sparkle fade start (m)", Float) = 20
+        _SparkleFadeEnd("Sparkle fade end (m)", Float) = 60
         [HideInInspector] _SrcBlend("Src blend", Float) = 1
         [HideInInspector] _DstBlend("Dst blend", Float) = 0
         [HideInInspector] _ZWrite("ZWrite", Float) = 1
@@ -52,6 +63,8 @@ Shader "Game/Ocean"
             float _DepthFull;
             half4 _FoamColor;
             half _FoamWidth, _FoamBands, _FoamLine, _FoamSoft, _FoamSpeed, _FoamSwing, _FoamSwingSpeed, _FoamNoiseScale, _FoamOpenMin, _FoamStrength;
+            float _GlintPower, _GlintHaloPower, _SparkleScale, _SparkleFadeStart, _SparkleFadeEnd;
+            half _GlintHalo, _SparkleStrength, _SparkleDensity, _SparkleSize, _SparkleSpeed;
         CBUFFER_END
         ENDHLSL
 
@@ -165,6 +178,23 @@ Shader "Game/Ocean"
                 return saturate(stripe * env * _FoamStrength);
             }
 
+            // Chấm lấp lánh (brief 0097): lưới ô theo toạ độ thế giới (_SparkleScale ô/m); mỗi ô có chấm với xác suất _SparkleDensity,
+            // tâm ngẫu nhiên cách mép ô ≥ bán kính (không cần xét ô kề), nhấp nháy theo pha riêng; mờ dần theo khoảng cách để chỗ xa không nhiễu.
+            half Sparkle(float2 xz, float dist)
+            {
+                float2 p = xz * _SparkleScale;
+                int2 cell = (int2)floor(p);
+                half on = step(HashInt(cell), _SparkleDensity);
+                float2 ctr = float2(HashInt(cell + int2(37, 11)), HashInt(cell + int2(-19, 53))) * (1.0 - 2.0 * _SparkleSize) + _SparkleSize;
+                half r = length(p - floor(p) - ctr) / _SparkleSize;
+                half dotV = 1.0h - smoothstep(0.25h, 1.0h, r);
+                half tw = saturate(sin(_Time.y * _SparkleSpeed + HashInt(cell + int2(71, -29)) * 6.2831853));
+                tw *= tw;
+                tw *= tw;
+                half fade = 1.0h - smoothstep(_SparkleFadeStart, _SparkleFadeEnd, dist);
+                return on * dotV * tw * fade * _SparkleStrength;
+            }
+
             // Buổi trong ngày (brief 0023/0033): DayCycleView ghi biến global; _DayHorizon là màu chân trời dạng linear (= màu sương).
             // _DayCycleOn = 0 (scene không có DayCycleView) → không nhuộm.
             half _DayCycleOn;
@@ -202,14 +232,20 @@ Shader "Game/Ocean"
 
                 Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half shadow = light.shadowAttenuation * light.distanceAttenuation;
+                float dist = distance(input.positionWS, GetCameraPositionWS());
                 half ndl = saturate((dot(nLit, light.direction) + 0.3) / 1.3);
                 half3 lightTerm = light.color * ndl * shadow * 0.7 + SampleSH(nLit);
                 half3 diffuse = baseCol * lightTerm;
-                half spec = pow(saturate(dot(n, normalize(light.direction + v))), 160.0) * _Glint * shadow;
-                half3 c = diffuse + light.color * spec;
+                float3 hv = normalize(light.direction + v);
+                half spec = pow(saturate(dot(n, hv)), _GlintPower) * _Glint * shadow;
+                // Quầng mặt trời (brief 0097): pháp tuyến phẳng → đốm tròn mềm, liền; spec gợn ở trên cho đốm gắt nhỏ.
+                float3 nFlat = IS_FRONT_VFACE(face, float3(0, 1, 0), float3(0, -1, 0));
+                half halo = pow(saturate(dot(nFlat, hv)), _GlintHaloPower) * _GlintHalo * shadow;
+                half sparkle = Sparkle(input.positionWS.xz, dist) * shadow * IS_FRONT_VFACE(face, 1.0h, 0.0h);
+                half glow = spec + halo + sparkle;
+                half3 c = diffuse + light.color * glow;
                 half foam = ShoreFoam(input.positionWS.xz, input.shoreD, input.open);
                 c = lerp(c, _FoamColor.rgb * lightTerm, foam);
-                float dist = distance(input.positionWS, GetCameraPositionWS());
                 // Biển nhuộm màu trời: chỉ mặt trên; xa và nhìn xiên → về màu chân trời theo buổi, trước sương (task m1-bien-nhuom-mau-troi).
                 half skyT = saturate(smoothstep(SkyTintStart, SkyTintEnd, dist) + fres * SkyTintFresnel);
                 c = lerp(c, _DayHorizon.rgb, skyT * _DayCycleOn * IS_FRONT_VFACE(face, 1.0, 0.0));
@@ -224,6 +260,7 @@ Shader "Game/Ocean"
                 #endif
                 half alpha = lerp(1.0, lerp(_Alpha, 1.0, fres), fogVis);
                 alpha *= lerp(_ThinAlpha, 1.0h, dT);
+                alpha = lerp(alpha, 1.0h, saturate(glow)); // đốm sáng không bị mất ở chỗ nước mỏng (brief 0097)
                 alpha = lerp(alpha, 1.0h, foam);
                 alpha *= smoothstep(0.0h, _ShoreSoftWidth, input.shoreD); // viền bờ mờ dần (brief 0095)
                 return half4(c, alpha);

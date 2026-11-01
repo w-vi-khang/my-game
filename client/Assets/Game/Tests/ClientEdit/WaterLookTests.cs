@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Client.EditTests
 {
-    /// <summary>WaterLook.Apply đặt đủ 9 + 11 thuộc tính (bọt, brief 0096) hình ảnh nước lên material Game/Ocean (brief 0095).</summary>
+    /// <summary>WaterLook.Apply đặt đủ 9 + 11 (bọt, brief 0096) + 10 (lấp lánh, brief 0097) thuộc tính hình ảnh nước lên material Game/Ocean (brief 0095).</summary>
     public class WaterLookTests
     {
         [Test]
@@ -37,6 +37,16 @@ namespace Game.Client.EditTests
                     foamNoiseScale = 2f,
                     foamOpenMin = 0.3f,
                     foamStrength = 0.7f,
+                    glintPower = 200f,
+                    glintHalo = 1.1f,
+                    glintHaloPower = 500f,
+                    sparkleStrength = 2f,
+                    sparkleScale = 2.5f,
+                    sparkleDensity = 0.6f,
+                    sparkleSize = 0.2f,
+                    sparkleSpeed = 5f,
+                    sparkleFadeStart = 10f,
+                    sparkleFadeEnd = 40f,
                 };
                 float vertexDepthBefore = m.GetFloat("_VertexDepth");
                 WaterLook.Apply(m, c);
@@ -60,6 +70,16 @@ namespace Game.Client.EditTests
                 Assert.AreEqual(2f, m.GetFloat("_FoamNoiseScale"), 1e-4f);
                 Assert.AreEqual(0.3f, m.GetFloat("_FoamOpenMin"), 1e-4f);
                 Assert.AreEqual(0.7f, m.GetFloat("_FoamStrength"), 1e-4f);
+                Assert.AreEqual(200f, m.GetFloat("_GlintPower"), 1e-3f);
+                Assert.AreEqual(1.1f, m.GetFloat("_GlintHalo"), 1e-4f);
+                Assert.AreEqual(500f, m.GetFloat("_GlintHaloPower"), 1e-3f);
+                Assert.AreEqual(2f, m.GetFloat("_SparkleStrength"), 1e-4f);
+                Assert.AreEqual(2.5f, m.GetFloat("_SparkleScale"), 1e-4f);
+                Assert.AreEqual(0.6f, m.GetFloat("_SparkleDensity"), 1e-4f);
+                Assert.AreEqual(0.2f, m.GetFloat("_SparkleSize"), 1e-4f);
+                Assert.AreEqual(5f, m.GetFloat("_SparkleSpeed"), 1e-4f);
+                Assert.AreEqual(10f, m.GetFloat("_SparkleFadeStart"), 1e-4f);
+                Assert.AreEqual(40f, m.GetFloat("_SparkleFadeEnd"), 1e-4f);
                 Assert.AreEqual(0f, m.GetFloat("_VertexDepth"), 1e-6f);
                 Assert.AreEqual(vertexDepthBefore, m.GetFloat("_VertexDepth"), 1e-6f);
             }
@@ -74,6 +94,19 @@ namespace Game.Client.EditTests
         {
             var m = new Material(Shader.Find("Game/Ocean"));
             try { Assert.AreEqual(0f, m.GetFloat("_FoamStrength")); }
+            finally { Object.DestroyImmediate(m); }
+        }
+
+        [Test]
+        public void GlintExtrasOffByDefault()
+        {
+            var m = new Material(Shader.Find("Game/Ocean"));
+            try
+            {
+                Assert.AreEqual(0f, m.GetFloat("_GlintHalo"));
+                Assert.AreEqual(0f, m.GetFloat("_SparkleStrength"));
+                Assert.AreEqual(160f, m.GetFloat("_GlintPower"));
+            }
             finally { Object.DestroyImmediate(m); }
         }
 

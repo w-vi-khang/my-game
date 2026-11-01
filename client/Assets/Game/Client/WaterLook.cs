@@ -28,6 +28,16 @@ namespace Game.Client
             m.SetFloat("_FoamNoiseScale", c.foamNoiseScale);
             m.SetFloat("_FoamOpenMin", c.foamOpenMin);
             m.SetFloat("_FoamStrength", c.foamStrength);
+            m.SetFloat("_GlintPower", c.glintPower);
+            m.SetFloat("_GlintHalo", c.glintHalo);
+            m.SetFloat("_GlintHaloPower", c.glintHaloPower);
+            m.SetFloat("_SparkleStrength", c.sparkleStrength);
+            m.SetFloat("_SparkleScale", c.sparkleScale);
+            m.SetFloat("_SparkleDensity", c.sparkleDensity);
+            m.SetFloat("_SparkleSize", c.sparkleSize);
+            m.SetFloat("_SparkleSpeed", c.sparkleSpeed);
+            m.SetFloat("_SparkleFadeStart", c.sparkleFadeStart);
+            m.SetFloat("_SparkleFadeEnd", c.sparkleFadeEnd);
         }
     }
 }

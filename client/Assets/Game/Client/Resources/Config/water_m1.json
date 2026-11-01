@@ -1,5 +1,5 @@
 {
-    "configVersion": 6,
+    "configVersion": 7,
     "maxLevel": 5,
     "stepsPerSecond": 8,
     "wallBoostMinSolid": 2,
@@ -15,7 +15,7 @@
         "shoreSoftWidth": 0.35,
         "rippleScale": 0.45,
         "rippleStrength": 0.25,
-        "glint": 0.6,
+        "glint": 1.0,
         "foamColor": [1.0, 1.0, 1.0],
         "foamWidth": 2.0,
         "foamBands": 3.0,
@@ -26,6 +26,16 @@
         "foamSwingSpeed": 0.8,
         "foamNoiseScale": 1.2,
         "foamOpenMin": 0.2,
-        "foamStrength": 0.9
+        "foamStrength": 0.9,
+        "glintPower": 160.0,
+        "glintHalo": 0.8,
+        "glintHaloPower": 300.0,
+        "sparkleStrength": 1.5,
+        "sparkleScale": 1.5,
+        "sparkleDensity": 0.35,
+        "sparkleSize": 0.15,
+        "sparkleSpeed": 3.0,
+        "sparkleFadeStart": 20.0,
+        "sparkleFadeEnd": 60.0
     }
 }

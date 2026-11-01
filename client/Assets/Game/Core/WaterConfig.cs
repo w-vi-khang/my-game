@@ -9,7 +9,7 @@ namespace Game.Core
     [Serializable]
     public class WaterConfig
     {
-        public int configVersion = 6;
+        public int configVersion = 7;
         public int maxLevel = 5;
         public int stepsPerSecond = 8;
         public int wallBoostMinSolid = 2;
@@ -18,7 +18,7 @@ namespace Game.Core
         /// <summary>Bán kính bo cạnh đứng / mép tràn của mặt nước (ô) và số đoạn cung (brief 0080).</summary>
         public float filletRadius = 0.3f;
         public int filletSegments = 3;
-        /// <summary>Hình ảnh mặt nước: màu nông→sâu, viền bờ mờ, gợn, lấp lánh (brief 0095) — số tạm, chưa chốt.</summary>
+        /// <summary>Hình ảnh mặt nước: màu nông→sâu, viền bờ mờ, gợn, lấp lánh (brief 0095, 0097), bọt bờ (0096) — số tạm, chưa chốt.</summary>
         public WaterLookConfig look = new WaterLookConfig();
 
         public void Validate()
@@ -53,7 +53,7 @@ namespace Game.Core
         public float shoreSoftWidth = 0.35f;
         public float rippleScale = 0.45f;
         public float rippleStrength = 0.25f;
-        public float glint = 0.6f;
+        public float glint = 1.0f;
         public float[] foamColor = { 1f, 1f, 1f };
         public float foamWidth = 2.0f;
         public float foamBands = 3.0f;
@@ -65,6 +65,16 @@ namespace Game.Core
         public float foamNoiseScale = 1.2f;
         public float foamOpenMin = 0.2f;
         public float foamStrength = 0.9f;
+        public float glintPower = 160f;
+        public float glintHalo = 0.8f;
+        public float glintHaloPower = 300f;
+        public float sparkleStrength = 1.5f;
+        public float sparkleScale = 1.5f;
+        public float sparkleDensity = 0.35f;
+        public float sparkleSize = 0.15f;
+        public float sparkleSpeed = 3f;
+        public float sparkleFadeStart = 20f;
+        public float sparkleFadeEnd = 60f;
 
         public void Validate()
         {
@@ -88,6 +98,18 @@ namespace Game.Core
             CheckRange(foamNoiseScale, 0.1f, 4f, "foamNoiseScale");
             CheckRange(foamOpenMin, 0f, 0.9f, "foamOpenMin");
             CheckRange(foamStrength, 0f, 1f, "foamStrength");
+            CheckRange(glintPower, 8f, 1024f, "glintPower");
+            CheckRange(glintHalo, 0f, 2f, "glintHalo");
+            CheckRange(glintHaloPower, 8f, 2048f, "glintHaloPower");
+            CheckRange(sparkleStrength, 0f, 4f, "sparkleStrength");
+            CheckRange(sparkleScale, 0.1f, 8f, "sparkleScale");
+            CheckRange(sparkleDensity, 0f, 1f, "sparkleDensity");
+            CheckRange(sparkleSize, 0.02f, 0.45f, "sparkleSize");
+            CheckRange(sparkleSpeed, 0f, 20f, "sparkleSpeed");
+            CheckRange(sparkleFadeStart, 0f, 200f, "sparkleFadeStart");
+            CheckRange(sparkleFadeEnd, 0f, 300f, "sparkleFadeEnd");
+            if (!(sparkleFadeEnd > sparkleFadeStart))
+                throw new ArgumentException("sparkleFadeEnd must be > sparkleFadeStart.");
             if (foamLine + foamSoft > 1f)
                 throw new ArgumentException("foamLine + foamSoft must be <= 1.");
         }
