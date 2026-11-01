@@ -1,9 +1,9 @@
 # Brief 0094 — World 5j (lỗi 14–15): đầu dải mép cỏ tròn ngắn + mép cỏ nhận AO
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-11-01 21:52
+> Cập nhật: 2026-11-01 22:10
 
 ## Mục tiêu
 Lỗi 14 và 15 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md), mục 14–15. User chơi thử ngày 2026-11-01 và thấy hai lỗi ở bậc thang cỏ:
@@ -328,3 +328,11 @@ Gộp cuối 5j. SimView, Play, bậc thang cỏ phía nam trại (chỗ chụp 
 ---
 
 ## Review
+- Phiên con Planner (Opus · medium), 2026-11-01.
+- "Chạy bằng" claude-opus-5-5 · medium khớp "Model thực thi". Mọi dòng "Phần cần test" có kết quả; dòng hình ảnh `chờ user` → gộp cuối 5j như mức Review ghi.
+- Diff `fb0d8b0` (2 file, +207/−34) khớp bước 1–3 nguyên văn: hằng, `TaperAt` 1/4 elip, lưới `sig` + `TaperSigma`, `cols` thay `LipSegments` ở mọi chỗ dùng lưới, bỏ tam giác suy biến `k == cols − 2`/`k == 0`. `TopAo`/`AddLipVertex` đúng QĐ 6; `TopAo(g)` gọi một lần mỗi hàm, ngoài vòng lặp. Không đổi `LipProfile`, `LipDepthAt`, collider, mép nước (QĐ 7). Không file ngoài Phạm vi.
+- AO liền qua ô kề: góc chung của hai ô cỏ kề có cùng tổng `side2 + corner` (corner ô này = side2 ô kia) → cùng độ sáng; khớp `LipIsDeterministicAndContinuousAcrossCellsAndChunks` đạt.
+- Test: 3 test mới/viết lại đúng bước 4; lớp 55/55, EditMode 696/696, Error 0. Đỉnh tối đa 11845/chunk < 65535.
+- Ghi chú (không chặn): `NarrowCellLipIsRoundedNotV` đạt cả trên code cũ trong lần fail-first vì brief bảo giữ hằng tạm 0,5 (3 điểm z trùng 4,5) — lỗi thiết kế bước fail-first của brief, không phải executor. Với hằng 0,3, code cũ (lưới 0,25) không có cột ở z 4,3/4,7 → test sẽ fail; đủ bắt hồi quy về lưới cũ.
+- Ghi chú cho lượt user xem: ảnh `b0094_after_2.png` có mấu nhọn nhỏ tối ở góc trên phải (chỗ dải ô hẹp gặp vách), có cả ở ảnh before → không do brief này. Nếu user còn thấy "nhọn" ở đó khi chơi thử, ghi thành lỗi mới trong task 5j.
+- Kết luận: đã duyệt
