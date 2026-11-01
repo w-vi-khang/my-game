@@ -1,6 +1,6 @@
 # Brief 0092 — World 5j (lỗi 13): ô nước rơi bo góc cả khi kề khối đặc
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-11-01 20:10
@@ -174,3 +174,9 @@ Nguyên nhân (đọc code, chưa dump đỉnh): ô thân cột ngay dưới mé
 - Cả hai cạnh đều có đỉnh tách vẫn vẽ theo nguyên tắc trên (tối đa 3 dải). Phải tính lại độ cao đỉnh cạnh đỉnh bằng `lerp(hA, hB, t)` như code hiện tại. Với mép tràn, cạnh đỉnh là cung, nên chỉ tách cạnh đáy.
 - Bước 5 (thêm): thêm `AssertWatertight(mesh)` vào `ColumnCornerStepCapped` và `FallingColumnRoundsBesideSolid`. Sau đó chạy lại toàn bộ "Lệnh executor chạy" từ lệnh 2. `LipTapersAtChannelSpill` và `LipTapersIntoUpstreamCell` phải đạt mà **không đổi** kỳ vọng.
 - Sửa 2 lần mà vẫn còn cạnh thừa → dừng, ghi danh sách cạnh thừa.
+- 2026-11-01 (Planner, review đầy đủ): `Chạy bằng` claude-opus-5-5 · medium khớp `Model thực thi`; mọi dòng "Phần cần test" có kết quả (user tự test gộp cuối 5j).
+- `git show --stat bf8a633`: 2 file trong Phạm vi. Diff: `ColumnRound` đúng QĐ 1–2 (ô rơi, ô trên không thoáng → phía không phải nước); `Rounded` và `ColumnCornerRounded` cùng luật QĐ 3 + QĐ 5; mặt bên vẫn chỉ ở `open` (QĐ 4); QĐ 7: tách cạnh đáy khi ô dưới bo, cạnh đỉnh khi ô trên bo và không phải mép tràn, nối kiểu khoá kéo; không tách thì giữ 2 tam giác cũ.
+- `AssertWatertight` trong hai test bỏ mặt x = 6 (mặt áp đất, QĐ 4) và y < 3,5 (chân thác) — hợp lý.
+- Test: `FallingColumnRoundsBesideSolid` fail cũ → đạt; BlockMesherTests 53/53 (2 test mép tràn không đổi kỳ vọng); EditMode 693/693; PlayMode `WaterFlowPlayTests` 4/4; console 0 lỗi. Không chạy lại.
+- Giờ: ~12 phút → roadmap dòng 5j.
+- Kết luận: đã duyệt

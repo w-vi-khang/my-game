@@ -30,7 +30,7 @@ Sửa 5 lỗi user thấy khi chơi thử, mỗi lỗi một brief (hoặc gộp
 ## Tiêu chí chấp nhận
 - [x] Mỗi lỗi có test tái hiện (fail trước, đạt sau) hoặc ghi rõ vì sao chỉ kiểm được bằng mắt — brief 0082–0087 đã duyệt 2026-10-29 (lỗi 7 chỉ kiểm bằng mắt).
 - [x] Lỗi 9–12 có brief đã duyệt (0088–0091, 2026-10-31).
-- [ ] Lỗi 13 có brief đã duyệt (0092).
+- [x] Lỗi 13 có brief đã duyệt (0092, 2026-11-01).
 - [ ] User chơi thử lại: không còn lỗi 1–13.
 
 ## Kiểm chứng
