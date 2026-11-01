@@ -1,6 +1,6 @@
 # Brief 0092 — World 5j (lỗi 13): ô nước rơi bo góc cả khi kề khối đặc
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
 > Cập nhật: 2026-11-01 20:12
@@ -157,3 +157,9 @@ Nguyên nhân (đọc code, chưa dump đỉnh): ô thân cột ngay dưới mé
 ---
 
 ## Review
+
+**Planner trả lời (2026-11-01):** chọn **A**. Lý do: B đổi kỳ vọng test cũ và để lại vết nứt thật trên lưới.
+- QĐ 7 (thêm): ở mặt bên d của một ô cột, xét từng đầu `end` có góc **vuông** (`!r0` / `!r1`). Nếu ô cột dưới có góc đó **bo** (`ColumnCornerRounded(g − (0,1,0), sx, sz)`), tách cạnh đáy của mặt bên tại t = R (hoặc 1 − R): thêm một đỉnh ở đó và vẽ mặt bên thành 2 dải (góc → R, R → đầu kia). Ô cột trên bo ở góc đó thì tách cạnh đỉnh theo cùng cách. Không đổi hình dạng, chỉ thêm đỉnh để lưới kín.
+- Cả hai cạnh đều có đỉnh tách vẫn vẽ theo nguyên tắc trên (tối đa 3 dải). Phải tính lại độ cao đỉnh cạnh đỉnh bằng `lerp(hA, hB, t)` như code hiện tại. Với mép tràn, cạnh đỉnh là cung, nên chỉ tách cạnh đáy.
+- Bước 5 (thêm): thêm `AssertWatertight(mesh)` vào `ColumnCornerStepCapped` và `FallingColumnRoundsBesideSolid`. Sau đó chạy lại toàn bộ "Lệnh executor chạy" từ lệnh 2. `LipTapersAtChannelSpill` và `LipTapersIntoUpstreamCell` phải đạt mà **không đổi** kỳ vọng.
+- Sửa 2 lần mà vẫn còn cạnh thừa → dừng, ghi danh sách cạnh thừa.
