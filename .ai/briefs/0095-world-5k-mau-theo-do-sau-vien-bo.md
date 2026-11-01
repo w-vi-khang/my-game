@@ -1,6 +1,6 @@
 # Brief 0095 — World 5k phần 1: màu theo độ sâu, thấy đáy, viền bờ mềm (khoảng cách tới bờ ghi vào đỉnh)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -185,10 +185,25 @@ Gộp cuối 5k. Planner chuyển sang danh sách chơi thử. Play, scene SimVi
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: 90a96c4
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-11-01 22:13 · Dừng ở bước 6 (PlayMode) ~22:50, chưa chụp ảnh bước 7.
+Code commit: 57d63af (bước 1–5 + world-tech; file: BlockMesher, Ocean.shader, WaterConfig, WorldEditor, TerrainChunkView, OceanBackdrop, WaterLook, JSON x2, test, asmdef EditTests).
 
 ## Kết quả test
+- Bước 1: `WaterSurfaceShoreDistanceEncoded` fail trên code cũ: `R x=4 Expected: 0.0d +/- 1.0d But was: 255.0d`. Sau bước 2: đạt.
+- Console Error sau refresh: 0.
+- EditMode toàn bộ: 701/701 đạt (gồm BlockMesherTests 56, GoldenHash, ConfigTests, WaterLookTests, SolidChangedOnlyOnDigAndPlace, Look*).
+- PlayMode 6 lớp (16 test): 15 đạt, **1 fail**: `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` — `Expected ≤ 0.002, But was 0.099`; output `offNear40: 0.00985 0.17151 0.40503` so với baseline cứng `BeforeOffNear40 = (0.03095, 0.27051, 0.46851)` (SeaSkyTintPlayTests.cs:21).
+- Đã `git checkout -- client/ProjectSettings/EditorSettings.asset`.
+- Chưa làm: ảnh bước 7 (b0095_after_*.png).
 
 ## Vướng mắc
+1. **Test cũ so màu biển với baseline cứng.** `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` (tạo OceanBackdrop + MeshRenderer, màu biển gần camera, tắt day cycle) so với màu của `Ocean.mat` cũ; giờ `OceanBackdrop.Awake` áp `look` (deepColor 0,12/0,50/0,70) nên màu đổi (≈0,099 lệch). Đây đúng là hệ quả thiết kế (biển ra màu `_DeepColor` mới), không phải lỗi mesh/shader. Brief cấm sửa test cũ và cấm đổi số JSON.
+   - Phương án A: Planner cập nhật baseline `BeforeOffNear40` (và các `Before*` khác nếu dùng màu) ở SeaSkyTintPlayTests theo màu mới. Đề xuất.
+   - Phương án B: test tự đặt lại màu Ocean.mat cũ sau khi tạo OceanBackdrop.
+   - Phương án C: OceanBackdrop không áp look khi... (không khuyến nghị, trái QĐ 6).
+2. **Sửa ngoài Phạm vi (một dòng):** `Tests/ClientEdit/Game.Client.EditTests.asmdef` thêm `"Game.Core"` vào references, vì `WaterLookTests` dùng `WaterLookConfig` (assembly Game.Core, EditTests chưa tham chiếu → CS0012). Cần Planner xác nhận.
 
 ---
 <!-- PLANNER ghi khi review. -->
