@@ -14,8 +14,8 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User
    - **Brief [0095](briefs/0095-world-5k-mau-theo-do-sau-vien-bo.md) (phần 1) đã duyệt** (code `57d63af` + `038fce4`, ~20 phút). User xem (a)–(e) gộp cuối 5k.
    - **Brief [0096](briefs/0096-world-5k-bot-bo.md) (phần 2, bọt bờ) đã duyệt** (code `4e8c10d`, ~16 phút). User xem (a)–(d) gộp cuối 5k.
    - **User 2026-11-01: gác đo FPS điện thoại**, hoàn thiện 4 phần trên máy tính trước.
-   - **Brief [0097](briefs/0097-world-5k-lap-lanh.md) (phần 3, lấp lánh) đã viết** (commit `68f4898`, Sonnet · medium): quầng mặt trời theo pháp tuyến phẳng + chấm lấp lánh theo lưới ô, test render `WaterGlintPlayTests`. Chờ Executor chạy (`clear_session` exec-0095 bị chặn 2026-11-01 → user tự clear/mở phiên).
-   - (cũ) Planner Opus · high thiết kế + viết **brief 0097 phần 3 (lấp lánh)**: đốm sáng mặt trời rõ hơn + chấm lấp lánh nhỏ trên mặt nước. Trong `Ocean.shader` frag: `spec` hiện `pow(..., 160) * _Glint * shadow` (gần dòng `half3 c = diffuse + light.color * spec;`). Tham số mới vào `water_m1.json` "look" (configVersion 6 → 7), `WaterLook.Apply`, `WaterLookTests`. Biển nền cũng có lấp lánh (dùng chung shader). Không cần dữ liệu đỉnh mới.
+   - **Brief [0097](briefs/0097-world-5k-lap-lanh.md) (phần 3, lấp lánh) đã duyệt** (code `41c40ad`, ~11 phút). User xem (a)–(e) gộp cuối 5k.
+   - Tiếp: Planner Opus · high thiết kế + viết **brief 0098 phần 4 (vệt chảy)**: chốt cách ghi hướng chảy (kênh B + kênh khác/UV). Phiên Executor `exec-0097` = `local_88f1a957-43df-4392-8c9d-8a4515daf578` (Sonnet · medium).
    - Sau đó phần 4 (vệt chảy): chốt cách ghi hướng chảy (kênh B + kênh khác/UV).
    - Ảnh Executor chụp SimView chỉ có góc mặc định → khi user chơi thử nên tự xem bờ biển; hoặc brief sau thêm cách đặt camera.
    - Phiên Executor `exec-0095` = `local_0ec3ce58-e317-4e1d-a15a-196acea4f127` (Sonnet · medium).

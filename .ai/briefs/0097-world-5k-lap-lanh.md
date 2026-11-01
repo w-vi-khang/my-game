@@ -1,6 +1,6 @@
 # Brief 0097 — World 5k phần 3: lấp lánh (đốm mặt trời có quầng + chấm lấp lánh nhỏ)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -270,3 +270,18 @@ Bắt đầu: 23:41 2026-11-01
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+- Chạy bằng Sonnet · medium, khớp Model thực thi. Bắt đầu 23:41, kết thúc 23:52 (giờ commit `592d279`; Executor chưa ghi giờ kết thúc) → ~11 phút máy.
+- Mọi dòng Phần cần test có kết quả [run trong brief]:
+  - EditMode 704/704;
+  - `WaterGlintPlayTests` 3/3 (giữa 0,9994 / góc 0,0000; n = 3753; ở xa n = 0);
+  - PlayMode 6 lớp cũ 16/16, không đổi baseline;
+  - console 0 lỗi.
+- Đọc diff `4e0fdc7..41c40ad` (10 file, đúng Phạm vi):
+  - shader khớp nguyên văn QĐ 1–3: `dist` chuyển lên, `spec`/`halo`/`sparkle`/`glow`, alpha kéo lên trước foam;
+  - `WaterConfig.cs` + 2 JSON khớp QĐ 4–5 (`cmp` 2 JSON giống hệt), `WaterLook.Apply` +10 dòng;
+  - test đúng bước 1, 3, 4; world-tech `:141` đúng câu.
+- Bỏ ảnh SimView: brief cho phép (không chặn). Hình ảnh (a)–(e) để user xem, gộp cuối 5k.
+- Kết luận: đã duyệt.
+
