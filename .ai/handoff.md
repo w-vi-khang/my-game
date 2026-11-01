@@ -16,7 +16,7 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User
    - **User 2026-11-01: gác đo FPS điện thoại**, hoàn thiện 4 phần trên máy tính trước.
    - **Brief [0097](briefs/0097-world-5k-lap-lanh.md) (phần 3, lấp lánh) đã duyệt** (code `41c40ad`, ~11 phút). User xem (a)–(e) gộp cuối 5k.
    - **Phần 4 (vệt chảy)** — user 2026-11-02: luật main_flow (con C cùng hướng cha→B, không có thì null; vật nổi M2), vệt vẽ theo hướng cha→nó. Đã ghi world-tech `:141`, glossary, ideas.
-     - Brief [0098](briefs/0098-world-5k-huong-chay-main-flow.md) (Core: `TryGetMainFlow` + `WorldData.FlowDirs`) — giao Executor.
+     - Brief [0098](briefs/0098-world-5k-huong-chay-main-flow.md) (Core: `TryGetMainFlow` + `WorldData.FlowDirs`) — Executor xong (code `5e47f57`, kết quả `289623e`), **chờ Planner review**.
      - Brief [0099](briefs/0099-world-5k-vet-chay.md) (mesher luồng TEXCOORD0 + shader vệt) — làm **sau khi 0098 duyệt**.
    - Ảnh Executor chụp SimView chỉ có góc mặc định → khi user chơi thử nên tự xem bờ biển; hoặc brief sau thêm cách đặt camera.
    - Phiên Executor `exec-0095` = `local_0ec3ce58-e317-4e1d-a15a-196acea4f127` (Sonnet · medium).
