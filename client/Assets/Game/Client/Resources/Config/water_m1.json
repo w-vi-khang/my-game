@@ -1,5 +1,5 @@
 {
-    "configVersion": 7,
+    "configVersion": 8,
     "maxLevel": 5,
     "stepsPerSecond": 8,
     "wallBoostMinSolid": 2,
@@ -36,6 +36,15 @@
         "sparkleSize": 0.15,
         "sparkleSpeed": 3.0,
         "sparkleFadeStart": 20.0,
-        "sparkleFadeEnd": 60.0
+        "sparkleFadeEnd": 60.0,
+    "flowStreakColor": [1.0, 1.0, 1.0],
+    "flowStreakStrength": 0.35,
+    "flowStreakScale": 1.5,
+    "flowStreakLength": 5.0,
+    "flowStreakSpeed": 1.2,
+    "flowStreakCycle": 2.0,
+    "flowStreakCut": 0.55,
+    "flowStreakSoft": 0.15,
+    "flowFallSpeed": 3.0
     }
 }

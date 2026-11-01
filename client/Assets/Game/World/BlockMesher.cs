@@ -54,6 +54,11 @@ namespace Game.World
             (uint)math.round(255f * math.saturate(shore / WaterShoreEncodeMax))
             | ((uint)math.round(255f * math.saturate(open)) << 8) | 0x00FF0000u
             | ((uint)math.round(255f * math.saturate(depth / WaterDepthEncodeMax)) << 24);
+        /// <summary>Luồng TEXCOORD0 của đỉnh nước (brief 0099): x, y = hướng chảy (x, z) −1..1, z = cờ mặt thác 0..1, w = 0; SNorm8, byte thấp = x.</summary>
+        static uint PackFlow(float2 f, float fall) =>
+            (uint)(byte)(sbyte)(int)math.round(127f * math.clamp(f.x, -1f, 1f))
+            | (uint)(byte)(sbyte)(int)math.round(127f * math.clamp(f.y, -1f, 1f)) << 8
+            | (uint)(byte)(sbyte)(int)math.round(127f * math.saturate(fall)) << 16;
         /// <summary>Bán kính bo (ô) và số đoạn cung mặc định của mặt nước (0043 mục 6, brief 0080).</summary>
         public const float DefaultWaterFilletRadius = 0.3f;
         public const int DefaultWaterFilletSegments = 3;
@@ -304,6 +309,14 @@ namespace Game.World
             var cellsSafety = AtomicSafetyHandle.Create();
             NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref cells, cellsSafety);
 #endif
+            bool hasFlow = world.FlowDirs != null;
+            byte[] flowSrc = world.FlowDirs ?? new byte[1];
+            void* flowPtr = UnsafeUtility.PinGCArrayAndGetDataAddress(flowSrc, out ulong flowGcHandle);
+            var flowDirs = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(flowPtr, flowSrc.Length, Allocator.None);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+            var flowSafety = AtomicSafetyHandle.Create();
+            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref flowDirs, flowSafety);
+#endif
             var palette = new NativeArray<uint>(2 * 256, Allocator.TempJob);
             for (int m = 0; m < 256; m++)
             {
@@ -325,6 +338,7 @@ namespace Game.World
                     handles[k] = new MeshJob
                     {
                         Cells = cells,
+                        FlowDirs = flowDirs, HasFlowDirs = hasFlow,
                         Palette = palette,
                         TableOffset = offset, TableNormal = normal, TableMoved = moved,
                         R = BevelRadius,
@@ -353,15 +367,17 @@ namespace Game.World
                 palette.Dispose();
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 AtomicSafetyHandle.Release(cellsSafety);
+                AtomicSafetyHandle.Release(flowSafety);
 #endif
                 UnsafeUtility.ReleaseGCObject(cellsGcHandle);
+                UnsafeUtility.ReleaseGCObject(flowGcHandle);
             }
         }
 
         struct Output
         {
             public NativeList<float3> Vertices, Normals, ColliderVertices;
-            public NativeList<uint> Colors;
+            public NativeList<uint> Colors, Flow;
             public NativeList<int> Indices, ColliderIndices, WaterIndices;
             /// <summary>Bảng hàn đỉnh nước của chunk (brief 0080).</summary>
             public NativeHashMap<WaterVertexKey, int> WaterVerts;
@@ -371,6 +387,7 @@ namespace Game.World
                 Vertices = new NativeList<float3>(Allocator.TempJob),
                 Normals = new NativeList<float3>(Allocator.TempJob),
                 Colors = new NativeList<uint>(Allocator.TempJob),
+                Flow = new NativeList<uint>(Allocator.TempJob),
                 Indices = new NativeList<int>(Allocator.TempJob),
                 ColliderVertices = new NativeList<float3>(Allocator.TempJob),
                 ColliderIndices = new NativeList<int>(Allocator.TempJob),
@@ -383,6 +400,7 @@ namespace Game.World
                 Vertices = Vertices.AsArray().ToArray(),
                 Normals = Normals.AsArray().ToArray(),
                 Colors = Colors.AsArray().ToArray(),
+                Flow = Flow.AsArray().ToArray(),
                 Indices = Indices.AsArray().ToArray(),
                 ColliderVertices = ColliderVertices.AsArray().ToArray(),
                 ColliderIndices = ColliderIndices.AsArray().ToArray(),
@@ -394,6 +412,7 @@ namespace Game.World
                 if (Vertices.IsCreated) Vertices.Dispose();
                 if (Normals.IsCreated) Normals.Dispose();
                 if (Colors.IsCreated) Colors.Dispose();
+                if (Flow.IsCreated) Flow.Dispose();
                 if (Indices.IsCreated) Indices.Dispose();
                 if (ColliderVertices.IsCreated) ColliderVertices.Dispose();
                 if (ColliderIndices.IsCreated) ColliderIndices.Dispose();
@@ -417,6 +436,8 @@ namespace Game.World
             const int V = N + 1; // đỉnh lưới 0..16 mỗi trục
 
             [ReadOnly] public NativeArray<ushort> Cells;
+            [ReadOnly] public NativeArray<byte> FlowDirs;
+            public bool HasFlowDirs;
             /// <summary>[0..255] màu mặt trên, [256..511] màu sườn/đáy theo vật liệu.</summary>
             [ReadOnly] public NativeArray<uint> Palette;
             [ReadOnly] public NativeArray<float3> TableOffset, TableNormal;
@@ -658,6 +679,7 @@ namespace Game.World
                 Out.Vertices.Add(pos);
                 Out.Normals.Add(nrm);
                 Out.Colors.Add(Shade(color, AoBrightness[ao]));
+                Out.Flow.Add(0u);
                 gridVert[key] = index;
                 return index;
             }
@@ -1750,6 +1772,43 @@ namespace Game.World
                 open = notSolid / (float)((x1 - x0 + 1) * (z1 - z0 + 1));
             }
 
+            /// <summary>Hướng chảy tại đỉnh mặt trên p (toạ độ chunk), brief 0099: trung bình song tuyến hướng (FlowDirs) của tối đa 4 ô nước gần nhất cùng lớp;
+            /// chỉ ô chảy không rơi có hướng (nguồn/ao = 0), ô không phải nước hoặc ngoài map không tính.</summary>
+            float2 FlowAt(float3 p)
+            {
+                if (!HasFlowDirs)
+                    return float2.zero;
+                float3 wp = p + (float3)Origin;
+                int ly = (int)math.floor(wp.y - 1e-3f);
+                if (ly < 0 || ly >= SizeY)
+                    return float2.zero;
+                int x0 = (int)math.floor(wp.x - 0.5f), z0 = (int)math.floor(wp.z - 0.5f);
+                float2 acc = float2.zero;
+                float wsum = 0f;
+                for (int j = 0; j <= 1; j++)
+                for (int i = 0; i <= 1; i++)
+                {
+                    int x = x0 + i, z = z0 + j;
+                    if (x < 0 || x >= SizeX || z < 0 || z >= SizeZ)
+                        continue;
+                    int idx = x + SizeX * (z + SizeZ * ly);
+                    ushort c = Cells[idx];
+                    if ((c & 0xFF) != (int)BlockMaterial.Water)
+                        continue;
+                    float w = math.saturate(1f - math.abs(wp.x - (x + 0.5f))) * math.saturate(1f - math.abs(wp.z - (z + 0.5f)));
+                    if (w <= 0f)
+                        continue;
+                    wsum += w;
+                    if (Cell.IsFlowing(c) && !Cell.IsFalling(c))
+                        acc += w * DirVec(FlowDirs[idx]);
+                }
+                return wsum > 0f ? acc / wsum : float2.zero;
+            }
+
+            /// <summary>Mã FlowDirs (brief 0098) → vectơ (x, z): 1 = +z, 2 = +x, 3 = −z, 4 = −x, khác = 0.</summary>
+            static float2 DirVec(byte code) =>
+                code == 1 ? new float2(0, 1) : code == 2 ? new float2(1, 0) : code == 3 ? new float2(0, -1) : code == 4 ? new float2(-1, 0) : float2.zero;
+
             /// <summary>Tứ giác nước (0041): 4 đỉnh theo vòng p0→p1→p2→p3 (hàn đỉnh trùng), 2 tam giác vào submesh nước, mặt trước quay theo n.</summary>
             void AddWaterQuad(float3 p0, float3 p1, float3 p2, float3 p3, float3 n)
             {
@@ -1778,15 +1837,20 @@ namespace Game.World
                 var key = new WaterVertexKey { P = (int3)math.round(p * 1024f), N = (int3)math.round(n * 1024f) };
                 if (Out.WaterVerts.TryGetValue(key, out int found))
                     return found;
-                uint color;
+                uint color, flow;
                 if (n.y > 0.999f)
                 {
                     WaterShoreAt(p, out float shore, out float open);
                     color = WaterVertexColor(WaterDepthAt(p), shore, open);
+                    flow = PackFlow(FlowAt(p), 0f);
                 }
                 else
+                {
                     color = WaterVertexColor(WaterDepthEncodeMax, WaterShoreEncodeMax, 1f);
+                    flow = PackFlow(float2.zero, 1f);
+                }
                 int i = AddVertex(p, n, color);
+                Out.Flow[i] = flow;
                 Out.WaterVerts.Add(key, i);
                 return i;
             }
@@ -1797,6 +1861,7 @@ namespace Game.World
                 Out.Vertices.Add(p);
                 Out.Normals.Add(n);
                 Out.Colors.Add(color);
+                Out.Flow.Add(0u);
                 return i;
             }
 

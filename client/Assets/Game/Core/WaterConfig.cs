@@ -9,7 +9,7 @@ namespace Game.Core
     [Serializable]
     public class WaterConfig
     {
-        public int configVersion = 7;
+        public int configVersion = 8;
         public int maxLevel = 5;
         public int stepsPerSecond = 8;
         public int wallBoostMinSolid = 2;
@@ -75,6 +75,15 @@ namespace Game.Core
         public float sparkleSpeed = 3f;
         public float sparkleFadeStart = 20f;
         public float sparkleFadeEnd = 60f;
+        public float[] flowStreakColor = { 1f, 1f, 1f };
+        public float flowStreakStrength = 0.35f;
+        public float flowStreakScale = 1.5f;
+        public float flowStreakLength = 5f;
+        public float flowStreakSpeed = 1.2f;
+        public float flowStreakCycle = 2f;
+        public float flowStreakCut = 0.55f;
+        public float flowStreakSoft = 0.15f;
+        public float flowFallSpeed = 3f;
 
         public void Validate()
         {
@@ -110,6 +119,17 @@ namespace Game.Core
             CheckRange(sparkleFadeEnd, 0f, 300f, "sparkleFadeEnd");
             if (!(sparkleFadeEnd > sparkleFadeStart))
                 throw new ArgumentException("sparkleFadeEnd must be > sparkleFadeStart.");
+            CheckColor(flowStreakColor, "flowStreakColor");
+            CheckRange(flowStreakStrength, 0f, 1f, "flowStreakStrength");
+            CheckRange(flowStreakScale, 0.1f, 8f, "flowStreakScale");
+            CheckRange(flowStreakLength, 1f, 20f, "flowStreakLength");
+            CheckRange(flowStreakSpeed, 0f, 6f, "flowStreakSpeed");
+            CheckRange(flowStreakCycle, 0.25f, 8f, "flowStreakCycle");
+            CheckRange(flowStreakCut, 0f, 0.95f, "flowStreakCut");
+            CheckRange(flowStreakSoft, 0.01f, 0.5f, "flowStreakSoft");
+            CheckRange(flowFallSpeed, 0f, 12f, "flowFallSpeed");
+            if (flowStreakCut + flowStreakSoft > 1f)
+                throw new ArgumentException("flowStreakCut + flowStreakSoft must be <= 1.");
             if (foamLine + foamSoft > 1f)
                 throw new ArgumentException("foamLine + foamSoft must be <= 1.");
         }

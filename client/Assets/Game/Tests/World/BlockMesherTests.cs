@@ -1079,6 +1079,86 @@ namespace Game.World.Tests
             return 0;
         }
 
+        static uint WaterVertexFlow(ChunkMesh mesh, float3 normal, float3 pos)
+        {
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                int i = mesh.WaterIndices[t];
+                if (mesh.Normals[i].Equals(normal) && math.distance(mesh.Vertices[i], pos) < 1e-4f)
+                    return mesh.Flow[i];
+            }
+            Assert.Fail($"no water vertex at {pos} n {normal}");
+            return 0;
+        }
+
+        static int SB(uint f, int k) => (sbyte)((f >> (8 * k)) & 0xFF);
+
+        static WorldData FlowStrip(bool withDirs)
+        {
+            var w = StoneFloor16();
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+                w.Set(x, 5, z, Cell.Make(BlockMaterial.Stone));
+            w.Set(0, 5, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            for (int x = 1; x <= 15; x++)
+                w.Set(x, 5, 8, Cell.MakeFlowing(0, 5, false));
+            if (withDirs)
+            {
+                var dirs = w.EnsureFlowDirs();
+                for (int x = 1; x <= 15; x++)
+                    dirs[w.Size.Index(x, 5, 8)] = 2;
+            }
+            return w;
+        }
+
+        [Test]
+        public void WaterSurfaceFlowEncoded()
+        {
+            var w = FlowStrip(true);
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            foreach (var z in new[] { 8f, 9f })
+            {
+                uint f = WaterVertexFlow(mesh, up, new float3(5, 5.9f, z));
+                Assert.AreEqual(127, SB(f, 0)); Assert.AreEqual(0, SB(f, 1)); Assert.AreEqual(0, SB(f, 2));
+            }
+            uint f1 = WaterVertexFlow(mesh, up, new float3(1, 5.9f, 8));
+            Assert.AreEqual(64, SB(f1, 0), 1); Assert.AreEqual(0, SB(f1, 1));
+            Assert.AreEqual(0u, WaterVertexFlow(mesh, up, new float3(0, 5.9f, 8)));
+        }
+
+        [Test]
+        public void WaterFlowZeroWithoutFlowDirs()
+        {
+            var w = FlowStrip(false);
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            Assert.AreEqual(0u, WaterVertexFlow(mesh, new float3(0, 1, 0), new float3(5, 5.9f, 8)));
+        }
+
+        [Test]
+        public void WaterColumnSideFlowIsFall()
+        {
+            var w = StoneFloor16();
+            w.Set(8, 5, 8, Cell.MakeFlowing(0, 5, true));
+            w.Set(8, 6, 8, Cell.MakeFlowing(0, 5, true));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            Assert.AreEqual(mesh.Vertices.Length, mesh.Flow.Length);
+            int side = 0;
+            foreach (int i in mesh.WaterIndices)
+            {
+                uint f = mesh.Flow[i];
+                if (mesh.Normals[i].y < 0.999f)
+                {
+                    side++;
+                    Assert.AreEqual(127, SB(f, 2)); Assert.AreEqual(0, SB(f, 0)); Assert.AreEqual(0, SB(f, 1));
+                }
+                else Assert.AreEqual(0, SB(f, 2));
+            }
+            Assert.Greater(side, 0);
+            foreach (int i in mesh.Indices)
+                Assert.AreEqual(0u, mesh.Flow[i]);
+        }
+
         [Test]
         public void WaterSurfaceDepthEncodesLevel()
         {

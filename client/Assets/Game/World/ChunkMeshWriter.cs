@@ -9,7 +9,7 @@ namespace Game.World
 {
     /// <summary>
     /// Ghi ChunkMesh vào UnityEngine.Mesh bằng Mesh.AllocateWritableMeshData → ApplyAndDisposeWritableMeshData,
-    /// chỉ số 16 bit (world-tech "Dựng mesh khối bo cạnh"; 32 bit không chắc chạy trên mọi máy). Luồng 2 = màu đỉnh RGBA8.
+    /// chỉ số 16 bit (world-tech "Dựng mesh khối bo cạnh"; 32 bit không chắc chạy trên mọi máy). Luồng 2 = màu đỉnh RGBA8, luồng 3 = TEXCOORD0 SNorm8×4 hướng chảy (brief 0099).
     /// </summary>
     public static class ChunkMeshWriter
     {
@@ -34,10 +34,14 @@ namespace Game.World
                 data.SetVertexBufferParams(chunk.Vertices.Length,
                     new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3, 0),
                     new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3, 1),
-                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4, 2));
+                    new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4, 2),
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.SNorm8, 4, 3));
                 data.GetVertexData<float3>(0).CopyFrom(chunk.Vertices);
                 data.GetVertexData<float3>(1).CopyFrom(chunk.Normals);
                 data.GetVertexData<uint>(2).CopyFrom(chunk.Colors);
+                var flow = data.GetVertexData<uint>(3);
+                if (chunk.Flow != null) flow.CopyFrom(chunk.Flow);
+                else for (int i = 0; i < flow.Length; i++) flow[i] = 0u;
 
                 // Submesh 0 = địa hình, submesh 1 = mặt nước (có thể rỗng) — MeshRenderer có 2 material.
                 int water = chunk.WaterIndices?.Length ?? 0;

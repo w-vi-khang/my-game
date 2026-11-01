@@ -8,6 +8,7 @@
 // Brief 0095: màu nông→sâu theo smoothstep độ dày; viền bờ mờ theo khoảng cách tới bờ (kênh R màu đỉnh); tham số từ water_m1.json "look" (WaterLook).
 // Brief 0096: bọt bờ — dải theo khoảng cách tới bờ (R), tắt ở chỗ hẹp theo độ thoáng (G màu đỉnh); _FoamStrength mặc định 0.
 // Brief 0097: lấp lánh — quầng mặt trời (pháp tuyến phẳng) + chấm lấp lánh theo lưới ô, mờ theo khoảng cách; _GlintHalo, _SparkleStrength mặc định 0.
+// Brief 0099: vệt chảy — hướng chảy (TEXCOORD0.xy từ FlowDirs) + cờ mặt thác (TEXCOORD0.z); sọc trôi theo hướng (2 pha), thác trôi xuống; _FlowStreakStrength mặc định 0.
 Shader "Game/Ocean"
 {
     Properties
@@ -43,6 +44,15 @@ Shader "Game/Ocean"
         _SparkleSpeed("Sparkle speed", Float) = 3
         _SparkleFadeStart("Sparkle fade start (m)", Float) = 20
         _SparkleFadeEnd("Sparkle fade end (m)", Float) = 60
+        _FlowStreakColor("Flow streak color (brief 0099)", Color) = (1, 1, 1, 1)
+        _FlowStreakStrength("Flow streak strength", Float) = 0
+        _FlowStreakScale("Flow streak scale (per m)", Float) = 1.5
+        _FlowStreakLength("Flow streak length (ratio)", Float) = 5
+        _FlowStreakSpeed("Flow streak speed (cells/s)", Float) = 1.2
+        _FlowStreakCycle("Flow streak cycle (s)", Float) = 2
+        _FlowStreakCut("Flow streak cut", Float) = 0.55
+        _FlowStreakSoft("Flow streak soft", Float) = 0.15
+        _FlowFallSpeed("Fall streak speed (cells/s)", Float) = 3
         [HideInInspector] _SrcBlend("Src blend", Float) = 1
         [HideInInspector] _DstBlend("Dst blend", Float) = 0
         [HideInInspector] _ZWrite("ZWrite", Float) = 1
@@ -65,6 +75,9 @@ Shader "Game/Ocean"
             half _FoamWidth, _FoamBands, _FoamLine, _FoamSoft, _FoamSpeed, _FoamSwing, _FoamSwingSpeed, _FoamNoiseScale, _FoamOpenMin, _FoamStrength;
             float _GlintPower, _GlintHaloPower, _SparkleScale, _SparkleFadeStart, _SparkleFadeEnd;
             half _GlintHalo, _SparkleStrength, _SparkleDensity, _SparkleSize, _SparkleSpeed;
+            half4 _FlowStreakColor;
+            float _FlowStreakScale, _FlowStreakLength, _FlowStreakSpeed, _FlowStreakCycle, _FlowFallSpeed;
+            half _FlowStreakStrength, _FlowStreakCut, _FlowStreakSoft;
         CBUFFER_END
         ENDHLSL
 
@@ -107,7 +120,7 @@ Shader "Game/Ocean"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Fog.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            struct Attributes { float4 positionOS : POSITION; half4 color : COLOR; };
+            struct Attributes { float4 positionOS : POSITION; half4 color : COLOR; half4 flow : TEXCOORD0; };
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
@@ -115,6 +128,7 @@ Shader "Game/Ocean"
                 half depthT : TEXCOORD1;
                 half shoreD : TEXCOORD2;
                 half open : TEXCOORD3;
+                half3 flow : TEXCOORD4;
             };
 
             static const float WaterDepthEncodeMax = 4.0; // = BlockMesher.WaterDepthEncodeMax
@@ -129,6 +143,7 @@ Shader "Game/Ocean"
                 o.depthT = lerp(1.0h, saturate(input.color.a * WaterDepthEncodeMax / _DepthFull), _VertexDepth);
                 o.shoreD = lerp(WaterShoreEncodeMax, input.color.r * WaterShoreEncodeMax, _VertexDepth);
                 o.open = lerp(1.0h, input.color.g, _VertexDepth);
+                o.flow = input.flow.xyz * _VertexDepth; // hướng chảy + cờ mặt thác (brief 0099); Ocean.mat (_VertexDepth 0) và mesh có UV thường → 0
                 return o;
             }
 
@@ -195,6 +210,37 @@ Shader "Game/Ocean"
                 return on * dotV * tw * fade * _SparkleStrength;
             }
 
+            // Vệt chảy (brief 0099): mặt trên — sọc dài theo hướng chảy f (TEXCOORD0), trôi theo f bằng 2 pha lệch nửa chu kỳ (kiểu flow map) để chỗ hướng đổi không bị kéo méo;
+            // sọc dọc x và sọc dọc z trộn theo |f.x|, |f.y| nên không phải xoay toạ độ; ao/nguồn f = 0 → không vệt. Mặt thác (fall) — sọc dọc trôi xuống.
+            half StreakNoise(float2 u, half2 w)
+            {
+                float l = _FlowStreakLength;
+                return w.x * ValueNoise(float2(u.x / l, u.y)) + w.y * ValueNoise(float2(u.x, u.y / l) + float2(17.3, 41.7));
+            }
+
+            half FlowStreak(float3 pws, half2 f, half fall)
+            {
+                half top = 0.0h, side = 0.0h;
+                half mag = saturate(length(f));
+                if (mag > 0.01h)
+                {
+                    half2 w = abs(f) / (abs(f.x) + abs(f.y));
+                    float ph = _Time.y / _FlowStreakCycle;
+                    float p0 = frac(ph), p1 = frac(ph + 0.5);
+                    float travel = _FlowStreakSpeed * _FlowStreakCycle;
+                    half n0 = StreakNoise((pws.xz - f * (p0 * travel)) * _FlowStreakScale, w);
+                    half n1 = StreakNoise((pws.xz - f * (p1 * travel)) * _FlowStreakScale, w);
+                    half nb = lerp(n0, n1, abs(1.0 - 2.0 * p0));
+                    top = smoothstep(_FlowStreakCut, _FlowStreakCut + _FlowStreakSoft, nb) * mag;
+                }
+                if (fall > 0.01h)
+                {
+                    float2 uf = float2((pws.x + pws.z) * _FlowStreakScale, (pws.y + _Time.y * _FlowFallSpeed) * _FlowStreakScale / _FlowStreakLength);
+                    side = smoothstep(_FlowStreakCut, _FlowStreakCut + _FlowStreakSoft, ValueNoise(uf)) * fall;
+                }
+                return saturate((top + side) * _FlowStreakStrength);
+            }
+
             // Buổi trong ngày (brief 0023/0033): DayCycleView ghi biến global; _DayHorizon là màu chân trời dạng linear (= màu sương).
             // _DayCycleOn = 0 (scene không có DayCycleView) → không nhuộm.
             half _DayCycleOn;
@@ -244,6 +290,8 @@ Shader "Game/Ocean"
                 half sparkle = Sparkle(input.positionWS.xz, dist) * shadow * IS_FRONT_VFACE(face, 1.0h, 0.0h);
                 half glow = spec + halo + sparkle;
                 half3 c = diffuse + light.color * glow;
+                half streak = FlowStreak(input.positionWS, input.flow.xy, input.flow.z);
+                c = lerp(c, _FlowStreakColor.rgb * lightTerm, streak);
                 half foam = ShoreFoam(input.positionWS.xz, input.shoreD, input.open);
                 c = lerp(c, _FoamColor.rgb * lightTerm, foam);
                 // Biển nhuộm màu trời: chỉ mặt trên; xa và nhìn xiên → về màu chân trời theo buổi, trước sương (task m1-bien-nhuom-mau-troi).
@@ -261,6 +309,7 @@ Shader "Game/Ocean"
                 half alpha = lerp(1.0, lerp(_Alpha, 1.0, fres), fogVis);
                 alpha *= lerp(_ThinAlpha, 1.0h, dT);
                 alpha = lerp(alpha, 1.0h, saturate(glow)); // đốm sáng không bị mất ở chỗ nước mỏng (brief 0097)
+                alpha = lerp(alpha, 1.0h, streak);
                 alpha = lerp(alpha, 1.0h, foam);
                 alpha *= smoothstep(0.0h, _ShoreSoftWidth, input.shoreD); // viền bờ mờ dần (brief 0095)
                 return half4(c, alpha);

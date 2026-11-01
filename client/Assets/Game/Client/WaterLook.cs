@@ -38,6 +38,15 @@ namespace Game.Client
             m.SetFloat("_SparkleSpeed", c.sparkleSpeed);
             m.SetFloat("_SparkleFadeStart", c.sparkleFadeStart);
             m.SetFloat("_SparkleFadeEnd", c.sparkleFadeEnd);
+            m.SetColor("_FlowStreakColor", new Color(c.flowStreakColor[0], c.flowStreakColor[1], c.flowStreakColor[2], 1f));
+            m.SetFloat("_FlowStreakStrength", c.flowStreakStrength);
+            m.SetFloat("_FlowStreakScale", c.flowStreakScale);
+            m.SetFloat("_FlowStreakLength", c.flowStreakLength);
+            m.SetFloat("_FlowStreakSpeed", c.flowStreakSpeed);
+            m.SetFloat("_FlowStreakCycle", c.flowStreakCycle);
+            m.SetFloat("_FlowStreakCut", c.flowStreakCut);
+            m.SetFloat("_FlowStreakSoft", c.flowStreakSoft);
+            m.SetFloat("_FlowFallSpeed", c.flowFallSpeed);
         }
     }
 }

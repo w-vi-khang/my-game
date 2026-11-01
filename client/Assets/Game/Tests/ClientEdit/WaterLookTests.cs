@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Client.EditTests
 {
-    /// <summary>WaterLook.Apply đặt đủ 9 + 11 (bọt, brief 0096) + 10 (lấp lánh, brief 0097) thuộc tính hình ảnh nước lên material Game/Ocean (brief 0095).</summary>
+    /// <summary>WaterLook.Apply đặt đủ 9 + 11 (bọt, brief 0096) + 10 (lấp lánh, brief 0097) + 9 (vệt chảy, 0099) thuộc tính hình ảnh nước lên material Game/Ocean (brief 0095).</summary>
     public class WaterLookTests
     {
         [Test]
@@ -47,6 +47,15 @@ namespace Game.Client.EditTests
                     sparkleSpeed = 5f,
                     sparkleFadeStart = 10f,
                     sparkleFadeEnd = 40f,
+                    flowStreakColor = new[] { 0.2f, 0.3f, 0.4f },
+                    flowStreakStrength = 0.5f,
+                    flowStreakScale = 2f,
+                    flowStreakLength = 7f,
+                    flowStreakSpeed = 2f,
+                    flowStreakCycle = 3f,
+                    flowStreakCut = 0.6f,
+                    flowStreakSoft = 0.2f,
+                    flowFallSpeed = 4f,
                 };
                 float vertexDepthBefore = m.GetFloat("_VertexDepth");
                 WaterLook.Apply(m, c);
@@ -80,6 +89,15 @@ namespace Game.Client.EditTests
                 Assert.AreEqual(5f, m.GetFloat("_SparkleSpeed"), 1e-4f);
                 Assert.AreEqual(10f, m.GetFloat("_SparkleFadeStart"), 1e-4f);
                 Assert.AreEqual(40f, m.GetFloat("_SparkleFadeEnd"), 1e-4f);
+                AssertColor(m, "_FlowStreakColor", 0.2f, 0.3f, 0.4f);
+                Assert.AreEqual(0.5f, m.GetFloat("_FlowStreakStrength"), 1e-4f);
+                Assert.AreEqual(2f, m.GetFloat("_FlowStreakScale"), 1e-4f);
+                Assert.AreEqual(7f, m.GetFloat("_FlowStreakLength"), 1e-4f);
+                Assert.AreEqual(2f, m.GetFloat("_FlowStreakSpeed"), 1e-4f);
+                Assert.AreEqual(3f, m.GetFloat("_FlowStreakCycle"), 1e-4f);
+                Assert.AreEqual(0.6f, m.GetFloat("_FlowStreakCut"), 1e-4f);
+                Assert.AreEqual(0.2f, m.GetFloat("_FlowStreakSoft"), 1e-4f);
+                Assert.AreEqual(4f, m.GetFloat("_FlowFallSpeed"), 1e-4f);
                 Assert.AreEqual(0f, m.GetFloat("_VertexDepth"), 1e-6f);
                 Assert.AreEqual(vertexDepthBefore, m.GetFloat("_VertexDepth"), 1e-6f);
             }
@@ -94,6 +112,14 @@ namespace Game.Client.EditTests
         {
             var m = new Material(Shader.Find("Game/Ocean"));
             try { Assert.AreEqual(0f, m.GetFloat("_FoamStrength")); }
+            finally { Object.DestroyImmediate(m); }
+        }
+
+        [Test]
+        public void FlowStreakOffByDefault()
+        {
+            var m = new Material(Shader.Find("Game/Ocean"));
+            try { Assert.AreEqual(0f, m.GetFloat("_FlowStreakStrength")); }
             finally { Object.DestroyImmediate(m); }
         }
 

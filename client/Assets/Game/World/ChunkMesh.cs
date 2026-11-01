@@ -9,6 +9,8 @@ namespace Game.World
         public float3[] Normals;
         /// <summary>Màu đỉnh sRGB, 4 byte RGBA gói trong uint (byte thấp = R) — shader Game/Terrain đổi sang linear.</summary>
         public uint[] Colors;
+        /// <summary>Luồng TEXCOORD0 (SNorm8 × 4, byte thấp = x) của mọi đỉnh: hướng chảy (x, z) + cờ mặt thác cho đỉnh nước, 0 cho đỉnh địa hình (brief 0099). Null → ghi 0.</summary>
+        public uint[] Flow;
         public int[] Indices;
         /// <summary>Submesh 1: mặt nước theo ô (0012) — dùng chung mảng đỉnh, vẽ bằng material nước.</summary>
         public int[] WaterIndices;
