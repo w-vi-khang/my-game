@@ -58,6 +58,11 @@
 | Tăng mức bởi tường | Ô nước đang chảy kề ≥ 2 khối đặc (4 ô ngang) và mức 1–4 → nâng lên mức tối đa, phát sóng mức sang ô kề | [decisions/0043](decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) |
 | Xoá dây chuyền | Ô nước chảy mất (đặt khối đè, mất cha) → mỗi nhịp xoá một tầng con; ô vừa xoá được tái tạo nếu kề nước ngoài nhánh đang xoá | [decisions/0043](decisions/0043-nuoc-cay-cha-con-tang-muc-boi-tuong.md) |
 | Thác nước | Nước rơi thẳng từ chỗ cao xuống; cột nước rơi không lan ngang giữa không trung | [decisions/0041](decisions/0041-nuoc-chay-trong-ranh-hep-va-thac-nuoc.md) |
+| Mép tràn | Chỗ mặt nước chảy qua mép khối xuống cột thác; mặt nước bo cong xuống (brief 0080) | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Biển nền | Mặt biển hình vành khăn quanh map (`OceanBackdrop`), chỉ để hiển thị, không phải ô nước; trong map nước vẽ theo từng ô | [decisions/0009](decisions/0009-dai-duong-va-suong-mu-o-ria-map.md) |
+| Khoảng cách tới bờ (nước) | Khoảng cách ngang từ một điểm mặt nước tới khối đặc gần nhất cùng lớp, tối đa 4 ô; mesher ghi vào đỉnh, shader dùng cho viền bờ mềm và bọt bờ (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Bọt bờ | Các vệt bọt trắng song song với bờ, trôi vào/ra theo thời gian (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Vệt chảy | Vệt sáng trên mặt nước trôi theo hướng chảy (ô lan, ô rơi); mặt ao chỉ gợn tại chỗ (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Mép cỏ | Phần cỏ của ô cỏ nhô ra khỏi mặt trên và phủ xuống sườn, mép dưới lượn sóng (chỉ hiển thị, không ảnh hưởng luật chơi) | [decisions/0011](decisions/0011-dia-hinh-khoi-bo-canh.md) |
 | Phiên bản bộ sinh | Phiên bản thuật toán sinh world từ seed; lưu kèm dữ liệu để biết world gốc | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |

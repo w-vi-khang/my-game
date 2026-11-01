@@ -68,4 +68,4 @@
 - [ý tưởng] Ô trống có nước ở hai phía đối diện thì thành nước, nối hai vùng nước cách nhau 1 ô ([0042](decisions/0042-mat-nuoc-theo-muc-lan-5-o-o-noi.md) mục 3). Đã code ở brief 0078, gỡ ở brief 0079. Xem lại nếu chơi thử thấy khe 1 ô giữa hai vùng nước nhìn lạ.
 
 ## Nước — hiệu ứng chân thác (user, 2026-10-29, để sau)
-- Nước bắn / sủi bọt ở chân thác (particle VFX, client Unity). User chọn để sau, làm khi đã sửa xong lỗi nước và vật phẩm phát hiện khi chơi thử 0079–0081 (brief 0081, mục Review). → gộp vào bước 5k [ý tưởng] ([world-tech](04-tech/world-tech.md), 2026-10-29).
+- Nước bắn / sủi bọt ở chân thác (particle VFX, client Unity). User chọn để sau, làm khi đã sửa xong lỗi nước và vật phẩm phát hiện khi chơi thử 0079–0081 (brief 0081, mục Review). → gộp vào bước 5k [ý tưởng] ([world-tech](04-tech/world-tech.md), 2026-10-29) → **cắt khỏi 5k, để M2** cùng bọt mép tràn (user 2026-11-01; ước lượng 1–2 ngày-người [ý tưởng]).
