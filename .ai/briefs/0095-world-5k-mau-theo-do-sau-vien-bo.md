@@ -1,6 +1,6 @@
 # Brief 0095 — World 5k phần 1: màu theo độ sâu, thấy đáy, viền bờ mềm (khoảng cách tới bờ ghi vào đỉnh)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -196,9 +196,12 @@ Code commit: 57d63af (bước 1–5 + world-tech; file: BlockMesher, Ocean.shade
 - EditMode toàn bộ: 701/701 đạt (gồm BlockMesherTests 56, GoldenHash, ConfigTests, WaterLookTests, SolidChangedOnlyOnDigAndPlace, Look*).
 - PlayMode 6 lớp (16 test): 15 đạt, **1 fail**: `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` — `Expected ≤ 0.002, But was 0.099`; output `offNear40: 0.00985 0.17151 0.40503` so với baseline cứng `BeforeOffNear40 = (0.03095, 0.27051, 0.46851)` (SeaSkyTintPlayTests.cs:21).
 - Đã `git checkout -- client/ProjectSettings/EditorSettings.asset`.
-- Chưa làm: ảnh bước 7 (b0095_after_*.png).
+- Sau Planner trả lời: sửa `BeforeOffNear40` (SeaSkyTintPlayTests.cs:21) → (0.00985, 0.17151, 0.40503) theo chỉ dẫn. PlayMode 6 lớp chạy lại: **16/16 đạt**. Đã dọn `EditorSettings.asset`.
+- Ảnh bước 7: `art-test/shots/b0095_after_1.png`, `_2.png` (world thử 16³ dựng bằng execute_code: bậc cát + biển + ao, Water.mat + WaterLook; không phải scene SimView/Play). Phần xem hình: chờ user.
+- Phần user tự test (a)–(e): chờ user.
 
 ## Vướng mắc
+(Đã được Planner trả lời: phương án A sửa 1 hằng baseline; asmdef chấp nhận.)
 1. **Test cũ so màu biển với baseline cứng.** `SeaSkyTintPlayTests.DayCycleOffNearSeaUnchanged` (tạo OceanBackdrop + MeshRenderer, màu biển gần camera, tắt day cycle) so với màu của `Ocean.mat` cũ; giờ `OceanBackdrop.Awake` áp `look` (deepColor 0,12/0,50/0,70) nên màu đổi (≈0,099 lệch). Đây đúng là hệ quả thiết kế (biển ra màu `_DeepColor` mới), không phải lỗi mesh/shader. Brief cấm sửa test cũ và cấm đổi số JSON.
    - Phương án A: Planner cập nhật baseline `BeforeOffNear40` (và các `Before*` khác nếu dùng màu) ở SeaSkyTintPlayTests theo màu mới. Đề xuất.
    - Phương án B: test tự đặt lại màu Ocean.mat cũ sau khi tạo OceanBackdrop.
