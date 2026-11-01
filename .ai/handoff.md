@@ -12,7 +12,8 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User
    - (a) đúng bản nháp; (b) cắt phần 5 (bọt chân thác + mép tràn) sang M2, còn 4 phần 5–9 ngày; (c) "nét mềm" đúng như Planner hiểu, chỉ ở shader.
    - Đã sửa roadmap (5k 5–9, M1 136,5–223,5), world-tech `:141`/`:200`, ideas `:71`, glossary (+5 thuật ngữ).
    - **Brief [0095](briefs/0095-world-5k-mau-theo-do-sau-vien-bo.md) (phần 1) đã duyệt** (code `57d63af` + `038fce4`, ~20 phút). User xem (a)–(e) gộp cuối 5k.
-   - Tiếp: Planner Opus thiết kế + viết brief **phần 2 (bọt bờ)**, dùng `shoreD` (kênh R, ≤ 4 ô) trong `Ocean.shader`; thêm tham số vào `water_m1.json` "look". Sau phần 2 (hoặc cuối 5k): đo FPS điện thoại.
+   - **Brief [0096](briefs/0096-world-5k-bot-bo.md) (phần 2, bọt bờ, Sonnet · medium) chờ Executor.** Dải bọt theo `shoreD`, độ thoáng (ô không đặc 9×9) ở kênh G tắt bọt chỗ hẹp, tham số `foam*` trong "look". Kênh B để dành phần 4.
+   - Sau 0096: đo FPS điện thoại (bọt thêm 1 ValueNoise/pixel), rồi phần 3 (lấp lánh), phần 4 (vệt chảy: chốt cách ghi hướng — B + kênh khác/UV).
    - Phiên Executor `exec-0095` = `local_0ec3ce58-e317-4e1d-a15a-196acea4f127` (Sonnet · medium).
 
 ## Ghi chú

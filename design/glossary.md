@@ -61,6 +61,7 @@
 | Mép tràn | Chỗ mặt nước chảy qua mép khối xuống cột thác; mặt nước bo cong xuống (brief 0080) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Biển nền | Mặt biển hình vành khăn quanh map (`OceanBackdrop`), chỉ để hiển thị, không phải ô nước; trong map nước vẽ theo từng ô | [decisions/0009](decisions/0009-dai-duong-va-suong-mu-o-ria-map.md) |
 | Khoảng cách tới bờ (nước) | Khoảng cách ngang từ một điểm mặt nước tới khối đặc gần nhất cùng lớp, tối đa 4 ô; mesher ghi vào đỉnh, shader dùng cho viền bờ mềm và bọt bờ (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Độ thoáng (nước) | Tỉ lệ ô không đặc trong ô vuông 9×9 cùng lớp quanh một điểm mặt nước; mesher ghi vào đỉnh, shader tắt bọt bờ ở chỗ hẹp (rãnh, ao nhỏ) (ý tưởng, world 5k, brief 0096) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Bọt bờ | Các vệt bọt trắng song song với bờ, trôi vào/ra theo thời gian (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Vệt chảy | Vệt sáng trên mặt nước trôi theo hướng chảy (ô lan, ô rơi); mặt ao chỉ gợn tại chỗ (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Mép cỏ | Phần cỏ của ô cỏ nhô ra khỏi mặt trên và phủ xuống sườn, mép dưới lượn sóng (chỉ hiển thị, không ảnh hưởng luật chơi) | [decisions/0011](decisions/0011-dia-hinh-khoi-bo-canh.md) |
