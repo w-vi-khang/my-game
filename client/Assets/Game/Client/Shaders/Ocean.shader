@@ -6,6 +6,7 @@
 // Brief 0082: pass "WaterDepthPrepass" (SRPDefaultUnlit) ghi độ sâu trước ForwardLit — nước trong suốt chỉ hiện mặt gần nhất; Ocean.mat (đục) tắt pass này.
 // Brief 0084: mặt nước nhạt + trong hơn khi mỏng (độ dày từ alpha màu đỉnh do BlockMesher ghi; _VertexDepth = 0 cho Ocean.mat).
 // Brief 0095: màu nông→sâu theo smoothstep độ dày; viền bờ mờ theo khoảng cách tới bờ (kênh R màu đỉnh); tham số từ water_m1.json "look" (WaterLook).
+// Brief 0096: bọt bờ — dải theo khoảng cách tới bờ (R), tắt ở chỗ hẹp theo độ thoáng (G màu đỉnh); _FoamStrength mặc định 0.
 Shader "Game/Ocean"
 {
     Properties
@@ -20,6 +21,17 @@ Shader "Game/Ocean"
         _DepthFull("Độ dày coi là đầy (ô)", Float) = 1
         _ThinAlpha("Hệ số alpha khi nước rất mỏng", Range(0, 1)) = 0.25
         _ShoreSoftWidth("Độ rộng viền bờ mờ (ô, brief 0095)", Float) = 0.35
+        _FoamColor("Foam color (brief 0096)", Color) = (1, 1, 1, 1)
+        _FoamWidth("Foam width (cells)", Float) = 2
+        _FoamBands("Foam bands", Float) = 3
+        _FoamLine("Foam line", Float) = 0.3
+        _FoamSoft("Foam soft", Float) = 0.15
+        _FoamSpeed("Foam speed", Float) = 0.25
+        _FoamSwing("Foam swing", Float) = 0.3
+        _FoamSwingSpeed("Foam swing speed", Float) = 0.8
+        _FoamNoiseScale("Foam noise scale", Float) = 1.2
+        _FoamOpenMin("Foam open min", Float) = 0.2
+        _FoamStrength("Foam strength", Float) = 0
         [HideInInspector] _SrcBlend("Src blend", Float) = 1
         [HideInInspector] _DstBlend("Dst blend", Float) = 0
         [HideInInspector] _ZWrite("ZWrite", Float) = 1
@@ -38,6 +50,8 @@ Shader "Game/Ocean"
             half _RippleStrength, _Glint, _Alpha;
             half _VertexDepth, _ThinAlpha, _ShoreSoftWidth;
             float _DepthFull;
+            half4 _FoamColor;
+            half _FoamWidth, _FoamBands, _FoamLine, _FoamSoft, _FoamSpeed, _FoamSwing, _FoamSwingSpeed, _FoamNoiseScale, _FoamOpenMin, _FoamStrength;
         CBUFFER_END
         ENDHLSL
 
@@ -87,6 +101,7 @@ Shader "Game/Ocean"
                 float3 positionWS : TEXCOORD0;
                 half depthT : TEXCOORD1;
                 half shoreD : TEXCOORD2;
+                half open : TEXCOORD3;
             };
 
             static const float WaterDepthEncodeMax = 4.0; // = BlockMesher.WaterDepthEncodeMax
@@ -100,6 +115,7 @@ Shader "Game/Ocean"
                 o.positionWS = p.positionWS;
                 o.depthT = lerp(1.0h, saturate(input.color.a * WaterDepthEncodeMax / _DepthFull), _VertexDepth);
                 o.shoreD = lerp(WaterShoreEncodeMax, input.color.r * WaterShoreEncodeMax, _VertexDepth);
+                o.open = lerp(1.0h, input.color.g, _VertexDepth);
                 return o;
             }
 
@@ -134,6 +150,19 @@ Shader "Game/Ocean"
             {
                 float t = _Time.y;
                 return ValueNoise(p + t * float2(0.06, 0.03)) + 0.5 * ValueNoise(p * 2.3 - t * float2(0.05, 0.08));
+            }
+
+            // Bọt bờ (brief 0096): dải song song bờ theo khoảng cách tới bờ, chạy vào bờ + cả dải trôi vào/ra; đứt quãng theo nhiễu; tắt ở chỗ hẹp (độ thoáng thấp).
+            half ShoreFoam(float2 xz, half d, half open)
+            {
+                half env = 1.0h - smoothstep(_FoamWidth * 0.5h, _FoamWidth, d);
+                env *= smoothstep(_FoamOpenMin, _FoamOpenMin + 0.15h, open);
+                float t = _Time.y;
+                float swing = sin(t * _FoamSwingSpeed) * _FoamSwing;
+                half b = frac((d + swing) * _FoamBands / _FoamWidth + t * _FoamSpeed);
+                half stripe = smoothstep(0.0h, _FoamSoft, b) * (1.0h - smoothstep(_FoamLine, _FoamLine + _FoamSoft, b));
+                stripe *= smoothstep(0.35h, 0.65h, ValueNoise(xz * _FoamNoiseScale + t * 0.05));
+                return saturate(stripe * env * _FoamStrength);
             }
 
             // Buổi trong ngày (brief 0023/0033): DayCycleView ghi biến global; _DayHorizon là màu chân trời dạng linear (= màu sương).
@@ -174,9 +203,12 @@ Shader "Game/Ocean"
                 Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half shadow = light.shadowAttenuation * light.distanceAttenuation;
                 half ndl = saturate((dot(nLit, light.direction) + 0.3) / 1.3);
-                half3 diffuse = baseCol * (light.color * ndl * shadow * 0.7 + SampleSH(nLit));
+                half3 lightTerm = light.color * ndl * shadow * 0.7 + SampleSH(nLit);
+                half3 diffuse = baseCol * lightTerm;
                 half spec = pow(saturate(dot(n, normalize(light.direction + v))), 160.0) * _Glint * shadow;
                 half3 c = diffuse + light.color * spec;
+                half foam = ShoreFoam(input.positionWS.xz, input.shoreD, input.open);
+                c = lerp(c, _FoamColor.rgb * lightTerm, foam);
                 float dist = distance(input.positionWS, GetCameraPositionWS());
                 // Biển nhuộm màu trời: chỉ mặt trên; xa và nhìn xiên → về màu chân trời theo buổi, trước sương (task m1-bien-nhuom-mau-troi).
                 half skyT = saturate(smoothstep(SkyTintStart, SkyTintEnd, dist) + fres * SkyTintFresnel);
@@ -192,6 +224,7 @@ Shader "Game/Ocean"
                 #endif
                 half alpha = lerp(1.0, lerp(_Alpha, 1.0, fres), fogVis);
                 alpha *= lerp(_ThinAlpha, 1.0h, dT);
+                alpha = lerp(alpha, 1.0h, foam);
                 alpha *= smoothstep(0.0h, _ShoreSoftWidth, input.shoreD); // viền bờ mờ dần (brief 0095)
                 return half4(c, alpha);
             }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Client.EditTests
 {
-    /// <summary>WaterLook.Apply đặt đủ 9 thuộc tính hình ảnh nước lên material Game/Ocean (brief 0095).</summary>
+    /// <summary>WaterLook.Apply đặt đủ 9 + 11 thuộc tính (bọt, brief 0096) hình ảnh nước lên material Game/Ocean (brief 0095).</summary>
     public class WaterLookTests
     {
         [Test]
@@ -26,6 +26,17 @@ namespace Game.Client.EditTests
                     rippleScale = 0.9f,
                     rippleStrength = 0.1f,
                     glint = 1.2f,
+                    foamColor = new[] { 0.7f, 0.8f, 0.9f },
+                    foamWidth = 1.5f,
+                    foamBands = 4f,
+                    foamLine = 0.4f,
+                    foamSoft = 0.2f,
+                    foamSpeed = 0.5f,
+                    foamSwing = 0.6f,
+                    foamSwingSpeed = 1.5f,
+                    foamNoiseScale = 2f,
+                    foamOpenMin = 0.3f,
+                    foamStrength = 0.7f,
                 };
                 float vertexDepthBefore = m.GetFloat("_VertexDepth");
                 WaterLook.Apply(m, c);
@@ -38,6 +49,17 @@ namespace Game.Client.EditTests
                 Assert.AreEqual(0.9f, m.GetFloat("_RippleScale"), 1e-4f);
                 Assert.AreEqual(0.1f, m.GetFloat("_RippleStrength"), 1e-4f);
                 Assert.AreEqual(1.2f, m.GetFloat("_Glint"), 1e-4f);
+                AssertColor(m, "_FoamColor", 0.7f, 0.8f, 0.9f);
+                Assert.AreEqual(1.5f, m.GetFloat("_FoamWidth"), 1e-4f);
+                Assert.AreEqual(4f, m.GetFloat("_FoamBands"), 1e-4f);
+                Assert.AreEqual(0.4f, m.GetFloat("_FoamLine"), 1e-4f);
+                Assert.AreEqual(0.2f, m.GetFloat("_FoamSoft"), 1e-4f);
+                Assert.AreEqual(0.5f, m.GetFloat("_FoamSpeed"), 1e-4f);
+                Assert.AreEqual(0.6f, m.GetFloat("_FoamSwing"), 1e-4f);
+                Assert.AreEqual(1.5f, m.GetFloat("_FoamSwingSpeed"), 1e-4f);
+                Assert.AreEqual(2f, m.GetFloat("_FoamNoiseScale"), 1e-4f);
+                Assert.AreEqual(0.3f, m.GetFloat("_FoamOpenMin"), 1e-4f);
+                Assert.AreEqual(0.7f, m.GetFloat("_FoamStrength"), 1e-4f);
                 Assert.AreEqual(0f, m.GetFloat("_VertexDepth"), 1e-6f);
                 Assert.AreEqual(vertexDepthBefore, m.GetFloat("_VertexDepth"), 1e-6f);
             }
@@ -45,6 +67,14 @@ namespace Game.Client.EditTests
             {
                 Object.DestroyImmediate(m);
             }
+        }
+
+        [Test]
+        public void FoamOffByDefault()
+        {
+            var m = new Material(Shader.Find("Game/Ocean"));
+            try { Assert.AreEqual(0f, m.GetFloat("_FoamStrength")); }
+            finally { Object.DestroyImmediate(m); }
         }
 
         static void AssertColor(Material m, string name, float r, float g, float b)

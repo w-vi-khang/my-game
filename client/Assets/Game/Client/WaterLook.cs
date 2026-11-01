@@ -17,6 +17,17 @@ namespace Game.Client
             m.SetFloat("_RippleScale", c.rippleScale);
             m.SetFloat("_RippleStrength", c.rippleStrength);
             m.SetFloat("_Glint", c.glint);
+            m.SetColor("_FoamColor", new Color(c.foamColor[0], c.foamColor[1], c.foamColor[2], 1f));
+            m.SetFloat("_FoamWidth", c.foamWidth);
+            m.SetFloat("_FoamBands", c.foamBands);
+            m.SetFloat("_FoamLine", c.foamLine);
+            m.SetFloat("_FoamSoft", c.foamSoft);
+            m.SetFloat("_FoamSpeed", c.foamSpeed);
+            m.SetFloat("_FoamSwing", c.foamSwing);
+            m.SetFloat("_FoamSwingSpeed", c.foamSwingSpeed);
+            m.SetFloat("_FoamNoiseScale", c.foamNoiseScale);
+            m.SetFloat("_FoamOpenMin", c.foamOpenMin);
+            m.SetFloat("_FoamStrength", c.foamStrength);
         }
     }
 }

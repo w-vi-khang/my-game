@@ -1,5 +1,5 @@
 {
-    "configVersion": 5,
+    "configVersion": 6,
     "maxLevel": 5,
     "stepsPerSecond": 8,
     "wallBoostMinSolid": 2,
@@ -15,6 +15,17 @@
         "shoreSoftWidth": 0.35,
         "rippleScale": 0.45,
         "rippleStrength": 0.25,
-        "glint": 0.6
+        "glint": 0.6,
+        "foamColor": [1.0, 1.0, 1.0],
+        "foamWidth": 2.0,
+        "foamBands": 3.0,
+        "foamLine": 0.3,
+        "foamSoft": 0.15,
+        "foamSpeed": 0.25,
+        "foamSwing": 0.3,
+        "foamSwingSpeed": 0.8,
+        "foamNoiseScale": 1.2,
+        "foamOpenMin": 0.2,
+        "foamStrength": 0.9
     }
 }

@@ -49,9 +49,10 @@ namespace Game.World
         /// <summary>Số ô quanh chunk mà khoảng cách tới bờ đọc khối đặc (= WaterShoreEncodeMax): đào/đặt khối cách biên ≤ lề này → chunk kề dựng lại (brief 0095).</summary>
         public const int WaterShoreMargin = 4;
 
-        /// <summary>Màu đỉnh nước: R = khoảng cách tới bờ / WaterShoreEncodeMax, G = B = 255 (để dành), A = độ dày / WaterDepthEncodeMax (brief 0084, 0095).</summary>
-        static uint WaterVertexColor(float depth, float shore) =>
-            (uint)math.round(255f * math.saturate(shore / WaterShoreEncodeMax)) | 0x00FFFF00u
+        /// <summary>Màu đỉnh nước: R = khoảng cách tới bờ / WaterShoreEncodeMax, G = độ thoáng (tỉ lệ ô không đặc trong cửa sổ quét), B = 255 (để dành), A = độ dày / WaterDepthEncodeMax (brief 0084, 0095, 0096).</summary>
+        static uint WaterVertexColor(float depth, float shore, float open) =>
+            (uint)math.round(255f * math.saturate(shore / WaterShoreEncodeMax))
+            | ((uint)math.round(255f * math.saturate(open)) << 8) | 0x00FF0000u
             | ((uint)math.round(255f * math.saturate(depth / WaterDepthEncodeMax)) << 24);
         /// <summary>Bán kính bo (ô) và số đoạn cung mặc định của mặt nước (0043 mục 6, brief 0080).</summary>
         public const float DefaultWaterFilletRadius = 0.3f;
@@ -1723,8 +1724,8 @@ namespace Game.World
                 return n == 0 ? WaterDepthEncodeMax : wp.y - sum / n;
             }
 
-            /// <summary>Khoảng cách ngang từ đỉnh mặt trên p (toạ độ chunk) tới khối đặc gần nhất cùng lớp, tối đa WaterShoreEncodeMax; không có → tối đa (brief 0095 QĐ 1).</summary>
-            float WaterShoreDistanceAt(float3 p)
+            /// <summary>Quanh đỉnh mặt trên p (toạ độ chunk), cùng lớp: dist = khoảng cách ngang tới khối đặc gần nhất, tối đa WaterShoreEncodeMax (brief 0095 QĐ 1); open = tỉ lệ ô không đặc trong cửa sổ quét (brief 0096 QĐ 1).</summary>
+            void WaterShoreAt(float3 p, out float dist, out float open)
             {
                 float3 wp = p + (float3)Origin;
                 int ly = (int)math.floor(wp.y - 1e-3f);
@@ -1732,16 +1733,21 @@ namespace Game.World
                 int x0 = (int)math.floor(wp.x - S), x1 = (int)math.floor(wp.x + S);
                 int z0 = (int)math.floor(wp.z - S), z1 = (int)math.floor(wp.z + S);
                 float best = WaterShoreEncodeMax;
+                int notSolid = 0;
                 for (int z = z0; z <= z1; z++)
                 for (int x = x0; x <= x1; x++)
                 {
                     if (!IsSolidMaterial(MaterialAt(new int3(x, ly, z))))
+                    {
+                        notSolid++;
                         continue;
+                    }
                     float dx = math.max(math.max(x - wp.x, wp.x - (x + 1)), 0f);
                     float dz = math.max(math.max(z - wp.z, wp.z - (z + 1)), 0f);
                     best = math.min(best, math.sqrt(dx * dx + dz * dz));
                 }
-                return best;
+                dist = best;
+                open = notSolid / (float)((x1 - x0 + 1) * (z1 - z0 + 1));
             }
 
             /// <summary>Tứ giác nước (0041): 4 đỉnh theo vòng p0→p1→p2→p3 (hàn đỉnh trùng), 2 tam giác vào submesh nước, mặt trước quay theo n.</summary>
@@ -1772,7 +1778,15 @@ namespace Game.World
                 var key = new WaterVertexKey { P = (int3)math.round(p * 1024f), N = (int3)math.round(n * 1024f) };
                 if (Out.WaterVerts.TryGetValue(key, out int found))
                     return found;
-                int i = AddVertex(p, n, n.y > 0.999f ? WaterVertexColor(WaterDepthAt(p), WaterShoreDistanceAt(p)) : WaterVertexColor(WaterDepthEncodeMax, WaterShoreEncodeMax));
+                uint color;
+                if (n.y > 0.999f)
+                {
+                    WaterShoreAt(p, out float shore, out float open);
+                    color = WaterVertexColor(WaterDepthAt(p), shore, open);
+                }
+                else
+                    color = WaterVertexColor(WaterDepthEncodeMax, WaterShoreEncodeMax, 1f);
+                int i = AddVertex(p, n, color);
                 Out.WaterVerts.Add(key, i);
                 return i;
             }

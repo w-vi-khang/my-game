@@ -31,7 +31,7 @@ namespace Game.World.Tests
             var meshes = BlockMesher.BuildAll(world);
             var s = world.Size;
             var rng = new System.Random(12345);
-            // Nửa số lần sửa rơi sát biên chunk (ô cục bộ 0, 1, 2, 13, 14, 15) để thử vùng đệm (đệm 1 ô; 2 và 13 kiểm không cần hơn).
+            // Nửa số lần sửa rơi sát biên chunk (ô cục bộ 0, 1, 2, 13, 14, 15) để thử vùng đệm (đệm 1 ô cho mesh khối; nước dùng lề WaterShoreMargin khi đào/đặt; 2 và 13 kiểm không cần hơn).
             int[] nearEdge = { 0, 1, 2, 13, 14, 15 };
             int Coord(int size) => rng.Next(2) == 0
                 ? rng.Next(size / 16) * 16 + nearEdge[rng.Next(nearEdge.Length)]
@@ -51,7 +51,7 @@ namespace Game.World.Tests
                     continue;
                 edits++;
                 dirty.Clear();
-                editor.AffectedChunks(x, y, z, dirty);
+                WorldEditor.AffectedChunks(s, BlockMesher.WaterShoreMargin, x, y, z, dirty); // mọi sửa ở đây là đào/đặt = SolidChanged → lề WaterShoreMargin như TerrainChunkView.OnSolidChanged (brief 0095/0096)
                 var rebuilt = BlockMesher.BuildChunks(world, dirty);
                 for (int k = 0; k < dirty.Count; k++)
                     meshes[dirty[k]] = rebuilt[k];

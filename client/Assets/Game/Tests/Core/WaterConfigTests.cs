@@ -15,7 +15,7 @@ namespace Game.Core.Tests
             Assert.IsTrue(File.Exists(SourcePath), SourcePath);
             var cfg = JsonUtility.FromJson<WaterConfig>(File.ReadAllText(SourcePath));
             Assert.DoesNotThrow(cfg.Validate);
-            Assert.AreEqual(5, cfg.configVersion);
+            Assert.AreEqual(6, cfg.configVersion);
             Assert.AreEqual(5, cfg.maxLevel);
             Assert.AreEqual(8, cfg.stepsPerSecond);
             Assert.AreEqual(2, cfg.wallBoostMinSolid);
@@ -57,6 +57,9 @@ namespace Game.Core.Tests
             Assert.AreEqual(new[] { 0.45f, 0.88f, 0.85f }, cfg.look.shallowColor);
             Assert.AreEqual(0.35f, cfg.look.shoreSoftWidth, 1e-6f);
             Assert.AreEqual(2f, cfg.look.depthFull, 1e-6f);
+            Assert.AreEqual(2f, cfg.look.foamWidth, 1e-6f);
+            Assert.AreEqual(3f, cfg.look.foamBands, 1e-6f);
+            Assert.AreEqual(0.2f, cfg.look.foamOpenMin, 1e-6f);
         }
 
         [Test]
@@ -65,6 +68,8 @@ namespace Game.Core.Tests
             var c = new WaterConfig(); c.look.shoreSoftWidth = 0f; Assert.Throws<ArgumentException>(c.Validate, "shore=0");
             c = new WaterConfig(); c.look.deepColor = new[] { 0.1f, 0.2f }; Assert.Throws<ArgumentException>(c.Validate, "deepColor 2 elements");
             c = new WaterConfig(); c.look.deepAlpha = 1.5f; Assert.Throws<ArgumentException>(c.Validate, "deepAlpha=1.5");
+            c = new WaterConfig(); c.look.foamWidth = 5f; Assert.Throws<ArgumentException>(c.Validate, "foamWidth=5");
+            c = new WaterConfig(); c.look.foamLine = 0.9f; c.look.foamSoft = 0.2f; Assert.Throws<ArgumentException>(c.Validate, "foamLine+foamSoft>1");
         }
     }
 }

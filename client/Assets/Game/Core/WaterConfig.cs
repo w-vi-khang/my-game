@@ -9,7 +9,7 @@ namespace Game.Core
     [Serializable]
     public class WaterConfig
     {
-        public int configVersion = 5;
+        public int configVersion = 6;
         public int maxLevel = 5;
         public int stepsPerSecond = 8;
         public int wallBoostMinSolid = 2;
@@ -54,6 +54,17 @@ namespace Game.Core
         public float rippleScale = 0.45f;
         public float rippleStrength = 0.25f;
         public float glint = 0.6f;
+        public float[] foamColor = { 1f, 1f, 1f };
+        public float foamWidth = 2.0f;
+        public float foamBands = 3.0f;
+        public float foamLine = 0.3f;
+        public float foamSoft = 0.15f;
+        public float foamSpeed = 0.25f;
+        public float foamSwing = 0.3f;
+        public float foamSwingSpeed = 0.8f;
+        public float foamNoiseScale = 1.2f;
+        public float foamOpenMin = 0.2f;
+        public float foamStrength = 0.9f;
 
         public void Validate()
         {
@@ -66,6 +77,19 @@ namespace Game.Core
             CheckRange(rippleScale, 0.05f, 4f, "rippleScale");
             CheckRange(rippleStrength, 0f, 1f, "rippleStrength");
             CheckRange(glint, 0f, 2f, "glint");
+            CheckColor(foamColor, "foamColor");
+            CheckRange(foamWidth, 0.5f, 4f, "foamWidth");
+            CheckRange(foamBands, 1f, 8f, "foamBands");
+            CheckRange(foamLine, 0.05f, 0.9f, "foamLine");
+            CheckRange(foamSoft, 0.01f, 0.5f, "foamSoft");
+            CheckRange(foamSpeed, 0f, 2f, "foamSpeed");
+            CheckRange(foamSwing, 0f, 1f, "foamSwing");
+            CheckRange(foamSwingSpeed, 0f, 4f, "foamSwingSpeed");
+            CheckRange(foamNoiseScale, 0.1f, 4f, "foamNoiseScale");
+            CheckRange(foamOpenMin, 0f, 0.9f, "foamOpenMin");
+            CheckRange(foamStrength, 0f, 1f, "foamStrength");
+            if (foamLine + foamSoft > 1f)
+                throw new ArgumentException("foamLine + foamSoft must be <= 1.");
         }
 
         static void CheckColor(float[] c, string name)

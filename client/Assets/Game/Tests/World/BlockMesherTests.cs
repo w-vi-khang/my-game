@@ -1125,6 +1125,26 @@ namespace Game.World.Tests
         }
 
         [Test]
+        public void WaterSurfaceOpennessEncoded()
+        {
+            var w = StoneFloor16();
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+                w.Set(x, 5, z, x == 8
+                    ? Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel)
+                    : Cell.Make(BlockMaterial.Stone));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            foreach (int x in new[] { 8, 9 })
+            {
+                uint c = WaterVertexColor(mesh, up, new float3(x, 5.9f, 7));
+                Assert.AreEqual(28, (int)((c >> 8) & 0xFF), 1, $"G x={x}");
+                Assert.AreEqual(255, (int)((c >> 16) & 0xFF), $"B x={x}");
+                Assert.AreEqual(0, (int)(c & 0xFF), 1, $"R x={x}");
+            }
+        }
+
+        [Test]
         public void WaterSurfaceShoreDistanceEncoded()
         {
             var w = StoneFloor16();
@@ -1138,20 +1158,24 @@ namespace Game.World.Tests
             var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
             var up = new float3(0, 1, 0);
             int[] wantR = { 0, 64, 128, 191, 255 };
+            int[] wantG = { 233, 233, 233, 233, 255 };
             for (int k = 0; k < wantR.Length; k++)
             {
                 uint c = WaterVertexColor(mesh, up, new float3(4 + k, 5.9f, 4));
                 Assert.AreEqual(wantR[k], (int)(c & 0xFF), 1, $"R x={4 + k}");
-                Assert.AreEqual(0xFFFFu, (c >> 8) & 0xFFFFu, $"GB x={4 + k}");
+                Assert.AreEqual(wantG[k], (int)((c >> 8) & 0xFF), 1, $"G x={4 + k}");
+                Assert.AreEqual(255, (int)((c >> 16) & 0xFF), $"B x={4 + k}");
                 Assert.AreEqual(57, (int)(c >> 24), 1, $"A x={4 + k}");
             }
             uint c1 = WaterVertexColor(mesh, up, new float3(11, 5.9f, 12));
             Assert.AreEqual(64, (int)(c1 & 0xFF), 1, "R (11,12)");
-            Assert.AreEqual(0xFFFFu, (c1 >> 8) & 0xFFFFu);
+            Assert.AreEqual(252, (int)((c1 >> 8) & 0xFF), 1, "G (11,12)");
+            Assert.AreEqual(255, (int)((c1 >> 16) & 0xFF), "B (11,12)");
             Assert.AreEqual(57, (int)(c1 >> 24), 1);
             uint c2 = WaterVertexColor(mesh, up, new float3(12, 5.9f, 12));
             Assert.AreEqual(90, (int)(c2 & 0xFF), 1, "R (12,12)");
-            Assert.AreEqual(0xFFFFu, (c2 >> 8) & 0xFFFFu);
+            Assert.AreEqual(252, (int)((c2 >> 8) & 0xFF), 1, "G (12,12)");
+            Assert.AreEqual(255, (int)((c2 >> 16) & 0xFF), "B (12,12)");
             Assert.AreEqual(57, (int)(c2 >> 24), 1);
             for (int t = 0; t < mesh.WaterIndices.Length; t++)
             {
