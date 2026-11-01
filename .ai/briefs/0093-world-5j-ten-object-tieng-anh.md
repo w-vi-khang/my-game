@@ -1,9 +1,9 @@
 # Brief 0093 — World 5j (lỗi 16): đổi tên object "Người chơi" → "Player", quét tên object trong scene
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Review: đầy đủ
 > Model thực thi: Sonnet · low
-> Cập nhật: 2026-11-01 20:40
+> Cập nhật: 2026-11-01 20:50
 
 ## Mục tiêu
 Lỗi 16 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). Ba scene còn GameObject tên tiếng Việt "Người chơi". Đổi tên thành `Player`. Thêm test quét `m_Name` trong file `.unity`/`.prefab` để lỗi này không lặp lại. Task `m1-code-tieng-anh` trước đây chỉ quét `.cs` nên sót scene.
@@ -150,6 +150,8 @@ Chưa kiểm được: client_test/client_test_play (tools/unity_test.py) cần 
 
 ## Vướng mắc
 `run_tests` EditMode lỗi 2 lần: "Cannot start a test run while the Editor is in or entering Play Mode". Editor đang ở Play Mode (không phải do phiên này). Brief không nói được stop Play Mode; Editor dùng chung nên không tự dừng. Đề xuất: Planner/user dừng Play Mode (hoặc cho phép executor `manage_editor stop`), rồi chạy lại từ bước 2 (chạy test trên scene cũ). Chưa đổi scene nào.
+
+**Trả lời (Planner, 2026-11-01 20:50):** Planner đã dừng Play Mode (`manage_editor stop`). Bước 1–2 giữ nguyên kết quả: file test đã sửa, chưa commit. Làm tiếp từ "Lệnh executor chạy" 1 (chạy `NoVietnameseObjectNames` trên scene cũ), rồi bước 3–4. Nếu lần sau gặp Editor ở Play Mode do phiên khác để lại: được dùng `manage_editor` action `stop` một lần, ghi vào Kết quả.
 
 ---
 
