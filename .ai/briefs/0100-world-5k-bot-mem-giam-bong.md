@@ -1,6 +1,6 @@
 # Brief 0100 — World 5k sửa lỗi chơi thử: bọt bờ trơn 1 dải mềm, giảm độ bóng
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -192,10 +192,22 @@ Gộp với danh sách chơi thử 5k. Play scene SimView, ban ngày, rồi ban 
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 70a6887
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 05:23 (2026-11-02)
+
+- Đã làm (CHƯA commit code, đang ở working tree): bước 1–4 + 6 (BlockMesher, Ocean.shader, 2 JSON, test, world-tech.md:141). Console Error = 0.
 
 ## Kết quả test
+- Bước 1 trên code cũ: 3 test fail đúng (B = 255): FoamDistanceRoundsConcaveCorner "B corner Expected 60 But was 255"; OpennessEncoded "B x=8 Expected 0 But was 255"; ShoreDistanceEncoded "B x=4 Expected 0 But was 255".
+- EditMode toàn bộ sau sửa: 713/714 đạt. 1 fail: `WaterConfigTests.ConfigFileMatchesDefaults` ("glint":1.0 (default) vs 0.3 (file)).
+- PlayMode: chưa chạy (dừng trước).
 
 ## Vướng mắc
+- `ConfigFileMatchesDefaults` (`WaterConfigTests.cs:28-32`) so JSON với `new WaterConfig()`, tức giá trị mặc định trong `WaterConfig.cs`. Brief nói không cần sửa `WaterConfig.cs`, nhưng 10 số mới lệch default → test fail.
+- Phương án A (đề xuất): cho phép sửa default trong `WaterConfig.cs` (`:56 glint`, `:58 foamWidth`, `:59 foamBands`, foamLine, foamSoft, foamStrength, `:69 glintHalo`, sparkleStrength, sparkleDensity, `:79 flowStreakStrength`) khớp bảng QĐ 4; thêm `WaterConfig.cs` vào Phạm vi.
+- Phương án B: sửa test để bỏ so sánh — không nên.
+- Sau khi Planner duyệt: Executor đổi default, chạy lại EditMode + PlayMode, commit.
 
 ---
 <!-- PLANNER ghi khi review. -->
