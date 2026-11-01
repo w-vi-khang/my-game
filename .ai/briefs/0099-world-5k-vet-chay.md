@@ -1,6 +1,6 @@
 # Brief 0099 — World 5k phần 4b: vệt chảy (hướng chảy vào đỉnh nước + shader vệt trôi theo hướng)
 
-> Trạng thái: chờ làm (làm sau khi brief 0098 đã duyệt)
+> Trạng thái: chờ làm
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02

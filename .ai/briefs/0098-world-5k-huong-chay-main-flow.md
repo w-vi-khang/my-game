@@ -1,6 +1,6 @@
 # Brief 0098 — World 5k phần 4a: hướng chảy chính (main_flow) + hướng chảy ghi theo ô (FlowDirs)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -218,3 +218,12 @@ File đổi: WorldData.cs, WorldEditor.cs, WaterFlowTests.cs.
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` (Sonnet · medium).
+- Phần cần test: 6/6 dòng có kết quả. Test-first có lỗi biên dịch mong đợi; `WaterFlowTests` 40/40, EditMode 709/709, PlayMode `WaterFlowPlayTests` 4/4, console 0 lỗi.
+- Diff `5e47f57` (`git show --stat`): đúng 3 file trong Phạm vi; test chỉ thêm (+145, không xoá dòng nào).
+- QĐ 1 (`WorldData.cs:77–83`): `FlowDirs`, `EnsureFlowDirs`, `FlowDirAt` đúng nguyên văn.
+- QĐ 2 (`WorldEditor.cs`): `FlowDirCode`/`SetFlowDir` sau `Reparent` đúng nguyên văn. Có 3 chỗ ghi: `CreateChild` sau `nodeAt[...] = id`, trước `CellChanged`; `Reparent` sau `nodes[id] = n`, có phát `WaterSurfaceChanged` khi mã đổi; `RemoveNode` sau `nodes.Remove(id)`.
+- QĐ 3: `TryGetMainFlow` sau `TryGetFlowNode`, đúng nguyên văn. QĐ 4: không đổi luật hay thứ tự mô phỏng, `GoldenHashTests` đạt.
+- 5 test khớp kỳ vọng ở bước 1, không phải đổi kỳ vọng nào. Test bất biến kiểm cả world ngẫu nhiên sau `RandomEdits`.
+- Nhỏ, không chặn: helper `Mathf_Abs` trong test có thể thay bằng `System.Math.Abs`. Không cần sửa.
+- Kết luận: đã duyệt
