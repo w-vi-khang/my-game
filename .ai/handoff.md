@@ -1,4 +1,4 @@
-# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật 2026-11-02 sau khi duyệt brief 0099)
+# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật 2026-11-02 sau khi duyệt brief 0100)
 
 ## Đang làm
 Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01: **phần nước đạt**. Lỗi 13 (cột thác bo góc kề khối đặc) đã xong qua brief 0092, review đạt ở commit `263509e`. Còn lỗi 14–16, ghi trong task ở commit `b1101d3`.
@@ -18,7 +18,8 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User
    - **Phần 4 (vệt chảy)** — user 2026-11-02: luật main_flow (con C cùng hướng cha→B, không có thì null; vật nổi M2), vệt vẽ theo hướng cha→nó. Đã ghi world-tech `:141`, glossary, ideas.
      - Brief [0098](briefs/0098-world-5k-huong-chay-main-flow.md) (Core: `TryGetMainFlow` + `WorldData.FlowDirs`) **đã duyệt** (code `5e47f57`, 2026-11-02).
      - Brief [0099](briefs/0099-world-5k-vet-chay.md) (mesher luồng TEXCOORD0 + shader vệt) **đã duyệt** (code `6c93a1c`, ~1 giờ). User xem (a)–(e) gộp cuối 5k.
-   - **Code 4 phần 5k đã xong.** Việc tiếp: user chơi thử gộp 5k (mục "User tự test" của 0095, 0096, 0097, 0099), kèm chơi thử gộp 5j còn lại. Đạt → đóng 5k, cập nhật world-tech dòng 5k + roadmap (giờ thực tế: 0095 ~20 phút, 0096 ~16 phút, 0097 ~11 phút, 0098 ?, 0099 ~1 giờ).
+   - **Chơi thử lần 1 (user 2026-11-02): lỗi 5k-1 (bọt gấp khúc theo bậc ô) + 5k-2 (quá bóng)**, ghi ở task 5k mục "Lỗi chơi thử". User chọn "giảm mạnh, giữ nhẹ" → brief [0100](briefs/0100-world-5k-bot-mem-giam-bong.md) **đã duyệt** (code `eec15c7`, ~27 phút): bọt dùng soft-min khoảng cách bờ ở kênh B (`WaterFoamSoftK` 0,5), 1 dải mềm; glint 0,3, halo 0,25, sparkle 0,4/0,2, vệt chảy 0,18. User xem lại theo "User tự test" của 0100 (a)–(e), kèm các mục 0095–0099 còn lại.
+   - **Code 4 phần 5k đã xong.** Việc tiếp: user chơi thử gộp 5k (mục "User tự test" của 0095, 0096, 0097, 0099), kèm chơi thử gộp 5j còn lại. Đạt → đóng 5k, cập nhật world-tech dòng 5k + roadmap (giờ thực tế: 0095 ~20 phút, 0096 ~16 phút, 0097 ~11 phút, 0098 ?, 0099 ~1 giờ, 0100 ~27 phút).
    - Ảnh Executor chụp SimView chỉ có góc mặc định → khi user chơi thử nên tự xem bờ biển; hoặc brief sau thêm cách đặt camera.
    - Phiên Executor `child-sonnet-medium` = `local_9e128054-0b43-4e81-9baa-a03a3d793a17` (Sonnet · medium, làm 0099).
 
