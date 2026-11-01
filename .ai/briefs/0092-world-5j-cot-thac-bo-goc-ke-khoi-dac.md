@@ -1,9 +1,9 @@
 # Brief 0092 — World 5j (lỗi 13): ô nước rơi bo góc cả khi kề khối đặc
 
-> Trạng thái: đang làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-11-01 20:20
+> Cập nhật: 2026-11-01 20:10
 
 ## Mục tiêu
 Lỗi 13 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01 và thấy: chỗ cột thác đi qua khối đất nhô, tiết diện cột đổi từ góc vuông sang góc bo, nhìn thành bậc. Đổi luật bo góc của **ô nước rơi** cho tiết diện cột đồng đều suốt chiều cao. Luật mới: ô rơi bo góc cả khi phía bên là khối đặc, chỉ không bo khi phía bên là nước. User chọn 2026-11-01.
@@ -135,12 +135,23 @@ Gộp cuối 5j. SimView, Play:
 ## Kết quả
 - Base commit: c52d99b
 - Chạy bằng: claude-opus-5-5 · medium
-- Bắt đầu: 2026-11-01 19:56 · dừng (cần Opus): 20:12 · tiếp: 20:20
-- Đã làm bước 1–3 (chưa commit, còn trong working tree): `BlockMesher.cs` (`WaterCol.round`, `Rounded` mới, `ColumnRound`, `ColumnCornerRounded` viết lại, gán `col.round` trong `AddWaterCell`); `BlockMesherTests.cs` (thêm `FallingColumnRoundsBesideSolid`, đổi `ColumnCornerStepCapped` theo bước 3).
+- Thời gian: 19:56–20:01 (dừng, cần Opus) + 20:03–20:10 → ~12 phút. (Bản blocked ghi nhầm 20:12; giờ thật theo git log 20:01.)
+- Đã làm bước 1–3: `BlockMesher.cs` (`WaterCol.round`, `Rounded` mới, `ColumnRound`, `ColumnCornerRounded` viết lại, gán `col.round` trong `AddWaterCell`); `BlockMesherTests.cs` (thêm `FallingColumnRoundsBesideSolid`, đổi `ColumnCornerStepCapped` theo bước 3).
+
+- Bước QĐ 7 (Planner trả lời): trong vòng mặt bên của `AddWaterColumn`, đầu vuông mà ô cột dưới (`bs0/bs1`) hoặc trên (`ts0/ts1`, chỉ khi không phải mép tràn) bo ở góc đó → thêm đỉnh tách tại R / 1 − R; mặt bên vẽ bằng nối hai chuỗi đỉnh (đáy, đỉnh) kiểu khoá kéo. Hàm `SidePos` mới. Không có tách → giữ nguyên 2 tam giác cũ.
+- Bước 5: `AssertWatertight(mesh, (5, 3.5, 3), (5.999, 8, 4))` trong `ColumnCornerStepCapped` và `FallingColumnRoundsBesideSolid` (hộp bỏ mặt x = 6 vì mặt áp đất không vẽ theo QĐ 4, bỏ y < 3,5 để tránh bo lõm chân thác).
+- Commit code: `bf8a633` — `client/Assets/Game/World/BlockMesher.cs`, `client/Assets/Game/Tests/World/BlockMesherTests.cs`.
 
 ## Kết quả test
 - Lệnh 1 (code cũ, sau bước 2): `FallingColumnRoundsBesideSolid` **fail** đúng như mong — `fillet top (+x, -z)` Expected True But was False (`BlockMesherTests.cs:1211`) [run].
 - Sau bước 1+3: `read_console` Error 0. `BlockMesherTests` 51/53 đạt; `FallingColumnRoundsBesideSolid` và `ColumnCornerStepCapped` đạt; **2 test cũ fail** (xem Vướng mắc) [run]. Chưa chạy EditMode toàn bộ / PlayMode vì đã dừng.
+- Sau QĐ 7 + bước 5 (lần sửa đầu, đạt ngay):
+  - Lệnh 2: `BlockMesherTests` **53/53 đạt** — gồm `FallingColumnRoundsBesideSolid`, `ColumnCornerStepCapped` (kỳ vọng mới + kín), `LipTapersAtChannelSpill`, `LipTapersIntoUpstreamCell` (không đổi kỳ vọng), các test chân thác, `AssertNoDuplicateWaterVertices`, `TrianglesFaceTheirNormals` [run].
+  - Lệnh 3: EditMode toàn bộ **693/693 đạt** [run].
+  - Lệnh 4: PlayMode `WaterFlowPlayTests` **4/4 đạt**; đã `git checkout -- client/ProjectSettings/EditorSettings.asset` [run].
+  - Lệnh 5: `read_console` Error **0** [run].
+  - Lệnh 6: `git status` trước commit chỉ có `BlockMesher.cs`, `BlockMesherTests.cs`, brief [run].
+- Phần cần test: bo góc kề khối đặc — đạt; nắp 0090 luật mới — đạt; mép tràn/đoạn thon/cầu góc không đổi — đạt; bo lõm chân thác không đổi — đạt; không đỉnh trùng, mặt đúng hướng — đạt; mức nước/mô phỏng — đạt (EditMode); Play không lỗi — đạt. Phần "User tự test" — **chờ user** (gộp cuối 5j).
 
 ## Vướng mắc
 **Hai test cũ fail ở `AssertWatertight` (bước 4 → dừng):**
