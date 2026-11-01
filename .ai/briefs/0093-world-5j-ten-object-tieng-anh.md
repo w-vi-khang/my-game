@@ -1,6 +1,6 @@
 # Brief 0093 — World 5j (lỗi 16): đổi tên object "Người chơi" → "Player", quét tên object trong scene
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · low
 > Cập nhật: 2026-11-01 20:50
@@ -142,9 +142,17 @@ Không.
 Base commit: 49f9563
 Chạy bằng: claude-sonnet-5-5 · low
 Bước 1: scene đang mở SimView, isDirty=false.
-Bước 2: đã sửa HardcodedTextScanTests.cs (chưa commit, đúng như brief). refresh_unity compile OK.
+Bước 2: đã sửa HardcodedTextScanTests.cs, compile OK.
+Bước 3–4: sửa 3 scene (mỗi file 1 dòng); load SimView + get_hierarchy có `Player`, scene không dirty. Editor đã được Planner dừng Play Mode trước đó.
+Commit: b0e4678 — SimView.unity, TerrainView.unity, WalkBench.unity, HardcodedTextScanTests.cs.
 
 ## Kết quả test
+- Test quét tên object · `NoVietnameseObjectNames` trên scene cũ · đạt (fail đúng 3 dòng: SimView:332, TerrainView:332, WalkBench:339).
+- Đổi tên · sau bước 3 EditMode toàn bộ · đạt.
+- grep `Ng\u01B0` → không còn; `git diff --stat` → mỗi scene 1 dòng · đạt.
+- Unity đọc scene · load SimView + get_hierarchy · có `Player` · đạt.
+- Test quét cũ · HardcodedTextScanTests 5/5 · đạt.
+- EditMode toàn bộ: 694/694. read_console Error: 0.
 ## Kiểm chứng
 Chưa kiểm được: client_test/client_test_play (tools/unity_test.py) cần Editor tắt, nhưng Editor đang mở và ở Play Mode (dùng chung qua MCP, 0010); run_tests MCP bị từ chối. Checklist chưa đối chiếu: brief đang bị chặn, test chưa chạy.
 
