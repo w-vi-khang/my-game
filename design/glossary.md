@@ -64,6 +64,7 @@
 | Độ thoáng (nước) | Tỉ lệ ô không đặc trong ô vuông 9×9 cùng lớp quanh một điểm mặt nước; mesher ghi vào đỉnh, shader tắt bọt bờ ở chỗ hẹp (rãnh, ao nhỏ) (ý tưởng, world 5k, brief 0096) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Bọt bờ | Các vệt bọt trắng song song với bờ, trôi vào/ra theo thời gian (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Vệt chảy | Vệt sáng trên mặt nước trôi theo hướng chảy (ô lan, ô rơi); mặt ao chỉ gợn tại chỗ (ý tưởng, world 5k) | [04-tech/world-tech.md](04-tech/world-tech.md) |
+| Hướng chảy chính (main_flow) | Của ô nước chảy B có cha A: ô con C của B nằm tiếp theo hướng AB (BC = AB); không có thì null. Vật nổi ưu tiên trôi theo hướng này (M2) (user 2026-11-02, world 5k, brief 0098) | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Mép cỏ | Phần cỏ của ô cỏ nhô ra khỏi mặt trên và phủ xuống sườn, mép dưới lượn sóng (chỉ hiển thị, không ảnh hưởng luật chơi) | [decisions/0011](decisions/0011-dia-hinh-khoi-bo-canh.md) |
 | Phiên bản bộ sinh | Phiên bản thuật toán sinh world từ seed; lưu kèm dữ liệu để biết world gốc | [04-tech/world-tech.md](04-tech/world-tech.md) |
 | Khung chiếm chỗ | Tập ô voxel một sinh vật/cây/vật phẩm chiếm trên lưới; chỉ biểu thị không gian, không quyết định hình dạng hiển thị | [03-art-audio/art-style.md](03-art-audio/art-style.md) |

@@ -69,3 +69,6 @@
 
 ## Nước — hiệu ứng chân thác (user, 2026-10-29, để sau)
 - Nước bắn / sủi bọt ở chân thác (particle VFX, client Unity). User chọn để sau, làm khi đã sửa xong lỗi nước và vật phẩm phát hiện khi chơi thử 0079–0081 (brief 0081, mục Review). → gộp vào bước 5k [ý tưởng] ([world-tech](04-tech/world-tech.md), 2026-10-29) → **cắt khỏi 5k, để M2** cùng bọt mép tràn (user 2026-11-01; ước lượng 1–2 ngày-người [ý tưởng]).
+
+## Nước — vật nổi trôi theo hướng chảy (user, 2026-11-02, M2)
+- [ý tưởng] Vật nổi trên nước (vật rơi, sinh vật…) trôi sang ô con theo **hướng chảy chính** (main_flow) của ô đang đứng; main_flow = null thì chọn ngẫu nhiên một ô con. M1 chưa có vật nổi; dữ liệu main_flow có từ brief 0098 ([world-tech](04-tech/world-tech.md) mục "Hiển thị dòng chảy"). Ước lượng (AI) 1–2 ngày-người khi làm.
