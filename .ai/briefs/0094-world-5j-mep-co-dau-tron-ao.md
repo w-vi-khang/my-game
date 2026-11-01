@@ -1,9 +1,9 @@
 # Brief 0094 — World 5j (lỗi 14–15): đầu dải mép cỏ tròn ngắn + mép cỏ nhận AO
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-11-01 21:50
+> Cập nhật: 2026-11-01 21:52
 
 ## Mục tiêu
 Lỗi 14 và 15 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md), mục 14–15. User chơi thử ngày 2026-11-01 và thấy hai lỗi ở bậc thang cỏ:
@@ -291,8 +291,37 @@ Gộp cuối 5j. SimView, Play, bậc thang cỏ phía nam trại (chỗ chụp 
 ---
 
 ## Kết quả
+- Base commit: 977bf3d
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-11-01 21:40
+- Kết thúc: 2026-11-01 21:52 (≈ 12 phút làm + ~7 phút chờ EditMode toàn bộ).
+- Commit: `fb0d8b0` — `client/Assets/Game/World/BlockMesher.cs`, `client/Assets/Game/Tests/World/BlockMesherTests.cs`.
+- Bước 0: Editor không ở Play Mode. 4 ảnh `b0094_before_0..3.png` [run].
+- Bước 1–3 làm đúng nguyên văn brief. `float4 ao = TopAo(g);` trong `AddLipEdge` đặt sau khi dựng `sig` (trước vòng đỉnh), ngoài mọi vòng lặp. `grep AddVertex(` trong 3 hàm mép cỏ: không còn (chỉ còn trong `AddLipVertex`).
+- Burst compile `FixedList128Bytes<float>`, `float4` indexer, `AoBrightness`: không lỗi, `read_console` Error = 0.
+- Nhận xét ảnh after:
+  - `after_0`: đầu dải cạnh vách bo tròn ngắn, không còn lưỡi dao; sát vách không có mảng sáng nổi.
+  - `after_1`: khe hẹp x = 4 nhìn từ dưới: đáy dải cong tròn, phẳng ở giữa, không chữ V.
+  - `after_2`: (before là mũi tên chữ V rõ) giờ dải hẹp có hai đầu tròn, đáy phẳng. Còn một mấu nhọn nhỏ tối ở góc trên phải (~690, 200 px) — có cả ở ảnh before, không phải dải đang sửa (có thể là mảnh của ô kế bên/góc) [chưa xác minh], đề nghị Planner xem.
+  - `after_3`: đầu dải sát vách tròn, tối dần theo vách, không còn mảng sáng.
+
 
 ## Kết quả test
+- Fail-first (code cũ + hằng tạm `LipTaperSegments = 4`, `LipTaperLength` vẫn 0,5) [run, MCP run_tests]: 1/3 đạt.
+  - `LipEndTapersIntoSolidNeighbour`: fail — "+x lip at z 4.96194 Expected 5.04592 But was -3.40E+38" (không có cột tại z mới).
+  - `LipTakesTopFaceAo`: fail ở (b) — "top face color at float3(5f, 9f, 5f) Expected 22326906 But was 23120012".
+  - `NarrowCellLipIsRoundedNotV`: **đạt** trên code cũ — với hằng tạm 0,5 ba điểm z (4 + 0,5; 4,5; 5 − 0,5) trùng nhau ở 4,5 nên (a) không phân biệt được; (b)(c) code cũ cũng thoả (đã bỏ tam giác suy biến từ 0091). Test không bắt được chữ V khi `LipTaperLength` = 0,5 — Planner xem có cần thêm kiểm (vd tại z 4,25 nhô đủ) không.
+- Thon 1/4 elip 0,3 · `LipEndTapersIntoSolidNeighbour` · **đạt**.
+- Ô hẹp tròn · `NarrowCellLipIsRoundedNotV` · **đạt** (xem ghi chú fail-first).
+- Mép cỏ nhận AO · `LipTakesTopFaceAo` · **đạt**.
+- Dải không thon không đổi · `LipIsDeterministicAndContinuousAcrossCellsAndChunks`, `LipOnlyOnGrassWithOpenTopAndSide`, `LipIsClosedFromBelowAndUnchangedFromAbove` · **đạt** (trong lớp 55/55).
+- Mặt đúng hướng, 16 bit · `TrianglesFaceTheirNormals`, `EveryM1ChunkFits16BitIndices` · **đạt**. `MESHSTATS rounded edges: 22/32 chunks have surface; max 15032 triangles, 11845 vertices/chunk`.
+- Lệnh:
+  - `run_tests` EditMode lớp `BlockMesherTests`: 55/55 đạt.
+  - `run_tests` EditMode toàn bộ: 696/696 đạt (418 s).
+  - `read_console` Error: 0.
+  - `git status`: chỉ 2 file Phạm vi + brief (file `.ai/tasks/m1-world-5k-nuoc-kieu-anh-tham-khao.md` untracked là của phiên khác, không đụng).
+- Hình ảnh · 8 ảnh `b0094_{before,after}_0..3.png` · nhận xét ở Kết quả · **chờ user** (gộp cuối 5j).
 
 ## Vướng mắc
 
