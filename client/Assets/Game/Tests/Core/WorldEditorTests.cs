@@ -31,6 +31,38 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void SolidChangedOnlyOnDigAndPlace()
+        {
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+            {
+                w.Set(x, 0, z, Cell.Make(BlockMaterial.Bedrock));
+                for (int y = 1; y <= 3; y++)
+                    w.Set(x, y, z, Cell.Make(BlockMaterial.Stone));
+            }
+            w.Set(4, 4, 4, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(5, 4, 4, Cell.Make(BlockMaterial.Stone));
+            var bag = new PlayerBag();
+            bag.Add(BlockMaterial.Stone, 10);
+            var e = new WorldEditor(w, bag, 1);
+            int solid = 0, cell = 0;
+            e.SolidChanged += (x, y, z) => solid++;
+            e.CellChanged += (x, y, z) => cell++;
+            Assert.AreEqual(EditResult.Ok, e.TryDig(5, 4, 4));
+            Assert.AreEqual(1, solid);
+            Assert.AreEqual(1, cell);
+            e.SettleWater(1000);
+            Assert.IsFalse(e.HasPendingWater);
+            Assert.AreEqual(1, solid, "water flow must not raise SolidChanged");
+            Assert.Greater(cell, 1, "water flow still raises CellChanged");
+            int cellBefore = cell;
+            Assert.AreEqual(EditResult.Ok, e.TryPlace(10, 4, 10, BlockMaterial.Stone));
+            Assert.AreEqual(2, solid);
+            Assert.AreEqual(cellBefore + 1, cell);
+        }
+
+        [Test]
         public void PlayerAtBlocksPlace()
         {
             editor.IsPlayerAt = (x, y, z) => x == 4 && y == 1 && z == 4;

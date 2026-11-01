@@ -1124,6 +1124,44 @@ namespace Game.World.Tests
             Assert.AreEqual(57, (int)(WaterVertexColor(mesh, up, new float3(10, 5.9f, 10)) >> 24), 1);
         }
 
+        [Test]
+        public void WaterSurfaceShoreDistanceEncoded()
+        {
+            var w = StoneFloor16();
+            for (int z = 2; z <= 12; z++)
+            {
+                w.Set(3, 5, z, Cell.Make(BlockMaterial.Stone));
+                for (int x = 4; x <= 12; x++)
+                    w.Set(x, 5, z, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            }
+            w.Set(10, 5, 10, Cell.Make(BlockMaterial.Stone));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            int[] wantR = { 0, 64, 128, 191, 255 };
+            for (int k = 0; k < wantR.Length; k++)
+            {
+                uint c = WaterVertexColor(mesh, up, new float3(4 + k, 5.9f, 4));
+                Assert.AreEqual(wantR[k], (int)(c & 0xFF), 1, $"R x={4 + k}");
+                Assert.AreEqual(0xFFFFu, (c >> 8) & 0xFFFFu, $"GB x={4 + k}");
+                Assert.AreEqual(57, (int)(c >> 24), 1, $"A x={4 + k}");
+            }
+            uint c1 = WaterVertexColor(mesh, up, new float3(11, 5.9f, 12));
+            Assert.AreEqual(64, (int)(c1 & 0xFF), 1, "R (11,12)");
+            Assert.AreEqual(0xFFFFu, (c1 >> 8) & 0xFFFFu);
+            Assert.AreEqual(57, (int)(c1 >> 24), 1);
+            uint c2 = WaterVertexColor(mesh, up, new float3(12, 5.9f, 12));
+            Assert.AreEqual(90, (int)(c2 & 0xFF), 1, "R (12,12)");
+            Assert.AreEqual(0xFFFFu, (c2 >> 8) & 0xFFFFu);
+            Assert.AreEqual(57, (int)(c2 >> 24), 1);
+            for (int t = 0; t < mesh.WaterIndices.Length; t++)
+            {
+                int i = mesh.WaterIndices[t];
+                if (mesh.Normals[i].y <= 0.999f)
+                    Assert.AreEqual(0xFFFFFFFFu, mesh.Colors[i], $"non-up vertex {mesh.Vertices[i]}");
+            }
+            AssertNoDuplicateWaterVertices(mesh);
+        }
+
         static bool HasWaterVertexNear(ChunkMesh mesh, float3 pos, float3 normal)
         {
             for (int t = 0; t < mesh.WaterIndices.Length; t++)

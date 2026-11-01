@@ -21,6 +21,8 @@ namespace Game.Client
         /// <summary>Nguồn world để lấy mực nước và kích thước (brief 0010). Mặc định đảo v2.</summary>
         public WorldSource source = WorldSource.IslandV2;
 
+        Material lookMaterial;
+
         void Awake()
         {
             int waterLevel, sizeX, sizeZ;
@@ -38,6 +40,18 @@ namespace Game.Client
             transform.rotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             GetComponent<MeshFilter>().sharedMesh = BuildRing(sizeX, sizeZ, extent, cellSize);
+            var r = GetComponent<MeshRenderer>();
+            if (r != null)
+            {
+                lookMaterial = r.material; // bản sao riêng cho renderer, huỷ ở OnDestroy
+                WaterLook.Apply(lookMaterial, ConfigLoader.LoadWaterConfig().look);
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (lookMaterial != null)
+                Destroy(lookMaterial);
         }
 
         /// <summary>Lưới ô vuông phủ [−extent, size + extent], bỏ các ô nằm trong map [0, sizeX] × [0, sizeZ].</summary>

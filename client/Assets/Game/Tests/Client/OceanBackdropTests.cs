@@ -9,6 +9,31 @@ namespace Game.Client.Tests
     public class OceanBackdropTests
     {
         [UnityTest]
+        public IEnumerator OceanRingUsesWaterLook()
+        {
+            var look = ConfigLoader.LoadWaterConfig().look;
+            var go = new GameObject("Ocean look test", typeof(MeshFilter), typeof(MeshRenderer));
+            var src = new Material(Shader.Find("Game/Ocean"));
+            try
+            {
+                go.GetComponent<MeshRenderer>().sharedMaterial = src;
+                go.AddComponent<OceanBackdrop>();
+                yield return null;
+                var m = go.GetComponent<MeshRenderer>().sharedMaterial;
+                var c = m.GetColor("_ShallowColor");
+                Assert.AreEqual(look.shallowColor[0], c.r, 1e-4f);
+                Assert.AreEqual(look.shallowColor[1], c.g, 1e-4f);
+                Assert.AreEqual(look.shallowColor[2], c.b, 1e-4f);
+                Assert.AreEqual(0.35f, m.GetFloat("_ShoreSoftWidth"), 1e-4f);
+            }
+            finally
+            {
+                Object.Destroy(go);
+                Object.Destroy(src);
+            }
+        }
+
+        [UnityTest]
         public IEnumerator OceanRingSitsAtWaterSurfaceAndSkipsMap()
         {
             var p = ConfigLoader.LoadTerrainParams();

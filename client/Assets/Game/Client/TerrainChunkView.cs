@@ -236,12 +236,14 @@ namespace Game.Client
             waterFilletSegments = waterCfg.filletSegments;
             Editor.CellChanged += OnCellChanged;
             Editor.WaterSurfaceChanged += OnCellChanged;
+            Editor.SolidChanged += OnSolidChanged;
             dirty.Clear();
 
             // Mặc định: shader Game/Terrain (màu đỉnh theo vật liệu, nhám — decision 0011); color là sắc nhân thêm.
             var mat = material != null ? material : CreateTerrainMaterial();
             mat.SetColor("_BaseColor", color);
-            var water = waterMaterial != null ? waterMaterial : CreateWaterMaterial();
+            var water = waterMaterial != null ? new UnityEngine.Material(waterMaterial) : CreateWaterMaterial();
+            WaterLook.Apply(water, waterCfg.look);
             slotMat = mat;
             slotWater = water;
             pool.Clear();
@@ -327,6 +329,9 @@ namespace Game.Client
         }
 
         void OnCellChanged(int x, int y, int z) => Editor.AffectedChunks(x, y, z, dirty);
+
+        /// <summary>Đào/đặt khối: khoảng cách tới bờ trên mặt nước đọc tới WaterShoreMargin ô → đánh dấu chunk kề theo lề đó (brief 0095).</summary>
+        void OnSolidChanged(int x, int y, int z) => WorldEditor.AffectedChunks(World.Size, BlockMesher.WaterShoreMargin, x, y, z, dirty);
 
         void LateUpdate()
         {

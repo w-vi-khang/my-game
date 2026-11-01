@@ -5,6 +5,7 @@
 // Task m1-bien-nhuom-mau-troi (brief 0034): mặt trên nhuộm dần sang màu chân trời theo buổi; sương chuyển mềm (SoftFogFactor).
 // Brief 0082: pass "WaterDepthPrepass" (SRPDefaultUnlit) ghi độ sâu trước ForwardLit — nước trong suốt chỉ hiện mặt gần nhất; Ocean.mat (đục) tắt pass này.
 // Brief 0084: mặt nước nhạt + trong hơn khi mỏng (độ dày từ alpha màu đỉnh do BlockMesher ghi; _VertexDepth = 0 cho Ocean.mat).
+// Brief 0095: màu nông→sâu theo smoothstep độ dày; viền bờ mờ theo khoảng cách tới bờ (kênh R màu đỉnh); tham số từ water_m1.json "look" (WaterLook).
 Shader "Game/Ocean"
 {
     Properties
@@ -18,6 +19,7 @@ Shader "Game/Ocean"
         _VertexDepth("Độ dày từ màu đỉnh (1 = nước trong map, brief 0084)", Range(0, 1)) = 0
         _DepthFull("Độ dày coi là đầy (ô)", Float) = 1
         _ThinAlpha("Hệ số alpha khi nước rất mỏng", Range(0, 1)) = 0.25
+        _ShoreSoftWidth("Độ rộng viền bờ mờ (ô, brief 0095)", Float) = 0.35
         [HideInInspector] _SrcBlend("Src blend", Float) = 1
         [HideInInspector] _DstBlend("Dst blend", Float) = 0
         [HideInInspector] _ZWrite("ZWrite", Float) = 1
@@ -34,7 +36,7 @@ Shader "Game/Ocean"
             half4 _DeepColor, _ShallowColor;
             float _RippleScale;
             half _RippleStrength, _Glint, _Alpha;
-            half _VertexDepth, _ThinAlpha;
+            half _VertexDepth, _ThinAlpha, _ShoreSoftWidth;
             float _DepthFull;
         CBUFFER_END
         ENDHLSL
@@ -84,9 +86,11 @@ Shader "Game/Ocean"
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 half depthT : TEXCOORD1;
+                half shoreD : TEXCOORD2;
             };
 
             static const float WaterDepthEncodeMax = 4.0; // = BlockMesher.WaterDepthEncodeMax
+            static const float WaterShoreEncodeMax = 4.0; // = BlockMesher.WaterShoreEncodeMax
 
             Varyings vert(Attributes input)
             {
@@ -95,6 +99,7 @@ Shader "Game/Ocean"
                 o.positionCS = p.positionCS;
                 o.positionWS = p.positionWS;
                 o.depthT = lerp(1.0h, saturate(input.color.a * WaterDepthEncodeMax / _DepthFull), _VertexDepth);
+                o.shoreD = lerp(WaterShoreEncodeMax, input.color.r * WaterShoreEncodeMax, _VertexDepth);
                 return o;
             }
 
@@ -163,8 +168,8 @@ Shader "Game/Ocean"
 
                 float3 v = normalize(GetWorldSpaceViewDir(input.positionWS));
                 half fres = pow(1.0 - saturate(dot(v, n)), 3.0);
-                half3 baseCol = lerp(_DeepColor.rgb, _ShallowColor.rgb, saturate(0.25 + fres));
-                baseCol = lerp(_ShallowColor.rgb, baseCol, input.depthT);
+                half dT = smoothstep(0.0h, 1.0h, input.depthT); // chuyển màu êm (brief 0095)
+                half3 baseCol = lerp(_ShallowColor.rgb, _DeepColor.rgb, dT);
 
                 Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half shadow = light.shadowAttenuation * light.distanceAttenuation;
@@ -186,7 +191,8 @@ Shader "Game/Ocean"
                     fogVis = fogF;
                 #endif
                 half alpha = lerp(1.0, lerp(_Alpha, 1.0, fres), fogVis);
-                alpha *= lerp(_ThinAlpha, 1.0h, input.depthT);
+                alpha *= lerp(_ThinAlpha, 1.0h, dT);
+                alpha *= smoothstep(0.0h, _ShoreSoftWidth, input.shoreD); // viền bờ mờ dần (brief 0095)
                 return half4(c, alpha);
             }
             ENDHLSL

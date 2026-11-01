@@ -135,6 +135,9 @@ namespace Game.Core
         /// <summary>Ô (x, y, z) vừa đổi — cho tìm đường, môi trường sống, hiển thị.</summary>
         public event Action<int, int, int> CellChanged;
 
+        /// <summary>Khối đặc đổi do đào/đặt (brief 0095) — client dựng lại chunk trong lề WaterShoreMargin (khoảng cách tới bờ của mặt nước). Nước lan/rút không phát.</summary>
+        public event Action<int, int, int> SolidChanged;
+
         /// <summary>Ô nước đổi mức/cờ mà vật liệu không đổi (0042) — client dựng lại mesh; mô phỏng không nghe.</summary>
         public event Action<int, int, int> WaterSurfaceChanged;
 
@@ -166,6 +169,7 @@ namespace Game.Core
             Drops.Add(x, y, z, ItemId.Block(material == BlockMaterial.Farmland ? BlockMaterial.Dirt : material), 1);
             Drops.OnCellCleared(x, y, z);
             CellChanged?.Invoke(x, y, z);
+            SolidChanged?.Invoke(x, y, z);
             if (SeaLevel >= 0 && y <= SeaLevel && TouchesWater(x, y, z))
                 AddToFront(x, y, z);
             ActivateAround(x, y, z);
@@ -210,6 +214,7 @@ namespace Game.Core
             World.Set(x, y, z, Cell.SetModified(Cell.ClearFlow(Cell.SetWaterLevel(Cell.SetMaterial(cell, material), 0)), true));
             Drops.PushUp(x, y, z);
             CellChanged?.Invoke(x, y, z);
+            SolidChanged?.Invoke(x, y, z);
             RevertFarmlandBelow(x, y, z);
             if (wasWater && nodeAt.TryGetValue((x, y, z), out int removed))
                 RemoveNode(removed, true);
