@@ -74,6 +74,14 @@ namespace Game.Core
         /// <summary>Mảng ô gốc (đọc/ghi trực tiếp — dùng khi sinh world, băm, dựng mesh).</summary>
         public ushort[] Cells => cells;
 
+        /// <summary>Hướng chảy theo ô (brief 0098): hướng từ ô cha kề cùng lớp tới ô nước chảy ngang — 0 không có, 1 = +z, 2 = +x, 3 = −z, 4 = −x.
+        /// Null cho tới khi WorldEditor ghi lần đầu; chỉ có nghĩa ở ô nước đang chảy, không rơi (ô khác có thể còn giá trị cũ). Không lưu, không băm.</summary>
+        public byte[] FlowDirs { get; private set; }
+
+        public byte[] EnsureFlowDirs() => FlowDirs ??= new byte[Size.CellCount];
+
+        public byte FlowDirAt(int x, int y, int z) => FlowDirs == null ? (byte)0 : FlowDirs[Size.Index(x, y, z)];
+
         public ushort Get(int x, int y, int z) => cells[Size.Index(x, y, z)];
 
         public void Set(int x, int y, int z, ushort cell) => cells[Size.Index(x, y, z)] = cell;

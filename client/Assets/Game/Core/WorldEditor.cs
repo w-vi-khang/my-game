@@ -385,6 +385,25 @@ namespace Game.Core
             return true;
         }
 
+        /// <summary>Hướng chảy chính (main_flow, user 2026-11-02): ô con C của ô nước chảy B nằm tiếp theo hướng cha → B (C − B = B − cha; cha kề B theo 1 trong 6 hướng).
+        /// Không có (không phải nút, nguồn, cha không kề, không có con đúng hướng) → false. Vật nổi (M2) ưu tiên trôi theo hướng này.</summary>
+        public bool TryGetMainFlow(int x, int y, int z, out int cx, out int cy, out int cz)
+        {
+            cx = cy = cz = 0;
+            if (!nodeAt.TryGetValue((x, y, z), out int id))
+                return false;
+            var n = nodes[id];
+            if (n.Parent == NoParent || !nodes.TryGetValue(n.Parent, out var p))
+                return false;
+            int dx = n.X - p.X, dy = n.Y - p.Y, dz = n.Z - p.Z;
+            if (Math.Abs(dx) + Math.Abs(dy) + Math.Abs(dz) != 1)
+                return false;
+            if (!nodeAt.TryGetValue((x + dx, y + dy, z + dz), out int c) || nodes[c].Parent != id)
+                return false;
+            cx = x + dx; cy = y + dy; cz = z + dz;
+            return true;
+        }
+
         int LevelOf(int id)
         {
             var n = nodes[id];
@@ -458,6 +477,7 @@ namespace Game.Core
             var node = nodes[id];
             nodeAt.Remove((node.X, node.Y, node.Z));
             nodes.Remove(id);
+            SetFlowDir(node.X, node.Y, node.Z, 0);
             if (node.Parent != NoParent && children.TryGetValue(node.Parent, out var siblings))
                 siblings.Remove(id);
             if (children.TryGetValue(id, out var list))
@@ -489,9 +509,33 @@ namespace Game.Core
                 old.Remove(id);
             n.Parent = parent;
             nodes[id] = n;
+            byte code = FlowDirCode(n.X, n.Y, n.Z, parent);
+            if (World.FlowDirAt(n.X, n.Y, n.Z) != code)
+            {
+                SetFlowDir(n.X, n.Y, n.Z, code);
+                WaterSurfaceChanged?.Invoke(n.X, n.Y, n.Z);
+            }
             if (!children.TryGetValue(parent, out var list))
                 children[parent] = list = new List<int>();
             list.Add(id);
+        }
+
+        /// <summary>Mã hướng cha → nút (FlowDirs, brief 0098): cha kề ngang cùng lớp → chỉ số D4 + 1; còn lại 0.</summary>
+        byte FlowDirCode(int x, int y, int z, int parent)
+        {
+            if (parent == NoParent || !nodes.TryGetValue(parent, out var p) || p.Y != y)
+                return 0;
+            for (int i = 0; i < D4.Length; i++)
+                if (x - p.X == D4[i].dx && z - p.Z == D4[i].dz)
+                    return (byte)(i + 1);
+            return 0;
+        }
+
+        void SetFlowDir(int x, int y, int z, byte code)
+        {
+            if (code == 0 && World.FlowDirs == null)
+                return;
+            World.EnsureFlowDirs()[World.Size.Index(x, y, z)] = code;
         }
 
         /// <summary>ancestor là tổ tiên (kể cả cha) của id.</summary>
@@ -622,6 +666,7 @@ namespace Game.Core
             int id = nextId++;
             nodes[id] = new FlowNode { X = x, Y = y, Z = z, Parent = parent, Source = false };
             nodeAt[(x, y, z)] = id;
+            SetFlowDir(x, y, z, FlowDirCode(x, y, z, parent));
             if (!children.TryGetValue(parent, out var list))
                 children[parent] = list = new List<int>();
             list.Add(id);

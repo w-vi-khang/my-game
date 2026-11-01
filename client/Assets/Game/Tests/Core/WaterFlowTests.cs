@@ -953,5 +953,150 @@ namespace Game.Core.Tests
             Settle(e2);
             CollectionAssert.AreEqual(Layer(w2, 6), Layer(w, 6));
         }
+
+        static void AssertMain(WorldEditor e, int x, int y, int z, int ex, int ey, int ez)
+        {
+            Assert.IsTrue(e.TryGetMainFlow(x, y, z, out int cx, out int cy, out int cz), $"main_flow ({x},{y},{z}) missing");
+            Assert.AreEqual((ex, ey, ez), (cx, cy, cz), $"main_flow ({x},{y},{z})");
+        }
+
+        static void AssertNoMain(WorldEditor e, int x, int y, int z) =>
+            Assert.IsFalse(e.TryGetMainFlow(x, y, z, out _, out _, out _), $"main_flow ({x},{y},{z}) should be null");
+
+        [Test]
+        public void MainFlowStraightChannel()
+        {
+            var w = Corridor();
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            for (int x = 1; x <= 14; x++)
+                AssertMain(e, x, 6, 8, x + 1, 6, 8);
+            AssertNoMain(e, 15, 6, 8);
+            AssertNoMain(e, 0, 6, 8);
+            for (int x = 1; x <= 15; x++)
+                Assert.AreEqual(2, w.FlowDirAt(x, 6, 8), $"dir x={x}");
+            Assert.AreEqual(0, w.FlowDirAt(0, 6, 8));
+        }
+
+        [Test]
+        public void MainFlowBendIsNull()
+        {
+            var w = Flat(5);
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+                w.Set(x, 6, z, Cell.Make(BlockMaterial.Stone));
+            w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            for (int x = 2; x <= 5; x++)
+                w.Set(x, 6, 8, Cell.Make(BlockMaterial.Empty));
+            for (int z = 9; z <= 13; z++)
+                w.Set(5, 6, z, Cell.Make(BlockMaterial.Empty));
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            AssertMain(e, 3, 6, 8, 4, 6, 8);
+            AssertNoMain(e, 5, 6, 8);
+            Assert.AreEqual(2, w.FlowDirAt(5, 6, 8));
+            AssertMain(e, 5, 6, 9, 5, 6, 10);
+            Assert.AreEqual(1, w.FlowDirAt(5, 6, 9));
+            AssertNoMain(e, 5, 6, 13);
+            Assert.AreEqual(1, w.FlowDirAt(5, 6, 13));
+        }
+
+        [Test]
+        public void MainFlowFallingColumn()
+        {
+            var w = Flat(3);
+            for (int x = 0; x < 16; x++)
+            for (int y = 4; y <= 5; y++)
+                w.Set(x, y, 8, Cell.Make(BlockMaterial.Stone));
+            w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(0, 6, 9, Cell.Make(BlockMaterial.Stone));
+            w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
+            var e = Editor(w);
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            AssertNoMain(e, 1, 6, 9);
+            Assert.AreEqual(1, w.FlowDirAt(1, 6, 9));
+            AssertMain(e, 1, 5, 9, 1, 4, 9);
+            Assert.AreEqual(0, w.FlowDirAt(1, 5, 9));
+            AssertNoMain(e, 1, 4, 9);
+            AssertNoMain(e, 0, 6, 8);
+        }
+
+        [Test]
+        public void FlowDirUpdatesOnReparent()
+        {
+            var w = Flat(5);
+            for (int x = 0; x < 16; x++)
+                w.Set(x, 6, 7, Cell.Make(BlockMaterial.Stone));
+            w.Set(0, 6, 8, Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            w.Set(0, 6, 9, Cell.Make(BlockMaterial.Stone));
+            w.Set(1, 6, 8, Cell.Make(BlockMaterial.Stone));
+            var e = Editor(w);
+            e.BasinFillRadius = 4;
+            Dig(e, 1, 6, 8);
+            Settle(e);
+            Assert.AreEqual(2, w.FlowDirAt(3, 6, 9));
+            var surface = new HashSet<(int, int, int)>();
+            e.WaterSurfaceChanged += (x, y, z) => surface.Add((x, y, z));
+            Place(e, 2, 6, 9);
+            Assert.AreEqual(1, w.FlowDirAt(3, 6, 9));
+            Assert.AreEqual(Node(e, 3, 6, 8), ParentOf(e, 3, 6, 9));
+            Assert.IsTrue(surface.Contains((3, 6, 9)));
+        }
+
+        [Test]
+        public void FlowDirsAndMainFlowMatchTree()
+        {
+            var w1 = OpenFloor();
+            var e1 = Editor(w1);
+            e1.BasinFillRadius = 4;
+            Dig(e1, 1, 6, 8);
+            Settle(e1);
+            Assert.Greater(CheckFlowInvariants(w1, e1), 20);
+
+            var w2 = RandomWorld();
+            var e2 = Editor(w2);
+            RandomEdits(w2, e2);
+            Assert.Greater(CheckFlowInvariants(w2, e2), 0);
+        }
+
+        static int CheckFlowInvariants(WorldData w, WorldEditor e)
+        {
+            var pos = new Dictionary<int, (int x, int y, int z)>();
+            var list = new List<(int x, int y, int z, int id, int parent)>();
+            for (int z = 0; z < w.Size.Z; z++)
+            for (int y = 0; y < w.Size.Y; y++)
+            for (int x = 0; x < w.Size.X; x++)
+                if (e.TryGetFlowNode(x, y, z, out int id, out int parent))
+                {
+                    pos[id] = (x, y, z);
+                    list.Add((x, y, z, id, parent));
+                }
+            var d4 = new[] { (0, 1), (1, 0), (0, -1), (-1, 0) };
+            int checkedCount = 0;
+            foreach (var (x, y, z, id, parent) in list)
+            {
+                if (!Cell.IsFlowing(w.Get(x, y, z)) || !pos.TryGetValue(parent, out var p))
+                    continue;
+                checkedCount++;
+                int dx = x - p.x, dy = y - p.y, dz = z - p.z;
+                int expectDir = 0;
+                if (dy == 0)
+                    for (int i = 0; i < 4; i++)
+                        if (dx == d4[i].Item1 && dz == d4[i].Item2) expectDir = i + 1;
+                Assert.AreEqual(expectDir, w.FlowDirAt(x, y, z), $"FlowDirs ({x},{y},{z})");
+                bool expectMain = Mathf_Abs(dx) + Mathf_Abs(dy) + Mathf_Abs(dz) == 1
+                    && e.TryGetFlowNode(x + dx, y + dy, z + dz, out _, out int cp) && cp == id;
+                bool got = e.TryGetMainFlow(x, y, z, out int cx, out int cy, out int cz);
+                Assert.AreEqual(expectMain, got, $"main_flow ({x},{y},{z})");
+                if (got)
+                    Assert.AreEqual((x + dx, y + dy, z + dz), (cx, cy, cz), $"main_flow target ({x},{y},{z})");
+            }
+            return checkedCount;
+        }
+
+        static int Mathf_Abs(int v) => v < 0 ? -v : v;
     }
 }
