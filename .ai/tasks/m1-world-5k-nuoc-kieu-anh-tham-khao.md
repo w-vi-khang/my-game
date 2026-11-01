@@ -51,6 +51,7 @@ Nước trong game giống ảnh tham khảo 3: bãi cát nhìn từ trên, nư�
 - Áp cho biển nền + nước trong map, dùng chung kiểu; điện thoại ≥ 30 FPS (user, 2026-11-01).
 - Làm sau khi 5j xong (world-tech `:141`).
 - Không lưu ảnh tham khảo vào repo (user, 2026-11-01).
+- Gác đo FPS điện thoại: hoàn thiện cả 4 phần trên máy tính trước, đo điện thoại sau (user, 2026-11-01).
 
 ## Câu hỏi còn mở
 - ~~Thiết kế kỹ thuật phần 1~~ → chốt trong brief [0095](../briefs/0095-world-5k-mau-theo-do-sau-vien-bo.md) (2026-11-01). Tóm tắt: khoảng cách tới bờ ghi vào kênh R màu đỉnh (tối đa 4 ô); biển nền = xa bờ + sâu (không cần đáy, đảo cách mép map ≥ 30 ô); không dùng depth texture URP. Câu gốc:
