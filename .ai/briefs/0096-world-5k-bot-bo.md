@@ -1,6 +1,6 @@
 # Brief 0096 — World 5k phần 2: bọt bờ (vệt bọt song song bờ, trôi vào/ra; độ thoáng ghi vào đỉnh)
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -170,10 +170,21 @@ Gộp cuối 5k. Play, scene SimView, xem cạnh ảnh tham khảo:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: e10f5f9
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-11-01 22:38 (+07) · dừng: 22:47 (cần Opus)
 
 ## Kết quả test
+- Bước 1 (fail trên code cũ) [run]: `WaterSurfaceOpennessEncoded`: "G x=8 Expected 28 ±1 But was 255"; `WaterSurfaceShoreDistanceEncoded`: "G x=4 Expected 233 ±1 But was 255".
+- Sau bước 2–4: console Error = 0 [run]. EditMode toàn bộ (703 test, lần 1): 701 đạt, 2 fail. `ConfigFileMatchesDefaults` đã sửa (default `configVersion` trong `WaterConfig.cs` 5 → 6, trong Phạm vi) và đạt khi chạy lại. Còn lại 1 fail, xem Vướng mắc.
+- Chưa chạy: PlayMode, ảnh bước 7 (dừng theo điều kiện "sửa file ngoài Phạm vi").
 
 ## Vướng mắc
+**`IncrementalRebuildTests.IncrementalRebuildMatchesFullRebuild` fail** (`chunk 7 after 40 edits`, index 1575: 1342150400 vs 1342151168 → chỉ khác kênh G, chênh 3).
+- Nguyên nhân: test (ngoài Phạm vi, "không được sửa mọi test khác") tạo `new WorldEditor(world, inv, BlockMesher.CellMargin)` (lề 1), nên `editor.AffectedChunks` chỉ dựng lại chunk kề trong 1 ô. Độ thoáng (cửa sổ 9×9, lề `WaterShoreMargin` = 4) đổi khi khối đặc đổi cách biên chunk 2–4 ô → mesh gia tăng lệch mesh dựng toàn bộ. Code game (`TerrainChunkView.OnSolidChanged`) đã dùng lề 4 nên không phải lỗi thật.
+- Đã thử tạm (đã hoàn lại): đổi test thành `BlockMesher.WaterShoreMargin` → test đạt [run].
+- Phương án: (A) cho phép sửa 1 dòng trong `IncrementalRebuildTests.cs` (`CellMargin` → `WaterShoreMargin`; comment dòng 34 nói đệm 1 ô) — **đề xuất**; (B) bỏ G khỏi so sánh — không nên.
+- Cây làm việc: code bước 2–4 + 6 chưa commit (sẵn sàng); còn thiếu quyết định A, rồi PlayMode + ảnh + commit.
 
 ---
 <!-- PLANNER ghi khi review. -->
