@@ -1,9 +1,9 @@
 # Brief 0092 — World 5j (lỗi 13): ô nước rơi bo góc cả khi kề khối đặc
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Review: đầy đủ + user xem (gộp cuối 5j)
 > Model thực thi: Opus · medium
-> Cập nhật: 2026-11-01 19:54
+> Cập nhật: 2026-11-01 20:12
 
 ## Mục tiêu
 Lỗi 13 của task [5j](../tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01 và thấy: chỗ cột thác đi qua khối đất nhô, tiết diện cột đổi từ góc vuông sang góc bo, nhìn thành bậc. Đổi luật bo góc của **ô nước rơi** cho tiết diện cột đồng đều suốt chiều cao. Luật mới: ô rơi bo góc cả khi phía bên là khối đặc, chỉ không bo khi phía bên là nước. User chọn 2026-11-01.
@@ -133,10 +133,26 @@ Gộp cuối 5j. SimView, Play:
 ---
 
 ## Kết quả
+- Base commit: c52d99b
+- Chạy bằng: claude-opus-5-5 · medium
+- Bắt đầu: 2026-11-01 19:56 · dừng (cần Opus): 20:12
+- Đã làm bước 1–3 (chưa commit, còn trong working tree): `BlockMesher.cs` (`WaterCol.round`, `Rounded` mới, `ColumnRound`, `ColumnCornerRounded` viết lại, gán `col.round` trong `AddWaterCell`); `BlockMesherTests.cs` (thêm `FallingColumnRoundsBesideSolid`, đổi `ColumnCornerStepCapped` theo bước 3).
 
 ## Kết quả test
+- Lệnh 1 (code cũ, sau bước 2): `FallingColumnRoundsBesideSolid` **fail** đúng như mong — `fillet top (+x, -z)` Expected True But was False (`BlockMesherTests.cs:1211`) [run].
+- Sau bước 1+3: `read_console` Error 0. `BlockMesherTests` 51/53 đạt; `FallingColumnRoundsBesideSolid` và `ColumnCornerStepCapped` đạt; **2 test cũ fail** (xem Vướng mắc) [run]. Chưa chạy EditMode toàn bộ / PlayMode vì đã dừng.
 
 ## Vướng mắc
+**Hai test cũ fail ở `AssertWatertight` (bước 4 → dừng):**
+- `LipTapersAtChannelSpill` (`:1135`): cạnh thừa `(8,11,7.3)→(8,11,7.7) x1 back x0` và `(7,11,7.7)→(7,11,7.3) x1 back x0`.
+- `LipTapersIntoUpstreamCell` (`:1235`): `(5.7,9,5)→(5.3,9,5) x1 back x0` và `(5.3,9,4)→(5.7,9,4) x1 back x0`.
+
+Nguyên nhân (đọc code, chưa dump đỉnh): ô thân cột ngay dưới mép tràn có một phía là đá (vd (7,10,7) có −z = (7,10,6) đá) → theo QĐ 2–3 nay bo ở hai góc phía đó, nên mặt bên +x/−x của nó rút còn z 7,3..7,7. Ô mép tràn bên trên (phía −z là nước, không hở) vẫn vuông ở góc đó, mặt bên kéo từ z 7 (đoạn thon) tới 7,7. Nắp 0090 lấp phần góc nằm ngang, nhưng cạnh đáy mặt bên mép tràn là một cạnh liền z 7→7,7, không tách tại 7,3 → T-junction với cạnh đỉnh 7,3→7,7 của mặt ô dưới. Trước 0092 hai ô cùng vuông nên khớp. (Test 0090 `ColumnCornerStepCapped` không gọi `AssertWatertight` nên cùng loại T-junction đó trước đây không bị bắt.)
+
+**Câu hỏi:** sửa hình hay đổi kỳ vọng test?
+- A. Trong `AddWaterColumn`, khi đầu `end` của mặt bên d vuông (`!r0`/`!r1`) mà `ColumnCornerRounded` của ô dưới (hoặc trên) tại góc đó đúng → thêm đỉnh tách tại t = R trên cạnh đáy (đỉnh) mặt bên, vẽ mặt bên thành 2 dải (0..R và R..1). Kín, các test cũ giữ kỳ vọng. Thêm ~15 dòng.
+- B. Chấp nhận T-junction (vết nứt cỡ sub-pixel), nới `AssertWatertight` ở hai test này — đổi kỳ vọng test cũ, không khuyến nghị.
+- Đề xuất: **A**, áp cho cả cạnh đáy và cạnh đỉnh (cùng luật với nắp 0090), thêm `AssertWatertight` vào `ColumnCornerStepCapped`.
 
 ---
 
