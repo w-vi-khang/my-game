@@ -20,6 +20,7 @@ Sửa 5 lỗi user thấy khi chơi thử, mỗi lỗi một brief (hoặc gộp
 11. Click di chuyển khi ở dưới nước/nhìn qua mặt ao: đích là mặt nước thay vì mặt khối đặc trong nước (`user5j_block_in_fall.webp`). Planner dump world đang chạy [run 2026-10-30]: dữ liệu nước quanh khối đặt vào cột thác (136,23,200) đúng — nước tràn trên khối, rơi 3 phía. Nguyên nhân khả dĩ: `PlayerCharacter.PointOnWorld` dùng `WaterRay.FirstWater` cho mọi ô nước (0086), gốc tia trong nước → t = 0 [repo `client/Assets/Game/Core/WaterRay.cs`]. Brief [0089](../briefs/0089-world-5j-click-qua-nuoc-toi-khoi.md): tia đi liền trong nước tới khối đặc → đích là khối.
 12. Rãnh đào cạnh ao không đầy (`user5j_trench_not_full.png`). Dump [run 2026-10-30]: ao nguồn y = 20; rãnh 1 ô (x = 134) mức 5 nhờ tăng mức bởi tường; vùng rộng x 136–141, z 191–195 cùng tầng y = 20 lan giảm 5→0, ô (141,20,191) rỗng; lớp y = 19 đầy mức 5 (0044 mục 1). Code đúng 0044 mục 2; user muốn lớp cùng tầng nguồn cũng đầy → quyết định [0045](../../design/decisions/0045-ho-ngang-mat-nguon-thi-day-muc-tinh-lai.md) (user 2026-10-30): vùng kín ngang mặt nguồn thì đầy + mức không phụ thuộc thứ tự đào. Brief [0088](../briefs/0088-world-5j-muc-nuoc-tinh-lai-vung-kin.md).
     - **Lỗi code kèm theo** (user hỏi "sao 4 kề 1, 3 kề 0", 2026-10-30): mức nước phụ thuộc thứ tự đào. Thử [run 2026-10-30, execute_code]: hố 7×6 cạnh nguồn, đào cùng lúc → dốc đều 5…0; đào từng ô theo 40 thứ tự ngẫu nhiên → 31/40 có hai ô kề lệch ≥ 2 (tệ nhất 0 kề 5). Nguyên nhân [repo `client/Assets/Game/Core/WorldEditor.cs`]: (a) `WallBoost` chỉ xét lúc tạo ô/đặt khối, mức không bao giờ giảm (`SetLevel` chỉ gọi để nâng, dòng 556, 578, 583) → ô từng có 2 vách giữ mức 5 sau khi vách bị đào; (b) `StepSpread` tạo ô con mức cha − 1 từ ô hoạt động id nhỏ nhất, không xét ô kề mức cao hơn. Hướng sửa: mức ô chảy tính lại theo hình dạng hiện tại (max ô kề − 1, hoặc MaxLevel khi điều kiện tăng mức/lấp hố đang đúng), kể cả hạ mức; test: cùng hố, mọi thứ tự đào → cùng kết quả.
+13. (user 2026-11-01, chơi thử gộp 5j) Cột thác đổi tiết diện vuông ↔ bo chỗ đi ngang đáy khối đất nhô. Dump [run 2026-11-01]: cột (136,24..21,200) đều mức 5 — không phải lỗi mức; ô y = 24 kề đất (137,24,200) nên góc +x vuông, ô dưới bo (`BlockMesher` `WaterCol.Rounded`). User chọn: ô rơi bo góc cả khi kề khối đặc, chỉ không bo khi kề nước. Brief [0092](../briefs/0092-world-5j-cot-thac-bo-goc-ke-khoi-dac.md).
 - **Pillar:** P1 (cải tạo thế giới). **Thành phần:** client Unity.
 
 ## Ngoài phạm vi
@@ -29,7 +30,8 @@ Sửa 5 lỗi user thấy khi chơi thử, mỗi lỗi một brief (hoặc gộp
 ## Tiêu chí chấp nhận
 - [x] Mỗi lỗi có test tái hiện (fail trước, đạt sau) hoặc ghi rõ vì sao chỉ kiểm được bằng mắt — brief 0082–0087 đã duyệt 2026-10-29 (lỗi 7 chỉ kiểm bằng mắt).
 - [x] Lỗi 9–12 có brief đã duyệt (0088–0091, 2026-10-31).
-- [ ] User chơi thử lại: không còn lỗi 1–12.
+- [ ] Lỗi 13 có brief đã duyệt (0092).
+- [ ] User chơi thử lại: không còn lỗi 1–13.
 
 ## Kiểm chứng
 - 2026-10-30 (Planner): thêm lỗi 9–12 — đọc lại, số liệu khớp dump/thử [run]; checklist: pillar P1, client Unity, thuật ngữ glossary, chỉ M1 (5j) đạt; quyết định 0045 ghi sau khi user đồng ý; `check_design.py` hợp lệ [run]; code/test/giờ: chưa áp dụng.
