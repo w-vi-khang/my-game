@@ -1,6 +1,6 @@
 # Brief 0099 — World 5k phần 4b: vệt chảy (hướng chảy vào đỉnh nước + shader vệt trôi theo hướng)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -352,8 +352,22 @@ Gộp cuối 5k. Play scene SimView, ban ngày:
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: a6ccb12
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 2026-11-02 · Kết thúc: 2026-11-02 (giờ thực tế: ~1 giờ, chưa có đồng hồ chính xác)
+Commit: 6c93a1c
+File đổi: ChunkMesh.cs, ChunkMeshWriter.cs, BlockMesher.cs, Ocean.shader, WaterConfig.cs, WaterLook.cs, 2 × water_m1.json (configVersion 8); test: BlockMesherTests (+3), WaterConfigTests, WaterLookTests (+FlowStreakOffByDefault), WaterStreakPlayTests (mới).
+Ghi chú: `AddVertex` không phải chỗ thêm đỉnh duy nhất — đỉnh địa hình ở BlockMesher.cs:~681 (gridVert) cũng thêm `Out.Flow.Add(0u)`; thiếu thì lệch độ dài luồng.
 
 ## Kết quả test
+- Bước 1 (code cũ): lỗi biên dịch CS1061 `ChunkMesh.Flow` ×3 — đúng mong đợi.
+- Hướng chảy vào đỉnh · `WaterSurfaceFlowEncoded`, `WaterFlowZeroWithoutFlowDirs` · đạt (127 / 64 / 0).
+- Cờ thác + địa hình = 0 · `WaterColumnSideFlowIsFall` · đạt.
+- Mesh cũ · `BlockMesherTests` 60/60 đạt.
+- Config · `WaterConfigTests` + `WaterLookTests` đạt (9/9 lọc theo tên); configVersion 8.
+- Shader · `WaterStreakPlayTests` 4/4: flowing n=32697, fall n=29213, no flow n=0, ocean material n=0.
+- Lệnh: EditMode toàn bộ 713/713 đạt; PlayMode toàn bộ 291/291 đạt; console Error = 0; đã `git checkout EditorSettings.asset`; git status chỉ file trong Phạm vi.
+- Chờ user: (a)–(e) mục "User tự test" (gộp cuối 5k).
 
 ## Vướng mắc
 
