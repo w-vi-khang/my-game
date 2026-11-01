@@ -53,8 +53,10 @@ namespace Game.World
 
         /// <summary>Số đoạn dọc mỗi cạnh ô của váy cỏ / số đoạn của mảnh góc 1/4 vòng.</summary>
         public const int LipSegments = 4, LipCornerSegments = 3;
-        /// <summary>Độ dài đoạn thon ở đầu dải mép cỏ chạm khối đặc dọc cạnh (brief 0091, lỗi 10) [số tạm].</summary>
-        public const float LipTaperLength = 0.5f;
+        /// <summary>Độ dài đoạn thon (1/4 elip) ở đầu dải mép cỏ chạm khối đặc dọc cạnh (brief 0091 lỗi 10, brief 0094 lỗi 15) [số tạm]. Phải ≤ 0,5.</summary>
+        public const float LipTaperLength = 0.3f;
+        /// <summary>Số đoạn của mỗi đoạn thon: cột tại s_j = LipTaperLength·(1 − cos(j·90°/LipTaperSegments)) (brief 0094).</summary>
+        public const int LipTaperSegments = 4;
 
         /// <summary>
         /// Độ dài váy cỏ tại toạ độ thế giới <paramref name="w"/> dọc một đường cạnh. Đường cạnh xác định bởi trục sườn
@@ -751,6 +753,30 @@ namespace Game.World
 
             // ---------------- Mép cỏ (bước 5.3) ----------------
 
+            /// <summary>Độ sáng AO 4 góc mặt trên ô g (x0z0, x1z0, x0z1, x1z1): cùng công thức AoLevel cho mặt trên — ô trước mặt g + (0,1,0) (brief 0094, lỗi 14).</summary>
+            float4 TopAo(int3 g)
+            {
+                float4 r = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    int dx = (i & 1) == 1 ? 1 : -1, dz = (i & 2) == 2 ? 1 : -1;
+                    int3 up = g + new int3(0, 1, 0);
+                    int side1 = IsSolid(up + new int3(dx, 0, 0)) ? 1 : 0;
+                    int side2 = IsSolid(up + new int3(0, 0, dz)) ? 1 : 0;
+                    int corner = IsSolid(up + new int3(dx, 0, dz)) ? 1 : 0;
+                    r[i] = AoBrightness[side1 == 1 && side2 == 1 ? 0 : 3 - side1 - side2 - corner];
+                }
+                return r;
+            }
+
+            /// <summary>Đỉnh mép cỏ của ô c (toạ độ chunk): màu nhân độ sáng AO mặt trên nội suy song tuyến tại (x, z) của p, kẹp vào ô (brief 0094).</summary>
+            int AddLipVertex(int3 c, float4 ao, float3 p, float3 n, uint color)
+            {
+                float a = math.saturate(p.x - c.x), b = math.saturate(p.z - c.z);
+                float k = math.lerp(math.lerp(ao.x, ao.y, a), math.lerp(ao.z, ao.w, a), b);
+                return AddVertex(p, n, Shade(color, k));
+            }
+
             /// <summary>Ô cỏ lộ mặt trên: mỗi sườn x/z lộ → một dải mép cỏ; góc lồi (hai sườn kề cùng lộ) → mảnh 1/4 vòng nối; góc lõm → mảnh phẳng phủ vết lõm bo cạnh.</summary>
             void AddGrassLip(int3 c, int3 g, uint color)
             {
@@ -792,12 +818,13 @@ namespace Game.World
                 float3 axis = new float3(c.x + (sx > 0 ? 1 : 0), c.y + 1 + LipConcaveLift, c.z + (sz > 0 ? 1 : 0));
                 float3 du = new float3(-sx, 0, 0), dv = new float3(0, 0, -sz);
                 const float o = LipConcaveOverlap;
-                int far = AddVertex(axis + R * (du + dv), n, color);
-                int p0 = AddVertex(axis + R * du - o * dv, n, color);
-                int p1 = AddVertex(axis - o * dv, n, color);
-                int p2 = AddVertex(axis, n, color);
-                int p3 = AddVertex(axis - o * du, n, color);
-                int p4 = AddVertex(axis - o * du + R * dv, n, color);
+                float4 ao = TopAo(g);
+                int far = AddLipVertex(c, ao, axis + R * (du + dv), n, color);
+                int p0 = AddLipVertex(c, ao, axis + R * du - o * dv, n, color);
+                int p1 = AddLipVertex(c, ao, axis - o * dv, n, color);
+                int p2 = AddLipVertex(c, ao, axis, n, color);
+                int p3 = AddLipVertex(c, ao, axis - o * du, n, color);
+                int p4 = AddLipVertex(c, ao, axis - o * du + R * dv, n, color);
                 AddOriented(far, p0, p1, n);
                 AddOriented(far, p1, p2, n);
                 AddOriented(far, p2, p3, n);
@@ -825,6 +852,9 @@ namespace Game.World
                 return !IsSolid(side);
             }
 
+            /// <summary>Vị trí cột thứ j (từ đầu thon) của đoạn thon: LipTaperLength·(1 − cos(j·90°/LipTaperSegments)) (brief 0094).</summary>
+            static float TaperSigma(int j) => LipTaperLength * (1f - math.cos(j * (0.5f * math.PI / LipTaperSegments)));
+
             void AddLipEdge(int3 c, int3 g, int sideAxis, int sideSign, uint color)
             {
                 int edgeAxis = sideAxis == 0 ? 2 : 0;
@@ -843,47 +873,69 @@ namespace Game.World
                     if (!taper0 && !taper1)
                         return 1f;
                     float s = math.min(taper0 ? sigma : 1f, taper1 ? 1f - sigma : 1f);
-                    return math.smoothstep(0f, LipTaperLength, s);
+                    if (s >= LipTaperLength)
+                        return 1f;
+                    float u = 1f - s / LipTaperLength;
+                    return math.sqrt(math.max(0f, 1f - u * u));
                 }
+                // Lưới dọc cạnh (brief 0094): đoạn thon dày theo cos → mặt cắt nở theo 1/4 elip; phần giữa giữ lưới k / LipSegments.
+                var sig = new FixedList128Bytes<float>();
+                if (taper0)
+                    for (int j = 0; j < LipTaperSegments; j++)
+                        sig.Add(TaperSigma(j));
+                float lo = taper0 ? LipTaperLength : 0f, hi = taper1 ? 1f - LipTaperLength : 1f;
+                sig.Add(lo);
+                for (int k = 1; k < LipSegments; k++)
+                {
+                    float s = (float)k / LipSegments;
+                    if (s > lo + 1e-4f && s < hi - 1e-4f)
+                        sig.Add(s);
+                }
+                sig.Add(hi);
+                if (taper1)
+                    for (int j = LipTaperSegments - 1; j >= 0; j--)
+                        sig.Add(1f - TaperSigma(j));
+                int cols = sig.Length;
+                float4 ao = TopAo(g);
 
-                // Mặt cắt bo tròn (brief 0014): lưới LipProfilePoints hàng × (LipSegments + 1) cột; đỉnh (i, k) = first + i·row + k,
+                // Mặt cắt bo tròn (brief 0014): lưới LipProfilePoints hàng × cols cột (brief 0094); đỉnh (i, k) = first + i·row + k,
                 // mỗi điểm một đỉnh dùng chung cho hai tứ giác kề → pháp tuyến mượt theo đường cong.
-                int row = LipSegments + 1;
+                int row = cols;
                 int first = Out.Vertices.Length;
                 for (int i = 0; i < LipProfilePoints; i++)
-                    for (int k = 0; k <= LipSegments; k++)
+                    for (int k = 0; k < cols; k++)
                     {
-                        float sigma = (float)k / LipSegments;
+                        float sigma = sig[k];
                         float depth = LipDepthAt(g[edgeAxis] + sigma, sideAxis, sideSign, plane, top);
                         LipProfile(i, depth, out float2 p, out float2 n);
                         p *= TaperAt(sigma);
-                        AddVertex(LipPoint(c, sideAxis, sideSign, p.x, p.y, sigma), outward * n.x + up * n.y, color);
+                        AddLipVertex(c, ao, LipPoint(c, sideAxis, sideSign, p.x, p.y, sigma), outward * n.x + up * n.y, color);
                     }
                 // Mặt trên: quạt từ P0a qua P0b và hàng A0.
-                int p0a = AddVertex(LipPoint(c, sideAxis, sideSign, -R, 0, 0), up, color);
-                int p0b = AddVertex(LipPoint(c, sideAxis, sideSign, -R, 0, 1), up, color);
-                AddOriented(p0a, p0b, first + LipSegments, up);
-                for (int k = LipSegments; k > 0; k--)
+                int p0a = AddLipVertex(c, ao, LipPoint(c, sideAxis, sideSign, -R, 0, 0), up, color);
+                int p0b = AddLipVertex(c, ao, LipPoint(c, sideAxis, sideSign, -R, 0, 1), up, color);
+                AddOriented(p0a, p0b, first + cols - 1, up);
+                for (int k = cols - 1; k > 0; k--)
                     AddOriented(p0a, first + k, first + k - 1, up);
                 // Mặt cong: tứ giác giữa hàng i và i + 1 (A0 → … → C2 → W).
                 for (int i = 0; i + 1 < LipProfilePoints; i++)
-                    for (int k = 0; k < LipSegments; k++)
+                    for (int k = 0; k < cols - 1; k++)
                     {
                         int a = first + i * row + k, b = a + 1, a2 = a + row, b2 = b + row;
                         float3 want = Out.Normals[a] + Out.Normals[b2];
                         // Cột thon (f = 0) dồn về một điểm → bỏ tam giác diện tích 0 (brief 0091, QĐ 7).
-                        if (!(taper1 && k == LipSegments - 1))
+                        if (!(taper1 && k == cols - 2))
                             AddOriented(a, b, b2, want);
                         if (!(taper0 && k == 0))
                             AddOriented(a, b2, a2, want);
                     }
                 // Đáy trong: quạt từ F0 (−R, −LipFloor) qua hàng W tới F1 — phủ phần khối lõm do bo cạnh, nhìn từ dưới không xuyên.
                 int w = first + (LipProfilePoints - 1) * row;
-                int f0 = AddVertex(LipPoint(c, sideAxis, sideSign, -R, -LipFloor, 0), down, color);
-                int f1 = AddVertex(LipPoint(c, sideAxis, sideSign, -R, -LipFloor, 1), down, color);
-                for (int k = 0; k < LipSegments; k++)
+                int f0 = AddLipVertex(c, ao, LipPoint(c, sideAxis, sideSign, -R, -LipFloor, 0), down, color);
+                int f1 = AddLipVertex(c, ao, LipPoint(c, sideAxis, sideSign, -R, -LipFloor, 1), down, color);
+                for (int k = 0; k < cols - 1; k++)
                     AddOriented(f0, w + k, w + k + 1, down);
-                AddOriented(f0, w + LipSegments, f1, down);
+                AddOriented(f0, w + cols - 1, f1, down);
             }
 
             /// <summary>Mảnh góc lồi: quét mặt cắt mép cỏ (A0..C2) 1/4 vòng quanh trục đứng qua góc ô; độ sâu đáy nội suy giữa hai đầu dải; W thu về một đỉnh trên trục.</summary>
@@ -895,8 +947,9 @@ namespace Game.World
                 float d0 = LipDepthAt(cornerZ, 0, sx, cornerX, top);
                 float d1 = LipDepthAt(cornerX, 2, sz, cornerZ, top);
                 float3 up = new float3(0, 1, 0), down = new float3(0, -1, 0);
-                int center = AddVertex(axisLocal, up, color);
-                int wCenter = AddVertex(axisLocal + new float3(0, -LipFloor, 0), down, color);
+                float4 ao = TopAo(g);
+                int center = AddLipVertex(c, ao, axisLocal, up, color);
+                int wCenter = AddLipVertex(c, ao, axisLocal + new float3(0, -LipFloor, 0), down, color);
                 // Lưới: hàng i = 0..LipProfilePoints − 2 (A0..C2) × cột k = 0..LipCornerSegments; đỉnh (i, k) = first + i·col + k.
                 // k = 0 trùng đầu dải sườn x, k = LipCornerSegments trùng đầu dải sườn z.
                 int rows = LipProfilePoints - 1, col = LipCornerSegments + 1;
@@ -908,7 +961,7 @@ namespace Game.World
                         float3 dir = new float3(sx * math.cos(a), 0, sz * math.sin(a));
                         float depth = math.lerp(d0, d1, (float)k / LipCornerSegments);
                         LipProfile(i, depth, out float2 p, out float2 n);
-                        AddVertex(axisLocal + dir * p.x + new float3(0, p.y, 0), dir * n.x + up * n.y, color);
+                        AddLipVertex(c, ao, axisLocal + dir * p.x + new float3(0, p.y, 0), dir * n.x + up * n.y, color);
                     }
                 // Mặt trên: quạt từ tâm trục qua hàng A0.
                 for (int k = 0; k < LipCornerSegments; k++)

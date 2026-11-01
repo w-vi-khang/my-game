@@ -465,13 +465,13 @@ namespace Game.World.Tests
         [Test]
         public void LipEndTapersIntoSolidNeighbour()
         {
-            // brief 0091: đầu dải chạm khối đặc thon về 0, không nắp.
-            // Ô cỏ (4, 8, 4) kề ô đá (4, 8, 5) → dải mép sườn +x và −x thon ở đầu z = 5 (LipTaperLength 0,5: f(z 4,75) = 0,5, f(z 4,5) = 1).
+            // brief 0091/0094: đầu dải chạm khối đặc thon 1/4 elip về 0 (LipTaperLength), không nắp.
+            // Ô cỏ (4, 8, 4) kề ô đá (4, 8, 5) → dải mép sườn +x và −x thon ở đầu z = 5.
             var w = new WorldData(new WorldSize(16, 16, 16));
             w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
             w.Set(4, 8, 5, Cell.Make(BlockMaterial.Stone));
             var mesh = BlockMesher.Build(w, 0, 0, 0);
-            float maxMid = float.MinValue, minMid = float.MaxValue, maxQuarter = float.MinValue;
+            float maxMid = float.MinValue, minMid = float.MaxValue;
             for (int i = 0; i < mesh.Vertices.Length; i++)
             {
                 float3 p = mesh.Vertices[i];
@@ -485,12 +485,132 @@ namespace Game.World.Tests
                     maxMid = math.max(maxMid, p.x);
                     minMid = math.min(minMid, p.x);
                 }
-                if (math.abs(p.z - 4.75f) < 1e-4f)
-                    maxQuarter = math.max(maxQuarter, p.x);
             }
             Assert.GreaterOrEqual(maxMid, 5f + BlockMesher.LipOverhang - 1e-3f, "+x lip at full size mid-edge");
             Assert.LessOrEqual(minMid, 4f - BlockMesher.LipOverhang + 1e-3f, "-x lip at full size mid-edge");
-            Assert.That(maxQuarter, Is.EqualTo(5f + 0.5f * BlockMesher.LipOverhang).Within(1e-3f), "+x lip half size at z 4.75");
+            // brief 0094: thon 1/4 elip — tại z = 5 − s_j, mép +x nhô đúng sin(j·22,5°)·LipOverhang; tại z = 5 − LipTaperLength nhô đủ.
+            for (int j = 1; j <= BlockMesher.LipTaperSegments; j++)
+            {
+                float th = j * 0.5f * math.PI / BlockMesher.LipTaperSegments;
+                float z = 5f - BlockMesher.LipTaperLength * (1f - math.cos(th));
+                float maxX = float.MinValue;
+                for (int i = 0; i < mesh.Vertices.Length; i++)
+                    if (math.abs(mesh.Vertices[i].z - z) < 1e-4f)
+                        maxX = math.max(maxX, mesh.Vertices[i].x);
+                Assert.AreEqual(5f + math.sin(th) * BlockMesher.LipOverhang, maxX, 1e-3f, $"+x lip at z {z}");
+            }
+        }
+
+        [Test]
+        public void NarrowCellLipIsRoundedNotV()
+        {
+            // brief 0094 (lỗi 15): ô cỏ hẹp kẹp giữa hai khối đặc theo z → hai đầu thon 1/4 elip, phần giữa nhô đủ, không chữ V.
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            w.Set(4, 8, 3, Cell.Make(BlockMaterial.Stone));
+            w.Set(4, 8, 5, Cell.Make(BlockMaterial.Stone));
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            foreach (float z0 in new[] { 4f + BlockMesher.LipTaperLength, 4.5f, 5f - BlockMesher.LipTaperLength })
+            {
+                float maxX = float.MinValue;
+                for (int i = 0; i < mesh.Vertices.Length; i++)
+                    if (math.abs(mesh.Vertices[i].z - z0) < 1e-4f)
+                        maxX = math.max(maxX, mesh.Vertices[i].x);
+                Assert.AreEqual(5f + BlockMesher.LipOverhang, maxX, 1e-3f, $"+x lip full size at z {z0}");
+            }
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                float3 p = mesh.Vertices[i];
+                if (math.abs(p.z - 4f) < 1e-4f || math.abs(p.z - 5f) < 1e-4f)
+                    Assert.LessOrEqual(p.x, 5f + 1e-4f, $"lip end pokes out at {p}");
+            }
+            for (int t = 0; t < mesh.Indices.Length; t += 3)
+            {
+                bool outside = false;
+                for (int e = 0; e < 3; e++)
+                    outside |= mesh.Vertices[mesh.Indices[t + e]].x > 5f + 1e-3f;
+                if (outside)
+                    Assert.Greater(math.length(GeometricNormal(mesh, t)), 1e-7f, $"degenerate lip triangle {t / 3}");
+            }
+        }
+
+        [Test]
+        public void LipTakesTopFaceAo()
+        {
+            // brief 0094 (lỗi 14): đỉnh mép cỏ nhân độ sáng AO mặt trên ô cỏ, nội suy song tuyến theo (x, z) kẹp vào ô.
+            uint grass = BlockMesher.TopColor(BlockMaterial.Grass);
+
+            // (a) Ô cỏ đơn giữa vùng trống: 4 góc sáng = 1 → màu mép cỏ như cũ.
+            var w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            var mesh = BlockMesher.Build(w, 0, 0, 0);
+            int outsideCount = 0;
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                float3 p = mesh.Vertices[i];
+                if (p.x < 4f - 1e-3f || p.x > 5f + 1e-3f || p.z < 4f - 1e-3f || p.z > 5f + 1e-3f)
+                {
+                    outsideCount++;
+                    Assert.AreEqual(grass, mesh.Colors[i], $"open lip color at {p}");
+                }
+            }
+            Assert.Greater(outsideCount, 0, "lip vertices outside the cell");
+
+            // (b) Vách bậc cao hơn ở +z: đá (4, 8, 5) và (4, 9, 5) → hai góc z1 của mặt trên ô (4, 8, 4) mức AO 2.
+            w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            w.Set(4, 8, 5, Cell.Make(BlockMaterial.Stone));
+            w.Set(4, 9, 5, Cell.Make(BlockMaterial.Stone));
+            mesh = BlockMesher.Build(w, 0, 0, 0);
+            float z1 = 5f - BlockMesher.LipTaperLength * (1f - math.cos(math.radians(22.5f)));
+            uint want1 = BlockMesher.Shade(grass, math.lerp(1f, BlockMesher.AoBrightness[2], z1 - 4f));
+            uint wantTop = BlockMesher.Shade(grass, BlockMesher.AoBrightness[2]);
+            int n0 = 0, n1 = 0, nTop = 0;
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                float3 p = mesh.Vertices[i];
+                uint col = mesh.Colors[i];
+                if (p.x > 5f + 1e-3f && math.abs(p.z - 4f) < 1e-4f)
+                {
+                    n0++;
+                    Assert.AreEqual(grass, col, $"lip color at open end {p}");
+                }
+                if (p.x > 5f + 1e-3f && math.abs(p.z - z1) < 1e-4f)
+                {
+                    n1++;
+                    for (int ch = 0; ch < 3; ch++)
+                        Assert.LessOrEqual(math.abs((int)(col >> (8 * ch) & 0xFF) - (int)(want1 >> (8 * ch) & 0xFF)), 1, $"lip channel {ch} at {p}");
+                    Assert.AreEqual(grass & 0xFF000000u, col & 0xFF000000u, $"lip alpha at {p}");
+                }
+                if (math.abs(p.y - 9f) < 1e-4f && mesh.Normals[i].y > 0.99f
+                    && p.x >= 4.8f && p.x <= 5f && p.z >= 4.8f && p.z <= 5f)
+                {
+                    nTop++;
+                    Assert.AreEqual(wantTop, col, $"top face color at {p}");
+                }
+            }
+            Assert.Greater(n0, 0, "lip vertices at z 4");
+            Assert.Greater(n1, 0, $"lip vertices at z {z1}");
+            Assert.Greater(nTop, 0, "top face vertices near the wall corner");
+
+            // (c) Góc lõm: ô cỏ (4, 8, 4), (5, 8, 4), (4, 8, 5); đá (5, 9, 4) → mảnh góc lõm của ô (4, 8, 4) tối hơn màu cỏ.
+            w = new WorldData(new WorldSize(16, 16, 16));
+            w.Set(4, 8, 4, Cell.Make(BlockMaterial.Grass));
+            w.Set(5, 8, 4, Cell.Make(BlockMaterial.Grass));
+            w.Set(4, 8, 5, Cell.Make(BlockMaterial.Grass));
+            w.Set(5, 9, 4, Cell.Make(BlockMaterial.Stone));
+            mesh = BlockMesher.Build(w, 0, 0, 0);
+            int nConcave = 0;
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                float3 p = mesh.Vertices[i];
+                if (math.abs(p.y - 9.002f) < 1e-4f && p.x >= 4.85f && p.x <= 5.02f && p.z >= 4.85f && p.z <= 5.02f)
+                {
+                    nConcave++;
+                    Assert.Less(mesh.Colors[i] & 0xFF, grass & 0xFF, $"concave piece R at {p}");
+                }
+            }
+            Assert.Greater(nConcave, 0, "concave piece vertices");
         }
 
         [Test]
