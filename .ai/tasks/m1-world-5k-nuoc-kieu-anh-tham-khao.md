@@ -59,6 +59,16 @@ Nước trong game giống ảnh tham khảo 3: bãi cát nhìn từ trên, nư�
   - "thấy đáy" ở biển nền: hiện là mặt phẳng, chưa có đáy.
   - Có cần depth texture của URP không, và chi phí trên điện thoại.
 
+## Lỗi chơi thử (user, 2026-11-02)
+User: "nước bị lỗi rồi, mà nó quá bóng không cần thiết. các vệt bóng quá rõ thiếu tự nhiên" (2 ảnh Game view: ban ngày + ban đêm, biển phía đông trại + ao đào).
+Planner khoanh vùng 2026-11-02 bằng MCP: đổi tham số material lúc Play, rồi chụp lại [run]. Material tạo lúc chạy, không có asset, nên không lưu thay đổi nào.
+- **Lỗi 5k-1. Bọt bờ thành vạch trắng gấp khúc theo bậc ô.** Có ở biển trong map và ở ao đào, thấy cả ban đêm. Đặt `_FoamStrength` = 0 thì vạch mất hết.
+  - Nguyên nhân: khoảng cách tới bờ chỉ ghi ở đỉnh (`BlockMesher.cs:1750`), rồi nội suy tuyến tính trên quad từng ô, nên đường đồng mức gãy theo góc ô.
+  - Dải bọt (`Ocean.shader:190–191`) là vạch mảnh (3 dải trong 2 ô, `foamLine` 0,3, `foamSoft` 0,15), nên chỗ gãy lộ rõ.
+- **Lỗi 5k-2. Quá bóng: mảng trắng loang khắp mặt nước.** Tắt `_Glint`, `_GlintHalo`, `_SparkleStrength` thì mặt nước hết loang.
+  - Nguyên nhân chính: spec trên pháp tuyến gợn, `glint` 1,0 với `glintPower` 160 (`Ocean.shader:286`). Phần này phủ cả mặt, kể cả ban đêm.
+- Vệt chảy (0099): tắt đi thì biển gần như không đổi, nên không phải nguồn chính.
+
 ## Kiểm chứng
 - 2026-11-01 (Planner, bản nháp chờ user xác nhận; đọc lại file, đối chiếu repo):
   - Pillar: đạt — P1 `design/00-vision.md:15`.
@@ -74,3 +84,8 @@ Nước trong game giống ảnh tham khảo 3: bãi cát nhìn từ trên, nư�
   - Glossary: đạt — thêm "Mép tràn", "Biển nền", "Khoảng cách tới bờ (nước)", "Bọt bờ", "Vệt chảy" (`design/glossary.md:61–65`).
   - Rà phần liên quan: đạt — roadmap 5k 4–8 → 5–9, M1 135,5–222,5 → 136,5–223,5 (`design/05-roadmap.md:24,31,36`); world-tech `:141` (gạch bọt thác) + `:200`; ideas `:71` (bọt thác → M2).
   - Chỉ M1: đạt — phần 5 chuyển sang M2 qua ideas.
+- 2026-11-02 (Planner, ghi lỗi chơi thử 5k-1, 5k-2; đọc lại file và đối chiếu repo):
+  - Nguồn: đạt. Nguyên nhân dẫn `BlockMesher.cs:1750` và `Ocean.shader:190–191,286` [repo]. Kết quả tắt từng hiệu ứng có ảnh chụp lúc Play [run].
+  - Glossary: đạt. Chỉ dùng "bọt bờ", "vệt chảy", "khoảng cách tới bờ" đã có ở `design/glossary.md:61–65`.
+  - [ý tưởng]: đạt. Hướng sửa chưa ghi vào file, chờ user chọn.
+  - Không áp dụng (chỉ ghi lỗi, không đổi thiết kế/code): pillar, thành phần, rà phần liên quan, phạm vi/ước lượng, Game.Core, test "Xong khi", giờ thực tế, chỉ M1.
