@@ -1,6 +1,6 @@
 # Brief 0098 — World 5k phần 4a: hướng chảy chính (main_flow) + hướng chảy ghi theo ô (FlowDirs)
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -199,8 +199,18 @@ Không có. Brief này chưa đổi gì nhìn thấy được; hình ảnh vệt
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+Base commit: c377095
+Chạy bằng: claude-sonnet-5-5 · medium
+Commit: 5e47f57
+File đổi: WorldData.cs, WorldEditor.cs, WaterFlowTests.cs.
 
 ## Kết quả test
+- Bước 1 (test trước): biên dịch fail như mong đợi — `CS1061: 'WorldEditor' does not contain a definition for 'TryGetMainFlow'`, `'WorldData' does not contain a definition for 'FlowDirAt'`.
+- main_flow / FlowDirs khi tạo nút / đổi cha + sự kiện / bất biến với cây: đạt — `WaterFlowTests` 40/40 (5 test mới + cũ), không cần đổi kỳ vọng nào.
+- EditMode toàn bộ: 709/709 đạt (gồm GoldenHashTests, IncrementalRebuildTests, WorldDataTests). Console Error = 0.
+- PlayMode `WaterFlowPlayTests`: 4/4 đạt.
+- Dọn: checkout EditorSettings.asset; không có InitTestScene*; git status chỉ file trong Phạm vi.
+- User tự test: không có.
 
 ## Vướng mắc
 
