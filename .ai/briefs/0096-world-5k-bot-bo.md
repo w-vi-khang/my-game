@@ -1,6 +1,6 @@
 # Brief 0096 — World 5k phần 2: bọt bờ (vệt bọt song song bờ, trôi vào/ra; độ thoáng ghi vào đỉnh)
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ review
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-01
@@ -172,12 +172,15 @@ Gộp cuối 5k. Play, scene SimView, xem cạnh ảnh tham khảo:
 ## Kết quả
 Base commit: e10f5f9
 Chạy bằng: claude-sonnet-5-5 · medium
-Bắt đầu: 2026-11-01 22:38 (+07) · dừng: 22:47 (cần Opus)
+Bắt đầu: 2026-11-01 22:38 (+07) · kết thúc: 22:54 (tổng ~16 phút máy, gồm dừng chờ Planner)
+Commit: 4e8c10d — BlockMesher.cs, Ocean.shader, WaterConfig.cs, WaterLook.cs, 2 water_m1.json, WaterLookTests, WaterConfigTests, BlockMesherTests, IncrementalRebuildTests (thêm sau trả lời Planner), world-tech.md
 
 ## Kết quả test
 - Bước 1 (fail trên code cũ) [run]: `WaterSurfaceOpennessEncoded`: "G x=8 Expected 28 ±1 But was 255"; `WaterSurfaceShoreDistanceEncoded`: "G x=4 Expected 233 ±1 But was 255".
 - Sau bước 2–4: console Error = 0 [run]. EditMode toàn bộ (703 test, lần 1): 701 đạt, 2 fail. `ConfigFileMatchesDefaults` đã sửa (default `configVersion` trong `WaterConfig.cs` 5 → 6, trong Phạm vi) và đạt khi chạy lại. Còn lại 1 fail, xem Vướng mắc.
-- Chưa chạy: PlayMode, ảnh bước 7 (dừng theo điều kiện "sửa file ngoài Phạm vi").
+- **Sau trả lời Planner** [run]: EditMode toàn bộ 703/703 đạt (gồm `IncrementalRebuildMatchesFullRebuild`, `GoldenHashTests`, `ConfigTests.WaterClientCopyMatchesDesignData`). PlayMode 6 lớp 16/16 đạt (`SeaSkyTintPlayTests` không đổi baseline). `EditorSettings.asset` đã dọn; `git status` chỉ file trong Phạm vi.
+- Ảnh bước 7: `~/Documents/User/khang/Game/art-test/shots/b0096_after_1.png` — góc mặc định SimView (ban đêm, đồng cỏ, không có bờ/ao trong khung; không đưa camera tới bờ được bằng công cụ có sẵn) → **chưa thấy bọt, chờ user xem**. Không có `_2`.
+- Bọt/hình ảnh (a)–(d): chờ user.
 
 ## Vướng mắc
 **`IncrementalRebuildTests.IncrementalRebuildMatchesFullRebuild` fail** (`chunk 7 after 40 edits`, index 1575: 1342150400 vs 1342151168 → chỉ khác kênh G, chênh 3).
@@ -190,6 +193,9 @@ Bắt đầu: 2026-11-01 22:38 (+07) · dừng: 22:47 (cần Opus)
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+### Planner trả lời
+Chọn biến thể A: trong `IncrementalRebuildTests.IncrementalRebuildMatchesFullRebuild` gọi `WorldEditor.AffectedChunks(s, BlockMesher.WaterShoreMargin, ...)` (giống `TerrainChunkView.OnSolidChanged`), sửa chú thích dòng 34; giữ `CellMargin` ở `new WorldEditor`. File thêm vào Phạm vi.
 
 ## Kiểm chứng
 - design: `check_design.py` exit 0 (70 file hợp lệ) [run, qua verify_run].
