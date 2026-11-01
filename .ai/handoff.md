@@ -1,4 +1,4 @@
-# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật 2026-11-02 sau khi duyệt brief 0098)
+# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật 2026-11-02 sau khi duyệt brief 0099)
 
 ## Đang làm
 Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01: **phần nước đạt**. Lỗi 13 (cột thác bo góc kề khối đặc) đã xong qua brief 0092, review đạt ở commit `263509e`. Còn lỗi 14–16, ghi trong task ở commit `b1101d3`.
@@ -17,9 +17,10 @@ Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User
    - **Brief [0097](briefs/0097-world-5k-lap-lanh.md) (phần 3, lấp lánh) đã duyệt** (code `41c40ad`, ~11 phút). User xem (a)–(e) gộp cuối 5k.
    - **Phần 4 (vệt chảy)** — user 2026-11-02: luật main_flow (con C cùng hướng cha→B, không có thì null; vật nổi M2), vệt vẽ theo hướng cha→nó. Đã ghi world-tech `:141`, glossary, ideas.
      - Brief [0098](briefs/0098-world-5k-huong-chay-main-flow.md) (Core: `TryGetMainFlow` + `WorldData.FlowDirs`) **đã duyệt** (code `5e47f57`, 2026-11-02).
-     - Brief [0099](briefs/0099-world-5k-vet-chay.md) (mesher luồng TEXCOORD0 + shader vệt) — **đã giao Executor** (2026-11-02), chờ kết quả rồi review.
+     - Brief [0099](briefs/0099-world-5k-vet-chay.md) (mesher luồng TEXCOORD0 + shader vệt) **đã duyệt** (code `6c93a1c`, ~1 giờ). User xem (a)–(e) gộp cuối 5k.
+   - **Code 4 phần 5k đã xong.** Việc tiếp: user chơi thử gộp 5k (mục "User tự test" của 0095, 0096, 0097, 0099), kèm chơi thử gộp 5j còn lại. Đạt → đóng 5k, cập nhật world-tech dòng 5k + roadmap (giờ thực tế: 0095 ~20 phút, 0096 ~16 phút, 0097 ~11 phút, 0098 ?, 0099 ~1 giờ).
    - Ảnh Executor chụp SimView chỉ có góc mặc định → khi user chơi thử nên tự xem bờ biển; hoặc brief sau thêm cách đặt camera.
-   - Phiên Executor `exec-0095` = `local_0ec3ce58-e317-4e1d-a15a-196acea4f127` (Sonnet · medium).
+   - Phiên Executor `child-sonnet-medium` = `local_9e128054-0b43-4e81-9baa-a03a3d793a17` (Sonnet · medium, làm 0099).
 
 ## Ghi chú
 - Phiên Executor `exec-0088` = `local_b7728311-1023-4b48-a428-fa77c2f00dbe` (Opus · medium). Dọn bằng `clear_session` trước mỗi brief mới.

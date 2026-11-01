@@ -1,6 +1,6 @@
 # Brief 0099 — World 5k phần 4b: vệt chảy (hướng chảy vào đỉnh nước + shader vệt trôi theo hướng)
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ + user xem (gộp cuối 5k)
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02
@@ -375,3 +375,20 @@ Ghi chú: `AddVertex` không phải chỗ thêm đỉnh duy nhất — đỉnh �
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- `Chạy bằng` (claude-sonnet-5-5 · medium) khớp `Model thực thi` (Sonnet · medium).
+- Phần cần test: 8/8 dòng có kết quả. Test-first báo lỗi biên dịch CS1061 như mong đợi. `BlockMesherTests` 60/60. EditMode toàn bộ 713/713, gồm `ConfigTests.WaterClientCopyMatchesDesignData`, `GoldenHashTests`, `IncrementalRebuildTests`. PlayMode toàn bộ 291/291, gồm cả các test nước/biển cũ. `WaterStreakPlayTests` 4/4: có hướng chảy n = 32697 và cờ thác n = 29213, cả hai trong khoảng 3276–58982; không có hướng = 0; `_VertexDepth` 0 = 0.
+- Diff `6c93a1c`: 13 file, tất cả trong Phạm vi. Hai file `water_m1.json` giống hệt nhau và 9 trường mới nằm trong `look` (đã kiểm bằng `json.load`).
+- QĐ 1–2: `ChunkMesh.Flow`, descriptor TEXCOORD0 SNorm8×4 ở luồng 3, ghi 0 khi `Flow` null, chú thích lớp — đúng nguyên văn.
+- QĐ 3 (`BlockMesher`):
+  - `PackFlow`, `FlowAt`, `DirVec` đúng nguyên văn.
+  - Ghim/giải phóng `FlowDirs` đúng cách và có `#if` cho safety handle.
+  - `AddWaterVertex` ghi hướng chảy ở mặt trên và cờ thác ở mặt khác. Khoá hàn đỉnh giữ nguyên.
+  - Executor thêm `Out.Flow.Add(0u)` ở `Vert` (`BlockMesher.cs:682`). Đây là chỗ thêm đỉnh địa hình thứ hai mà brief bỏ sót. Đã grep: chỉ có 2 chỗ `Out.Vertices.Add` (`:679`, `:1861`), cả hai đều có `Flow.Add`. Thay đổi này cần thiết và đúng ý QĐ 1 (địa hình = 0); chấp nhận.
+- QĐ 4 (shader):
+  - Properties, CBUFFER, `Attributes`/`Varyings` (TEXCOORD4), `vert` nhân `_VertexDepth`, `StreakNoise`/`FlowStreak`, lerp màu trước bọt bờ, alpha sau glint, chú thích đầu file — đúng nguyên văn.
+  - `Terrain.shader` không đọc TEXCOORD0 từ Attributes (chỉ dùng tên đó cho Varyings), nên không bị ảnh hưởng.
+- QĐ 5: `configVersion` 8, 9 trường, `Validate` (các khoảng + `cut + soft ≤ 1`), `WaterLook.Apply` đặt 9 thuộc tính — đúng.
+- Nhỏ, không chặn: 9 dòng mới trong 2 file `water_m1.json` thụt 4 dấu cách thay vì 8. JSON vẫn đúng.
+- Giờ thực tế ~1 giờ (Executor ước, không có đồng hồ chính xác).
+- User xem (a)–(e) ở mục "User tự test" **gộp cuối 5k**, cùng 0095–0097.
+- Kết luận: đã duyệt
