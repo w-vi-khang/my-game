@@ -1,19 +1,17 @@
-# Handoff — 2026-11-01 (Planner, task 5j)
+# Handoff — 2026-11-01 (Planner, task 5j, cập nhật 21:30)
 
 ## Đang làm
 Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01: **phần nước đạt**. Lỗi 13 (cột thác bo góc kề khối đặc) đã xong qua brief 0092, review đạt ở commit `263509e`. Còn lỗi 14–16, ghi trong task ở commit `b1101d3`.
 
 ## Việc tiếp
-1. **Lỗi 16** (dễ, viết brief ngay):
-   - Đổi tên GameObject "Người chơi" → "Player" trong `client/Assets/Game/Client/Scenes/{SimView,TerrainView,WalkBench}.unity`. Trong YAML scene, tên được ghi dạng `m_Name: "Người chơi"`.
-   - Kiểm code/test có tìm object theo tên này không: grep `"Player"` và `Find(`.
-   - Mở rộng `HardcodedTextScanTests` để quét `m_Name` trong `.unity`/`.prefab`. Lưu ý: tên đã được escape `\uXXXX`.
-   - User hỏi vì sao vẫn còn tên tiếng Việt dù đã có luật code tiếng Anh. Trả lời: task `m1-code-tieng-anh` chỉ quét file `.cs`, scene nằm ngoài phạm vi.
-2. **Lỗi 14 + 15** (mép cỏ ở bậc thang thấp: phần đen + mảng sáng vá đầu dải; mesh quá nhọn):
-   - Ảnh user lưu ngoài repo: `~/Documents/User/khang/Game/art-test/shots/user5j_grass_lip_dark_patch.png`, `user5j_terraces_sharp.webp` (bậc thang cỏ phía nam trại SimView).
-   - Trước khi viết brief, Planner dựng lại bậc thang trong world test 16³, chụp gần bằng camera tạm (`execute_code`: RenderTexture → PNG vào scratchpad). Mẫu chụp đã dùng cho cột thác trong phiên này.
-   - Giả thuyết lỗi 14: đáy trong `f0`/`f1` của dải cỏ không thon theo mặt cắt (`BlockMesher.cs:888`), và `AddLipConcave` (`:784`) vẫn vá đầu dải đã thon.
-   - Lỗi 15: xác định chỗ nhọn là đầu thon 0091 (`LipTaperLength` 0,5 [số tạm]) hay `AddLipCorner`.
+1. ~~Lỗi 16~~ **xong**: brief 0093 đã duyệt (`945b006`). Play Mode sót lại đã dừng.
+2. **Lỗi 14 + 15**: đã dựng lại, chụp và user đã chọn hướng sửa (ghi trong task, mục 14–15).
+   - **Việc tiếp: viết brief.**
+     - (a) Đầu thon dạng 1/4 elip, độ dài 0,3 [số tạm]: `TaperAt` trong `AddLipEdge`, `BlockMesher.cs:841`, hằng `LipTaperLength` `:57`.
+     - (b) Đỉnh mép cỏ (`AddLipEdge` + `AddLipConcave`) nhận AO bằng mức AO mặt trên khối ở hai đầu cạnh, nội suy dọc cạnh. Xem `AoLevel` `:660`, `Shade(color, AoBrightness[ao])` `:651`.
+   - Brief phải trích chữ ký `Shade`/`AoBrightness` (chưa đọc). Phải chọn cách tính AO đỉnh mặt trên ở đầu cạnh từ ô lân cận y+1.
+   - Test 0091 `LipTaper*` cần đổi kỳ vọng f(0,25).
+   - Mẫu dựng world thử + chụp (codedom, C# 6, không dùng tuple): thế giới 16³, cột `hh`, `BlockMesher.Build`, `ChunkMeshWriter.Write`, material `Game/Terrain` + `TerrainChunkView.waterMaterial`, camera `CopyFrom(Camera.main)`, RenderTexture → PNG.
 3. Lỗi 14–16 đạt + user xem → đóng task 5j, cập nhật world-tech dòng 5j + roadmap.
 4. **5k — nước kiểu ảnh tham khảo** (user 2026-11-01: "tôi muốn nước giống như ảnh 3"):
    - Ảnh lưu ngoài repo: `art-test/shots/ref_water_style_5k.webp`. Bãi cát nhìn từ trên; nước đổi màu theo độ sâu (xanh ngọc nhạt sát bờ → xanh đậm ngoài xa); nhiều vệt bọt trắng song song bờ; đáy thấy rõ qua nước; lấp lánh mặt trời.
