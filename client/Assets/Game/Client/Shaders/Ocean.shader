@@ -9,6 +9,7 @@
 // Brief 0096: bọt bờ — dải theo khoảng cách tới bờ (R), tắt ở chỗ hẹp theo độ thoáng (G màu đỉnh); _FoamStrength mặc định 0.
 // Brief 0097: lấp lánh — quầng mặt trời (pháp tuyến phẳng) + chấm lấp lánh theo lưới ô, mờ theo khoảng cách; _GlintHalo, _SparkleStrength mặc định 0.
 // Brief 0099: vệt chảy — hướng chảy (TEXCOORD0.xy từ FlowDirs) + cờ mặt thác (TEXCOORD0.z); sọc trôi theo hướng (2 pha), thác trôi xuống; _FlowStreakStrength mặc định 0.
+// Brief 0100: bọt dùng khoảng cách tới bờ đã làm mềm (soft-min, kênh B màu đỉnh) → đường bọt trơn ở bờ bậc thang; viền bờ vẫn theo R.
 Shader "Game/Ocean"
 {
     Properties
@@ -127,7 +128,7 @@ Shader "Game/Ocean"
                 float3 positionWS : TEXCOORD0;
                 half depthT : TEXCOORD1;
                 half shoreD : TEXCOORD2;
-                half open : TEXCOORD3;
+                half2 open : TEXCOORD3; // x = độ thoáng (G, brief 0096), y = khoảng cách tới bờ cho bọt (B, brief 0100)
                 half3 flow : TEXCOORD4;
             };
 
@@ -142,7 +143,7 @@ Shader "Game/Ocean"
                 o.positionWS = p.positionWS;
                 o.depthT = lerp(1.0h, saturate(input.color.a * WaterDepthEncodeMax / _DepthFull), _VertexDepth);
                 o.shoreD = lerp(WaterShoreEncodeMax, input.color.r * WaterShoreEncodeMax, _VertexDepth);
-                o.open = lerp(1.0h, input.color.g, _VertexDepth);
+                o.open = half2(lerp(1.0h, input.color.g, _VertexDepth), lerp(WaterShoreEncodeMax, input.color.b * WaterShoreEncodeMax, _VertexDepth));
                 o.flow = input.flow.xyz * _VertexDepth; // hướng chảy + cờ mặt thác (brief 0099); Ocean.mat (_VertexDepth 0) và mesh có UV thường → 0
                 return o;
             }
@@ -292,7 +293,7 @@ Shader "Game/Ocean"
                 half3 c = diffuse + light.color * glow;
                 half streak = FlowStreak(input.positionWS, input.flow.xy, input.flow.z);
                 c = lerp(c, _FlowStreakColor.rgb * lightTerm, streak);
-                half foam = ShoreFoam(input.positionWS.xz, input.shoreD, input.open);
+                half foam = ShoreFoam(input.positionWS.xz, input.open.y, input.open.x);
                 c = lerp(c, _FoamColor.rgb * lightTerm, foam);
                 // Biển nhuộm màu trời: chỉ mặt trên; xa và nhìn xiên → về màu chân trời theo buổi, trước sương (task m1-bien-nhuom-mau-troi).
                 half skyT = saturate(smoothstep(SkyTintStart, SkyTintEnd, dist) + fres * SkyTintFresnel);

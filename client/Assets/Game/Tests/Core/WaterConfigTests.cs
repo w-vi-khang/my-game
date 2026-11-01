@@ -57,14 +57,14 @@ namespace Game.Core.Tests
             Assert.AreEqual(new[] { 0.45f, 0.88f, 0.85f }, cfg.look.shallowColor);
             Assert.AreEqual(0.35f, cfg.look.shoreSoftWidth, 1e-6f);
             Assert.AreEqual(2f, cfg.look.depthFull, 1e-6f);
-            Assert.AreEqual(2f, cfg.look.foamWidth, 1e-6f);
-            Assert.AreEqual(3f, cfg.look.foamBands, 1e-6f);
+            Assert.AreEqual(1.6f, cfg.look.foamWidth, 1e-6f);
+            Assert.AreEqual(1f, cfg.look.foamBands, 1e-6f);
             Assert.AreEqual(0.2f, cfg.look.foamOpenMin, 1e-6f);
-            Assert.AreEqual(1f, cfg.look.glint, 1e-6f);
-            Assert.AreEqual(0.8f, cfg.look.glintHalo, 1e-6f);
+            Assert.AreEqual(0.3f, cfg.look.glint, 1e-6f);
+            Assert.AreEqual(0.25f, cfg.look.glintHalo, 1e-6f);
             Assert.AreEqual(1.5f, cfg.look.sparkleScale, 1e-6f);
             Assert.AreEqual(60f, cfg.look.sparkleFadeEnd, 1e-6f);
-            Assert.AreEqual(0.35f, cfg.look.flowStreakStrength, 1e-6f);
+            Assert.AreEqual(0.18f, cfg.look.flowStreakStrength, 1e-6f);
             Assert.AreEqual(5f, cfg.look.flowStreakLength, 1e-6f);
         }
 

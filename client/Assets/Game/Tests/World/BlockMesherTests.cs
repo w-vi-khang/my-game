@@ -1219,7 +1219,7 @@ namespace Game.World.Tests
             {
                 uint c = WaterVertexColor(mesh, up, new float3(x, 5.9f, 7));
                 Assert.AreEqual(28, (int)((c >> 8) & 0xFF), 1, $"G x={x}");
-                Assert.AreEqual(255, (int)((c >> 16) & 0xFF), $"B x={x}");
+                Assert.AreEqual(0, (int)((c >> 16) & 0xFF), 1, $"B x={x}");
                 Assert.AreEqual(0, (int)(c & 0xFF), 1, $"R x={x}");
             }
         }
@@ -1239,23 +1239,24 @@ namespace Game.World.Tests
             var up = new float3(0, 1, 0);
             int[] wantR = { 0, 64, 128, 191, 255 };
             int[] wantG = { 233, 233, 233, 233, 255 };
+            int[] wantB = { 0, 29, 88, 148, 255 };
             for (int k = 0; k < wantR.Length; k++)
             {
                 uint c = WaterVertexColor(mesh, up, new float3(4 + k, 5.9f, 4));
                 Assert.AreEqual(wantR[k], (int)(c & 0xFF), 1, $"R x={4 + k}");
                 Assert.AreEqual(wantG[k], (int)((c >> 8) & 0xFF), 1, $"G x={4 + k}");
-                Assert.AreEqual(255, (int)((c >> 16) & 0xFF), $"B x={4 + k}");
+                Assert.AreEqual(wantB[k], (int)((c >> 16) & 0xFF), 1, $"B x={4 + k}");
                 Assert.AreEqual(57, (int)(c >> 24), 1, $"A x={4 + k}");
             }
             uint c1 = WaterVertexColor(mesh, up, new float3(11, 5.9f, 12));
             Assert.AreEqual(64, (int)(c1 & 0xFF), 1, "R (11,12)");
             Assert.AreEqual(252, (int)((c1 >> 8) & 0xFF), 1, "G (11,12)");
-            Assert.AreEqual(255, (int)((c1 >> 16) & 0xFF), "B (11,12)");
+            Assert.AreEqual(64, (int)((c1 >> 16) & 0xFF), 1, "B (11,12)");
             Assert.AreEqual(57, (int)(c1 >> 24), 1);
             uint c2 = WaterVertexColor(mesh, up, new float3(12, 5.9f, 12));
             Assert.AreEqual(90, (int)(c2 & 0xFF), 1, "R (12,12)");
             Assert.AreEqual(252, (int)((c2 >> 8) & 0xFF), 1, "G (12,12)");
-            Assert.AreEqual(255, (int)((c2 >> 16) & 0xFF), "B (12,12)");
+            Assert.AreEqual(90, (int)((c2 >> 16) & 0xFF), 1, "B (12,12)");
             Assert.AreEqual(57, (int)(c2 >> 24), 1);
             for (int t = 0; t < mesh.WaterIndices.Length; t++)
             {
@@ -1264,6 +1265,32 @@ namespace Game.World.Tests
                     Assert.AreEqual(0xFFFFFFFFu, mesh.Colors[i], $"non-up vertex {mesh.Vertices[i]}");
             }
             AssertNoDuplicateWaterVertices(mesh);
+        }
+
+        [Test]
+        public void WaterSurfaceFoamDistanceRoundsConcaveCorner()
+        {
+            var w = StoneFloor16();
+            for (int z = 0; z < 16; z++)
+            for (int x = 0; x < 16; x++)
+                w.Set(x, 5, z, (x <= 3 || z <= 3)
+                    ? Cell.Make(BlockMaterial.Stone)
+                    : Cell.Make(BlockMaterial.Water, Cell.MaxWaterLevel));
+            var mesh = BlockMesher.Build(w, 0, 0, 0, true, 5);
+            var up = new float3(0, 1, 0);
+            uint corner = WaterVertexColor(mesh, up, new float3(6, 5.9f, 6));
+            uint edgeZ = WaterVertexColor(mesh, up, new float3(6, 5.9f, 12));
+            uint edgeX = WaterVertexColor(mesh, up, new float3(12, 5.9f, 6));
+            uint near = WaterVertexColor(mesh, up, new float3(5, 5.9f, 5));
+            Assert.AreEqual(128, (int)(corner & 0xFF), 1, "R corner");
+            Assert.AreEqual(60, (int)((corner >> 16) & 0xFF), 1, "B corner");
+            Assert.AreEqual(128, (int)(edgeZ & 0xFF), 1, "R edgeZ");
+            Assert.AreEqual(81, (int)((edgeZ >> 16) & 0xFF), 1, "B edgeZ");
+            Assert.AreEqual(128, (int)(edgeX & 0xFF), 1, "R edgeX");
+            Assert.AreEqual(81, (int)((edgeX >> 16) & 0xFF), 1, "B edgeX");
+            Assert.AreEqual(64, (int)(near & 0xFF), 1, "R near");
+            Assert.AreEqual(3, (int)((near >> 16) & 0xFF), 1, "B near");
+            Assert.Less((int)((corner >> 16) & 0xFF), (int)((edgeZ >> 16) & 0xFF), "concave corner rounded");
         }
 
         static bool HasWaterVertexNear(ChunkMesh mesh, float3 pos, float3 normal)

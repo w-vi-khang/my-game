@@ -48,11 +48,13 @@ namespace Game.World
         public const float WaterShoreEncodeMax = 4f;
         /// <summary>Số ô quanh chunk mà khoảng cách tới bờ đọc khối đặc (= WaterShoreEncodeMax): đào/đặt khối cách biên ≤ lề này → chunk kề dựng lại (brief 0095).</summary>
         public const int WaterShoreMargin = 4;
+        /// <summary>Độ mềm (ô) của khoảng cách tới bờ cho bọt — soft-min log-sum-exp, bo tròn góc lõm của bờ bậc thang (brief 0100) [số tạm].</summary>
+        public const float WaterFoamSoftK = 0.5f;
 
-        /// <summary>Màu đỉnh nước: R = khoảng cách tới bờ / WaterShoreEncodeMax, G = độ thoáng (tỉ lệ ô không đặc trong cửa sổ quét), B = 255 (để dành), A = độ dày / WaterDepthEncodeMax (brief 0084, 0095, 0096).</summary>
-        static uint WaterVertexColor(float depth, float shore, float open) =>
+        /// <summary>Màu đỉnh nước: R = khoảng cách tới bờ / WaterShoreEncodeMax, G = độ thoáng (tỉ lệ ô không đặc trong cửa sổ quét), B = khoảng cách tới bờ đã làm mềm cho bọt / WaterShoreEncodeMax (brief 0100), A = độ dày / WaterDepthEncodeMax (brief 0084, 0095, 0096).</summary>
+        static uint WaterVertexColor(float depth, float shore, float open, float foam) =>
             (uint)math.round(255f * math.saturate(shore / WaterShoreEncodeMax))
-            | ((uint)math.round(255f * math.saturate(open)) << 8) | 0x00FF0000u
+            | ((uint)math.round(255f * math.saturate(open)) << 8) | ((uint)math.round(255f * math.saturate(foam / WaterShoreEncodeMax)) << 16)
             | ((uint)math.round(255f * math.saturate(depth / WaterDepthEncodeMax)) << 24);
         /// <summary>Luồng TEXCOORD0 của đỉnh nước (brief 0099): x, y = hướng chảy (x, z) −1..1, z = cờ mặt thác 0..1, w = 0; SNorm8, byte thấp = x.</summary>
         static uint PackFlow(float2 f, float fall) =>
@@ -1746,8 +1748,8 @@ namespace Game.World
                 return n == 0 ? WaterDepthEncodeMax : wp.y - sum / n;
             }
 
-            /// <summary>Quanh đỉnh mặt trên p (toạ độ chunk), cùng lớp: dist = khoảng cách ngang tới khối đặc gần nhất, tối đa WaterShoreEncodeMax (brief 0095 QĐ 1); open = tỉ lệ ô không đặc trong cửa sổ quét (brief 0096 QĐ 1).</summary>
-            void WaterShoreAt(float3 p, out float dist, out float open)
+            /// <summary>Quanh đỉnh mặt trên p (toạ độ chunk), cùng lớp: dist = khoảng cách ngang tới khối đặc gần nhất, tối đa WaterShoreEncodeMax (brief 0095 QĐ 1); open = tỉ lệ ô không đặc trong cửa sổ quét (brief 0096 QĐ 1); foamDist = soft-min khoảng cách (WaterFoamSoftK), chỉ dùng cho bọt (brief 0100).</summary>
+            void WaterShoreAt(float3 p, out float dist, out float open, out float foamDist)
             {
                 float3 wp = p + (float3)Origin;
                 int ly = (int)math.floor(wp.y - 1e-3f);
@@ -1755,6 +1757,7 @@ namespace Game.World
                 int x0 = (int)math.floor(wp.x - S), x1 = (int)math.floor(wp.x + S);
                 int z0 = (int)math.floor(wp.z - S), z1 = (int)math.floor(wp.z + S);
                 float best = WaterShoreEncodeMax;
+                float acc = 0f;
                 int notSolid = 0;
                 for (int z = z0; z <= z1; z++)
                 for (int x = x0; x <= x1; x++)
@@ -1766,9 +1769,12 @@ namespace Game.World
                     }
                     float dx = math.max(math.max(x - wp.x, wp.x - (x + 1)), 0f);
                     float dz = math.max(math.max(z - wp.z, wp.z - (z + 1)), 0f);
-                    best = math.min(best, math.sqrt(dx * dx + dz * dz));
+                    float d = math.sqrt(dx * dx + dz * dz);
+                    best = math.min(best, d);
+                    acc += math.exp(-d / WaterFoamSoftK);
                 }
                 dist = best;
+                foamDist = acc > 0f ? math.clamp(-WaterFoamSoftK * math.log(acc), 0f, WaterShoreEncodeMax) : WaterShoreEncodeMax;
                 open = notSolid / (float)((x1 - x0 + 1) * (z1 - z0 + 1));
             }
 
@@ -1840,13 +1846,13 @@ namespace Game.World
                 uint color, flow;
                 if (n.y > 0.999f)
                 {
-                    WaterShoreAt(p, out float shore, out float open);
-                    color = WaterVertexColor(WaterDepthAt(p), shore, open);
+                    WaterShoreAt(p, out float shore, out float open, out float foamDist);
+                    color = WaterVertexColor(WaterDepthAt(p), shore, open, foamDist);
                     flow = PackFlow(FlowAt(p), 0f);
                 }
                 else
                 {
-                    color = WaterVertexColor(WaterDepthEncodeMax, WaterShoreEncodeMax, 1f);
+                    color = WaterVertexColor(WaterDepthEncodeMax, WaterShoreEncodeMax, 1f, WaterShoreEncodeMax);
                     flow = PackFlow(float2.zero, 1f);
                 }
                 int i = AddVertex(p, n, color);
