@@ -10,13 +10,15 @@ using UnityEngine;
 namespace Game.Core.Tests
 {
     /// <summary>Quét mọi .cs trong client/Assets/Game: chữ tiếng Việt chỉ nằm trong Resources/Lang/vi.json (0032 C, 0049).
-    /// Ngoại lệ: dòng gắn // vi-text trong Tests/ và Core/WorldMapParams.cs (chữ hiển thị kỳ vọng, dữ liệu tạm).</summary>
+    /// Ngoại lệ: dòng gắn // vi-text trong Tests/ và Core/WorldMapParams.cs (chữ hiển thị kỳ vọng, dữ liệu tạm).
+    /// Quét thêm m_Name trong .unity/.prefab: tên object không có tiếng Việt, không có ngoại lệ (5j lỗi 16).</summary>
     public class HardcodedTextScanTests
     {
         const string Marker = "// vi-text";
 
         static readonly Regex Literal = new Regex(@"""(?:[^""\\]|\\.)*""");
         static readonly Regex Vietnamese = new Regex("[\u00C0-\u1EF9\u0110\u0111]");
+        static readonly Regex Escaped = new Regex(@"\\u([0-9A-Fa-f]{4})");
         static readonly Regex Unaccented = new Regex(@"\b(kho|tui|nha|ruong|cay|khoi|hinh|bien|huong|khong|duoc|cua|gieo|xoi|tuoi|hoach|buoi|binh|minh|hoang|dem)\b", RegexOptions.IgnoreCase);
         static readonly Regex KeyUse = new Regex(@"(?:\bT|\.Get|Format)\(\s*""([a-z0-9_]+\.[a-z0-9_]+)""");
         static readonly Regex KeyShape = new Regex(@"^[a-z0-9_]+\.[a-z0-9_]+$");
@@ -62,6 +64,30 @@ namespace Game.Core.Tests
                     }
                     if (marked && !ViTextAllowed(f)) bad.Add(f + ":" + (i + 1) + ": vi-text not allowed here");
                     else if (marked && !hit) bad.Add(f + ":" + (i + 1) + ": unused vi-text");
+                }
+            }
+            Assert.IsEmpty(bad, string.Join("\n", bad));
+        }
+
+        [Test]
+        public void NoVietnameseObjectNames()
+        {
+            string root = Root;
+            var files = Directory.GetFiles(root, "*.unity", SearchOption.AllDirectories)
+                .Concat(Directory.GetFiles(root, "*.prefab", SearchOption.AllDirectories))
+                .Select(p => Path.GetRelativePath(root, p).Replace('\\', '/')).ToList();
+            files.Sort(StringComparer.Ordinal);
+            Assert.IsNotEmpty(files);
+            var bad = new List<string>();
+            foreach (var f in files)
+            {
+                var lines = Lines(f);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string t = lines[i].Trim();
+                    if (!t.StartsWith("m_Name:", StringComparison.Ordinal)) continue;
+                    string name = Escaped.Replace(t.Substring(7).Trim(), m => ((char)Convert.ToInt32(m.Groups[1].Value, 16)).ToString());
+                    if (Vietnamese.IsMatch(name)) bad.Add(f + ":" + (i + 1) + ": " + name);
                 }
             }
             Assert.IsEmpty(bad, string.Join("\n", bad));

@@ -336,7 +336,7 @@ GameObject:
   - component: {fileID: 330232865}
   - component: {fileID: 330232864}
   m_Layer: 0
-  m_Name: "Ng\u01B0\u1EDDi ch\u01A1i"
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
