@@ -213,3 +213,8 @@ Gộp với danh sách chơi thử 5k. Play scene SimView, ban ngày, rồi ban 
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+## Kiểm chứng
+- design (verify_run): đạt, exit 0 — `design/ hợp lệ: 70 file`.
+- client_test / client_test_play qua `tools/unity_test.py`: Chưa kiểm được: Editor đang mở project (dùng chung qua MCP, 0010), script đòi Editor tắt. Thay bằng `run_tests` MCP: EditMode 713/714 (1 fail `ConfigFileMatchesDefaults`, xem Vướng mắc), PlayMode chưa chạy.
+- Checklist: phạm vi M1 (0007) đạt — chỉ sửa nước (5k); Game.Core không đổi tham chiếu Unity (đạt, chỉ đổi test + JSON); các mục thiết kế khác không áp dụng (không thêm tính năng/thuật ngữ mới). Giờ thực tế: chưa ghi (brief chưa xong).
