@@ -33,28 +33,30 @@ Phục vụ ràng buộc nền tảng PC + mobile ([vision](../00-vision.md)), k
 - **Túi** 10 ô (phân trang, 999/ô), **túi phụ** 2 ô giữa-dưới (P ẩn/hiện, phân trang riêng), kho ô vuông; mở cùng lúc, chuyển bằng kéo thả hoặc chọn ô → Tab đổi đích (ưu tiên túi > túi phụ > kho) → 1 / 2 / 3 = toàn bộ / nửa / một phần ba.
 - **Mọi phím đổi được** trong Cài đặt → Điều khiển (từ M3 về M1, luật 0033 mục 2).
 
+- **Cảm ứng M1 đã làm** (task m1-dieu-khien-cam-ung, brief 0101–0103, user 2026-11-02): tự bật trên điện thoại (`Application.isMobilePlatform`), F4 bật/tắt để thử trên máy tính; joystick + tâm nhắm giữa màn hình + nút hành động chính; nút ≥ 48 dp trong vùng an toàn; số tạm `touch*` trong `sim_m1.json` (chưa chốt). [ý tưởng] APK chơi thử chỉ màn hình ngang. Bảng IMGUI (ô ruộng, Cài đặt, Môi trường sống) trên điện thoại: nhận chạm (kiểm 2026-11-03 bằng tab Cài đặt).
+
 | Hành động | Bàn phím-chuột | Cảm ứng | Tay cầm (sau phát hành) | Milestone |
 |---|---|---|---|---|
-| Di chuyển | Chuột trái lên world (0034; trước: WASD) | Joystick ảo nửa trái (hiện tại chỗ chạm) | Cần trái | M1 |
-| Xoay camera | Giữ chuột giữa + di chuột | Vuốt nửa phải màn hình | Cần phải | M1 |
-| Camera về mặc định (sau lưng, trên đầu, theo hướng nhân vật) | Space | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
-| Góc nhìn thứ nhất / thứ ba | X | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
-| Thu phóng camera | Lăn chuột | Chụm 2 ngón | Nhấn cần phải (đổi gần/xa) | M1 |
-| Nhảy | A (trước: Space) | Nút nhảy | A | M1 |
-| Lướt | Shift [số tạm 4 ô, hồi 3 giây] | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
-| Thao tác chọn (chế độ / vật cầm / hành động của chỗ click) | Chuột phải | Nút hành động chính | RT | M1 |
-| Chế độ Mặc định / Đào / Xới / Tưới | D / Q / E / R (bấm lại = tắt) | Chạm ô trên thanh công cụ | LB / RB | M1 (0034; trước: Tab đổi công cụ, 1–4 chọn khối) |
-| Dùng ô túi phụ (cầm vật) | 1–0 | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
-| Thu (hút vật rơi trong 2 ô) | F | Nút ngữ cảnh | X | M1 |
-| Túi đồ (+ túi phụ) | B | Nút menu → chọn | Select | M1 |
-| Ẩn/hiện túi phụ | P | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
-| Chuyển đồ (túi / túi phụ / kho đang mở) | Kéo thả; hoặc click chọn ô → Tab đổi đích → 1 / 2 / 3 | _(chưa có)_ | _(chưa có)_ | M1 (0034) |
-| Bảng kho | Chuột phải khối kho (đi tới 2 ô) (trước: K) | _(chưa có)_ | _(chưa có)_ | M1 |
-| Menu phép (đổi buổi, phép Mưa) | G (thay T; 7l e1, brief 0064) | _(chưa có)_ | _(chưa có)_ | M1 (0034, [0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)) |
-| Xem camera quan sát / quay về | V (đặt camera: cầm vật phẩm "Camera quan sát" + chuột phải lên khối; đang xem: giữ chuột giữa xoay — 0035) | _(chưa có)_ | _(chưa có)_ | M1 ([0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), world 7j → 7l) |
+| Di chuyển | Chuột trái lên world (0034; trước: WASD) | Joystick ảo nửa trái (hiện tại chỗ chạm) (brief 0101) | Cần trái | M1 |
+| Xoay camera | Giữ chuột giữa + di chuột | Vuốt nửa phải màn hình (brief 0101) | Cần phải | M1 |
+| Camera về mặc định (sau lưng, trên đầu, theo hướng nhân vật) | Space | _(để sau — [ideas](../ideas.md))_ | _(chưa có)_ | M1 (0034) |
+| Góc nhìn thứ nhất / thứ ba | X | _(để sau — [ideas](../ideas.md))_ | _(chưa có)_ | M1 (0034) |
+| Thu phóng camera | Lăn chuột | Chụm 2 ngón (brief 0101) | Nhấn cần phải (đổi gần/xa) | M1 |
+| Nhảy | A (trước: Space) | Nút Nhảy, góc dưới-phải (brief 0101) | A | M1 |
+| Lướt | Shift [số tạm 4 ô, hồi 3 giây] | _(để sau — [ideas](../ideas.md))_ | _(chưa có)_ | M1 (0034) |
+| Thao tác chọn (chế độ / vật cầm / hành động của chỗ click) | Chuột phải | Nút hành động chính "Làm" (góc dưới-phải, to nhất) lên đích dưới tâm nhắm; Mặc định + không cầm + ô ruộng chưa chín → bảng ô ruộng (brief 0102) | RT | M1 |
+| Chế độ Mặc định / Đào / Xới / Tưới | D / Q / E / R (bấm lại = tắt) | Thanh 4 nút dọc mép phải (bấm lại = tắt) (brief 0102) | LB / RB | M1 (0034; trước: Tab đổi công cụ, 1–4 chọn khối) |
+| Dùng ô túi phụ (cầm vật) | 1–0 | Chạm ô túi phụ (brief 0102) | _(chưa có)_ | M1 (0034) |
+| Thu (hút vật rơi trong 2 ô) | F | Nút Thu, trên nút hành động chính (brief 0102) | X | M1 |
+| Túi đồ (+ túi phụ) | B | Nút Túi, góc trên-trái cạnh máu/mana (brief 0102) | Select | M1 |
+| Ẩn/hiện túi phụ | P | _(để sau — [ideas](../ideas.md))_ | _(chưa có)_ | M1 (0034) |
+| Chuyển đồ (túi / túi phụ / kho đang mở) | Kéo thả; hoặc click chọn ô → Tab đổi đích → 1 / 2 / 3 | Kéo thả bằng ngón tay (brief 0102); chọn ô → Tab → 1 / 2 / 3: _(để sau — [ideas](../ideas.md))_ | _(chưa có)_ | M1 (0034) |
+| Bảng kho | Chuột phải khối kho (đi tới 2 ô) (trước: K) | Nút hành động chính lên khối kho (brief 0102) | _(chưa có)_ | M1 |
+| Menu phép (đổi buổi, phép Mưa) | G (thay T; 7l e1, brief 0064) | Chạm nút Phép dưới minimap | _(chưa có)_ | M1 (0034, [0024](../decisions/0024-buoi-trong-ngay-va-chon-thoi-diem.md)) |
+| Xem camera quan sát / quay về | V (đặt camera: cầm vật phẩm "Camera quan sát" + chuột phải lên khối; đang xem: giữ chuột giữa xoay — 0035) | _(để sau — [ideas](../ideas.md))_ | _(chưa có)_ | M1 ([0029](../decisions/0029-nhieu-diem-nhin-camera-quan-sat.md), world 7j → 7l) |
 | Bản đồ | M; bấm ô minimap góc trên-phải | Chạm ô minimap | Select | M1 ([0022](../decisions/0022-world-nhieu-map-va-minimap-m1.md)) |
-| Cài đặt (gồm Hướng dẫn, Điều khiển = đổi phím) | O; Esc khi không có bảng nào mở | _(chưa có)_ | _(chưa có)_ | M1 ([0032](../decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md), 0034) |
-| Menu, tạm dừng / huỷ | Esc (đóng bảng đang mở / thoát cầm vật, chế độ / thoát xem camera quan sát; không còn gì → Cài đặt) | Nút menu | Start | M1 |
+| Cài đặt (gồm Hướng dẫn, Điều khiển = đổi phím) | O; Esc khi không có bảng nào mở | Nút Huỷ khi không còn gì để đóng (brief 0102) | _(chưa có)_ | M1 ([0032](../decisions/0032-cai-dat-nguoi-choi-va-bang-chuoi.md), 0034) |
+| Menu, tạm dừng / huỷ | Esc (đóng bảng đang mở / thoát cầm vật, chế độ / thoát xem camera quan sát; không còn gì → Cài đặt) | Nút Huỷ, cạnh nút Túi (giống Esc) (brief 0102) | Start | M1 |
 | Ném thẻ bài | Chuột phải (khi cầm thẻ) [ý tưởng, theo 0034] | Nút hành động chính | RT | M2 |
 | Khoá mục tiêu | _(chọn lại — chuột giữa đã dùng xoay camera)_ | Chạm thẳng vào sinh vật | Nhấn cần phải giữ lâu | M2 |
 | Nhập hồn / thoát | _(chọn lại — R đã dùng)_ | Nút nhập hồn (hiện khi nhắm trúng) | Y | M2 |

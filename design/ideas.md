@@ -72,3 +72,9 @@
 
 ## Nước — vật nổi trôi theo hướng chảy (user, 2026-11-02, M2)
 - [ý tưởng] Vật nổi trên nước (vật rơi, sinh vật…) trôi sang ô con theo **hướng chảy chính** (main_flow) của ô đang đứng; main_flow = null thì chọn ngẫu nhiên một ô con. M1 chưa có vật nổi; dữ liệu main_flow có từ brief 0098 ([world-tech](04-tech/world-tech.md) mục "Hiển thị dòng chảy"). Ước lượng (AI) 1–2 ngày-người khi làm.
+
+## Điều khiển cảm ứng — để sau (task m1-dieu-khien-cam-ung, user 2026-11-02)
+- Nút cảm ứng cho: lướt (Shift), góc nhìn thứ nhất (X), camera về mặc định (Space), xem / đặt camera quan sát (V), ẩn / hiện túi phụ (P), bảng Môi trường sống (H), chia đồ 1/2 – 1/3 (Tab + 1/2/3). Chưa ước lượng; làm khi chơi thử trên điện thoại thấy cần ([controls-ui](02-gameplay/controls-ui.md)).
+- Đổi vị trí / cỡ nút cảm ứng (M3, controls-ui). Tay cầm: sau phát hành (dòng "Hỗ trợ tay cầm" ở bảng trên).
+- Khoá mục tiêu, nút ngữ cảnh khi nhập hồn, nhắm phép trên cảm ứng: M2.
+- Đo và đạt ngưỡng FPS trên điện thoại khi chơi bằng cảm ứng: user gác 2026-11-01. iOS: chưa thử (M1 chỉ thử Android).

@@ -104,9 +104,9 @@
 | Bậc | Mức tiến hoá của sinh vật; mỗi loài có 1 (không tiến hoá), 2 hoặc 3 bậc; loài 1 bậc tính tương đương bậc 2 hoặc 3; phép có yêu cầu bậc | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Tiến hoá | Tăng bậc sinh vật, mở rộng phạm vi phép mang được | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
 | Chuẩn bị chiến đấu | Màn người chơi gán phép cho sinh vật trước khi chiến đấu | [02-gameplay/mechanics.md](02-gameplay/mechanics.md) |
-| Tâm nhắm | Điểm giữa màn hình; ô / sinh vật dưới tâm nhắm là đích của hành động, cho mọi thiết bị | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Tâm nhắm | Điểm giữa màn hình trên cảm ứng (và tay cầm); ô / sinh vật dưới tâm nhắm là đích của hành động. PC dùng con trỏ chuột (0034) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Thanh công cụ | Hàng công cụ người chơi cầm (cuốc, khối, lệnh làm việc, thẻ bài, phép của pháp sư); khi nhập hồn đổi thành ô phép | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
-| Hành động chính | Nút dùng công cụ đang cầm (chuột trái / nút chính trên cảm ứng) | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
+| Hành động chính | Thao tác chọn lên đích: hành động của chế độ, dùng vật đang cầm, hoặc hành động riêng của chỗ đó (0034). PC: chuột phải; cảm ứng: nút hành động chính lên đích dưới tâm nhắm | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Bản mờ | Hình trong suốt của khối sắp đặt, hiện ở ô trống đặt được dưới tâm nhắm khi cầm công cụ khối | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Khoá mục tiêu | Camera bám một sinh vật; phép hướng và thẻ bài bay về mục tiêu đó | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
 | Vòng nhắm | Vòng hiện trên mặt đất khi giữ nút phép vùng; thả để dùng phép | [02-gameplay/controls-ui.md](02-gameplay/controls-ui.md) |
