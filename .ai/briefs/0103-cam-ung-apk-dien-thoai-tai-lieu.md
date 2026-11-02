@@ -1,6 +1,6 @@
 # Brief 0103 — Cảm ứng (c): build APK chơi thử, chạy trên điện thoại, cập nhật tài liệu
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Cấp: Lớn
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
@@ -357,8 +357,11 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
 - Giờ bắt đầu: 04:01 (2026-11-03)
 - Base commit: e95889c
 - Chạy bằng: claude-sonnet-5-5 · medium
+- Lần 2 (sau trả lời Planner, từ 04:20): code commit `%s` (TouchControls.cs, PlayBuild.cs(+.meta), TouchControlsPlayTests.cs, MinimapCornerPlayTests.cs). Build APK: `Play build: Succeeded, 872898006 byte, 00:03:59` → `client/Builds/play.apk` (35,8 MB). `ProjectSettings.asset` không đổi; `UnityConnectSettings.asset` bẩn → đã `git checkout`.
+- Bước 5: **không có điện thoại**: `adb devices -l` rỗng, `adb mdns services` rỗng (thử 2 lần cách nhau 5 giây). Dừng theo brief. Chưa làm bước 5–13 (cài, ảnh, tài liệu 8–12, giờ thực tế).
 
 ## Kết quả test
+- Lần 2: PlayMode 319/319 đạt (MCP, gồm `TouchOnCornerOpensMapNotCamera` và `LayoutLogsOnceWithButtonCenters`). EditMode 745/745 (lần 1, code không đổi ở assembly EditMode từ đó; không chạy lại).
 - EditMode (MCP): 745/745 đạt.
 - PlayMode (MCP): 318/319; 1 fail: `MinimapCornerPlayTests.TouchOnCornerOpensMapNotCamera` (`MinimapCornerPlayTests.cs:201`, `Assert.IsTrue(map.IsOpen)` → false). Test mới `LayoutLogsOnceWithButtonCenters` đạt.
 - Chưa làm bước 4 (build) trở đi: dừng theo "test cũ fail".
@@ -381,6 +384,8 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
   - Chạy lại toàn bộ EditMode + PlayMode, mong đợi 745/745 và 319/319.
   - Commit `MinimapCornerPlayTests.cs` cùng commit code ở bước 13.
   - Mục Kết quả đã ghi giữ nguyên; ghi tiếp bên dưới.
+
+**Vướng mắc 2 (bước 5):** không nối được điện thoại (không USB, không mDNS). Cần user cắm USB (hoặc bật gỡ lỗi không dây) rồi cho Executor chạy lại từ bước 5; APK đã build sẵn ở `client/Builds/play.apk`, không cần build lại. Đề xuất: user cắm máy, Planner đặt brief về `chờ làm` ghi "bắt đầu từ bước 5".
 
 ---
 <!-- PLANNER ghi khi review. -->
