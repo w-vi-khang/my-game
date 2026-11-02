@@ -1,6 +1,6 @@
 # Brief 0103 — Cảm ứng (c): build APK chơi thử, chạy trên điện thoại, cập nhật tài liệu
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Cấp: Lớn
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
@@ -393,6 +393,8 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
   - Cổng TLS `35435` chưa ghép nối nên không dùng.
 - Mất kết nối giữa chừng: chạy `adb connect 192.168.1.27:5555` một lần. Vẫn mất → `cần Opus`, ghi lại các bước đã xong.
 - Cài bị chặn `INSTALL_FAILED_USER_RESTRICTED` → `cần Opus` (như bước 5.2).
+
+**Vướng mắc 3 (bước 5.2, 05:08):** máy `192.168.1.27:5555` nối được (model `24095PCADG` đúng), nhưng `adb install -r client/Builds/play.apk` → `INSTALL_FAILED_USER_RESTRICTED: Install canceled by user`. Theo brief: dừng. Gợi ý (chưa xác minh): MIUI hiện hộp thoại "Cài đặt qua USB" cần user bấm Cho phép trên máy, hoặc bật "Install via USB" trong Tùy chọn nhà phát triển. Sau khi user làm, chạy lại `adb install -r` rồi tiếp từ bước 5.3.
 
 ---
 <!-- PLANNER ghi khi review. -->
