@@ -1,6 +1,6 @@
 # Brief 0103 — Cảm ứng (c): build APK chơi thử, chạy trên điện thoại, cập nhật tài liệu
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Cấp: Lớn
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
@@ -72,6 +72,7 @@ Phần (c), phần cuối, của task [m1-dieu-khien-cam-ung](../tasks/m1-dieu-k
   - `client/Assets/Game/Client/Editor/PlayBuild.cs` (mới) + `.meta`.
   - `client/Assets/Game/Client/TouchControls.cs`: chỉ thêm `LogLayout` và các trường của nó, một dòng gọi trong `Feed`, một dòng trong `ClearOutputs`, `using System.Text;`.
   - `client/Assets/Game/Tests/Client/TouchControlsPlayTests.cs`: chỉ thêm một test method.
+  - `client/Assets/Game/Tests/Client/MinimapCornerPlayTests.cs`: **Planner đã sửa sẵn** trong working tree (trả lời Vướng mắc ngày 2026-11-03). Executor không sửa thêm, chỉ commit cùng code.
   - `design/02-gameplay/controls-ui.md`, `design/glossary.md`, `design/ideas.md`, `design/04-tech/world-tech.md`, `design/05-roadmap.md`: chỉ các chỗ ở bước 8–12.
   - Brief này: mục Kết quả trở xuống.
 - **Không được sửa:**
@@ -369,6 +370,17 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
 - Chạy riêng test đó: vẫn fail (lặp 2 lần). Tắt tạm dòng `LogLayout(dpi);` trong `Feed`, chạy riêng lại: vẫn fail → **không phải do thay đổi của brief này** (đã khôi phục dòng đó).
 - Nghi nguyên nhân (chưa xác minh): kích thước Game view của Editor lúc này khác lúc 0102 chạy (log test: `TOUCHUI screen=1716x876`, minimap `frame 1378x616`), nên `map.ButtonScreenCenter` có thể rơi vào một nút cảm ứng hoặc ngoài vùng; hoặc lỗi flaky phụ thuộc cửa sổ Editor.
 - Phương án: (a) Planner xem/sửa test hoặc đặt kích thước Game view cố định trong test; (b) cho phép Executor chạy tiếp build APK, ghi test này là lỗi môi trường đã biết. Đề xuất: (a) trước, vì brief yêu cầu PlayMode 319/319.
+
+**Trả lời của Planner (2026-11-03):**
+- **Nguyên nhân** [run]: Editor lúc chạy test không focus (`isApplicationActive=False`). `InputSystem.settings.editorInputBehaviorInPlayMode = PointersAndKeyboardsRespectGameViewFocus` (mặc định) đẩy input của thiết bị Pointer, gồm cả `Touchscreen`, sang Editor khi Game view không focus (`client/Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputSettings.cs:902-911`). Do đó chạm giả lập không tới `MinimapView`. Không phải lỗi của brief này, và cũng là lý do test rớt "1 lần" ở 0102.
+- **Sửa** (Planner đã làm trong working tree, `MinimapCornerPlayTests.cs` `TouchOnCornerOpensMapNotCamera`):
+  - Trong test, đặt tạm `editorInputBehaviorInPlayMode = AllDeviceInputAlwaysGoesToGameView` và `backgroundBehavior = IgnoreFocus`, rồi khôi phục trong `finally`.
+  - Assert giữ nguyên. Chỉ bỏ phụ thuộc vào focus cửa sổ (AGENTS.md §11.16).
+  - Chạy riêng test này khi Editor không focus: đạt 1/1 [run, MCP].
+- **Executor làm tiếp từ bước 4:**
+  - Chạy lại toàn bộ EditMode + PlayMode, mong đợi 745/745 và 319/319.
+  - Commit `MinimapCornerPlayTests.cs` cùng commit code ở bước 13.
+  - Mục Kết quả đã ghi giữ nguyên; ghi tiếp bên dưới.
 
 ---
 <!-- PLANNER ghi khi review. -->
