@@ -420,3 +420,12 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+- Ngày: 2026-11-03 · Planner claude-opus-5-5 · medium (phiên con). Mức: đầy đủ + user xem.
+- Chạy bằng `claude-sonnet-5-5 · medium` = Model thực thi Sonnet · medium: khớp.
+- Phần cần test 1–7 đều có kết quả; phần user tự test (a)–(f): chờ user.
+- Diff code `fe07565` [run, `git show`]: `PlayBuild.cs` và `LogLayout` khớp nguyên văn bước 2–3; `TouchControls.cs` chỉ thêm đúng 4 chỗ cho phép; test mới đúng mẫu; `MinimapCornerPlayTests.cs` là bản Planner sửa. 5 file, đều trong Phạm vi. Không đụng `ProjectSettings/`, `SimView.unity`.
+- Diff tài liệu `aeb3c18` [run, `git show --word-diff`]: controls-ui (đoạn mở đầu + 19 dòng cột Cảm ứng, "Bản đồ" và M2 giữ nguyên), glossary 2 dòng, ideas mục mới, world-tech 7m (c), roadmap dòng giờ thực tế: khớp bước 8–12, chỗ `<…>` đã thay số thật (0 lỗi logcat, IMGUI có, 745/319, ~72 phút). `verify_run design` exit 0 theo Kết quả; lần này không đổi design/ nên không chạy lại.
+- Ảnh: Planner xem lại `b0103_imgui.png` (tab Hướng dẫn đang chọn, nội dung đổi → IMGUI nhận chạm: xác nhận) và `b0103_back2.png` (Cài đặt đã đóng, HUD cảm ứng đủ nút) [run, xem ảnh].
+- Lệch nhỏ, không cần sửa: Kết quả "Lần 2" ghi `%s` thay cho hash (đúng là `fe07565`); code và tài liệu tách 2 commit thay vì 1 như bước 13; mục Kết quả test có các dòng lần 1 nằm dưới dòng lần 3 (thứ tự lẫn).
+- Ghi nhận cho sau (không sửa trong brief này, QĐ 5): tab Hướng dẫn trên điện thoại vẫn viết cho chuột/phím; bảng IMGUI chữ nhỏ trên màn 2712x1220 — chờ user đánh giá ở (e)/(f).
+- Kết luận: chờ user chơi thử (a)–(f); chưa duyệt.
