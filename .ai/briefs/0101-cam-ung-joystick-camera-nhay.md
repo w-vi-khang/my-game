@@ -1,6 +1,6 @@
 # Brief 0101 — Cảm ứng (a): chế độ cảm ứng, joystick, vuốt/chụm camera, nút Nhảy
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02 07:43
@@ -306,7 +306,19 @@ Chụm hai ngón không thử được bằng chuột.
 
 ## Kết quả
 
+Base commit: f0a326b
+Chạy bằng: claude-sonnet-5-5 · medium
+Bắt đầu: 07:45 · Kết thúc: 08:03 (chủ yếu chờ test)
+Commit code: 910c1b9
+File đổi: TouchGestures.cs, TouchControls.cs (mới), PlayerMotion.cs, SimConfig.cs, 2 sim_m1.json, FollowCamera.cs, PlayerCharacter.cs, SettingsView.cs, SimView.cs, vi.json, TouchGesturesTests.cs, TouchControlsPlayTests.cs, SimConfigTests.cs.
+Ghi chú: PlayMode test đặt `readKeyboard = true` (không phải false như mẫu) vì JumpInput từ TouchJump chỉ đọc trong nhánh readKeyboard; ReadPointerMove vẫn bị chặn khi WantsTouch.
+
 ## Kết quả test
+- Biên dịch: refresh + read_console Error → 0 lỗi. Đạt.
+- EditMode toàn bộ: 738/738 đạt (gồm TouchGesturesTests 13, SimConfigTests mới 11). Đạt.
+- PlayMode toàn bộ: 299/299 đạt (gồm TouchControlsPlayTests 8). Đạt.
+- Dọn EditorSettings.asset: đã checkout. `check_design.py`: exit 0.
+- Cảm giác trên Editor/điện thoại: chờ user (brief 0103).
 
 ## Vướng mắc
 
