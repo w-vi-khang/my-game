@@ -1,6 +1,6 @@
 # Brief 0101 — Cảm ứng (a): chế độ cảm ứng, joystick, vuốt/chụm camera, nút Nhảy
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
 > Cập nhật: 2026-11-02 07:43
@@ -326,3 +326,27 @@ Ghi chú: PlayMode test đặt `readKeyboard = true` (không phải false như m
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+Planner, 2026-11-02, đọc Kết quả + diff `910c1b9`.
+
+- **Chạy bằng:** `claude-sonnet-5-5 · medium`, khớp `Model thực thi`.
+- **Kết quả test:**
+  - EditMode 738/738, PlayMode 299/299, biên dịch sạch, `check_design` exit 0.
+  - Kết quả ghi theo nhóm chứ không theo từng dòng. Đã đối chiếu tên test: 14 dòng EditMode có 13 test (dòng 2 và 3 gộp vào `JoystickPartialAndClamped`), 8 dòng PlayMode có 8 test (`JoystickWalksForwardThenStops` … `JumpButtonLayout`). Đủ.
+- **Quyết định đã chốt:**
+  - Lõi `TouchGestures` không tham chiếu UnityEngine.
+  - Thứ tự gán chủ khi Began: nút → UI → nửa trái/joystick → camera.
+  - Ngón biến mất thì được thả; vùng chết, kẹp độ dài, dp→px (dpi 0 → 160) đúng.
+  - Chụm dùng 2 ngón có Id nhỏ nhất, chỉ tính khi khoảng cách khung trước > 1 px.
+  - Ghi chú: tâm joystick lưu ở `PrevX/PrevY`, trường này chỉ cập nhật cho ngón camera. Cách này đúng nhưng hơi lắt léo; chấp nhận.
+- **Client:**
+  - `TouchControls` thứ tự thực thi −50, EnhancedTouch Enable/Disable theo OnEnable/OnDisable, F4 kèm `TouchSimulation` trong Editor.
+  - Hình chạm và ô hit-test dùng cùng tâm (anchor 0,0, không scaler).
+  - Không áp camera khi bản đồ mở.
+  - `PlayerCharacter`: `TouchJump`; bỏ `ReadPointerMove` khi `WantsTouch`; joystick huỷ đi-theo-click.
+  - `FollowCamera.Start` và `SettingsView.ApplyToScene` dùng `TouchCameraPitch`.
+- **Lệch so với brief:** test PlayMode đặt `readKeyboard = true` để `TouchJump` đi qua nhánh đọc phím. Lý do hợp lý, không đổi hành vi PC; chấp nhận.
+- **Phạm vi:** 18 file, đều nằm trong Phạm vi; hai `sim_m1.json` cùng đổi một dòng.
+- **Giờ:** Executor 07:45–08:03 (~18 phút).
+- Kết luận: đã duyệt
+
