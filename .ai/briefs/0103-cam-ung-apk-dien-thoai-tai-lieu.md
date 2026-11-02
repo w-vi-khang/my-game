@@ -1,6 +1,6 @@
 # Brief 0103 — Cảm ứng (c): build APK chơi thử, chạy trên điện thoại, cập nhật tài liệu
 
-> Trạng thái: chờ làm
+> Trạng thái: cần Opus
 > Cấp: Lớn
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
@@ -353,10 +353,22 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Giờ bắt đầu: 04:01 (2026-11-03)
+- Base commit: e95889c
+- Chạy bằng: claude-sonnet-5-5 · medium
 
 ## Kết quả test
+- EditMode (MCP): 745/745 đạt.
+- PlayMode (MCP): 318/319; 1 fail: `MinimapCornerPlayTests.TouchOnCornerOpensMapNotCamera` (`MinimapCornerPlayTests.cs:201`, `Assert.IsTrue(map.IsOpen)` → false). Test mới `LayoutLogsOnceWithButtonCenters` đạt.
+- Chưa làm bước 4 (build) trở đi: dừng theo "test cũ fail".
 
 ## Vướng mắc
+Đã làm bước 1–3 (code `LogLayout`, `PlayBuild.cs`, test mới), CHƯA commit code. Working tree còn: `TouchControls.cs`, `TouchControlsPlayTests.cs`, `PlayBuild.cs(+.meta)`.
+
+**Câu hỏi:** test cũ `TouchOnCornerOpensMapNotCamera` fail, brief cấm sửa test cũ. Xử lý thế nào?
+- Chạy riêng test đó: vẫn fail (lặp 2 lần). Tắt tạm dòng `LogLayout(dpi);` trong `Feed`, chạy riêng lại: vẫn fail → **không phải do thay đổi của brief này** (đã khôi phục dòng đó).
+- Nghi nguyên nhân (chưa xác minh): kích thước Game view của Editor lúc này khác lúc 0102 chạy (log test: `TOUCHUI screen=1716x876`, minimap `frame 1378x616`), nên `map.ButtonScreenCenter` có thể rơi vào một nút cảm ứng hoặc ngoài vùng; hoặc lỗi flaky phụ thuộc cửa sổ Editor.
+- Phương án: (a) Planner xem/sửa test hoặc đặt kích thước Game view cố định trong test; (b) cho phép Executor chạy tiếp build APK, ghi test này là lỗi môi trường đã biết. Đề xuất: (a) trước, vì brief yêu cầu PlayMode 319/319.
 
 ---
 <!-- PLANNER ghi khi review. -->
