@@ -157,7 +157,7 @@ namespace Game.Client
 
             if (DebugKeys.WasPressed(Key.F1)) SetFrameRate(30);
             if (DebugKeys.WasPressed(Key.F2)) SetFrameRate(60);
-            if (OpenPlotId >= 0 && GameInput.PanelsClose.WasPressedThisFrame()) ClosePlotPanel();
+            if (OpenPlotId >= 0 && (GameInput.PanelsClose.WasPressedThisFrame() || GameInput.TouchBack)) ClosePlotPanel();
             smoothedDt = smoothedDt * 0.9f + Time.unscaledDeltaTime * 0.1f;
 
             int n = clock.Advance(Time.deltaTime);

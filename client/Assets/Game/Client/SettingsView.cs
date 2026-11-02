@@ -132,7 +132,7 @@ namespace Game.Client
 
         void Update()
         {
-            HandleKeys(GameInput.ToggleSettings.WasPressedThisFrame(), GameInput.SettingsClose.WasPressedThisFrame());
+            HandleKeys(GameInput.ToggleSettings.WasPressedThisFrame(), GameInput.SettingsClose.WasPressedThisFrame() || GameInput.TouchBack);
         }
 
         public void ApplyToScene()

@@ -6,6 +6,11 @@ namespace Game.Client
     /// <summary>Hành động điều khiển (0033): gameplay / UI đọc qua đây, không đọc thẳng phím. Asset project-wide: Input/GameControls.inputactions. Bảng đổi phím: M1 (7l f, 0034).</summary>
     public static class GameInput
     {
+        /// <summary>Khung nút Huỷ/Menu cảm ứng có hiệu lực (TouchControls ghi; -1 = chưa). Task cảm ứng (b), brief 0102.</summary>
+        public static int TouchBackFrame { get; set; } = -1;
+        /// <summary>Nút Huỷ/Menu cảm ứng ở khung này — mọi chỗ đọc Esc OR thêm cờ này.</summary>
+        public static bool TouchBack => TouchBackFrame == Time.frameCount;
+
         public static InputAction MoveClick => Get("Player/MoveClick");
         public static InputAction Jump => Get("Player/Jump");
         public static InputAction Dash => Get("Player/Dash");

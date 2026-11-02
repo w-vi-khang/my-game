@@ -161,7 +161,7 @@ namespace Game.Client
                 pixelsDirty = false;
             }
             if (GameInput.ToggleMap.WasPressedThisFrame()) Toggle();
-            else if (IsOpen && GameInput.MapClose.WasPressedThisFrame()) SetOpen(false);
+            else if (IsOpen && (GameInput.MapClose.WasPressedThisFrame() || GameInput.TouchBack)) SetOpen(false);
             HandleMouse();
             HandleTouches(Touchscreen.current);
             if (IsOpen)

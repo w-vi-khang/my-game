@@ -11,11 +11,47 @@ namespace Game.Client
     /// World 7l c2 (brief 0059): cầm vật phẩm từ bảng túi (khối / túi hạt / camera quan sát, HoldItem), bản mờ đỏ khi sai chỗ, hết → thôi cầm; vòng tầm chỉ khi chuột phải ngoài tầm; F hiện vùng + gió.
     /// Tia trúng nhà, kho hay dấu mốc trước địa hình → không có ô chọn (brief 0021). Vật rơi / kho dưới con trỏ là đích của chuột phải (nhặt / mở kho).
     /// Ô chọn = raycast vào collider rồi lùi/tiến nửa ô theo pháp tuyến — mesh mịn nên ở góc có thể lệch 1 ô (chấp nhận ở M1).
+    /// Cảm ứng (brief 0102): tâm nhắm = tâm màn hình, tia bỏ qua nhân vật; TouchAction cho nút hành động chính.
     /// </summary>
     [RequireComponent(typeof(TerrainChunkView))]
     public class TerrainEditInput : MonoBehaviour
     {
         public float maxDistance = 200f;
+
+        public static TerrainEditInput Active { get; private set; }
+        /// <summary>Tâm nhắm cảm ứng: tâm màn hình.</summary>
+        public static Vector2 AimScreenPoint => new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+
+        static readonly RaycastHit[] hitBuf = new RaycastHit[16];
+        Collider aimIgnore;
+
+        static bool PointerBlocked(Vector2 p) =>
+            MinimapView.BlocksPointer(p) || TimeDial.BlocksPointer(p) || SimView.BlocksPointer(p) || InventoryView.BlocksPointer(p) || ObservationCamera.BlocksPointer(p);
+
+        /// <summary>Raycast địa hình/vật; khi aimIgnore (nhân vật, chế độ cảm ứng) đặt thì bỏ qua collider đó.</summary>
+        bool Raycast(Ray ray, out RaycastHit hit)
+        {
+            if (aimIgnore == null) return Physics.Raycast(ray, out hit, maxDistance);
+            int n = Physics.RaycastNonAlloc(ray, hitBuf, maxDistance);
+            hit = default;
+            bool found = false;
+            for (int i = 0; i < n; i++)
+            {
+                if (hitBuf[i].collider == aimIgnore) continue;
+                if (!found || hitBuf[i].distance < hit.distance) { hit = hitBuf[i]; found = true; }
+            }
+            return found;
+        }
+
+        void AimTargets(Ray ray, out DropStack drop, out int sid, out bool hasCell, out Vector3Int digCell, out Vector3Int placeCell)
+        {
+            drop = PickDrop(ray);
+            sid = -1;
+            if (Farm != null && Raycast(ray, out var sh)) sid = Farm.StorageIdOf(sh.collider);
+            hasCell = Pick(ray, out digCell, out placeCell);
+        }
+
+        void OnDestroy() { if (Active == this) Active = null; }
 
         static readonly BlockMaterial[] Palette =
             { BlockMaterial.Dirt, BlockMaterial.Grass, BlockMaterial.Stone, BlockMaterial.Sand };
@@ -70,6 +106,7 @@ namespace Game.Client
 
         void Awake()
         {
+            Active = this;
             view = GetComponent<TerrainChunkView>();
             CreateHighlight();
             CreateGhost();
@@ -108,13 +145,14 @@ namespace Game.Client
                 if (GameInput.ModeTill.WasPressedThisFrame()) ToggleMode(ControlMode.Till);
                 if (GameInput.ModeRain.WasPressedThisFrame()) ToggleMode(ControlMode.Rain);
             }
-            if (GameInput.Back.WasPressedThisFrame() && Control.HasHeld) Control.ClearToDefault();
+            if ((GameInput.Back.WasPressedThisFrame() || GameInput.TouchBack) && Control.HasHeld) Control.ClearToDefault();
             if (GameInput.Collect.WasPressedThisFrame()) CollectNearby();
 
-            bool hasPointer = GameInput.HasPointer;
-            var pointer = GameInput.PointerPosition;
+            bool touch = TouchControls.Active;
+            bool hasPointer = touch || GameInput.HasPointer;
+            var pointer = touch ? AimScreenPoint : GameInput.PointerPosition;
             // Bản đồ hoặc vòng thời điểm đang mở, hoặc con trỏ trên nút của chúng / bảng trại (brief 0030) → không lăn chọn loại, không đào/đặt (brief 0016, 0024).
-            if (hasPointer && (MinimapView.BlocksPointer(pointer) || TimeDial.BlocksPointer(pointer) || SimView.BlocksPointer(pointer) || InventoryView.BlocksPointer(pointer) || ObservationCamera.BlocksPointer(pointer)))
+            if (hasPointer && PointerBlocked(pointer))
             {
                 HideAim();
                 return;
@@ -124,12 +162,12 @@ namespace Game.Client
                 return;
 
             var ray = cam.ScreenPointToRay(pointer);
-            AimedDrop = PickDrop(ray);
-            int sid = -1;
-            if (Farm != null && Physics.Raycast(ray, out var sh, maxDistance)) sid = Farm.StorageIdOf(sh.collider);
-            bool hasCell = Pick(ray, out var digCell, out var placeCell);
+            aimIgnore = touch && player != null ? player.Controller : null;
+            AimTargets(ray, out var drop, out int sid, out bool hasCell, out var digCell, out var placeCell);
+            aimIgnore = null;
+            AimedDrop = drop;
             AimedHarvest = hasCell ? Farming.RipePlotAt(digCell) : -1;
-            if (GameInput.MoveClick.WasPressedThisFrame())
+            if (!touch && GameInput.MoveClick.WasPressedThisFrame())
             {
                 Walk.Cancel(player, false);
                 if (hasCell && AimedDrop == null && sid < 0) ViewPlotAt(digCell);
@@ -138,7 +176,7 @@ namespace Game.Client
             ShowAim(a, hasCell, digCell, placeCell);
             // Camera bay (không có nhân vật, hoặc chế độ debug F3): chỉ làm khi dừng (user 2026-10-20).
             if ((player == null || player.FlyMode) && DebugFlyCamera.IsMoveKeyHeld()) return;
-            if (GameInput.UseTool.WasPressedThisFrame()) RightClickAt(hasCell, digCell, placeCell, AimedDrop, sid);
+            if (!touch && GameInput.UseTool.WasPressedThisFrame()) RightClickAt(hasCell, digCell, placeCell, AimedDrop, sid);
         }
 
         /// <summary>Places the observation camera ObservationHeight cells above the top face of cell, facing like Camera.main (decision 0035); writes the HUD result line. False if no camera, engaged, or cell out of target reach.</summary>
@@ -417,7 +455,7 @@ namespace Game.Client
         public bool Pick(Ray ray, out Vector3Int digCell, out Vector3Int placeCell)
         {
             digCell = placeCell = default;
-            if (!Physics.Raycast(ray, out var hit, maxDistance) || !view.IsTerrainCollider(hit.collider))
+            if (!Raycast(ray, out var hit) || !view.IsTerrainCollider(hit.collider))
                 return false;
             digCell = view.CellAt(hit.point - hit.normal * 0.5f);
             placeCell = view.CellAt(hit.point + hit.normal * 0.5f);
@@ -429,11 +467,29 @@ namespace Game.Client
         {
             var player = PlayerCharacter.Active;
             if (player == null || view.Editor == null) return null;
-            float limit = Physics.Raycast(ray, out var hit, maxDistance) ? hit.distance : maxDistance;
+            float limit = Raycast(ray, out var hit) ? hit.distance : maxDistance;
             var o = view.transform.InverseTransformPoint(ray.origin);
             var d = view.transform.InverseTransformDirection(ray.direction);
             var f = player.FeetLocal;
             return DropPick.Pick(view.Editor.Drops.Stacks, o.x, o.y, o.z, d.x, d.y, d.z, limit, f.x, f.y, f.z, out _);
+        }
+
+        /// <summary>Nút hành động chính (task cảm ứng (b), brief 0102): đích dưới tâm nhắm (tia bỏ qua nhân vật) → RightClickAt; Mặc định, không cầm, trúng ô (không vật rơi / kho) mà ra None → ViewPlotAt (ô ruộng chưa chín → bảng ô ruộng). Đang xem camera quan sát, không camera / world, hoặc tâm nhắm trên bảng → None.</summary>
+        public RightClickAction TouchAction()
+        {
+            if (Observation != null && Observation.Engaged) return RightClickAction.None;
+            var cam = Camera.main;
+            if (cam == null || view.Editor == null) return RightClickAction.None;
+            if (PointerBlocked(AimScreenPoint)) return RightClickAction.None;
+            var ray = cam.ScreenPointToRay(AimScreenPoint);
+            var player = PlayerCharacter.Active;
+            aimIgnore = player != null ? player.Controller : null;
+            AimTargets(ray, out var drop, out int sid, out bool hasCell, out var digCell, out var placeCell);
+            aimIgnore = null;
+            var a = RightClickAt(hasCell, digCell, placeCell, drop, sid);
+            if (a == RightClickAction.None && hasCell && drop == null && sid < 0 && Control.Mode == ControlMode.Default && !Control.HasHeld)
+                ViewPlotAt(digCell);
+            return a;
         }
 
         /// <summary>Phím F (Thu): nhặt mọi chồng trong tầm Thu 2 ô; hiện vùng 2 ô + gió (0036 mục 6); ghi dòng kết quả. Trả số chồng đã nhặt; không có nhân vật → 0, không đổi dòng kết quả.</summary>

@@ -148,7 +148,7 @@ namespace Game.Client
                 actedFrame = Time.frameCount;
                 ToggleMenu();
             }
-            else if (GameInput.TimeDialClose.WasPressedThisFrame())
+            else if (GameInput.TimeDialClose.WasPressedThisFrame() || GameInput.TouchBack)
             {
                 if (IsOpen) SetOpen(false);
                 else if (MenuOpen) SetMenuOpen(false);

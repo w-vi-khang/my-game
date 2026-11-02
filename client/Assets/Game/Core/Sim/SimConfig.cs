@@ -174,6 +174,9 @@ namespace Game.Core.Sim
         public float touchJoystickDeadZone = 0.15f;
         public float touchLookDegPerDp = 0.4f;
         public float touchButtonDp = 64f;
+        public float touchActionButtonDp = 96f;
+        public float touchModeButtonDp = 52f;
+        public float touchCrosshairDp = 10f;
     }
 
     /// <summary>
@@ -444,6 +447,12 @@ namespace Game.Core.Sim
                 throw new ArgumentException("player.touchLookDegPerDp must be in [0.05, 2].");
             if (!(player.touchButtonDp >= 48f && player.touchButtonDp <= 120f))
                 throw new ArgumentException("player.touchButtonDp must be in [48, 120].");
+            if (!(player.touchActionButtonDp >= 48f && player.touchActionButtonDp <= 160f))
+                throw new ArgumentException("player.touchActionButtonDp must be in [48, 160].");
+            if (!(player.touchModeButtonDp >= 48f && player.touchModeButtonDp <= 120f))
+                throw new ArgumentException("player.touchModeButtonDp must be in [48, 120].");
+            if (!(player.touchCrosshairDp >= 4f && player.touchCrosshairDp <= 32f))
+                throw new ArgumentException("player.touchCrosshairDp must be in [4, 32].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
                 throw new ArgumentException("farm.queueSlots must be in [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)

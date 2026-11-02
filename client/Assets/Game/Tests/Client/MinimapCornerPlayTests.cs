@@ -2,6 +2,9 @@ using System.Collections;
 using Game.Core;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.TestTools;
 
 namespace Game.Client.Tests
@@ -177,6 +180,37 @@ namespace Game.Client.Tests
 
             Assert.IsFalse(map.PressAt(new Vector2(5, 5)));
             Assert.IsFalse(map.IsOpen);
+        }
+
+        [UnityTest]
+        public IEnumerator TouchOnCornerOpensMapNotCamera()
+        {
+            TouchControls.SetForceOn(true);
+            TouchSimulation.Disable();
+            var ts = InputSystem.AddDevice<Touchscreen>();
+            ts.MakeCurrent();
+            var tcGo = new GameObject("Touch");
+            var tc = tcGo.AddComponent<TouchControls>();
+            tc.readTouches = true;
+            try
+            {
+                yield return null;
+                InputSystem.QueueStateEvent(ts, new TouchState { touchId = 1, phase = UnityEngine.InputSystem.TouchPhase.Began, position = map.ButtonScreenCenter });
+                InputSystem.Update();
+                yield return null;
+                Assert.IsTrue(map.IsOpen);
+                Assert.IsFalse(tc.Gestures.JoystickActive);
+                Assert.AreEqual(0f, tc.Gestures.LookYaw);
+                InputSystem.QueueStateEvent(ts, new TouchState { touchId = 1, phase = UnityEngine.InputSystem.TouchPhase.Ended, position = map.ButtonScreenCenter });
+                InputSystem.Update();
+                yield return null;
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(ts);
+                TouchControls.SetForceOn(false);
+                Object.Destroy(tcGo);
+            }
         }
 
         [UnityTest]

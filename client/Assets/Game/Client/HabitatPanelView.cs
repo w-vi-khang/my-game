@@ -83,7 +83,7 @@ namespace Game.Client
             }
             if (GameInput.ToggleHabitat.WasPressedThisFrame() && !SettingsView.IsAnyOpen && !MinimapView.IsAnyOpen)
                 IsOpen = !IsOpen;
-            else if (IsOpen && GameInput.PanelsClose.WasPressedThisFrame())
+            else if (IsOpen && (GameInput.PanelsClose.WasPressedThisFrame() || GameInput.TouchBack))
                 IsOpen = false;
         }
 

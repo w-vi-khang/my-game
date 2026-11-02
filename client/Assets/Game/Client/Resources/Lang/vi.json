@@ -947,8 +947,36 @@
       "text": "Ban đêm"
     },
     {
+      "key": "touch.action",
+      "text": "Làm"
+    },
+    {
+      "key": "touch.back",
+      "text": "Huỷ"
+    },
+    {
+      "key": "touch.bag",
+      "text": "Túi"
+    },
+    {
       "key": "touch.jump",
       "text": "Nhảy"
+    },
+    {
+      "key": "touch.mode_default",
+      "text": "Mặc định"
+    },
+    {
+      "key": "touch.mode_dig",
+      "text": "Đào"
+    },
+    {
+      "key": "touch.mode_rain",
+      "text": "Tưới"
+    },
+    {
+      "key": "touch.mode_till",
+      "text": "Xới"
     },
     {
       "key": "vitals.hp",

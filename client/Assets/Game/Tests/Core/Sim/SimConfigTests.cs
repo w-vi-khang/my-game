@@ -149,6 +149,29 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void TouchButtonsBDefaults()
+        {
+            var cfg = JsonUtility.FromJson<SimConfig>(File.ReadAllText(SourcePath));
+            Assert.AreEqual(96f, cfg.player.touchActionButtonDp, 1e-6f);
+            Assert.AreEqual(52f, cfg.player.touchModeButtonDp, 1e-6f);
+            Assert.AreEqual(10f, cfg.player.touchCrosshairDp, 1e-6f);
+        }
+
+        [TestCase("touchActionButtonDp", 47f, "[48, 160]")]
+        [TestCase("touchActionButtonDp", 161f, "[48, 160]")]
+        [TestCase("touchModeButtonDp", 47f, "[48, 120]")]
+        [TestCase("touchModeButtonDp", 121f, "[48, 120]")]
+        [TestCase("touchCrosshairDp", 3f, "[4, 32]")]
+        [TestCase("touchCrosshairDp", 33f, "[4, 32]")]
+        public void TouchButtonsBOutOfRange(string field, float value, string range)
+        {
+            var c = new SimConfig();
+            typeof(PlayerConfig).GetField(field).SetValue(c.player, value);
+            var ex = Assert.Throws<ArgumentException>(c.Validate);
+            Assert.AreEqual("player." + field + " must be in " + range + ".", ex.Message);
+        }
+
+        [Test]
         public void ValidateRejectsBadValues()
         {
             var c = new SimConfig();

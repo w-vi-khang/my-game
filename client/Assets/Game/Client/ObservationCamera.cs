@@ -67,7 +67,7 @@ namespace Game.Client
 
         void Update()
         {
-            HandleKeys(GameInput.ToggleObservation.WasPressedThisFrame(), GameInput.Back.WasPressedThisFrame());
+            HandleKeys(GameInput.ToggleObservation.WasPressedThisFrame(), GameInput.Back.WasPressedThisFrame() || GameInput.TouchBack);
             if (State == ObservationState.Viewing && GameInput.HasPointer && GameInput.RotateCamera.IsPressed() && !MinimapView.IsAnyOpen && !SettingsView.IsAnyOpen)
                 ApplyLook(GameInput.Look.ReadValue<Vector2>(), follow != null ? follow.lookSensitivity : 0.3f, follow != null && follow.invertY);
             if (State == ObservationState.Loading && view.MissingColumnsWithin(Point, view.loadRadius) == 0) ShowView();

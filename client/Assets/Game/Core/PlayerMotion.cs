@@ -44,6 +44,12 @@ namespace Game.Core
         public static float TouchLookDegPerDp { get; private set; } = 0.4f;
         /// <summary>(task cảm ứng, số tạm)</summary>
         public static float TouchButtonDp { get; private set; } = 64f;
+        /// <summary>(task cảm ứng (b), số tạm)</summary>
+        public static float TouchActionButtonDp { get; private set; } = 96f;
+        /// <summary>(task cảm ứng (b), số tạm)</summary>
+        public static float TouchModeButtonDp { get; private set; } = 52f;
+        /// <summary>(task cảm ứng (b), số tạm)</summary>
+        public static float TouchCrosshairDp { get; private set; } = 10f;
         /// <summary>Tới đích khi khoảng cách ngang ≤ chừng này (ô).</summary>
         public const float ArriveDistance = 0.05f;
         /// <summary>Nhìn trước chừng này (ô) theo hướng đi khi xét tự nhảy bậc.</summary>
@@ -77,6 +83,9 @@ namespace Game.Core
             TouchJoystickDeadZone = p.touchJoystickDeadZone;
             TouchLookDegPerDp = p.touchLookDegPerDp;
             TouchButtonDp = p.touchButtonDp;
+            TouchActionButtonDp = p.touchActionButtonDp;
+            TouchModeButtonDp = p.touchModeButtonDp;
+            TouchCrosshairDp = p.touchCrosshairDp;
         }
 
         /// <summary>Tự nhảy bậc 1 ô: ô phía trước ở tầng chân đặc và hai ô phía trên nó không đặc.</summary>

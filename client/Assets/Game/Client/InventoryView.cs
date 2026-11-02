@@ -319,7 +319,8 @@ namespace Game.Client
             else edit.SetResult(Fmt("inv.move_none", TargetName(dest)));
         }
 
-        void CancelDrag()
+        /// <summary>Huỷ nhấn/kéo đang dở (không chuyển, không chọn).</summary>
+        public void CancelDrag()
         {
             Dragging = false;
             pressActive = false;
@@ -367,6 +368,29 @@ namespace Game.Client
                 dragRt.SetAsLastSibling();
             }
             if (Dragging) dragRt.position = new Vector3(screen.x, screen.y, 0f);
+        }
+
+        /// <summary>Túi phụ đang hiện và screen trúng một ô đang hiển thị của nó.</summary>
+        public bool HotbarSlotAt(Vector2 screen, out int slotOnPage)
+        {
+            slotOnPage = -1;
+            if (!built || !Visible(ItemContainer.Hotbar)) return false;
+            int n = ShownCount(ItemContainer.Hotbar);
+            for (int i = 0; i < n && i < hotbarGrid.Cells.Length; i++)
+                if (Hit(hotbarGrid.Cells[i].Rt, screen)) { slotOnPage = i; return true; }
+            return false;
+        }
+
+        /// <summary>Nhả ngón chạm (task cảm ứng (b)): không kéo, điểm nhấn trên ô túi phụ, túi + kho đóng → cầm ô đó (như phím 1–0); còn lại như PointerUp. true nếu đã xử lý.</summary>
+        public bool TouchUp(Vector2 screen)
+        {
+            if (pressActive && !Dragging && !BagOpen && !StockOpen && HotbarSlotAt(pressPos, out int i))
+            {
+                CancelDrag();
+                HoldFromSlot(ItemContainer.Hotbar, i);
+                return true;
+            }
+            return PointerUp(screen);
         }
 
         /// <summary>Nhả: Dragging → DropAt(screen); không → LeftClickAt(điểm nhấn) như 0062. Trả true nếu đã xử lý.</summary>
@@ -499,7 +523,7 @@ namespace Game.Client
             if (!built) Build();
             if (GameInput.ToggleBag.WasPressedThisFrame()) ToggleBag();
             if (GameInput.ToggleHotbar.WasPressedThisFrame()) ToggleHotbar();
-            if (GameInput.PanelsClose.WasPressedThisFrame() && AnyOpen) CloseAll();
+            if ((GameInput.PanelsClose.WasPressedThisFrame() || GameInput.TouchBack) && AnyOpen) CloseAll();
             if (!BagOpen && !StockOpen)
                 for (int k = 0; k < 10; k++)
                     if (GameInput.Hotbar(k).WasPressedThisFrame()) UseHotbarKey(k);
@@ -511,7 +535,7 @@ namespace Game.Client
                 else if (GameInput.TransferHalf.WasPressedThisFrame()) TransferPart(2);
                 else if (GameInput.TransferThird.WasPressedThisFrame()) TransferPart(3);
             }
-            if (GameInput.HasPointer)
+            if (GameInput.HasPointer && !TouchControls.Active)
             {
                 var pos = GameInput.PointerPosition;
                 if (GameInput.MoveClick.WasPressedThisFrame() && PointerDown(pos)) consumedFrame = Time.frameCount;
