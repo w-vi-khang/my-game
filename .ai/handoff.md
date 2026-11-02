@@ -1,6 +1,25 @@
-# Handoff — 2026-11-01 (Planner, task 5j + 5k, cập nhật 2026-11-02 sau khi duyệt brief 0100)
+# Handoff — 2026-11-02 (Planner, task cảm ứng + chờ chơi thử 5j/5k)
 
-## Đang làm
+## Đang làm — task cảm ứng (ưu tiên)
+Task [m1-dieu-khien-cam-ung](tasks/m1-dieu-khien-cam-ung.md). User xác nhận ngày 2026-11-02, gồm kiểu joystick + tâm nhắm, phạm vi đủ vòng lặp 30 giây, và cả 5 đề xuất của Planner. World-tech có dòng 7m.
+- **Brief [0101](briefs/0101-cam-ung-joystick-camera-nhay.md) (a) đã duyệt.** Code `910c1b9`, review `ee9e223`, Executor ~18 phút.
+  - Đã có: `Game.Core.TouchGestures` (`Update(samples, screenWidth, dpi, buttons)`, `IsHeld` / `WasPressed(buttonId)`) và `Game.Client.TouchControls` (`WantsTouch`, `Active`, `SetForceOn`, `Feed`, `JumpButtonId = 1`, canvas sortingOrder 8, không scaler, đơn vị px).
+  - Nút Nhảy ở (safe.xMax − 2,4·d, safe.yMin + 0,9·d), chừa góc dưới-phải cho nút hành động chính.
+  - Số tạm trong `sim_m1.json` player: `touch*`.
+- **Việc tiếp: viết brief 0102 (b)** theo contract mục Mục tiêu và đề xuất 3–5:
+  - **Tâm nhắm giữa màn hình:**
+    - Tia từ camera qua tâm màn hình, bỏ qua collider nhân vật.
+    - Lớp đỏ / bản mờ / vòng tầm như PC.
+    - Nút hành động chính gọi `TerrainEditInput.RightClickAt(hasCell, digCell, placeCell, drop, storageId)` (`client/Assets/Game/Client/TerrainEditInput.cs:256`). Hiện tại đích lấy theo con trỏ ở `:115-141`, cần tách phần tính đích ra để dùng tâm màn hình khi `TouchControls.WantsTouch`.
+    - Ô ruộng ở chế độ Mặc định: chín thì thu hoạch, chưa chín thì mở bảng ô ruộng.
+  - **Nút** (thêm `TouchRect` id 2+ vào `TouchControls`): thanh 4 chế độ dọc mép phải (`ToggleMode`), Thu (`CollectNearby`), Túi, Huỷ/Menu (như Esc).
+  - **Chạm trong bảng:** túi phụ, túi/kho kéo thả, bảng ô ruộng, bản đồ, menu phép. Các bảng hiện đọc `GameInput.Point` / `MoveClick` (chỉ bind `<Mouse>`), nên trên điện thoại không có con trỏ.
+    - Cách đề xuất: thêm binding `<Touchscreen>/primaryTouch/position` và `/press` vào action map `Pointer` / `Map` / `TimeDial` và `MoveClick`. Planner tra docs Input System 1.19 rồi mới quyết.
+    - Lưu ý xung đột: chạm thế giới không được thành click PC. `PlayerCharacter` đã bỏ `ReadPointerMove` khi `WantsTouch`; `TerrainEditInput` thì chưa.
+  - Rồi brief 0103 (c): build APK, cài qua USB, logcat, `adb screencap`, cập nhật controls-ui (cột Cảm ứng), glossary (dòng "Hành động chính": PC là chuột phải), ideas (phần ngoài phạm vi), roadmap (giờ thực tế).
+- Phiên Executor `exec-0101` = `local_138af040-4e52-4925-8f6f-73763c50442b` (Sonnet · medium), con của phiên này. Phiên mới không clear được phiên này, nên mở phiên con mới.
+
+## Chờ user chơi thử (5j, 5k)
 Task [m1-world-5j-sua-loi-choi-thu](tasks/m1-world-5j-sua-loi-choi-thu.md). User chơi thử ngày 2026-11-01: **phần nước đạt**. Lỗi 13 (cột thác bo góc kề khối đặc) đã xong qua brief 0092, review đạt ở commit `263509e`. Còn lỗi 14–16, ghi trong task ở commit `b1101d3`.
 
 ## Việc tiếp
