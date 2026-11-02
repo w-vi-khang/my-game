@@ -947,6 +947,10 @@
       "text": "Ban đêm"
     },
     {
+      "key": "touch.jump",
+      "text": "Nhảy"
+    },
+    {
       "key": "vitals.hp",
       "text": "Máu {0}/{1}"
     },

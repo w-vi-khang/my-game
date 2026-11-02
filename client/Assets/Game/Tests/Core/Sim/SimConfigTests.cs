@@ -120,6 +120,35 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void TouchConfigReadFromSource()
+        {
+            var cfg = JsonUtility.FromJson<SimConfig>(File.ReadAllText(SourcePath));
+            Assert.AreEqual(20f, cfg.player.touchCameraPitch, 1e-6f);
+            Assert.AreEqual(60f, cfg.player.touchJoystickRadiusDp, 1e-6f);
+            Assert.AreEqual(0.15f, cfg.player.touchJoystickDeadZone, 1e-6f);
+            Assert.AreEqual(0.4f, cfg.player.touchLookDegPerDp, 1e-6f);
+            Assert.AreEqual(64f, cfg.player.touchButtonDp, 1e-6f);
+        }
+
+        [TestCase("touchCameraPitch", 9f, "[10, 85]")]
+        [TestCase("touchCameraPitch", 86f, "[10, 85]")]
+        [TestCase("touchJoystickRadiusDp", 29f, "[30, 150]")]
+        [TestCase("touchJoystickRadiusDp", 151f, "[30, 150]")]
+        [TestCase("touchJoystickDeadZone", -0.1f, "[0, 0.5]")]
+        [TestCase("touchJoystickDeadZone", 0.6f, "[0, 0.5]")]
+        [TestCase("touchLookDegPerDp", 0.01f, "[0.05, 2]")]
+        [TestCase("touchLookDegPerDp", 3f, "[0.05, 2]")]
+        [TestCase("touchButtonDp", 40f, "[48, 120]")]
+        [TestCase("touchButtonDp", 121f, "[48, 120]")]
+        public void ValidateRejectsBadTouchValues(string field, float value, string range)
+        {
+            var c = new SimConfig();
+            typeof(PlayerConfig).GetField(field).SetValue(c.player, value);
+            var ex = Assert.Throws<ArgumentException>(c.Validate);
+            Assert.AreEqual("player." + field + " must be in " + range + ".", ex.Message);
+        }
+
+        [Test]
         public void ValidateRejectsBadValues()
         {
             var c = new SimConfig();

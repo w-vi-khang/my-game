@@ -169,6 +169,11 @@ namespace Game.Core.Sim
         public float observationHeight = 2f;
         public float cameraHideBodyDistance = 1f;
         public float dropScatterRadius = 0.15f;
+        public float touchCameraPitch = 20f;
+        public float touchJoystickRadiusDp = 60f;
+        public float touchJoystickDeadZone = 0.15f;
+        public float touchLookDegPerDp = 0.4f;
+        public float touchButtonDp = 64f;
     }
 
     /// <summary>
@@ -429,6 +434,16 @@ namespace Game.Core.Sim
                 throw new ArgumentException("player.cameraHideBodyDistance must be in [0.3, 3].");
             if (!(player.dropScatterRadius >= 0f && player.dropScatterRadius <= 0.16f))
                 throw new ArgumentException("player.dropScatterRadius must be in [0, 0.16].");
+            if (!(player.touchCameraPitch >= 10f && player.touchCameraPitch <= 85f))
+                throw new ArgumentException("player.touchCameraPitch must be in [10, 85].");
+            if (!(player.touchJoystickRadiusDp >= 30f && player.touchJoystickRadiusDp <= 150f))
+                throw new ArgumentException("player.touchJoystickRadiusDp must be in [30, 150].");
+            if (!(player.touchJoystickDeadZone >= 0f && player.touchJoystickDeadZone <= 0.5f))
+                throw new ArgumentException("player.touchJoystickDeadZone must be in [0, 0.5].");
+            if (!(player.touchLookDegPerDp >= 0.05f && player.touchLookDegPerDp <= 2f))
+                throw new ArgumentException("player.touchLookDegPerDp must be in [0.05, 2].");
+            if (!(player.touchButtonDp >= 48f && player.touchButtonDp <= 120f))
+                throw new ArgumentException("player.touchButtonDp must be in [48, 120].");
             if (farm == null || farm.queueSlots < 1 || farm.queueSlots > 8)
                 throw new ArgumentException("farm.queueSlots must be in [1, 8].");
             if (farm.slotMaxCount < 1 || farm.slotMaxCount > 99)

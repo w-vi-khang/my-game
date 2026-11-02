@@ -34,6 +34,16 @@ namespace Game.Core
         public static float CameraHideBodyDistance { get; private set; } = 1f;
         /// <summary>Vật rơi lệch ngẫu nhiên trong ô tối đa chừng này (ô) quanh tâm (brief 0087, số tạm).</summary>
         public static float DropScatterRadius { get; private set; } = 0.15f;
+        /// <summary>(task cảm ứng, số tạm)</summary>
+        public static float TouchCameraPitch { get; private set; } = 20f;
+        /// <summary>(task cảm ứng, số tạm)</summary>
+        public static float TouchJoystickRadiusDp { get; private set; } = 60f;
+        /// <summary>(task cảm ứng, số tạm)</summary>
+        public static float TouchJoystickDeadZone { get; private set; } = 0.15f;
+        /// <summary>(task cảm ứng, số tạm)</summary>
+        public static float TouchLookDegPerDp { get; private set; } = 0.4f;
+        /// <summary>(task cảm ứng, số tạm)</summary>
+        public static float TouchButtonDp { get; private set; } = 64f;
         /// <summary>Tới đích khi khoảng cách ngang ≤ chừng này (ô).</summary>
         public const float ArriveDistance = 0.05f;
         /// <summary>Nhìn trước chừng này (ô) theo hướng đi khi xét tự nhảy bậc.</summary>
@@ -62,6 +72,11 @@ namespace Game.Core
             ObservationHeight = p.observationHeight;
             CameraHideBodyDistance = p.cameraHideBodyDistance;
             DropScatterRadius = p.dropScatterRadius;
+            TouchCameraPitch = p.touchCameraPitch;
+            TouchJoystickRadiusDp = p.touchJoystickRadiusDp;
+            TouchJoystickDeadZone = p.touchJoystickDeadZone;
+            TouchLookDegPerDp = p.touchLookDegPerDp;
+            TouchButtonDp = p.touchButtonDp;
         }
 
         /// <summary>Tự nhảy bậc 1 ô: ô phía trước ở tầng chân đặc và hai ô phía trên nó không đặc.</summary>

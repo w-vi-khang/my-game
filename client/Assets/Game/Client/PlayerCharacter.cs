@@ -22,6 +22,7 @@ namespace Game.Client
         public bool readKeyboard = true;
         public Vector2 MoveInput;
         public bool JumpInput;
+        public bool TouchJump;
         /// <summary>Đặt túi hạt Cây A × 4 gần chỗ xuất phát khi có Editor (sim 7e, brief 0037).</summary>
         public bool giveStarterBag = true;
         /// <summary>Chồng túi hạt đầu game đã đặt; null nếu chưa đặt hoặc không có chỗ.</summary>
@@ -413,10 +414,11 @@ namespace Game.Client
             }
             else if (readKeyboard)
             {
-                JumpInput = GameInput.Jump.IsPressed();
-                ReadPointerMove();
+                JumpInput = GameInput.Jump.IsPressed() || TouchJump;
+                if (!TouchControls.WantsTouch) ReadPointerMove();
                 if (GameInput.Dash.WasPressedThisFrame() && !SimView.AnyPanelOpen && !InventoryView.AnyOpen) TryDash();
             }
+            if (MoveInput.sqrMagnitude > 0.01f && ClickMove == ClickMoveState.Walking) ClickMove = ClickMoveState.None;
 
             var f = FeetLocal;
             InWater = PlayerRules.InWater(terrain.World, f.x, f.y, f.z);

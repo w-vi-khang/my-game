@@ -108,6 +108,7 @@ namespace Game.Client
             if (GetComponent<SettingsView>() == null) gameObject.AddComponent<SettingsView>();
             if (GetComponent<WorldIconsView>() == null) gameObject.AddComponent<WorldIconsView>();
             if (GetComponent<HabitatPanelView>() == null) gameObject.AddComponent<HabitatPanelView>();
+            if (GetComponent<TouchControls>() == null) gameObject.AddComponent<TouchControls>();
         }
 
         public static Vector3 BenchCameraPos(StressPlain p) => new Vector3(p.X0 + p.Size * 0.5f, p.Ground + 34f, p.Z0 - 6f);

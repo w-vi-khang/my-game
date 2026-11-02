@@ -34,7 +34,7 @@ namespace Game.Client
 
         void Start()
         {
-            if (!defaultsApplied) ApplyDefaults(PlayerMotion.CameraPitch, PlayerMotion.CameraDistance);
+            if (!defaultsApplied) ApplyDefaults(TouchControls.WantsTouch ? PlayerMotion.TouchCameraPitch : PlayerMotion.CameraPitch, PlayerMotion.CameraDistance);
             firstPersonPitch = PlayerMotion.FirstPersonPitch;
         }
 
@@ -75,6 +75,21 @@ namespace Game.Client
             if (FirstPerson) return;
             yaw += delta.x * lookSensitivity;
             pitch = Mathf.Clamp(pitch - delta.y * lookSensitivity * (invertY ? -1f : 1f), minPitch, maxPitch);
+        }
+
+        /// <summary>Cảm ứng: xoay theo độ (yaw += yawDeg; pitch += pitchDeg, đảo dấu khi invertY); góc nhìn thứ nhất → không làm gì.</summary>
+        public void ApplyLookDegrees(float yawDeg, float pitchDeg)
+        {
+            if (FirstPerson) return;
+            yaw += yawDeg;
+            pitch = Mathf.Clamp(pitch + pitchDeg * (invertY ? -1f : 1f), minPitch, maxPitch);
+        }
+
+        /// <summary>Cảm ứng: chụm. factor &gt; 1 (tách ngón) → lại gần (distance / factor); kẹp; góc nhìn thứ nhất hoặc factor ≤ 0 → không làm gì.</summary>
+        public void ApplyZoomFactor(float factor)
+        {
+            if (FirstPerson || factor <= 0f) return;
+            distance = Mathf.Clamp(distance / factor, minDistance, maxDistance);
         }
 
         /// <summary>Lăn chuột: wheel &gt; 0,01 → distance × 0,9; &lt; −0,01 → × 1,1; kẹp; góc nhìn thứ nhất → không làm gì.</summary>

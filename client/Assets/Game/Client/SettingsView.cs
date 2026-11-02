@@ -144,7 +144,7 @@ namespace Game.Client
                 var follow = cam.GetComponent<FollowCamera>();
                 if (follow != null)
                 {
-                    follow.ApplyDefaults(s.cameraPitch > 0f ? s.cameraPitch : PlayerMotion.CameraPitch,
+                    follow.ApplyDefaults(s.cameraPitch > 0f ? s.cameraPitch : (TouchControls.WantsTouch ? PlayerMotion.TouchCameraPitch : PlayerMotion.CameraPitch),
                                          s.cameraDistance > 0f ? s.cameraDistance : PlayerMotion.CameraDistance);
                     follow.lookSensitivity = s.lookSensitivity;
                     follow.invertY = s.invertY;
