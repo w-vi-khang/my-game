@@ -1,6 +1,6 @@
 # Brief 0103 — Cảm ứng (c): build APK chơi thử, chạy trên điện thoại, cập nhật tài liệu
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Cấp: Lớn
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
@@ -360,7 +360,25 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
 - Lần 2 (sau trả lời Planner, từ 04:20): code commit `%s` (TouchControls.cs, PlayBuild.cs(+.meta), TouchControlsPlayTests.cs, MinimapCornerPlayTests.cs). Build APK: `Play build: Succeeded, 872898006 byte, 00:03:59` → `client/Builds/play.apk` (35,8 MB). `ProjectSettings.asset` không đổi; `UnityConnectSettings.asset` bẩn → đã `git checkout`.
 - Bước 5: **không có điện thoại**: `adb devices -l` rỗng, `adb mdns services` rỗng (thử 2 lần cách nhau 5 giây). Dừng theo brief. Chưa làm bước 5–13 (cài, ảnh, tài liệu 8–12, giờ thực tế).
 
+- **Lần 3 (từ bước 5.3, máy `192.168.1.27:5555`, 05:08–05:13):** commit code `fe07565`, tài liệu `aeb3c18` (5 file design/: controls-ui, glossary, ideas, world-tech 7m, roadmap). Giờ: bắt đầu 04:01, xong 05:13 (~72 phút đồng hồ, gồm chờ Planner/điện thoại; ghi trong roadmap).
+- Dòng nguyên văn: `TOUCHUI screen=2712x1220 dpi=520 safe=85,0,2712,1220 jump=2182,208 action=2525,187 collect=2525,489 mode_default=2182,996 mode_dig=2182,810 mode_till=2182,624 mode_rain=2182,438 bag=881,1085 back=1120,1085`.
+- Logcat: 0 dòng Exception/Error (5.5, 6.2, 6.6); không có FATAL (các dòng AndroidRuntime là của `monkey`).
+- Ảnh `screencap` 2712x1220 = `screen=`, không cần quy đổi. Ảnh trong `art-test/shots/`:
+  - `b0103_hud.png`: thấy nút Làm, Nhảy, Thu, 4 nút chế độ (Mặc định/Đào/Xới/Tưới) bên phải, Túi + Huỷ trên-trái, chấm tâm nhắm giữa màn hình, minimap, 41,7 FPS; không thấy joystick (đúng).
+  - `b0103_bag.png`: bấm Túi (881,135) → bảng "Túi (B)" mở, 1 vật ở ô đầu.
+  - `b0103_back1.png`: bấm Huỷ → túi đóng.
+  - `b0103_settings.png`: bấm Huỷ lần nữa → bảng Cài đặt mở (tab Chung/Hướng dẫn/Điều khiển).
+  - `b0103_imgui.png`: chạm tab "Hướng dẫn" (1301,291) → nội dung đổi sang văn bản hướng dẫn. **IMGUI nhận chạm: có.**
+  - `b0103_back2.png`: bấm Huỷ → Cài đặt đóng (chưa xem ảnh kỹ; logcat sạch).
+- Ghi chú để Planner: hướng dẫn trong tab vẫn viết cho chuột/phím (ví dụ "chuột phải"), chưa có bản cho cảm ứng. Không sửa theo QĐ 5. App `com.viventa.play` để lại trên máy.
+
 ## Kết quả test
+- Phần 1 (`LayoutLogsOnceWithButtonCenters`): đạt. Phần 2, 3: PlayMode 319/319 đạt (MCP, sau khi Planner sửa `MinimapCornerPlayTests`); EditMode 745/745.
+- Phần 4 (build): đạt, `Play build: Succeeded`; `ProjectSettings.asset` không đổi, `UnityConnectSettings.asset` bẩn → đã checkout; `git status --short client/ProjectSettings client/Assets/Settings` rỗng.
+- Phần 5 (điện thoại): đạt (app mở, nút hiện, Túi mở, Huỷ đóng túi/mở Cài đặt/đóng Cài đặt, logcat 0 lỗi). Cảm giác điều khiển: chờ user.
+- Phần 6: IMGUI nhận chạm: có.
+- Phần 7: `verify_run design` exit 0.
+- User tự test (a)–(f): chờ user.
 - Lần 2: PlayMode 319/319 đạt (MCP, gồm `TouchOnCornerOpensMapNotCamera` và `LayoutLogsOnceWithButtonCenters`). EditMode 745/745 (lần 1, code không đổi ở assembly EditMode từ đó; không chạy lại).
 - EditMode (MCP): 745/745 đạt.
 - PlayMode (MCP): 318/319; 1 fail: `MinimapCornerPlayTests.TouchOnCornerOpensMapNotCamera` (`MinimapCornerPlayTests.cs:201`, `Assert.IsTrue(map.IsOpen)` → false). Test mới `LayoutLogsOnceWithButtonCenters` đạt.
