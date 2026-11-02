@@ -1,9 +1,9 @@
 # Brief 0102 — Cảm ứng (b): tâm nhắm, nút hành động chính, nút chế độ/Thu/Túi/Huỷ, chạm túi phụ và bảng túi
 
-> Trạng thái: chờ làm
+> Trạng thái: chờ review
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-11-02 08:25
+> Cập nhật: 2026-11-02 20:30
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc). -->
@@ -347,8 +347,17 @@ Nếu muốn xem sớm trong Editor: mở SimView, Play, bấm **F4**, rồi dù
 <!-- Từ đây trở xuống: EXECUTOR ghi. -->
 
 ## Kết quả
+- Base commit: 603b593
+- Chạy bằng: claude-sonnet-5-5 · medium
+- Bắt đầu: 20:00 · Kết thúc: 20:30 (giờ máy; phần lớn là chờ chạy test)
+- Commit: 151a9bb — file: GameInput, TouchControls, TerrainEditInput, InventoryView, 6 file đọc Esc, PlayerMotion, SimConfig, 2 sim_m1.json, vi.json, SimConfigTests, MinimapCornerPlayTests, TouchActionPlayTests (mới)
+- Lệch brief (cần Planner xem): (1) Test 1b: Ahead(2) cách tâm thân ≈2,5 ô > DigReach 2 nên đào ngay không xảy ra; test 1b dùng Ahead(1) (highlight vẫn kiểm Ahead(2)). (2) Test 4: nhân vật đã ở layer Ignore Raycast (PlayerCharacter.cs:204) nên tia PC cũng không trúng nhân vật; `aimIgnore` vô hại nhưng tiền đề quyết định 3 không đúng. Test 4 thay vế 'Pick → false' bằng kiểm layer + Pick trả Ahead(3). (3) Test minimap rớt 1 lần ở lần chạy đầy đủ đầu, đạt ở 2 lần sau (không tái hiện, chưa rõ nguyên nhân).
 
 ## Kết quả test
+- SimConfigTests (2 method mới): đạt (EditMode 745/745).
+- Test 1–18 TouchActionPlayTests + TouchOnCornerOpensMapNotCamera: đạt (xem lệch brief 1–3 ở trên).
+- Lệnh: refresh_unity + console error: 0 lỗi; EditMode 745/745; PlayMode 318/318; check_design exit 0; hai sim_m1.json giống hệt; đã `git checkout` EditorSettings.asset.
+- Chờ user: không (gộp brief 0103).
 
 ## Vướng mắc
 
