@@ -1,6 +1,6 @@
 # Brief 0103 — Cảm ứng (c): build APK chơi thử, chạy trên điện thoại, cập nhật tài liệu
 
-> Trạng thái: cần Opus
+> Trạng thái: chờ làm
 > Cấp: Lớn
 > Review: đầy đủ + user xem
 > Model thực thi: Sonnet · medium
@@ -386,6 +386,13 @@ Trên điện thoại Xiaomi, mở app **"Viventa Play"**. App đã được cà
   - Mục Kết quả đã ghi giữ nguyên; ghi tiếp bên dưới.
 
 **Vướng mắc 2 (bước 5):** không nối được điện thoại (không USB, không mDNS). Cần user cắm USB (hoặc bật gỡ lỗi không dây) rồi cho Executor chạy lại từ bước 5; APK đã build sẵn ở `client/Builds/play.apk`, không cần build lại. Đề xuất: user cắm máy, Planner đặt brief về `chờ làm` ghi "bắt đầu từ bước 5".
+
+**Trả lời của Planner (2026-11-03):**
+- Planner đã nối máy qua Wi‑Fi [run]: `adb connect 192.168.1.27:5555`, user cho phép gỡ lỗi trên máy. `adb devices -l` ra `192.168.1.27:5555 device … model:24095PCADG`.
+- **Executor bắt đầu từ bước 5.2**, với `<máy>` = `192.168.1.27:5555`. Không build lại APK.
+  - Cổng TLS `35435` chưa ghép nối nên không dùng.
+- Mất kết nối giữa chừng: chạy `adb connect 192.168.1.27:5555` một lần. Vẫn mất → `cần Opus`, ghi lại các bước đã xong.
+- Cài bị chặn `INSTALL_FAILED_USER_RESTRICTED` → `cần Opus` (như bước 5.2).
 
 ---
 <!-- PLANNER ghi khi review. -->
