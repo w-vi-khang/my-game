@@ -1,9 +1,9 @@
 # Brief 0102 — Cảm ứng (b): tâm nhắm, nút hành động chính, nút chế độ/Thu/Túi/Huỷ, chạm túi phụ và bảng túi
 
-> Trạng thái: chờ review
+> Trạng thái: đã duyệt
 > Review: đầy đủ
 > Model thực thi: Sonnet · medium
-> Cập nhật: 2026-11-02 20:30
+> Cập nhật: 2026-11-03
 
 <!-- Planner (Opus) viết, Executor (Sonnet) làm theo ở PHIÊN KHÁC — executor không có lịch sử chat, không được tự quyết.
 Trạng thái: chờ làm → đang làm → chờ review → đã duyệt; hoặc → cần Opus (executor dừng, hỏi ở mục Vướng mắc). -->
@@ -365,3 +365,25 @@ Nếu muốn xem sớm trong Editor: mở SimView, Play, bấm **F4**, rồi dù
 <!-- PLANNER ghi khi review. -->
 
 ## Review
+
+Planner, 2026-11-03, đọc Kết quả + diff `151a9bb`.
+
+- **Chạy bằng:** `claude-sonnet-5-5 · medium`, khớp `Model thực thi`.
+- **Kết quả test:**
+  - EditMode 745/745 (738 + 7 = 1 + 6 `[TestCase]`), PlayMode 318/318 (299 + 19 = 18 test `TouchActionPlayTests` + `TouchOnCornerOpensMapNotCamera`). Số test tăng đúng.
+  - Kết quả ghi gộp "Test 1–18 đạt". Đã đối chiếu tên test: 18 method khớp 18 dòng (1b nằm trong `AimHighlightsCenterCellAndActionDigsNow`). Đủ.
+- **Quyết định đã chốt:**
+  - QĐ1: `GameControls.inputactions` không đổi.
+  - QĐ2–3: tâm nhắm = tâm màn hình chỉ khi `TouchControls.Active`; `Raycast` dùng `RaycastNonAlloc` chọn hit gần nhất ≠ `aimIgnore`, `aimIgnore` về null ngay sau `AimTargets`.
+  - QĐ4: `TouchAction` đúng thứ tự chặn (quan sát → camera/world → bảng) và điều kiện mở bảng ô ruộng.
+  - QĐ5: nút chế độ cần nhân vật + `!FlyMode`; Thu bỏ khi đang quan sát.
+  - QĐ6: 8 chỗ đọc Esc OR `GameInput.TouchBack`; `TouchBackFrame` ghi sau `ReadAndFeed`, cả khi `readTouches == false`; thứ tự −60.
+  - QĐ7–8: `RouteUiTouch` một ngón UI, bỏ ô nút; `TouchUp` cầm ô túi phụ khi túi + kho đóng; InventoryView bỏ nhánh chuột khi cảm ứng; `ClearOutputs` huỷ kéo dở.
+  - QĐ10–12: id, bố cục và màu đúng bảng; nút chế độ từ dưới lên Tưới → Xới → Đào → Mặc định.
+- **Lệch so với brief:**
+  1. Test 1b dùng `Ahead(1)`: lỗi của brief (`Ahead(2)` ngoài tầm đào 2 tính từ tâm thân). Chấp nhận.
+  2. Tiền đề QĐ3 sai: nhân vật đã ở layer `Ignore Raycast` (`PlayerCharacter.cs:204`), nên tia PC cũng xuyên qua nhân vật. `aimIgnore` thừa nhưng vô hại. Test 4 đổi vế cuối sang kiểm layer + `Pick` trả `Ahead(3)`. Chấp nhận. Không cần gỡ code.
+  3. Test minimap rớt 1 lần ở lần chạy đầu, đạt 2 lần sau, không tái hiện được. Chấp nhận có theo dõi: lần sau rớt nữa thì sửa theo `bug-fix`. Nghi vấn [chưa xác minh]: test gọi `TouchSimulation.Disable()` mà không bật lại.
+- **Phạm vi:** 19 file, đều trong Phạm vi; `ProjectSettings` và `GameControls.inputactions` không đổi; hai `sim_m1.json` giống hệt [run `diff`].
+- **Giờ:** Executor 20:00–20:30 (~30 phút).
+- Kết luận: đã duyệt
