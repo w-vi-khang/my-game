@@ -223,5 +223,28 @@ namespace Game.Client.Tests
             Assert.GreaterOrEqual(touch.JumpButton.rect.width, TouchGestures.DpToPx(48f, Dpi));
             Assert.GreaterOrEqual(touch.JumpButton.rect.height, TouchGestures.DpToPx(48f, Dpi));
         }
+
+        [UnityTest]
+        public IEnumerator LayoutLogsOnceWithButtonCenters()
+        {
+            yield return null;
+            var lines = new List<string>();
+            Application.LogCallback cb = (msg, st, type) => { if (msg.StartsWith("TOUCHUI ")) lines.Add(msg); };
+            Application.logMessageReceived += cb;
+            try
+            {
+                TouchControls.SetForceOn(false);
+                TouchControls.SetForceOn(true);
+                Feed();
+                Feed();
+            }
+            finally { Application.logMessageReceived -= cb; }
+            Assert.AreEqual(1, lines.Count, string.Join("\n", lines));
+            var m = System.Text.RegularExpressions.Regex.Match(lines[0],
+                @"^TOUCHUI screen=\d+x\d+ dpi=160 safe=-?\d+,-?\d+,-?\d+,-?\d+ jump=(\d+),(\d+) action=\d+,\d+ collect=\d+,\d+ mode_default=\d+,\d+ mode_dig=\d+,\d+ mode_till=\d+,\d+ mode_rain=\d+,\d+ bag=\d+,\d+ back=\d+,\d+$");
+            Assert.IsTrue(m.Success, lines[0]);
+            Assert.AreEqual(touch.JumpButton.anchoredPosition.x, float.Parse(m.Groups[1].Value), 1f);
+            Assert.AreEqual(touch.JumpButton.anchoredPosition.y, float.Parse(m.Groups[2].Value), 1f);
+        }
     }
 }

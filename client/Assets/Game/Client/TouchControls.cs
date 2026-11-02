@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using Game.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -63,6 +64,9 @@ namespace Game.Client
         GameObject canvasGo;
         RectTransform joyBase, joyKnob;
         FollowCamera follow;
+        int layoutLogW = -1, layoutLogH = -1;
+        float layoutLogDpi = -1f;
+        Rect layoutLogSafe;
 
         public static void SetForceOn(bool on)
         {
@@ -107,6 +111,7 @@ namespace Game.Client
             var p = PlayerCharacter.Active;
             if (p != null) { p.MoveInput = Vector2.zero; p.TouchJump = false; }
             if (canvasGo != null) canvasGo.SetActive(false);
+            layoutLogW = -1;
             wasActive = false;
         }
 
@@ -157,6 +162,7 @@ namespace Game.Client
             canvasGo.SetActive(true);
 
             LayoutButtons(dpi);
+            LogLayout(dpi);
             rects.Clear();
             foreach (var b in buttons) rects.Add(new TouchRect(b.Id, b.Rect.x, b.Rect.y, b.Rect.width, b.Rect.height));
 
@@ -251,6 +257,22 @@ namespace Game.Client
             float by = s.yMax - 0.15f * d - d * 0.5f;
             Place(BagButtonId, bx, by, d, 0.3f, dpi);
             Place(BackButtonId, bx + 1.15f * d, by, d, 0.3f, dpi);
+        }
+
+        /// <summary>One TOUCHUI line per layout change (brief 0103): button centers in Unity screen px, origin bottom-left; adb tap y = screen height − y.</summary>
+        void LogLayout(float dpi)
+        {
+            Rect s = Screen.safeArea;
+            if (Screen.width == layoutLogW && Screen.height == layoutLogH && dpi == layoutLogDpi && s == layoutLogSafe) return;
+            layoutLogW = Screen.width; layoutLogH = Screen.height; layoutLogDpi = dpi; layoutLogSafe = s;
+            var sb = new StringBuilder("TOUCHUI screen=");
+            sb.Append(Screen.width).Append('x').Append(Screen.height).Append(" dpi=").Append(Mathf.RoundToInt(dpi))
+              .Append(" safe=").Append(Mathf.RoundToInt(s.xMin)).Append(',').Append(Mathf.RoundToInt(s.yMin))
+              .Append(',').Append(Mathf.RoundToInt(s.xMax)).Append(',').Append(Mathf.RoundToInt(s.yMax));
+            foreach (var b in buttons)
+                sb.Append(' ').Append(b.Rt.name.Replace(" Button", "").Replace(' ', '_').ToLowerInvariant())
+                  .Append('=').Append(Mathf.RoundToInt(b.Rect.center.x)).Append(',').Append(Mathf.RoundToInt(b.Rect.center.y));
+            Debug.Log(sb.ToString());
         }
 
         /// <summary>Một ngón UI mỗi lúc: Began trên bảng túi (ngoài ô nút) → PointerDown; Moved → PointerMove; nhả → TouchUp.</summary>

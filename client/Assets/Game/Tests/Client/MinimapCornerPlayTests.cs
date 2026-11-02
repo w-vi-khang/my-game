@@ -185,6 +185,11 @@ namespace Game.Client.Tests
         [UnityTest]
         public IEnumerator TouchOnCornerOpensMapNotCamera()
         {
+            // MCP runs often leave the Game view unfocused; Touchscreen events would then go to the editor (PointersAndKeyboardsRespectGameViewFocus). Route all input to the game for this test (brief 0103).
+            var oldEditorInput = InputSystem.settings.editorInputBehaviorInPlayMode;
+            var oldBackground = InputSystem.settings.backgroundBehavior;
+            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
             TouchControls.SetForceOn(true);
             TouchSimulation.Disable();
             var ts = InputSystem.AddDevice<Touchscreen>();
@@ -210,6 +215,8 @@ namespace Game.Client.Tests
                 InputSystem.RemoveDevice(ts);
                 TouchControls.SetForceOn(false);
                 Object.Destroy(tcGo);
+                InputSystem.settings.editorInputBehaviorInPlayMode = oldEditorInput;
+                InputSystem.settings.backgroundBehavior = oldBackground;
             }
         }
 
